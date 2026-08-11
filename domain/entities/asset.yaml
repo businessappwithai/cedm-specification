@@ -2,7 +2,7 @@ entity:
   name: Asset
   namespace: cedm.domain
   kind: asset_master_entity
-  description: A durable resource owned, leased, controlled, or operated by an organization.
+  description: A uniquely identifiable durable resource that an organization owns, leases, controls, or operates and manages as a business resource throughout an operational lifecycle.
   identity:
     key: assetId
     type: uuid
@@ -14,171 +14,143 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the asset record associated with this Asset. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of the asset master record.
+      usage: Used to connect maintenance, depreciation, movements, ownership, location, and other lifecycle records to the same physical or accountable asset.
+      relationshipContext: assetId identifies the asset itself; assetNumber and serialNumber are business-facing or manufacturer identifiers and must not replace the stable CEDM identity.
+      requiredMeaning: Every managed asset requires a stable identity so its operational and financial history remains continuous.
   - name: assetNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of asset number for the Asset. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The organization-assigned business identifier used to recognize an asset in operational and financial processes.
+      usage: Used by asset managers, maintenance teams, finance, warehouse operations, reports, documents, and users when referring to the asset.
+      relationshipContext: It is the organization's business reference, while serialNumber may identify the manufacturer's physical equipment identity and assetId remains the immutable CEDM identity.
+      requiredMeaning: Required because managed assets need a recognizable organizational identifier.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: A human-readable description of the asset used to identify it in lists, forms, reports, and operational communication.
+      usage: Supports search, maintenance screens, asset registers, reporting, and user recognition when an asset number alone is insufficient.
+      relationshipContext: The name describes this asset instance and should not be confused with Product.name, which describes a reusable product definition or asset type.
+      requiredMeaning: Required for practical human interpretation of the asset record.
   - name: assetType
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of asset type for the Asset. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Classifies the kind of durable resource represented by the asset, such as container, vehicle, machine, building equipment, or other capital-controlled resource.
+      usage: Drives asset policies, maintenance programs, depreciation treatment, reporting, authorization, and lifecycle rules.
+      relationshipContext: assetType classifies the asset instance; Product can provide the standardized model or product definition from which the asset originated.
+      requiredMeaning: Required because asset lifecycle and financial treatment depend on the type of resource being managed.
   - name: acquisitionDate
     type: date
     required: false
     help:
-      summary: Records the business date associated with the acquisition. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The business date on which the organization acquired or otherwise recognized control of the asset.
+      usage: Used for capitalization, depreciation start rules, asset aging, warranty analysis, lifecycle reporting, and ownership history.
+      relationshipContext: AcquisitionDate concerns the organization's acquisition event and is distinct from manufacture date, commissioning date, or first operational use.
+      optionalMeaning: Optional when the asset predates the available records or acquisition occurred outside the modeled process.
   - name: acquisitionCost
     type: money
     required: false
     help:
-      summary: Captures the business meaning of acquisition cost for the Asset. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The capitalized or recognized cost associated with acquiring the asset under the organization's accounting policy.
+      usage: Used as an input to capitalization, depreciation, book-value calculations, asset valuation, and financial reporting.
+      relationshipContext: Acquisition cost is an accounting/business value and should not be confused with Product price, repair cost, sale price, or current market value.
+      optionalMeaning: Optional for assets whose historical cost is unavailable, immaterial, or maintained in a separate financial system.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - PLANNED
-    - ACTIVE
-    - UNDER_MAINTENANCE
-    - HELD
-    - DISPOSED
-    - RETIRED
+    values: [PLANNED, ACTIVE, UNDER_MAINTENANCE, HELD, DISPOSED, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: The lifecycle state describing whether the asset is planned, operational, temporarily unavailable, disposed, or retired.
+      usage: Controls operational availability, maintenance eligibility, reporting, depreciation policy, and downstream business actions.
+      relationshipContext: Asset status describes the asset's lifecycle, while MaintenanceWorkOrder status describes a particular maintenance activity. An asset can be UNDER_MAINTENANCE while a work order is IN_PROGRESS.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Asset.
-        ACTIVE: Represents the active state or classification in the context of Asset.
-        UNDER_MAINTENANCE: Represents the under maintenance state or classification in the context of Asset.
-        HELD: Represents the held state or classification in the context of Asset.
-        DISPOSED: Represents the disposed state or classification in the context of Asset.
-        RETIRED: Represents the retired state or classification in the context of Asset.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        PLANNED: The asset is expected to enter service or be recognized operationally but is not yet active.
+        ACTIVE: The asset is available for its intended business use subject to normal operational constraints.
+        UNDER_MAINTENANCE: The asset is temporarily undergoing maintenance and may be unavailable or restricted from normal use.
+        HELD: The asset is intentionally retained but is not currently available for normal productive use, often pending inspection, disposition, or another decision.
+        DISPOSED: The organization has completed the disposition process and no longer treats the asset as an active managed resource.
+        RETIRED: The asset has been withdrawn from operational use, while historical records may remain available for audit and analysis.
+      requiredMeaning: Required because asset processes need an authoritative lifecycle state.
   - name: serialNumber
     type: string
     required: false
     maxLength: 200
     help:
-      summary: Captures the business meaning of serial number for the Asset. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Asset records, where applicable.
-      relationshipContext: Its meaning is specific to Asset; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The manufacturer or industry identifier permanently associated with the physical equipment when such an identifier exists.
+      usage: Used for equipment traceability, warranty, maintenance history, inspections, recalls, regulatory reporting, and physical identification.
+      relationshipContext: SerialNumber identifies physical equipment supplied by a manufacturer; it is different from the organization's assetNumber and CEDM assetId.
+      optionalMeaning: Optional for assets that are not individually serialized or where the serial identifier is unavailable.
   relationships:
   - name: owner
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Asset to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Asset.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the organization that legally or commercially owns the asset when ownership is relevant to the asset model.
+      usage: Used for ownership reporting, financial accountability, insurance, maintenance responsibility, leasing, and disposition.
+      cardinalityMeaning: Zero or one owner may be recorded because ownership may be external, shared, represented by a separate agreement, or maintained in another system.
+      context: Owner is an organizational relationship; it is distinct from the Party that currently possesses, leases, operates, or maintains the asset.
   - name: location
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Asset to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Asset.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the current operational location at which the asset is recorded or physically situated.
+      usage: Used for maintenance dispatch, inventory visibility, asset tracking, utilization, inspections, and operational planning.
+      cardinalityMeaning: Zero or one current location may be recorded when the asset is mobile, in transit, or its location is maintained through a separate movement system.
+      context: Location is current state; historical movements should be preserved through movement/event entities rather than inferred from a changing location field.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Asset to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a Asset.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the standardized product or equipment model from which the asset instance was created or classified.
+      usage: Used for technical specifications, spare-parts planning, maintenance standards, procurement, fleet classification, and analytics.
+      cardinalityMeaning: Zero or one Product may be linked because not every managed asset has a corresponding product-master definition.
+      context: Product represents the reusable definition or model; Asset represents the individually managed instance.
   - name: maintenanceWorkOrders
     target: MaintenanceWorkOrder
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Asset to MaintenanceWorkOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about MaintenanceWorkOrder records associated with a Asset.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Associates the asset with the maintenance activities performed or planned against it.
+      usage: Used for maintenance history, preventive scheduling, repair execution, downtime analysis, labor tracking, and cost analysis.
+      cardinalityMeaning: An asset can have zero or many work orders over its lifecycle.
+      context: Each MaintenanceWorkOrder represents a particular maintenance demand or execution; the Asset remains the long-lived object being maintained.
   - name: depreciation
     target: AssetDepreciation
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Asset to AssetDepreciation so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about AssetDepreciation records associated with a Asset.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Associates the asset with financial depreciation records or schedules used to determine book value over time.
+      usage: Used for financial reporting, asset valuation, period close, disposal accounting, and book-value analysis.
+      cardinalityMeaning: An asset can have zero or many depreciation records because schedules may be period-based, revised, or maintained for different accounting contexts.
+      context: AssetDepreciation represents financial measurement of the asset and must not be confused with physical condition or market value.
+  invariants:
+  - id: ASSET-001
+    rule: assetNumber must be unique among active managed assets.
+  - id: ASSET-002
+    rule: acquisitionCost must not be negative when supplied.
+  - id: ASSET-003
+    rule: DISPOSED assets must not be treated as available for new operational assignments unless an explicit reinstatement process exists.
+  - id: ASSET-004
+    rule: Retired or disposed assets retain historical maintenance, movement, and financial records for audit according to retention policy.
   help:
-    summary: Represents a asset master entity called Asset within the CEDM business model.
-    businessMeaning: Asset is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Asset records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Location,
-      Product, MaintenanceWorkOrder, AssetDepreciation. These relationships provide the context needed to interpret the record
-      rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Asset record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: Represents the long-lived business object for a durable resource whose identity, ownership, location, maintenance, financial treatment, and lifecycle must be managed over time.
+    businessMeaning: Asset is the instance-level concept used when an organization must manage a specific physical or accountable resource rather than merely a product type. A container, vehicle, machine, aircraft, or facility equipment item can be represented as an Asset when individual lifecycle and accountability matter.
+    usage: Used across asset management, maintenance, finance, depreciation, inventory, logistics, leasing, insurance, compliance, and operational planning.
+    relationshipContext: Product describes what the asset is as a standardized model. Asset identifies the individual resource. Location describes current operational placement. MaintenanceWorkOrder records maintenance activity. AssetDepreciation records financial measurement. Organization identifies ownership when applicable. Historical movements and transactions should preserve changes rather than overwriting the asset's identity.
+    lifecycle: An asset may be planned before entering service, active during productive use, under maintenance while temporarily unavailable, held pending a business decision, disposed when ownership/control has ended, or retired when operational use has ceased. Lifecycle state should not erase history; it changes how current processes may act on the asset.
+    example: A shipping container is acquired and assigned an assetNumber and serial/equipment identity. It is linked to a Product model, located at a depot, receives MaintenanceWorkOrder records during its service life, and has AssetDepreciation records for financial reporting. When its repair economics no longer justify continued use, a RepairEstimate may recommend SALE or SCRAP; the resulting disposition changes the asset lifecycle while preserving its historical record.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-ASSET
