@@ -1,0 +1,18 @@
+entity:
+  name: MediaRight
+  namespace: cedm.domain
+  kind: media_legal_entity
+  description: A right, license, restriction, or usage entitlement associated with media content.
+  identity: {key: mediaRightId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: mediaRightId, type: uuid, required: true, immutable: true}
+    - {name: rightType, type: string, required: true, maxLength: 100}
+    - {name: territory, type: string, required: false, maxLength: 200}
+    - {name: validFrom, type: date, required: false}
+    - {name: validTo, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, EXPIRED, REVOKED]}
+  relationships:
+    - {name: content, target: MediaContent, cardinality: "1", ownership: reference}
+    - {name: holder, target: Party, cardinality: "1", ownership: reference}
+    - {name: contract, target: Contract, cardinality: "0..1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MEDIA-RIGHT}
