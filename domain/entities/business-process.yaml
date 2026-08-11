@@ -1,0 +1,71 @@
+# CEDM Domain Entity: BusinessProcess
+entity:
+  name: BusinessProcess
+  namespace: cedm.domain
+  kind: process_definition_entity
+  description: A defined sequence of business activities, decisions, events, and outcomes that accomplishes a business objective.
+  identity:
+    key: businessProcessId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: businessProcessId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+    - name: version
+      type: string
+      required: true
+      default: "1.0"
+      maxLength: 30
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    - name: effectiveFrom
+      type: date
+      required: false
+    - name: effectiveTo
+      type: date
+      required: false
+  relationships:
+    - name: ownerOrganization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+    - name: workflows
+      target: Workflow
+      cardinality: "0..*"
+      ownership: reference
+    - name: tasks
+      target: Task
+      cardinality: "0..*"
+      ownership: reference
+    - name: documents
+      target: Document
+      cardinality: "0..*"
+      ownership: reference
+  invariants:
+    - id: PROCESS-001
+      rule: effectiveTo must not be earlier than effectiveFrom.
+    - id: PROCESS-002
+      rule: Only one active version may be effective for a given process code and effective period unless explicitly configured for parallel versions.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-BUSINESS-PROCESS
