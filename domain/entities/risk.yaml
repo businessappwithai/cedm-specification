@@ -1,0 +1,24 @@
+# CEDM Domain Entity: Risk
+entity:
+  name: Risk
+  namespace: cedm.domain
+  kind: governance_entity
+  description: A potential event or condition that may affect achievement of business objectives.
+  identity: {key: riskId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: riskId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: description, type: string, required: false, maxLength: 4000}
+    - {name: category, type: string, required: true, maxLength: 100}
+    - {name: likelihood, type: enum, required: true, values: [RARE, UNLIKELY, POSSIBLE, LIKELY, ALMOST_CERTAIN]}
+    - {name: impact, type: enum, required: true, values: [INSIGNIFICANT, MINOR, MODERATE, MAJOR, SEVERE]}
+    - {name: status, type: enum, required: true, default: IDENTIFIED, values: [IDENTIFIED, ASSESSED, MITIGATING, ACCEPTED, CLOSED, MATERIALIZED]}
+  relationships:
+    - {name: owner, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: controls, target: Control, cardinality: "0..*", ownership: reference}
+    - {name: treatments, target: RiskTreatment, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: RISK-001, rule: likelihood and impact must be assigned before a risk is ASSESSED.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RISK}
