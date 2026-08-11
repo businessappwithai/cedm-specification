@@ -1,0 +1,19 @@
+entity:
+  name: ChemicalBatch
+  namespace: cedm.domain
+  kind: process_industry_entity
+  description: A traceable batch of chemical or process-industry material produced, received, or processed under controlled conditions.
+  identity: {key: chemicalBatchId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: chemicalBatchId, type: uuid, required: true, immutable: true}
+    - {name: batchNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: manufactureDate, type: date, required: false}
+    - {name: expiryDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: QUARANTINED, values: [PLANNED, QUARANTINED, RELEASED, REJECTED, EXPIRED, CONSUMED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: qualityInspections, target: QualityInspection, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: CHEMICAL-BATCH-001, rule: expiryDate must not precede manufactureDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CHEMICAL-BATCH}
