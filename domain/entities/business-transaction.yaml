@@ -1,0 +1,85 @@
+# CEDM Domain Entity: BusinessTransaction
+entity:
+  name: BusinessTransaction
+  namespace: cedm.domain
+  kind: core_business_transaction
+  description: A recorded business event or transaction that changes, commits, or represents a business state or obligation.
+  identity:
+    key: transactionId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: transactionId
+      type: uuid
+      required: true
+      immutable: true
+    - name: transactionNumber
+      type: string
+      required: true
+      maxLength: 100
+    - name: transactionType
+      type: string
+      required: true
+      maxLength: 100
+    - name: transactionDate
+      type: datetime
+      required: true
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: false
+    - name: totalAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+    - name: referenceNumber
+      type: string
+      required: false
+      maxLength: 200
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+  relationships:
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+    - name: parties
+      target: Party
+      cardinality: "0..*"
+      ownership: reference
+    - name: products
+      target: Product
+      cardinality: "0..*"
+      ownership: reference
+    - name: document
+      target: Document
+      cardinality: "0..1"
+      ownership: reference
+    - name: location
+      target: Location
+      cardinality: "0..1"
+      ownership: reference
+  invariants:
+    - id: TRANSACTION-001
+      rule: transactionNumber must be unique within the owning ERP/business context and transactionType.
+    - id: TRANSACTION-002
+      rule: POSTED transactions must not be mutated except through an explicit reversal or correction process.
+    - id: TRANSACTION-003
+      rule: totalAmount must be non-negative unless the transaction type explicitly permits signed amounts.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-BUSINESS-TRANSACTION
