@@ -1,0 +1,22 @@
+# CEDM Domain Entity: Experiment
+entity:
+  name: Experiment
+  namespace: cedm.domain
+  kind: research_entity
+  description: A controlled scientific investigation performed to evaluate a hypothesis, treatment, compound, process, or other research question.
+  identity: {key: experimentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: experimentId, type: uuid, required: true, immutable: true}
+    - {name: experimentCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: title, type: string, required: true, maxLength: 500}
+    - {name: objective, type: string, required: false, maxLength: 4000}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED, ARCHIVED]}
+    - {name: startedAt, type: datetime, required: false}
+    - {name: completedAt, type: datetime, required: false}
+  relationships:
+    - {name: compounds, target: Compound, cardinality: "0..*", ownership: reference}
+    - {name: samples, target: Sample, cardinality: "0..*", ownership: reference}
+    - {name: project, target: Project, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: EXPERIMENT-001, rule: completedAt must not precede startedAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EXPERIMENT}
