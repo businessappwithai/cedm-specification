@@ -1,0 +1,20 @@
+entity:
+  name: QuotationLine
+  namespace: cedm.domain
+  kind: transaction_line
+  description: A product or service offered on a quotation.
+  identity: {key: quotationLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: quotationLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: unitPrice, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: description, type: string, required: false, maxLength: 1000}
+  relationships:
+    - {name: quotation, target: Quotation, cardinality: "1", ownership: reference, inverse: lines}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-QUOTATION-LINE}
