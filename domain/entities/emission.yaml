@@ -1,0 +1,21 @@
+entity:
+  name: Emission
+  namespace: cedm.domain
+  kind: sustainability_entity
+  description: A measured or calculated release of greenhouse gases or other environmental pollutants associated with a business activity or source.
+  identity: {key: emissionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: emissionId, type: uuid, required: true, immutable: true}
+    - {name: emissionSource, type: string, required: true, maxLength: 300}
+    - {name: emissionType, type: enum, required: true, values: [SCOPE_1, SCOPE_2, SCOPE_3, OTHER]}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: unitOfMeasureId, type: reference, target: UnitOfMeasure, required: true}
+    - {name: measuredAt, type: datetime, required: true}
+    - {name: sourceQuality, type: enum, required: false, values: [MEASURED, CALCULATED, ESTIMATED]}
+  relationships:
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: EMISSION-001, rule: quantity must be zero or greater.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EMISSION}
