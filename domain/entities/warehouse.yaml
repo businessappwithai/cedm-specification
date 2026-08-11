@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: location_specialization
   extends: Location
-  description: A managed location used to receive, store, control, and dispatch inventory.
+  description: A managed physical or operational facility in which inventory is received, stored, controlled, picked, consolidated, and dispatched under defined warehouse processes.
   identity:
     key: warehouseId
     type: uuid
@@ -15,13 +15,10 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the warehouse record associated with this Warehouse. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of the warehouse.
+      usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
+      relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
+      requiredMeaning: Required because warehouse operations need one stable identity.
   - name: locationId
     type: reference
     target: Location
@@ -29,123 +26,97 @@ entity:
     unique: true
     immutable: true
     help:
-      summary: Identifies the related Location associated with this Warehouse. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: This field connects Warehouse to Location. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related Location.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Identifies the Location record that supplies the address and geographic context for the warehouse.
+      usage: Used for routing, delivery, tax, service coverage, mapping, and operational location management.
+      relationshipContext: Warehouse specializes Location; this reference connects warehouse-specific operational semantics with the reusable CEDM location model rather than duplicating address data.
+      requiredMeaning: Required because a warehouse must have a defined physical or operational location.
   - name: warehouseCode
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of warehouse code for the Warehouse. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The organization-assigned business code used by warehouse personnel and systems to identify the facility.
+      usage: Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing.
+      relationshipContext: It is a human/system operational identifier and should not be confused with warehouseId or the Location identity.
+      requiredMeaning: Required because warehouse operations need a concise stable business reference.
   - name: warehouseType
     type: enum
     required: true
-    values:
-    - GENERAL
-    - COLD_STORAGE
-    - BONDED
-    - DISTRIBUTION
-    - RETAIL
-    - OTHER
+    values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]
     help:
-      summary: Captures the business meaning of warehouse type for the Warehouse. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: Classifies the operating model and handling characteristics of the warehouse.
+      usage: Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting.
+      relationshipContext: Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status.
       valueSemantics:
-        GENERAL: Represents the general state or classification in the context of Warehouse.
-        COLD_STORAGE: Represents the cold storage state or classification in the context of Warehouse.
-        BONDED: Represents the bonded state or classification in the context of Warehouse.
-        DISTRIBUTION: Represents the distribution state or classification in the context of Warehouse.
-        RETAIL: Represents the retail state or classification in the context of Warehouse.
-        OTHER: Represents the other state or classification in the context of Warehouse.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        GENERAL: A warehouse supporting ordinary storage and handling requirements without a specialized operating classification.
+        COLD_STORAGE: A facility or controlled area designed to maintain inventory within specified low-temperature conditions.
+        BONDED: A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions.
+        DISTRIBUTION: A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution.
+        RETAIL: A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment.
+        OTHER: A warehouse whose operating model is not adequately represented by the standard classifications.
+      requiredMeaning: Required because operational processes depend on facility capabilities and controls.
   - name: capacity
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of capacity for the Warehouse. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The nominal storage or handling capacity of the warehouse under a defined capacity measurement convention.
+      usage: Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints.
+      relationshipContext: Capacity must be interpreted with the warehouse's UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure.
+      optionalMeaning: Optional when capacity is managed at detailed InventoryLocation or slot level instead of as a warehouse aggregate.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - PLANNED
-    - ACTIVE
-    - SUSPENDED
-    - CLOSED
+    values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
-      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes.
+      usage: Controls receiving, storage, picking, shipping, allocation, and operational reporting.
+      relationshipContext: Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Warehouse.
-        ACTIVE: Represents the active state or classification in the context of Warehouse.
-        SUSPENDED: Represents the suspended state or classification in the context of Warehouse.
-        CLOSED: Represents the closed state or classification in the context of Warehouse.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        PLANNED: The facility is being prepared and is not yet available for normal warehouse operations.
+        ACTIVE: The facility is operational and may accept the business processes allowed by its capabilities.
+        SUSPENDED: Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions.
+        CLOSED: The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.
+      requiredMeaning: Required because inventory processes need to know whether the facility can operate.
   relationships:
   - name: location
     target: Location
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Warehouse to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Warehouse.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Associates the warehouse with its physical or operational Location.
+      usage: Provides geographic, address, routing, service-area, and site context for warehouse operations.
+      cardinalityMeaning: Exactly one Location supplies the warehouse's primary location context.
+      context: Location is the reusable geographic concept; Warehouse adds inventory-handling capabilities and operational lifecycle.
   - name: inventoryLocations
     target: InventoryLocation
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects Warehouse to InventoryLocation so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about InventoryLocation records associated with a Warehouse.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Contains the inventory-managed sublocations through which stock is stored, staged, picked, or otherwise controlled within the warehouse.
+      usage: Supports bin-level or area-level inventory, receiving, put-away, picking, replenishment, transfers, and stock counting.
+      cardinalityMeaning: A warehouse may have zero or many InventoryLocations; a newly planned facility may have none before its storage structure is configured.
+      context: Warehouse is the facility-level container; InventoryLocation is the operational stock-holding granularity. InventoryMovement changes stock between these locations or into/out of the warehouse.
   invariants:
   - id: WAREHOUSE-001
-    rule: warehouseCode must be unique within the ERP context.
+    rule: warehouseCode must be unique within the organization's warehouse operating context.
+  - id: WAREHOUSE-002
+    rule: An ACTIVE warehouse must have an operational Location.
+  - id: WAREHOUSE-003
+    rule: A CLOSED warehouse must not accept new normal receiving, put-away, or shipping transactions unless an explicit closure workflow permits them.
+  - id: WAREHOUSE-004
+    rule: Capacity values must be non-negative when supplied and must have an explicitly defined measurement convention.
   help:
-    summary: Represents a location specialization called Warehouse within the CEDM business model.
-    businessMeaning: Warehouse is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Warehouse records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Location, InventoryLocation.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Warehouse record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: Represents a managed facility where inventory is physically or operationally received, stored, controlled, fulfilled, and dispatched.
+    businessMeaning: Warehouse is more than an address: it is an operational capability with storage structure, inventory processes, capacity constraints, and an operating lifecycle. It provides the facility context in which InventoryLocation and InventoryMovement events occur.
+    usage: Used by procurement, receiving, inventory control, warehouse management, order fulfillment, shipping, transportation, capacity planning, and stock reporting.
+    relationshipContext: Warehouse specializes Location for inventory operations. InventoryLocation defines where stock is held inside the facility. InventoryMovement records stock events. Shipment and PurchaseOrder/SalesOrder provide inbound or outbound business context. Warehouse should not itself be used as a substitute for the current stock balance.
+    lifecycle: A planned warehouse is configured before operation. Active warehouses can participate in normal inventory flows. Suspended warehouses temporarily restrict operations. Closed warehouses stop normal activity while retaining historical inventory, shipment, and transaction records for audit and reconciliation.
+    example: A distribution center is represented as a Warehouse with a physical Location, warehouse code DC01, and multiple InventoryLocations for receiving, reserve storage, picking, staging, and dispatch. A PurchaseOrder receipt creates InventoryMovement into receiving, put-away transfers stock into reserve locations, and an outbound Shipment consumes stock from picking or staging locations.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-WAREHOUSE
