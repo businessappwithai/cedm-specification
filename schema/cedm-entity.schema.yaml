@@ -1,19 +1,37 @@
 schema:
   name: CEDM Entity Schema
-  version: 0.1.0
+  version: 0.2.0
+
+help:
+  required: [summary, businessMeaning, usage, relationshipContext]
+  properties:
+    summary: {type: string, minLength: 20}
+    businessMeaning: {type: string, minLength: 30}
+    usage: {type: string, minLength: 30}
+    relationshipContext: {type: string, minLength: 30}
+    lifecycle: {type: string}
+    example: {type: string}
+    valueSemantics: {type: object}
+    requiredMeaning: {type: string}
+    optionalMeaning: {type: string}
 
 entity:
-  required: [name, namespace, identity, attributes]
+  required: [name, namespace, identity, attributes, help]
   properties:
-    name:
-      type: string
-      pattern: '^[A-Z][A-Za-z0-9]*$'
-    namespace:
-      type: string
-    kind:
-      type: string
-    extends:
-      type: string
+    name: {type: string, pattern: '^[A-Z][A-Za-z0-9]*$'}
+    namespace: {type: string}
+    kind: {type: string}
+    description: {type: string}
+    help:
+      required: [summary, businessMeaning, usage, relationshipContext]
+      properties:
+        summary: {type: string}
+        businessMeaning: {type: string}
+        usage: {type: string}
+        relationshipContext: {type: string}
+        lifecycle: {type: string}
+        example: {type: string}
+    extends: {type: string}
     identity:
       required: [key, type]
       properties:
@@ -23,17 +41,33 @@ entity:
         immutable: {type: boolean}
     attributes:
       type: array
-      itemRequired: [name, type, required]
+      itemRequired: [name, type, required, help]
+      itemProperties:
+        help:
+          required: [summary, usage, relationshipContext]
+          properties:
+            summary: {type: string}
+            usage: {type: string}
+            relationshipContext: {type: string}
+            valueSemantics: {type: object}
+            requiredMeaning: {type: string}
+            optionalMeaning: {type: string}
     relationships:
       type: array
-      itemRequired: [name, target, cardinality]
+      itemRequired: [name, target, cardinality, help]
+      itemProperties:
+        help:
+          required: [summary, usage, cardinalityMeaning, context]
+          properties:
+            summary: {type: string}
+            usage: {type: string}
+            cardinalityMeaning: {type: string}
+            context: {type: string}
     invariants:
       type: array
       itemRequired: [id, rule]
-    lifecycle:
-      type: object
-    audit:
-      type: object
+    lifecycle: {type: object}
+    audit: {type: object}
 
 relationship:
   cardinalities: ['0..1', '1', '0..*', '1..*']
