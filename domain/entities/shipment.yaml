@@ -1,0 +1,25 @@
+# CEDM Domain Entity: Shipment
+entity:
+  name: Shipment
+  namespace: cedm.domain
+  kind: logistics_transaction
+  description: A planned or executed movement of goods or assets between locations.
+  identity: {key: shipmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: shipmentId, type: uuid, required: true, immutable: true}
+    - {name: shipmentNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: shipmentType, type: enum, required: true, values: [INBOUND, OUTBOUND, TRANSFER, RETURN]}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]}
+    - {name: plannedDate, type: date, required: false}
+    - {name: actualDate, type: date, required: false}
+    - {name: trackingReference, type: string, required: false, maxLength: 200}
+  relationships:
+    - {name: origin, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: destination, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: carrier, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: containers, target: Container, cardinality: "0..*", ownership: reference}
+    - {name: salesOrder, target: SalesOrder, cardinality: "0..1", ownership: reference}
+    - {name: purchaseOrder, target: PurchaseOrder, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: SHIPMENT-001, rule: delivered shipments must have actualDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SHIPMENT}
