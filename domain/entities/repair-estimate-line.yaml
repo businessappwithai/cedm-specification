@@ -2,7 +2,7 @@ entity:
   name: RepairEstimateLine
   namespace: cedm.domain
   kind: maintenance_transaction_line
-  description: A repair component, damage, material, or labor line within a repair estimate.
+  description: An individual damage, repair, component, material, labor, or replacement requirement that forms part of a RepairEstimate's technical scope and financial evaluation.
   identity:
     key: repairEstimateLineId
     type: uuid
@@ -14,172 +14,132 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the repair estimate line record associated with this RepairEstimateLine. The identifier connects
-        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of the estimate line.
+      usage: Used for traceability between the estimate, repair execution, material planning, analytics, and integrations.
+      relationshipContext: Identifies one detailed estimate item independently of its parent RepairEstimate, line number, damage, component, or material.
+      requiredMeaning: Required so every estimated repair requirement can be individually traced.
   - name: lineNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: Captures the business meaning of line number for the RepairEstimateLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The sequence number identifying the line within a particular RepairEstimate revision.
+      usage: Used by inspectors, repair estimators, approvers, work-order planners, documents, and reports to discuss a specific estimate item.
+      relationshipContext: It is unique within the parent estimate revision rather than globally; the stable identity remains repairEstimateLineId.
+      requiredMeaning: Required for human-readable estimate structure and traceability.
   - name: repairCode
     type: string
     required: false
     maxLength: 50
     help:
-      summary: Captures the business meaning of repair code for the RepairEstimateLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: A standardized classification identifying the repair operation or repair action proposed for the line.
+      usage: Used for maintenance coding, labor standards, repair analytics, cost estimation, vendor instructions, and historical repair analysis.
+      relationshipContext: RepairCode describes the required action, while DamageCode describes the observed condition that caused the action and ComponentCode identifies the affected component.
+      optionalMeaning: Optional when the repair action is still being assessed or is represented by another controlled classification.
   - name: damageCode
     type: string
     required: false
     maxLength: 50
     help:
-      summary: Captures the business meaning of damage code for the RepairEstimateLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: A standardized classification identifying the damage or defect observed on the asset.
+      usage: Used for inspection, repair estimation, damage trend analysis, customer recovery, warranty/lease assessment, and predictive maintenance models.
+      relationshipContext: DamageCode explains the condition; RepairCode explains the proposed response. Keeping them separate allows the same damage type to lead to different repair or disposition decisions.
+      optionalMeaning: Optional when no specific damage classification is available or the line represents a non-damage activity such as inspection or routine labor.
   - name: componentCode
     type: string
     required: false
     maxLength: 50
     help:
-      summary: Captures the business meaning of component code for the RepairEstimateLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Identifies the component, structural area, or equipment part affected by the estimated work.
+      usage: Used to locate the work physically, select repair procedures, determine material requirements, analyze recurring failures, and calculate component-level costs.
+      relationshipContext: ComponentCode provides the 'where' or affected part of the repair; DamageCode provides the condition and RepairCode provides the proposed action.
+      optionalMeaning: Optional when the estimate line applies to the asset generally or the component is not yet identified.
   - name: materialCode
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Captures the business meaning of material code for the RepairEstimateLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Identifies a material or replacement item expected to be consumed or installed as part of the repair.
+      usage: Used for material planning, inventory reservation, purchasing, supplier sourcing, costing, and maintenance execution.
+      relationshipContext: MaterialCode identifies what is consumed or installed; quantity and materialAmount determine the estimated requirement and financial impact.
+      optionalMeaning: Optional for labor-only, inspection-only, adjustment, or repair methods that do not require a specific material.
   - name: quantity
     type: decimal
     required: false
     precision: 20
     scale: 6
     help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated quantity of the material, replacement item, or measurable repair resource required for this line.
+      usage: Used to calculate material requirements, expected consumption, replacement cost, inventory demand, and repair scope.
+      relationshipContext: Quantity must be interpreted with MaterialCode and the applicable UnitOfMeasure; it is an estimate of required work/material, not necessarily actual consumption.
+      optionalMeaning: Optional for activities where quantity is not meaningful or is represented through labor or fixed-price estimation.
   - name: materialAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of material amount for the RepairEstimateLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated cost attributable to materials consumed or installed for this repair line.
+      usage: Used for repair-cost calculation, approval, inventory valuation, supplier comparison, and actual-versus-estimated analysis.
+      relationshipContext: MaterialAmount belongs to the estimate and should not be interpreted as the actual inventory issue or supplier invoice amount.
+      optionalMeaning: Optional when the line has no material component.
   - name: labourAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of labour amount for the RepairEstimateLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated labor cost required to perform the repair activity represented by the line.
+      usage: Used for repair economics, approval thresholds, workforce planning, vendor quotation comparison, and variance analysis.
+      relationshipContext: LabourAmount is an estimate of execution cost; actual technician time and actual labor cost belong to maintenance execution records.
+      optionalMeaning: Optional for material-only or externally priced repair lines.
   - name: replacementAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of replacement amount for the RepairEstimateLine. It is interpreted together
-        with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated cost of replacing the affected component or asset element when replacement is the selected repair approach.
+      usage: Used to compare repair versus replacement economics and to support disposition decisions.
+      relationshipContext: ReplacementAmount may overlap with material cost depending on the organization's costing policy, so its relationship to MaterialAmount must be governed by the estimate's calculation rules.
+      optionalMeaning: Optional when replacement is not being considered.
   - name: totalAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of total amount for the RepairEstimateLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimateLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to RepairEstimateLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated total financial impact of the repair requirement represented by this line.
+      usage: Used to aggregate RepairEstimate cost, support approval, compare alternatives, and feed repair/disposition analytics.
+      relationshipContext: It should reconcile to the applicable material, labor, replacement, discount, and other cost components according to the organization's estimate calculation policy.
+      optionalMeaning: Optional while the line is incomplete or not financially valued.
   relationships:
   - name: repairEstimate
     target: RepairEstimate
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects RepairEstimateLine to RepairEstimate so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about RepairEstimate records associated with a RepairEstimateLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the RepairEstimate revision to which this detailed repair requirement belongs.
+      usage: Supplies the container, estimate revision, status, disposition, currency, and approval context for the line.
+      cardinalityMeaning: Every RepairEstimateLine belongs to exactly one RepairEstimate.
+      context: The parent estimate provides decision context; the line provides the technical and cost detail supporting that decision.
   invariants:
   - id: REPAIR-LINE-001
-    rule: lineNumber must be unique within its repair estimate revision.
+    rule: lineNumber must be unique within its RepairEstimate revision.
   - id: REPAIR-LINE-002
-    rule: totalAmount must reconcile to applicable material
-    labor: null
-    and replacement components according to the estimate rules.: null
+    rule: quantity, materialAmount, labourAmount, replacementAmount, and totalAmount must not be negative.
+  - id: REPAIR-LINE-003
+    rule: totalAmount must reconcile with the applicable component amounts according to the estimate calculation policy.
+  - id: REPAIR-LINE-004
+    rule: A material quantity should identify a materialCode and applicable unit semantics when material consumption is expected.
   help:
-    summary: Represents a maintenance transaction line called RepairEstimateLine within the CEDM business model.
-    businessMeaning: RepairEstimateLine is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate RepairEstimateLine records.
-    relationshipContext: The entity participates in a wider business graph through relationships with RepairEstimate. These
-      relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical RepairEstimateLine record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    summary: Represents one actionable or evaluative item within a repair estimate, connecting observed asset condition to proposed repair work and estimated cost.
+    businessMeaning: RepairEstimateLine is the detailed evidence behind the overall repair decision. It can identify what is damaged, where it is damaged, what repair is proposed, what material or replacement is required, and what labor and cost are expected.
+    usage: Used by inspectors, repair estimators, maintenance planners, depot operators, repair vendors, procurement, inventory, finance, and predictive analytics.
+    relationshipContext: RepairEstimate provides the overall decision and Container context. DamageCode describes the observed condition, ComponentCode identifies the affected area, RepairCode describes the proposed action, and MaterialCode/quantity describe expected material requirements. MaintenanceWorkOrder later converts approved repair scope into executable work; actual material consumption and labor are separate execution outcomes.
+    lifecycle: Lines are created while an estimate is prepared, may be revised as inspection or pricing changes, become part of an approved scope when the parent estimate is approved, and remain historical evidence of the decision even after maintenance execution completes.
+    example: An inspection finds a damaged container door gasket. A RepairEstimateLine records the damage code, affected component, proposed repair code, replacement material, quantity of one, estimated material cost, estimated labor cost, and total estimated line cost. After approval, the line can be used to create executable maintenance work and material demand.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-REPAIR-ESTIMATE-LINE
