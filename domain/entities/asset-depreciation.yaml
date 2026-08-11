@@ -1,0 +1,24 @@
+# CEDM Domain Entity: AssetDepreciation
+entity:
+  name: AssetDepreciation
+  namespace: cedm.domain
+  kind: financial_asset_entity
+  description: Depreciation policy and calculated depreciation state for a business asset.
+  identity: {key: assetDepreciationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: assetDepreciationId, type: uuid, required: true, immutable: true}
+    - {name: depreciationMethod, type: enum, required: true, values: [STRAIGHT, REM_LIFE, RED_BAL, NBVSLUNIT]}
+    - {name: depreciationRate, type: decimal, required: false, precision: 12, scale: 6}
+    - {name: salvageValue, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: usefulLifeMonths, type: integer, required: false, minimum: 0}
+    - {name: depreciableBase, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: accumulatedDepreciation, type: decimal, required: true, default: 0, precision: 20, scale: 4}
+    - {name: netBookValue, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+    - {name: container, target: Container, cardinality: "0..1", ownership: reference}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: currency, target: Currency, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: DEPRECIATION-001, rule: depreciationRate must be non-negative when supplied.}
+    - {id: DEPRECIATION-002, rule: netBookValue cannot be below the applicable salvage value without an explicit impairment or write-off rule.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-DEPRECIATION}
