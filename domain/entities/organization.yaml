@@ -1,0 +1,157 @@
+# CEDM Domain Entity: Organization
+entity:
+  name: Organization
+  namespace: cedm.domain
+  kind: party_role
+  description: >-
+    An organization is an identifiable structured group of people or legal
+    entities that participates in business activities. It may represent a
+    legal entity, company, business unit, department, branch, or other
+    organizational unit.
+
+  identity:
+    key: organizationId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: organizationId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 50
+
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+
+    - name: organizationType
+      type: enum
+      required: true
+      values:
+        - ENTERPRISE
+        - COMPANY
+        - BUSINESS_UNIT
+        - DIVISION
+        - DEPARTMENT
+        - BRANCH
+        - SUBSIDIARY
+        - OTHER
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - DRAFT
+        - ACTIVE
+        - INACTIVE
+        - RETIRED
+
+    - name: legalName
+      type: string
+      required: false
+      maxLength: 300
+
+    - name: registrationNumber
+      type: string
+      required: false
+      maxLength: 100
+
+    - name: taxIdentifier
+      type: string
+      required: false
+      maxLength: 100
+
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: createdBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: updatedBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+
+  relationships:
+    - name: parentOrganization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+      description: Immediate parent organizational unit.
+
+    - name: childOrganizations
+      target: Organization
+      cardinality: "0..*"
+      ownership: reference
+      inverse: parentOrganization
+
+    - name: party
+      target: Party
+      cardinality: "0..1"
+      ownership: reference
+      description: Party identity represented by this organization.
+
+    - name: addresses
+      target: Address
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: locations
+      target: Location
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: ORG-001
+      rule: An organization cannot be its own parent.
+
+    - id: ORG-002
+      rule: The organizational hierarchy must not contain cycles.
+
+    - id: ORG-003
+      rule: code must be unique within its ERP/business context.
+
+  lifecycle:
+    states:
+      - DRAFT
+      - ACTIVE
+      - INACTIVE
+      - RETIRED
+
+  audit:
+    enabled: true
+    trackCreatedBy: true
+    trackCreatedAt: true
+    trackUpdatedBy: true
+    trackUpdatedAt: true
+
+  tags:
+    - organization
+    - party
+    - hierarchy
+    - master-data
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-ORGANIZATION
