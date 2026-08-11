@@ -5,6 +5,8 @@ on:
     paths:
       - 'domain/entities/**/*.yaml'
       - 'tools/enrich_entity_help.py'
+      - 'tools/enrich_domain_specific_help.py'
+      - 'schema/cedm-entity.schema.yaml'
   workflow_dispatch:
 
 permissions:
@@ -16,18 +18,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
       - name: Install YAML parser
         run: python -m pip install pyyaml
-
-      - name: Enrich all entity definitions
+      - name: Enrich generic semantic help
         run: python tools/enrich_entity_help.py
-
+      - name: Apply domain-specific semantic help
+        run: python tools/enrich_domain_specific_help.py
+      - name: Validate YAML and help coverage
+        run: python tools/validate_help.py
       - name: Commit semantic help
         run: |
           git config user.name 'github-actions[bot]'
@@ -37,5 +39,5 @@ jobs:
             echo 'No entity help changes required.'
             exit 0
           fi
-          git commit -m 'docs: add semantic help to all CEDM entities [skip ci]'
+          git commit -m 'docs: enrich all CEDM entities and fields with domain help [skip ci]'
           git push
