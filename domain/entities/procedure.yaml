@@ -1,0 +1,19 @@
+# CEDM Domain Entity: Procedure
+entity:
+  name: Procedure
+  namespace: cedm.domain
+  kind: healthcare_clinical_entity
+  description: A clinical procedure performed or planned as part of healthcare delivery.
+  identity: {key: procedureId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: procedureId, type: uuid, required: true, immutable: true}
+    - {name: codeSystem, type: string, required: true, maxLength: 50}
+    - {name: code, type: string, required: true, maxLength: 50}
+    - {name: description, type: string, required: true, maxLength: 1000}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]}
+    - {name: performedAt, type: datetime, required: false}
+  relationships:
+    - {name: encounter, target: HealthcareEncounter, cardinality: "1", ownership: reference}
+    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference}
+    - {name: performer, target: HealthcareProvider, cardinality: "0..1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROCEDURE}
