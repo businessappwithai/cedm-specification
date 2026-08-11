@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: party_role_specialization
   extends: PartyRole
-  description: A party that provides goods, services, resources, or other business inputs to an organization.
+  description: A Party that is authorized or recognized to provide goods, services, materials, assets, or other business inputs to an organization under a sourcing or commercial relationship.
   identity:
     key: supplierId
     type: uuid
@@ -15,13 +15,10 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the supplier record associated with this Supplier. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable identity of the Supplier role record.
+      usage: Used to connect procurement, purchase orders, receipts, invoices, payments, qualification, products, and supplier performance records to the same supplier relationship.
+      relationshipContext: Identifies the Supplier specialization; PartyRole and Party identify the underlying party and broader role context.
+      requiredMeaning: Required so supplier history remains traceable even if business codes or names change.
   - name: partyRoleId
     type: reference
     target: PartyRole
@@ -29,163 +26,126 @@ entity:
     unique: true
     immutable: true
     help:
-      summary: Identifies the related PartyRole associated with this Supplier. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: This field connects Supplier to PartyRole. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related PartyRole.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Links the supplier specialization to the PartyRole that establishes the party's supplier role.
+      usage: Used to navigate from supplier-specific procurement data to common party identity, role, contact, and address information.
+      relationshipContext: Supplier should not duplicate Party identity data; PartyRole provides the role-specific bridge and its roleType must be SUPPLIER.
+      requiredMeaning: Required because Supplier is a role specialization rather than an independent replacement for Party.
   - name: supplierCode
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of supplier code for the Supplier. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The organization's business reference for the supplier relationship.
+      usage: Used on purchase orders, receiving documents, invoices, payment records, supplier portals, reports, and integrations.
+      relationshipContext: SupplierCode is an enterprise-facing supplier reference and is distinct from the supplier's legal name, tax identifier, or external registration number.
+      requiredMeaning: Required for procurement operations and human/system recognition.
   - name: supplierType
     type: enum
     required: false
-    values:
-    - INDIVIDUAL
-    - BUSINESS
-    - GOVERNMENT
-    - INTERNAL
-    - OTHER
+    values: [INDIVIDUAL, BUSINESS, GOVERNMENT, INTERNAL, OTHER]
     help:
-      summary: Captures the business meaning of supplier type for the Supplier. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: Classifies the type of party acting as the supplier.
+      usage: Supports onboarding, compliance, sourcing, tax, contracting, and reporting rules.
+      relationshipContext: This classifies the supplier relationship; the underlying Party remains the authoritative source for identity and legal information.
       valueSemantics:
-        INDIVIDUAL: Represents the individual state or classification in the context of Supplier.
-        BUSINESS: Represents the business state or classification in the context of Supplier.
-        GOVERNMENT: Represents the government state or classification in the context of Supplier.
-        INTERNAL: Represents the internal state or classification in the context of Supplier.
-        OTHER: Represents the other state or classification in the context of Supplier.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        INDIVIDUAL: A natural person providing goods or services under the supplier relationship.
+        BUSINESS: A commercial organization providing goods, services, materials, or other inputs.
+        GOVERNMENT: A government entity providing or supplying under an applicable commercial or public-sector relationship.
+        INTERNAL: An internal organizational unit acting as a source of goods or services across organizational boundaries.
+        OTHER: A supplier type not represented by the standard classifications.
+      optionalMeaning: Optional when the underlying Party classification already provides this information or it is not yet known.
   - name: qualificationStatus
     type: enum
     required: false
-    values:
-    - NOT_REVIEWED
-    - PENDING
-    - QUALIFIED
-    - SUSPENDED
-    - DISQUALIFIED
+    values: [NOT_REVIEWED, PENDING, QUALIFIED, SUSPENDED, DISQUALIFIED]
     help:
-      summary: Captures the business meaning of qualification status for the Supplier. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: Indicates whether the supplier has passed the organization's qualification and sourcing controls.
+      usage: Used to determine whether procurement may source from the supplier, whether additional review is required, and whether existing relationships need restriction.
+      relationshipContext: Qualification is a procurement control and is distinct from Supplier.status; a supplier can remain an active master record while being temporarily suspended from sourcing.
       valueSemantics:
-        NOT_REVIEWED: Represents the not reviewed state or classification in the context of Supplier.
-        PENDING: Represents the pending state or classification in the context of Supplier.
-        QUALIFIED: Represents the qualified state or classification in the context of Supplier.
-        SUSPENDED: Represents the suspended state or classification in the context of Supplier.
-        DISQUALIFIED: Represents the disqualified state or classification in the context of Supplier.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        NOT_REVIEWED: Supplier has not yet completed the applicable qualification assessment.
+        PENDING: Qualification is underway or awaiting required evidence or approval.
+        QUALIFIED: Supplier has satisfied the applicable qualification requirements.
+        SUSPENDED: Supplier qualification or sourcing eligibility is temporarily suspended.
+        DISQUALIFIED: Supplier has failed or is prohibited from satisfying the applicable qualification requirements.
+      optionalMeaning: Optional where qualification is not part of the organization's supplier governance process.
   - name: paymentTerms
     type: reference
     target: PaymentTerm
     required: false
     help:
-      summary: Identifies the related PaymentTerm associated with this Supplier. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: This field connects Supplier to PaymentTerm. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related PaymentTerm.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Defines the default commercial payment conditions associated with the supplier relationship.
+      usage: Used when creating purchase orders, invoices, payment schedules, cash forecasts, and accounts-payable processes.
+      relationshipContext: Supplier payment terms are defaults; a particular PurchaseOrder or contract may establish different negotiated terms that take precedence for that transaction.
+      optionalMeaning: Optional when terms are determined by contract, supplier site, purchase order, or another specialized procurement rule.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - BLOCKED
-    - RETIRED
+    values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
-      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      summary: Controls whether the supplier relationship is generally available for procurement activity.
+      usage: Used for sourcing eligibility, purchase-order creation, supplier portals, reporting, and master-data governance.
+      relationshipContext: Supplier status controls the relationship's current usability; it does not invalidate historical PurchaseOrder, Receipt, Invoice, or Payment records.
       valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Supplier.
-        INACTIVE: Represents the inactive state or classification in the context of Supplier.
-        BLOCKED: Represents the blocked state or classification in the context of Supplier.
-        RETIRED: Represents the retired state or classification in the context of Supplier.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        ACTIVE: Supplier may normally participate in applicable procurement processes.
+        INACTIVE: Supplier remains known but is not normally used for new procurement activity.
+        BLOCKED: Supplier is temporarily prohibited from specified procurement activities, often for compliance, quality, commercial, or operational reasons.
+        RETIRED: Supplier relationship has permanently ended for normal new activity while historical records remain retained.
+      requiredMeaning: Required because procurement needs an authoritative eligibility state.
   relationships:
   - name: partyRole
     target: PartyRole
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Supplier to PartyRole so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PartyRole records associated with a Supplier.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Connects Supplier to the common PartyRole representation of the supplier role.
+      usage: Provides access to the underlying Party identity and shared role information without duplicating it in Supplier.
+      cardinalityMeaning: Exactly one PartyRole represents this Supplier specialization.
+      context: Supplier adds procurement-specific semantics to the general Party/PartyRole model.
   - name: addresses
     target: Address
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Supplier to Address so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Address records associated with a Supplier.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Associates addresses relevant to supplier operations, such as ordering, invoicing, remittance, manufacturing, or pickup locations.
+      usage: Used for purchase orders, logistics, tax, correspondence, supplier onboarding, and site-specific procurement processes.
+      cardinalityMeaning: A supplier may have multiple addresses serving different business purposes.
+      context: Address is reusable location/contact data; the purpose of each address should be captured through the applicable address-role model where needed.
   - name: transactions
     target: BusinessTransaction
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Supplier to BusinessTransaction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about BusinessTransaction records associated with a Supplier.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Links the supplier to business transactions in which it participates as the providing party.
+      usage: Supports end-to-end supplier history, spend analysis, procurement audit, invoice reconciliation, and performance analysis.
+      cardinalityMeaning: A supplier may participate in many transactions across its lifecycle.
+      context: The specific transaction type determines whether the supplier is providing goods, services, assets, or another input.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Supplier to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a Supplier.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies products that the supplier is capable or authorized to provide.
+      usage: Supports sourcing, supplier-product qualification, procurement catalogs, replenishment, and supplier comparison.
+      cardinalityMeaning: A supplier may provide many products, and a product may have many qualified suppliers.
+      context: Supplier-product association should be extended with supplier-specific price, lead time, minimum quantity, contract, and supplier product code when those concepts are needed.
   invariants:
   - id: SUPPLIER-001
     rule: partyRole.roleType must equal SUPPLIER.
   - id: SUPPLIER-002
-    rule: supplierCode must be unique within its ERP context.
+    rule: supplierCode must be unique within its ERP or organizational procurement context.
+  - id: SUPPLIER-003
+    rule: A BLOCKED or RETIRED supplier must not be selected for new procurement transactions unless an explicit exception policy permits it.
   help:
-    summary: Represents a party role specialization called Supplier within the CEDM business model.
-    businessMeaning: Supplier is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Supplier records.
-    relationshipContext: The entity participates in a wider business graph through relationships with PartyRole, Address,
-      BusinessTransaction, Product. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Supplier record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: Represents the procurement-facing role of a Party that supplies goods, services, materials, assets, or other business inputs.
+    businessMeaning: Supplier is not simply another name for Party. Party provides identity; PartyRole establishes the supplier role; Supplier adds procurement-specific qualification, commercial defaults, sourcing eligibility, and supplier-product relationships.
+    usage: Used by supplier onboarding, sourcing, procurement, PurchaseOrder, receiving, accounts payable, invoice matching, payment, supplier performance, compliance, and spend analytics.
+    relationshipContext: Supplier connects PartyRole to Product, Address, BusinessTransaction, and PaymentTerm. PurchaseOrder records a specific procurement commitment, Receipt/InventoryMovement records physical receipt, Invoice records the supplier's financial claim, and Payment records settlement. These must remain distinct from the supplier master relationship.
+    lifecycle: A supplier may be onboarded and not yet reviewed, qualified for sourcing, temporarily suspended, made inactive, or retired. Lifecycle state changes restrict future procurement activity without rewriting historical transactions.
+    example: A container-repair company is onboarded as a Supplier. Its Party identity contains the legal organization information, PartyRole establishes its supplier role, Supplier records qualification and sourcing eligibility, Product associations identify repair materials/services it can provide, PurchaseOrders establish specific commitments, and Invoices/Payments record the resulting financial cycle.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-SUPPLIER
