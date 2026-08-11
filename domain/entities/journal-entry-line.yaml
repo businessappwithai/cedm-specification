@@ -1,0 +1,20 @@
+# CEDM Domain Entity: JournalEntryLine
+entity:
+  name: JournalEntryLine
+  namespace: cedm.domain
+  kind: financial_transaction_line
+  description: A debit or credit line within a journal entry.
+  identity: {key: journalEntryLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: journalEntryLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: debitAmount, type: decimal, required: true, default: 0, precision: 20, scale: 4}
+    - {name: creditAmount, type: decimal, required: true, default: 0, precision: 20, scale: 4}
+    - {name: description, type: string, required: false, maxLength: 500}
+  relationships:
+    - {name: journalEntry, target: JournalEntry, cardinality: "1", ownership: reference}
+    - {name: account, target: Account, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: JOURNAL-LINE-001, rule: exactly one of debitAmount and creditAmount must be greater than zero unless zero-value lines are explicitly permitted.}
+    - {id: JOURNAL-LINE-002, rule: debitAmount and creditAmount must not be negative.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOURNAL-ENTRY-LINE}
