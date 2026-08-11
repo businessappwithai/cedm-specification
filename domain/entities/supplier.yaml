@@ -1,0 +1,100 @@
+# CEDM Domain Entity: Supplier
+entity:
+  name: Supplier
+  namespace: cedm.domain
+  kind: party_role_specialization
+  extends: PartyRole
+  description: A party that provides goods, services, resources, or other business inputs to an organization.
+
+  identity:
+    key: supplierId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: supplierId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: partyRoleId
+      type: reference
+      target: PartyRole
+      required: true
+      unique: true
+      immutable: true
+
+    - name: supplierCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+
+    - name: supplierType
+      type: enum
+      required: false
+      values:
+        - INDIVIDUAL
+        - BUSINESS
+        - GOVERNMENT
+        - INTERNAL
+        - OTHER
+
+    - name: qualificationStatus
+      type: enum
+      required: false
+      values:
+        - NOT_REVIEWED
+        - PENDING
+        - QUALIFIED
+        - SUSPENDED
+        - DISQUALIFIED
+
+    - name: paymentTerms
+      type: reference
+      target: PaymentTerm
+      required: false
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - BLOCKED
+        - RETIRED
+
+  relationships:
+    - name: partyRole
+      target: PartyRole
+      cardinality: "1"
+      ownership: reference
+
+    - name: addresses
+      target: Address
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: transactions
+      target: BusinessTransaction
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: products
+      target: Product
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: SUPPLIER-001
+      rule: partyRole.roleType must equal SUPPLIER.
+
+    - id: SUPPLIER-002
+      rule: supplierCode must be unique within its ERP context.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-SUPPLIER
