@@ -1,0 +1,26 @@
+# CEDM Domain Entity: Contract
+entity:
+  name: Contract
+  namespace: cedm.domain
+  kind: legal_commercial_entity
+  description: A legally or commercially binding agreement between parties defining rights, obligations, terms, and conditions.
+  identity: {key: contractId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: contractId, type: uuid, required: true, immutable: true}
+    - {name: contractNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: title, type: string, required: true, maxLength: 300}
+    - {name: contractType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, NEGOTIATION, APPROVAL, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]}
+    - {name: effectiveFrom, type: date, required: false}
+    - {name: effectiveTo, type: date, required: false}
+    - {name: signedAt, type: datetime, required: false}
+    - {name: autoRenew, type: boolean, required: true, default: false}
+  relationships:
+    - {name: parties, target: Party, cardinality: "2..*", ownership: reference}
+    - {name: ownerOrganization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: document, target: Document, cardinality: "0..1", ownership: reference}
+    - {name: obligations, target: ContractObligation, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: CONTRACT-001, rule: effectiveTo must not precede effectiveFrom.}
+    - {id: CONTRACT-002, rule: an ACTIVE contract must have at least two parties.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT}
