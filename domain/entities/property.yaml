@@ -1,0 +1,19 @@
+# CEDM Domain Entity: Property
+entity:
+  name: Property
+  namespace: cedm.domain
+  kind: real_estate_entity
+  description: A real estate asset or property managed, owned, leased, developed, or transacted by a business.
+  identity: {key: propertyId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: propertyId, type: uuid, required: true, immutable: true}
+    - {name: propertyCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: propertyType, type: enum, required: true, values: [LAND, BUILDING, OFFICE, RETAIL, INDUSTRIAL, RESIDENTIAL, WAREHOUSE, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, UNDER_CONSTRUCTION, INACTIVE, SOLD, RETIRED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: owner, target: Party, cardinality: "0..*", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: leases, target: Lease, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROPERTY}
