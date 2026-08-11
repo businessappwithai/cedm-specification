@@ -1,0 +1,24 @@
+# CEDM Domain Entity: InventoryMovement
+entity:
+  name: InventoryMovement
+  namespace: cedm.domain
+  kind: inventory_transaction
+  description: A recorded movement that increases, decreases, transfers, or adjusts inventory.
+  identity: {key: inventoryMovementId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: inventoryMovementId, type: uuid, required: true, immutable: true}
+    - {name: movementNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: movementType, type: enum, required: true, values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: movementDate, type: datetime, required: true}
+    - {name: reason, type: string, required: false, maxLength: 500}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: sourceLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference}
+    - {name: targetLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference}
+    - {name: party, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: relatedTransaction, target: BusinessTransaction, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
+    - {id: INVENTORY-MOVEMENT-002, rule: a TRANSFER requires both source and target locations.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-MOVEMENT}
