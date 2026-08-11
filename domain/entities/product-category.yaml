@@ -2,7 +2,7 @@ entity:
   name: ProductCategory
   namespace: cedm.domain
   kind: classification_entity
-  description: A hierarchical classification used to organize products and services.
+  description: A governed classification node used to organize Product master records into a navigable business taxonomy for assortment, reporting, procurement, sales, inventory, and analytics.
   identity:
     key: productCategoryId
     type: uuid
@@ -14,71 +14,52 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the product category record associated with this ProductCategory. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProductCategory records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProductCategory; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable CEDM identity of the product-category node.
+      usage: Used to reference the category from Product records, reports, integrations, hierarchy services, and master-data governance.
+      relationshipContext: Identifies the category itself and remains stable even when its code, name, parent, or status changes.
+      requiredMeaning: Required because every classification node must be independently addressable.
   - name: code
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProductCategory records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProductCategory; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The governed business code assigned to the category for operational and integration use.
+      usage: Used in catalogs, reporting, filtering, integrations, data migration, and master-data governance.
+      relationshipContext: Code identifies the classification node; it is not a Product code and does not identify the products classified under it.
+      requiredMeaning: Required for stable business and integration reference.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProductCategory records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProductCategory; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The human-readable business name of the category.
+      usage: Used in catalogs, forms, navigation trees, reports, product search, and analytics.
+      relationshipContext: The name describes the classification concept and should remain broader than the identity of any individual Product.
+      requiredMeaning: Required so users can understand the taxonomy without relying on codes.
   - name: description
     type: string
     required: false
     maxLength: 2000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProductCategory records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProductCategory; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: A detailed explanation of the category's business scope and classification criteria.
+      usage: Used by master-data stewards, product managers, users, and integrations when deciding which Products belong in the category.
+      relationshipContext: Description explains classification intent; machine-enforceable classification rules should be represented separately where needed.
+      optionalMeaning: Optional when the category name and governed taxonomy are sufficiently clear.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
+    values: [ACTIVE, INACTIVE, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProductCategory records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProductCategory; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The lifecycle state controlling whether the category is available for new classification activity.
+      usage: Used by product creation, catalog management, reporting, governance, and taxonomy maintenance.
+      relationshipContext: Category status affects future classification; it should not invalidate historical Product references.
       valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of ProductCategory.
-        INACTIVE: Represents the inactive state or classification in the context of ProductCategory.
-        RETIRED: Represents the retired state or classification in the context of ProductCategory.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        ACTIVE: Category is available for normal product classification and navigation.
+        INACTIVE: Category is temporarily unavailable for new classification but may remain visible for existing products or controlled migration.
+        RETIRED: Category has been permanently removed from normal taxonomy use; historical references remain for traceability.
+      requiredMeaning: Required to govern taxonomy lifecycle explicitly.
   relationships:
   - name: parentCategory
     target: ProductCategory
@@ -86,51 +67,44 @@ entity:
     ownership: reference
     inverse: childCategories
     help:
-      summary: Connects ProductCategory to ProductCategory so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProductCategory records associated with a ProductCategory.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the immediate broader category under which this category is organized.
+      usage: Used to construct hierarchical product navigation, roll-up reporting, assortment management, and category governance.
+      cardinalityMeaning: A category may be a root category with no parent or may have exactly one immediate parent.
+      context: This is an immediate-parent relationship, not an arbitrary ancestor relationship; ancestors are reached by traversing the hierarchy.
   - name: childCategories
     target: ProductCategory
     cardinality: 0..*
     ownership: reference
     inverse: parentCategory
     help:
-      summary: Connects ProductCategory to ProductCategory so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProductCategory records associated with a ProductCategory.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Contains the immediate subordinate categories classified beneath this category.
+      usage: Used for taxonomy navigation, category roll-ups, reporting, filtering, and product discovery.
+      cardinalityMeaning: A category may have no children when it is a leaf node or many children when it is a grouping node.
+      context: Children refine the parent's classification scope; they should not create overlapping or cyclic taxonomy semantics without an explicit governance policy.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects ProductCategory to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a ProductCategory.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the Products classified directly under this category.
+      usage: Used for catalog navigation, assortment reporting, procurement analysis, inventory reporting, sales analytics, and product discovery.
+      cardinalityMeaning: A category may have no products or many products.
+      context: The relationship classifies products; it does not mean that the category owns product master data or inventory quantities.
   invariants:
   - id: PRODUCT-CATEGORY-001
-    rule: A category cannot be its own parent.
+    rule: A category cannot reference itself as its parent.
   - id: PRODUCT-CATEGORY-002
-    rule: The category hierarchy must not contain cycles.
+    rule: The parentCategory hierarchy must be acyclic.
+  - id: PRODUCT-CATEGORY-003
+    rule: A RETIRED category must not be assigned to newly created Products unless an explicit migration or reinstatement process permits it.
   help:
-    summary: Represents a classification entity called ProductCategory within the CEDM business model.
-    businessMeaning: ProductCategory is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate ProductCategory records.
-    relationshipContext: The entity participates in a wider business graph through relationships with ProductCategory, ProductCategory,
-      Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated
-      database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical ProductCategory record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    summary: Represents one governed node in the Product classification hierarchy.
+    businessMeaning: ProductCategory provides taxonomy rather than operational state. It allows an organization to group related Products so people and systems can navigate, report, analyze, and govern the product portfolio consistently.
+    usage: Used by product master-data management, catalogs, sales, procurement, inventory, reporting, analytics, and search/navigation capabilities.
+    relationshipContext: Product references a category to establish classification. Parent and child categories form the taxonomy. The category hierarchy should not be confused with Product composition, BillOfMaterial structure, or organizational hierarchy.
+    lifecycle: Categories can be introduced, activated, temporarily made inactive, and retired. Lifecycle changes govern future classification without deleting historical product relationships.
+    example: A taxonomy might contain "Equipment" → "Shipping Containers" → "Dry Containers". Products representing 20-foot and 40-foot dry containers can reference the appropriate leaf category while reports roll them up through the parent categories.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-PRODUCT-CATEGORY
