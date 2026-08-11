@@ -1,0 +1,20 @@
+entity:
+  name: TelecomSubscription
+  namespace: cedm.domain
+  kind: telecommunications_entity
+  description: A customer's subscription to a telecommunications service or plan.
+  identity: {key: telecomSubscriptionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: telecomSubscriptionId, type: uuid, required: true, immutable: true}
+    - {name: subscriptionNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, SUSPENDED, CANCELLED, EXPIRED]}
+    - {name: startDate, type: date, required: true}
+    - {name: endDate, type: date, required: false}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
+    - {name: service, target: TelecomService, cardinality: "1", ownership: reference}
+    - {name: plan, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: device, target: Vehicle, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: TELECOM-SUBSCRIPTION-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TELECOM-SUBSCRIPTION}
