@@ -1,0 +1,20 @@
+entity:
+  name: Flight
+  namespace: cedm.domain
+  kind: travel_transport_entity
+  description: A scheduled or operational air transport service between locations.
+  identity: {key: flightId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: flightId, type: uuid, required: true, immutable: true}
+    - {name: flightNumber, type: string, required: true, maxLength: 30}
+    - {name: departureAt, type: datetime, required: true}
+    - {name: arrivalAt, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: SCHEDULED, values: [SCHEDULED, BOARDING, DEPARTED, ARRIVED, DELAYED, CANCELLED]}
+  relationships:
+    - {name: origin, target: Location, cardinality: "1", ownership: reference}
+    - {name: destination, target: Location, cardinality: "1", ownership: reference}
+    - {name: carrier, target: Organization, cardinality: "1", ownership: reference}
+    - {name: vehicle, target: Aircraft, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: FLIGHT-001, rule: arrivalAt must be later than departureAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FLIGHT}
