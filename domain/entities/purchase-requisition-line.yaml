@@ -1,0 +1,20 @@
+entity:
+  name: PurchaseRequisitionLine
+  namespace: cedm.domain
+  kind: transaction_line
+  description: A requested item or service on a purchase requisition.
+  identity: {key: purchaseRequisitionLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: purchaseRequisitionLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: requestedDate, type: date, required: false}
+    - {name: description, type: string, required: true, maxLength: 1000}
+  relationships:
+    - {name: requisition, target: PurchaseRequisition, cardinality: "1", ownership: reference, inverse: lines}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: PR-LINE-001, rule: quantity must be greater than zero.}
+    - {id: PR-LINE-002, rule: lineNumber must be unique within a requisition.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-REQUISITION-LINE}
