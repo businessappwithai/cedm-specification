@@ -1,0 +1,20 @@
+entity:
+  name: Event
+  namespace: cedm.domain
+  kind: cross_domain_event
+  description: A significant occurrence that can trigger business processing, notifications, workflows, integrations, or audit activity.
+  identity: {key: eventId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: eventId, type: uuid, required: true, immutable: true}
+    - {name: eventType, type: string, required: true, maxLength: 200}
+    - {name: occurredAt, type: datetime, required: true}
+    - {name: source, type: string, required: true, maxLength: 300}
+    - {name: payload, type: object, required: false}
+    - {name: correlationId, type: uuid, required: false}
+    - {name: causationId, type: uuid, required: false}
+  relationships:
+    - {name: actor, target: Party, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: EVENT-001, rule: eventType and source are required for every event.}
+    - {id: EVENT-002, rule: an event is immutable after publication.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EVENT}
