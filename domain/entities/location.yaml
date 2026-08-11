@@ -1,0 +1,110 @@
+# CEDM Domain Entity: Location
+entity:
+  name: Location
+  namespace: cedm.domain
+  kind: core_master_entity
+  description: A physical or logical place at which business resources, activities, inventory, services, or organizational operations are situated.
+
+  identity:
+    key: locationId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: locationId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      unique: true
+
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+
+    - name: locationType
+      type: enum
+      required: true
+      values:
+        - SITE
+        - WAREHOUSE
+        - STORE
+        - OFFICE
+        - FACTORY
+        - YARD
+        - PORT
+        - DEPOT
+        - VIRTUAL
+        - OTHER
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - PLANNED
+        - ACTIVE
+        - INACTIVE
+        - CLOSED
+        - RETIRED
+
+    - name: addressId
+      type: reference
+      target: Address
+      required: false
+
+    - name: parentLocationId
+      type: reference
+      target: Location
+      required: false
+
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+  relationships:
+    - name: parentLocation
+      target: Location
+      cardinality: "0..1"
+      ownership: reference
+      inverse: childLocations
+
+    - name: childLocations
+      target: Location
+      cardinality: "0..*"
+      ownership: reference
+      inverse: parentLocation
+
+    - name: address
+      target: Address
+      cardinality: "0..1"
+      ownership: reference
+
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+
+  invariants:
+    - id: LOCATION-001
+      rule: A location cannot be its own parent.
+
+    - id: LOCATION-002
+      rule: The location hierarchy must not contain cycles.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-LOCATION
