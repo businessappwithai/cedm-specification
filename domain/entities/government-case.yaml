@@ -1,0 +1,21 @@
+entity:
+  name: GovernmentCase
+  namespace: cedm.domain
+  kind: public_sector_entity
+  description: A government case representing an application, request, investigation, benefit, permit, or public-service matter.
+  identity: {key: governmentCaseId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: governmentCaseId, type: uuid, required: true, immutable: true}
+    - {name: caseNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: caseType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: OPEN, values: [DRAFT, OPEN, UNDER_REVIEW, APPROVED, DENIED, CLOSED, CANCELLED]}
+    - {name: openedAt, type: datetime, required: true}
+    - {name: closedAt, type: datetime, required: false}
+  relationships:
+    - {name: applicant, target: Party, cardinality: "0..*", ownership: reference}
+    - {name: agency, target: Organization, cardinality: "1", ownership: reference}
+    - {name: tasks, target: Task, cardinality: "0..*", ownership: reference}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: GOV-CASE-001, rule: closedAt must not precede openedAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GOVERNMENT-CASE}
