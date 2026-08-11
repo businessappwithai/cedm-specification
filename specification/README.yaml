@@ -1,0 +1,45 @@
+specification:
+  name: CEDM Specification Manifest
+  version: 0.1.0
+  status: draft
+
+purpose: >-
+  Provide a machine-readable, implementation-neutral semantic model for
+  enterprise business applications.
+
+layers:
+  - domain/entities
+  - specification
+
+artifacts:
+  canonical:
+    - domain/entities/index.yaml
+    - domain/entities/*.yaml
+  semantics:
+    - specification/validation.yaml
+    - specification/lifecycle.yaml
+    - specification/relationship-semantics.yaml
+    - specification/business-rules.yaml
+    - specification/aggregate-boundaries.yaml
+    - specification/reporting.yaml
+    - specification/integration.yaml
+    - specification/authorization.yaml
+
+implementationTargets:
+  - relationalDatabase
+  - sql
+  - cds
+  - jsonSchema
+  - openapi
+  - graphql
+  - typescript
+  - java
+  - rust
+  - python
+  - workflowEngine
+  - uiMetadata
+
+conformance:
+  entityRegistryIsAuthoritative: true
+  implementationMustNotInventDomainSemantics: true
+  generatedArtifactsAreNonCanonical: true
