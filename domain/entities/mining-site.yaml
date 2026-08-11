@@ -1,0 +1,17 @@
+entity:
+  name: MiningSite
+  namespace: cedm.domain
+  kind: mining_entity
+  description: A geographic site at which mineral or natural-resource extraction activities occur.
+  identity: {key: miningSiteId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: miningSiteId, type: uuid, required: true, immutable: true}
+    - {name: siteCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: resourceType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [EXPLORATION, DEVELOPMENT, ACTIVE, SUSPENDED, CLOSED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: productionRecords, target: ProductionRecord, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MINING-SITE}
