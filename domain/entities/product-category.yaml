@@ -1,0 +1,73 @@
+# CEDM Domain Entity: ProductCategory
+entity:
+  name: ProductCategory
+  namespace: cedm.domain
+  kind: classification_entity
+  description: A hierarchical classification used to organize products and services.
+
+  identity:
+    key: productCategoryId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: productCategoryId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+
+    - name: description
+      type: string
+      required: false
+      maxLength: 2000
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - RETIRED
+
+  relationships:
+    - name: parentCategory
+      target: ProductCategory
+      cardinality: "0..1"
+      ownership: reference
+      inverse: childCategories
+
+    - name: childCategories
+      target: ProductCategory
+      cardinality: "0..*"
+      ownership: reference
+      inverse: parentCategory
+
+    - name: products
+      target: Product
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: PRODUCT-CATEGORY-001
+      rule: A category cannot be its own parent.
+
+    - id: PRODUCT-CATEGORY-002
+      rule: The category hierarchy must not contain cycles.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PRODUCT-CATEGORY
