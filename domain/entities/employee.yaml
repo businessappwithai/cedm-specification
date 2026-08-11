@@ -1,0 +1,22 @@
+# CEDM Domain Entity: Employee
+entity:
+  name: Employee
+  namespace: cedm.domain
+  kind: party_role_specialization
+  extends: PartyRole
+  description: A person engaged by an organization as an employee.
+  identity: {key: employeeId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: employeeId, type: uuid, required: true, immutable: true}
+    - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true}
+    - {name: employeeNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: hireDate, type: date, required: false}
+    - {name: terminationDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, ON_LEAVE, TERMINATED, RETIRED]}
+  relationships:
+    - {name: person, target: Person, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: EMPLOYEE-001, rule: partyRole.roleType must equal EMPLOYEE.}
+    - {id: EMPLOYEE-002, rule: terminationDate must not precede hireDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EMPLOYEE}
