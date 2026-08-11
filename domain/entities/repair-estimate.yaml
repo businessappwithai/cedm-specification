@@ -1,0 +1,27 @@
+# CEDM Domain Entity: RepairEstimate
+entity:
+  name: RepairEstimate
+  namespace: cedm.domain
+  kind: asset_maintenance_transaction
+  description: An estimate of work, material, labor, and disposition associated with repairing an asset.
+  identity: {key: repairEstimateId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: repairEstimateId, type: uuid, required: true, immutable: true}
+    - {name: estimateNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: revision, type: integer, required: true, default: 1, minimum: 1}
+    - {name: estimateDate, type: date, required: true}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, APPROVED, REJECTED, COMPLETED, CANCELLED]}
+    - {name: disposition, type: enum, required: false, values: [LEASE, SALE, SCRAP, REPAIR, HOLD]}
+    - {name: estimatedRepairAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: estimatedSaleAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: approvedAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: currencyId, type: reference, target: Currency, required: false}
+  relationships:
+    - {name: container, target: Container, cardinality: "1", ownership: reference}
+    - {name: lines, target: RepairEstimateLine, cardinality: "0..*", ownership: aggregate}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: document, target: Document, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: REPAIR-ESTIMATE-001, rule: revision must increase monotonically for a given estimate identity.}
+    - {id: REPAIR-ESTIMATE-002, rule: APPROVED estimate requires an approvedAmount or an explicit zero-cost disposition.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-REPAIR-ESTIMATE}
