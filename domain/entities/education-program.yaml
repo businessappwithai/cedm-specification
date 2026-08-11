@@ -1,0 +1,20 @@
+entity:
+  name: EducationProgram
+  namespace: cedm.domain
+  kind: education_entity
+  description: A structured educational program leading to a qualification, credential, or defined learning outcome.
+  identity:
+    key: educationProgramId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: educationProgramId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: programType, type: enum, required: true, values: [DEGREE, DIPLOMA, CERTIFICATE, COURSE, TRAINING, OTHER]}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]}
+  relationships:
+    - {name: institution, target: Organization, cardinality: "1", ownership: reference}
+    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EDUCATION-PROGRAM}
