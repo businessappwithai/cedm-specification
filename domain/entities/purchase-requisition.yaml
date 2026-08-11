@@ -1,0 +1,18 @@
+entity:
+  name: PurchaseRequisition
+  namespace: cedm.domain
+  kind: procurement_transaction
+  description: An internal request for goods or services to be procured.
+  identity: {key: purchaseRequisitionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: purchaseRequisitionId, type: uuid, required: true, immutable: true}
+    - {name: requisitionNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: requisitionDate, type: date, required: true}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, APPROVED, REJECTED, ORDERED, CLOSED, CANCELLED]}
+    - {name: justification, type: string, required: false, maxLength: 2000}
+  relationships:
+    - {name: requester, target: Party, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: PurchaseRequisitionLine, cardinality: "1..*", ownership: aggregate}
+    - {name: supplier, target: Supplier, cardinality: "0..1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-REQUISITION}
