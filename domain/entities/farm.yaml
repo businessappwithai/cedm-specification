@@ -1,0 +1,19 @@
+# CEDM Domain Entity: Farm
+entity:
+  name: Farm
+  namespace: cedm.domain
+  kind: agriculture_entity
+  description: A managed agricultural operation consisting of land, facilities, resources, and production activities.
+  identity: {key: farmId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: farmId, type: uuid, required: true, immutable: true}
+    - {name: farmCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: farmType, type: enum, required: true, values: [CROP, LIVESTOCK, MIXED, AQUACULTURE, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: owner, target: Party, cardinality: "0..*", ownership: reference}
+    - {name: fields, target: FarmField, cardinality: "0..*", ownership: aggregate}
+    - {name: crops, target: Crop, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FARM}
