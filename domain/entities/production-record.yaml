@@ -1,0 +1,19 @@
+entity:
+  name: ProductionRecord
+  namespace: cedm.domain
+  kind: industrial_transaction
+  description: A recorded quantity of output produced or extracted by an operational process.
+  identity: {key: productionRecordId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: productionRecordId, type: uuid, required: true, immutable: true}
+    - {name: productionDate, type: datetime, required: true}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: status, type: enum, required: true, default: RECORDED, values: [PLANNED, RECORDED, VERIFIED, REJECTED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: miningSite, target: MiningSite, cardinality: "0..1", ownership: reference}
+    - {name: workOrder, target: ManufacturingWorkOrder, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: PRODUCTION-001, rule: quantity must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCTION-RECORD}
