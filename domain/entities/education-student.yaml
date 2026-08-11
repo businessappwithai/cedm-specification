@@ -1,0 +1,20 @@
+entity:
+  name: EducationStudent
+  namespace: cedm.domain
+  kind: education_entity
+  description: A learner enrolled or eligible for enrollment in an educational institution or program.
+  identity:
+    key: studentId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: studentId, type: uuid, required: true, immutable: true}
+    - {name: partyId, type: reference, target: Party, required: true, unique: true}
+    - {name: studentNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [APPLICANT, ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN, ALUMNI]}
+  relationships:
+    - {name: party, target: Party, cardinality: "1", ownership: reference}
+    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: aggregate}
+    - {name: institution, target: Organization, cardinality: "0..1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EDUCATION-STUDENT}
