@@ -2,136 +2,115 @@ entity:
   name: YardSlot
   namespace: cedm.domain
   kind: logistics_location
-  description: The atomic physical position in a container yard where a container may be placed.
+  description: The atomic physical storage position in a container yard, uniquely identified within its yard hierarchy and capable of holding one container when operationally available.
   identity:
     key: yardSlotId
     type: uuid
     generated: true
     immutable: true
   attributes:
-  - name: yardSlotId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the yard slot record associated with this YardSlot. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: slotCode
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of slot code for the YardSlot. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: position
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Captures the business meaning of position for the YardSlot. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: EMPTY
-    values:
-    - EMPTY
-    - OCCUPIED
-    - RESERVED
-    - BLOCKED
-    - OUT_OF_SERVICE
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        EMPTY: Represents the empty state or classification in the context of YardSlot.
-        OCCUPIED: Represents the occupied state or classification in the context of YardSlot.
-        RESERVED: Represents the reserved state or classification in the context of YardSlot.
-        BLOCKED: Represents the blocked state or classification in the context of YardSlot.
-        OUT_OF_SERVICE: Represents the out of service state or classification in the context of YardSlot.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: latitude
-    type: decimal
-    required: false
-    precision: 10
-    scale: 7
-    help:
-      summary: Captures the business meaning of latitude for the YardSlot. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: longitude
-    type: decimal
-    required: false
-    precision: 10
-    scale: 7
-    help:
-      summary: Captures the business meaning of longitude for the YardSlot. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardSlot records, where applicable.
-      relationshipContext: Its meaning is specific to YardSlot; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: yardSlotId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable CEDM identity of the physical yard position.
+        businessMeaning: Identifies one modeled storage position independent of the container currently occupying it.
+        usage: Used by yard planning, movement instructions, inventory visibility, crane operations, and historical positioning references.
+        relationshipContext: Container.currentSlot points to this identity for current occupancy, while ContainerMovement records changes in occupancy over time.
+        requiredMeaning: Required because every modeled storage position must be uniquely addressable.
+    - name: slotCode
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The human-readable operational address of the yard position.
+        businessMeaning: Provides the yard location code used by operators and systems to identify the exact storage position without exposing the internal UUID.
+        usage: Used in yard screens, handheld operations, move instructions, search, interchange, reports, and equipment positioning.
+        relationshipContext: The code derives its business meaning from the YardBlock → YardBay → YardTier hierarchy and should be unique within the yard.
+        requiredMeaning: Required because operators and movement systems need an unambiguous physical position reference.
+    - name: position
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The ordinal position of the slot within its tier or local yard addressing sequence.
+        businessMeaning: Distinguishes one storage position from another at the same tier and supports deterministic placement and navigation.
+        usage: Used for yard layout, slot addressing, crane movement planning, and visualization.
+        relationshipContext: Its interpretation depends on the parent YardTier and the yard's slot-addressing convention; it is not a global geographic coordinate.
+        requiredMeaning: Required to identify the slot's position within the parent tier.
+    - name: status
+      type: enum
+      required: true
+      default: EMPTY
+      values: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]
+      help:
+        summary: The operational availability state of the yard position.
+        businessMeaning: Determines whether the position can receive a container, is already occupied, has been reserved for an expected move, or cannot be used.
+        usage: Drives slot allocation, yard optimization, move validation, crane instructions, and exception handling.
+        relationshipContext: OCCUPIED must correspond to a current container assignment; RESERVED may represent planned allocation without physical occupancy; BLOCKED and OUT_OF_SERVICE prevent ordinary placement.
+        valueSemantics:
+          EMPTY: The slot is physically available for allocation subject to equipment compatibility rules.
+          OCCUPIED: The slot currently contains one container.
+          RESERVED: The slot is allocated for a planned or expected container movement but is not yet physically occupied.
+          BLOCKED: The slot is intentionally unavailable because an operational restriction prevents use.
+          OUT_OF_SERVICE: The slot is unavailable because of maintenance, damage, construction, or another persistent physical restriction.
+        requiredMeaning: Required because slot availability directly affects whether a movement can be executed.
+    - name: latitude
+      type: decimal
+      required: false
+      precision: 10
+      scale: 7
+      help:
+        summary: The geographic latitude of the slot or the reference point used to map it.
+        businessMeaning: Provides geographic positioning for visualization, mapping, route calculation, and external geospatial services when precise coordinates are maintained.
+        usage: Used for digital-yard visualization, geospatial analytics, equipment routing, and integration with mapping systems.
+        relationshipContext: Coordinates complement the hierarchical yard address; they do not replace YardBlock, YardBay, or YardTier because operational addressing remains hierarchical.
+        optionalMeaning: Optional because some yards use a logical grid without storing geographic coordinates for every slot.
+    - name: longitude
+      type: decimal
+      required: false
+      precision: 10
+      scale: 7
+      help:
+        summary: The geographic longitude of the slot or its mapping reference point.
+        businessMeaning: Completes the geographic coordinate used to locate the storage position in maps and digital-yard views.
+        usage: Used with latitude for visualization, routing, geospatial analysis, and external mapping integrations.
+        relationshipContext: It complements the operational slot address and should represent the same physical position as latitude.
+        optionalMeaning: Optional where geographic coordinates are not required by the yard's operational model.
   relationships:
-  - name: tier
-    target: YardTier
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects YardSlot to YardTier so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about YardTier records associated with a YardSlot.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: container
-    target: Container
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects YardSlot to Container so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Container records associated with a YardSlot.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: tier
+      target: YardTier
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Places the slot within its parent vertical tier in the yard hierarchy.
+        usage: Used to navigate from an exact position to its bay, block, and yard and to validate that the slot belongs to the correct physical structure.
+        cardinalityMeaning: Every modeled slot belongs to exactly one tier.
+        context: The tier supplies the physical and addressing context that gives position and slotCode their meaning.
+    - name: container
+      target: Container
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the container currently occupying the slot when the slot is physically occupied.
+        usage: Used by yard visibility, inventory lookup, movement validation, and operational planning.
+        cardinalityMeaning: A slot can contain zero or one current container; zero is expected for EMPTY, RESERVED, BLOCKED, or OUT_OF_SERVICE states unless the model explicitly permits an exception state.
+        context: The relationship represents current occupancy. Historical occupancy belongs in ContainerMovement rather than overwriting the historical record.
   invariants:
-  - id: YARD-SLOT-001
-    rule: slotCode must be unique within the yard.
-  - id: YARD-SLOT-002
-    rule: an OCCUPIED slot must reference exactly one active container.
+    - id: YARD-SLOT-001
+      rule: slotCode must be unique within the yard.
+    - id: YARD-SLOT-002
+      rule: an OCCUPIED slot must reference exactly one active container.
+    - id: YARD-SLOT-003
+      rule: a container may be currentContainer of at most one slot at a time.
   help:
-    summary: Represents a logistics location called YardSlot within the CEDM business model.
-    businessMeaning: YardSlot is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate YardSlot records.
-    relationshipContext: The entity participates in a wider business graph through relationships with YardTier, Container.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical YardSlot record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: Represents one atomic storage position in a structured container yard.
+    businessMeaning: YardSlot is the most granular physical location used by the yard model. It turns the abstract concept of a yard into a deterministic position that equipment can be assigned to and moved from or to.
+    usage: Used for container placement, retrieval, rehandling, yard optimization, inventory visibility, crane instructions, digital-twin visualization, and movement validation.
+    relationshipContext: YardSlot belongs to a YardTier, which belongs to a YardBay, which belongs to a YardBlock, which belongs to a Yard. Its optional Container relationship represents current occupancy; ContainerMovement represents historical changes.
+    lifecycle: A slot moves between availability states as operational restrictions and container occupancy change. Occupancy should be changed through movement processes so the slot state and container location remain consistent.
+    example: Slot B03-012-04-02 is an available ground position; a container is assigned to it, the slot becomes OCCUPIED, and when the container is moved to another slot the original slot returns to EMPTY.
 specification:
   version: 0.1.0
   status: draft
