@@ -1,0 +1,18 @@
+entity:
+  name: ResearchProject
+  namespace: cedm.domain
+  kind: scientific_research_entity
+  description: A structured scientific research initiative with defined objectives, resources, experiments, and outcomes.
+  identity: {key: researchProjectId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: researchProjectId, type: uuid, required: true, immutable: true}
+    - {name: projectCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: title, type: string, required: true, maxLength: 500}
+    - {name: objective, type: string, required: false, maxLength: 4000}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, ACTIVE, COMPLETED, SUSPENDED, CANCELLED, ARCHIVED]}
+  relationships:
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: experiments, target: Experiment, cardinality: "0..*", ownership: aggregate}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+    - {name: team, target: Party, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RESEARCH-PROJECT}
