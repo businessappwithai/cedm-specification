@@ -1,0 +1,21 @@
+entity:
+  name: RetailSale
+  namespace: cedm.domain
+  kind: retail_transaction
+  description: A point-of-sale retail transaction.
+  identity: {key: retailSaleId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: retailSaleId, type: uuid, required: true, immutable: true}
+    - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: saleDate, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: COMPLETED, values: [OPEN, COMPLETED, VOIDED, REFUNDED]}
+    - {name: totalAmount, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: currencyId, type: reference, target: Currency, required: true}
+  relationships:
+    - {name: store, target: Store, cardinality: "1", ownership: reference}
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: RetailSaleLine, cardinality: "1..*", ownership: aggregate}
+    - {name: payments, target: Payment, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: RETAIL-SALE-001, rule: a COMPLETED sale must contain at least one line.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RETAIL-SALE}
