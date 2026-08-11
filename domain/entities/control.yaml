@@ -1,0 +1,21 @@
+# CEDM Domain Entity: Control
+entity:
+  name: Control
+  namespace: cedm.domain
+  kind: governance_entity
+  description: A policy, procedure, mechanism, or activity designed to prevent, detect, or reduce a business risk.
+  identity: {key: controlId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: controlId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: description, type: string, required: true, maxLength: 4000}
+    - {name: controlType, type: enum, required: true, values: [PREVENTIVE, DETECTIVE, CORRECTIVE, DIRECTIVE]}
+    - {name: frequency, type: enum, required: true, values: [CONTINUOUS, DAILY, WEEKLY, MONTHLY, QUARTERLY, ANNUAL, EVENT_DRIVEN, AD_HOC]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: owner, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: risks, target: Risk, cardinality: "0..*", ownership: reference}
+    - {name: policies, target: Policy, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTROL}
