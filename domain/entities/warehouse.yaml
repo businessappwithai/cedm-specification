@@ -1,0 +1,21 @@
+# CEDM Domain Entity: Warehouse
+entity:
+  name: Warehouse
+  namespace: cedm.domain
+  kind: location_specialization
+  extends: Location
+  description: A managed location used to receive, store, control, and dispatch inventory.
+  identity: {key: warehouseId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: warehouseId, type: uuid, required: true, immutable: true}
+    - {name: locationId, type: reference, target: Location, required: true, unique: true, immutable: true}
+    - {name: warehouseCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: warehouseType, type: enum, required: true, values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]}
+    - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: inventoryLocations, target: InventoryLocation, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: WAREHOUSE-001, rule: warehouseCode must be unique within the ERP context.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAREHOUSE}
