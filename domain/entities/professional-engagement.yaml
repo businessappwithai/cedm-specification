@@ -1,0 +1,21 @@
+entity:
+  name: ProfessionalEngagement
+  namespace: cedm.domain
+  kind: professional_services_entity
+  description: A client engagement under which professional services are planned, delivered, measured, and billed.
+  identity: {key: engagementId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: engagementId, type: uuid, required: true, immutable: true}
+    - {name: engagementNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: status, type: enum, required: true, default: PROPOSED, values: [PROPOSED, ACTIVE, ON_HOLD, COMPLETED, CANCELLED]}
+    - {name: startDate, type: date, required: false}
+    - {name: endDate, type: date, required: false}
+  relationships:
+    - {name: client, target: Party, cardinality: "1", ownership: reference}
+    - {name: contract, target: Contract, cardinality: "0..1", ownership: reference}
+    - {name: project, target: Project, cardinality: "0..1", ownership: reference}
+    - {name: timesheets, target: Timesheet, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: ENGAGEMENT-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROFESSIONAL-ENGAGEMENT}
