@@ -1,0 +1,17 @@
+entity:
+  name: ShoppingCart
+  namespace: cedm.domain
+  kind: ecommerce_entity
+  description: A temporary collection of products selected by a customer or shopper before checkout.
+  identity: {key: shoppingCartId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: shoppingCartId, type: uuid, required: true, immutable: true}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, CHECKED_OUT, ABANDONED, EXPIRED]}
+    - {name: createdAt, type: datetime, required: true}
+    - {name: expiresAt, type: datetime, required: false}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: ShoppingCartLine, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: CART-001, rule: a CHECKED_OUT cart cannot be modified.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SHOPPING-CART}
