@@ -1,0 +1,23 @@
+entity:
+  name: SupplyPlanLine
+  namespace: cedm.domain
+  kind: supply_chain_entity
+  description: A planned quantity for a product at a location and time within a supply plan.
+  identity:
+    key: supplyPlanLineId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: supplyPlanLineId, type: uuid, required: true, immutable: true}
+    - {name: planningDate, type: date, required: true}
+    - {name: plannedQuantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: safetyStockQuantity, type: decimal, required: false, precision: 20, scale: 6}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, RELEASED, FULFILLED, CANCELLED]}
+  relationships:
+    - {name: supplyPlan, target: SupplyPlan, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: SUPPLY-PLAN-LINE-001, rule: plannedQuantity must not be negative.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLY-PLAN-LINE}
