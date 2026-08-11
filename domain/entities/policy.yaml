@@ -1,0 +1,25 @@
+# CEDM Domain Entity: Policy
+entity:
+  name: Policy
+  namespace: cedm.domain
+  kind: governance_entity
+  description: A formally defined rule, principle, or requirement governing business behavior or decision-making.
+  identity: {key: policyId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: policyId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: description, type: string, required: false, maxLength: 5000}
+    - {name: policyType, type: string, required: true, maxLength: 100}
+    - {name: version, type: string, required: true, default: "1.0", maxLength: 30}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, APPROVED, ACTIVE, SUSPENDED, RETIRED]}
+    - {name: effectiveFrom, type: date, required: false}
+    - {name: effectiveTo, type: date, required: false}
+  relationships:
+    - {name: owner, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: controls, target: Control, cardinality: "0..*", ownership: reference}
+    - {name: document, target: Document, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: POLICY-001, rule: effectiveTo must not precede effectiveFrom.}
+    - {id: POLICY-002, rule: only an APPROVED policy version may become ACTIVE.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-POLICY}
