@@ -1,0 +1,21 @@
+entity:
+  name: TripSegment
+  namespace: cedm.domain
+  kind: travel_entity
+  description: A leg of a trip between an origin and destination using a transport or travel service.
+  identity: {key: tripSegmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: tripSegmentId, type: uuid, required: true, immutable: true}
+    - {name: sequence, type: integer, required: true, minimum: 1}
+    - {name: mode, type: enum, required: true, values: [AIR, RAIL, ROAD, SEA, BUS, WALK, OTHER]}
+    - {name: departureAt, type: datetime, required: true}
+    - {name: arrivalAt, type: datetime, required: false}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, BOOKED, IN_PROGRESS, COMPLETED, CANCELLED]}
+  relationships:
+    - {name: trip, target: Trip, cardinality: "1", ownership: reference}
+    - {name: origin, target: Location, cardinality: "1", ownership: reference}
+    - {name: destination, target: Location, cardinality: "1", ownership: reference}
+    - {name: vehicle, target: Vehicle, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: TRIP-SEGMENT-001, rule: arrivalAt must not precede departureAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TRIP-SEGMENT}
