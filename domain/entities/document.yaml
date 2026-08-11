@@ -1,0 +1,80 @@
+# CEDM Domain Entity: Document
+entity:
+  name: Document
+  namespace: cedm.domain
+  kind: core_business_entity
+  description: A business document that records, communicates, supports, or evidences business information or activity.
+  identity:
+    key: documentId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: documentId
+      type: uuid
+      required: true
+      immutable: true
+    - name: documentNumber
+      type: string
+      required: true
+      maxLength: 100
+    - name: documentType
+      type: string
+      required: true
+      maxLength: 100
+    - name: documentDate
+      type: date
+      required: true
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ISSUED, APPROVED, CANCELLED, ARCHIVED]
+    - name: title
+      type: string
+      required: false
+      maxLength: 500
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+    - name: version
+      type: integer
+      required: true
+      default: 1
+      minimum: 1
+    - name: issuedAt
+      type: datetime
+      required: false
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+  relationships:
+    - name: owner
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+    - name: parties
+      target: Party
+      cardinality: "0..*"
+      ownership: reference
+    - name: location
+      target: Location
+      cardinality: "0..1"
+      ownership: reference
+  invariants:
+    - id: DOCUMENT-001
+      rule: version must be greater than or equal to 1.
+    - id: DOCUMENT-002
+      rule: documentNumber must be unique within the owning business context and document type.
+  audit:
+    enabled: true
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-DOCUMENT
