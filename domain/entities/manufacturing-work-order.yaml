@@ -1,0 +1,21 @@
+entity:
+  name: ManufacturingWorkOrder
+  namespace: cedm.domain
+  kind: manufacturing_transaction
+  description: An instruction to manufacture, assemble, process, or transform products or materials.
+  identity: {key: manufacturingWorkOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: manufacturingWorkOrderId, type: uuid, required: true, immutable: true}
+    - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: quantity, type: decimal, required: true, precision: 18, scale: 6}
+    - {name: plannedStart, type: datetime, required: false}
+    - {name: plannedEnd, type: datetime, required: false}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CLOSED, CANCELLED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: project, target: Project, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: MWO-001, rule: plannedEnd must not precede plannedStart.}
+    - {id: MWO-002, rule: quantity must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MANUFACTURING-WORK-ORDER}
