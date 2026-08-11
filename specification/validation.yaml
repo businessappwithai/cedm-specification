@@ -1,31 +1,42 @@
+# CEDM Conformance Validation Rules
 specification:
   name: CEDM Validation Contract
-  version: 0.1.0
+  version: 0.2.0
   status: draft
 
 validation:
   entity:
     required:
       - entity.name
+      - entity.namespace
+      - entity.kind
+      - entity.description
       - entity.identity.key
       - entity.attributes
     identity:
       keyMustBeImmutable: true
       keyMustBeUnique: true
     attributes:
+      nameRequired: true
+      typeRequired: true
+      duplicateNamesForbidden: true
       referencedTypesMustExist: true
     relationships:
       targetMustExist: true
       cardinalityRequired: true
+      cardinalityVocabulary: ["0..1", "1", "0..*", "1..*"]
       inverseMustResolve: true
+      ownershipMustBeDeclared: true
     invariants:
       idRequired: true
       ruleRequired: true
+      duplicateIdsForbidden: true
 
   registry:
     everyEntityFileMustBeRegistered: true
     duplicateEntityNamesForbidden: true
     duplicateIdentifiersForbidden: true
+    unregisteredEntityFilesForbidden: true
 
   graph:
     danglingReferences: error
@@ -33,13 +44,24 @@ validation:
     cyclicHierarchy: error
     cyclicRelationship: allowed
 
+  specialization:
+    parentMustExist: error
+    partySpecializationMustDeclarePartyType: error
+    partyRoleSpecializationMustDeclareRoleType: error
+
   lifecycle:
     terminalStatesMustBeExplicit: true
     transitionsMustReferenceDeclaredStates: true
+    terminalStatesMustNotHaveOutgoingTransitions: true
 
   naming:
     entityNamePattern: '^[A-Z][A-Za-z0-9]*$'
     identifierPattern: '^[A-Z0-9-]+$'
+
+  versioning:
+    specificationVersionRequired: true
+    entityVersionRequired: true
+    activatedDefinitionsImmutable: true
 
   severity:
     error: Specification cannot be considered valid.
