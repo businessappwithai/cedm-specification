@@ -1,0 +1,20 @@
+entity:
+  name: MaintenancePlan
+  namespace: cedm.domain
+  kind: maintenance_definition
+  description: A preventive or condition-based maintenance schedule and policy.
+  identity: {key: maintenancePlanId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: maintenancePlanId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: maintenanceType, type: enum, required: true, values: [PREVENTIVE, CONDITION_BASED, PREDICTIVE, INSPECTION]}
+    - {name: frequencyValue, type: decimal, required: false, precision: 12, scale: 4}
+    - {name: frequencyUnit, type: enum, required: false, values: [HOURS, DAYS, WEEKS, MONTHS, MILES, CYCLES, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]}
+  relationships:
+    - {name: assets, target: Asset, cardinality: "0..*", ownership: reference}
+    - {name: products, target: Product, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: MAINT-PLAN-001, rule: frequencyValue must be positive when supplied.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MAINTENANCE-PLAN}
