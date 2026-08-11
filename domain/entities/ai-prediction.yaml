@@ -1,0 +1,22 @@
+# CEDM Domain Entity: AIPrediction
+entity:
+  name: AIPrediction
+  namespace: cedm.domain
+  kind: ai_runtime_entity
+  description: A recorded output produced by an AI model for a specific input and execution context.
+  identity: {key: aiPredictionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: aiPredictionId, type: uuid, required: true, immutable: true}
+    - {name: predictionType, type: string, required: true, maxLength: 100}
+    - {name: inputReference, type: string, required: false, maxLength: 500}
+    - {name: output, type: object, required: true}
+    - {name: confidence, type: decimal, required: false, precision: 8, scale: 6}
+    - {name: predictedAt, type: datetime, required: true}
+    - {name: humanReviewStatus, type: enum, required: true, default: NOT_REQUIRED, values: [NOT_REQUIRED, PENDING, ACCEPTED, OVERRIDDEN, REJECTED]}
+  relationships:
+    - {name: model, target: AIModel, cardinality: "1", ownership: reference}
+    - {name: reviewer, target: Party, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: AI-PREDICTION-001, rule: confidence must be between 0 and 1 when supplied.}
+    - {id: AI-PREDICTION-002, rule: an OVERRIDDEN prediction requires a reviewer.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AI-PREDICTION}
