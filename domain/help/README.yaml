@@ -1,0 +1,81 @@
+# CEDM Semantic Help Standard
+
+help:
+  purpose: >-
+    Provide enough business context for a user, analyst, developer, AI agent,
+    form designer, report designer, or integration developer to understand a
+    CEDM concept without having to infer meaning from its technical name.
+
+  entityExample:
+    help:
+      summary: >-
+        A Customer represents a party that has an established commercial
+        relationship with an organization and may participate in sales,
+        service, billing, and account-management processes.
+      purpose: >-
+        Customer separates the commercial relationship from the generic Party
+        identity so the same party can also act as a supplier, employee, or
+        other role without duplicating the underlying party record.
+      businessMeaning: >-
+        It represents the business relationship through which an organization
+        recognizes and manages a customer.
+      whenUsed: >-
+        Create or activate it when a party becomes a customer; reference it on
+        orders, invoices, service cases, pricing, payments, and customer-facing
+        analytics.
+      howItRelates: >-
+        Customer references Party for identity and is referenced by SalesOrder,
+        Invoice, Payment, ServiceCase, and other customer processes.
+      lifecycleUsage: >-
+        Draft or prospect states precede active customer status; suspension,
+        closure, and retirement prevent or restrict new business activity while
+        preserving historical transactions.
+      commonProcesses: [customer-onboarding, sales-order, billing, collections, customer-service]
+      commonExamples:
+        - A corporate buyer purchasing products on credit.
+        - A consumer account receiving retail or digital services.
+
+  fieldExample:
+    name: customerId
+    help:
+      summary: >-
+        The immutable identifier of the Customer relationship record.
+      businessMeaning: >-
+        It uniquely identifies the customer relationship so transactions and
+        operational records can be associated with the correct commercial account.
+      usage: >-
+        It is generated when the Customer record is created and is used as the
+        stable reference by orders, invoices, payments, service cases, reports,
+        integrations, and audit records.
+      relationshipContext: >-
+        The identifier points to Customer rather than directly to Party because
+        one Party may have multiple business roles while the customer relationship
+        has its own lifecycle and commercial state.
+      valueSemantics: >-
+        UUID values are system-generated and immutable; changing the customer's
+        business attributes must never change this identifier.
+      lifecycleImpact: >-
+        The identifier remains stable across activation, suspension, and closure.
+      examples:
+        - A generated UUID stored on a customer account.
+      validationGuidance: Must be unique and immutable.
+      uiGuidance: Usually hidden in transactional forms and shown only in technical or audit views.
+
+  authoringRules:
+    - Explain meaning before implementation.
+    - Explain why the concept exists.
+    - Explain how users and processes use it.
+    - Explain important relationships explicitly by concept name and purpose.
+    - For references, explain why the target is referenced instead of embedding duplicate data.
+    - For dates, explain which business event starts or ends the period.
+    - For amounts, explain currency, sign, calculation, and business interpretation.
+    - For status fields, explain what operational behavior each state permits or prevents.
+    - For codes, explain who assigns them, whether they are stable, and where they are used.
+    - For booleans, explain the business meaning of true and false rather than only naming the condition.
+    - For enumerations, explain every value individually.
+    - Avoid descriptions that merely repeat the field name.
+
+  completionRule: >-
+    An entity is not considered CEDM-complete until its entity-level help and
+    every attribute, relationship/reference, enumeration value, lifecycle state,
+    and business rule has contextual help.
