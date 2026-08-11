@@ -1,0 +1,47 @@
+specification:
+  name: CEDM Validation Contract
+  version: 0.1.0
+  status: draft
+
+validation:
+  entity:
+    required:
+      - entity.name
+      - entity.identity.key
+      - entity.attributes
+    identity:
+      keyMustBeImmutable: true
+      keyMustBeUnique: true
+    attributes:
+      referencedTypesMustExist: true
+    relationships:
+      targetMustExist: true
+      cardinalityRequired: true
+      inverseMustResolve: true
+    invariants:
+      idRequired: true
+      ruleRequired: true
+
+  registry:
+    everyEntityFileMustBeRegistered: true
+    duplicateEntityNamesForbidden: true
+    duplicateIdentifiersForbidden: true
+
+  graph:
+    danglingReferences: error
+    selfReference: warning
+    cyclicHierarchy: error
+    cyclicRelationship: allowed
+
+  lifecycle:
+    terminalStatesMustBeExplicit: true
+    transitionsMustReferenceDeclaredStates: true
+
+  naming:
+    entityNamePattern: '^[A-Z][A-Za-z0-9]*$'
+    identifierPattern: '^[A-Z0-9-]+$'
+
+  severity:
+    error: Specification cannot be considered valid.
+    warning: Specification remains valid but requires review.
+    info: Advisory modeling information.
