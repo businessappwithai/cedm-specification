@@ -1,0 +1,65 @@
+# CEDM Domain Entity: Workflow
+entity:
+  name: Workflow
+  namespace: cedm.domain
+  kind: process_definition_entity
+  description: A machine-executable or human-executable orchestration definition for coordinating business activities and decisions.
+  identity:
+    key: workflowId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: workflowId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      unique: true
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+    - name: version
+      type: string
+      required: true
+      default: "1.0"
+      maxLength: 30
+    - name: executionType
+      type: enum
+      required: true
+      values: [HUMAN, AUTOMATED, HYBRID]
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    - name: definitionFormat
+      type: enum
+      required: false
+      values: [CEDM, BPMN, STATE_MACHINE, OTHER]
+    - name: definition
+      type: object
+      required: false
+      description: Structured workflow definition interpreted by a workflow engine.
+  relationships:
+    - name: businessProcess
+      target: BusinessProcess
+      cardinality: "0..1"
+      ownership: reference
+    - name: tasks
+      target: Task
+      cardinality: "0..*"
+      ownership: aggregate
+  invariants:
+    - id: WORKFLOW-001
+      rule: A workflow cannot be ACTIVE unless its definition is valid for the declared definitionFormat.
+    - id: WORKFLOW-002
+      rule: A workflow version is immutable once activated; a new version requires a new workflow definition or version.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-WORKFLOW
