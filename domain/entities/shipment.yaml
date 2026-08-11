@@ -2,194 +2,148 @@ entity:
   name: Shipment
   namespace: cedm.domain
   kind: logistics_transaction
-  description: A planned or executed movement of goods or assets between locations.
-  identity:
-    key: shipmentId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A planned or executed logistics movement that coordinates the transportation of goods, assets, or containers from an origin to a destination under a defined fulfillment context.
+  identity: {key: shipmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: shipmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the shipment record associated with this Shipment. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: shipmentNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of shipment number for the Shipment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: shipmentType
-    type: enum
-    required: true
-    values:
-    - INBOUND
-    - OUTBOUND
-    - TRANSFER
-    - RETURN
-    help:
-      summary: Captures the business meaning of shipment type for the Shipment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        INBOUND: Represents the inbound state or classification in the context of Shipment.
-        OUTBOUND: Represents the outbound state or classification in the context of Shipment.
-        TRANSFER: Represents the transfer state or classification in the context of Shipment.
-        RETURN: Represents the return state or classification in the context of Shipment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values:
-    - PLANNED
-    - BOOKED
-    - IN_TRANSIT
-    - DELIVERED
-    - CANCELLED
-    - EXCEPTION
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Shipment.
-        BOOKED: Represents the booked state or classification in the context of Shipment.
-        IN_TRANSIT: Represents the in transit state or classification in the context of Shipment.
-        DELIVERED: Represents the delivered state or classification in the context of Shipment.
-        CANCELLED: Represents the cancelled state or classification in the context of Shipment.
-        EXCEPTION: Represents the exception state or classification in the context of Shipment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: plannedDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the planned. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: actualDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the actual. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: trackingReference
-    type: string
-    required: false
-    maxLength: 200
-    help:
-      summary: Captures the business meaning of tracking reference for the Shipment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Shipment records, where applicable.
-      relationshipContext: Its meaning is specific to Shipment; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: shipmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable system identity of the shipment.
+        usage: Used for logistics tracking, integrations, transport events, audit, exception management, and navigation across the shipment lifecycle.
+        relationshipContext: Identifies the shipment independently of its business-facing reference, carrier, containers, orders, or locations.
+        requiredMeaning: Required because every logistics movement must be traceable as one business object.
+    - name: shipmentNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The business-facing reference used to identify the shipment in logistics operations and communications.
+        usage: Used by shippers, carriers, warehouse teams, customers, customs processes, tracking systems, and documents.
+        relationshipContext: Unlike shipmentId, shipmentNumber is intended for human and external communication and may follow an organizational or carrier numbering policy.
+        requiredMeaning: Required for operational traceability.
+    - name: shipmentType
+      type: enum
+      required: true
+      values: [INBOUND, OUTBOUND, TRANSFER, RETURN]
+      help:
+        summary: Classifies the commercial or operational direction of the shipment.
+        usage: Determines fulfillment workflow, origin/destination expectations, inventory implications, and reporting.
+        relationshipContext: Shipment type describes the movement's business purpose; it does not replace the underlying SalesOrder, PurchaseOrder, or return transaction that may have caused it.
+        valueSemantics:
+          INBOUND: Goods or assets are being transported into the receiving organization's operational network or location.
+          OUTBOUND: Goods or assets are being transported from the organization's network toward a customer or other destination.
+          TRANSFER: Goods or assets are being moved between locations while remaining under the same operational ownership or control.
+          RETURN: Goods or assets are being transported back to a designated organization, supplier, or other return destination.
+        requiredMeaning: Required because logistics execution depends on the movement's direction and purpose.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
+      help:
+        summary: The operational lifecycle state of the shipment.
+        usage: Controls transport execution, tracking, exception handling, customer communication, and completion reporting.
+        relationshipContext: Shipment status describes the transport process; it should not be used to infer inventory receipt, customer acceptance, or invoice payment unless explicit business rules connect those events.
+        valueSemantics:
+          PLANNED: The movement has been defined but transportation has not yet been committed or dispatched.
+          BOOKED: Transport capacity or a carrier arrangement has been confirmed.
+          IN_TRANSIT: The shipment has departed or is actively moving through the transport process.
+          DELIVERED: The shipment has reached its intended destination according to the applicable delivery confirmation process.
+          CANCELLED: The planned movement has been terminated and should not proceed as an active shipment.
+          EXCEPTION: The movement has encountered an operational condition requiring investigation or corrective action.
+        requiredMeaning: Required because logistics workflows need a controlled execution state.
+    - name: plannedDate
+      type: date
+      required: false
+      help:
+        summary: The planned date for shipment departure, dispatch, or logistics execution according to the organization's scheduling convention.
+        usage: Used for transport planning, warehouse coordination, carrier booking, capacity planning, and customer commitments.
+        relationshipContext: It expresses planned execution and must not be confused with actual departure or delivery dates.
+        optionalMeaning: Optional when transportation timing is not yet scheduled.
+    - name: actualDate
+      type: date
+      required: false
+      help:
+        summary: The actual logistics execution date associated with the shipment, normally representing the completed or confirmed movement event under the organization's convention.
+        usage: Used for delivery performance, transit analysis, customer service, inventory timing, and logistics reporting.
+        relationshipContext: It records an actual event and should be interpreted with shipment status and detailed transport events where those are modeled separately.
+        optionalMeaning: Optional until the corresponding actual event occurs.
+    - name: trackingReference
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: A carrier, logistics provider, or transport-network reference used to locate and track the shipment externally.
+        usage: Used for carrier integration, customer tracking, exception investigation, proof of movement, and transport-status synchronization.
+        relationshipContext: It identifies the shipment in an external tracking context and is different from the CEDM shipmentNumber.
+        optionalMeaning: Optional when the shipment has no external tracking reference or tracking is handled through another identifier.
   relationships:
-  - name: origin
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Shipment to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: destination
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Shipment to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: carrier
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Shipment to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: containers
-    target: Container
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Shipment to Container so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Container records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: salesOrder
-    target: SalesOrder
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Shipment to SalesOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about SalesOrder records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: purchaseOrder
-    target: PurchaseOrder
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Shipment to PurchaseOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PurchaseOrder records associated with a Shipment.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: origin
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the place from which the shipment begins or where goods are handed over to the transport process.
+        usage: Used for routing, pickup planning, warehouse dispatch, carrier instructions, and transit analysis.
+        cardinalityMeaning: Zero or one origin may be recorded when the origin is managed by a separate transport plan or external system.
+        context: Origin is an operational logistics location and may differ from the legal address of the seller, buyer, or owner.
+    - name: destination
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the place where the shipment is intended to be delivered or handed over.
+        usage: Used for routing, delivery planning, customer service, customs, receiving, and proof-of-delivery processes.
+        cardinalityMeaning: Zero or one destination may be recorded when destination details are supplied by a separate transport execution process.
+        context: Destination is the physical or operational endpoint and should not automatically be interpreted as the customer's master address.
+    - name: carrier
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the Party performing or responsible for transportation under the shipment arrangement.
+        usage: Used for carrier booking, transport execution, tracking, performance measurement, freight settlement, and exceptions.
+        cardinalityMeaning: Zero or one carrier is recorded because carrier selection may occur after shipment planning or may be managed externally.
+        context: The Party normally participates through a Carrier role; the shipment should not duplicate carrier identity data.
+    - name: containers
+      target: Container
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates physical shipping containers with the shipment when containerized transport is used.
+        usage: Used for container tracking, cargo movement, port and depot operations, customs, documentation, and transport visibility.
+        cardinalityMeaning: Zero or many containers may be associated because shipments can be non-containerized or can contain multiple containers.
+        context: Container identifies the physical equipment while Shipment represents the logistics movement; a container can participate in multiple shipments over its lifecycle.
+    - name: salesOrder
+      target: SalesOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links an outbound shipment to the customer order that establishes the commercial fulfillment requirement.
+        usage: Supports order fulfillment, allocation, delivery status, customer communication, and order-to-shipment traceability.
+        cardinalityMeaning: Zero or one SalesOrder may be linked because a shipment can fulfill another business process or combine demand according to policy.
+        context: SalesOrder represents the commercial commitment; Shipment represents physical logistics execution.
+    - name: purchaseOrder
+      target: PurchaseOrder
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links an inbound shipment to the procurement order that establishes the expected supplier fulfillment.
+        usage: Supports inbound planning, receiving, supplier performance, procurement reconciliation, and three-way matching.
+        cardinalityMeaning: Zero or one PurchaseOrder may be linked because transport can be consolidated across orders or originate outside conventional procurement.
+        context: PurchaseOrder represents the buying commitment; Shipment represents transportation execution.
   invariants:
-  - id: SHIPMENT-001
-    rule: delivered shipments must have actualDate.
+    - {id: SHIPMENT-001, rule: DELIVERED shipments must have actualDate.}
+    - {id: SHIPMENT-002, rule: IN_TRANSIT shipments must have an origin or an externally managed transport origin reference.}
+    - {id: SHIPMENT-003, rule: CANCELLED shipments must not subsequently transition to IN_TRANSIT or DELIVERED without an explicit authorized reinstatement process.}
   help:
-    summary: Represents a logistics transaction called Shipment within the CEDM business model.
-    businessMeaning: Shipment is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Shipment records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Location, Location,
-      Party, Container, SalesOrder, PurchaseOrder. These relationships provide the context needed to interpret the record
-      rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Shipment record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-SHIPMENT
+    summary: Represents the logistics execution object used to plan, book, track, and complete a movement of goods, assets, or containers.
+    businessMeaning: Shipment bridges commercial fulfillment and physical transportation. It answers where a movement starts, where it should end, what is being transported, who is responsible for transportation, and what state the movement is in.
+    usage: Used by warehouse operations, transportation management, order fulfillment, procurement, carrier management, customer service, customs, container logistics, and delivery performance processes.
+    relationshipContext: Shipment may be created from SalesOrder or PurchaseOrder commitments, may contain Containers, uses Location for physical endpoints, and associates a Carrier Party for transport execution. Inventory changes are represented separately through InventoryMovement, and detailed tracking events can provide a more granular movement history.
+    lifecycle: Planned shipment is scheduled but not yet committed. Booking confirms transport capacity. In-transit indicates physical movement. Delivery confirms completion at the destination under the applicable proof process. Exception identifies a deviation requiring action. Cancellation terminates the planned movement.
+    example: A depot sends three containers of spare parts to a customer facility. Shipment records the origin depot, destination, carrier, three containers, outbound type, tracking reference, and execution status. The related SalesOrder explains why the goods are being shipped, while InventoryMovement records the stock issue and subsequent receipt events.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SHIPMENT}
