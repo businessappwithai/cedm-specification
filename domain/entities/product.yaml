@@ -1,0 +1,114 @@
+# CEDM Domain Entity: Product
+entity:
+  name: Product
+  namespace: cedm.domain
+  kind: core_master_entity
+  description: A distinct good, material, service, subscription, or other offering that can be bought, sold, stocked, delivered, or otherwise used in business processes.
+
+  identity:
+    key: productId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: productId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+
+    - name: productType
+      type: enum
+      required: true
+      values:
+        - GOOD
+        - MATERIAL
+        - SERVICE
+        - SUBSCRIPTION
+        - ASSET
+        - BUNDLE
+        - OTHER
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - DRAFT
+        - ACTIVE
+        - DISCONTINUED
+        - BLOCKED
+        - RETIRED
+
+    - name: sku
+      type: string
+      required: false
+      maxLength: 100
+
+    - name: unitOfMeasure
+      type: reference
+      target: UnitOfMeasure
+      required: false
+
+    - name: standardPrice
+      type: money
+      required: false
+
+    - name: taxCategory
+      type: string
+      required: false
+      maxLength: 100
+
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+  relationships:
+    - name: category
+      target: ProductCategory
+      cardinality: "0..1"
+      ownership: reference
+
+    - name: suppliers
+      target: Supplier
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: locations
+      target: Location
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: PRODUCT-001
+      rule: code must be unique within its ERP context.
+
+    - id: PRODUCT-002
+      rule: A discontinued product must not be newly activated without an explicit lifecycle transition.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PRODUCT
