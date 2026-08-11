@@ -1,0 +1,85 @@
+# CEDM Domain Entity: PartyRole
+entity:
+  name: PartyRole
+  namespace: cedm.domain
+  kind: relationship_entity
+  description: A business role assigned to a party within an ERP or business context.
+
+  identity:
+    key: partyRoleId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: partyRoleId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: partyId
+      type: reference
+      target: Party
+      required: true
+
+    - name: roleType
+      type: enum
+      required: true
+      values:
+        - CUSTOMER
+        - SUPPLIER
+        - EMPLOYEE
+        - PARTNER
+        - CARRIER
+        - AGENT
+        - CONTRACTOR
+        - OWNER
+        - INVESTOR
+        - OTHER
+
+    - name: code
+      type: string
+      required: false
+      maxLength: 100
+
+    - name: validFrom
+      type: date
+      required: false
+
+    - name: validTo
+      type: date
+      required: false
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - EXPIRED
+
+  relationships:
+    - name: party
+      target: Party
+      cardinality: "1"
+      ownership: reference
+      inverse: partyRoles
+
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+      description: Organization within which the role applies.
+
+  invariants:
+    - id: ROLE-001
+      rule: validTo must not be earlier than validFrom.
+
+    - id: ROLE-002
+      rule: roleType must be supported by the referenced party's capabilities.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PARTY-ROLE
