@@ -1,0 +1,39 @@
+schema:
+  name: CEDM Entity Schema
+  version: 0.1.0
+
+entity:
+  required: [name, namespace, identity, attributes]
+  properties:
+    name:
+      type: string
+      pattern: '^[A-Z][A-Za-z0-9]*$'
+    namespace:
+      type: string
+    kind:
+      type: string
+    extends:
+      type: string
+    identity:
+      required: [key, type]
+      properties:
+        key: {type: string}
+        type: {type: string}
+        generated: {type: boolean}
+        immutable: {type: boolean}
+    attributes:
+      type: array
+      itemRequired: [name, type, required]
+    relationships:
+      type: array
+      itemRequired: [name, target, cardinality]
+    invariants:
+      type: array
+      itemRequired: [id, rule]
+    lifecycle:
+      type: object
+    audit:
+      type: object
+
+relationship:
+  cardinalities: ['0..1', '1', '0..*', '1..*']
