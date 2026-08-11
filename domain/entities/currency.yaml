@@ -1,0 +1,49 @@
+# CEDM Domain Entity: Currency
+entity:
+  name: Currency
+  namespace: cedm.domain
+  kind: reference_master_entity
+  description: A recognized monetary currency used for financial amounts and transactions.
+  identity:
+    key: currencyId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: currencyId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 3
+    - name: name
+      type: string
+      required: true
+      maxLength: 100
+    - name: symbol
+      type: string
+      required: false
+      maxLength: 10
+    - name: decimalPlaces
+      type: integer
+      required: true
+      default: 2
+      minimum: 0
+      maximum: 6
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+  invariants:
+    - id: CURRENCY-001
+      rule: code must conform to the ISO 4217 three-letter currency-code convention where an ISO code exists.
+    - id: CURRENCY-002
+      rule: decimalPlaces must be non-negative.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-CURRENCY
