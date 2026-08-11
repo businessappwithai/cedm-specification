@@ -1,0 +1,18 @@
+# CEDM Domain Entity: Vehicle
+entity:
+  name: Vehicle
+  namespace: cedm.domain
+  kind: logistics_asset
+  description: A vehicle or transport equipment used to execute logistics movements.
+  identity: {key: vehicleId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: vehicleId, type: uuid, required: true, immutable: true}
+    - {name: registrationNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: vehicleType, type: enum, required: true, values: [TRUCK, TRACTOR, TRAILER, FORKLIFT, CRANE, OTHER]}
+    - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, MAINTENANCE, OUT_OF_SERVICE, RETIRED]}
+  relationships:
+    - {name: operator, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: movements, target: ContainerMovement, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VEHICLE}
