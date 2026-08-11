@@ -1,0 +1,42 @@
+readme:
+  title: CEDM Specification
+  description: >-
+    Common Enterprise Domain Model: a YAML-first declarative language for
+    describing business applications as domains, data, rules, workflows, forms,
+    reports, security policies, integrations, and AI generation metadata.
+  repository:
+    name: businessappwithai/cedm-specification
+    default_branch: main
+  files:
+    - path: cedm.yaml
+      purpose: Canonical reference model containing the current CEDM concepts and examples.
+    - path: schema.yaml
+      purpose: Formal vocabulary for validating and interpreting CEDM documents.
+    - path: README.yaml
+      purpose: Repository-level machine-readable documentation.
+  philosophy:
+    model_business_meaning_first: true
+    separate_business_rules_from_runtime: true
+    prefer_explicit_relationships: true
+    preserve_traceability: true
+    allow_extensions: true
+  recommended_structure:
+    domain:
+      contains: [entities, relationships, value_objects, enumerations]
+    behavior:
+      contains: [rules, workflows, policies, events]
+    experience:
+      contains: [forms, views, navigation]
+    analytics:
+      contains: [reports, metrics, dimensions]
+    platform:
+      contains: [security, integrations, persistence, deployment]
+  roadmap:
+    next:
+      - split reference model into focused YAML documents
+      - add JSON Schema validation generated from schema.yaml
+      - define formal expression language for rules and conditions
+      - define reusable workflow patterns
+      - define UI metadata and report visualization vocabulary
+      - define API and event contracts
+      - add examples for non-container business domains
