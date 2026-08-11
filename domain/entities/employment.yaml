@@ -1,0 +1,19 @@
+entity:
+  name: Employment
+  namespace: cedm.domain
+  kind: workforce_relationship
+  description: A time-bounded employment relationship between a person and an organization.
+  identity: {key: employmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: employmentId, type: uuid, required: true, immutable: true}
+    - {name: employmentType, type: enum, required: true, values: [FULL_TIME, PART_TIME, CONTRACT, TEMPORARY, INTERN, OTHER]}
+    - {name: startDate, type: date, required: true}
+    - {name: endDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, SUSPENDED, TERMINATED]}
+  relationships:
+    - {name: employee, target: Employee, cardinality: "1", ownership: reference}
+    - {name: employer, target: Organization, cardinality: "1", ownership: reference}
+    - {name: position, target: Position, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: EMPLOYMENT-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EMPLOYMENT}
