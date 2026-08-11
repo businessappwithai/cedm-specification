@@ -1,0 +1,19 @@
+# CEDM Domain Entity: InventoryLocation
+entity:
+  name: InventoryLocation
+  namespace: cedm.domain
+  kind: inventory_master_entity
+  description: A specific logical storage position within a warehouse or managed location.
+  identity: {key: inventoryLocationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: inventoryLocationId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, maxLength: 100}
+    - {name: locationType, type: enum, required: true, values: [BIN, SHELF, RACK, FLOOR, YARD_SLOT, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, BLOCKED, INACTIVE]}
+    - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+    - {name: warehouse, target: Warehouse, cardinality: "1", ownership: reference}
+    - {name: inventoryBalances, target: InventoryBalance, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: INVENTORY-LOCATION-001, rule: code must be unique within its warehouse.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-LOCATION}
