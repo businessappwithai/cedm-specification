@@ -9,8 +9,7 @@ entity:
     - {name: incidentNumber, type: string, required: true, unique: true, maxLength: 100}
     - {name: incidentType, type: string, required: true, maxLength: 100}
     - {name: severity, type: enum, required: true, values: [LOW, MEDIUM, HIGH, CRITICAL]}
-    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, INVESTIGATING, CONTAINED, RESOLVED, CLOSED]
-    }
+    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, INVESTIGATING, CONTAINED, RESOLVED, CLOSED]}
     - {name: detectedAt, type: datetime, required: true}
     - {name: resolvedAt, type: datetime, required: false}
   relationships:
