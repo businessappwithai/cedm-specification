@@ -1,0 +1,17 @@
+entity:
+  name: QualityPlan
+  namespace: cedm.domain
+  kind: quality_definition
+  description: A defined set of inspections, tests, sampling rules, and acceptance criteria.
+  identity: {key: qualityPlanId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: qualityPlanId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: inspections, target: QualityInspection, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: QUALITY-PLAN-001, rule: code must be unique within the owning ERP context.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-QUALITY-PLAN}
