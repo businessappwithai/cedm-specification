@@ -1,0 +1,16 @@
+entity:
+  name: Milestone
+  namespace: cedm.domain
+  kind: project_management_entity
+  description: A significant planned achievement or checkpoint within a project or process.
+  identity: {key: milestoneId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: milestoneId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: targetDate, type: date, required: true}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, AT_RISK, ACHIEVED, MISSED, CANCELLED]}
+  relationships:
+    - {name: project, target: Project, cardinality: "1", ownership: reference}
+    - {name: tasks, target: ProjectTask, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MILESTONE}
