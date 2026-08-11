@@ -1,0 +1,23 @@
+entity:
+  name: SecurityIncident
+  namespace: cedm.domain
+  kind: security_entity
+  description: A recorded event or condition that may compromise confidentiality, integrity, availability, safety, or security.
+  identity: {key: securityIncidentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: securityIncidentId, type: uuid, required: true, immutable: true}
+    - {name: incidentNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: incidentType, type: string, required: true, maxLength: 100}
+    - {name: severity, type: enum, required: true, values: [LOW, MEDIUM, HIGH, CRITICAL]}
+    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, INVESTIGATING, CONTAINED, RESOLVED, CLOSED]
+    }
+    - {name: detectedAt, type: datetime, required: true}
+    - {name: resolvedAt, type: datetime, required: false}
+  relationships:
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: reporter, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: investigator, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: relatedRisk, target: Risk, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: SECURITY-INCIDENT-001, rule: resolvedAt must not precede detectedAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SECURITY-INCIDENT}
