@@ -1,0 +1,35 @@
+specification:
+  name: CEDM Aggregate Boundaries
+  version: 0.1.0
+  status: draft
+
+aggregates:
+  - name: ERP
+    root: ERP
+    members: [Organization, Party, Location, Product, BusinessProcess, Workflow, Document]
+  - name: SalesOrder
+    root: SalesOrder
+    members: [SalesOrderLine]
+  - name: PurchaseOrder
+    root: PurchaseOrder
+    members: [PurchaseOrderLine]
+  - name: Inventory
+    root: Warehouse
+    members: [InventoryLocation, InventoryBalance, InventoryMovement]
+  - name: Yard
+    root: Yard
+    members: [YardBlock, YardBay, YardTier, YardSlot, ContainerMovement]
+  - name: RepairEstimate
+    root: RepairEstimate
+    members: [RepairEstimateLine]
+  - name: AccountingEntry
+    root: JournalEntry
+    members: [JournalEntryLine]
+
+rules:
+  - id: AGG-001
+    rule: Aggregate members are modified through their aggregate root unless a domain rule explicitly permits independent lifecycle management.
+  - id: AGG-002
+    rule: Cross-aggregate references must not imply ownership.
+  - id: AGG-003
+    rule: Transaction boundaries should align with aggregate invariants.
