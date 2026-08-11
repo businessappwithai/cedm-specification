@@ -1,0 +1,21 @@
+entity:
+  name: Enrollment
+  namespace: cedm.domain
+  kind: education_transaction
+  description: A student's formal registration in an educational program or course.
+  identity:
+    key: enrollmentId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: enrollmentId, type: uuid, required: true, immutable: true}
+    - {name: enrollmentNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: enrolledAt, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, COMPLETED, WITHDRAWN, CANCELLED]}
+  relationships:
+    - {name: student, target: EducationStudent, cardinality: "1", ownership: reference}
+    - {name: program, target: EducationProgram, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: ENROLLMENT-001, rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENROLLMENT}
