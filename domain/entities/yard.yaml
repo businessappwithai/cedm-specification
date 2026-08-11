@@ -1,0 +1,19 @@
+# CEDM Domain Entity: Yard
+entity:
+  name: Yard
+  namespace: cedm.domain
+  kind: logistics_location
+  description: A managed container yard containing structured blocks, bays, tiers, and slots.
+  identity: {key: yardId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: yardId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 200}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: blocks, target: YardBlock, cardinality: "1..*", ownership: aggregate}
+    - {name: containers, target: Container, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: YARD-001, rule: code must be unique within the ERP context.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-YARD}
