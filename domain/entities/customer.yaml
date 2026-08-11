@@ -3,189 +3,146 @@ entity:
   namespace: cedm.domain
   kind: party_role_specialization
   extends: PartyRole
-  description: A party that purchases or consumes goods, services, or other business offerings.
-  identity:
-    key: customerId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A party role representing the enterprise's commercial relationship with a buyer or consumer of goods, services, subscriptions, or other offerings.
+  identity: {key: customerId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: customerId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the customer record associated with this Customer. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: partyRoleId
-    type: reference
-    target: PartyRole
-    required: true
-    unique: true
-    immutable: true
-    help:
-      summary: Identifies the related PartyRole associated with this Customer. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: This field connects Customer to PartyRole. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related PartyRole.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: customerCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of customer code for the Customer. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: customerType
-    type: enum
-    required: false
-    values:
-    - INDIVIDUAL
-    - BUSINESS
-    - GOVERNMENT
-    - INTERNAL
-    - OTHER
-    help:
-      summary: Captures the business meaning of customer type for the Customer. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        INDIVIDUAL: Represents the individual state or classification in the context of Customer.
-        BUSINESS: Represents the business state or classification in the context of Customer.
-        GOVERNMENT: Represents the government state or classification in the context of Customer.
-        INTERNAL: Represents the internal state or classification in the context of Customer.
-        OTHER: Represents the other state or classification in the context of Customer.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: creditStatus
-    type: enum
-    required: false
-    values:
-    - NOT_REVIEWED
-    - APPROVED
-    - ON_HOLD
-    - BLOCKED
-    help:
-      summary: Captures the business meaning of credit status for the Customer. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        NOT_REVIEWED: Represents the not reviewed state or classification in the context of Customer.
-        APPROVED: Represents the approved state or classification in the context of Customer.
-        ON_HOLD: Represents the on hold state or classification in the context of Customer.
-        BLOCKED: Represents the blocked state or classification in the context of Customer.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: creditLimit
-    type: decimal
-    required: false
-    precision: 18
-    scale: 2
-    help:
-      summary: Captures the business meaning of credit limit for the Customer. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: paymentTerms
-    type: reference
-    target: PaymentTerm
-    required: false
-    help:
-      summary: Identifies the related PaymentTerm associated with this Customer. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: This field connects Customer to PaymentTerm. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related PaymentTerm.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - BLOCKED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Customer records, where applicable.
-      relationshipContext: Its meaning is specific to Customer; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Customer.
-        INACTIVE: Represents the inactive state or classification in the context of Customer.
-        BLOCKED: Represents the blocked state or classification in the context of Customer.
-        RETIRED: Represents the retired state or classification in the context of Customer.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: customerId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identifier for the Customer business relationship.
+        businessMeaning: Identifies the customer role independently from the underlying Party identity.
+        usage: Used by orders, invoices, receivables, service cases, pricing, credit, contracts, and customer analytics.
+        relationshipContext: Party.partyId identifies who the customer is; customerId identifies that party's customer relationship.
+        requiredMeaning: Required because customer transactions must resolve to one unambiguous customer relationship.
+    - name: partyRoleId
+      type: reference
+      target: PartyRole
+      required: true
+      unique: true
+      immutable: true
+      help:
+        summary: Links the Customer specialization to its underlying PartyRole.
+        businessMeaning: Establishes that this commercial customer relationship belongs to a particular party and customer role instance.
+        usage: Used to navigate from customer-specific processes to the common party-role model.
+        relationshipContext: It preserves the separation between party identity and commercial role; a party may have other roles independently.
+        requiredMeaning: Required because Customer cannot exist without a PartyRole foundation.
+    - name: customerCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: Human-facing business code used to identify the customer in operational contexts.
+        businessMeaning: Provides a stable business reference suitable for forms, documents, integrations, and communication.
+        usage: Used in orders, invoices, statements, service interactions, searches, and external integrations.
+        relationshipContext: Unlike customerId, customerCode is intended for business recognition and may be governed by organizational numbering policies.
+        requiredMeaning: Required where the enterprise uses a customer account reference as part of normal operations.
+    - name: customerType
+      type: enum
+      required: false
+      values: [INDIVIDUAL, BUSINESS, GOVERNMENT, INTERNAL, OTHER]
+      help:
+        summary: Classifies the commercial nature of the customer relationship.
+        businessMeaning: Helps determine appropriate pricing, credit, taxation, service, onboarding, and reporting rules.
+        usage: Used in segmentation, credit policy, pricing, customer service, and analytics.
+        relationshipContext: This is a customer-role classification; it does not replace Party.partyType, which identifies person versus organization.
+        valueSemantics:
+          INDIVIDUAL: Customer relationship is primarily with an individual consumer.
+          BUSINESS: Customer relationship is with a commercial organization or business account.
+          GOVERNMENT: Customer relationship is with a government or public-sector body.
+          INTERNAL: Customer relationship represents an internal organizational consumer or business unit.
+          OTHER: Customer relationship does not fit the standard classifications.
+        optionalMeaning: Optional when customer classification is not required by the business process.
+    - name: creditStatus
+      type: enum
+      required: false
+      values: [NOT_REVIEWED, APPROVED, ON_HOLD, BLOCKED]
+      help:
+        summary: Indicates the customer's current credit-control disposition.
+        businessMeaning: Determines whether credit-based commercial activity can proceed under the organization's credit policy.
+        usage: Used by order validation, credit checks, collections, accounts receivable, and customer service.
+        relationshipContext: Credit status affects transactions involving credit exposure; it does not change the underlying Party identity or customer role.
+        valueSemantics:
+          NOT_REVIEWED: Credit eligibility has not yet been assessed.
+          APPROVED: Customer is eligible under the current credit policy.
+          ON_HOLD: Credit-related activity requires review or resolution before proceeding.
+          BLOCKED: Credit-based activity is prohibited until the blocking condition is resolved.
+        optionalMeaning: Optional when the business does not operate customer credit controls.
+    - name: creditLimit
+      type: decimal
+      required: false
+      precision: 18
+      scale: 2
+      help:
+        summary: Maximum credit exposure authorized for the customer under the applicable credit policy.
+        businessMeaning: Represents the monetary exposure the enterprise is prepared to carry before additional approval or settlement is required.
+        usage: Used during order authorization, accounts receivable monitoring, credit review, and risk reporting.
+        relationshipContext: Must be interpreted with currency, outstanding exposure, payment terms, and credit status; it is not itself a payment term.
+        optionalMeaning: Optional for cash-only customers or organizations without credit management.
+    - name: paymentTerms
+      type: reference
+      target: PaymentTerm
+      required: false
+      help:
+        summary: Defines the agreed timing and conditions under which customer invoices are expected to be paid.
+        businessMeaning: Converts the commercial agreement into an operational rule for due dates and settlement expectations.
+        usage: Used by order pricing, invoicing, receivables, collections, and cash-flow forecasting.
+        relationshipContext: Payment terms affect transactions involving the Customer but may be overridden by an explicit contract or transaction-level agreement where permitted.
+        optionalMeaning: Optional when payment timing is determined elsewhere or immediate settlement is standard.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+      help:
+        summary: Controls the operational lifecycle of the customer relationship.
+        businessMeaning: Determines whether the customer may normally participate in new commercial activity.
+        usage: Used by order capture, billing, service, onboarding, and account-maintenance processes.
+        relationshipContext: A retired customer can remain referenced by historical orders and invoices; lifecycle state must not imply deletion.
+        valueSemantics:
+          ACTIVE: Customer may participate in normal commercial processes.
+          INACTIVE: Customer relationship is retained but normally not used for new activity.
+          BLOCKED: New activity is restricted until the blocking condition is resolved.
+          RETIRED: Relationship is no longer operationally active but historical records remain valid.
+        requiredMeaning: Required for transaction eligibility decisions.
   relationships:
-  - name: partyRole
-    target: PartyRole
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Customer to PartyRole so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PartyRole records associated with a Customer.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: addresses
-    target: Address
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Customer to Address so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Address records associated with a Customer.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: transactions
-    target: BusinessTransaction
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Customer to BusinessTransaction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about BusinessTransaction records associated with a Customer.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: partyRole
+      target: PartyRole
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Connects the Customer to the common role model.
+        usage: Used to resolve the underlying party and common role attributes.
+        cardinalityMeaning: Exactly one PartyRole represents the customer relationship.
+        context: Customer is a specialization of PartyRole rather than an alternative identity root.
+    - name: addresses
+      target: Address
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates customer addresses used for billing, delivery, service, legal, or correspondence purposes.
+        usage: Used by sales, fulfillment, invoicing, tax, service, and communications.
+        cardinalityMeaning: A customer may have multiple addresses because one location may not serve every business purpose.
+        context: Address purpose and effective dates determine which address a process should use.
+    - name: transactions
+      target: BusinessTransaction
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates commercial transactions with the customer relationship.
+        usage: Used for customer history, financial exposure, reporting, service context, and analytics.
+        cardinalityMeaning: A customer can participate in many transactions over its lifecycle.
+        context: Transactions should preserve the customer relationship used at the time of the transaction even if customer master data later changes.
   invariants:
-  - id: CUSTOMER-001
-    rule: partyRole.roleType must equal CUSTOMER.
-  - id: CUSTOMER-002
-    rule: customerCode must be unique within its ERP context.
+    - {id: CUSTOMER-001, rule: partyRole.roleType must equal CUSTOMER.}
+    - {id: CUSTOMER-002, rule: customerCode must be unique within its ERP context.}
   help:
-    summary: Represents a party role specialization called Customer within the CEDM business model.
-    businessMeaning: Customer is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Customer records.
-    relationshipContext: The entity participates in a wider business graph through relationships with PartyRole, Address,
-      BusinessTransaction. These relationships provide the context needed to interpret the record rather than treating its
-      fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Customer record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-CUSTOMER
+    summary: Represents the commercial customer relationship between a Party and the enterprise.
+    businessMeaning: Customer is not the person or organization itself; it is the role that makes that party a buyer or consumer within the enterprise's commercial model.
+    usage: Central to sales, order management, pricing, billing, receivables, customer service, contracts, fulfillment, and customer analytics.
+    relationshipContext: Customer derives identity from PartyRole and ultimately Party. It connects outward to addresses and transactions while credit and payment terms provide commercial controls.
+    lifecycle: Customer onboarding establishes the relationship, operational activity uses ACTIVE status, and closure or blocking restricts new activity without invalidating historical transactions.
+    example: A company can be one Party, a Customer in one commercial relationship, a Supplier in procurement, and a ContractParty elsewhere without duplicating its identity.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER}
