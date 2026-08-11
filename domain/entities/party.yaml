@@ -2,210 +2,160 @@ entity:
   name: Party
   namespace: cedm.domain
   kind: core_master_entity
-  description: A party is an identifiable person or organization that can participate in one or more business relationships,
-    transactions, processes, or roles. Party provides the common identity layer for people and organizations.
-  identity:
-    key: partyId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A person or organization recognized by the business as an actor in one or more roles, relationships, transactions, or responsibilities. Party is the CEDM identity root from which business roles such as Customer, Supplier, Employee, Provider, and Owner can be established.
+  identity: {key: partyId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: partyId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the party record associated with this Party. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: partyType
-    type: enum
-    required: true
-    values:
-    - PERSON
-    - ORGANIZATION
-    help:
-      summary: Captures the business meaning of party type for the Party. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PERSON: Represents the person state or classification in the context of Party.
-        ORGANIZATION: Represents the organization state or classification in the context of Party.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: displayName
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: Captures the business meaning of display name for the Party. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - BLOCKED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Party.
-        INACTIVE: Represents the inactive state or classification in the context of Party.
-        BLOCKED: Represents the blocked state or classification in the context of Party.
-        RETIRED: Represents the retired state or classification in the context of Party.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: externalReference
-    type: string
-    required: false
-    maxLength: 200
-    help:
-      summary: Captures the business meaning of external reference for the Party. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: createdAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and
-        operational reporting.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: createdBy
-    type: reference
-    target: Party
-    required: false
-    systemManaged: true
-    help:
-      summary: The party or user responsible for creating the record. It links the record to its audit actor and should not
-        normally be supplied as ordinary business data.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: This field connects Party to Party. The reference establishes business context between the two
-        entities and lets processes navigate from this record to the related Party.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: updatedAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: The system-managed timestamp recording the latest modification of the record. It supports synchronization,
-        audit, and change detection.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: Its meaning is specific to Party; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: updatedBy
-    type: reference
-    target: Party
-    required: false
-    systemManaged: true
-    help:
-      summary: The party or user responsible for the latest modification. It provides the audit link for the most recent change.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Party records, where applicable.
-      relationshipContext: This field connects Party to Party. The reference establishes business context between the two
-        entities and lets processes navigate from this record to the related Party.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: partyId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The stable internal identity of the party.
+        businessMeaning: Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships.
+        usage: Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations.
+        relationshipContext: PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity.
+        requiredMeaning: Required because every party must have one stable identity.
+    - name: partyType
+      type: enum
+      required: true
+      values: [PERSON, ORGANIZATION]
+      help:
+        summary: Identifies whether the party is a person or an organization.
+        businessMeaning: Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa.
+        usage: Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment.
+        relationshipContext: PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization.
+        valueSemantics:
+          PERSON: The party represents an individual human being.
+          ORGANIZATION: The party represents a legal, commercial, governmental, nonprofit, or other organized body.
+        requiredMeaning: Required because the party's specialization and applicable business semantics depend on it.
+    - name: displayName
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The business-facing name by which the party is normally displayed and recognized.
+        businessMeaning: Provides a consistent human-readable representation independent of whether the party is a person or organization.
+        usage: Used in forms, search results, documents, transactions, reports, notifications, and user interfaces.
+        relationshipContext: It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.
+        requiredMeaning: Required so every party can be unambiguously presented to users and business processes.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+      help:
+        summary: Controls whether the party may participate in new business activity.
+        businessMeaning: Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence.
+        usage: Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes.
+        relationshipContext: A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion.
+        valueSemantics:
+          ACTIVE: The party is available for normal business participation.
+          INACTIVE: The party is retained but is not normally eligible for new activity.
+          BLOCKED: Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
+          RETIRED: The party relationship is permanently ended for normal operational use while historical references remain valid.
+        requiredMeaning: Required because downstream processes must know whether participation is currently permitted.
+    - name: externalReference
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: An identifier assigned to the party by an external system or business partner.
+        businessMeaning: Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system.
+        usage: Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup.
+        relationshipContext: It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.
+        optionalMeaning: Optional when no external system identity exists or when the external identity is maintained elsewhere.
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: Timestamp when the party record was created in CEDM.
+        businessMeaning: Establishes the beginning of the CEDM record's audit history and supports chronology.
+        usage: Used for audit, synchronization, data-quality analysis, retention, and operational reporting.
+        relationshipContext: Describes the CEDM record lifecycle, not the date the real-world person or organization came into existence.
+        requiredMeaning: Required for traceability of master-data creation.
+    - name: createdBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+      help:
+        summary: Identifies the party or system actor responsible for creating the record.
+        businessMeaning: Provides accountability for master-data creation.
+        usage: Used by audit, security, governance, and investigation processes.
+        relationshipContext: The target Party is an audit actor and should not be confused with the party being created.
+        optionalMeaning: Optional when the source system cannot provide an actor identity.
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: Timestamp of the latest change to the party record.
+        businessMeaning: Establishes the most recent known modification point for synchronization and audit.
+        usage: Used for change detection, integration, audit, caching, and reporting.
+        relationshipContext: It describes modification of the CEDM record, not a change to the underlying real-world party.
+        requiredMeaning: Required for reliable change tracking.
+    - name: updatedBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+      help:
+        summary: Identifies the party or system actor responsible for the latest modification.
+        businessMeaning: Provides accountability for master-data changes.
+        usage: Used by audit, security, governance, and investigation processes.
+        relationshipContext: The target Party is an audit actor rather than the subject party.
+        optionalMeaning: Optional when an actor identity is unavailable.
   relationships:
-  - name: person
-    target: Person
-    cardinality: 0..1
-    ownership: reference
-    condition: partyType == PERSON
-    help:
-      summary: Connects Party to Person so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Person records associated with a Party.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    condition: partyType == ORGANIZATION
-    help:
-      summary: Connects Party to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Party.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: addresses
-    target: Address
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Party to Address so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Address records associated with a Party.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: partyRoles
-    target: PartyRole
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Party to PartyRole so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PartyRole records associated with a Party.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: person
+      target: Person
+      cardinality: 0..1
+      ownership: reference
+      condition: partyType == PERSON
+      help:
+        summary: Supplies person-specific identity and demographic information for a Party classified as PERSON.
+        usage: Used when a party participates in processes requiring individual information.
+        cardinalityMeaning: At most one Person specialization may describe the party.
+        context: The specialization is selected by partyType and must not coexist with Organization.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      condition: partyType == ORGANIZATION
+      help:
+        summary: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION.
+        usage: Used for companies, agencies, institutions, nonprofits, and other organizational actors.
+        cardinalityMeaning: At most one Organization specialization may describe the party.
+        context: The specialization is selected by partyType and must not coexist with Person.
+    - name: addresses
+      target: Address
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates physical, postal, billing, service, or other addresses with the party.
+        usage: Used by shipping, billing, service, compliance, communication, and location processes.
+        cardinalityMeaning: A party may have multiple addresses because different business purposes can require different locations.
+        context: Address meaning should be interpreted through its address type and effective/lifecycle information.
+    - name: partyRoles
+      target: PartyRole
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates business roles with the party.
+        usage: Used to determine whether the party acts as Customer, Supplier, Employee, Provider, Owner, or another role.
+        cardinalityMeaning: One party may hold many roles simultaneously or over time.
+        context: Party identity remains stable while roles have their own lifecycle and business semantics.
   invariants:
-  - id: PARTY-001
-    rule: partyType must match the populated specialization.
-  - id: PARTY-002
-    rule: displayName is required for every party.
-  - id: PARTY-003
-    rule: A party must not simultaneously represent both PERSON and ORGANIZATION specializations.
-  audit:
-    enabled: true
-    trackCreatedBy: true
-    trackCreatedAt: true
-    trackUpdatedBy: true
-    trackUpdatedAt: true
-  tags:
-  - party
-  - identity
-  - master-data
-  - polymorphic-root
+    - {id: PARTY-001, rule: partyType must match the populated specialization.}
+    - {id: PARTY-002, rule: displayName is required for every party.}
+    - {id: PARTY-003, rule: A party must not simultaneously represent both PERSON and ORGANIZATION specializations.}
+  audit: {enabled: true, trackCreatedBy: true, trackCreatedAt: true, trackUpdatedBy: true, trackUpdatedAt: true}
+  tags: [party, identity, master-data, polymorphic-root]
   help:
-    summary: Represents a core master entity called Party within the CEDM business model.
-    businessMeaning: Party is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Party records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Person, Organization,
-      Address, PartyRole. These relationships provide the context needed to interpret the record rather than treating its
-      fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Party record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-PARTY
+    summary: The foundational CEDM business concept for an identifiable person or organization participating in business.
+    businessMeaning: Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities.
+    usage: Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit.
+    relationshipContext: Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters.
+    lifecycle: Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid.
+    example: One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PARTY}
