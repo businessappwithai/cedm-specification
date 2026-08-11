@@ -1,0 +1,79 @@
+# CEDM Domain Entity: Task
+entity:
+  name: Task
+  namespace: cedm.domain
+  kind: process_runtime_entity
+  description: A discrete unit of business work performed by a person, organization, system, or workflow participant.
+  identity:
+    key: taskId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: taskId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+    - name: description
+      type: string
+      required: false
+      maxLength: 2000
+    - name: taskType
+      type: enum
+      required: true
+      values: [USER, SYSTEM, APPROVAL, DECISION, NOTIFICATION, SCRIPT, OTHER]
+    - name: status
+      type: enum
+      required: true
+      default: CREATED
+      values: [CREATED, READY, ASSIGNED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED, FAILED]
+    - name: priority
+      type: enum
+      required: true
+      default: NORMAL
+      values: [LOW, NORMAL, HIGH, CRITICAL]
+    - name: dueAt
+      type: datetime
+      required: false
+    - name: startedAt
+      type: datetime
+      required: false
+    - name: completedAt
+      type: datetime
+      required: false
+  relationships:
+    - name: workflow
+      target: Workflow
+      cardinality: "0..1"
+      ownership: reference
+    - name: assignee
+      target: Party
+      cardinality: "0..1"
+      ownership: reference
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+    - name: relatedDocument
+      target: Document
+      cardinality: "0..1"
+      ownership: reference
+  invariants:
+    - id: TASK-001
+      rule: completedAt is required when status is COMPLETED.
+    - id: TASK-002
+      rule: completedAt must not precede startedAt.
+    - id: TASK-003
+      rule: A USER or APPROVAL task should have an assignee before entering IN_PROGRESS unless explicitly configured otherwise.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-TASK
