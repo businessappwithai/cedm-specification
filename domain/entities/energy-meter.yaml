@@ -1,0 +1,21 @@
+entity:
+  name: EnergyMeter
+  namespace: cedm.domain
+  kind: utility_entity
+  description: A metering device or logical metering point used to record consumption or production of a utility resource.
+  identity:
+    key: energyMeterId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: energyMeterId, type: uuid, required: true, immutable: true}
+    - {name: meterNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: meterType, type: enum, required: true, values: [ELECTRICITY, GAS, WATER, STEAM, SOLAR, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, DISCONNECTED, RETIRED]}
+    - {name: installedAt, type: date, required: false}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
+    - {name: readings, target: MeterReading, cardinality: "0..*", ownership: aggregate}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENERGY-METER}
