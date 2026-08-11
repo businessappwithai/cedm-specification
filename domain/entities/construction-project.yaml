@@ -1,0 +1,20 @@
+# CEDM Domain Entity: ConstructionProject
+entity:
+  name: ConstructionProject
+  namespace: cedm.domain
+  kind: construction_entity
+  extends: Project
+  description: A project for planning and executing construction or civil engineering work.
+  identity: {key: constructionProjectId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: constructionProjectId, type: uuid, required: true, immutable: true}
+    - {name: projectId, type: reference, target: Project, required: true, unique: true, immutable: true}
+    - {name: projectType, type: enum, required: true, values: [BUILDING, INFRASTRUCTURE, CIVIL, INDUSTRIAL, RENOVATION, OTHER]}
+    - {name: siteCondition, type: string, required: false, maxLength: 2000}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, DESIGN, PROCUREMENT, CONSTRUCTION, COMMISSIONING, COMPLETED, CANCELLED]}
+  relationships:
+    - {name: project, target: Project, cardinality: "1", ownership: reference}
+    - {name: site, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: contracts, target: Contract, cardinality: "0..*", ownership: reference}
+    - {name: assets, target: Asset, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONSTRUCTION-PROJECT}
