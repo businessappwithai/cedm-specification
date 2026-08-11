@@ -1,0 +1,17 @@
+entity:
+  name: EducationCourse
+  namespace: cedm.domain
+  kind: education_entity
+  description: A defined course or learning unit offered by an educational institution or program.
+  identity: {key: courseId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: courseId, type: uuid, required: true, immutable: true}
+    - {name: courseCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: credits, type: decimal, required: false, precision: 8, scale: 2}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: program, target: EducationProgram, cardinality: "0..1", ownership: reference}
+    - {name: instructors, target: Party, cardinality: "0..*", ownership: reference}
+    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EDUCATION-COURSE}
