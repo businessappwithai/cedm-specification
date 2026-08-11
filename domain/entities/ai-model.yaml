@@ -1,0 +1,24 @@
+# CEDM Domain Entity: AIModel
+entity:
+  name: AIModel
+  namespace: cedm.domain
+  kind: ai_entity
+  description: A machine-learning or artificial-intelligence model used to produce predictions, classifications, recommendations, generations, or decisions.
+  identity: {key: aiModelId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: aiModelId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: modelType, type: enum, required: true, values: [CLASSIFICATION, REGRESSION, FORECASTING, RECOMMENDATION, GENERATION, EMBEDDING, ANOMALY_DETECTION, OTHER]}
+    - {name: version, type: string, required: true, maxLength: 50}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, TRAINING, VALIDATION, APPROVED, DEPLOYED, SUSPENDED, RETIRED]}
+    - {name: purpose, type: string, required: false, maxLength: 4000}
+    - {name: riskLevel, type: enum, required: false, values: [LOW, MEDIUM, HIGH, CRITICAL]}
+  relationships:
+    - {name: owner, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: evaluations, target: AIEvaluation, cardinality: "0..*", ownership: aggregate}
+    - {name: predictions, target: AIPrediction, cardinality: "0..*", ownership: reference}
+    - {name: policy, target: AIPolicy, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: AI-MODEL-001, rule: a DEPLOYED model must have an APPROVED lifecycle state transition and a valid evaluation record.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AI-MODEL}
