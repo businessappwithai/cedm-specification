@@ -1,0 +1,17 @@
+# CEDM Domain Entity: YardTier
+entity:
+  name: YardTier
+  namespace: cedm.domain
+  kind: logistics_location
+  description: A vertical tier level within a yard bay.
+  identity: {key: yardTierId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: yardTierId, type: uuid, required: true, immutable: true}
+    - {name: tierNumber, type: integer, required: true, minimum: 1}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, BLOCKED, CLOSED]}
+  relationships:
+    - {name: bay, target: YardBay, cardinality: "1", ownership: reference}
+    - {name: slots, target: YardSlot, cardinality: "1..*", ownership: aggregate}
+  invariants:
+    - {id: YARD-TIER-001, rule: tierNumber must be unique within a bay.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-YARD-TIER}
