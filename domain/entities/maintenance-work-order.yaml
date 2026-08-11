@@ -1,0 +1,26 @@
+entity:
+  name: MaintenanceWorkOrder
+  namespace: cedm.domain
+  kind: maintenance_transaction
+  description: A work instruction for inspection, preventive maintenance, corrective maintenance, or repair of an asset.
+  identity: {key: maintenanceWorkOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: maintenanceWorkOrderId, type: uuid, required: true, immutable: true}
+    - {name: workOrderNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: workType, type: enum, required: true, values: [INSPECTION, PREVENTIVE, CORRECTIVE, REPAIR, EMERGENCY]}
+    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, CRITICAL]}
+    - {name: requestedAt, type: datetime, required: true}
+    - {name: scheduledAt, type: datetime, required: false}
+    - {name: completedAt, type: datetime, required: false}
+    - {name: description, type: string, required: false, maxLength: 4000}
+  relationships:
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference}
+    - {name: maintenancePlan, target: MaintenancePlan, cardinality: "0..1", ownership: reference}
+    - {name: assignee, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: repairEstimate, target: RepairEstimate, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: MWO-001, rule: completedAt must be present when status is COMPLETED.}
+    - {id: MWO-002, rule: completedAt must not precede requestedAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MAINTENANCE-WORK-ORDER}
