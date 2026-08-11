@@ -1,0 +1,25 @@
+# CEDM Domain Entity: RepairEstimateLine
+entity:
+  name: RepairEstimateLine
+  namespace: cedm.domain
+  kind: maintenance_transaction_line
+  description: A repair component, damage, material, or labor line within a repair estimate.
+  identity: {key: repairEstimateLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: repairEstimateLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: repairCode, type: string, required: false, maxLength: 50}
+    - {name: damageCode, type: string, required: false, maxLength: 50}
+    - {name: componentCode, type: string, required: false, maxLength: 50}
+    - {name: materialCode, type: string, required: false, maxLength: 100}
+    - {name: quantity, type: decimal, required: false, precision: 20, scale: 6}
+    - {name: materialAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: labourAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: replacementAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: totalAmount, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+    - {name: repairEstimate, target: RepairEstimate, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: REPAIR-LINE-001, rule: lineNumber must be unique within its repair estimate revision.}
+    - {id: REPAIR-LINE-002, rule: totalAmount must reconcile to applicable material, labor, and replacement components according to the estimate rules.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-REPAIR-ESTIMATE-LINE}
