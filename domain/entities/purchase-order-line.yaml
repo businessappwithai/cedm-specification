@@ -2,146 +2,106 @@ entity:
   name: PurchaseOrderLine
   namespace: cedm.domain
   kind: transaction_line
-  description: A product or service line within a purchase order.
-  identity:
-    key: purchaseOrderLineId
-    type: uuid
-    generated: true
-    immutable: true
+  description: An individual procurement commitment within a PurchaseOrder that specifies what is being purchased, how much, at what commercial price, and how much has subsequently been received.
+  identity: {key: purchaseOrderLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: purchaseOrderLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the purchase order line record associated with this PurchaseOrderLine. The identifier connects this
-        record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Captures the business meaning of line number for the PurchaseOrderLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: quantity
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: unitPrice
-    type: decimal
-    required: true
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of unit price for the PurchaseOrderLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: lineAmount
-    type: decimal
-    required: true
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of line amount for the PurchaseOrderLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: receivedQuantity
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help:
-      summary: Captures the business meaning of received quantity for the PurchaseOrderLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseOrderLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: purchaseOrderLineId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable identity of the individual procurement commitment line.
+        usage: Used by receiving, invoice matching, fulfillment, reporting, integrations, and audit processes to reference the exact ordered commitment.
+        relationshipContext: It identifies the line independently of the PurchaseOrder's human-facing number and of the Product it references.
+        requiredMeaning: Required because each procurement commitment must be individually traceable.
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The business-facing sequence number used to identify this line within its PurchaseOrder.
+        usage: Used on purchase orders, receipts, invoices, correspondence, and user interfaces to identify a specific ordered item or service.
+        relationshipContext: It is meaningful within the containing PurchaseOrder and should not be treated as a globally unique identifier.
+        requiredMeaning: Required because users and downstream documents need a stable way to refer to individual order commitments.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help:
+        summary: The quantity of the Product or service committed to be purchased.
+        usage: Drives supplier commitments, expected receipts, inventory planning, fulfillment, and invoice matching.
+        relationshipContext: Quantity must be interpreted together with Product and UnitOfMeasure; the numeric value alone does not define what is being ordered.
+        requiredMeaning: Required because a purchase commitment must state how much is expected.
+    - name: unitPrice
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help:
+        summary: The agreed monetary price for one unit of the referenced Product or service under the purchase terms.
+        usage: Used to calculate line value, compare supplier pricing, approve spend, match invoices, and support financial reporting.
+        relationshipContext: It applies to the ordered quantity and UnitOfMeasure and is interpreted using the PurchaseOrder currency; it should not be confused with a product's current list price.
+        requiredMeaning: Required when the procurement commitment is financially valued.
+    - name: lineAmount
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help:
+        summary: The total monetary value attributable to this purchase line under its agreed quantity, unit price, and applicable adjustments.
+        usage: Contributes to purchase-order totals, approval thresholds, budget consumption, accruals, and invoice reconciliation.
+        relationshipContext: It should reconcile with quantity, unitPrice, applicable discounts or adjustments, and the PurchaseOrder currency rather than being treated as an unrelated amount.
+        requiredMeaning: Required when line-level financial valuation is maintained.
+    - name: receivedQuantity
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help:
+        summary: The cumulative quantity recorded as received against this purchase commitment.
+        usage: Used to determine outstanding quantity, partial receipt, completion, supplier performance, inventory receipt, and three-way matching.
+        relationshipContext: It represents an accumulated operational result against quantity; detailed receipt events should remain traceable through receiving transactions rather than being replaced by this summary value.
+        requiredMeaning: Required with a default of zero so an unreceived line has an explicit outstanding state.
   relationships:
-  - name: purchaseOrder
-    target: PurchaseOrder
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects PurchaseOrderLine to PurchaseOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PurchaseOrder records associated with a PurchaseOrderLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: product
-    target: Product
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects PurchaseOrderLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a PurchaseOrderLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: unitOfMeasure
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects PurchaseOrderLine to UnitOfMeasure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a PurchaseOrderLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: purchaseOrder
+      target: PurchaseOrder
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the PurchaseOrder that contains this procurement commitment.
+        usage: Provides supplier, organizational, currency, delivery, approval, and lifecycle context for the line.
+        cardinalityMeaning: Every PurchaseOrderLine belongs to exactly one PurchaseOrder.
+        context: The line cannot be interpreted independently of its parent order because the parent supplies the commercial and procurement context.
+    - name: product
+      target: Product
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the product or service being procured.
+        usage: Connects procurement demand to product master data, specifications, inventory, supplier catalogs, receiving, and reporting.
+        cardinalityMeaning: Exactly one Product or service definition is associated with the line under this model.
+        context: Product describes what is being purchased; quantity and price describe the commercial commitment for that product on this specific order.
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Defines the unit in which the ordered and received quantities are expressed.
+        usage: Used for quantity interpretation, conversion, receiving, inventory, planning, and supplier communication.
+        cardinalityMeaning: Zero or one unit may be explicitly associated when the product's standard unit is inherited or when a unit is not applicable to the service.
+        context: The unit provides semantic meaning to quantity; without it, a value such as 100 cannot reliably be interpreted as pieces, kilograms, meters, hours, or another measure.
   invariants:
-  - id: PURCHASE-ORDER-LINE-001
-    rule: quantity must be greater than zero.
-  - id: PURCHASE-ORDER-LINE-002
-    rule: receivedQuantity must not exceed ordered quantity except where over-receipt tolerance is explicitly configured.
+    - {id: PURCHASE-ORDER-LINE-001, rule: quantity must be greater than zero.}
+    - {id: PURCHASE-ORDER-LINE-002, rule: receivedQuantity must be zero or greater.}
+    - {id: PURCHASE-ORDER-LINE-003, rule: receivedQuantity must not exceed quantity except where an explicit over-receipt tolerance or policy permits it.}
+    - {id: PURCHASE-ORDER-LINE-004, rule: lineNumber must be unique within its PurchaseOrder.}
   help:
-    summary: Represents a transaction line called PurchaseOrderLine within the CEDM business model.
-    businessMeaning: PurchaseOrderLine is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate PurchaseOrderLine records.
-    relationshipContext: The entity participates in a wider business graph through relationships with PurchaseOrder, Product,
-      UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical PurchaseOrderLine record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE
+    summary: Represents one specific commitment to purchase a Product or service within a PurchaseOrder.
+    businessMeaning: PurchaseOrderLine is the level at which procurement demand becomes measurable and financially actionable. It states what the buyer expects from the Supplier, in what quantity and unit, at what price, and how much has actually been received.
+    usage: Used by purchasing, supplier communication, receiving, inventory, accounts payable, budgeting, supplier performance, and three-way matching processes.
+    relationshipContext: The line is owned by PurchaseOrder and references Product and UnitOfMeasure. The PurchaseOrder supplies Supplier, organization, currency, and delivery context. Receipt transactions update operational fulfillment against the line, while invoices may reference the line for financial matching.
+    lifecycle: A line is created as part of an order, becomes an executable commitment when the parent order is approved or issued, accumulates received quantities as goods or services arrive, and becomes operationally complete when the ordered commitment has been fulfilled or otherwise terminated by policy.
+    example: A purchase order line may specify 500 kilograms of a material at 4.25 currency units per kilogram. As deliveries arrive, receipt transactions record actual quantities and the line's receivedQuantity progresses from zero toward the ordered quantity.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
