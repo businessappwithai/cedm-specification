@@ -1,0 +1,17 @@
+entity:
+  name: EnergyAsset
+  namespace: cedm.domain
+  kind: energy_entity
+  description: A physical asset used to generate, transmit, distribute, store, or consume energy.
+  identity: {key: energyAssetId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: energyAssetId, type: uuid, required: true, immutable: true}
+    - {name: assetCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: assetType, type: string, required: true, maxLength: 100}
+    - {name: capacity, type: decimal, required: false, precision: 20, scale: 6}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, MAINTENANCE, DECOMMISSIONED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: maintenanceWorkOrders, target: MaintenanceWorkOrder, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENERGY-ASSET}
