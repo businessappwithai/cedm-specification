@@ -1,0 +1,18 @@
+# CEDM Domain Entity: Crop
+entity:
+  name: Crop
+  namespace: cedm.domain
+  kind: agriculture_master_entity
+  description: A crop or cultivated plant category managed within an agricultural operation.
+  identity: {key: cropId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: cropId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 200}
+    - {name: cropType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: farms, target: Farm, cardinality: "0..*", ownership: reference}
+    - {name: fields, target: FarmField, cardinality: "0..*", ownership: reference}
+    - {name: products, target: Product, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CROP}
