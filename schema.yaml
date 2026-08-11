@@ -1,0 +1,278 @@
+schema:
+  name: CEDM Specification Schema
+  version: 0.1.0
+  description: Machine-readable vocabulary describing the structure and semantics of CEDM YAML documents.
+
+  document:
+    required: [cedm, metadata]
+    sections:
+      cedm:
+        type: object
+        required: [name, version]
+      metadata:
+        type: object
+      namespaces:
+        type: array
+      application:
+        type: object
+      common:
+        type: object
+      validation:
+        type: object
+      entities:
+        type: array
+        item_ref: entity
+      relationships:
+        type: array
+        item_ref: relationship
+      rules:
+        type: array
+        item_ref: rule
+      workflows:
+        type: array
+        item_ref: workflow
+      forms:
+        type: array
+        item_ref: form
+      reports:
+        type: array
+        item_ref: report
+      integrations:
+        type: object
+      security:
+        type: object
+      ai:
+        type: object
+      extensions:
+        type: object
+
+  definitions:
+    entity:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        description: {type: string}
+        abstract: {type: boolean}
+        attributes:
+          type: array
+          item_ref: attribute
+        relationships:
+          type: array
+          item_ref: entity_relationship
+        constraints:
+          type: array
+          item_ref: constraint
+        lifecycle:
+          type: object
+        indexes:
+          type: array
+
+    attribute:
+      type: object
+      required: [id, type]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        type: {type: string}
+        key: {type: boolean}
+        required: {type: boolean}
+        unique: {type: boolean}
+        nullable: {type: boolean}
+        default: {type: any}
+        enum: {type: array}
+        minimum: {type: number}
+        maximum: {type: number}
+        pattern: {type: string}
+        description: {type: string}
+        validation: {type: array}
+
+    entity_relationship:
+      type: object
+      required: [name, target, cardinality]
+      properties:
+        name: {type: string}
+        target: {type: string}
+        cardinality:
+          type: string
+          enum: [one_to_one, one_to_many, many_to_one, many_to_many]
+        foreign_key: {type: string}
+        inverse: {type: string}
+        required: {type: boolean}
+
+    relationship:
+      type: object
+      required: [id, from, to, cardinality]
+      properties:
+        id: {type: string}
+        from: {type: string}
+        to: {type: string}
+        cardinality: {type: string}
+        foreign_key: {type: string}
+        through: {type: string}
+        description: {type: string}
+
+    constraint:
+      type: object
+      required: [type]
+      properties:
+        type: {type: string}
+        fields: {type: array}
+        expression: {type: string}
+        message: {type: string}
+
+    rule:
+      type: object
+      required: [id, scope, when, then]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        description: {type: string}
+        scope: {type: string}
+        priority: {type: integer}
+        when: {type: object}
+        then: {type: object}
+        otherwise: {type: object}
+        severity:
+          type: string
+          enum: [info, warning, error, critical]
+        trace:
+          type: object
+
+    workflow:
+      type: object
+      required: [id, name, states, transitions]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        description: {type: string}
+        trigger: {type: object}
+        states:
+          type: array
+          item_ref: workflow_state
+        transitions:
+          type: array
+          item_ref: transition
+        roles: {type: array}
+        sla: {type: object}
+        escalation: {type: object}
+
+    workflow_state:
+      type: object_or_string
+      properties:
+        id: {type: string}
+        name: {type: string}
+        terminal: {type: boolean}
+        entry_actions: {type: array}
+        exit_actions: {type: array}
+
+    transition:
+      type: object
+      required: [from, to, action]
+      properties:
+        from: {type: string}
+        to: {type: string}
+        action: {type: string}
+        condition: {type: object}
+        guards: {type: array}
+        events: {type: array}
+        roles: {type: array}
+
+    form:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        entity: {type: string}
+        sections: {type: array}
+        fields: {type: array}
+        actions: {type: array}
+        mode:
+          type: string
+          enum: [create, edit, view, search, mixed]
+        layout: {type: object}
+        visibility: {type: array}
+        validation: {type: array}
+
+    report:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        purpose: {type: string}
+        dataset: {type: object}
+        dimensions: {type: array}
+        measures: {type: array}
+        aggregates: {type: array}
+        filters: {type: array}
+        sorting: {type: array}
+        visualization: {type: object}
+        exports: {type: array}
+
+  types:
+    id: string
+    name: string
+    description: string
+    expression: string
+    duration: string
+    datetime: datetime
+    date: date
+    money: decimal
+    percentage: decimal
+    integer: integer
+    boolean: boolean
+    object: object
+    array: array
+
+  cardinalities:
+    - one_to_one
+    - one_to_many
+    - many_to_one
+    - many_to_many
+
+  rule_operators:
+    comparison:
+      - equals
+      - not_equals
+      - greater_than
+      - greater_or_equal
+      - less_than
+      - less_or_equal
+    collection:
+      - in
+      - not_in
+      - contains
+      - not_contains
+    logical:
+      - and
+      - or
+      - not
+    existence:
+      - exists
+      - not_exists
+      - changed
+      - unchanged
+
+  action_kinds:
+    - validate
+    - calculate
+    - assign
+    - set
+    - create
+    - update
+    - delete
+    - emit_event
+    - start_workflow
+    - notify
+    - enforce
+    - approve
+    - reject
+
+compatibility:
+  forward_compatible: true
+  unknown_fields: preserve
+  extension_namespace: extensions
+  version_policy: semantic_versioning
