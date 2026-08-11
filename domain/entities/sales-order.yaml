@@ -2,175 +2,129 @@ entity:
   name: SalesOrder
   namespace: cedm.domain
   kind: commercial_transaction
-  description: A customer order requesting products or services for sale.
-  identity:
-    key: salesOrderId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A formal customer commitment request for specified products or services, establishing what is being requested, for whom, under which commercial terms, and for what delivery requirements. It is the commercial source for downstream fulfillment, shipment, invoicing, and revenue processes.
+  identity: {key: salesOrderId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: salesOrderId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the sales order record associated with this SalesOrder. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: orderNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of order number for the SalesOrder. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: orderDate
-    type: datetime
-    required: true
-    help:
-      summary: Records the business date associated with the order. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values:
-    - DRAFT
-    - CONFIRMED
-    - ALLOCATED
-    - PARTIALLY_FULFILLED
-    - FULFILLED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of SalesOrder.
-        CONFIRMED: Represents the confirmed state or classification in the context of SalesOrder.
-        ALLOCATED: Represents the allocated state or classification in the context of SalesOrder.
-        PARTIALLY_FULFILLED: Represents the partially fulfilled state or classification in the context of SalesOrder.
-        FULFILLED: Represents the fulfilled state or classification in the context of SalesOrder.
-        CANCELLED: Represents the cancelled state or classification in the context of SalesOrder.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: currencyId
-    type: reference
-    target: Currency
-    required: false
-    help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
-        and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: This field connects SalesOrder to Currency. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related Currency.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: requestedDeliveryDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the requested delivery. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: totalAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of total amount for the SalesOrder. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrder records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: salesOrderId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable CEDM identity of the sales order.
+        usage: Used by transactions, integrations, fulfillment, billing, and audit trails to reference this exact order rather than the customer or an order line.
+        relationshipContext: It identifies the order independently of Customer, Organization, and SalesOrderLine records so those relationships can change without changing the order's identity.
+        requiredMeaning: Every order must remain uniquely identifiable throughout its lifecycle.
+    - name: orderNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The business-facing reference assigned to the order and normally shown to customers and operational users.
+        usage: Used for searching, communicating about, printing documents, and reconciling external order references.
+        relationshipContext: Unlike salesOrderId, it is intended for business communication and follows an organization's numbering policy.
+        requiredMeaning: Operational users and processes need a recognizable reference for every order.
+    - name: orderDate
+      type: datetime
+      required: true
+      help:
+        summary: The date and time at which the business recognizes the order as placed or recorded.
+        usage: Drives commercial chronology, period reporting, eligibility rules, fulfillment prioritization, and audit analysis.
+        relationshipContext: It establishes when the SalesOrder entered the business process and is distinct from requested delivery or actual shipment dates.
+        requiredMeaning: Order processing and reporting require a defined commercial event time.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
+      help:
+        summary: The lifecycle state controlling whether the order is being prepared, is an executable commitment, is being fulfilled, or has ended.
+        usage: Downstream processes use status to determine permitted actions and transitions.
+        relationshipContext: Order status summarizes the commitment while line and shipment records provide detailed fulfillment evidence.
+        valueSemantics:
+          DRAFT: The order is being prepared and is not yet an executable customer commitment.
+          CONFIRMED: The business has accepted the order and it is eligible for fulfillment processing.
+          ALLOCATED: Required inventory or capacity has been assigned against the order.
+          PARTIALLY_FULFILLED: Some ordered commitments have been fulfilled while others remain open.
+          FULFILLED: All required order commitments have been fulfilled.
+          CANCELLED: The order will no longer be fulfilled and remaining commitments are terminated.
+        requiredMeaning: Every order must have a known lifecycle state.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: false
+      help:
+        summary: Identifies the currency used to express monetary amounts on the order.
+        usage: Interprets totalAmount and line prices consistently across customers, organizations, and reporting contexts.
+        relationshipContext: References the common Currency entity rather than duplicating a currency code, allowing consistent currency metadata and rules.
+        optionalMeaning: It may be absent while commercial denomination is genuinely unresolved; committed monetary orders should have a currency.
+    - name: requestedDeliveryDate
+      type: date
+      required: false
+      help:
+        summary: The date by which the customer requests delivery or completion of the ordered commitment.
+        usage: Supports availability planning, allocation, shipment scheduling, customer communication, and service-level analysis.
+        relationshipContext: This is a customer requirement, not an actual delivery date or supplier promise.
+        optionalMeaning: Some orders do not have a requested delivery date when initially created.
+    - name: totalAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The monetary value of the order after applying the pricing represented by its lines and applicable adjustments.
+        usage: Used for order review, credit exposure, financial reporting, invoice preparation, and reconciliation.
+        relationshipContext: It should reconcile with SalesOrderLine monetary amounts and be interpreted using currencyId; it is not an independent pricing source.
+        optionalMeaning: It may be absent while pricing is incomplete or when the commercial model does not require an order-level total.
   relationships:
-  - name: customer
-    target: Customer
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects SalesOrder to Customer so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Customer records associated with a SalesOrder.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects SalesOrder to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a SalesOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: lines
-    target: SalesOrderLine
-    cardinality: 1..*
-    ownership: aggregate
-    help:
-      summary: Connects SalesOrder to SalesOrderLine so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about SalesOrderLine records associated with a SalesOrder.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: deliveryLocation
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects SalesOrder to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a SalesOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: customer
+      target: Customer
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the customer relationship for whose account the order is placed.
+        usage: Drives customer-specific pricing, credit, billing, service, reporting, and fulfillment context.
+        cardinalityMeaning: Exactly one Customer is associated with an executable SalesOrder.
+        context: Customer represents the commercial role; Party remains the underlying party identity and is not duplicated here.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the selling organization responsible for the order when organizational context matters.
+        usage: Supports ownership, legal entity, tax, pricing, inventory, fulfillment, and financial reporting decisions.
+        cardinalityMeaning: Zero or one organization may be specified when the selling context is not yet resolved or is inherited from another process.
+        context: Organization provides operational or legal context and is distinct from the Customer receiving the offering.
+    - name: lines
+      target: SalesOrderLine
+      cardinality: 1..*
+      ownership: aggregate
+      help:
+        summary: Contains the individual product or service commitments that make up the order.
+        usage: Lines determine what is ordered, quantities, prices, fulfillment requirements, and what may subsequently be shipped or invoiced.
+        cardinalityMeaning: An executable order requires at least one line; multiple lines allow different products, quantities, prices, schedules, or fulfillment characteristics.
+        context: SalesOrder owns the lifecycle of its lines, and line quantities and fulfillment contribute to order state.
+    - name: deliveryLocation
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the operational location to which the order is intended to be delivered or fulfilled.
+        usage: Used by allocation, routing, shipping, service scheduling, and delivery planning.
+        cardinalityMeaning: A location may be absent when delivery has not yet been determined or is handled through another mechanism.
+        context: It is the order-level destination context and should not be confused with a customer's address master or the actual shipment destination.
   invariants:
-  - id: SALES-ORDER-001
-    rule: orderNumber must be unique within its ERP context.
-  - id: SALES-ORDER-002
-    rule: A confirmed order must contain at least one line.
+    - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
+    - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
+    - {id: SALES-ORDER-003, rule: totalAmount must reconcile with applicable SalesOrderLine amounts and commercial adjustments.}
+    - {id: SALES-ORDER-004, rule: CANCELLED orders must not create new fulfillment commitments.}
+  lifecycle:
+    states: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
   help:
-    summary: Represents a commercial transaction called SalesOrder within the CEDM business model.
-    businessMeaning: SalesOrder is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate SalesOrder records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Customer, Organization,
-      SalesOrderLine, Location. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical SalesOrder record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-SALES-ORDER
+    summary: Represents the commercial commitment between a Customer and the selling organization for products or services.
+    businessMeaning: A SalesOrder is more than a product list. It records accepted customer demand and provides the boundary from which fulfillment, shipment, invoicing, credit, and customer-service processes derive their work.
+    usage: Created when demand is captured, confirmed when the business accepts it, allocated when supply or capacity is assigned, and progressively fulfilled as commitments are delivered.
+    relationshipContext: SalesOrder connects Customer to ordered SalesOrderLine commitments and may connect an Organization and delivery Location. Product identity and quantity belong on lines; downstream Shipment and Invoice records should reference the order when applicable.
+    lifecycle: Draft orders are editable requests. Confirmation establishes an executable commitment. Allocation records supply assignment. Partial fulfillment indicates remaining open commitments. Fulfillment ends the operational obligation, while cancellation terminates unfulfilled commitments.
+    example: A customer orders 20 containers and 5 spare parts. The SalesOrder identifies the customer and currency, while SalesOrderLine records identify products and quantities. Once confirmed, inventory allocation and shipment processes act on those commitments.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER}
