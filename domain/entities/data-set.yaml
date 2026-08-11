@@ -1,0 +1,19 @@
+entity:
+  name: Dataset
+  namespace: cedm.domain
+  kind: data_entity
+  description: A governed collection of structured or unstructured data used for operations, analytics, reporting, research, or AI.
+  identity: {key: datasetId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: datasetId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: classification, type: enum, required: true, values: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED, SENSITIVE]}
+    - {name: format, type: string, required: false, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, ARCHIVED, RETIRED]}
+    - {name: ownerOrganizationId, type: reference, target: Organization, required: false}
+  relationships:
+    - {name: ownerOrganization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: qualityAssessments, target: DataQualityAssessment, cardinality: "0..*", ownership: aggregate}
+    - {name: aiModels, target: AIModel, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DATASET}
