@@ -1,0 +1,19 @@
+# CEDM Domain Entity: HealthcarePatient
+entity:
+  name: HealthcarePatient
+  namespace: cedm.domain
+  kind: industry_specialization
+  description: A person receiving or eligible to receive healthcare services.
+  identity: {key: patientId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: patientId, type: uuid, required: true, immutable: true}
+    - {name: partyId, type: reference, target: Party, required: true, unique: true, immutable: true}
+    - {name: medicalRecordNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, DECEASED, MERGED]}
+    - {name: preferredLanguage, type: locale, required: false}
+  relationships:
+    - {name: party, target: Party, cardinality: "1", ownership: reference}
+    - {name: encounters, target: HealthcareEncounter, cardinality: "0..*", ownership: reference}
+    - {name: carePlans, target: CarePlan, cardinality: "0..*", ownership: reference}
+    - {name: allergies, target: Allergy, cardinality: "0..*", ownership: aggregate}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HEALTHCARE-PATIENT}
