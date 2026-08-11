@@ -1,0 +1,20 @@
+entity:
+  name: RegulatorySubmission
+  namespace: cedm.domain
+  kind: regulatory_entity
+  description: A formal submission made to a regulatory authority to obtain approval, authorization, registration, or fulfill a regulatory obligation.
+  identity: {key: regulatorySubmissionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: regulatorySubmissionId, type: uuid, required: true, immutable: true}
+    - {name: submissionNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: submissionType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, UNDER_REVIEW, QUESTIONS, APPROVED, REJECTED, WITHDRAWN]}
+    - {name: submittedAt, type: datetime, required: false}
+    - {name: decisionAt, type: datetime, required: false}
+  relationships:
+    - {name: authority, target: Organization, cardinality: "1", ownership: reference}
+    - {name: sponsor, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: REG-SUB-001, rule: submittedAt is required when status is SUBMITTED or later.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-REGULATORY-SUBMISSION}
