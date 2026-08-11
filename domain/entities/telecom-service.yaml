@@ -1,0 +1,24 @@
+entity:
+  name: TelecomService
+  namespace: cedm.domain
+  kind: telecom_entity
+  description: A telecommunications service subscribed to or provided for a party.
+  identity:
+    key: telecomServiceId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: telecomServiceId, type: uuid, required: true, immutable: true}
+    - {name: serviceNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: serviceType, type: enum, required: true, values: [MOBILE, FIXED, BROADBAND, VOICE, DATA, IOT, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, SUSPENDED, TERMINATED]}
+    - {name: activationDate, type: date, required: false}
+    - {name: terminationDate, type: date, required: false}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: TELECOM-SERVICE-001, rule: terminationDate must not precede activationDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TELECOM-SERVICE}
