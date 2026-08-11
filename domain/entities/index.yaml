@@ -1,0 +1,55 @@
+# CEDM Domain Entity Registry
+# This registry is the canonical inventory of entity specifications.
+
+registry:
+  namespace: cedm.domain
+  specificationVersion: 0.1.0
+  status: draft
+  entities:
+    - ERP
+    - Organization
+    - Party
+    - Person
+    - PartyRole
+    - Customer
+    - Supplier
+    - Address
+    - Location
+    - ProductCategory
+    - Product
+    - UnitOfMeasure
+    - Currency
+    - PaymentTerm
+    - Document
+    - BusinessProcess
+    - Workflow
+    - Task
+    - BusinessTransaction
+    - SalesOrder
+    - SalesOrderLine
+    - PurchaseOrder
+    - PurchaseOrderLine
+    - Warehouse
+    - InventoryLocation
+    - InventoryBalance
+    - InventoryMovement
+    - Container
+    - Yard
+    - YardBlock
+    - YardBay
+    - YardTier
+    - YardSlot
+    - ContainerMovement
+    - RepairEstimate
+    - RepairEstimateLine
+    - AssetDepreciation
+    - Account
+    - JournalEntry
+    - JournalEntryLine
+
+  conventions:
+    identity: Globally unique UUID unless a domain-specific natural key is explicitly declared.
+    references: Entity references use target entity names and cardinality.
+    lifecycle: State transitions are expressed under lifecycle or invariants when required.
+    businessRules: Rules are expressed as invariants and remain implementation-neutral.
+    audit: System-managed timestamps and actors are declared explicitly where applicable.
