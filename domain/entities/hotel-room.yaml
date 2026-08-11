@@ -1,0 +1,16 @@
+entity:
+  name: HotelRoom
+  namespace: cedm.domain
+  kind: hospitality_asset
+  description: An individual accommodation unit within a hotel.
+  identity: {key: hotelRoomId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: hotelRoomId, type: uuid, required: true, immutable: true}
+    - {name: roomNumber, type: string, required: true, maxLength: 50}
+    - {name: roomType, type: string, required: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: AVAILABLE, values: [AVAILABLE, OCCUPIED, RESERVED, CLEANING, OUT_OF_SERVICE]}
+    - {name: capacity, type: integer, required: true, minimum: 1}
+  relationships:
+    - {name: hotel, target: Hotel, cardinality: "1", ownership: reference}
+    - {name: reservations, target: HotelReservation, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HOTEL-ROOM}
