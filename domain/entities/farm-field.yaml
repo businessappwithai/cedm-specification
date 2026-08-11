@@ -1,0 +1,18 @@
+# CEDM Domain Entity: FarmField
+entity:
+  name: FarmField
+  namespace: cedm.domain
+  kind: agriculture_entity
+  description: A defined agricultural land area managed as a production unit.
+  identity: {key: farmFieldId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: farmFieldId, type: uuid, required: true, immutable: true}
+    - {name: fieldCode, type: string, required: true, maxLength: 100}
+    - {name: area, type: decimal, required: false, precision: 18, scale: 4}
+    - {name: areaUnit, type: reference, target: UnitOfMeasure, required: false}
+    - {name: soilType, type: string, required: false, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, FALLOW, INACTIVE]}
+  relationships:
+    - {name: farm, target: Farm, cardinality: "1", ownership: reference}
+    - {name: crops, target: Crop, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FARM-FIELD}
