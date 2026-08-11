@@ -1,0 +1,121 @@
+# CEDM Domain Entity: Party
+entity:
+  name: Party
+  namespace: cedm.domain
+  kind: core_master_entity
+  description: >-
+    A party is an identifiable person or organization that can participate in
+    one or more business relationships, transactions, processes, or roles.
+    Party provides the common identity layer for people and organizations.
+
+  identity:
+    key: partyId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: partyId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: partyType
+      type: enum
+      required: true
+      values:
+        - PERSON
+        - ORGANIZATION
+
+    - name: displayName
+      type: string
+      required: true
+      maxLength: 300
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - BLOCKED
+        - RETIRED
+
+    - name: externalReference
+      type: string
+      required: false
+      maxLength: 200
+
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: createdBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+
+    - name: updatedBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+
+  relationships:
+    - name: person
+      target: Person
+      cardinality: "0..1"
+      ownership: reference
+      condition: partyType == PERSON
+
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+      condition: partyType == ORGANIZATION
+
+    - name: addresses
+      target: Address
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: partyRoles
+      target: PartyRole
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: PARTY-001
+      rule: partyType must match the populated specialization.
+
+    - id: PARTY-002
+      rule: displayName is required for every party.
+
+    - id: PARTY-003
+      rule: A party must not simultaneously represent both PERSON and ORGANIZATION specializations.
+
+  audit:
+    enabled: true
+    trackCreatedBy: true
+    trackCreatedAt: true
+    trackUpdatedBy: true
+    trackUpdatedAt: true
+
+  tags:
+    - party
+    - identity
+    - master-data
+    - polymorphic-root
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PARTY
