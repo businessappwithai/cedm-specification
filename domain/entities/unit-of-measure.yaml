@@ -1,0 +1,74 @@
+# CEDM Domain Entity: UnitOfMeasure
+entity:
+  name: UnitOfMeasure
+  namespace: cedm.domain
+  kind: reference_master_entity
+  description: A standardized unit used to quantify products, services, quantities, dimensions, or measurements.
+  identity:
+    key: unitOfMeasureId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: unitOfMeasureId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 30
+    - name: name
+      type: string
+      required: true
+      maxLength: 100
+    - name: symbol
+      type: string
+      required: false
+      maxLength: 20
+    - name: category
+      type: enum
+      required: true
+      values:
+        - QUANTITY
+        - LENGTH
+        - AREA
+        - VOLUME
+        - MASS
+        - TIME
+        - COUNT
+        - CURRENCY
+        - OTHER
+    - name: conversionFactor
+      type: decimal
+      required: false
+      precision: 24
+      scale: 12
+    - name: baseUnitId
+      type: reference
+      target: UnitOfMeasure
+      required: false
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+  relationships:
+    - name: baseUnit
+      target: UnitOfMeasure
+      cardinality: "0..1"
+      ownership: reference
+    - name: derivedUnits
+      target: UnitOfMeasure
+      cardinality: "0..*"
+      ownership: reference
+  invariants:
+    - id: UOM-001
+      rule: conversionFactor must be positive when supplied.
+    - id: UOM-002
+      rule: A unit must not reference itself as its base unit.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-UNIT-OF-MEASURE
