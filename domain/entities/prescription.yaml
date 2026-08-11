@@ -1,0 +1,23 @@
+# CEDM Domain Entity: Prescription
+entity:
+  name: Prescription
+  namespace: cedm.domain
+  kind: healthcare_transaction
+  description: An authorized instruction for a patient to receive or use a medication or therapy.
+  identity: {key: prescriptionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: prescriptionId, type: uuid, required: true, immutable: true}
+    - {name: prescriptionNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: dosage, type: string, required: false, maxLength: 200}
+    - {name: frequency, type: string, required: false, maxLength: 200}
+    - {name: route, type: string, required: false, maxLength: 100}
+    - {name: startDate, type: date, required: false}
+    - {name: endDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, COMPLETED, CANCELLED, DISCONTINUED]}
+  relationships:
+    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference}
+    - {name: medication, target: Medication, cardinality: "1", ownership: reference}
+    - {name: prescriber, target: HealthcareProvider, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: PRESCRIPTION-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRESCRIPTION}
