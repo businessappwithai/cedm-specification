@@ -1,0 +1,20 @@
+entity:
+  name: RetailSaleLine
+  namespace: cedm.domain
+  kind: retail_transaction_line
+  description: A product or service line within a retail sale.
+  identity: {key: retailSaleLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: retailSaleLineId, type: uuid, required: true, immutable: true}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: unitPrice, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: discountAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: taxAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: lineAmount, type: decimal, required: true, precision: 20, scale: 4}
+  relationships:
+    - {name: sale, target: RetailSale, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: RETAIL-SALE-LINE-001, rule: quantity must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RETAIL-SALE-LINE}
