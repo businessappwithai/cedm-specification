@@ -1,0 +1,18 @@
+# CEDM Domain Entity: Diagnosis
+entity:
+  name: Diagnosis
+  namespace: cedm.domain
+  kind: healthcare_clinical_entity
+  description: A clinical finding or condition identified during healthcare assessment.
+  identity: {key: diagnosisId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: diagnosisId, type: uuid, required: true, immutable: true}
+    - {name: codeSystem, type: string, required: true, maxLength: 50}
+    - {name: code, type: string, required: true, maxLength: 50}
+    - {name: description, type: string, required: true, maxLength: 1000}
+    - {name: diagnosisType, type: enum, required: true, values: [PRIMARY, SECONDARY, SUSPECTED, HISTORICAL, OTHER]}
+    - {name: onsetDate, type: date, required: false}
+  relationships:
+    - {name: encounter, target: HealthcareEncounter, cardinality: "1", ownership: reference}
+    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DIAGNOSIS}
