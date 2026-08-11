@@ -1,0 +1,21 @@
+entity:
+  name: InsuranceClaim
+  namespace: cedm.domain
+  kind: insurance_transaction
+  description: A request for payment or service under an insurance policy following a covered event.
+  identity: {key: insuranceClaimId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: insuranceClaimId, type: uuid, required: true, immutable: true}
+    - {name: claimNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: lossDate, type: date, required: false}
+    - {name: reportedAt, type: datetime, required: true}
+    - {name: claimedAmount, type: money, required: false}
+    - {name: approvedAmount, type: money, required: false}
+    - {name: status, type: enum, required: true, default: REPORTED, values: [REPORTED, UNDER_REVIEW, APPROVED, PARTIALLY_APPROVED, DENIED, SETTLED, CLOSED]}
+  relationships:
+    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference}
+    - {name: claimant, target: Party, cardinality: "1", ownership: reference}
+    - {name: incident, target: BusinessTransaction, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: INSURANCE-CLAIM-001, rule: approvedAmount cannot exceed claimedAmount when both are supplied.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INSURANCE-CLAIM}
