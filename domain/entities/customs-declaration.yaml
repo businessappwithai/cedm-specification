@@ -3,20 +3,187 @@ entity:
   namespace: cedm.domain
   kind: trade_entity
   description: A declaration of goods and trade information submitted to a customs authority.
-  identity: {key: customsDeclarationId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: customsDeclarationId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: customsDeclarationId, type: uuid, required: true, immutable: true}
-    - {name: declarationNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: declarationType, type: enum, required: true, values: [IMPORT, EXPORT, TRANSIT, TEMPORARY_IMPORT, OTHER]}
-    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, ACCEPTED, UNDER_INSPECTION, CLEARED, REJECTED, CANCELLED]}
-    - {name: declaredValue, type: decimal, required: false, precision: 20, scale: 4}
-    - {name: currencyId, type: reference, target: Currency, required: false}
-    - {name: declarationDate, type: date, required: true}
+  - name: customsDeclarationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the customs declaration record associated with this CustomsDeclaration. The identifier connects
+        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: declarationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of declaration number for the CustomsDeclaration. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: declarationType
+    type: enum
+    required: true
+    values:
+    - IMPORT
+    - EXPORT
+    - TRANSIT
+    - TEMPORARY_IMPORT
+    - OTHER
+    help:
+      summary: Captures the business meaning of declaration type for the CustomsDeclaration. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        IMPORT: Represents the import state or classification in the context of CustomsDeclaration.
+        EXPORT: Represents the export state or classification in the context of CustomsDeclaration.
+        TRANSIT: Represents the transit state or classification in the context of CustomsDeclaration.
+        TEMPORARY_IMPORT: Represents the temporary import state or classification in the context of CustomsDeclaration.
+        OTHER: Represents the other state or classification in the context of CustomsDeclaration.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values:
+    - DRAFT
+    - SUBMITTED
+    - ACCEPTED
+    - UNDER_INSPECTION
+    - CLEARED
+    - REJECTED
+    - CANCELLED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DRAFT: Represents the draft state or classification in the context of CustomsDeclaration.
+        SUBMITTED: Represents the submitted state or classification in the context of CustomsDeclaration.
+        ACCEPTED: Represents the accepted state or classification in the context of CustomsDeclaration.
+        UNDER_INSPECTION: Represents the under inspection state or classification in the context of CustomsDeclaration.
+        CLEARED: Represents the cleared state or classification in the context of CustomsDeclaration.
+        REJECTED: Represents the rejected state or classification in the context of CustomsDeclaration.
+        CANCELLED: Represents the cancelled state or classification in the context of CustomsDeclaration.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: declaredValue
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of declared value for the CustomsDeclaration. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: false
+    help:
+      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
+        and aggregated consistently.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: This field connects CustomsDeclaration to Currency. The reference establishes business context
+        between the two entities and lets processes navigate from this record to the related Currency.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: declarationDate
+    type: date
+    required: true
+    help:
+      summary: Records the business date associated with the declaration. It is used in chronology, eligibility, scheduling,
+        reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records,
+        where applicable.
+      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - {name: declarant, target: Party, cardinality: "1", ownership: reference}
-    - {name: authority, target: Organization, cardinality: "1", ownership: reference}
-    - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference}
-    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+  - name: declarant
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects CustomsDeclaration to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a CustomsDeclaration.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: authority
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects CustomsDeclaration to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a CustomsDeclaration.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects CustomsDeclaration to Shipment so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Shipment records associated with a CustomsDeclaration.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: documents
+    target: Document
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects CustomsDeclaration to Document so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Document records associated with a CustomsDeclaration.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: CUSTOMS-001, rule: declaredValue must be zero or greater when supplied.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CUSTOMS-DECLARATION}
+  - id: CUSTOMS-001
+    rule: declaredValue must be zero or greater when supplied.
+  help:
+    summary: Represents a trade entity called CustomsDeclaration within the CEDM business model.
+    businessMeaning: CustomsDeclaration is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate CustomsDeclaration records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
+      Shipment, Document. These relationships provide the context needed to interpret the record rather than treating its
+      fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical CustomsDeclaration record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-CUSTOMS-DECLARATION

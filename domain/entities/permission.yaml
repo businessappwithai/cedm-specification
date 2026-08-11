@@ -3,13 +3,126 @@ entity:
   namespace: cedm.domain
   kind: authorization_entity
   description: A fine-grained authorization capability governing an operation on a resource.
-  identity: {key: permissionId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: permissionId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: permissionId, type: uuid, required: true, immutable: true}
-    - {name: code, type: string, required: true, unique: true, maxLength: 200}
-    - {name: resource, type: string, required: true, maxLength: 200}
-    - {name: action, type: enum, required: true, values: [CREATE, READ, UPDATE, DELETE, EXECUTE, APPROVE, EXPORT, ADMINISTER]}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, RETIRED]}
+  - name: permissionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the permission record associated with this Permission. The identifier connects this record to the
+        corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Permission records, where
+        applicable.
+      relationshipContext: Its meaning is specific to Permission; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 200
+    help:
+      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Permission records, where
+        applicable.
+      relationshipContext: Its meaning is specific to Permission; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: resource
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: Captures the business meaning of resource for the Permission. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Permission records, where
+        applicable.
+      relationshipContext: Its meaning is specific to Permission; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: action
+    type: enum
+    required: true
+    values:
+    - CREATE
+    - READ
+    - UPDATE
+    - DELETE
+    - EXECUTE
+    - APPROVE
+    - EXPORT
+    - ADMINISTER
+    help:
+      summary: Captures the business meaning of action for the Permission. It is interpreted together with the entity's other
+        attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Permission records, where
+        applicable.
+      relationshipContext: Its meaning is specific to Permission; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        CREATE: Represents the create state or classification in the context of Permission.
+        READ: Represents the read state or classification in the context of Permission.
+        UPDATE: Represents the update state or classification in the context of Permission.
+        DELETE: Represents the delete state or classification in the context of Permission.
+        EXECUTE: Represents the execute state or classification in the context of Permission.
+        APPROVE: Represents the approve state or classification in the context of Permission.
+        EXPORT: Represents the export state or classification in the context of Permission.
+        ADMINISTER: Represents the administer state or classification in the context of Permission.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - RETIRED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Permission records, where
+        applicable.
+      relationshipContext: Its meaning is specific to Permission; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        ACTIVE: Represents the active state or classification in the context of Permission.
+        INACTIVE: Represents the inactive state or classification in the context of Permission.
+        RETIRED: Represents the retired state or classification in the context of Permission.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - {name: roles, target: Role, cardinality: "0..*", ownership: reference}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PERMISSION}
+  - name: roles
+    target: Role
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects Permission to Role so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Role records associated with a Permission.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  help:
+    summary: Represents a authorization entity called Permission within the CEDM business model.
+    businessMeaning: Permission is a business concept with its own identity and lifecycle. It captures information that must
+      remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate Permission records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Role. These relationships
+      provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical Permission record represents one identifiable business occurrence or master-data object that can be
+      referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PERMISSION

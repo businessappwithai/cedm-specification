@@ -1,19 +1,145 @@
-# CEDM Domain Entity: HealthcarePatient
 entity:
   name: HealthcarePatient
   namespace: cedm.domain
   kind: industry_specialization
   description: A person receiving or eligible to receive healthcare services.
-  identity: {key: patientId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: patientId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: patientId, type: uuid, required: true, immutable: true}
-    - {name: partyId, type: reference, target: Party, required: true, unique: true, immutable: true}
-    - {name: medicalRecordNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, DECEASED, MERGED]}
-    - {name: preferredLanguage, type: locale, required: false}
+  - name: patientId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the patient record associated with this HealthcarePatient. The identifier connects this record to
+        the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcarePatient records,
+        where applicable.
+      relationshipContext: Its meaning is specific to HealthcarePatient; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: partyId
+    type: reference
+    target: Party
+    required: true
+    unique: true
+    immutable: true
+    help:
+      summary: Identifies the related Party associated with this HealthcarePatient. It provides the link needed to navigate
+        from this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcarePatient records,
+        where applicable.
+      relationshipContext: This field connects HealthcarePatient to Party. The reference establishes business context between
+        the two entities and lets processes navigate from this record to the related Party.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: medicalRecordNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of medical record number for the HealthcarePatient. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcarePatient records,
+        where applicable.
+      relationshipContext: Its meaning is specific to HealthcarePatient; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - DECEASED
+    - MERGED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcarePatient records,
+        where applicable.
+      relationshipContext: Its meaning is specific to HealthcarePatient; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        ACTIVE: Represents the active state or classification in the context of HealthcarePatient.
+        INACTIVE: Represents the inactive state or classification in the context of HealthcarePatient.
+        DECEASED: Represents the deceased state or classification in the context of HealthcarePatient.
+        MERGED: Represents the merged state or classification in the context of HealthcarePatient.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: preferredLanguage
+    type: locale
+    required: false
+    help:
+      summary: Captures the business meaning of preferred language for the HealthcarePatient. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcarePatient records,
+        where applicable.
+      relationshipContext: Its meaning is specific to HealthcarePatient; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: party, target: Party, cardinality: "1", ownership: reference}
-    - {name: encounters, target: HealthcareEncounter, cardinality: "0..*", ownership: reference}
-    - {name: carePlans, target: CarePlan, cardinality: "0..*", ownership: reference}
-    - {name: allergies, target: Allergy, cardinality: "0..*", ownership: aggregate}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HEALTHCARE-PATIENT}
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects HealthcarePatient to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a HealthcarePatient.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: encounters
+    target: HealthcareEncounter
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects HealthcarePatient to HealthcareEncounter so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about HealthcareEncounter records associated with a HealthcarePatient.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: carePlans
+    target: CarePlan
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects HealthcarePatient to CarePlan so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about CarePlan records associated with a HealthcarePatient.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: allergies
+    target: Allergy
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: Connects HealthcarePatient to Allergy so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Allergy records associated with a HealthcarePatient.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  help:
+    summary: Represents a industry specialization called HealthcarePatient within the CEDM business model.
+    businessMeaning: HealthcarePatient is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate HealthcarePatient records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, HealthcareEncounter,
+      CarePlan, Allergy. These relationships provide the context needed to interpret the record rather than treating its fields
+      as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical HealthcarePatient record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-HEALTHCARE-PATIENT

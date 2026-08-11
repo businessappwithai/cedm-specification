@@ -2,18 +2,161 @@ entity:
   name: Dataset
   namespace: cedm.domain
   kind: data_entity
-  description: A governed collection of structured or unstructured data used for operations, analytics, reporting, research, or AI.
-  identity: {key: datasetId, type: uuid, generated: true, immutable: true}
+  description: A governed collection of structured or unstructured data used for operations, analytics, reporting, research,
+    or AI.
+  identity:
+    key: datasetId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: datasetId, type: uuid, required: true, immutable: true}
-    - {name: code, type: string, required: true, unique: true, maxLength: 100}
-    - {name: name, type: string, required: true, maxLength: 300}
-    - {name: classification, type: enum, required: true, values: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED, SENSITIVE]}
-    - {name: format, type: string, required: false, maxLength: 100}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, ARCHIVED, RETIRED]}
-    - {name: ownerOrganizationId, type: reference, target: Organization, required: false}
+  - name: datasetId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the dataset record associated with this Dataset. The identifier connects this record to the corresponding
+        CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The human-readable name used by people, reports, searches, and related business processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: classification
+    type: enum
+    required: true
+    values:
+    - PUBLIC
+    - INTERNAL
+    - CONFIDENTIAL
+    - RESTRICTED
+    - SENSITIVE
+    help:
+      summary: Captures the business meaning of classification for the Dataset. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        PUBLIC: Represents the public state or classification in the context of Dataset.
+        INTERNAL: Represents the internal state or classification in the context of Dataset.
+        CONFIDENTIAL: Represents the confidential state or classification in the context of Dataset.
+        RESTRICTED: Represents the restricted state or classification in the context of Dataset.
+        SENSITIVE: Represents the sensitive state or classification in the context of Dataset.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: format
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of format for the Dataset. It is interpreted together with the entity's other
+        attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - DRAFT
+    - ACTIVE
+    - ARCHIVED
+    - RETIRED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DRAFT: Represents the draft state or classification in the context of Dataset.
+        ACTIVE: Represents the active state or classification in the context of Dataset.
+        ARCHIVED: Represents the archived state or classification in the context of Dataset.
+        RETIRED: Represents the retired state or classification in the context of Dataset.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: ownerOrganizationId
+    type: reference
+    target: Organization
+    required: false
+    help:
+      summary: Identifies the related Organization associated with this Dataset. It provides the link needed to navigate from
+        this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Dataset records, where applicable.
+      relationshipContext: This field connects Dataset to Organization. The reference establishes business context between
+        the two entities and lets processes navigate from this record to the related Organization.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: ownerOrganization, target: Organization, cardinality: "0..1", ownership: reference}
-    - {name: qualityAssessments, target: DataQualityAssessment, cardinality: "0..*", ownership: aggregate}
-    - {name: aiModels, target: AIModel, cardinality: "0..*", ownership: reference}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DATASET}
+  - name: ownerOrganization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects Dataset to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a Dataset.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: qualityAssessments
+    target: DataQualityAssessment
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: Connects Dataset to DataQualityAssessment so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about DataQualityAssessment records associated with a Dataset.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: aiModels
+    target: AIModel
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects Dataset to AIModel so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about AIModel records associated with a Dataset.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  help:
+    summary: Represents a data entity called Dataset within the CEDM business model.
+    businessMeaning: Dataset is a business concept with its own identity and lifecycle. It captures information that must
+      remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate Dataset records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Organization, DataQualityAssessment,
+      AIModel. These relationships provide the context needed to interpret the record rather than treating its fields as isolated
+      database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical Dataset record represents one identifiable business occurrence or master-data object that can be referenced
+      by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-DATASET

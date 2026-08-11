@@ -3,18 +3,145 @@ entity:
   namespace: cedm.domain
   kind: telecommunications_entity
   description: A customer's subscription to a telecommunications service or plan.
-  identity: {key: telecomSubscriptionId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: telecomSubscriptionId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: telecomSubscriptionId, type: uuid, required: true, immutable: true}
-    - {name: subscriptionNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, SUSPENDED, CANCELLED, EXPIRED]}
-    - {name: startDate, type: date, required: true}
-    - {name: endDate, type: date, required: false}
+  - name: telecomSubscriptionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the telecom subscription record associated with this TelecomSubscription. The identifier connects
+        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomSubscription records,
+        where applicable.
+      relationshipContext: Its meaning is specific to TelecomSubscription; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: subscriptionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of subscription number for the TelecomSubscription. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomSubscription records,
+        where applicable.
+      relationshipContext: Its meaning is specific to TelecomSubscription; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - PENDING
+    - ACTIVE
+    - SUSPENDED
+    - CANCELLED
+    - EXPIRED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomSubscription records,
+        where applicable.
+      relationshipContext: Its meaning is specific to TelecomSubscription; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        PENDING: Represents the pending state or classification in the context of TelecomSubscription.
+        ACTIVE: Represents the active state or classification in the context of TelecomSubscription.
+        SUSPENDED: Represents the suspended state or classification in the context of TelecomSubscription.
+        CANCELLED: Represents the cancelled state or classification in the context of TelecomSubscription.
+        EXPIRED: Represents the expired state or classification in the context of TelecomSubscription.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
+        must follow the business chronology.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomSubscription records,
+        where applicable.
+      relationshipContext: Its meaning is specific to TelecomSubscription; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted
+        together with the corresponding start date.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomSubscription records,
+        where applicable.
+      relationshipContext: Its meaning is specific to TelecomSubscription; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
-    - {name: service, target: TelecomService, cardinality: "1", ownership: reference}
-    - {name: plan, target: Product, cardinality: "0..1", ownership: reference}
-    - {name: device, target: Vehicle, cardinality: "0..1", ownership: reference}
+  - name: customer
+    target: Customer
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects TelecomSubscription to Customer so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Customer records associated with a TelecomSubscription.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: service
+    target: TelecomService
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects TelecomSubscription to TelecomService so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about TelecomService records associated with a TelecomSubscription.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: plan
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects TelecomSubscription to Product so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Product records associated with a TelecomSubscription.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: device
+    target: Vehicle
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects TelecomSubscription to Vehicle so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Vehicle records associated with a TelecomSubscription.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: TELECOM-SUBSCRIPTION-001, rule: endDate must not precede startDate.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TELECOM-SUBSCRIPTION}
+  - id: TELECOM-SUBSCRIPTION-001
+    rule: endDate must not precede startDate.
+  help:
+    summary: Represents a telecommunications entity called TelecomSubscription within the CEDM business model.
+    businessMeaning: TelecomSubscription is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate TelecomSubscription records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Customer, TelecomService,
+      Product, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields
+      as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical TelecomSubscription record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-TELECOM-SUBSCRIPTION

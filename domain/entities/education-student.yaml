@@ -9,12 +9,119 @@ entity:
     generated: true
     immutable: true
   attributes:
-    - {name: studentId, type: uuid, required: true, immutable: true}
-    - {name: partyId, type: reference, target: Party, required: true, unique: true}
-    - {name: studentNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [APPLICANT, ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN, ALUMNI]}
+  - name: studentId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the student record associated with this EducationStudent. The identifier connects this record to
+        the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
+        where applicable.
+      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: partyId
+    type: reference
+    target: Party
+    required: true
+    unique: true
+    help:
+      summary: Identifies the related Party associated with this EducationStudent. It provides the link needed to navigate
+        from this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
+        where applicable.
+      relationshipContext: This field connects EducationStudent to Party. The reference establishes business context between
+        the two entities and lets processes navigate from this record to the related Party.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: studentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of student number for the EducationStudent. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
+        where applicable.
+      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - APPLICANT
+    - ACTIVE
+    - SUSPENDED
+    - GRADUATED
+    - WITHDRAWN
+    - ALUMNI
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
+        where applicable.
+      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        APPLICANT: Represents the applicant state or classification in the context of EducationStudent.
+        ACTIVE: Represents the active state or classification in the context of EducationStudent.
+        SUSPENDED: Represents the suspended state or classification in the context of EducationStudent.
+        GRADUATED: Represents the graduated state or classification in the context of EducationStudent.
+        WITHDRAWN: Represents the withdrawn state or classification in the context of EducationStudent.
+        ALUMNI: Represents the alumni state or classification in the context of EducationStudent.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - {name: party, target: Party, cardinality: "1", ownership: reference}
-    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: aggregate}
-    - {name: institution, target: Organization, cardinality: "0..1", ownership: reference}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EDUCATION-STUDENT}
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects EducationStudent to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a EducationStudent.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: enrollments
+    target: Enrollment
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: Connects EducationStudent to Enrollment so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Enrollment records associated with a EducationStudent.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: institution
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects EducationStudent to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a EducationStudent.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  help:
+    summary: Represents a education entity called EducationStudent within the CEDM business model.
+    businessMeaning: EducationStudent is a business concept with its own identity and lifecycle. It captures information that
+      must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate EducationStudent records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Enrollment, Organization.
+      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
+      columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical EducationStudent record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-EDUCATION-STUDENT

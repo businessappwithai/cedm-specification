@@ -1,21 +1,151 @@
-# CEDM Domain Entity: Warehouse
 entity:
   name: Warehouse
   namespace: cedm.domain
   kind: location_specialization
   extends: Location
   description: A managed location used to receive, store, control, and dispatch inventory.
-  identity: {key: warehouseId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: warehouseId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: warehouseId, type: uuid, required: true, immutable: true}
-    - {name: locationId, type: reference, target: Location, required: true, unique: true, immutable: true}
-    - {name: warehouseCode, type: string, required: true, unique: true, maxLength: 100}
-    - {name: warehouseType, type: enum, required: true, values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]}
-    - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]}
+  - name: warehouseId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the warehouse record associated with this Warehouse. The identifier connects this record to the
+        corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: locationId
+    type: reference
+    target: Location
+    required: true
+    unique: true
+    immutable: true
+    help:
+      summary: Identifies the related Location associated with this Warehouse. It provides the link needed to navigate from
+        this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: This field connects Warehouse to Location. The reference establishes business context between the
+        two entities and lets processes navigate from this record to the related Location.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: warehouseCode
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of warehouse code for the Warehouse. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: warehouseType
+    type: enum
+    required: true
+    values:
+    - GENERAL
+    - COLD_STORAGE
+    - BONDED
+    - DISTRIBUTION
+    - RETAIL
+    - OTHER
+    help:
+      summary: Captures the business meaning of warehouse type for the Warehouse. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        GENERAL: Represents the general state or classification in the context of Warehouse.
+        COLD_STORAGE: Represents the cold storage state or classification in the context of Warehouse.
+        BONDED: Represents the bonded state or classification in the context of Warehouse.
+        DISTRIBUTION: Represents the distribution state or classification in the context of Warehouse.
+        RETAIL: Represents the retail state or classification in the context of Warehouse.
+        OTHER: Represents the other state or classification in the context of Warehouse.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: capacity
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of capacity for the Warehouse. It is interpreted together with the entity's other
+        attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - PLANNED
+    - ACTIVE
+    - SUSPENDED
+    - CLOSED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Warehouse records, where applicable.
+      relationshipContext: Its meaning is specific to Warehouse; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        PLANNED: Represents the planned state or classification in the context of Warehouse.
+        ACTIVE: Represents the active state or classification in the context of Warehouse.
+        SUSPENDED: Represents the suspended state or classification in the context of Warehouse.
+        CLOSED: Represents the closed state or classification in the context of Warehouse.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - {name: location, target: Location, cardinality: "1", ownership: reference}
-    - {name: inventoryLocations, target: InventoryLocation, cardinality: "0..*", ownership: aggregate}
+  - name: location
+    target: Location
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects Warehouse to Location so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Location records associated with a Warehouse.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: inventoryLocations
+    target: InventoryLocation
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: Connects Warehouse to InventoryLocation so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about InventoryLocation records associated with a Warehouse.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: WAREHOUSE-001, rule: warehouseCode must be unique within the ERP context.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAREHOUSE}
+  - id: WAREHOUSE-001
+    rule: warehouseCode must be unique within the ERP context.
+  help:
+    summary: Represents a location specialization called Warehouse within the CEDM business model.
+    businessMeaning: Warehouse is a business concept with its own identity and lifecycle. It captures information that must
+      remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate Warehouse records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Location, InventoryLocation.
+      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
+      columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical Warehouse record represents one identifiable business occurrence or master-data object that can be
+      referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-WAREHOUSE

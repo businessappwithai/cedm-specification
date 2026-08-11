@@ -1,4 +1,3 @@
-# CEDM Domain Entity: UnitOfMeasure
 entity:
   name: UnitOfMeasure
   namespace: cedm.domain
@@ -10,64 +9,173 @@ entity:
     generated: true
     immutable: true
   attributes:
-    - name: unitOfMeasureId
-      type: uuid
-      required: true
-      immutable: true
-    - name: code
-      type: string
-      required: true
-      unique: true
-      maxLength: 30
-    - name: name
-      type: string
-      required: true
-      maxLength: 100
-    - name: symbol
-      type: string
-      required: false
-      maxLength: 20
-    - name: category
-      type: enum
-      required: true
-      values:
-        - QUANTITY
-        - LENGTH
-        - AREA
-        - VOLUME
-        - MASS
-        - TIME
-        - COUNT
-        - CURRENCY
-        - OTHER
-    - name: conversionFactor
-      type: decimal
-      required: false
-      precision: 24
-      scale: 12
-    - name: baseUnitId
-      type: reference
-      target: UnitOfMeasure
-      required: false
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values: [ACTIVE, INACTIVE, RETIRED]
+  - name: unitOfMeasureId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the unit of measure record associated with this UnitOfMeasure. The identifier connects this record
+        to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 30
+    help:
+      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: name
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The human-readable name used by people, reports, searches, and related business processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: symbol
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: Captures the business meaning of symbol for the UnitOfMeasure. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: category
+    type: enum
+    required: true
+    values:
+    - QUANTITY
+    - LENGTH
+    - AREA
+    - VOLUME
+    - MASS
+    - TIME
+    - COUNT
+    - CURRENCY
+    - OTHER
+    help:
+      summary: Captures the business meaning of category for the UnitOfMeasure. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        QUANTITY: Represents the quantity state or classification in the context of UnitOfMeasure.
+        LENGTH: Represents the length state or classification in the context of UnitOfMeasure.
+        AREA: Represents the area state or classification in the context of UnitOfMeasure.
+        VOLUME: Represents the volume state or classification in the context of UnitOfMeasure.
+        MASS: Represents the mass state or classification in the context of UnitOfMeasure.
+        TIME: Represents the time state or classification in the context of UnitOfMeasure.
+        COUNT: Represents the count state or classification in the context of UnitOfMeasure.
+        CURRENCY: Represents the currency state or classification in the context of UnitOfMeasure.
+        OTHER: Represents the other state or classification in the context of UnitOfMeasure.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: conversionFactor
+    type: decimal
+    required: false
+    precision: 24
+    scale: 12
+    help:
+      summary: Captures the business meaning of conversion factor for the UnitOfMeasure. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: baseUnitId
+    type: reference
+    target: UnitOfMeasure
+    required: false
+    help:
+      summary: Identifies the related UnitOfMeasure associated with this UnitOfMeasure. It provides the link needed to navigate
+        from this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: This field connects UnitOfMeasure to UnitOfMeasure. The reference establishes business context
+        between the two entities and lets processes navigate from this record to the related UnitOfMeasure.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - RETIRED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating UnitOfMeasure records, where
+        applicable.
+      relationshipContext: Its meaning is specific to UnitOfMeasure; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        ACTIVE: Represents the active state or classification in the context of UnitOfMeasure.
+        INACTIVE: Represents the inactive state or classification in the context of UnitOfMeasure.
+        RETIRED: Represents the retired state or classification in the context of UnitOfMeasure.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - name: baseUnit
-      target: UnitOfMeasure
-      cardinality: "0..1"
-      ownership: reference
-    - name: derivedUnits
-      target: UnitOfMeasure
-      cardinality: "0..*"
-      ownership: reference
+  - name: baseUnit
+    target: UnitOfMeasure
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects UnitOfMeasure to UnitOfMeasure so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a UnitOfMeasure.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: derivedUnits
+    target: UnitOfMeasure
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects UnitOfMeasure to UnitOfMeasure so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a UnitOfMeasure.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - id: UOM-001
-      rule: conversionFactor must be positive when supplied.
-    - id: UOM-002
-      rule: A unit must not reference itself as its base unit.
+  - id: UOM-001
+    rule: conversionFactor must be positive when supplied.
+  - id: UOM-002
+    rule: A unit must not reference itself as its base unit.
+  help:
+    summary: Represents a reference master entity called UnitOfMeasure within the CEDM business model.
+    businessMeaning: UnitOfMeasure is a business concept with its own identity and lifecycle. It captures information that
+      must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate UnitOfMeasure records.
+    relationshipContext: The entity participates in a wider business graph through relationships with UnitOfMeasure, UnitOfMeasure.
+      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
+      columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical UnitOfMeasure record represents one identifiable business occurrence or master-data object that can
+      be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

@@ -3,22 +3,207 @@ entity:
   namespace: cedm.domain
   kind: service_management_entity
   description: A request for service, support, maintenance, or assistance that requires fulfillment or resolution.
-  identity: {key: serviceRequestId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: serviceRequestId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: serviceRequestId, type: uuid, required: true, immutable: true}
-    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: requestType, type: string, required: true, maxLength: 100}
-    - {name: description, type: string, required: true, maxLength: 4000}
-    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, CRITICAL]}
-    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, TRIAGED, ASSIGNED, IN_PROGRESS, RESOLVED, CLOSED, CANCELLED]}
-    - {name: requestedAt, type: datetime, required: true}
-    - {name: resolvedAt, type: datetime, required: false}
+  - name: serviceRequestId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the service request record associated with this ServiceRequest. The identifier connects this record
+        to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: requestNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of request number for the ServiceRequest. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: requestType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of request type for the ServiceRequest. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: description
+    type: string
+    required: true
+    maxLength: 4000
+    help:
+      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: priority
+    type: enum
+    required: true
+    default: NORMAL
+    values:
+    - LOW
+    - NORMAL
+    - HIGH
+    - CRITICAL
+    help:
+      summary: Captures the business meaning of priority for the ServiceRequest. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        LOW: Represents the low state or classification in the context of ServiceRequest.
+        NORMAL: Represents the normal state or classification in the context of ServiceRequest.
+        HIGH: Represents the high state or classification in the context of ServiceRequest.
+        CRITICAL: Represents the critical state or classification in the context of ServiceRequest.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values:
+    - OPEN
+    - TRIAGED
+    - ASSIGNED
+    - IN_PROGRESS
+    - RESOLVED
+    - CLOSED
+    - CANCELLED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        OPEN: Represents the open state or classification in the context of ServiceRequest.
+        TRIAGED: Represents the triaged state or classification in the context of ServiceRequest.
+        ASSIGNED: Represents the assigned state or classification in the context of ServiceRequest.
+        IN_PROGRESS: Represents the in progress state or classification in the context of ServiceRequest.
+        RESOLVED: Represents the resolved state or classification in the context of ServiceRequest.
+        CLOSED: Represents the closed state or classification in the context of ServiceRequest.
+        CANCELLED: Represents the cancelled state or classification in the context of ServiceRequest.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: requestedAt
+    type: datetime
+    required: true
+    help:
+      summary: Records when the requested event occurred. It establishes chronology, supports auditability, and helps coordinate
+        related lifecycle and process activities.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: resolvedAt
+    type: datetime
+    required: false
+    help:
+      summary: Records when the resolved event occurred. It establishes chronology, supports auditability, and helps coordinate
+        related lifecycle and process activities.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ServiceRequest records, where
+        applicable.
+      relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: requester, target: Party, cardinality: "1", ownership: reference}
-    - {name: assignee, target: Party, cardinality: "0..1", ownership: reference}
-    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
-    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
-    - {name: tasks, target: Task, cardinality: "0..*", ownership: reference}
+  - name: requester
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects ServiceRequest to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a ServiceRequest.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: assignee
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects ServiceRequest to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a ServiceRequest.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects ServiceRequest to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a ServiceRequest.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects ServiceRequest to Location so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Location records associated with a ServiceRequest.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: tasks
+    target: Task
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects ServiceRequest to Task so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Task records associated with a ServiceRequest.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: SERVICE-REQUEST-001, rule: resolvedAt is required when status is RESOLVED or CLOSED.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-REQUEST}
+  - id: SERVICE-REQUEST-001
+    rule: resolvedAt is required when status is RESOLVED or CLOSED.
+  help:
+    summary: Represents a service management entity called ServiceRequest within the CEDM business model.
+    businessMeaning: ServiceRequest is a business concept with its own identity and lifecycle. It captures information that
+      must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate ServiceRequest records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Party, Organization,
+      Location, Task. These relationships provide the context needed to interpret the record rather than treating its fields
+      as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical ServiceRequest record represents one identifiable business occurrence or master-data object that can
+      be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-SERVICE-REQUEST

@@ -1,4 +1,3 @@
-# CEDM Domain Entity: BusinessTransaction
 entity:
   name: BusinessTransaction
   namespace: cedm.domain
@@ -10,75 +9,220 @@ entity:
     generated: true
     immutable: true
   attributes:
-    - name: transactionId
-      type: uuid
-      required: true
-      immutable: true
-    - name: transactionNumber
-      type: string
-      required: true
-      maxLength: 100
-    - name: transactionType
-      type: string
-      required: true
-      maxLength: 100
-    - name: transactionDate
-      type: datetime
-      required: true
-    - name: status
-      type: enum
-      required: true
-      default: DRAFT
-      values: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
-    - name: currencyId
-      type: reference
-      target: Currency
-      required: false
-    - name: totalAmount
-      type: decimal
-      required: false
-      precision: 20
-      scale: 4
-    - name: referenceNumber
-      type: string
-      required: false
-      maxLength: 200
-    - name: createdAt
-      type: datetime
-      required: true
-      systemManaged: true
-    - name: updatedAt
-      type: datetime
-      required: true
-      systemManaged: true
+  - name: transactionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the transaction record associated with this BusinessTransaction. The identifier connects this record
+        to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: transactionNumber
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of transaction number for the BusinessTransaction. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: transactionType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of transaction type for the BusinessTransaction. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: transactionDate
+    type: datetime
+    required: true
+    help:
+      summary: Records the business date associated with the transaction. It is used in chronology, eligibility, scheduling,
+        reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values:
+    - DRAFT
+    - OPEN
+    - APPROVED
+    - POSTED
+    - COMPLETED
+    - CANCELLED
+    - REVERSED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DRAFT: Represents the draft state or classification in the context of BusinessTransaction.
+        OPEN: Represents the open state or classification in the context of BusinessTransaction.
+        APPROVED: Represents the approved state or classification in the context of BusinessTransaction.
+        POSTED: Represents the posted state or classification in the context of BusinessTransaction.
+        COMPLETED: Represents the completed state or classification in the context of BusinessTransaction.
+        CANCELLED: Represents the cancelled state or classification in the context of BusinessTransaction.
+        REVERSED: Represents the reversed state or classification in the context of BusinessTransaction.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: false
+    help:
+      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
+        and aggregated consistently.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: This field connects BusinessTransaction to Currency. The reference establishes business context
+        between the two entities and lets processes navigate from this record to the related Currency.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: totalAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of total amount for the BusinessTransaction. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: referenceNumber
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: Captures the business meaning of reference number for the BusinessTransaction. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: createdAt
+    type: datetime
+    required: true
+    systemManaged: true
+    help:
+      summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and
+        operational reporting.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: updatedAt
+    type: datetime
+    required: true
+    systemManaged: true
+    help:
+      summary: The system-managed timestamp recording the latest modification of the record. It supports synchronization,
+        audit, and change detection.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records,
+        where applicable.
+      relationshipContext: Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - name: organization
-      target: Organization
-      cardinality: "0..1"
-      ownership: reference
-    - name: parties
-      target: Party
-      cardinality: "0..*"
-      ownership: reference
-    - name: products
-      target: Product
-      cardinality: "0..*"
-      ownership: reference
-    - name: document
-      target: Document
-      cardinality: "0..1"
-      ownership: reference
-    - name: location
-      target: Location
-      cardinality: "0..1"
-      ownership: reference
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects BusinessTransaction to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a BusinessTransaction.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: parties
+    target: Party
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects BusinessTransaction to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a BusinessTransaction.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: products
+    target: Product
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects BusinessTransaction to Product so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Product records associated with a BusinessTransaction.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: document
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects BusinessTransaction to Document so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Document records associated with a BusinessTransaction.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects BusinessTransaction to Location so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Location records associated with a BusinessTransaction.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - id: TRANSACTION-001
-      rule: transactionNumber must be unique within the owning ERP/business context and transactionType.
-    - id: TRANSACTION-002
-      rule: POSTED transactions must not be mutated except through an explicit reversal or correction process.
-    - id: TRANSACTION-003
-      rule: totalAmount must be non-negative unless the transaction type explicitly permits signed amounts.
+  - id: TRANSACTION-001
+    rule: transactionNumber must be unique within the owning ERP/business context and transactionType.
+  - id: TRANSACTION-002
+    rule: POSTED transactions must not be mutated except through an explicit reversal or correction process.
+  - id: TRANSACTION-003
+    rule: totalAmount must be non-negative unless the transaction type explicitly permits signed amounts.
+  help:
+    summary: Represents a core business transaction called BusinessTransaction within the CEDM business model.
+    businessMeaning: BusinessTransaction is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate BusinessTransaction records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party,
+      Product, Document, Location. These relationships provide the context needed to interpret the record rather than treating
+      its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical BusinessTransaction record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

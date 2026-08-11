@@ -3,16 +3,147 @@ entity:
   namespace: cedm.domain
   kind: procurement_transaction
   description: An internal request for goods or services to be procured.
-  identity: {key: purchaseRequisitionId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: purchaseRequisitionId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: purchaseRequisitionId, type: uuid, required: true, immutable: true}
-    - {name: requisitionNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: requisitionDate, type: date, required: true}
-    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, APPROVED, REJECTED, ORDERED, CLOSED, CANCELLED]}
-    - {name: justification, type: string, required: false, maxLength: 2000}
+  - name: purchaseRequisitionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the purchase requisition record associated with this PurchaseRequisition. The identifier connects
+        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisition records,
+        where applicable.
+      relationshipContext: Its meaning is specific to PurchaseRequisition; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: requisitionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of requisition number for the PurchaseRequisition. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisition records,
+        where applicable.
+      relationshipContext: Its meaning is specific to PurchaseRequisition; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: requisitionDate
+    type: date
+    required: true
+    help:
+      summary: Records the business date associated with the requisition. It is used in chronology, eligibility, scheduling,
+        reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisition records,
+        where applicable.
+      relationshipContext: Its meaning is specific to PurchaseRequisition; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values:
+    - DRAFT
+    - SUBMITTED
+    - APPROVED
+    - REJECTED
+    - ORDERED
+    - CLOSED
+    - CANCELLED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisition records,
+        where applicable.
+      relationshipContext: Its meaning is specific to PurchaseRequisition; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DRAFT: Represents the draft state or classification in the context of PurchaseRequisition.
+        SUBMITTED: Represents the submitted state or classification in the context of PurchaseRequisition.
+        APPROVED: Represents the approved state or classification in the context of PurchaseRequisition.
+        REJECTED: Represents the rejected state or classification in the context of PurchaseRequisition.
+        ORDERED: Represents the ordered state or classification in the context of PurchaseRequisition.
+        CLOSED: Represents the closed state or classification in the context of PurchaseRequisition.
+        CANCELLED: Represents the cancelled state or classification in the context of PurchaseRequisition.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: justification
+    type: string
+    required: false
+    maxLength: 2000
+    help:
+      summary: Captures the business meaning of justification for the PurchaseRequisition. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisition records,
+        where applicable.
+      relationshipContext: Its meaning is specific to PurchaseRequisition; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: requester, target: Party, cardinality: "1", ownership: reference}
-    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
-    - {name: lines, target: PurchaseRequisitionLine, cardinality: "1..*", ownership: aggregate}
-    - {name: supplier, target: Supplier, cardinality: "0..1", ownership: reference}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-REQUISITION}
+  - name: requester
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects PurchaseRequisition to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a PurchaseRequisition.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects PurchaseRequisition to Organization so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Organization records associated with a PurchaseRequisition.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: lines
+    target: PurchaseRequisitionLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Connects PurchaseRequisition to PurchaseRequisitionLine so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about PurchaseRequisitionLine records associated with a PurchaseRequisition.
+      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: supplier
+    target: Supplier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects PurchaseRequisition to Supplier so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Supplier records associated with a PurchaseRequisition.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  help:
+    summary: Represents a procurement transaction called PurchaseRequisition within the CEDM business model.
+    businessMeaning: PurchaseRequisition is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate PurchaseRequisition records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
+      PurchaseRequisitionLine, Supplier. These relationships provide the context needed to interpret the record rather than
+      treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical PurchaseRequisition record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PURCHASE-REQUISITION

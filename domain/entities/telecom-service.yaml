@@ -9,16 +9,154 @@ entity:
     generated: true
     immutable: true
   attributes:
-    - {name: telecomServiceId, type: uuid, required: true, immutable: true}
-    - {name: serviceNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: serviceType, type: enum, required: true, values: [MOBILE, FIXED, BROADBAND, VOICE, DATA, IOT, OTHER]}
-    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, SUSPENDED, TERMINATED]}
-    - {name: activationDate, type: date, required: false}
-    - {name: terminationDate, type: date, required: false}
+  - name: telecomServiceId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the telecom service record associated with this TelecomService. The identifier connects this record
+        to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: serviceNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of service number for the TelecomService. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: serviceType
+    type: enum
+    required: true
+    values:
+    - MOBILE
+    - FIXED
+    - BROADBAND
+    - VOICE
+    - DATA
+    - IOT
+    - OTHER
+    help:
+      summary: Captures the business meaning of service type for the TelecomService. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        MOBILE: Represents the mobile state or classification in the context of TelecomService.
+        FIXED: Represents the fixed state or classification in the context of TelecomService.
+        BROADBAND: Represents the broadband state or classification in the context of TelecomService.
+        VOICE: Represents the voice state or classification in the context of TelecomService.
+        DATA: Represents the data state or classification in the context of TelecomService.
+        IOT: Represents the iot state or classification in the context of TelecomService.
+        OTHER: Represents the other state or classification in the context of TelecomService.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - PENDING
+    - ACTIVE
+    - SUSPENDED
+    - TERMINATED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        PENDING: Represents the pending state or classification in the context of TelecomService.
+        ACTIVE: Represents the active state or classification in the context of TelecomService.
+        SUSPENDED: Represents the suspended state or classification in the context of TelecomService.
+        TERMINATED: Represents the terminated state or classification in the context of TelecomService.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: activationDate
+    type: date
+    required: false
+    help:
+      summary: Records the business date associated with the activation. It is used in chronology, eligibility, scheduling,
+        reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: terminationDate
+    type: date
+    required: false
+    help:
+      summary: Records the business date associated with the termination. It is used in chronology, eligibility, scheduling,
+        reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where
+        applicable.
+      relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
-    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
-    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+  - name: customer
+    target: Customer
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects TelecomService to Customer so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Customer records associated with a TelecomService.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects TelecomService to Product so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Product records associated with a TelecomService.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects TelecomService to Location so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Location records associated with a TelecomService.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: TELECOM-SERVICE-001, rule: terminationDate must not precede activationDate.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TELECOM-SERVICE}
+  - id: TELECOM-SERVICE-001
+    rule: terminationDate must not precede activationDate.
+  help:
+    summary: Represents a telecom entity called TelecomService within the CEDM business model.
+    businessMeaning: TelecomService is a business concept with its own identity and lifecycle. It captures information that
+      must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate TelecomService records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Customer, Product, Location.
+      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
+      columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical TelecomService record represents one identifiable business occurrence or master-data object that can
+      be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-TELECOM-SERVICE

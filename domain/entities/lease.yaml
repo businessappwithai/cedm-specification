@@ -1,23 +1,179 @@
-# CEDM Domain Entity: Lease
 entity:
   name: Lease
   namespace: cedm.domain
   kind: real_estate_commercial_entity
   description: A contractual arrangement granting a party rights to use a property or asset for a defined period and consideration.
-  identity: {key: leaseId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: leaseId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: leaseId, type: uuid, required: true, immutable: true}
-    - {name: leaseNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: leaseType, type: enum, required: true, values: [OPERATING, FINANCE, COMMERCIAL, RESIDENTIAL, EQUIPMENT, OTHER]}
-    - {name: startDate, type: date, required: true}
-    - {name: endDate, type: date, required: false}
-    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]}
-    - {name: periodicAmount, type: money, required: false}
+  - name: leaseId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the lease record associated with this Lease. The identifier connects this record to the corresponding
+        CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: leaseNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of lease number for the Lease. It is interpreted together with the entity's other
+        attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: leaseType
+    type: enum
+    required: true
+    values:
+    - OPERATING
+    - FINANCE
+    - COMMERCIAL
+    - RESIDENTIAL
+    - EQUIPMENT
+    - OTHER
+    help:
+      summary: Captures the business meaning of lease type for the Lease. It is interpreted together with the entity's other
+        attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        OPERATING: Represents the operating state or classification in the context of Lease.
+        FINANCE: Represents the finance state or classification in the context of Lease.
+        COMMERCIAL: Represents the commercial state or classification in the context of Lease.
+        RESIDENTIAL: Represents the residential state or classification in the context of Lease.
+        EQUIPMENT: Represents the equipment state or classification in the context of Lease.
+        OTHER: Represents the other state or classification in the context of Lease.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
+        must follow the business chronology.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted
+        together with the corresponding start date.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values:
+    - DRAFT
+    - ACTIVE
+    - SUSPENDED
+    - EXPIRED
+    - TERMINATED
+    - CANCELLED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DRAFT: Represents the draft state or classification in the context of Lease.
+        ACTIVE: Represents the active state or classification in the context of Lease.
+        SUSPENDED: Represents the suspended state or classification in the context of Lease.
+        EXPIRED: Represents the expired state or classification in the context of Lease.
+        TERMINATED: Represents the terminated state or classification in the context of Lease.
+        CANCELLED: Represents the cancelled state or classification in the context of Lease.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: periodicAmount
+    type: money
+    required: false
+    help:
+      summary: Captures the business meaning of periodic amount for the Lease. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lease records, where applicable.
+      relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: property, target: Property, cardinality: "0..1", ownership: reference}
-    - {name: lessor, target: Party, cardinality: "1", ownership: reference}
-    - {name: lessee, target: Party, cardinality: "1", ownership: reference}
-    - {name: contract, target: Contract, cardinality: "0..1", ownership: reference}
+  - name: property
+    target: Property
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects Lease to Property so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Property records associated with a Lease.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: lessor
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects Lease to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a Lease.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: lessee
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects Lease to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a Lease.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: contract
+    target: Contract
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects Lease to Contract so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Contract records associated with a Lease.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: LEASE-001, rule: endDate must not precede startDate.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEASE}
+  - id: LEASE-001
+    rule: endDate must not precede startDate.
+  help:
+    summary: Represents a real estate commercial entity called Lease within the CEDM business model.
+    businessMeaning: Lease is a business concept with its own identity and lifecycle. It captures information that must remain
+      understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate Lease records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Property, Party, Party,
+      Contract. These relationships provide the context needed to interpret the record rather than treating its fields as
+      isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical Lease record represents one identifiable business occurrence or master-data object that can be referenced
+      by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-LEASE

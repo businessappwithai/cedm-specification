@@ -1,20 +1,155 @@
-# CEDM Domain Entity: ContractObligation
 entity:
   name: ContractObligation
   namespace: cedm.domain
   kind: legal_commercial_entity
   description: A specific obligation, commitment, deliverable, or condition arising from a contract.
-  identity: {key: contractObligationId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: contractObligationId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: contractObligationId, type: uuid, required: true, immutable: true}
-    - {name: code, type: string, required: true, maxLength: 100}
-    - {name: description, type: string, required: true, maxLength: 4000}
-    - {name: obligationType, type: enum, required: true, values: [DELIVERY, PAYMENT, SERVICE, REPORTING, COMPLIANCE, PERFORMANCE, OTHER]}
-    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, IN_PROGRESS, FULFILLED, BREACHED, WAIVED, CANCELLED]}
-    - {name: dueDate, type: date, required: false}
+  - name: contractObligationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the contract obligation record associated with this ContractObligation. The identifier connects
+        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: description
+    type: string
+    required: true
+    maxLength: 4000
+    help:
+      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: obligationType
+    type: enum
+    required: true
+    values:
+    - DELIVERY
+    - PAYMENT
+    - SERVICE
+    - REPORTING
+    - COMPLIANCE
+    - PERFORMANCE
+    - OTHER
+    help:
+      summary: Captures the business meaning of obligation type for the ContractObligation. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        DELIVERY: Represents the delivery state or classification in the context of ContractObligation.
+        PAYMENT: Represents the payment state or classification in the context of ContractObligation.
+        SERVICE: Represents the service state or classification in the context of ContractObligation.
+        REPORTING: Represents the reporting state or classification in the context of ContractObligation.
+        COMPLIANCE: Represents the compliance state or classification in the context of ContractObligation.
+        PERFORMANCE: Represents the performance state or classification in the context of ContractObligation.
+        OTHER: Represents the other state or classification in the context of ContractObligation.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values:
+    - OPEN
+    - IN_PROGRESS
+    - FULFILLED
+    - BREACHED
+    - WAIVED
+    - CANCELLED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        OPEN: Represents the open state or classification in the context of ContractObligation.
+        IN_PROGRESS: Represents the in progress state or classification in the context of ContractObligation.
+        FULFILLED: Represents the fulfilled state or classification in the context of ContractObligation.
+        BREACHED: Represents the breached state or classification in the context of ContractObligation.
+        WAIVED: Represents the waived state or classification in the context of ContractObligation.
+        CANCELLED: Represents the cancelled state or classification in the context of ContractObligation.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: dueDate
+    type: date
+    required: false
+    help:
+      summary: Records the business date associated with the due. It is used in chronology, eligibility, scheduling, reporting,
+        and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ContractObligation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: contract, target: Contract, cardinality: "1", ownership: reference}
-    - {name: responsibleParty, target: Party, cardinality: "1", ownership: reference}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects ContractObligation to Contract so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Contract records associated with a ContractObligation.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: responsibleParty
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects ContractObligation to Party so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Party records associated with a ContractObligation.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: CONTRACT-OBLIGATION-001, rule: a FULFILLED obligation must have evidence or fulfillment reference where required by policy.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-OBLIGATION}
+  - id: CONTRACT-OBLIGATION-001
+    rule: a FULFILLED obligation must have evidence or fulfillment reference where required by policy.
+  help:
+    summary: Represents a legal commercial entity called ContractObligation within the CEDM business model.
+    businessMeaning: ContractObligation is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate ContractObligation records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Contract, Party. These
+      relationships provide the context needed to interpret the record rather than treating its fields as isolated database
+      columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical ContractObligation record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-CONTRACT-OBLIGATION

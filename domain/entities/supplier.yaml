@@ -1,99 +1,190 @@
-# CEDM Domain Entity: Supplier
 entity:
   name: Supplier
   namespace: cedm.domain
   kind: party_role_specialization
   extends: PartyRole
   description: A party that provides goods, services, resources, or other business inputs to an organization.
-
   identity:
     key: supplierId
     type: uuid
     generated: true
     immutable: true
-
   attributes:
-    - name: supplierId
-      type: uuid
-      required: true
-      immutable: true
-
-    - name: partyRoleId
-      type: reference
-      target: PartyRole
-      required: true
-      unique: true
-      immutable: true
-
-    - name: supplierCode
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-
-    - name: supplierType
-      type: enum
-      required: false
-      values:
-        - INDIVIDUAL
-        - BUSINESS
-        - GOVERNMENT
-        - INTERNAL
-        - OTHER
-
-    - name: qualificationStatus
-      type: enum
-      required: false
-      values:
-        - NOT_REVIEWED
-        - PENDING
-        - QUALIFIED
-        - SUSPENDED
-        - DISQUALIFIED
-
-    - name: paymentTerms
-      type: reference
-      target: PaymentTerm
-      required: false
-
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values:
-        - ACTIVE
-        - INACTIVE
-        - BLOCKED
-        - RETIRED
-
+  - name: supplierId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the supplier record associated with this Supplier. The identifier connects this record to the corresponding
+        CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: partyRoleId
+    type: reference
+    target: PartyRole
+    required: true
+    unique: true
+    immutable: true
+    help:
+      summary: Identifies the related PartyRole associated with this Supplier. It provides the link needed to navigate from
+        this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: This field connects Supplier to PartyRole. The reference establishes business context between the
+        two entities and lets processes navigate from this record to the related PartyRole.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: supplierCode
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of supplier code for the Supplier. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: supplierType
+    type: enum
+    required: false
+    values:
+    - INDIVIDUAL
+    - BUSINESS
+    - GOVERNMENT
+    - INTERNAL
+    - OTHER
+    help:
+      summary: Captures the business meaning of supplier type for the Supplier. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        INDIVIDUAL: Represents the individual state or classification in the context of Supplier.
+        BUSINESS: Represents the business state or classification in the context of Supplier.
+        GOVERNMENT: Represents the government state or classification in the context of Supplier.
+        INTERNAL: Represents the internal state or classification in the context of Supplier.
+        OTHER: Represents the other state or classification in the context of Supplier.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: qualificationStatus
+    type: enum
+    required: false
+    values:
+    - NOT_REVIEWED
+    - PENDING
+    - QUALIFIED
+    - SUSPENDED
+    - DISQUALIFIED
+    help:
+      summary: Captures the business meaning of qualification status for the Supplier. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        NOT_REVIEWED: Represents the not reviewed state or classification in the context of Supplier.
+        PENDING: Represents the pending state or classification in the context of Supplier.
+        QUALIFIED: Represents the qualified state or classification in the context of Supplier.
+        SUSPENDED: Represents the suspended state or classification in the context of Supplier.
+        DISQUALIFIED: Represents the disqualified state or classification in the context of Supplier.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: paymentTerms
+    type: reference
+    target: PaymentTerm
+    required: false
+    help:
+      summary: Identifies the related PaymentTerm associated with this Supplier. It provides the link needed to navigate from
+        this record to the related business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: This field connects Supplier to PaymentTerm. The reference establishes business context between
+        the two entities and lets processes navigate from this record to the related PaymentTerm.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - BLOCKED
+    - RETIRED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Supplier records, where applicable.
+      relationshipContext: Its meaning is specific to Supplier; it must be interpreted with the entity's relationships, lifecycle,
+        and business rules rather than as an isolated technical value.
+      valueSemantics:
+        ACTIVE: Represents the active state or classification in the context of Supplier.
+        INACTIVE: Represents the inactive state or classification in the context of Supplier.
+        BLOCKED: Represents the blocked state or classification in the context of Supplier.
+        RETIRED: Represents the retired state or classification in the context of Supplier.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - name: partyRole
-      target: PartyRole
-      cardinality: "1"
-      ownership: reference
-
-    - name: addresses
-      target: Address
-      cardinality: "0..*"
-      ownership: reference
-
-    - name: transactions
-      target: BusinessTransaction
-      cardinality: "0..*"
-      ownership: reference
-
-    - name: products
-      target: Product
-      cardinality: "0..*"
-      ownership: reference
-
+  - name: partyRole
+    target: PartyRole
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects Supplier to PartyRole so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about PartyRole records associated with a Supplier.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: addresses
+    target: Address
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects Supplier to Address so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Address records associated with a Supplier.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: transactions
+    target: BusinessTransaction
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects Supplier to BusinessTransaction so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about BusinessTransaction records associated with a Supplier.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: products
+    target: Product
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects Supplier to Product so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Product records associated with a Supplier.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - id: SUPPLIER-001
-      rule: partyRole.roleType must equal SUPPLIER.
-
-    - id: SUPPLIER-002
-      rule: supplierCode must be unique within its ERP context.
-
+  - id: SUPPLIER-001
+    rule: partyRole.roleType must equal SUPPLIER.
+  - id: SUPPLIER-002
+    rule: supplierCode must be unique within its ERP context.
+  help:
+    summary: Represents a party role specialization called Supplier within the CEDM business model.
+    businessMeaning: Supplier is a business concept with its own identity and lifecycle. It captures information that must
+      remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate Supplier records.
+    relationshipContext: The entity participates in a wider business graph through relationships with PartyRole, Address,
+      BusinessTransaction, Product. These relationships provide the context needed to interpret the record rather than treating
+      its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical Supplier record represents one identifiable business occurrence or master-data object that can be referenced
+      by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

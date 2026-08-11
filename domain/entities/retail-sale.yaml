@@ -3,19 +3,159 @@ entity:
   namespace: cedm.domain
   kind: retail_transaction
   description: A point-of-sale retail transaction.
-  identity: {key: retailSaleId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: retailSaleId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: retailSaleId, type: uuid, required: true, immutable: true}
-    - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100}
-    - {name: saleDate, type: datetime, required: true}
-    - {name: status, type: enum, required: true, default: COMPLETED, values: [OPEN, COMPLETED, VOIDED, REFUNDED]}
-    - {name: totalAmount, type: decimal, required: true, precision: 20, scale: 4}
-    - {name: currencyId, type: reference, target: Currency, required: true}
+  - name: retailSaleId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the retail sale record associated with this RetailSale. The identifier connects this record to the
+        corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: Its meaning is specific to RetailSale; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: receiptNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Captures the business meaning of receipt number for the RetailSale. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: Its meaning is specific to RetailSale; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: saleDate
+    type: datetime
+    required: true
+    help:
+      summary: Records the business date associated with the sale. It is used in chronology, eligibility, scheduling, reporting,
+        and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: Its meaning is specific to RetailSale; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: status
+    type: enum
+    required: true
+    default: COMPLETED
+    values:
+    - OPEN
+    - COMPLETED
+    - VOIDED
+    - REFUNDED
+    help:
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
+        is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: Its meaning is specific to RetailSale; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        OPEN: Represents the open state or classification in the context of RetailSale.
+        COMPLETED: Represents the completed state or classification in the context of RetailSale.
+        VOIDED: Represents the voided state or classification in the context of RetailSale.
+        REFUNDED: Represents the refunded state or classification in the context of RetailSale.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: totalAmount
+    type: decimal
+    required: true
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of total amount for the RetailSale. It is interpreted together with the entity's
+        other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: Its meaning is specific to RetailSale; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: true
+    help:
+      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
+        and aggregated consistently.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RetailSale records, where
+        applicable.
+      relationshipContext: This field connects RetailSale to Currency. The reference establishes business context between
+        the two entities and lets processes navigate from this record to the related Currency.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
   relationships:
-    - {name: store, target: Store, cardinality: "1", ownership: reference}
-    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
-    - {name: lines, target: RetailSaleLine, cardinality: "1..*", ownership: aggregate}
-    - {name: payments, target: Payment, cardinality: "0..*", ownership: reference}
+  - name: store
+    target: Store
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Connects RetailSale to Store so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Store records associated with a RetailSale.
+      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects RetailSale to Customer so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Customer records associated with a RetailSale.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: lines
+    target: RetailSaleLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Connects RetailSale to RetailSaleLine so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about RetailSaleLine records associated with a RetailSale.
+      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects RetailSale to Payment so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Payment records associated with a RetailSale.
+      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: RETAIL-SALE-001, rule: a COMPLETED sale must contain at least one line.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RETAIL-SALE}
+  - id: RETAIL-SALE-001
+    rule: a COMPLETED sale must contain at least one line.
+  help:
+    summary: Represents a retail transaction called RetailSale within the CEDM business model.
+    businessMeaning: RetailSale is a business concept with its own identity and lifecycle. It captures information that must
+      remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate RetailSale records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Store, Customer, RetailSaleLine,
+      Payment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated
+      database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical RetailSale record represents one identifiable business occurrence or master-data object that can be
+      referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-RETAIL-SALE

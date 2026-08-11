@@ -1,24 +1,178 @@
-# CEDM Domain Entity: AssetDepreciation
 entity:
   name: AssetDepreciation
   namespace: cedm.domain
   kind: financial_asset_entity
   description: Depreciation policy and calculated depreciation state for a business asset.
-  identity: {key: assetDepreciationId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: assetDepreciationId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - {name: assetDepreciationId, type: uuid, required: true, immutable: true}
-    - {name: depreciationMethod, type: enum, required: true, values: [STRAIGHT, REM_LIFE, RED_BAL, NBVSLUNIT]}
-    - {name: depreciationRate, type: decimal, required: false, precision: 12, scale: 6}
-    - {name: salvageValue, type: decimal, required: false, precision: 20, scale: 4}
-    - {name: usefulLifeMonths, type: integer, required: false, minimum: 0}
-    - {name: depreciableBase, type: decimal, required: false, precision: 20, scale: 4}
-    - {name: accumulatedDepreciation, type: decimal, required: true, default: 0, precision: 20, scale: 4}
-    - {name: netBookValue, type: decimal, required: false, precision: 20, scale: 4}
+  - name: assetDepreciationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the asset depreciation record associated with this AssetDepreciation. The identifier connects this
+        record to the corresponding CEDM entity so related processes can resolve the correct business object.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: depreciationMethod
+    type: enum
+    required: true
+    values:
+    - STRAIGHT
+    - REM_LIFE
+    - RED_BAL
+    - NBVSLUNIT
+    help:
+      summary: Captures the business meaning of depreciation method for the AssetDepreciation. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      valueSemantics:
+        STRAIGHT: Represents the straight state or classification in the context of AssetDepreciation.
+        REM_LIFE: Represents the rem life state or classification in the context of AssetDepreciation.
+        RED_BAL: Represents the red bal state or classification in the context of AssetDepreciation.
+        NBVSLUNIT: Represents the nbvslunit state or classification in the context of AssetDepreciation.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: depreciationRate
+    type: decimal
+    required: false
+    precision: 12
+    scale: 6
+    help:
+      summary: Captures the business meaning of depreciation rate for the AssetDepreciation. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: salvageValue
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of salvage value for the AssetDepreciation. It is interpreted together with the
+        entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: usefulLifeMonths
+    type: integer
+    required: false
+    minimum: 0
+    help:
+      summary: Captures the business meaning of useful life months for the AssetDepreciation. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: depreciableBase
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of depreciable base for the AssetDepreciation. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+  - name: accumulatedDepreciation
+    type: decimal
+    required: true
+    default: 0
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of accumulated depreciation for the AssetDepreciation. It is interpreted together
+        with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
+        this value.
+  - name: netBookValue
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: Captures the business meaning of net book value for the AssetDepreciation. It is interpreted together with
+        the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AssetDepreciation records,
+        where applicable.
+      relationshipContext: Its meaning is specific to AssetDepreciation; it must be interpreted with the entity's relationships,
+        lifecycle, and business rules rather than as an isolated technical value.
+      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
-    - {name: container, target: Container, cardinality: "0..1", ownership: reference}
-    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
-    - {name: currency, target: Currency, cardinality: "0..1", ownership: reference}
+  - name: container
+    target: Container
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects AssetDepreciation to Container so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Container records associated with a AssetDepreciation.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects AssetDepreciation to Product so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Product records associated with a AssetDepreciation.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Connects AssetDepreciation to Currency so related business context can be navigated and enforced.
+      usage: Used when processes need to find or reason about Currency records associated with a AssetDepreciation.
+      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
+        ownership, conditions, and invariants.
   invariants:
-    - {id: DEPRECIATION-001, rule: depreciationRate must be non-negative when supplied.}
-    - {id: DEPRECIATION-002, rule: netBookValue cannot be below the applicable salvage value without an explicit impairment or write-off rule.}
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-DEPRECIATION}
+  - id: DEPRECIATION-001
+    rule: depreciationRate must be non-negative when supplied.
+  - id: DEPRECIATION-002
+    rule: netBookValue cannot be below the applicable salvage value without an explicit impairment or write-off rule.
+  help:
+    summary: Represents a financial asset entity called AssetDepreciation within the CEDM business model.
+    businessMeaning: AssetDepreciation is a business concept with its own identity and lifecycle. It captures information
+      that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
+      change, or relate AssetDepreciation records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Container, Product,
+      Currency. These relationships provide the context needed to interpret the record rather than treating its fields as
+      isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
+      preserve the declared business meaning and relationships.
+    example: A typical AssetDepreciation record represents one identifiable business occurrence or master-data object that
+      can be referenced by related CEDM processes.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-ASSET-DEPRECIATION
