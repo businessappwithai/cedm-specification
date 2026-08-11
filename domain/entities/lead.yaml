@@ -1,0 +1,19 @@
+entity:
+  name: Lead
+  namespace: cedm.domain
+  kind: crm_entity
+  description: A prospective customer or business opportunity before qualification.
+  identity: {key: leadId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: leadId, type: uuid, required: true, immutable: true}
+    - {name: leadNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: status, type: enum, required: true, default: NEW, values: [NEW, QUALIFYING, QUALIFIED, DISQUALIFIED, CONVERTED, LOST]}
+    - {name: source, type: string, required: false, maxLength: 100}
+    - {name: estimatedValue, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: createdAt, type: datetime, required: true, systemManaged: true}
+  relationships:
+    - {name: party, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
+    - {name: owner, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: opportunity, target: Opportunity, cardinality: "0..1", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEAD}
