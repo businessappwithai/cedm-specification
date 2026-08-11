@@ -1,0 +1,18 @@
+# CEDM Domain Entity: YardBay
+entity:
+  name: YardBay
+  namespace: cedm.domain
+  kind: logistics_location
+  description: A bay within a yard block representing a longitudinal container position.
+  identity: {key: yardBayId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: yardBayId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, maxLength: 50}
+    - {name: bayNumber, type: integer, required: true, minimum: 1}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, BLOCKED, CLOSED]}
+  relationships:
+    - {name: block, target: YardBlock, cardinality: "1", ownership: reference}
+    - {name: tiers, target: YardTier, cardinality: "1..*", ownership: aggregate}
+  invariants:
+    - {id: YARD-BAY-001, rule: bayNumber must be unique within a block.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-YARD-BAY}
