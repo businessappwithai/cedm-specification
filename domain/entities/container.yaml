@@ -1,0 +1,28 @@
+# CEDM Domain Entity: Container
+entity:
+  name: Container
+  namespace: cedm.domain
+  kind: logistics_asset
+  description: A reusable intermodal freight container tracked as a physical logistics asset.
+  identity: {key: containerId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: containerId, type: uuid, required: true, immutable: true}
+    - {name: containerNumber, type: string, required: true, unique: true, maxLength: 20}
+    - {name: isoCode, type: string, required: false, maxLength: 10}
+    - {name: sizeCode, type: string, required: false, maxLength: 20}
+    - {name: containerType, type: string, required: false, maxLength: 50}
+    - {name: tareWeight, type: decimal, required: false, precision: 14, scale: 3}
+    - {name: maxGrossWeight, type: decimal, required: false, precision: 14, scale: 3}
+    - {name: manufactureDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, IN_REPAIR, DAMAGED, SOLD, SCRAPPED, LOST, RETIRED]}
+    - {name: inventoryStatus, type: string, required: false, maxLength: 50}
+  relationships:
+    - {name: owner, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: currentLocation, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: currentSlot, target: YardSlot, cardinality: "0..1", ownership: reference}
+    - {name: repairEstimates, target: RepairEstimate, cardinality: "0..*", ownership: reference}
+    - {name: movements, target: ContainerMovement, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: CONTAINER-001, rule: containerNumber must follow the applicable ISO 6346 identification convention when an ISO identifier is assigned.}
+    - {id: CONTAINER-002, rule: A container can occupy at most one active yard slot at a time.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTAINER}
