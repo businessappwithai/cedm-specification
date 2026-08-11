@@ -1,0 +1,20 @@
+entity:
+  name: Position
+  namespace: cedm.domain
+  kind: workforce_master_entity
+  description: A defined organizational role with responsibilities, reporting structure, and staffing requirements.
+  identity: {key: positionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: positionId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: title, type: string, required: true, maxLength: 200}
+    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, FILLED, FROZEN, CLOSED, RETIRED]}
+    - {name: effectiveFrom, type: date, required: false}
+    - {name: effectiveTo, type: date, required: false}
+  relationships:
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: parentPosition, target: Position, cardinality: "0..1", ownership: reference}
+    - {name: employees, target: Employee, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: POSITION-001, rule: effectiveTo must not precede effectiveFrom.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-POSITION}
