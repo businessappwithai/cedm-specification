@@ -2,227 +2,180 @@ entity:
   name: Product
   namespace: cedm.domain
   kind: core_master_entity
-  description: A distinct good, material, service, subscription, or other offering that can be bought, sold, stocked, delivered,
-    or otherwise used in business processes.
-  identity:
-    key: productId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A business offering that can be purchased, sold, stocked, consumed, delivered, subscribed to, or otherwise referenced by commercial and operational processes.
+  identity: {key: productId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: productId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the product record associated with this Product. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: description
-    type: string
-    required: false
-    maxLength: 4000
-    help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: productType
-    type: enum
-    required: true
-    values:
-    - GOOD
-    - MATERIAL
-    - SERVICE
-    - SUBSCRIPTION
-    - ASSET
-    - BUNDLE
-    - OTHER
-    help:
-      summary: Captures the business meaning of product type for the Product. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        GOOD: Represents the good state or classification in the context of Product.
-        MATERIAL: Represents the material state or classification in the context of Product.
-        SERVICE: Represents the service state or classification in the context of Product.
-        SUBSCRIPTION: Represents the subscription state or classification in the context of Product.
-        ASSET: Represents the asset state or classification in the context of Product.
-        BUNDLE: Represents the bundle state or classification in the context of Product.
-        OTHER: Represents the other state or classification in the context of Product.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - DRAFT
-    - ACTIVE
-    - DISCONTINUED
-    - BLOCKED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of Product.
-        ACTIVE: Represents the active state or classification in the context of Product.
-        DISCONTINUED: Represents the discontinued state or classification in the context of Product.
-        BLOCKED: Represents the blocked state or classification in the context of Product.
-        RETIRED: Represents the retired state or classification in the context of Product.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: sku
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of sku for the Product. It is interpreted together with the entity's other attributes
-        and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: unitOfMeasure
-    type: reference
-    target: UnitOfMeasure
-    required: false
-    help:
-      summary: Identifies the related UnitOfMeasure associated with this Product. It provides the link needed to navigate
-        from this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: This field connects Product to UnitOfMeasure. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related UnitOfMeasure.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: standardPrice
-    type: money
-    required: false
-    help:
-      summary: Captures the business meaning of standard price for the Product. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: taxCategory
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of tax category for the Product. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: createdAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and
-        operational reporting.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: updatedAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: The system-managed timestamp recording the latest modification of the record. It supports synchronization,
-        audit, and change detection.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Product records, where applicable.
-      relationshipContext: Its meaning is specific to Product; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: productId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable CEDM identity of the product master record.
+        businessMeaning: Identifies the product concept independently of its price, inventory balance, supplier relationship, or sales transaction.
+        usage: Used by orders, inventory, procurement, pricing, manufacturing, logistics, service, and reporting.
+        relationshipContext: ProductId identifies the product master; transaction lines and inventory records should reference it rather than duplicating product identity.
+        requiredMeaning: Required because operational and commercial records need one canonical product identity.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: Enterprise business code used to recognize the product in operational processes.
+        businessMeaning: Provides a human- and system-facing product reference suitable for documents, integrations, search, and master-data governance.
+        usage: Used in catalogs, orders, invoices, procurement, inventory, labels, reports, and integrations.
+        relationshipContext: The code identifies the product business concept; SKU or supplier codes may represent more specific market or partner identities.
+        requiredMeaning: Required where the enterprise needs a canonical product reference.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: Human-readable name of the product offering.
+        businessMeaning: Provides the normal business description used to recognize the product across operational and commercial contexts.
+        usage: Used in catalogs, forms, documents, search, reports, and user interfaces.
+        relationshipContext: The name describes the product master and should not be confused with a transaction-specific description or marketing content.
+        requiredMeaning: Required so the product can be understood by users and business processes.
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+      help:
+        summary: Extended business description of the product.
+        businessMeaning: Captures characteristics or scope that cannot be represented by the product name alone.
+        usage: Used for catalogs, sales enablement, service information, documentation, and search.
+        relationshipContext: Complements structured product attributes; it should not be used as the only source for rules requiring machine-readable product characteristics.
+        optionalMeaning: Optional when the product name and structured attributes sufficiently describe the offering.
+    - name: productType
+      type: enum
+      required: true
+      values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
+      help:
+        summary: Identifies the fundamental business behavior of the product.
+        businessMeaning: Determines which downstream processes are applicable, such as stock management for goods, service fulfillment for services, or recurring billing for subscriptions.
+        usage: Used by sales, procurement, inventory, fulfillment, accounting, pricing, and product lifecycle processes.
+        relationshipContext: ProductType is a master-data classification; it does not replace specialized entities such as Asset, ServiceRequest, or Subscription.
+        valueSemantics:
+          GOOD: A finished or sellable physical item normally transferred to a customer.
+          MATERIAL: A physical material primarily used as an input, component, consumable, or production resource.
+          SERVICE: A non-physical offering fulfilled through an activity or service process.
+          SUBSCRIPTION: An offering whose commercial relationship normally recurs over time.
+          ASSET: A product concept representing an identifiable asset that may become an owned or managed physical/business asset.
+          BUNDLE: A commercial grouping of multiple products or services sold or managed together.
+          OTHER: A product concept that does not fit the standard classifications.
+        requiredMeaning: Required because process behavior depends on the product's fundamental type.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+      help:
+        summary: Controls the product's lifecycle availability for business use.
+        businessMeaning: Determines whether the product may be introduced, sold, procured, stocked, or otherwise used according to organizational policy.
+        usage: Used by catalog, sales, procurement, inventory, manufacturing, and fulfillment validation.
+        relationshipContext: Status affects future use; historical transactions referencing a discontinued or retired product remain valid.
+        valueSemantics:
+          DRAFT: Product definition is being prepared and is not generally available for normal transactions.
+          ACTIVE: Product is approved and available for applicable business processes.
+          DISCONTINUED: Product is no longer intended for new commercial introduction but may remain available for existing obligations or stock depletion.
+          BLOCKED: Product use is temporarily or conditionally prohibited.
+          RETIRED: Product has been permanently removed from normal operational use while historical references remain valid.
+        requiredMeaning: Required for transaction and lifecycle eligibility decisions.
+    - name: sku
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Stock keeping identifier used to distinguish a product in inventory or retail operations.
+        businessMeaning: Provides an operational inventory reference that may be different from the enterprise-wide product code.
+        usage: Used in warehouse, retail, e-commerce, picking, labeling, and inventory processes.
+        relationshipContext: SKU is an operational identifier; it should not be assumed to be globally unique across organizations unless governed accordingly.
+        optionalMeaning: Optional for services, non-stock products, or organizations that use another inventory identifier.
+    - name: unitOfMeasure
+      type: reference
+      target: UnitOfMeasure
+      required: false
+      help:
+        summary: Defines the standard unit in which product quantity is normally expressed.
+        businessMeaning: Establishes how quantities such as pieces, kilograms, liters, hours, or other measurable units should be interpreted.
+        usage: Used by inventory, purchasing, sales, manufacturing, logistics, pricing, and reporting.
+        relationshipContext: Unit of measure gives meaning to quantity fields on transactions and inventory; conversion rules may be needed when different transaction units are used.
+        optionalMeaning: Optional for offerings whose quantity is not meaningful or is defined by another measurement model.
+    - name: standardPrice
+      type: money
+      required: false
+      help:
+        summary: Reference monetary price associated with the product master.
+        businessMeaning: Provides a baseline price for planning, catalog display, valuation, or default pricing—not necessarily the final transaction price.
+        usage: Used as an input to pricing, quoting, sales, planning, and analysis where organizational pricing policy permits.
+        relationshipContext: Final price may come from a PriceList, contract, promotion, customer agreement, or transaction-specific pricing rule.
+        optionalMeaning: Optional when pricing is entirely determined by external or dynamic pricing mechanisms.
+    - name: taxCategory
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Classifies the product for applicable tax determination.
+        businessMeaning: Provides a product-side input to taxation rules that determine applicable rates, exemptions, or treatments.
+        usage: Used during pricing, invoicing, tax calculation, reporting, and compliance.
+        relationshipContext: TaxCategory is an input to tax determination and does not itself represent a tax rate or tax transaction.
+        optionalMeaning: Optional when tax treatment is determined entirely from another classification or external tax service.
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: Timestamp when the product master record was created in CEDM.
+        businessMeaning: Establishes the beginning of the product record's audit history.
+        usage: Used for governance, audit, synchronization, and master-data reporting.
+        relationshipContext: Refers to creation of the CEDM record, not product invention or first commercial availability.
+        requiredMeaning: Required for traceability.
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: Timestamp of the latest product master modification.
+        businessMeaning: Identifies the latest known change point for synchronization and governance.
+        usage: Used by integrations, caching, audit, change detection, and reporting.
+        relationshipContext: Describes master-record modification rather than a change to physical inventory or a sales transaction.
+        requiredMeaning: Required for reliable change tracking.
   relationships:
-  - name: category
-    target: ProductCategory
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Product to ProductCategory so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProductCategory records associated with a Product.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: suppliers
-    target: Supplier
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Product to Supplier so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Supplier records associated with a Product.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: locations
-    target: Location
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Product to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Product.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: category
+      target: ProductCategory
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Classifies the product within a product taxonomy.
+        usage: Used for navigation, assortment, reporting, pricing, procurement, and analytics.
+        cardinalityMeaning: A product may have no category or one primary category under this model.
+        context: Category organizes product concepts; it does not represent the product's operational lifecycle.
+    - name: suppliers
+      target: Supplier
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates suppliers capable of providing the product.
+        usage: Used for sourcing, procurement, supplier comparison, replenishment, and supply planning.
+        cardinalityMeaning: A product may have multiple suppliers, allowing sourcing alternatives and supplier-specific terms.
+        context: Supplier relationship data may include prices, lead times, minimum quantities, and supplier-specific product codes in specialized models.
+    - name: locations
+      target: Location
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Associates locations where the product is defined, handled, stocked, or made available according to the consuming domain.
+        usage: Used by inventory, warehouse, retail, distribution, and fulfillment processes.
+        cardinalityMeaning: A product can be associated with multiple operational locations.
+        context: This relationship identifies applicable locations; actual stock quantity belongs to inventory state, not the product master.
   invariants:
-  - id: PRODUCT-001
-    rule: code must be unique within its ERP context.
-  - id: PRODUCT-002
-    rule: A discontinued product must not be newly activated without an explicit lifecycle transition.
+    - {id: PRODUCT-001, rule: code must be unique within its ERP context.}
+    - {id: PRODUCT-002, rule: A discontinued product must not be newly activated without an explicit lifecycle transition.}
   help:
-    summary: Represents a core master entity called Product within the CEDM business model.
-    businessMeaning: Product is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Product records.
-    relationshipContext: The entity participates in a wider business graph through relationships with ProductCategory, Supplier,
-      Location. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Product record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-PRODUCT
+    summary: The canonical CEDM concept for a good, material, service, subscription, asset offering, or bundle used by business processes.
+    businessMeaning: Product separates the definition of what is offered or managed from transactional occurrences such as orders, inventory balances, invoices, shipments, and service events.
+    usage: Central to catalog management, sales, procurement, inventory, manufacturing, logistics, pricing, service, subscriptions, and analytics.
+    relationshipContext: Product connects to categories, suppliers, units of measure, and locations. Transactions reference Product to identify what is being bought, sold, moved, consumed, or delivered.
+    lifecycle: Product moves from definition through activation and potentially discontinuation or retirement. Lifecycle status governs future usage while historical transactions remain intact.
+    example: A refrigerated container repair service, a physical container, a spare part, and a subscription can each be represented as Products while their operational behavior is modeled by specialized domains.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PRODUCT}
