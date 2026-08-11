@@ -1,0 +1,16 @@
+entity:
+  name: ShoppingCartLine
+  namespace: cedm.domain
+  kind: ecommerce_detail_entity
+  description: A product selection and quantity within a shopping cart.
+  identity: {key: shoppingCartLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: shoppingCartLineId, type: uuid, required: true, immutable: true}
+    - {name: quantity, type: decimal, required: true, precision: 18, scale: 6}
+    - {name: unitPrice, type: money, required: false}
+  relationships:
+    - {name: cart, target: ShoppingCart, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: CART-LINE-001, rule: quantity must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SHOPPING-CART-LINE}
