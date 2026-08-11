@@ -1,0 +1,16 @@
+entity:
+  name: Store
+  namespace: cedm.domain
+  kind: retail_entity
+  description: A retail location through which products or services are offered to customers.
+  identity: {key: storeId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: storeId, type: uuid, required: true, immutable: true}
+    - {name: storeCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, CLOSED, RETIRED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: products, target: Product, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-STORE}
