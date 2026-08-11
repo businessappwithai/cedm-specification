@@ -1,0 +1,120 @@
+# CEDM Cross-Domain Capability Catalog
+catalog:
+  version: 0.2.0
+  capabilities:
+    - id: party-management
+      name: Party Management
+      entities: [Party, Person, Organization, PartyRole, Customer, Supplier]
+      processes: [party-onboarding, party-maintenance, party-offboarding]
+    - id: product-management
+      name: Product and Service Management
+      entities: [Product, ProductCategory, UnitOfMeasure]
+      processes: [product-introduction, product-change, product-retirement]
+    - id: location-management
+      name: Location Management
+      entities: [Address, Location, Warehouse, InventoryLocation, Yard]
+      processes: [location-setup, location-change, location-closure]
+    - id: pricing
+      name: Pricing and Commercial Terms
+      entities: [Product, Customer, Supplier, PaymentTerm, Currency]
+      processes: [price-definition, price-approval, price-change]
+    - id: order-management
+      name: Order Management
+      entities: [SalesOrder, SalesOrderLine, PurchaseOrder, PurchaseOrderLine]
+      processes: [order-capture, order-approval, order-fulfillment, order-cancellation]
+    - id: fulfillment
+      name: Fulfillment
+      entities: [SalesOrder, Shipment, InventoryMovement, Location]
+      processes: [pick-pack-ship, delivery, receipt]
+    - id: inventory-management
+      name: Inventory Management
+      entities: [InventoryBalance, InventoryMovement, Product, Location]
+      processes: [stock-receipt, stock-issue, stock-transfer, cycle-count, adjustment]
+    - id: warehouse-management
+      name: Warehouse Management
+      entities: [Warehouse, InventoryLocation, InventoryBalance, InventoryMovement]
+      processes: [inbound, putaway, picking, packing, outbound, replenishment]
+    - id: transportation-management
+      name: Transportation Management
+      entities: [Shipment, Vehicle, Location]
+      processes: [route-planning, dispatch, tracking, delivery, freight-settlement]
+    - id: asset-management
+      name: Asset Management
+      entities: [Asset, Location, Organization]
+      processes: [asset-acquisition, capitalization, transfer, disposal]
+    - id: maintenance-management
+      name: Maintenance Management
+      entities: [Asset, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate, RepairEstimateLine]
+      processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
+    - id: quality-management
+      name: Quality Management
+      entities: [QualityInspection, QualityPlan, Nonconformance, CorrectiveAction]
+      processes: [inspection, sampling, nonconformance, corrective-action, release]
+    - id: financial-accounting
+      name: Financial Accounting
+      entities: [Account, JournalEntry, JournalEntryLine, Invoice, Payment, Currency]
+      processes: [journal-posting, period-close, reconciliation, reporting]
+    - id: accounts-payable
+      name: Accounts Payable
+      entities: [Supplier, PurchaseOrder, Invoice, Payment]
+      processes: [invoice-capture, three-way-match, approval, payment]
+    - id: accounts-receivable
+      name: Accounts Receivable
+      entities: [Customer, SalesOrder, Invoice, Payment]
+      processes: [billing, collection, receipt, reconciliation]
+    - id: procurement
+      name: Procurement
+      entities: [Supplier, PurchaseRequisition, PurchaseOrder, PurchaseOrderLine]
+      processes: [requisition, sourcing, quotation, purchase-order, receiving]
+    - id: sales
+      name: Sales
+      entities: [Customer, Lead, Opportunity, Quotation, SalesOrder]
+      processes: [lead-management, opportunity-management, quotation, order-capture]
+    - id: customer-service
+      name: Customer Service
+      entities: [Customer, ServiceCase, ServiceRequest, Task]
+      processes: [case-intake, triage, resolution, escalation, closure]
+    - id: project-management
+      name: Project Management
+      entities: [Project, ProjectTask, Milestone, ResourceAssignment, Timesheet]
+      processes: [project-initiation, planning, execution, monitoring, closure]
+    - id: human-capital
+      name: Human Capital Management
+      entities: [Employee, Position, Employment, Attendance, LeaveRequest, Payroll]
+      processes: [recruitment, onboarding, attendance, leave, payroll, offboarding]
+    - id: document-management
+      name: Document Management
+      entities: [Document, DocumentVersion, DocumentType, Signature]
+      processes: [document-creation, review, approval, signing, retention, archival]
+    - id: workflow-orchestration
+      name: Workflow Orchestration
+      entities: [BusinessProcess, Workflow, Task]
+      processes: [workflow-start, task-assignment, approval, escalation, completion]
+    - id: contract-management
+      name: Contract Management
+      entities: [Contract, ContractParty, ContractClause, ContractObligation]
+      processes: [contract-creation, negotiation, approval, execution, renewal, termination]
+    - id: compliance-management
+      name: Compliance Management
+      entities: [Policy, Control, Risk, ComplianceAssessment, Audit]
+      processes: [risk-assessment, control-testing, remediation, audit]
+    - id: reporting
+      name: Reporting and Analytics
+      entities: [Report, Dashboard, Metric, Dataset]
+      processes: [report-definition, refresh, distribution, analysis]
+    - id: integration
+      name: Integration and Event Management
+      entities: [Integration, Endpoint, Message, Event]
+      processes: [publish, consume, retry, reconcile]
+    - id: identity-access
+      name: Identity and Access Management
+      entities: [User, Identity, Role, Permission, AccessPolicy]
+      processes: [provisioning, authentication, authorization, deprovisioning]
+    - id: ai-decisioning
+      name: AI and Decisioning
+      entities: [AIModel, AIExperiment, AIPrediction, AIEvaluation, AIPolicy]
+      processes: [training, evaluation, deployment, inference, monitoring, human-review]
+    - id: sustainability
+      name: Sustainability and ESG
+      entities: [Emission, EnergyUsage, WasteRecord, ESGMetric, SustainabilityTarget]
+      processes: [measurement, target-setting, reduction, disclosure, assurance]
