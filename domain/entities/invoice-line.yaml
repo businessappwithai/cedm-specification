@@ -1,0 +1,22 @@
+# CEDM Domain Entity: InvoiceLine
+entity:
+  name: InvoiceLine
+  namespace: cedm.domain
+  kind: financial_transaction_line
+  description: A billed product, service, quantity, tax, or adjustment line on an invoice.
+  identity: {key: invoiceLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: invoiceLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: quantity, type: decimal, required: false, precision: 20, scale: 6}
+    - {name: unitPrice, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: taxAmount, type: decimal, required: true, default: 0, precision: 20, scale: 4}
+    - {name: lineAmount, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: description, type: string, required: false, maxLength: 1000}
+  relationships:
+    - {name: invoice, target: Invoice, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: INVOICE-LINE-001, rule: lineNumber must be unique within the invoice.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVOICE-LINE}
