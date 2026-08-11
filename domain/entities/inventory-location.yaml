@@ -2,7 +2,7 @@ entity:
   name: InventoryLocation
   namespace: cedm.domain
   kind: inventory_master_entity
-  description: A specific logical storage position within a warehouse or managed location.
+  description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be stored, staged, picked, reserved, counted, or controlled.
   identity:
     key: inventoryLocationId
     type: uuid
@@ -14,124 +14,94 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the inventory location record associated with this InventoryLocation. The identifier connects this
-        record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryLocation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryLocation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of the inventory location.
+      usage: Used to connect inventory balances, movements, warehouse tasks, receiving, picking, replenishment, and audit history to the same stock position.
+      relationshipContext: Identifies the stock-holding location independently of its code, type, warehouse, or current inventory balance.
+      requiredMeaning: Required because inventory events need a stable location identity.
   - name: code
     type: string
     required: true
+    unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryLocation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryLocation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The operational code used by warehouse personnel and systems to identify the stock-holding position.
+      usage: Used on labels, scanners, receiving and picking tasks, inventory documents, warehouse interfaces, and integrations.
+      relationshipContext: The code is meaningful within the warehouse's location namespace and should not be confused with the Warehouse code or a Product code.
+      requiredMeaning: Required for physical and system navigation of inventory.
   - name: locationType
     type: enum
     required: true
-    values:
-    - BIN
-    - SHELF
-    - RACK
-    - FLOOR
-    - YARD_SLOT
-    - OTHER
+    values: [BIN, SHELF, RACK, FLOOR, YARD_SLOT, OTHER]
     help:
-      summary: Captures the business meaning of location type for the InventoryLocation. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryLocation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryLocation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Classifies the physical or operational structure represented by the inventory location.
+      usage: Drives put-away, picking, capacity, accessibility, counting, and handling rules.
+      relationshipContext: Type describes the kind of stock position; it does not itself determine what inventory is currently stored there.
       valueSemantics:
-        BIN: Represents the bin state or classification in the context of InventoryLocation.
-        SHELF: Represents the shelf state or classification in the context of InventoryLocation.
-        RACK: Represents the rack state or classification in the context of InventoryLocation.
-        FLOOR: Represents the floor state or classification in the context of InventoryLocation.
-        YARD_SLOT: Represents the yard slot state or classification in the context of InventoryLocation.
-        OTHER: Represents the other state or classification in the context of InventoryLocation.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        BIN: A defined compartment or bin used for controlled storage.
+        SHELF: A shelf-level storage position used for item placement and retrieval.
+        RACK: A rack or rack-position storage area, often supporting palletized or structured storage.
+        FLOOR: A floor or open-area storage position where stock is placed without a dedicated bin or rack slot.
+        YARD_SLOT: A designated outdoor or yard position used for inventory or equipment that is managed spatially.
+        OTHER: A stock-holding position not represented by the standard location classifications.
+      requiredMeaning: Required because warehouse execution needs to understand the physical handling model.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - ACTIVE
-    - BLOCKED
-    - INACTIVE
+    values: [ACTIVE, BLOCKED, INACTIVE]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryLocation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryLocation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Indicates whether the inventory location is available for normal stock operations.
+      usage: Controls put-away, picking, transfers, counting, replenishment, and allocation decisions.
+      relationshipContext: Location status affects whether new movements may target the location; it does not erase existing InventoryBalance or historical InventoryMovement records.
       valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of InventoryLocation.
-        BLOCKED: Represents the blocked state or classification in the context of InventoryLocation.
-        INACTIVE: Represents the inactive state or classification in the context of InventoryLocation.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        ACTIVE: The location is available for normal inventory operations subject to product and warehouse rules.
+        BLOCKED: The location exists but is temporarily prohibited from one or more stock operations, for example because of damage, quarantine, inspection, or operational restriction.
+        INACTIVE: The location is no longer intended for normal use and should not receive new inventory assignments.
+      requiredMeaning: Required because warehouse processes need an authoritative availability state.
   - name: capacity
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of capacity for the InventoryLocation. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryLocation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryLocation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The nominal capacity of the inventory location under a defined measurement convention.
+      usage: Used for put-away validation, utilization analysis, replenishment planning, and warehouse capacity management.
+      relationshipContext: Capacity must be interpreted with an applicable UnitOfMeasure or capacity policy; it may represent pieces, pallets, weight, volume, TEU, or another operational measure.
+      optionalMeaning: Optional when capacity is derived from warehouse configuration or managed through a separate slot-capacity model.
   relationships:
   - name: warehouse
     target: Warehouse
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects InventoryLocation to Warehouse so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Warehouse records associated with a InventoryLocation.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the Warehouse that owns or operationally contains this inventory location.
+      usage: Provides facility context for stock operations, access rules, capacity planning, and warehouse execution.
+      cardinalityMeaning: Exactly one Warehouse contains an InventoryLocation under this model.
+      context: Warehouse is the facility-level concept; InventoryLocation is the granular stock position inside it.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects InventoryLocation to InventoryBalance so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about InventoryBalance records associated with a InventoryLocation.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Contains the current or effective stock quantities maintained for Products at this inventory location.
+      usage: Supports available stock, on-hand quantity, reservations, allocation, picking, replenishment, and inventory reporting.
+      cardinalityMeaning: A location may have zero or many balances because it may be empty or contain multiple Products, lots, serials, or stock conditions.
+      context: InventoryBalance represents current derived/maintained state; InventoryMovement provides the auditable events that change that state.
   invariants:
   - id: INVENTORY-LOCATION-001
-    rule: code must be unique within its warehouse.
+    rule: code must be unique within its Warehouse.
+  - id: INVENTORY-LOCATION-002
+    rule: capacity must be non-negative when supplied.
+  - id: INVENTORY-LOCATION-003
+    rule: BLOCKED and INACTIVE locations must not receive new normal put-away or transfer movements unless an explicit exception workflow permits them.
   help:
-    summary: Represents a inventory master entity called InventoryLocation within the CEDM business model.
-    businessMeaning: InventoryLocation is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate InventoryLocation records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Warehouse, InventoryBalance.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical InventoryLocation record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    summary: Represents the granular place where inventory is physically or logically held and controlled within a warehouse or managed inventory network.
+    businessMeaning: InventoryLocation answers the operational question "where exactly is this stock?" It is more specific than Warehouse or Location and provides the spatial granularity required for warehouse execution.
+    usage: Used by receiving, put-away, picking, replenishment, stock counting, transfers, reservation, fulfillment, yard operations, and inventory control.
+    relationshipContext: Warehouse provides facility context. InventoryLocation identifies the stock position. InventoryBalance represents current quantity at that position. InventoryMovement records changes between positions or into/out of the inventory network. Product identifies what is stored.
+    lifecycle: A location is configured before use, becomes active for stock operations, may be blocked temporarily for safety, quality, maintenance, quarantine, or operational reasons, and may eventually become inactive. Changing location status must not destroy historical movement or balance information.
+    example: A distribution warehouse contains locations RECEIVING-01, RACK-A-03-02, PICK-01, and STAGE-OUT-02. A PurchaseOrder receipt creates an InventoryMovement into RECEIVING-01; a put-away movement transfers the stock to RACK-A-03-02; an outbound process later moves allocated stock to PICK-01 and staging before shipment.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-INVENTORY-LOCATION
