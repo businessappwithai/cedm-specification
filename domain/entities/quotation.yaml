@@ -1,0 +1,22 @@
+entity:
+  name: Quotation
+  namespace: cedm.domain
+  kind: commercial_transaction
+  description: A commercial offer specifying products, services, quantities, prices, terms, and validity.
+  identity: {key: quotationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: quotationId, type: uuid, required: true, immutable: true}
+    - {name: quotationNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: quotationDate, type: date, required: true}
+    - {name: validUntil, type: date, required: false}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, ACCEPTED, REJECTED, EXPIRED, CANCELLED]}
+    - {name: currencyId, type: reference, target: Currency, required: true}
+    - {name: totalAmount, type: decimal, required: true, precision: 20, scale: 4}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
+    - {name: opportunity, target: Opportunity, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: QuotationLine, cardinality: "1..*", ownership: aggregate}
+    - {name: paymentTerms, target: PaymentTerm, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: QUOTATION-001, rule: validUntil must not precede quotationDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-QUOTATION}
