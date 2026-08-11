@@ -2,94 +2,77 @@ entity:
   name: YardTier
   namespace: cedm.domain
   kind: logistics_location
-  description: A vertical tier level within a yard bay.
+  description: A vertical stacking level within a yard bay that groups one or more atomic storage positions at the same stack height.
   identity:
     key: yardTierId
     type: uuid
     generated: true
     immutable: true
   attributes:
-  - name: yardTierId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the yard tier record associated with this YardTier. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardTier records, where applicable.
-      relationshipContext: Its meaning is specific to YardTier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: tierNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Captures the business meaning of tier number for the YardTier. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardTier records, where applicable.
-      relationshipContext: Its meaning is specific to YardTier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - BLOCKED
-    - CLOSED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating YardTier records, where applicable.
-      relationshipContext: Its meaning is specific to YardTier; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of YardTier.
-        BLOCKED: Represents the blocked state or classification in the context of YardTier.
-        CLOSED: Represents the closed state or classification in the context of YardTier.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: yardTierId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable identity of the vertical tier.
+        businessMeaning: Identifies one stack level within a specific yard bay.
+        usage: Used by yard addressing, stacking rules, capacity calculations, and movement planning.
+        relationshipContext: The tier inherits physical context from YardBay and provides the parent for YardSlot positions.
+        requiredMeaning: Required because each modeled stacking level must be uniquely addressable.
+    - name: tierNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: The vertical stack level number within the parent bay.
+        businessMeaning: Represents how high the position is within the stack, using the yard's agreed numbering convention.
+        usage: Used to determine stack height, retrieval sequence, placement feasibility, and operator instructions.
+        relationshipContext: Its meaning is scoped to the parent YardBay; tierNumber 1 normally denotes the lowest modeled level unless the yard explicitly uses another convention.
+        requiredMeaning: Required to determine the vertical position of a slot.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, BLOCKED, CLOSED]
+      help:
+        summary: The operational availability of the entire tier.
+        businessMeaning: Determines whether positions at this stack level may be used for normal storage.
+        usage: Used by allocation and stacking algorithms to exclude unavailable levels.
+        relationshipContext: A blocked or closed tier can make all subordinate slots unavailable regardless of their individual status.
+        valueSemantics:
+          ACTIVE: Tier positions may be used subject to slot and equipment constraints.
+          BLOCKED: The tier is temporarily unavailable for placement or retrieval.
+          CLOSED: The tier is unavailable for normal operations until explicitly reactivated.
+        requiredMeaning: Required because tier-level restrictions affect subordinate storage positions.
   relationships:
-  - name: bay
-    target: YardBay
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects YardTier to YardBay so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about YardBay records associated with a YardTier.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: slots
-    target: YardSlot
-    cardinality: 1..*
-    ownership: aggregate
-    help:
-      summary: Connects YardTier to YardSlot so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about YardSlot records associated with a YardTier.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: bay
+      target: YardBay
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Places the tier within its parent yard bay.
+        usage: Used to resolve physical addressing and the operational rules inherited from the bay and block.
+        cardinalityMeaning: Every tier belongs to exactly one bay.
+        context: The bay provides the scope in which tierNumber is interpreted.
+    - name: slots
+      target: YardSlot
+      cardinality: 1..*
+      ownership: aggregate
+      help:
+        summary: Defines the atomic storage positions available at this stack level.
+        usage: Used for exact container placement, capacity calculation, and movement instructions.
+        cardinalityMeaning: A modeled tier contains one or more slots.
+        context: Slot positions inherit the tier's vertical context and therefore form the complete physical stack address.
   invariants:
-  - id: YARD-TIER-001
-    rule: tierNumber must be unique within a bay.
+    - id: YARD-TIER-001
+      rule: tierNumber must be unique within a bay.
   help:
-    summary: Represents a logistics location called YardTier within the CEDM business model.
-    businessMeaning: YardTier is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate YardTier records.
-    relationshipContext: The entity participates in a wider business graph through relationships with YardBay, YardSlot. These
-      relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical YardTier record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: Represents one vertical stacking level within a container-yard bay.
+    businessMeaning: YardTier expresses stack height in the yard model. It allows the system to reason about vertical capacity, stacking restrictions, and retrieval dependencies.
+    usage: Used for stack-height calculation, placement validation, crane planning, rehandling, visualization, and yard optimization.
+    relationshipContext: YardTier sits between YardBay and YardSlot. The complete position is derived from the yard hierarchy rather than from tierNumber alone.
+    lifecycle: Tier availability follows the operational state of the stack area. Restrictions should account for containers already occupying subordinate slots and any safety or equipment limitations.
+    example: Bay 12 contains Tier 1 through Tier 5. A container stored at Tier 3 is physically above two lower positions and may require rehandling if a lower container must be retrieved first.
 specification:
   version: 0.1.0
   status: draft
