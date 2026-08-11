@@ -1,0 +1,21 @@
+# CEDM Domain Entity: YardSlot
+entity:
+  name: YardSlot
+  namespace: cedm.domain
+  kind: logistics_location
+  description: The atomic physical position in a container yard where a container may be placed.
+  identity: {key: yardSlotId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: yardSlotId, type: uuid, required: true, immutable: true}
+    - {name: slotCode, type: string, required: true, maxLength: 100}
+    - {name: position, type: integer, required: true, minimum: 1}
+    - {name: status, type: enum, required: true, default: EMPTY, values: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]}
+    - {name: latitude, type: decimal, required: false, precision: 10, scale: 7}
+    - {name: longitude, type: decimal, required: false, precision: 10, scale: 7}
+  relationships:
+    - {name: tier, target: YardTier, cardinality: "1", ownership: reference}
+    - {name: container, target: Container, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: YARD-SLOT-001, rule: slotCode must be unique within the yard.}
+    - {id: YARD-SLOT-002, rule: an OCCUPIED slot must reference exactly one active container.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-YARD-SLOT}
