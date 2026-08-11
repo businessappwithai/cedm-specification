@@ -1,0 +1,22 @@
+entity:
+  name: MeterReading
+  namespace: cedm.domain
+  kind: utility_transaction
+  description: A measured reading recorded from a utility meter at a point in time.
+  identity:
+    key: meterReadingId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - {name: meterReadingId, type: uuid, required: true, immutable: true}
+    - {name: readingAt, type: datetime, required: true}
+    - {name: readingValue, type: decimal, required: true, precision: 24, scale: 8}
+    - {name: readingType, type: enum, required: true, values: [ACTUAL, ESTIMATED, CORRECTED]}
+    - {name: quality, type: enum, required: false, values: [GOOD, SUSPECT, INVALID]}
+  relationships:
+    - {name: meter, target: EnergyMeter, cardinality: "1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: METER-READING-001, rule: readingValue must not be negative unless the meter configuration permits signed values.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-METER-READING}
