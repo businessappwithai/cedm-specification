@@ -1,0 +1,49 @@
+# CEDM Domain Entity: PaymentTerm
+entity:
+  name: PaymentTerm
+  namespace: cedm.domain
+  kind: commercial_reference_entity
+  description: Terms defining when and how a financial obligation is expected to be settled.
+  identity:
+    key: paymentTermId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: paymentTermId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 50
+    - name: name
+      type: string
+      required: true
+      maxLength: 150
+    - name: dueDays
+      type: integer
+      required: true
+      minimum: 0
+    - name: description
+      type: string
+      required: false
+      maxLength: 1000
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+  invariants:
+    - id: PAYMENT-TERM-001
+      rule: dueDays must be zero or greater.
+  tags:
+    - finance
+    - commercial
+    - reference-data
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PAYMENT-TERM
