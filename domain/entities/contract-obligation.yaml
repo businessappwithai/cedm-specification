@@ -1,0 +1,20 @@
+# CEDM Domain Entity: ContractObligation
+entity:
+  name: ContractObligation
+  namespace: cedm.domain
+  kind: legal_commercial_entity
+  description: A specific obligation, commitment, deliverable, or condition arising from a contract.
+  identity: {key: contractObligationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: contractObligationId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, maxLength: 100}
+    - {name: description, type: string, required: true, maxLength: 4000}
+    - {name: obligationType, type: enum, required: true, values: [DELIVERY, PAYMENT, SERVICE, REPORTING, COMPLIANCE, PERFORMANCE, OTHER]}
+    - {name: status, type: enum, required: true, default: OPEN, values: [OPEN, IN_PROGRESS, FULFILLED, BREACHED, WAIVED, CANCELLED]}
+    - {name: dueDate, type: date, required: false}
+  relationships:
+    - {name: contract, target: Contract, cardinality: "1", ownership: reference}
+    - {name: responsibleParty, target: Party, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: CONTRACT-OBLIGATION-001, rule: a FULFILLED obligation must have evidence or fulfillment reference where required by policy.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-OBLIGATION}
