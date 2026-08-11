@@ -2,7 +2,7 @@ entity:
   name: InventoryBalance
   namespace: cedm.domain
   kind: inventory_state_entity
-  description: The quantity and status of a product held at a specific inventory location.
+  description: The current or effective stock position for a Product at an InventoryLocation, including physical on-hand quantity, committed quantity, and quantity available for new demand.
   identity:
     key: inventoryBalanceId
     type: uuid
@@ -14,14 +14,10 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the inventory balance record associated with this InventoryBalance. The identifier connects this
-        record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryBalance records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryBalance; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable identity of the inventory state record.
+      usage: Used to reference and reconcile the current stock position independently of movement events and business transactions.
+      relationshipContext: Identifies the balance record for a particular Product and InventoryLocation context; it is not the identity of the Product or location themselves.
+      requiredMeaning: Required for reliable stock-state traceability.
   - name: quantityOnHand
     type: decimal
     required: true
@@ -29,14 +25,10 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Captures the business meaning of quantity on hand for the InventoryBalance. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryBalance records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryBalance; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The physical or operational quantity currently recorded as present at the inventory location.
+      usage: Used for stock visibility, replenishment, counting, fulfillment, valuation, and inventory control.
+      relationshipContext: On-hand is the stock physically or operationally present; it is different from available quantity because some on-hand stock may already be reserved or otherwise restricted.
+      requiredMeaning: Required so the location has an explicit current stock position, including zero.
   - name: quantityReserved
     type: decimal
     required: true
@@ -44,14 +36,10 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Captures the business meaning of quantity reserved for the InventoryBalance. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryBalance records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryBalance; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The portion of on-hand inventory committed to known demand and therefore not normally available for another allocation.
+      usage: Used for order allocation, fulfillment planning, availability calculation, and demand commitment.
+      relationshipContext: Reserved quantity reduces available quantity but normally does not reduce physical on-hand quantity; reservation events may be represented through InventoryMovement or a dedicated allocation model.
+      requiredMeaning: Required with zero when no stock is reserved.
   - name: quantityAvailable
     type: decimal
     required: true
@@ -59,69 +47,55 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Captures the business meaning of quantity available for the InventoryBalance. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryBalance records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryBalance; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The quantity that can normally be allocated to new demand after accounting for reservations and other applicable availability rules.
+      usage: Used by sales fulfillment, replenishment, allocation, purchasing, planning, and customer availability processes.
+      relationshipContext: Available quantity is a business availability measure, not necessarily a simple synonym for physical stock; the standard baseline is on-hand minus reserved, subject to additional quality, ownership, quarantine, or policy constraints where modeled.
+      requiredMeaning: Required because operational decisions depend on a clear statement of usable stock.
   - name: lastUpdatedAt
     type: datetime
     required: true
     systemManaged: true
     help:
-      summary: Records when the last updated event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InventoryBalance records,
-        where applicable.
-      relationshipContext: Its meaning is specific to InventoryBalance; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The timestamp at which this balance was most recently recalculated or materially changed.
+      usage: Used for concurrency control, synchronization, audit, cache freshness, inventory reporting, and integration processing.
+      relationshipContext: It describes the currency of the balance state and is not a substitute for the timestamps on individual InventoryMovement events.
+      requiredMeaning: Required so consumers can assess how current the derived stock state is.
   relationships:
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects InventoryBalance to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a InventoryBalance.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the Product whose quantity is represented by this balance.
+      usage: Connects inventory state to product master data, unit definitions, replenishment policy, and fulfillment rules.
+      cardinalityMeaning: Exactly one Product is represented by a balance record.
+      context: Product defines what is stocked; InventoryBalance defines how much of it is currently present and available at a location.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects InventoryBalance to InventoryLocation so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about InventoryLocation records associated with a InventoryBalance.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the InventoryLocation at which the product quantity is held.
+      usage: Supports warehouse visibility, picking, put-away, replenishment, stock counts, and location-level availability.
+      cardinalityMeaning: Exactly one InventoryLocation is represented by a balance record.
+      context: InventoryLocation defines where the stock is; InventoryBalance defines its current quantity state there.
   invariants:
   - id: INVENTORY-BALANCE-001
-    rule: quantityOnHand
-    quantityReserved: null
-    and quantityAvailable must not be negative.: null
+    rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized negative-inventory policy applies.
   - id: INVENTORY-BALANCE-002
-    rule: quantityAvailable normally equals quantityOnHand minus quantityReserved.
+    rule: quantityReserved must not normally exceed quantityOnHand.
+  - id: INVENTORY-BALANCE-003
+    rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional availability restrictions are applied.
+  - id: INVENTORY-BALANCE-004
+    rule: The balance must be consistent with the applicable posted InventoryMovement history or approved reconciliation process.
   help:
-    summary: Represents a inventory state entity called InventoryBalance within the CEDM business model.
-    businessMeaning: InventoryBalance is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate InventoryBalance records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Product, InventoryLocation.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical InventoryBalance record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    summary: Represents the current inventory state from which operational availability decisions are made.
+    businessMeaning: InventoryBalance is a state projection, not the historical inventory ledger. It answers how much of a Product is currently recorded at a particular InventoryLocation and how much can normally be committed to new demand.
+    usage: Used by inventory control, warehouse management, order fulfillment, purchasing, replenishment, planning, availability checks, stock valuation, and reporting.
+    relationshipContext: Product identifies what is stocked. InventoryLocation identifies where it is stocked. InventoryBalance describes current state. InventoryMovement records the events that change that state. PurchaseOrder, SalesOrder, Shipment, and other transactions provide business reasons for those events.
+    lifecycle: A balance may be created when a Product first becomes relevant at a location, updated as movements or reservations occur, reconciled during stock counts, and eventually reduced to zero when the location no longer holds the product. Historical movements must remain available even when the balance disappears or reaches zero.
+    example: A warehouse has 100 units of a spare part in RACK-A-03-02. Twenty are reserved for approved maintenance demand, so quantityOnHand is 100, quantityReserved is 20, and quantityAvailable is normally 80. A receipt increases on-hand; an issue decreases on-hand; a reservation changes reserved and available quantities without physically moving stock; a release reverses the reservation.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-INVENTORY-BALANCE
