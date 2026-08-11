@@ -1,0 +1,18 @@
+# CEDM Domain Entity: HealthcareProvider
+entity:
+  name: HealthcareProvider
+  namespace: cedm.domain
+  kind: healthcare_party_role
+  description: A person or organization authorized to provide healthcare services.
+  identity: {key: providerId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: providerId, type: uuid, required: true, immutable: true}
+    - {name: partyId, type: reference, target: Party, required: true}
+    - {name: providerNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: providerType, type: enum, required: true, values: [PHYSICIAN, NURSE, CLINIC, HOSPITAL, LABORATORY, PHARMACY, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, SUSPENDED, RETIRED]}
+  relationships:
+    - {name: party, target: Party, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: encounters, target: HealthcareEncounter, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HEALTHCARE-PROVIDER}
