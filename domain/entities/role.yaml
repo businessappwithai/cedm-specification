@@ -1,0 +1,16 @@
+entity:
+  name: Role
+  namespace: cedm.domain
+  kind: authorization_entity
+  description: A named set of permissions or responsibilities assignable to users or service principals.
+  identity: {key: roleId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: roleId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 200}
+    - {name: description, type: string, required: false, maxLength: 2000}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: permissions, target: Permission, cardinality: "0..*", ownership: reference}
+    - {name: users, target: User, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ROLE}
