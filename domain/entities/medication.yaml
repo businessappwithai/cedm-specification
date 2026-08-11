@@ -1,0 +1,19 @@
+# CEDM Domain Entity: Medication
+entity:
+  name: Medication
+  namespace: cedm.domain
+  kind: healthcare_pharmaceutical_entity
+  description: A medicinal product or therapeutic substance used or prescribed for a patient.
+  identity: {key: medicationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: medicationId, type: uuid, required: true, immutable: true}
+    - {name: productId, type: reference, target: Product, required: false}
+    - {name: code, type: string, required: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: strength, type: string, required: false, maxLength: 100}
+    - {name: form, type: string, required: false, maxLength: 100}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: prescriptions, target: Prescription, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MEDICATION}
