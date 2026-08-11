@@ -1,0 +1,1048 @@
+cedm:
+  name: Common Enterprise Domain Model
+  version: 0.1.0
+  description: >-
+    A declarative YAML specification for describing business applications,
+    domain entities, relationships, business rules, workflows, forms, reports,
+    policies, and supporting metadata.
+  format: yaml
+  goals:
+    - Describe business applications independently of implementation technology.
+    - Make domain concepts machine-readable and AI-readable.
+    - Support generation of data models, APIs, forms, workflows, reports, and documentation.
+    - Keep business rules explicit, composable, testable, and traceable.
+  design_principles:
+    - domain_first
+    - declarative
+    - technology_neutral
+    - human_readable
+    - machine_readable
+    - traceable
+    - extensible
+
+metadata:
+  specification_id: cedm
+  specification_version: 0.1.0
+  status: draft
+  language: en
+  license: Apache-2.0
+
+namespaces:
+  - domain
+  - application
+  - security
+  - workflow
+  - ui
+  - reporting
+  - integration
+  - validation
+  - automation
+
+application:
+  id: cedm-reference-application
+  name: CEDM Reference Application
+  description: >-
+    Reference container-domain business application used to demonstrate the
+    CEDM specification. The model intentionally separates business semantics
+    from persistence, UI, workflow runtime, and integration technology.
+  actors:
+    - id: administrator
+      name: Administrator
+      description: Maintains master data and application configuration.
+    - id: operations-user
+      name: Operations User
+      description: Performs day-to-day operational transactions.
+    - id: supervisor
+      name: Supervisor
+      description: Reviews exceptions and approves operational decisions.
+    - id: analyst
+      name: Analyst
+      description: Consumes reports and operational analytics.
+  capabilities:
+    - manage-container-master-data
+    - manage-yard-structure
+    - receive-container
+    - move-container
+    - inspect-container
+    - estimate-repair
+    - dispose-container
+    - generate-operational-reports
+
+common:
+  identifiers:
+    strategy: uuid
+    format: uuid
+  timestamps:
+    created_at:
+      type: datetime
+      required: true
+    updated_at:
+      type: datetime
+      required: true
+  pagination:
+    default_page_size: 50
+    maximum_page_size: 1000
+
+  data_types:
+    string:
+      primitive: string
+    text:
+      primitive: string
+      multiline: true
+    integer:
+      primitive: integer
+    decimal:
+      primitive: decimal
+    boolean:
+      primitive: boolean
+    date:
+      primitive: date
+    datetime:
+      primitive: datetime
+    uuid:
+      primitive: uuid
+    money:
+      primitive: decimal
+      precision: 18
+      scale: 2
+    percentage:
+      primitive: decimal
+      precision: 7
+      scale: 4
+    json:
+      primitive: object
+
+validation:
+  common_rules:
+    required:
+      type: presence
+    unique:
+      type: uniqueness
+    min_length:
+      type: length
+    max_length:
+      type: length
+    min:
+      type: numeric_range
+    max:
+      type: numeric_range
+    pattern:
+      type: regex
+    one_of:
+      type: enumeration
+    reference_exists:
+      type: foreign_key
+
+entities:
+  - id: party
+    name: Party
+    description: A person or organization participating in the business domain.
+    attributes:
+      - id: id
+        name: Identifier
+        type: uuid
+        key: true
+        required: true
+      - id: party_type
+        name: Party Type
+        type: string
+        required: true
+        enum: [person, organization]
+      - id: name
+        name: Name
+        type: string
+        required: true
+      - id: active
+        name: Active
+        type: boolean
+        required: true
+        default: true
+      - id: created_at
+        type: datetime
+        required: true
+      - id: updated_at
+        type: datetime
+        required: true
+    relationships:
+      - name: contacts
+        target: party_contact
+        cardinality: one_to_many
+
+  - id: party_contact
+    name: Party Contact
+    description: Contact information belonging to a party.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: party_id
+        type: uuid
+        required: true
+      - id: contact_type
+        type: string
+        required: true
+        enum: [email, phone, address]
+      - id: value
+        type: text
+        required: true
+      - id: primary
+        type: boolean
+        default: false
+
+  - id: yard
+    name: Yard
+    description: Physical depot, terminal, or container yard.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: code
+        type: string
+        required: true
+        unique: true
+      - id: name
+        type: string
+        required: true
+      - id: address
+        type: text
+      - id: timezone
+        type: string
+      - id: active
+        type: boolean
+        default: true
+    relationships:
+      - name: blocks
+        target: yard_block
+        cardinality: one_to_many
+
+  - id: yard_block
+    name: Yard Block
+    description: Logical or physical block within a yard.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: yard_id
+        type: uuid
+        required: true
+      - id: code
+        type: string
+        required: true
+      - id: name
+        type: string
+        required: true
+      - id: sequence
+        type: integer
+      - id: active
+        type: boolean
+        default: true
+    constraints:
+      - type: unique
+        fields: [yard_id, code]
+
+  - id: bay
+    name: Bay
+    description: Bay within a yard block.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: block_id
+        type: uuid
+        required: true
+      - id: number
+        type: integer
+        required: true
+      - id: code
+        type: string
+        required: true
+      - id: active
+        type: boolean
+        default: true
+    constraints:
+      - type: unique
+        fields: [block_id, number]
+
+  - id: tier
+    name: Tier
+    description: Vertical position within a stack.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: bay_id
+        type: uuid
+        required: true
+      - id: level
+        type: integer
+        required: true
+        minimum: 1
+      - id: code
+        type: string
+        required: true
+    constraints:
+      - type: unique
+        fields: [bay_id, level]
+
+  - id: slot
+    name: Slot
+    description: Physical addressable position where a container may be placed.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: tier_id
+        type: uuid
+        required: true
+      - id: position
+        type: integer
+        required: true
+        minimum: 1
+      - id: code
+        type: string
+        required: true
+      - id: occupied
+        type: boolean
+        default: false
+    constraints:
+      - type: unique
+        fields: [tier_id, position]
+
+  - id: container
+    name: Container
+    description: Intermodal shipping container managed by the application.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: container_number
+        name: Container Number
+        type: string
+        required: true
+        unique: true
+      - id: iso_code
+        name: ISO Code
+        type: string
+        required: true
+      - id: size_feet
+        type: integer
+        required: true
+        enum: [20, 40, 45]
+      - id: equipment_type
+        type: string
+      - id: manufacturer
+        type: string
+      - id: manufacture_date
+        type: date
+      - id: teu_count
+        type: integer
+      - id: liner_party_id
+        type: uuid
+      - id: current_slot_id
+        type: uuid
+      - id: inventory_status
+        type: string
+        required: true
+        enum: [available, occupied, repair, hold, sold, scrapped, departed]
+      - id: inventory_status_date
+        type: datetime
+      - id: new_production
+        type: boolean
+        default: false
+      - id: write_off_flag
+        type: boolean
+        default: false
+      - id: write_off_date
+        type: date
+      - id: purchase_price
+        type: money
+      - id: purchase_date
+        type: date
+      - id: created_at
+        type: datetime
+        required: true
+      - id: updated_at
+        type: datetime
+        required: true
+    relationships:
+      - name: liner
+        target: party
+        cardinality: many_to_one
+      - name: current_slot
+        target: slot
+        cardinality: many_to_one
+      - name: repair_estimates
+        target: repair_estimate
+        cardinality: one_to_many
+
+  - id: container_movement
+    name: Container Movement
+    description: Movement of a container between physical positions or operational states.
+    attributes:
+      - id
+        type: uuid
+        key: true
+        required: true
+      - id: container_id
+        type: uuid
+        required: true
+      - id: from_slot_id
+        type: uuid
+      - id: to_slot_id
+        type: uuid
+      - id: movement_type
+        type: string
+        required: true
+        enum: [gate_in, yard_move, inspection_move, repair_move, gate_out, relocation]
+      - id: requested_by
+        type: uuid
+      - id: performed_by
+        type: uuid
+      - id: requested_at
+        type: datetime
+      - id: performed_at
+        type: datetime
+      - id: reason
+        type: text
+      - id: status
+        type: string
+        required: true
+        enum: [requested, planned, in_progress, completed, cancelled, failed]
+
+  - id: repair_estimate
+    name: Repair Estimate
+    description: Assessment of container repair requirements and disposition.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: container_id
+        type: uuid
+        required: true
+      - id: estimate_number
+        type: string
+        required: true
+        unique: true
+      - id: estimate_revision
+        type: integer
+        required: true
+        default: 1
+      - id: estimate_status
+        type: string
+        required: true
+        enum: [draft, submitted, approved, rejected, completed]
+      - id: estimate_date
+        type: date
+      - id: replacement_amount
+        type: money
+      - id: material_amount
+        type: money
+      - id: labour_amount
+        type: money
+      - id: gross_amount
+        type: money
+      - id: net_amount
+        type: money
+      - id: disposition
+        type: string
+        enum: [lease, sale, scrap]
+      - id: predicted_sale_price
+        type: money
+      - id: approved_amount
+        type: money
+      - id: repair_complete_date
+        type: date
+    relationships:
+      - name: lines
+        target: repair_estimate_line
+        cardinality: one_to_many
+
+  - id: repair_estimate_line
+    name: Repair Estimate Line
+    description: Individual damage, component, material, or repair line item.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: repair_estimate_id
+        type: uuid
+        required: true
+      - id: repair_code
+        type: string
+      - id: damage_code
+        type: string
+      - id: component_code
+        type: string
+      - id: material_code
+        type: string
+      - id: damage_location
+        type: string
+      - id: quantity
+        type: decimal
+      - id: replacement_amount
+        type: money
+      - id: material_amount
+        type: money
+      - id: labour_amount
+        type: money
+      - id: gross_amount
+        type: money
+      - id: net_amount
+        type: money
+
+  - id: purchase_record
+    name: Purchase Record
+    description: Acquisition transaction for a container or equipment unit.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: container_id
+        type: uuid
+        required: true
+      - id: purchase_date
+        type: date
+      - id: purchase_price
+        type: money
+      - id: purchase_pool_key
+        type: string
+
+  - id: depreciation_book
+    name: Depreciation Book
+    description: Depreciation accounting data used to calculate book value.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: book_key
+        type: string
+        required: true
+      - id: container_id
+        type: uuid
+      - id: book_date
+        type: date
+      - id: depreciation_type
+        type: string
+        required: true
+        enum: [straight, rem_life, red_bal, nbvslunit]
+      - id: depreciation_rate
+        type: percentage
+      - id: depreciation_max
+        type: percentage
+      - id: replacement_amount
+        type: money
+      - id: book_value
+        type: money
+
+  - id: sale_record
+    name: Sale Record
+    description: Sale transaction and realized gross amount.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: container_id
+        type: uuid
+        required: true
+      - id: sale_reference
+        type: string
+        required: true
+      - id: sale_date
+        type: date
+      - id: gross_amount
+        type: money
+
+  - id: workflow_instance
+    name: Workflow Instance
+    description: Runtime instance of a business workflow.
+    attributes:
+      - id: id
+        type: uuid
+        key: true
+        required: true
+      - id: workflow_definition_id
+        type: string
+        required: true
+      - id: subject_type
+        type: string
+        required: true
+      - id: subject_id
+        type: uuid
+        required: true
+      - id: status
+        type: string
+        required: true
+      - id: current_state
+        type: string
+        required: true
+      - id: started_at
+        type: datetime
+      - id: completed_at
+        type: datetime
+
+relationships:
+  - id: yard-blocks
+    from: yard
+    to: yard_block
+    cardinality: one_to_many
+    foreign_key: yard_id
+  - id: block-bays
+    from: yard_block
+    to: bay
+    cardinality: one_to_many
+    foreign_key: block_id
+  - id: bay-tiers
+    from: bay
+    to: tier
+    cardinality: one_to_many
+    foreign_key: bay_id
+  - id: tier-slots
+    from: tier
+    to: slot
+    cardinality: one_to_many
+    foreign_key: tier_id
+  - id: container-slot
+    from: container
+    to: slot
+    cardinality: many_to_one
+    foreign_key: current_slot_id
+  - id: container-estimates
+    from: container
+    to: repair_estimate
+    cardinality: one_to_many
+    foreign_key: container_id
+  - id: estimate-lines
+    from: repair_estimate
+    to: repair_estimate_line
+    cardinality: one_to_many
+    foreign_key: repair_estimate_id
+  - id: container-movements
+    from: container
+    to: container_movement
+    cardinality: one_to_many
+    foreign_key: container_id
+
+rules:
+  - id: container-number-required
+    name: Container number is required
+    scope: container
+    when:
+      always: true
+    then:
+      validate:
+        field: container_number
+        rule: required
+
+  - id: container-size-valid
+    name: Container size must be supported
+    scope: container
+    when:
+      always: true
+    then:
+      validate:
+        field: size_feet
+        rule: one_of
+        values: [20, 40, 45]
+
+  - id: slot-occupancy
+    name: A slot cannot contain more than one active container
+    scope: slot
+    when:
+      field: occupied
+      equals: true
+    then:
+      enforce:
+        unique_active_reference:
+          entity: container
+          field: current_slot_id
+          value: slot.id
+
+  - id: movement-destination-required
+    name: Yard movement destination is required
+    scope: container_movement
+    when:
+      field: movement_type
+      in: [yard_move, relocation, inspection_move, repair_move]
+    then:
+      validate:
+        field: to_slot_id
+        rule: required
+
+  - id: estimate-total
+    name: Repair estimate total
+    scope: repair_estimate
+    when:
+      always: true
+    then:
+      calculate:
+        target: gross_amount
+        expression: material_amount + labour_amount
+
+  - id: write-off-date-required
+    name: Write-off date is required when write-off is enabled
+    scope: container
+    when:
+      field: write_off_flag
+      equals: true
+    then:
+      validate:
+        field: write_off_date
+        rule: required
+
+  - id: disposition-required
+    name: Approved estimate requires disposition
+    scope: repair_estimate
+    when:
+      field: estimate_status
+      equals: approved
+    then:
+      validate:
+        field: disposition
+        rule: required
+
+  - id: sale-price-required-for-sale
+    name: Sale disposition requires predicted sale price
+    scope: repair_estimate
+    when:
+      field: disposition
+      equals: sale
+    then:
+      validate:
+        field: predicted_sale_price
+        rule: required
+
+workflows:
+  - id: container-receiving
+    name: Container Receiving
+    description: Receive a container and assign it to an operational yard position.
+    trigger:
+      event: container.received
+    states:
+      - received
+      - inspection_pending
+      - positioned
+      - completed
+      - exception
+    transitions:
+      - from: received
+        to: inspection_pending
+        action: create_inspection_task
+      - from: inspection_pending
+        to: positioned
+        action: assign_slot
+      - from: positioned
+        to: completed
+        action: confirm_position
+      - from: received
+        to: exception
+        action: raise_exception
+    roles:
+      - operations-user
+      - supervisor
+
+  - id: container-yard-movement
+    name: Container Yard Movement
+    description: Plan, authorize, execute, and confirm container movements.
+    trigger:
+      event: movement.requested
+    states:
+      - requested
+      - planned
+      - authorized
+      - in_progress
+      - completed
+      - rejected
+      - failed
+    transitions:
+      - from: requested
+        to: planned
+        action: plan_move
+      - from: planned
+        to: authorized
+        action: authorize_move
+        condition:
+          expression: actor.role in ['supervisor', 'administrator']
+      - from: authorized
+        to: in_progress
+        action: start_move
+      - from: in_progress
+        to: completed
+        action: confirm_move
+      - from: planned
+        to: rejected
+        action: reject_move
+      - from: in_progress
+        to: failed
+        action: record_failure
+
+  - id: repair-estimate
+    name: Repair Estimate Lifecycle
+    description: Create, review, approve, and complete a repair estimate.
+    trigger:
+      event: repair_estimate.created
+    states:
+      - draft
+      - submitted
+      - under_review
+      - approved
+      - rejected
+      - completed
+    transitions:
+      - from: draft
+        to: submitted
+        action: submit
+      - from: submitted
+        to: under_review
+        action: start_review
+      - from: under_review
+        to: approved
+        action: approve
+        condition:
+          expression: actor.role in ['supervisor', 'administrator']
+      - from: under_review
+        to: rejected
+        action: reject
+      - from: approved
+        to: completed
+        action: complete_repair
+
+forms:
+  - id: container-form
+    name: Container Form
+    entity: container
+    sections:
+      - id: identification
+        label: Identification
+        fields: [container_number, iso_code, size_feet, equipment_type]
+      - id: ownership
+        label: Ownership
+        fields: [liner_party_id, purchase_date, purchase_price]
+      - id: status
+        label: Status
+        fields: [inventory_status, inventory_status_date, current_slot_id]
+      - id: lifecycle
+        label: Lifecycle
+        fields: [manufacture_date, manufacturer, new_production, write_off_flag, write_off_date]
+    actions:
+      - save
+      - cancel
+
+  - id: repair-estimate-form
+    name: Repair Estimate Form
+    entity: repair_estimate
+    sections:
+      - id: header
+        label: Estimate Header
+        fields: [estimate_number, estimate_revision, container_id, estimate_date, estimate_status]
+      - id: lines
+        label: Repair Lines
+        relation: lines
+        fields: [repair_code, damage_code, component_code, material_code, damage_location, quantity, replacement_amount, material_amount, labour_amount]
+      - id: totals
+        label: Totals
+        fields: [replacement_amount, material_amount, labour_amount, gross_amount, net_amount]
+      - id: disposition
+        label: Disposition
+        fields: [disposition, predicted_sale_price, approved_amount]
+    actions:
+      - save
+      - submit
+      - approve
+      - reject
+
+  - id: movement-form
+    name: Container Movement Form
+    entity: container_movement
+    fields:
+      - container_id
+      - from_slot_id
+      - to_slot_id
+      - movement_type
+      - reason
+      - requested_by
+    actions:
+      - request
+      - cancel
+
+reports:
+  - id: yard-occupancy
+    name: Yard Occupancy Report
+    purpose: Show current utilization of yard positions.
+    dataset:
+      entity: container
+      joins:
+        - yard
+        - yard_block
+        - bay
+        - tier
+        - slot
+    dimensions:
+      - yard
+      - block
+      - bay
+      - tier
+    measures:
+      - occupied_slots
+      - available_slots
+      - occupancy_percent
+    filters:
+      - yard_id
+      - inventory_status
+      - size_feet
+
+  - id: container-movement-history
+    name: Container Movement History
+    purpose: Trace physical and operational movement of containers.
+    dataset:
+      entity: container_movement
+    dimensions:
+      - container_id
+      - movement_type
+      - status
+      - performed_by
+    measures:
+      - movement_count
+      - duration_minutes
+    filters:
+      - container_id
+      - from_date
+      - to_date
+
+  - id: repair-estimate-summary
+    name: Repair Estimate Summary
+    purpose: Summarize repair cost, disposition, and predicted sale outcomes.
+    dataset:
+      entity: repair_estimate
+    dimensions:
+      - estimate_status
+      - disposition
+      - container_id
+    measures:
+      - gross_amount
+      - net_amount
+      - approved_amount
+      - predicted_sale_price
+    aggregates:
+      - sum
+      - average
+      - count
+
+  - id: inventory-status
+    name: Inventory Status Report
+    purpose: Current container inventory and lifecycle status.
+    dataset:
+      entity: container
+    dimensions:
+      - inventory_status
+      - equipment_type
+      - size_feet
+      - liner_party_id
+    measures:
+      - container_count
+      - total_teu
+      - total_book_value
+
+integrations:
+  events:
+    - id: container.received
+      payload:
+        container_id: uuid
+        timestamp: datetime
+        location_id: uuid
+    - id: movement.requested
+      payload:
+        movement_id: uuid
+        container_id: uuid
+        from_slot_id: uuid
+        to_slot_id: uuid
+    - id: repair_estimate.created
+      payload:
+        repair_estimate_id: uuid
+        container_id: uuid
+
+  api_conventions:
+    style: resource-oriented
+    versioning: uri
+    pagination: cursor
+    errors:
+      shape:
+        code: string
+        message: string
+        details: object
+        trace_id: string
+
+security:
+  authentication:
+    scheme: oauth2
+  authorization:
+    model: role_based
+    roles:
+      administrator:
+        permissions:
+          - '*'
+      operations-user:
+        permissions:
+          - container.read
+          - container.create
+          - container.update
+          - container_movement.create
+          - repair_estimate.read
+          - repair_estimate.create
+      supervisor:
+        permissions:
+          - container.read
+          - container.update
+          - container_movement.read
+          - container_movement.approve
+          - repair_estimate.read
+          - repair_estimate.approve
+      analyst:
+        permissions:
+          - report.read
+  audit:
+    enabled: true
+    tracked_events:
+      - create
+      - update
+      - delete
+      - approve
+      - reject
+      - movement
+
+ai:
+  intent:
+    enabled: true
+    supported_operations:
+      - discover_entities
+      - explain_rule
+      - generate_form
+      - generate_workflow
+      - generate_report
+      - generate_api
+      - generate_test_cases
+      - generate_documentation
+  grounding:
+    source_of_truth: this_specification
+    require_traceability: true
+  generation:
+    deterministic_sections:
+      - entities
+      - relationships
+      - rules
+      - workflows
+      - forms
+      - reports
+
+extensions: {}
