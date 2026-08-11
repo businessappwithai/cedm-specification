@@ -2,7 +2,7 @@ entity:
   name: RepairEstimate
   namespace: cedm.domain
   kind: asset_maintenance_transaction
-  description: An estimate of work, material, labor, and disposition associated with repairing an asset.
+  description: A controlled estimate of the cost, scope, and commercial disposition of maintenance work for a specific container or other maintainable asset, used to decide whether the asset should be repaired, leased, sold, scrapped, or held.
   identity:
     key: repairEstimateId
     type: uuid
@@ -14,215 +14,163 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the repair estimate record associated with this RepairEstimate. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of this repair estimate.
+      usage: Used to connect the estimate to work orders, estimate revisions, line items, approvals, documents, analytics, and integrations without relying on a human-facing estimate number.
+      relationshipContext: Identifies the estimate record itself; Container identifies the asset being evaluated and RepairEstimateLine records explain the individual repair requirements.
+      requiredMeaning: Every estimate must have a stable identity so revisions and downstream decisions remain traceable.
   - name: estimateNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of estimate number for the RepairEstimate. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The human-facing business reference assigned to the repair estimate.
+      usage: Used by depot personnel, maintenance teams, approvers, customers, owners, and reports to identify the estimate in business communication.
+      relationshipContext: Unlike repairEstimateId, this is intended for people and external documents and normally remains recognizable across the estimate's operational lifecycle.
+      requiredMeaning: Required because repair decisions and approvals need a business reference.
   - name: revision
     type: integer
     required: true
     default: 1
     minimum: 1
     help:
-      summary: Captures the business meaning of revision for the RepairEstimate. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The sequential version of the estimate's commercial and technical assessment.
+      usage: Used when repair scope, material prices, labor assumptions, disposition, or other estimate inputs change after an earlier version has been created.
+      relationshipContext: A revision preserves the history of how the estimate evolved; it should not overwrite the meaning of a previously approved estimate without an explicit revision process.
+      requiredMeaning: Required so consumers can determine which estimate version represents the current decision context.
   - name: estimateDate
     type: date
     required: true
     help:
-      summary: Records the business date associated with the estimate. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The business date on which this estimate revision was prepared or recognized.
+      usage: Used for approval history, repair-cycle reporting, aging, financial analysis, and comparison of estimates over time.
+      relationshipContext: It describes the estimate event, not the container's manufacture date, purchase date, repair completion date, or sale date.
+      requiredMeaning: Required because estimate aging and decision history depend on a defined date.
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values:
-    - DRAFT
-    - SUBMITTED
-    - APPROVED
-    - REJECTED
-    - COMPLETED
-    - CANCELLED
+    values: [DRAFT, SUBMITTED, APPROVED, REJECTED, COMPLETED, CANCELLED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The controlled lifecycle state of the repair estimate and its authorization for downstream action.
+      usage: Determines whether the estimate is being prepared, awaiting decision, authorized for execution, rejected, completed, or terminated.
+      relationshipContext: Estimate status governs the decision artifact; it does not by itself mean that a MaintenanceWorkOrder is completed or that the Container has been repaired.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of RepairEstimate.
-        SUBMITTED: Represents the submitted state or classification in the context of RepairEstimate.
-        APPROVED: Represents the approved state or classification in the context of RepairEstimate.
-        REJECTED: Represents the rejected state or classification in the context of RepairEstimate.
-        COMPLETED: Represents the completed state or classification in the context of RepairEstimate.
-        CANCELLED: Represents the cancelled state or classification in the context of RepairEstimate.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        DRAFT: The estimate is being prepared and may still change without representing an approved repair decision.
+        SUBMITTED: The estimate has been submitted for review or authorization.
+        APPROVED: The estimate has been authorized for the business decision it represents; downstream execution must still be performed separately.
+        REJECTED: The proposed scope or financial/disposition decision was not authorized.
+        COMPLETED: The estimate lifecycle and associated decision process are complete according to organizational policy.
+        CANCELLED: The estimate has been intentionally terminated and should no longer drive an active decision.
+      requiredMeaning: Required because repair and disposition workflows must distinguish preparation from authorization and completion.
   - name: disposition
     type: enum
     required: false
-    values:
-    - LEASE
-    - SALE
-    - SCRAP
-    - REPAIR
-    - HOLD
+    values: [LEASE, SALE, SCRAP, REPAIR, HOLD]
     help:
-      summary: Captures the business meaning of disposition for the RepairEstimate. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The intended commercial or operational outcome for the asset after evaluating its condition, repair economics, and business requirements.
+      usage: Drives downstream decisions such as creating repair work, preparing an asset for sale, returning it to lease inventory, scrapping it, or retaining it pending further information.
+      relationshipContext: Disposition is a decision about the Container or maintainable asset; it is not the same as the physical repair status. A disposition of REPAIR can lead to a MaintenanceWorkOrder, while SALE may lead to a sales process.
       valueSemantics:
-        LEASE: Represents the lease state or classification in the context of RepairEstimate.
-        SALE: Represents the sale state or classification in the context of RepairEstimate.
-        SCRAP: Represents the scrap state or classification in the context of RepairEstimate.
-        REPAIR: Represents the repair state or classification in the context of RepairEstimate.
-        HOLD: Represents the hold state or classification in the context of RepairEstimate.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        LEASE: The asset is intended to remain available for lease or lease-related operations after the applicable disposition decision.
+        SALE: The asset is intended to be sold rather than returned to the active lease fleet.
+        SCRAP: The asset is intended to be removed from productive inventory and processed as scrap or disposal.
+        REPAIR: Repair is economically or operationally justified and further maintenance execution is required or expected.
+        HOLD: No final disposition has been executed; the asset remains pending another decision, inspection, approval, or external event.
+      optionalMeaning: Optional while the condition assessment or approval process has not reached a disposition decision.
   - name: estimatedRepairAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of estimated repair amount for the RepairEstimate. It is interpreted together
-        with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated monetary cost of repairing the asset based on the current repair scope, material requirements, labor, and applicable charges.
+      usage: Used to compare repair economics with sale value, book value, lease economics, customer recovery, approval thresholds, and maintenance budgets.
+      relationshipContext: It should reconcile with RepairEstimateLine amounts and the estimate's Currency; it is an estimate, not an actual posted maintenance cost.
+      optionalMeaning: Optional while the repair scope is incomplete or a repair decision is not applicable.
   - name: estimatedSaleAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of estimated sale amount for the RepairEstimate. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The estimated amount that could be realized if the asset is sold under the current valuation assumptions.
+      usage: Used in disposition analysis to compare sale economics with repair cost, book value, residual value, and alternative lease outcomes.
+      relationshipContext: This is a decision-support estimate and should not be confused with an executed SalesOrder, actual sale amount, or cash receipt.
+      optionalMeaning: Optional when sale is not under consideration or valuation is not yet available.
   - name: approvedAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of approved amount for the RepairEstimate. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: Its meaning is specific to RepairEstimate; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The monetary amount explicitly authorized by the approval decision for the repair estimate or associated disposition process.
+      usage: Used to control maintenance spending, compare approved scope with estimates, and establish the financial boundary for downstream work.
+      relationshipContext: It is an authorization result, not necessarily the final actual cost. Actual costs belong to maintenance execution and financial transactions.
+      optionalMeaning: Optional before approval or where the decision does not require a monetary authorization.
   - name: currencyId
     type: reference
     target: Currency
     required: false
     help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
-        and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating RepairEstimate records, where
-        applicable.
-      relationshipContext: This field connects RepairEstimate to Currency. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related Currency.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Identifies the currency in which repair and disposition amounts are expressed.
+      usage: Required to interpret estimatedRepairAmount, estimatedSaleAmount, and approvedAmount consistently for analysis and financial reporting.
+      relationshipContext: Currency gives monetary fields their denomination; it does not represent the container's ownership or commercial party.
+      optionalMeaning: Optional while monetary evaluation has not yet been performed.
   relationships:
   - name: container
     target: Container
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects RepairEstimate to Container so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Container records associated with a RepairEstimate.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the physical container whose condition, repair economics, and disposition are being evaluated.
+      usage: Connects the estimate to the container's identity, equipment attributes, current yard state, ownership/lease context, and historical maintenance.
+      cardinalityMeaning: Exactly one Container is evaluated by this estimate.
+      context: Container is the asset under evaluation; the estimate records a decision about that asset and must not duplicate its master data.
   - name: lines
     target: RepairEstimateLine
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects RepairEstimate to RepairEstimateLine so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about RepairEstimateLine records associated with a RepairEstimate.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Contains the individual damage, component, material, labor, or repair requirements that make up the estimate.
+      usage: Used to calculate repair cost, explain the technical basis of the estimate, support approvals, and feed maintenance execution.
+      cardinalityMeaning: Zero or many lines are permitted while an estimate is being prepared, although an approved REPAIR disposition normally requires sufficient line detail to justify the work.
+      context: RepairEstimateLine provides the detailed scope; RepairEstimate provides the overall decision and financial context.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects RepairEstimate to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a RepairEstimate.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the organization responsible for preparing, owning, or approving the repair estimate.
+      usage: Used for depot ownership, maintenance responsibility, approval authority, cost attribution, and reporting.
+      cardinalityMeaning: Zero or one organization may be recorded when organizational context is inherited from the depot or maintenance process.
+      context: The organization responsible for the estimate may differ from the container owner, lessor, lessee, customer, or repair vendor.
   - name: document
     target: Document
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects RepairEstimate to Document so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Document records associated with a RepairEstimate.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Links supporting documentation such as inspection reports, photographs, survey documents, or approval evidence to the estimate.
+      usage: Used for audit, damage evidence, approval review, dispute resolution, and maintenance traceability.
+      cardinalityMeaning: Zero or one primary document may be linked; additional supporting documents can be represented through the broader document association model.
+      context: Documents provide evidence for the estimate but do not replace the structured estimate and its line-level business data.
   invariants:
   - id: REPAIR-ESTIMATE-001
-    rule: revision must increase monotonically for a given estimate identity.
+    rule: revision must be a positive sequential version for the estimate's business identity and must not silently overwrite a prior approved revision.
   - id: REPAIR-ESTIMATE-002
-    rule: APPROVED estimate requires an approvedAmount or an explicit zero-cost disposition.
+    rule: APPROVED estimate requires an approvedAmount or an explicit zero-cost decision.
+  - id: REPAIR-ESTIMATE-003
+    rule: estimatedRepairAmount, estimatedSaleAmount, and approvedAmount must not be negative.
+  - id: REPAIR-ESTIMATE-004
+    rule: A REPAIR disposition should have sufficient RepairEstimateLine detail to establish the approved repair scope.
   help:
-    summary: Represents a asset maintenance transaction called RepairEstimate within the CEDM business model.
-    businessMeaning: RepairEstimate is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate RepairEstimate records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Container, RepairEstimateLine,
-      Organization, Document. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical RepairEstimate record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    summary: Represents the controlled maintenance and disposition assessment used to decide what should happen to a container after its condition and economics have been evaluated.
+    businessMeaning: RepairEstimate is the decision layer between inspection/condition assessment and execution or commercial disposition. It captures the estimated repair work and economics while allowing the organization to choose repair, sale, scrap, lease, or hold.
+    usage: Used by depot maintenance, container fleet management, repair vendors, asset managers, finance, approval workflows, and predictive analytics. It can also provide labeled historical data for models that predict disposition and sale value.
+    relationshipContext: Container identifies the asset. RepairEstimateLine explains the technical and financial scope. MaintenanceWorkOrder executes approved repair work. SalesOrder or another commercial process may execute a SALE decision. Inventory and financial transactions capture actual operational and monetary outcomes. Currency provides denomination for estimate amounts, while Document provides supporting evidence.
+    lifecycle: A new estimate begins as DRAFT, becomes SUBMITTED for review, and may be APPROVED or REJECTED. Approval authorizes a decision but does not itself perform the repair or sale. COMPLETED indicates the estimate's decision process has been concluded. CANCELLED terminates an estimate that should no longer drive action. Revised estimates should preserve version history.
+    example: A returned container is inspected and found to have damaged flooring, side panels, and door hardware. RepairEstimate revision 1 contains RepairEstimateLine records for the required components and labor. The estimated repair cost is compared with expected sale value and fleet economics. After approval, disposition is REPAIR and a MaintenanceWorkOrder is created to execute the approved scope. The actual repair cost is later recorded separately from the estimate.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-REPAIR-ESTIMATE
