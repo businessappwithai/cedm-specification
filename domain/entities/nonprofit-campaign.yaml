@@ -1,0 +1,18 @@
+entity:
+  name: NonprofitCampaign
+  namespace: cedm.domain
+  kind: nonprofit_entity
+  description: A fundraising or public-interest campaign organized to achieve a defined funding or participation objective.
+  identity: {key: campaignId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: campaignId, type: uuid, required: true, immutable: true}
+    - {name: campaignCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: objective, type: string, required: false, maxLength: 2000}
+    - {name: targetAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]}
+  relationships:
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference}
+    - {name: donors, target: Party, cardinality: "0..*", ownership: reference}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-NONPROFIT-CAMPAIGN}
