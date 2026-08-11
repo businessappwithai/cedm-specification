@@ -1,0 +1,22 @@
+# CEDM Domain Entity: Account
+entity:
+  name: Account
+  namespace: cedm.domain
+  kind: financial_master_entity
+  description: A financial ledger account used to classify and record monetary activity.
+  identity: {key: accountId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: accountId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: accountType, type: enum, required: true, values: [ASSET, LIABILITY, EQUITY, REVENUE, EXPENSE, CONTRA]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, RETIRED]}
+    - {name: currencyId, type: reference, target: Currency, required: false}
+  relationships:
+    - {name: parentAccount, target: Account, cardinality: "0..1", ownership: reference}
+    - {name: childAccounts, target: Account, cardinality: "0..*", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: ACCOUNT-001, rule: account code must be unique within its chart-of-accounts context.}
+    - {id: ACCOUNT-002, rule: account hierarchy must not contain cycles.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ACCOUNT}
