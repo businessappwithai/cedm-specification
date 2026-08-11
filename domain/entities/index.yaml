@@ -13,6 +13,7 @@ registry:
     - PartyRole
     - Customer
     - Supplier
+    - Employee
     - Address
     - Location
     - ProductCategory
@@ -29,10 +30,15 @@ registry:
     - SalesOrderLine
     - PurchaseOrder
     - PurchaseOrderLine
+    - Invoice
+    - InvoiceLine
+    - Payment
     - Warehouse
     - InventoryLocation
     - InventoryBalance
     - InventoryMovement
+    - Shipment
+    - Vehicle
     - Container
     - Yard
     - YardBlock
