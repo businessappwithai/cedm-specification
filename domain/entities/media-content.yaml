@@ -1,0 +1,17 @@
+entity:
+  name: MediaContent
+  namespace: cedm.domain
+  kind: media_entity
+  description: A digital or physical media work managed for creation, licensing, publication, or distribution.
+  identity: {key: mediaContentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: mediaContentId, type: uuid, required: true, immutable: true}
+    - {name: contentCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: title, type: string, required: true, maxLength: 500}
+    - {name: contentType, type: enum, required: true, values: [VIDEO, AUDIO, IMAGE, ARTICLE, BOOK, PODCAST, GAME, OTHER]}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, PRODUCED, PUBLISHED, ARCHIVED, RETIRED]}
+  relationships:
+    - {name: owner, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+    - {name: rights, target: MediaRight, cardinality: "0..*", ownership: aggregate}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MEDIA-CONTENT}
