@@ -1,0 +1,18 @@
+entity:
+  name: Identity
+  namespace: cedm.domain
+  kind: security_identity_entity
+  description: An authentication identity or credential-bearing representation associated with a user or principal.
+  identity: {key: identityId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: identityId, type: uuid, required: true, immutable: true}
+    - {name: identityType, type: enum, required: true, values: [PASSWORD, SSO, OAUTH, API_KEY, CERTIFICATE, BIOMETRIC, OTHER]}
+    - {name: externalSubject, type: string, required: false, maxLength: 500}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, SUSPENDED, REVOKED, EXPIRED]}
+    - {name: issuedAt, type: datetime, required: false}
+    - {name: expiresAt, type: datetime, required: false}
+  relationships:
+    - {name: user, target: User, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: IDENTITY-001, rule: expiresAt must not precede issuedAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-IDENTITY}
