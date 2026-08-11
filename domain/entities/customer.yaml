@@ -1,0 +1,100 @@
+# CEDM Domain Entity: Customer
+entity:
+  name: Customer
+  namespace: cedm.domain
+  kind: party_role_specialization
+  extends: PartyRole
+  description: A party that purchases or consumes goods, services, or other business offerings.
+
+  identity:
+    key: customerId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: customerId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: partyRoleId
+      type: reference
+      target: PartyRole
+      required: true
+      unique: true
+      immutable: true
+
+    - name: customerCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+
+    - name: customerType
+      type: enum
+      required: false
+      values:
+        - INDIVIDUAL
+        - BUSINESS
+        - GOVERNMENT
+        - INTERNAL
+        - OTHER
+
+    - name: creditStatus
+      type: enum
+      required: false
+      values:
+        - NOT_REVIEWED
+        - APPROVED
+        - ON_HOLD
+        - BLOCKED
+
+    - name: creditLimit
+      type: decimal
+      required: false
+      precision: 18
+      scale: 2
+
+    - name: paymentTerms
+      type: reference
+      target: PaymentTerm
+      required: false
+
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - BLOCKED
+        - RETIRED
+
+  relationships:
+    - name: partyRole
+      target: PartyRole
+      cardinality: "1"
+      ownership: reference
+
+    - name: addresses
+      target: Address
+      cardinality: "0..*"
+      ownership: reference
+
+    - name: transactions
+      target: BusinessTransaction
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: CUSTOMER-001
+      rule: partyRole.roleType must equal CUSTOMER.
+
+    - id: CUSTOMER-002
+      rule: customerCode must be unique within its ERP context.
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-CUSTOMER
