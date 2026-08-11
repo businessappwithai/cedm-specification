@@ -1,0 +1,24 @@
+# CEDM Domain Entity: SalesOrder
+entity:
+  name: SalesOrder
+  namespace: cedm.domain
+  kind: commercial_transaction
+  description: A customer order requesting products or services for sale.
+  identity: {key: salesOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: salesOrderId, type: uuid, required: true, immutable: true}
+    - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: orderDate, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]}
+    - {name: currencyId, type: reference, target: Currency, required: false}
+    - {name: requestedDeliveryDate, type: date, required: false}
+    - {name: totalAmount, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: SalesOrderLine, cardinality: "1..*", ownership: aggregate}
+    - {name: deliveryLocation, target: Location, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: SALES-ORDER-001, rule: orderNumber must be unique within its ERP context.}
+    - {id: SALES-ORDER-002, rule: A confirmed order must contain at least one line.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER}
