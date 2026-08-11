@@ -1,0 +1,16 @@
+entity:
+  name: User
+  namespace: cedm.domain
+  kind: identity_entity
+  description: A digital identity representing an individual or system principal that can authenticate and act within an application.
+  identity: {key: userId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: userId, type: uuid, required: true, immutable: true}
+    - {name: username, type: string, required: true, unique: true, maxLength: 200}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, LOCKED, DISABLED, RETIRED]}
+    - {name: lastLoginAt, type: datetime, required: false}
+  relationships:
+    - {name: party, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: roles, target: Role, cardinality: "0..*", ownership: reference}
+    - {name: identities, target: Identity, cardinality: "0..*", ownership: aggregate}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-USER}
