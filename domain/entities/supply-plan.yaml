@@ -1,0 +1,51 @@
+entity:
+  name: SupplyPlan
+  namespace: cedm.domain
+  kind: supply_chain_entity
+  description: A plan describing expected demand, supply, inventory, and replenishment actions over a planning horizon.
+  identity:
+    key: supplyPlanId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: supplyPlanId
+      type: uuid
+      required: true
+      immutable: true
+    - name: planNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+    - name: planningStart
+      type: date
+      required: true
+    - name: planningEnd
+      type: date
+      required: true
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, APPROVED, ACTIVE, CLOSED, CANCELLED]
+  relationships:
+    - name: organization
+      target: Organization
+      cardinality: "0..1"
+      ownership: reference
+    - name: products
+      target: Product
+      cardinality: "0..*"
+      ownership: reference
+    - name: locations
+      target: Location
+      cardinality: "0..*"
+      ownership: reference
+  invariants:
+    - id: SUPPLY-PLAN-001
+      rule: planningEnd must not precede planningStart.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-SUPPLY-PLAN
