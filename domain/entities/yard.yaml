@@ -2,117 +2,98 @@ entity:
   name: Yard
   namespace: cedm.domain
   kind: logistics_location
-  description: A managed container yard containing structured blocks, bays, tiers, and slots.
+  description: A managed container-yard facility in which equipment is received, stored, positioned, inspected, repaired, dispatched, and transferred through a structured physical layout.
   identity:
     key: yardId
     type: uuid
     generated: true
     immutable: true
   attributes:
-  - name: yardId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the yard record associated with this Yard. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Yard records, where applicable.
-      relationshipContext: Its meaning is specific to Yard; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Yard records, where applicable.
-      relationshipContext: Its meaning is specific to Yard; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Yard records, where applicable.
-      relationshipContext: Its meaning is specific to Yard; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - PLANNED
-    - ACTIVE
-    - SUSPENDED
-    - CLOSED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Yard records, where applicable.
-      relationshipContext: Its meaning is specific to Yard; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Yard.
-        ACTIVE: Represents the active state or classification in the context of Yard.
-        SUSPENDED: Represents the suspended state or classification in the context of Yard.
-        CLOSED: Represents the closed state or classification in the context of Yard.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: yardId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable CEDM identity of the managed yard facility.
+        businessMeaning: Identifies one operational yard regardless of the containers, blocks, equipment, operators, or activities currently associated with it.
+        usage: Used by yard operations, location management, movements, inventory, reporting, access, and integrations to anchor all yard-specific records.
+        relationshipContext: YardBlock, Location, and Container relationships use the yard as their operational context; the identity should remain stable across yard configuration changes.
+        requiredMeaning: Required because all subordinate yard structures and operational records need an unambiguous facility context.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The operational code used to identify the yard in business processes and integrations.
+        businessMeaning: Provides the concise facility identifier used by operators, transport partners, EDI messages, reports, and system searches.
+        usage: Used in gate, movement, inventory, shipment, location, and reporting processes where a yard must be selected or communicated.
+        relationshipContext: The code identifies the facility, while the hierarchical block/bay/tier/slot structure identifies the exact physical position within it.
+        requiredMeaning: Required because operational systems need a stable human-facing yard identifier.
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The human-readable name of the yard facility.
+        businessMeaning: Identifies the facility in user interfaces, reports, documents, and business communications.
+        usage: Used for operational search, dashboards, maps, reports, and documents where a descriptive facility name is preferable to a code.
+        relationshipContext: Names the same facility identified by code and yardId; it should not be used as the unique technical identity.
+        requiredMeaning: Required so users and business documents can clearly identify the facility.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+      help:
+        summary: The operational lifecycle state of the yard facility.
+        businessMeaning: Determines whether the yard is being prepared, accepting normal operations, temporarily restricted, or permanently closed.
+        usage: Controls whether new movements, allocations, and operational transactions may be initiated against the yard.
+        relationshipContext: Status affects subordinate structures and should be considered before allocating slots or planning container movements into the yard.
+        valueSemantics:
+          PLANNED: The yard is defined for future operation but is not yet available for normal operational transactions.
+          ACTIVE: The yard is available for normal operations subject to capacity, slot, safety, and process constraints.
+          SUSPENDED: Normal operations are temporarily restricted, for example because of an incident, maintenance, weather, or regulatory action.
+          CLOSED: The facility is no longer available for normal operations and should not receive new operational assignments.
+        requiredMeaning: Required because the facility's operational availability must be explicit.
   relationships:
-  - name: location
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Yard to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Yard.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: blocks
-    target: YardBlock
-    cardinality: 1..*
-    ownership: aggregate
-    help:
-      summary: Connects Yard to YardBlock so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about YardBlock records associated with a Yard.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: containers
-    target: Container
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Yard to Container so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Container records associated with a Yard.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: location
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Associates the yard with its geographic or business location record.
+        usage: Used for address, mapping, jurisdiction, routing, regional reporting, and external location integration.
+        cardinalityMeaning: Each yard has exactly one primary Location in this model.
+        context: Location provides geographic context; Yard provides operational storage and handling semantics.
+    - name: blocks
+      target: YardBlock
+      cardinality: 1..*
+      ownership: aggregate
+      help:
+        summary: Defines the physical and logical subdivisions that organize the yard into manageable storage areas.
+        usage: Used to navigate and allocate capacity from facility level down to individual storage positions.
+        cardinalityMeaning: A modeled operational yard contains one or more blocks.
+        context: Blocks are children of the yard hierarchy and should not be interpreted as independent yards.
+    - name: containers
+      target: Container
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Provides the set of containers currently associated with the yard as an operational facility.
+        usage: Used for yard inventory, visibility, capacity, dwell, gate, and operational reporting.
+        cardinalityMeaning: A yard may have zero or many containers at a point in time.
+        context: The relationship is a facility-level view; precise physical placement is represented by Container.currentSlot and the YardSlot hierarchy.
   invariants:
-  - id: YARD-001
-    rule: code must be unique within the ERP context.
+    - id: YARD-001
+      rule: code must be unique within the ERP context.
   help:
-    summary: Represents a logistics location called Yard within the CEDM business model.
-    businessMeaning: Yard is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Yard records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Location, YardBlock,
-      Container. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Yard record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: Represents a managed container-yard facility and the operational boundary within which container storage and handling occur.
+    businessMeaning: Yard is the facility-level anchor for terminal or depot operations. It provides the context for structured storage capacity, container inventory, movements, gate operations, and yard planning.
+    usage: Used to manage facility availability, capacity, physical hierarchy, container visibility, movement planning, operational reporting, and integrations with transport or terminal systems.
+    relationshipContext: A Yard is located through Location and contains YardBlocks. The hierarchy Yard → YardBlock → YardBay → YardTier → YardSlot determines physical position, while Container and ContainerMovement represent equipment and movement activity.
+    lifecycle: A yard can be planned, activated, temporarily suspended, or closed. Closing or suspending a yard should trigger operational controls preventing inappropriate new allocations or inbound movements.
+    example: A depot operates Yard A with several blocks. A truck arrives with a container; the container is received into the yard, assigned to a compatible slot, and later moved to a repair or outbound area while all activity remains associated with Yard A.
 specification:
   version: 0.1.0
   status: draft
