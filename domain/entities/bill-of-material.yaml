@@ -1,0 +1,19 @@
+entity:
+  name: BillOfMaterial
+  namespace: cedm.domain
+  kind: manufacturing_master_entity
+  description: A structured definition of components, quantities, and relationships required to produce or assemble a product.
+  identity: {key: billOfMaterialId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: billOfMaterialId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100}
+    - {name: version, type: string, required: true, default: "1.0", maxLength: 30}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, ACTIVE, OBSOLETE]}
+    - {name: effectiveFrom, type: date, required: false}
+    - {name: effectiveTo, type: date, required: false}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: components, target: BOMComponent, cardinality: "1..*", ownership: aggregate}
+  invariants:
+    - {id: BOM-001, rule: effectiveTo must not precede effectiveFrom.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BILL-OF-MATERIAL}
