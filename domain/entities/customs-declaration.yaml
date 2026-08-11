@@ -1,0 +1,22 @@
+entity:
+  name: CustomsDeclaration
+  namespace: cedm.domain
+  kind: trade_entity
+  description: A declaration of goods and trade information submitted to a customs authority.
+  identity: {key: customsDeclarationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: customsDeclarationId, type: uuid, required: true, immutable: true}
+    - {name: declarationNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: declarationType, type: enum, required: true, values: [IMPORT, EXPORT, TRANSIT, TEMPORARY_IMPORT, OTHER]}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, SUBMITTED, ACCEPTED, UNDER_INSPECTION, CLEARED, REJECTED, CANCELLED]}
+    - {name: declaredValue, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: currencyId, type: reference, target: Currency, required: false}
+    - {name: declarationDate, type: date, required: true}
+  relationships:
+    - {name: declarant, target: Party, cardinality: "1", ownership: reference}
+    - {name: authority, target: Organization, cardinality: "1", ownership: reference}
+    - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: CUSTOMS-001, rule: declaredValue must be zero or greater when supplied.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CUSTOMS-DECLARATION}
