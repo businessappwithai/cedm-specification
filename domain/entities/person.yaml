@@ -1,0 +1,101 @@
+# CEDM Domain Entity: Person
+entity:
+  name: Person
+  namespace: cedm.domain
+  kind: party_specialization
+  extends: Party
+  description: A natural person participating in business activities as a party.
+
+  identity:
+    key: personId
+    type: uuid
+    generated: true
+    immutable: true
+
+  attributes:
+    - name: personId
+      type: uuid
+      required: true
+      immutable: true
+
+    - name: partyId
+      type: reference
+      target: Party
+      required: true
+      unique: true
+      immutable: true
+
+    - name: title
+      type: string
+      required: false
+      maxLength: 50
+
+    - name: givenName
+      type: string
+      required: true
+      maxLength: 150
+
+    - name: middleName
+      type: string
+      required: false
+      maxLength: 150
+
+    - name: familyName
+      type: string
+      required: true
+      maxLength: 150
+
+    - name: preferredName
+      type: string
+      required: false
+      maxLength: 150
+
+    - name: dateOfBirth
+      type: date
+      required: false
+
+    - name: gender
+      type: enum
+      required: false
+      values:
+        - FEMALE
+        - MALE
+        - NON_BINARY
+        - OTHER
+        - UNSPECIFIED
+
+    - name: nationality
+      type: country_code
+      required: false
+
+  relationships:
+    - name: party
+      target: Party
+      cardinality: "1"
+      ownership: reference
+      inverse: person
+
+    - name: employerOrganizations
+      target: Organization
+      cardinality: "0..*"
+      ownership: reference
+
+  invariants:
+    - id: PERSON-001
+      rule: party.partyType must equal PERSON.
+
+    - id: PERSON-002
+      rule: givenName and familyName must be present.
+
+  audit:
+    enabled: true
+
+  tags:
+    - person
+    - party
+    - identity
+
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-PERSON
