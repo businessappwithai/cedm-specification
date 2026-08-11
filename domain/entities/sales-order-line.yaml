@@ -1,0 +1,23 @@
+# CEDM Domain Entity: SalesOrderLine
+entity:
+  name: SalesOrderLine
+  namespace: cedm.domain
+  kind: transaction_line
+  description: A product or service line within a sales order.
+  identity: {key: salesOrderLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: salesOrderLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: unitPrice, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: discountAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: taxAmount, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: lineAmount, type: decimal, required: true, precision: 20, scale: 4}
+  relationships:
+    - {name: salesOrder, target: SalesOrder, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: SALES-ORDER-LINE-001, rule: quantity must be greater than zero.}
+    - {id: SALES-ORDER-LINE-002, rule: lineNumber must be unique within its sales order.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER-LINE}
