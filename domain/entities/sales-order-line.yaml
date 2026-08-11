@@ -2,157 +2,74 @@ entity:
   name: SalesOrderLine
   namespace: cedm.domain
   kind: transaction_line
-  description: A product or service line within a sales order.
-  identity:
-    key: salesOrderLineId
-    type: uuid
-    generated: true
-    immutable: true
+  description: An individual commercial commitment within a SalesOrder identifying exactly what product or service is requested, in what quantity, at what price, and under which measurement basis.
+  identity: {key: salesOrderLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: salesOrderLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the sales order line record associated with this SalesOrderLine. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Captures the business meaning of line number for the SalesOrderLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: quantity
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: unitPrice
-    type: decimal
-    required: true
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of unit price for the SalesOrderLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: discountAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of discount amount for the SalesOrderLine. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: taxAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of tax amount for the SalesOrderLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: lineAmount
-    type: decimal
-    required: true
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of line amount for the SalesOrderLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SalesOrderLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to SalesOrderLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: salesOrderLineId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: The immutable identity of this specific order commitment., usage: Used by fulfillment, inventory, invoicing, integration, and audit processes to reference one line without relying on its display position., relationshipContext: It identifies the line independently of its SalesOrder and Product references, allowing the line to remain traceable throughout fulfillment., requiredMeaning: Every line must be uniquely traceable.}
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help: {summary: The human-facing sequence number of the line within its SalesOrder., usage: Used on order documents, user interfaces, customer communication, and reconciliation., relationshipContext: It is meaningful only within the parent SalesOrder and is not a global identifier., requiredMeaning: Each line needs an operational position for document and process clarity.}
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help: {summary: The quantity of the referenced Product or service being requested., usage: Drives availability, allocation, fulfillment, pricing extensions, and remaining-quantity calculations., relationshipContext: Quantity must be interpreted with Product and UnitOfMeasure; the same numeric quantity has different business meaning under different units., requiredMeaning: A commercial line cannot define the requested commitment without quantity.}
+    - name: unitPrice
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help: {summary: The agreed monetary price for one unit of the line's Product or service under the applicable pricing basis., usage: Used to calculate line value, customer charges, margin, invoicing, and pricing reconciliation., relationshipContext: Unit price must be interpreted with Product, UnitOfMeasure, currency context from the parent order, and applicable commercial terms., requiredMeaning: A priced sales commitment requires a defined unit price.}
+    - name: discountAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help: {summary: The monetary reduction applied to the line price or extended value under an approved commercial discount., usage: Used for net-price calculation, pricing audit, margin analysis, and invoice reconciliation., relationshipContext: It reduces the commercial amount but does not change the ordered quantity or Product identity., optionalMeaning: Optional when no discount applies or discount is represented through another pricing mechanism.}
+    - name: taxAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help: {summary: Tax assessed on the line under the applicable tax determination rules., usage: Used for tax reporting, invoice generation, customer charges, and reconciliation., relationshipContext: Tax depends on Product, customer, location, transaction date, and jurisdiction; it should not be treated as an arbitrary surcharge., optionalMeaning: Optional when tax is calculated later or is not applicable.}
+    - name: lineAmount
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help: {summary: The resulting monetary value of the line after applying quantity, price, discount, and applicable commercial rules., usage: Used in order totals, financial reporting, invoicing, credit exposure, and reconciliation., relationshipContext: It should reconcile with quantity, unitPrice, discountAmount, and tax treatment according to the organization's pricing model and the parent order currency., requiredMeaning: The commercial value of the commitment must be available once the line is executable.}
   relationships:
-  - name: salesOrder
-    target: SalesOrder
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects SalesOrderLine to SalesOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about SalesOrder records associated with a SalesOrderLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: product
-    target: Product
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects SalesOrderLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a SalesOrderLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: unitOfMeasure
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects SalesOrderLine to UnitOfMeasure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a SalesOrderLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: salesOrder
+      target: SalesOrder
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Identifies the parent order that owns this commercial commitment., usage: Provides customer, organization, currency, lifecycle, and fulfillment context., cardinalityMeaning: Every line belongs to exactly one SalesOrder., context: The parent controls the order-level lifecycle and the aggregate of its lines; a line should not exist independently of its order.}
+    - name: product
+      target: Product
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Identifies the product or service being requested by the line., usage: Drives product-specific pricing, availability, fulfillment, inventory, tax, and reporting., cardinalityMeaning: Exactly one Product or service definition is required for the line., context: Product identifies what is sold; quantity and price belong to the line because they are specific to this commercial commitment.}
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Identifies how the ordered quantity is measured., usage: Supports quantity interpretation, conversion, inventory, fulfillment, and pricing calculations., cardinalityMeaning: A unit may be omitted only when the Product or service has an unambiguous default measurement basis., context: Quantity without its applicable unit can be semantically ambiguous, so processes should resolve a unit before fulfillment.}
   invariants:
-  - id: SALES-ORDER-LINE-001
-    rule: quantity must be greater than zero.
-  - id: SALES-ORDER-LINE-002
-    rule: lineNumber must be unique within its sales order.
+    - {id: SALES-ORDER-LINE-001, rule: quantity must be greater than zero.}
+    - {id: SALES-ORDER-LINE-002, rule: lineNumber must be unique within its SalesOrder.}
+    - {id: SALES-ORDER-LINE-003, rule: lineAmount must be consistent with the line pricing calculation.}
   help:
-    summary: Represents a transaction line called SalesOrderLine within the CEDM business model.
-    businessMeaning: SalesOrderLine is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate SalesOrderLine records.
-    relationshipContext: The entity participates in a wider business graph through relationships with SalesOrder, Product,
-      UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical SalesOrderLine record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-SALES-ORDER-LINE
+    summary: Represents one indivisible commercial commitment within a SalesOrder.
+    businessMeaning: SalesOrderLine is where the order becomes specific: it identifies the Product or service, requested quantity, measurement basis, agreed unit price, and resulting commercial value.
+    usage: Used by inventory allocation, fulfillment, shipping, invoicing, pricing, revenue analysis, customer service, and order reporting.
+    relationshipContext: It belongs to exactly one SalesOrder and references exactly one Product. The parent supplies customer, organization, currency, and overall lifecycle context while the line supplies product-specific commercial detail.
+    lifecycle: The line follows the parent order's lifecycle and may additionally have fulfillment quantities or shipment evidence in downstream entities. A line should not be independently activated or fulfilled outside its parent order.
+    example: A SalesOrder contains a line for 20 containers at a unit price of 850 USD. The line identifies the container product, quantity 20, applicable unit of measure, and calculated line amount.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER-LINE}
