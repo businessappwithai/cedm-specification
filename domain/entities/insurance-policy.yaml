@@ -1,0 +1,22 @@
+entity:
+  name: InsurancePolicy
+  namespace: cedm.domain
+  kind: insurance_entity
+  description: A contract providing defined insurance coverage in exchange for premium obligations.
+  identity: {key: insurancePolicyId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: insurancePolicyId, type: uuid, required: true, immutable: true}
+    - {name: policyNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: policyType, type: string, required: true, maxLength: 100}
+    - {name: effectiveFrom, type: date, required: true}
+    - {name: effectiveTo, type: date, required: true}
+    - {name: premium, type: money, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [QUOTED, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]}
+  relationships:
+    - {name: insurer, target: Organization, cardinality: "1", ownership: reference}
+    - {name: policyholders, target: Party, cardinality: "1..*", ownership: reference}
+    - {name: contract, target: Contract, cardinality: "0..1", ownership: reference}
+    - {name: claims, target: InsuranceClaim, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: INSURANCE-POLICY-001, rule: effectiveTo must not precede effectiveFrom.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INSURANCE-POLICY}
