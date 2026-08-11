@@ -1,0 +1,21 @@
+# CEDM Domain Entity: JournalEntry
+entity:
+  name: JournalEntry
+  namespace: cedm.domain
+  kind: financial_transaction
+  description: A balanced accounting entry recording debits and credits for a business event.
+  identity: {key: journalEntryId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: journalEntryId, type: uuid, required: true, immutable: true}
+    - {name: entryNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: entryDate, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, POSTED, REVERSED]}
+    - {name: description, type: string, required: false, maxLength: 1000}
+  relationships:
+    - {name: lines, target: JournalEntryLine, cardinality: "2..*", ownership: aggregate}
+    - {name: sourceTransaction, target: BusinessTransaction, cardinality: "0..1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: JOURNAL-001, rule: a POSTED journal entry must have balanced debit and credit totals.}
+    - {id: JOURNAL-002, rule: a POSTED journal entry is immutable except through an explicit reversal.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOURNAL-ENTRY}
