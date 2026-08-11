@@ -1,0 +1,17 @@
+entity:
+  name: VehicleModel
+  namespace: cedm.domain
+  kind: automotive_master_entity
+  description: A manufacturer-defined model and configuration family for vehicles.
+  identity: {key: vehicleModelId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: vehicleModelId, type: uuid, required: true, immutable: true}
+    - {name: manufacturer, type: string, required: true, maxLength: 200}
+    - {name: modelName, type: string, required: true, maxLength: 200}
+    - {name: modelCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: modelYear, type: integer, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, DISCONTINUED]}
+  relationships:
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: vehicles, target: Vehicle, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VEHICLE-MODEL}
