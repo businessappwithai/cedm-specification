@@ -1,0 +1,22 @@
+entity:
+  name: BankLoan
+  namespace: cedm.domain
+  kind: banking_entity
+  description: A credit facility under which a financial institution advances funds to a borrower subject to repayment terms.
+  identity: {key: loanId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: loanId, type: uuid, required: true, immutable: true}
+    - {name: loanNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: principalAmount, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: interestRate, type: decimal, required: true, precision: 10, scale: 6}
+    - {name: startDate, type: date, required: true}
+    - {name: maturityDate, type: date, required: true}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [APPLICATION, APPROVED, ACTIVE, DELINQUENT, PAID_OFF, DEFAULTED, CANCELLED]}
+  relationships:
+    - {name: borrower, target: Party, cardinality: "1", ownership: reference}
+    - {name: lender, target: Organization, cardinality: "1", ownership: reference}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: BANK-LOAN-001, rule: maturityDate must be later than startDate.}
+    - {id: BANK-LOAN-002, rule: principalAmount must be greater than zero.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BANK-LOAN}
