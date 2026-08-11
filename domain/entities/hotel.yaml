@@ -1,0 +1,17 @@
+entity:
+  name: Hotel
+  namespace: cedm.domain
+  kind: hospitality_entity
+  description: A hospitality property providing accommodation and related services.
+  identity: {key: hotelId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: hotelId, type: uuid, required: true, immutable: true}
+    - {name: hotelCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, CLOSED, RETIRED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: rooms, target: HotelRoom, cardinality: "1..*", ownership: aggregate}
+    - {name: reservations, target: HotelReservation, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HOTEL}
