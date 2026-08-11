@@ -1,0 +1,36 @@
+specification:
+  name: CEDM Relationship Semantics
+  version: 0.1.0
+  status: draft
+
+relationships:
+  cardinalities:
+    '0..1': optional_single
+    '1': required_single
+    '0..*': optional_many
+    '1..*': required_many
+
+  ownership:
+    aggregate:
+      description: Target lifecycle is owned by the source aggregate.
+      deleteBehavior: cascade_or_domain_defined
+    reference:
+      description: Source references an independently managed target.
+      deleteBehavior: restrict_or_nullify
+
+  inheritance:
+    extends:
+      description: Specialized entity inherits semantic properties from a parent entity.
+      identityRule: specialization retains a stable reference to its parent identity
+
+  inverse:
+    requiredWhen: Relationship is intended to be navigable in both directions.
+    validation: Inverse target and source must resolve to each other.
+
+  rules:
+    - id: REL-001
+      rule: Every relationship must declare a target and cardinality.
+    - id: REL-002
+      rule: Relationship target names must resolve through the canonical entity registry.
+    - id: REL-003
+      rule: Ownership semantics must not be inferred from database foreign-key behavior.
