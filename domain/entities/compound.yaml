@@ -1,0 +1,18 @@
+# CEDM Domain Entity: Compound
+entity:
+  name: Compound
+  namespace: cedm.domain
+  kind: life_sciences_entity
+  description: A chemical or biological substance investigated for scientific, pharmaceutical, or industrial purposes.
+  identity: {key: compoundId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: compoundId, type: uuid, required: true, immutable: true}
+    - {name: compoundCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: false, maxLength: 300}
+    - {name: molecularFormula, type: string, required: false, maxLength: 500}
+    - {name: molecularWeight, type: decimal, required: false, precision: 18, scale: 6}
+    - {name: status, type: enum, required: true, default: RESEARCH, values: [RESEARCH, DEVELOPMENT, CANDIDATE, APPROVED, DISCONTINUED]}
+  relationships:
+    - {name: experiments, target: Experiment, cardinality: "0..*", ownership: reference}
+    - {name: samples, target: Sample, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COMPOUND}
