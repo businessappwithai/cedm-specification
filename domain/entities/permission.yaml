@@ -1,0 +1,15 @@
+entity:
+  name: Permission
+  namespace: cedm.domain
+  kind: authorization_entity
+  description: A fine-grained authorization capability governing an operation on a resource.
+  identity: {key: permissionId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: permissionId, type: uuid, required: true, immutable: true}
+    - {name: code, type: string, required: true, unique: true, maxLength: 200}
+    - {name: resource, type: string, required: true, maxLength: 200}
+    - {name: action, type: enum, required: true, values: [CREATE, READ, UPDATE, DELETE, EXECUTE, APPROVE, EXPORT, ADMINISTER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, RETIRED]}
+  relationships:
+    - {name: roles, target: Role, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PERMISSION}
