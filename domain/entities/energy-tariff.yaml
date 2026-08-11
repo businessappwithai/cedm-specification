@@ -1,0 +1,19 @@
+entity:
+  name: EnergyTariff
+  namespace: cedm.domain
+  kind: utilities_entity
+  description: A pricing schedule defining charges for consumption, demand, connection, or other utility services.
+  identity: {key: tariffId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: tariffId, type: uuid, required: true, immutable: true}
+    - {name: tariffCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: effectiveFrom, type: date, required: true}
+    - {name: effectiveTo, type: date, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [DRAFT, ACTIVE, EXPIRED, RETIRED]}
+  relationships:
+    - {name: provider, target: Organization, cardinality: "1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: TARIFF-001, rule: effectiveTo must not precede effectiveFrom.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENERGY-TARIFF}
