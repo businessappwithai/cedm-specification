@@ -1,0 +1,22 @@
+entity:
+  name: Asset
+  namespace: cedm.domain
+  kind: asset_master_entity
+  description: A durable resource owned, leased, controlled, or operated by an organization.
+  identity: {key: assetId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: assetId, type: uuid, required: true, immutable: true}
+    - {name: assetNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: assetType, type: string, required: true, maxLength: 100}
+    - {name: acquisitionDate, type: date, required: false}
+    - {name: acquisitionCost, type: money, required: false}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, UNDER_MAINTENANCE, HELD, DISPOSED, RETIRED]}
+    - {name: serialNumber, type: string, required: false, maxLength: 200}
+  relationships:
+    - {name: owner, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference}
+    - {name: maintenanceWorkOrders, target: MaintenanceWorkOrder, cardinality: "0..*", ownership: reference}
+    - {name: depreciation, target: AssetDepreciation, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET}
