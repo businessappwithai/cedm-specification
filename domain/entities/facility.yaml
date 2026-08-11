@@ -1,0 +1,18 @@
+entity:
+  name: Facility
+  namespace: cedm.domain
+  kind: facilities_entity
+  description: A physical facility, building, site, or managed space used for business operations.
+  identity: {key: facilityId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: facilityId, type: uuid, required: true, immutable: true}
+    - {name: facilityCode, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: facilityType, type: enum, required: true, values: [BUILDING, SITE, CAMPUS, OFFICE, PLANT, WAREHOUSE, OTHER]}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PLANNED, ACTIVE, INACTIVE, CLOSED]}
+  relationships:
+    - {name: location, target: Location, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: assets, target: Asset, cardinality: "0..*", ownership: reference}
+    - {name: serviceRequests, target: ServiceRequest, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FACILITY}
