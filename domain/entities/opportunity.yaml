@@ -1,0 +1,22 @@
+entity:
+  name: Opportunity
+  namespace: cedm.domain
+  kind: crm_entity
+  description: A qualified potential commercial transaction.
+  identity: {key: opportunityId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: opportunityId, type: uuid, required: true, immutable: true}
+    - {name: opportunityNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: true, maxLength: 300}
+    - {name: stage, type: enum, required: true, values: [QUALIFICATION, DISCOVERY, PROPOSAL, NEGOTIATION, WON, LOST]}
+    - {name: probability, type: decimal, required: false, precision: 5, scale: 2}
+    - {name: expectedValue, type: decimal, required: false, precision: 20, scale: 4}
+    - {name: expectedCloseDate, type: date, required: false}
+  relationships:
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference}
+    - {name: owner, target: Party, cardinality: "0..1", ownership: reference}
+    - {name: lead, target: Lead, cardinality: "0..1", ownership: reference}
+    - {name: salesOrder, target: SalesOrder, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: OPPORTUNITY-001, rule: probability must be between 0 and 100 when supplied.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OPPORTUNITY}
