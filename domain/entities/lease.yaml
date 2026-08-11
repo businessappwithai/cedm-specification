@@ -1,0 +1,23 @@
+# CEDM Domain Entity: Lease
+entity:
+  name: Lease
+  namespace: cedm.domain
+  kind: real_estate_commercial_entity
+  description: A contractual arrangement granting a party rights to use a property or asset for a defined period and consideration.
+  identity: {key: leaseId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: leaseId, type: uuid, required: true, immutable: true}
+    - {name: leaseNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: leaseType, type: enum, required: true, values: [OPERATING, FINANCE, COMMERCIAL, RESIDENTIAL, EQUIPMENT, OTHER]}
+    - {name: startDate, type: date, required: true}
+    - {name: endDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]}
+    - {name: periodicAmount, type: money, required: false}
+  relationships:
+    - {name: property, target: Property, cardinality: "0..1", ownership: reference}
+    - {name: lessor, target: Party, cardinality: "1", ownership: reference}
+    - {name: lessee, target: Party, cardinality: "1", ownership: reference}
+    - {name: contract, target: Contract, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: LEASE-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEASE}
