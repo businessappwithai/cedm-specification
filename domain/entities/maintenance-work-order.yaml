@@ -2,231 +2,167 @@ entity:
   name: MaintenanceWorkOrder
   namespace: cedm.domain
   kind: maintenance_transaction
-  description: A work instruction for inspection, preventive maintenance, corrective maintenance, or repair of an asset.
-  identity:
-    key: maintenanceWorkOrderId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A controlled instruction and execution record for inspecting, maintaining, correcting, or repairing an Asset, including the work required, responsible party, planned timing, and completion outcome.
+  identity: {key: maintenanceWorkOrderId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: maintenanceWorkOrderId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the maintenance work order record associated with this MaintenanceWorkOrder. The identifier connects
-        this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: workOrderNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of work order number for the MaintenanceWorkOrder. It is interpreted together
-        with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: workType
-    type: enum
-    required: true
-    values:
-    - INSPECTION
-    - PREVENTIVE
-    - CORRECTIVE
-    - REPAIR
-    - EMERGENCY
-    help:
-      summary: Captures the business meaning of work type for the MaintenanceWorkOrder. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        INSPECTION: Represents the inspection state or classification in the context of MaintenanceWorkOrder.
-        PREVENTIVE: Represents the preventive state or classification in the context of MaintenanceWorkOrder.
-        CORRECTIVE: Represents the corrective state or classification in the context of MaintenanceWorkOrder.
-        REPAIR: Represents the repair state or classification in the context of MaintenanceWorkOrder.
-        EMERGENCY: Represents the emergency state or classification in the context of MaintenanceWorkOrder.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: OPEN
-    values:
-    - OPEN
-    - PLANNED
-    - ASSIGNED
-    - IN_PROGRESS
-    - ON_HOLD
-    - COMPLETED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        OPEN: Represents the open state or classification in the context of MaintenanceWorkOrder.
-        PLANNED: Represents the planned state or classification in the context of MaintenanceWorkOrder.
-        ASSIGNED: Represents the assigned state or classification in the context of MaintenanceWorkOrder.
-        IN_PROGRESS: Represents the in progress state or classification in the context of MaintenanceWorkOrder.
-        ON_HOLD: Represents the on hold state or classification in the context of MaintenanceWorkOrder.
-        COMPLETED: Represents the completed state or classification in the context of MaintenanceWorkOrder.
-        CANCELLED: Represents the cancelled state or classification in the context of MaintenanceWorkOrder.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: priority
-    type: enum
-    required: true
-    default: NORMAL
-    values:
-    - LOW
-    - NORMAL
-    - HIGH
-    - CRITICAL
-    help:
-      summary: Captures the business meaning of priority for the MaintenanceWorkOrder. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        LOW: Represents the low state or classification in the context of MaintenanceWorkOrder.
-        NORMAL: Represents the normal state or classification in the context of MaintenanceWorkOrder.
-        HIGH: Represents the high state or classification in the context of MaintenanceWorkOrder.
-        CRITICAL: Represents the critical state or classification in the context of MaintenanceWorkOrder.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: requestedAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the requested event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: scheduledAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the scheduled event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: completedAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: description
-    type: string
-    required: false
-    maxLength: 4000
-    help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MaintenanceWorkOrder records,
-        where applicable.
-      relationshipContext: Its meaning is specific to MaintenanceWorkOrder; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: maintenanceWorkOrderId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable system identity of the maintenance work order.
+        usage: Used for maintenance history, integrations, audit, reporting, scheduling, and traceability across the asset lifecycle.
+        relationshipContext: Identifies the work order independently of its business number, Asset, MaintenancePlan, assignee, or RepairEstimate.
+        requiredMeaning: Required because every maintenance intervention must be uniquely traceable.
+    - name: workOrderNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The human-facing reference used by maintenance personnel to identify the work order.
+        usage: Used on maintenance requests, work instructions, technician communications, inspection records, repair documents, and reports.
+        relationshipContext: It is a business reference rather than the technical identity and remains the primary operational reference for people.
+        requiredMeaning: Required so maintenance teams can unambiguously refer to the work instruction.
+    - name: workType
+      type: enum
+      required: true
+      values: [INSPECTION, PREVENTIVE, CORRECTIVE, REPAIR, EMERGENCY]
+      help:
+        summary: Classifies the maintenance purpose and determines the general execution method and planning context.
+        usage: Drives maintenance planning, technician assignment, priority, preventive-compliance reporting, repair analytics, and cost analysis.
+        relationshipContext: Work type describes why maintenance is being performed; Asset identifies what is being maintained and MaintenancePlan explains recurring planned work when applicable.
+        valueSemantics:
+          INSPECTION: Examination performed to determine condition, compliance, or the need for further work without necessarily changing the asset.
+          PREVENTIVE: Planned maintenance performed at a defined interval, usage threshold, or condition trigger to reduce the likelihood of failure.
+          CORRECTIVE: Work performed to correct a known condition or restore an asset to its required operating state.
+          REPAIR: Work specifically focused on restoring damaged, defective, or failed components or equipment.
+          EMERGENCY: Urgent intervention required because an immediate failure, safety concern, operational disruption, or critical condition requires action.
+        requiredMeaning: Required because maintenance planning and reporting depend on the reason for the work.
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
+      help:
+        summary: The controlled lifecycle state of the maintenance work order.
+        usage: Controls scheduling, assignment, execution, escalation, completion, reporting, and downstream asset-history processing.
+        relationshipContext: Work-order status describes the maintenance instruction and execution; it does not by itself prove that an Asset is operational, repaired, or returned to service.
+        valueSemantics:
+          OPEN: A valid maintenance need exists but execution has not yet been fully planned.
+          PLANNED: Timing, scope, or resources have been planned sufficiently for execution.
+          ASSIGNED: Responsibility for performing the work has been allocated to a Party or maintenance team.
+          IN_PROGRESS: Maintenance execution has started.
+          ON_HOLD: Work is temporarily stopped because of parts, access, safety, approval, diagnosis, scheduling, or another blocking condition.
+          COMPLETED: The defined work has been performed and accepted according to the applicable completion criteria.
+          CANCELLED: The work order has been intentionally terminated without completing the planned work.
+        requiredMeaning: Required because maintenance processes must know whether work is pending, active, blocked, completed, or terminated.
+    - name: priority
+      type: enum
+      required: true
+      default: NORMAL
+      values: [LOW, NORMAL, HIGH, CRITICAL]
+      help:
+        summary: Indicates the operational urgency with which the maintenance work should be scheduled and executed.
+        usage: Used for dispatching, queue ordering, escalation, resource allocation, service-level monitoring, and maintenance planning.
+        relationshipContext: Priority expresses urgency; it is different from workType, which expresses purpose, and from Asset criticality, which expresses the importance of the asset itself.
+        valueSemantics:
+          LOW: Can normally be scheduled after higher-priority maintenance without significant operational impact.
+          NORMAL: Standard maintenance urgency under normal operational planning.
+          HIGH: Requires accelerated scheduling because delay may materially affect operations, reliability, or service.
+          CRITICAL: Requires immediate or near-immediate attention because delay may create severe safety, operational, financial, or regulatory consequences.
+        requiredMeaning: Required because maintenance queues need a defined prioritization basis.
+    - name: requestedAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time when the maintenance need or work request was formally raised.
+        usage: Used for response-time measurement, backlog analysis, SLA monitoring, maintenance history, and audit.
+        relationshipContext: It marks demand for maintenance, not necessarily the time work was scheduled, assigned, or started.
+        requiredMeaning: Required to measure the elapsed time from maintenance demand to execution.
+    - name: scheduledAt
+      type: datetime
+      required: false
+      help:
+        summary: The planned date and time at which maintenance execution is expected to begin.
+        usage: Used for technician scheduling, asset availability planning, shutdown coordination, parts readiness, and maintenance calendars.
+        relationshipContext: It represents a plan and may differ from the actual execution start recorded elsewhere or inferred from status history.
+        optionalMeaning: Optional while the work remains unscheduled.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        summary: The date and time at which the maintenance work order was formally completed and accepted.
+        usage: Used for maintenance history, downtime analysis, SLA measurement, compliance reporting, asset availability, and cost closure.
+        relationshipContext: Completion means the work-order scope has been accepted; it does not necessarily mean the Asset has returned to service if a separate commissioning or release process exists.
+        optionalMeaning: Optional until the work is completed.
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+      help:
+        summary: The human-readable statement of the maintenance problem, requested work, observed condition, or intended scope.
+        usage: Provides context to planners, technicians, inspectors, approvers, and downstream reports when structured fields alone cannot capture the maintenance requirement.
+        relationshipContext: It complements structured workType, Asset, RepairEstimate, and MaintenancePlan information and should not be used as the sole source for critical machine-readable conditions.
+        optionalMeaning: Optional when the work scope is fully defined through structured request or task data.
   relationships:
-  - name: asset
-    target: Asset
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects MaintenanceWorkOrder to Asset so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Asset records associated with a MaintenanceWorkOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: maintenancePlan
-    target: MaintenancePlan
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects MaintenanceWorkOrder to MaintenancePlan so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about MaintenancePlan records associated with a MaintenanceWorkOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: assignee
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects MaintenanceWorkOrder to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a MaintenanceWorkOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: location
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects MaintenanceWorkOrder to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a MaintenanceWorkOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: repairEstimate
-    target: RepairEstimate
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects MaintenanceWorkOrder to RepairEstimate so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about RepairEstimate records associated with a MaintenanceWorkOrder.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: asset
+      target: Asset
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the physical or operational Asset that the maintenance work is intended to inspect, maintain, correct, or repair.
+        usage: Connects maintenance history to asset condition, service intervals, failure history, warranty, depreciation, and operational availability.
+        cardinalityMeaning: Zero or one Asset may be recorded when the work concerns a location, general maintenance activity, or an asset not yet identified at request time.
+        context: Asset answers what is being maintained; MaintenanceWorkOrder answers what work is being requested or performed on it.
+    - name: maintenancePlan
+      target: MaintenancePlan
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the recurring or preventive maintenance plan that generated or governs the work order.
+        usage: Supports preventive scheduling, compliance tracking, service intervals, and automatic work-order generation.
+        cardinalityMeaning: Zero or one plan may be linked because corrective, emergency, and ad-hoc work can originate outside a maintenance plan.
+        context: MaintenancePlan defines recurring maintenance policy; the work order represents one executable occurrence of that policy.
+    - name: assignee
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the person, team, contractor, or organization responsible for executing or coordinating the work.
+        usage: Drives dispatching, accountability, workload planning, technician performance, contractor management, and communication.
+        cardinalityMeaning: Zero or one Party may be assigned while work is unallocated or when assignment is maintained in an external workforce system.
+        context: Party supplies identity; its applicable role determines whether it acts as technician, maintenance organization, contractor, or another responsibility type.
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the physical location where the maintenance activity is expected to occur.
+        usage: Used for technician routing, access planning, site coordination, safety requirements, and operational scheduling.
+        cardinalityMeaning: Zero or one location may be supplied when the Asset itself determines location or work is performed remotely.
+        context: Location describes where work occurs and is distinct from the Asset being serviced.
+    - name: repairEstimate
+      target: RepairEstimate
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links the work order to an estimate that evaluates expected repair scope, components, labor, cost, or disposition.
+        usage: Supports repair authorization, cost approval, predictive maintenance, insurance or customer estimates, and repair-versus-replace decisions.
+        cardinalityMeaning: Zero or one estimate may be linked because inspection or routine preventive work may not require an estimate.
+        context: RepairEstimate predicts or proposes repair economics; MaintenanceWorkOrder authorizes and tracks the actual maintenance activity.
   invariants:
-  - id: MWO-001
-    rule: completedAt must be present when status is COMPLETED.
-  - id: MWO-002
-    rule: completedAt must not precede requestedAt.
+    - {id: MWO-001, rule: COMPLETED status requires completedAt.}
+    - {id: MWO-002, rule: completedAt must not precede requestedAt.}
+    - {id: MWO-003, rule: IN_PROGRESS requires an identified Asset when the work is asset-specific.}
+    - {id: MWO-004, rule: scheduledAt must not precede requestedAt.}
+  lifecycle:
+    states: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
   help:
-    summary: Represents a maintenance transaction called MaintenanceWorkOrder within the CEDM business model.
-    businessMeaning: MaintenanceWorkOrder is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate MaintenanceWorkOrder records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Asset, MaintenancePlan,
-      Party, Location, RepairEstimate. These relationships provide the context needed to interpret the record rather than
-      treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical MaintenanceWorkOrder record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-MAINTENANCE-WORK-ORDER
+    summary: Represents one controlled maintenance intervention from reported need through planning, assignment, execution, and completion or cancellation.
+    businessMeaning: MaintenanceWorkOrder is the executable maintenance record that turns an identified need into accountable work. It provides the bridge between Asset condition or maintenance policy and the technicians, contractors, parts, estimates, costs, and completion evidence needed to restore or preserve asset capability.
+    usage: Used by maintenance management, field service, depot repair, fleet maintenance, facilities management, manufacturing maintenance, container repair, utilities, aviation, automotive, and other asset-intensive operations.
+    relationshipContext: Asset identifies what requires work. MaintenancePlan explains recurring preventive work. Party identifies who is responsible. Location identifies where work occurs. RepairEstimate can define expected repair economics before execution. Detailed labor, parts, inspections, failures, and costs should be represented by their own related entities when required.
+    lifecycle: A request opens the maintenance need. Planning establishes timing and resources. Assignment establishes accountability. In-progress records active execution. On-hold preserves the work order while a blocking condition is resolved. Completion records acceptance of the defined scope. Cancellation terminates the work without claiming that the maintenance objective was achieved.
+    example: A shipping container is found with damaged flooring during depot inspection. A corrective MaintenanceWorkOrder identifies the container asset, records the requested condition, receives high priority, links to a RepairEstimate for expected material and labor, is assigned to a repair team, progresses through execution, and is completed after the repair is inspected and accepted.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-MAINTENANCE-WORK-ORDER}
