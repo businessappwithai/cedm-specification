@@ -1,0 +1,34 @@
+specification:
+  name: CEDM Business Rule Semantics
+  version: 0.1.0
+  status: draft
+
+rule:
+  requiredFields:
+    - id
+    - rule
+  optionalFields:
+    - severity
+    - appliesWhen
+    - enforcement
+    - message
+
+  severity:
+    values: [error, warning, info]
+    default: error
+
+  enforcement:
+    values:
+      - validation
+      - workflow
+      - authorization
+      - persistence
+      - calculation
+      - integration
+      - reporting
+
+  principles:
+    - Rules express domain meaning independently of implementation technology.
+    - A rule may be enforced in more than one implementation layer.
+    - Derived calculations must declare their source attributes and units where material.
+    - Cross-entity rules belong to the domain rule layer rather than a single entity when they span aggregates.
