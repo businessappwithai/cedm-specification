@@ -1,0 +1,20 @@
+entity:
+  name: Trip
+  namespace: cedm.domain
+  kind: travel_entity
+  description: A planned or completed journey involving one or more travelers, locations, bookings, or transport segments.
+  identity: {key: tripId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: tripId, type: uuid, required: true, immutable: true}
+    - {name: tripNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: name, type: string, required: false, maxLength: 300}
+    - {name: startDate, type: date, required: true}
+    - {name: endDate, type: date, required: false}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, BOOKED, IN_PROGRESS, COMPLETED, CANCELLED]}
+  relationships:
+    - {name: traveler, target: Party, cardinality: "1..*", ownership: reference}
+    - {name: segments, target: TripSegment, cardinality: "0..*", ownership: aggregate}
+    - {name: bookings, target: BusinessTransaction, cardinality: "0..*", ownership: reference}
+  invariants:
+    - {id: TRIP-001, rule: endDate must not precede startDate.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TRIP}
