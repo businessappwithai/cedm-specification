@@ -1,0 +1,20 @@
+# CEDM Domain Entity: InventoryBalance
+entity:
+  name: InventoryBalance
+  namespace: cedm.domain
+  kind: inventory_state_entity
+  description: The quantity and status of a product held at a specific inventory location.
+  identity: {key: inventoryBalanceId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: inventoryBalanceId, type: uuid, required: true, immutable: true}
+    - {name: quantityOnHand, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+    - {name: quantityReserved, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+    - {name: quantityAvailable, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+    - {name: lastUpdatedAt, type: datetime, required: true, systemManaged: true}
+  relationships:
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: inventoryLocation, target: InventoryLocation, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: INVENTORY-BALANCE-001, rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative.}
+    - {id: INVENTORY-BALANCE-002, rule: quantityAvailable normally equals quantityOnHand minus quantityReserved.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-BALANCE}
