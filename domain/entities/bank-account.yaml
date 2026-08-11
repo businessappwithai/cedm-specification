@@ -1,0 +1,17 @@
+entity:
+  name: BankAccount
+  namespace: cedm.domain
+  kind: financial_entity
+  description: A financial account maintained with a banking institution for a party or organization.
+  identity: {key: bankAccountId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: bankAccountId, type: uuid, required: true, immutable: true}
+    - {name: accountNumber, type: string, required: true, maxLength: 100}
+    - {name: accountType, type: enum, required: true, values: [CURRENT, SAVINGS, LOAN, ESCROW, OTHER]}
+    - {name: currencyId, type: reference, target: Currency, required: true}
+    - {name: status, type: enum, required: true, default: ACTIVE, values: [PENDING, ACTIVE, BLOCKED, CLOSED]}
+  relationships:
+    - {name: owner, target: Party, cardinality: "1..*", ownership: reference}
+    - {name: institution, target: Organization, cardinality: "1", ownership: reference}
+    - {name: transactions, target: BankTransaction, cardinality: "0..*", ownership: reference}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BANK-ACCOUNT}
