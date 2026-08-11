@@ -1,0 +1,23 @@
+# CEDM Domain Entity: PurchaseOrder
+entity:
+  name: PurchaseOrder
+  namespace: cedm.domain
+  kind: procurement_transaction
+  description: A request issued to a supplier for goods or services.
+  identity: {key: purchaseOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: purchaseOrderId, type: uuid, required: true, immutable: true}
+    - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: orderDate, type: datetime, required: true}
+    - {name: status, type: enum, required: true, default: DRAFT, values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]}
+    - {name: currencyId, type: reference, target: Currency, required: false}
+    - {name: requestedDeliveryDate, type: date, required: false}
+    - {name: totalAmount, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+    - {name: supplier, target: Supplier, cardinality: "1", ownership: reference}
+    - {name: organization, target: Organization, cardinality: "0..1", ownership: reference}
+    - {name: lines, target: PurchaseOrderLine, cardinality: "1..*", ownership: aggregate}
+    - {name: deliveryLocation, target: Location, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: PURCHASE-ORDER-001, rule: A submitted purchase order must contain at least one line.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER}
