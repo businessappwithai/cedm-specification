@@ -1,0 +1,20 @@
+entity:
+  name: HotelReservation
+  namespace: cedm.domain
+  kind: hospitality_transaction
+  description: A reservation for accommodation or hospitality services.
+  identity: {key: hotelReservationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: hotelReservationId, type: uuid, required: true, immutable: true}
+    - {name: reservationNumber, type: string, required: true, unique: true, maxLength: 100}
+    - {name: checkIn, type: date, required: true}
+    - {name: checkOut, type: date, required: true}
+    - {name: status, type: enum, required: true, default: RESERVED, values: [REQUESTED, RESERVED, CHECKED_IN, CHECKED_OUT, CANCELLED, NO_SHOW]}
+    - {name: guestCount, type: integer, required: true, minimum: 1}
+  relationships:
+    - {name: hotel, target: Hotel, cardinality: "1", ownership: reference}
+    - {name: room, target: HotelRoom, cardinality: "0..1", ownership: reference}
+    - {name: guest, target: Party, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: HOTEL-RESERVATION-001, rule: checkOut must be later than checkIn.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HOTEL-RESERVATION}
