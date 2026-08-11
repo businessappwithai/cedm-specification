@@ -1,0 +1,19 @@
+entity:
+  name: BOMComponent
+  namespace: cedm.domain
+  kind: manufacturing_detail_entity
+  description: A component line within a bill of material defining a required product or material quantity.
+  identity: {key: bomComponentId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: bomComponentId, type: uuid, required: true, immutable: true}
+    - {name: sequence, type: integer, required: true}
+    - {name: quantity, type: decimal, required: true, precision: 18, scale: 6}
+    - {name: scrapPercent, type: decimal, required: false, precision: 8, scale: 4, minimum: 0}
+    - {name: operationSequence, type: integer, required: false}
+  relationships:
+    - {name: billOfMaterial, target: BillOfMaterial, cardinality: "1", ownership: reference}
+    - {name: componentProduct, target: Product, cardinality: "1", ownership: reference}
+  invariants:
+    - {id: BOM-COMPONENT-001, rule: quantity must be greater than zero.}
+    - {id: BOM-COMPONENT-002, rule: scrapPercent must be zero or greater.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BOM-COMPONENT}
