@@ -1,0 +1,23 @@
+# CEDM Domain Entity: HealthcareEncounter
+entity:
+  name: HealthcareEncounter
+  namespace: cedm.domain
+  kind: healthcare_transaction
+  description: A recorded interaction between a patient and healthcare provider or facility for evaluation, treatment, or service.
+  identity: {key: encounterId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: encounterId, type: uuid, required: true, immutable: true}
+    - {name: encounterType, type: enum, required: true, values: [OUTPATIENT, INPATIENT, EMERGENCY, VIRTUAL, HOME_CARE, OTHER]}
+    - {name: status, type: enum, required: true, default: PLANNED, values: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]}
+    - {name: startAt, type: datetime, required: true}
+    - {name: endAt, type: datetime, required: false}
+    - {name: reason, type: string, required: false, maxLength: 2000}
+  relationships:
+    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference}
+    - {name: provider, target: HealthcareProvider, cardinality: "0..1", ownership: reference}
+    - {name: diagnoses, target: Diagnosis, cardinality: "0..*", ownership: aggregate}
+    - {name: procedures, target: Procedure, cardinality: "0..*", ownership: aggregate}
+    - {name: orders, target: HealthcareOrder, cardinality: "0..*", ownership: aggregate}
+  invariants:
+    - {id: ENCOUNTER-001, rule: endAt must not precede startAt.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HEALTHCARE-ENCOUNTER}
