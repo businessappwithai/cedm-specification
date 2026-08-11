@@ -1,0 +1,22 @@
+# CEDM Domain Entity: PurchaseOrderLine
+entity:
+  name: PurchaseOrderLine
+  namespace: cedm.domain
+  kind: transaction_line
+  description: A product or service line within a purchase order.
+  identity: {key: purchaseOrderLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: purchaseOrderLineId, type: uuid, required: true, immutable: true}
+    - {name: lineNumber, type: integer, required: true, minimum: 1}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+    - {name: unitPrice, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: lineAmount, type: decimal, required: true, precision: 20, scale: 4}
+    - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  relationships:
+    - {name: purchaseOrder, target: PurchaseOrder, cardinality: "1", ownership: reference}
+    - {name: product, target: Product, cardinality: "1", ownership: reference}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference}
+  invariants:
+    - {id: PURCHASE-ORDER-LINE-001, rule: quantity must be greater than zero.}
+    - {id: PURCHASE-ORDER-LINE-002, rule: receivedQuantity must not exceed ordered quantity except where over-receipt tolerance is explicitly configured.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
