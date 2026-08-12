@@ -3,129 +3,138 @@ entity:
   namespace: cedm.domain
   kind: procurement_transaction
   description: A formal procurement commitment issued by a buying organization to a Supplier for specified goods or services under agreed commercial and delivery conditions.
-  identity: {key: purchaseOrderId, type: uuid, generated: true, immutable: true}
+  identity:
+    key: purchaseOrderId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - name: purchaseOrderId
-      type: uuid
-      required: true
-      immutable: true
-      help:
-        summary: The immutable system identity of the purchase order.
-        usage: Used for internal references, integrations, audit trails, receiving, invoice matching, and navigation across the procurement lifecycle.
-        relationshipContext: It identifies the PurchaseOrder independently of its Supplier, lines, receipts, or invoices so those related records can reference the same procurement commitment throughout its lifecycle.
-        requiredMeaning: Required because every purchase commitment must have one stable identity.
-    - name: orderNumber
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help:
-        summary: The business-facing procurement reference assigned to the purchase order.
-        usage: Used by buyers, suppliers, receiving teams, accounts payable, documents, and integrations to identify the order in business communication.
-        relationshipContext: Unlike purchaseOrderId, orderNumber is intended for human and external communication and normally follows the buying organization's numbering policy.
-        requiredMeaning: Required because procurement operations need a recognizable reference for every issued order.
-    - name: orderDate
-      type: datetime
-      required: true
-      help:
-        summary: The date and time when the purchase order is recognized as created or issued within the procurement process.
-        usage: Drives procurement chronology, approval and period reporting, supplier performance analysis, and matching against downstream receipts and invoices.
-        relationshipContext: It represents the procurement order event and should not be confused with requestedDeliveryDate, supplier confirmation time, receipt time, or invoice date.
-        requiredMeaning: Required because procurement processing and audit require a defined commercial event time.
-    - name: status
-      type: enum
-      required: true
-      default: DRAFT
-      values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
-      help:
-        summary: The lifecycle state of the procurement commitment and the set of downstream actions that may be performed against it.
-        usage: Procurement, receiving, invoice matching, reporting, and workflow processes use status to determine what actions are permitted.
-        relationshipContext: Order status summarizes the purchase commitment, while actual receipt quantities belong to receiving transactions and supplier invoices belong to invoice processes.
-        valueSemantics:
-          DRAFT: The order is being prepared and is not yet an approved procurement commitment.
-          APPROVED: Internal authorization has been completed and the order is ready to be issued according to policy.
-          SENT: The purchase order has been communicated to the Supplier as the external procurement request or commitment.
-          PARTIALLY_RECEIVED: Some ordered quantities have been received while one or more commitments remain outstanding.
-          RECEIVED: Required ordered quantities have been received according to the applicable receiving rules; financial matching may still remain open.
-          CANCELLED: The remaining procurement commitment has been terminated and should not create new receipts or obligations.
-          CLOSED: Procurement processing is complete and the order requires no further operational action.
-        requiredMeaning: Required because downstream procurement processes must understand the current lifecycle state.
-    - name: currencyId
-      type: reference
-      target: Currency
-      required: false
-      help:
-        summary: Identifies the currency in which monetary amounts on the purchase order are denominated.
-        usage: Used for supplier pricing, total calculations, invoice matching, financial reporting, and currency conversion.
-        relationshipContext: The reference connects the order to the common CEDM Currency model so monetary values are not interpreted as unqualified numbers.
-        optionalMeaning: Optional while commercial terms are not yet established; it should be resolved before a financially actionable order is issued.
-    - name: requestedDeliveryDate
-      type: date
-      required: false
-      help:
-        summary: The date requested by the buying organization for delivery or completion of the ordered goods or services.
-        usage: Used for procurement planning, supplier communication, inventory availability, production scheduling, logistics, and supplier performance measurement.
-        relationshipContext: It expresses the buyer's requested date and must not be confused with a Supplier-confirmed promise date or the actual receipt date.
-        optionalMeaning: Optional because some procurement requests do not establish a required date at initial creation.
-    - name: totalAmount
-      type: decimal
-      required: false
-      precision: 20
-      scale: 4
-      help:
-        summary: The monetary value of the purchase order derived from its lines and applicable commercial adjustments.
-        usage: Used for approval thresholds, budget control, supplier commitments, financial reporting, and invoice reconciliation.
-        relationshipContext: It should reconcile with PurchaseOrderLine amounts and be interpreted using currencyId; it is not an independent pricing source.
-        optionalMeaning: Optional while pricing is incomplete or where the procurement model does not require an order-level total.
+  - name: purchaseOrderId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable system identity of the purchase order.
+      usage: Used for internal references, integrations, audit trails, receiving, invoice matching, and navigation across the procurement lifecycle.
+      relationshipContext: Identifies the order independently of its human-facing orderNumber, Supplier, lines, receipts, and invoices.
+      requiredMeaning: Required because every procurement commitment needs one stable identity.
+  - name: orderNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The human-facing procurement reference assigned to the purchase order.
+      usage: Used by buyers, suppliers, receiving teams, accounts payable, documents, and integrations to identify the order in business communication.
+      relationshipContext: Unlike purchaseOrderId, this is the business reference used externally and follows the buying organization's numbering policy.
+      requiredMeaning: Required because procurement operations need a recognizable reference for every order.
+  - name: orderDate
+    type: datetime
+    required: true
+    help:
+      summary: The date and time at which the purchase order is recognized as created or issued in the procurement process.
+      usage: Used for procurement chronology, approval, period reporting, supplier performance, and matching downstream receipts and invoices.
+      relationshipContext: Describes the order event and is distinct from requestedDeliveryDate, supplier confirmation, receipt, and invoice dates.
+      requiredMeaning: Required for commercial and audit chronology.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
+    help:
+      summary: The controlled lifecycle state of the procurement commitment.
+      usage: Determines which procurement, receiving, cancellation, and closure actions are permitted.
+      relationshipContext: Status summarizes the order; actual fulfillment is evidenced by receipt transactions and financial settlement by invoice/payment processes.
+      valueSemantics:
+        DRAFT: Order is being prepared and is not yet an approved commitment.
+        APPROVED: Internal purchasing authorization is complete and the order is eligible for issuance.
+        SENT: Order has been communicated to the Supplier as the external commitment/request.
+        PARTIALLY_RECEIVED: Some ordered commitments have been fulfilled while others remain outstanding.
+        RECEIVED: Required physical/service fulfillment is complete under applicable receiving rules; financial settlement may remain open.
+        CANCELLED: Remaining procurement commitment has been terminated.
+        CLOSED: Operational and financial procurement processing requiring this order is complete.
+      requiredMeaning: Required so downstream processes can determine the order's current authority and fulfillment state.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: false
+    help:
+      summary: Identifies the currency used for monetary values on the purchase order.
+      usage: Used for pricing, totals, invoice matching, financial reporting, and currency conversion.
+      relationshipContext: Currency qualifies monetary values; it does not define the Supplier, Product, or commercial terms themselves.
+      optionalMeaning: Optional while commercial pricing is incomplete but should be resolved before a financially actionable order is issued.
+  - name: requestedDeliveryDate
+    type: date
+    required: false
+    help:
+      summary: The date requested by the buyer for delivery or completion of the ordered goods or services.
+      usage: Used for supplier communication, planning, logistics, inventory availability, and supplier performance measurement.
+      relationshipContext: This is the buyer's requested date, not the supplier-confirmed promise date or actual receipt date.
+      optionalMeaning: Optional when no fixed need-by date is established.
+  - name: totalAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: The monetary value of the order derived from its line commitments and applicable commercial adjustments.
+      usage: Used for approval thresholds, budget control, supplier commitments, financial reporting, and invoice reconciliation.
+      relationshipContext: Must reconcile with PurchaseOrderLine amounts and currencyId; it is a summary of the commitment rather than an independent pricing source.
+      optionalMeaning: Optional while pricing is incomplete or where order-level totals are calculated dynamically.
   relationships:
-    - name: supplier
-      target: Supplier
-      cardinality: '1'
-      ownership: reference
-      help:
-        summary: Identifies the Supplier from whom the buying organization is procuring the ordered goods or services.
-        usage: Drives supplier communication, pricing, delivery expectations, supplier performance, receiving, and accounts-payable processing.
-        cardinalityMeaning: Exactly one Supplier is responsible for fulfilling the procurement commitment represented by the PurchaseOrder.
-        context: Supplier is a business role associated with a Party; the order references the role rather than duplicating the supplier's party identity.
-    - name: organization
-      target: Organization
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Identifies the buying organization or organizational context responsible for the procurement commitment.
-        usage: Used for authorization, legal-entity selection, budgeting, tax, purchasing policy, inventory ownership, and financial reporting.
-        cardinalityMeaning: Zero or one organization may be explicitly assigned when organizational context is inherited from the surrounding procurement process.
-        context: The buying organization is distinct from the Supplier and may be one organizational unit within a larger enterprise.
-    - name: lines
-      target: PurchaseOrderLine
-      cardinality: 1..*
-      ownership: aggregate
-      help:
-        summary: Contains the individual goods or service commitments that make up the purchase order.
-        usage: Lines define what is being purchased, quantities, prices, units, required dates, and fulfillment expectations used by receiving and invoice matching.
-        cardinalityMeaning: An actionable purchase order requires at least one line; multiple lines allow different products, services, quantities, prices, or delivery requirements.
-        context: PurchaseOrder owns its lines as part of the procurement commitment; receiving and invoicing processes consume line commitments without changing their historical meaning.
-    - name: deliveryLocation
-      target: Location
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Identifies the operational location where the ordered goods or services are intended to be delivered or performed.
-        usage: Used for supplier instructions, inbound logistics, inventory planning, routing, receiving, and service scheduling.
-        cardinalityMeaning: Zero or one location may be specified when delivery is not yet known or is managed outside the order.
-        context: The delivery location is an operational destination and is distinct from the Supplier's address or the buying organization's legal address.
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Identifies the Supplier responsible for fulfilling the procurement commitment.
+      usage: Drives supplier communication, delivery expectations, receiving, supplier performance, and accounts payable.
+      cardinalityMeaning: Exactly one Supplier is associated with the order.
+      context: Supplier is the procurement role of a Party; PurchaseOrder records a specific commitment with that supplier.
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the buying organization responsible for the procurement commitment.
+      usage: Used for authorization, legal entity, budget, tax, inventory ownership, and financial reporting.
+      cardinalityMeaning: Zero or one organization may be explicit when inherited from procurement context.
+      context: The buying organization is distinct from the Supplier and may be one unit of a larger enterprise.
+  - name: lines
+    target: PurchaseOrderLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Contains the individual product or service commitments that make up the order.
+      usage: Defines products, quantities, units, prices, and fulfillment expectations consumed by receiving and invoice matching.
+      cardinalityMeaning: An actionable order requires at least one line.
+      context: PurchaseOrder owns its lines; each line is the measurable commercial commitment.
+  - name: deliveryLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies where the ordered goods are intended to be delivered or where services are to be performed.
+      usage: Used for supplier instructions, inbound logistics, inventory planning, routing, receiving, and service scheduling.
+      cardinalityMeaning: Zero or one destination may be specified.
+      context: DeliveryLocation is an operational destination and is distinct from the Supplier's address or buyer's legal address.
   invariants:
-    - {id: PURCHASE-ORDER-001, rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.}
-    - {id: PURCHASE-ORDER-002, rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when an order-level total is maintained.}
-    - {id: PURCHASE-ORDER-003, rule: CANCELLED purchase orders must not create new receiving commitments.}
-    - {id: PURCHASE-ORDER-004, rule: RECEIVED status represents operational receipt completion and does not by itself mean that supplier invoices have been financially settled.}
-  lifecycle:
-    states: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
+  - id: PURCHASE-ORDER-001
+    rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.
+  - id: PURCHASE-ORDER-002
+    rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when maintained.
+  - id: PURCHASE-ORDER-003
+    rule: CANCELLED purchase orders must not create new receiving commitments.
+  - id: PURCHASE-ORDER-004
+    rule: RECEIVED indicates operational fulfillment completion and does not imply supplier invoice settlement.
   help:
-    summary: Represents the formal procurement commitment between a buying organization and a Supplier for goods or services.
-    businessMeaning: A PurchaseOrder is the operational and commercial bridge between an organization's purchasing decision and supplier fulfillment. It establishes what the supplier is expected to provide, under which commercial terms, and to which delivery context.
-    usage: Created from procurement demand or sourcing activity, approved according to purchasing authority, issued to the Supplier, consumed by receiving and invoice-matching processes, and eventually closed or cancelled.
-    relationshipContext: PurchaseOrder connects Supplier with PurchaseOrderLine commitments and may identify the buying Organization, Currency, and delivery Location. Product identity, quantity, unit, and price belong on lines. Receipts measure actual fulfillment against those commitments, while invoices represent financial claims that may be matched to the order.
-    lifecycle: Draft orders are being prepared. Approval authorizes issuance under procurement policy. Sent orders communicate the commitment to the Supplier. Partial receipt indicates incomplete fulfillment. Receipt completion ends the physical procurement obligation, while financial reconciliation may continue. Cancellation terminates remaining commitments. Closure indicates the procurement lifecycle requires no further processing.
-    example: A maintenance organization orders 100 replacement components from a Supplier for delivery to a depot. The PurchaseOrder identifies the supplier and delivery location, while its lines identify each component, quantity, unit price, and requested date. Receipts later record how much was actually delivered, and supplier invoices can be matched against the order and receipts.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER}
+    summary: Represents the formal commercial procurement commitment between a buying organization and a Supplier.
+    businessMeaning: PurchaseOrder is the bridge between internal procurement demand and supplier fulfillment. It establishes what the Supplier is expected to provide, under what commercial conditions, and where or when fulfillment is expected.
+    usage: Used by purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning, and procurement analytics.
+    relationshipContext: PurchaseRequisition represents internal demand; PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the measurable commitment. Receipt records actual fulfillment. InventoryMovement records resulting stock changes. Invoice represents a supplier financial claim, and Payment settles that claim.
+    lifecycle: Draft orders are prepared. Approval authorizes issuance. Sent orders communicate the commitment. Partial receipt records incomplete fulfillment. Receipt completion ends the physical procurement obligation, while financial reconciliation can continue. Cancellation terminates remaining commitment; closure completes the broader order process.
+    example: A depot orders 100 replacement components from a qualified Supplier for delivery to a warehouse. The order identifies the supplier, currency, destination, and commercial context; its lines specify each component, quantity, unit, and price. Receiving records actual delivery and inventory movements update stock. Supplier invoices are then matched against the order and receipts before payment.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-PURCHASE-ORDER
