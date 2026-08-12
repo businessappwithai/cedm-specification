@@ -2,7 +2,7 @@ entity:
   name: PurchaseRequisitionLine
   namespace: cedm.domain
   kind: transaction_line
-  description: A requested item or service on a purchase requisition.
+  description: A specific internal procurement demand within a PurchaseRequisition, describing what the requester needs, how much is needed, when it is needed, and enough context for purchasing to source and convert the demand into an approved procurement commitment.
   identity:
     key: purchaseRequisitionLineId
     type: uuid
@@ -14,64 +14,46 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the purchase requisition line record associated with this PurchaseRequisitionLine. The identifier
-        connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisitionLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseRequisitionLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable system identity of the requisition line.
+      usage: Used to trace the exact internal demand through approval, sourcing, purchase-order creation, fulfillment, and reporting.
+      relationshipContext: Identifies this demand line independently of the parent requisition, Product, or any later PurchaseOrderLine created from it.
+      requiredMeaning: Required because each procurement demand must remain individually traceable.
   - name: lineNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: Captures the business meaning of line number for the PurchaseRequisitionLine. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisitionLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseRequisitionLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The business sequence number identifying the demand line within its PurchaseRequisition.
+      usage: Used by requesters, approvers, buyers, documents, and integrations to refer to a specific requested item or service.
+      relationshipContext: Meaningful only within the containing requisition; it is not a global identifier.
+      requiredMeaning: Required for human-readable requisition processing.
   - name: quantity
     type: decimal
     required: true
     precision: 20
     scale: 6
     help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisitionLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseRequisitionLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The quantity of goods, materials, assets, or service units requested by the requester.
+      usage: Used for approval, sourcing, supplier quotation, planning, and eventual conversion into a purchase commitment.
+      relationshipContext: Quantity requires Product and UnitOfMeasure context to be meaningful and may differ from the quantity eventually ordered.
+      requiredMeaning: Required because procurement demand must state the requested magnitude.
   - name: requestedDate
     type: date
     required: false
     help:
-      summary: Records the business date associated with the requested. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisitionLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseRequisitionLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The date by which the requester needs the requested goods or service to be available or completed.
+      usage: Used for prioritization, sourcing, purchasing lead-time analysis, supplier selection, and delivery planning.
+      relationshipContext: This is an internal need date and is distinct from the PurchaseOrder requestedDeliveryDate, Supplier promise date, and actual receipt date.
+      optionalMeaning: Optional when the requester has no fixed need-by date.
   - name: description
     type: string
     required: true
     maxLength: 1000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PurchaseRequisitionLine records,
-        where applicable.
-      relationshipContext: Its meaning is specific to PurchaseRequisitionLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The human-readable description of the requested item or service, including requirements that may not be represented by the Product reference alone.
+      usage: Used by approvers and buyers to understand the demand, obtain quotations, clarify specifications, and communicate requirements to suppliers.
+      relationshipContext: Description supplements Product; it must not silently replace a known Product identity when standardized master data exists.
+      requiredMeaning: Required because procurement demand must remain understandable even when product master data is incomplete.
   relationships:
   - name: requisition
     target: PurchaseRequisition
@@ -79,50 +61,43 @@ entity:
     ownership: reference
     inverse: lines
     help:
-      summary: Connects PurchaseRequisitionLine to PurchaseRequisition so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PurchaseRequisition records associated with a PurchaseRequisitionLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the PurchaseRequisition that owns this internal procurement demand.
+      usage: Supplies requester, organization, approval, supplier preference, and requisition lifecycle context.
+      cardinalityMeaning: Every requisition line belongs to exactly one PurchaseRequisition.
+      context: The parent requisition controls the internal authorization context; the line provides the measurable demand.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects PurchaseRequisitionLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a PurchaseRequisitionLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the standardized Product being requested when the demand can be expressed using product master data.
+      usage: Enables sourcing, catalog selection, inventory checks, specification validation, and conversion to a PurchaseOrderLine.
+      cardinalityMeaning: Zero or one Product may be referenced because some requisitions begin as free-text or service requirements.
+      context: A missing Product does not invalidate the demand; it indicates that purchasing may need to identify or create the appropriate product definition.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects PurchaseRequisitionLine to UnitOfMeasure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a PurchaseRequisitionLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Defines the unit in which the requested quantity is expressed.
+      usage: Used to interpret quantities during approval, sourcing, quotation comparison, ordering, receipt, and conversion.
+      cardinalityMeaning: Zero or one unit may be specified; the product's default unit may be inherited where applicable.
+      context: UnitOfMeasure gives semantic meaning to quantity and supports conversion when the ordered unit differs from the requested unit.
   invariants:
   - id: PR-LINE-001
     rule: quantity must be greater than zero.
   - id: PR-LINE-002
-    rule: lineNumber must be unique within a requisition.
+    rule: lineNumber must be unique within its PurchaseRequisition.
+  - id: PR-LINE-003
+    rule: A requestedDate, when supplied, must represent a date on or after the requisition date unless an authorized historical correction is being recorded.
   help:
-    summary: Represents a transaction line called PurchaseRequisitionLine within the CEDM business model.
-    businessMeaning: PurchaseRequisitionLine is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate PurchaseRequisitionLine records.
-    relationshipContext: The entity participates in a wider business graph through relationships with PurchaseRequisition,
-      Product, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical PurchaseRequisitionLine record represents one identifiable business occurrence or master-data object
-      that can be referenced by related CEDM processes.
+    summary: Represents one measurable internal procurement demand before it becomes an external supplier commitment.
+    businessMeaning: PurchaseRequisitionLine is where a business need becomes specific enough for procurement to source, approve, compare, and eventually order. It is demand, not yet a purchase obligation.
+    usage: Used by requesters, approvers, buyers, sourcing teams, inventory planners, and procurement workflows.
+    relationshipContext: PurchaseRequisition provides internal authorization context. Product and UnitOfMeasure provide meaning to the requested quantity. If approved and sourced, this demand may be transformed into one or more PurchaseOrderLines; the resulting order line is a separate commercial commitment and must retain traceability to the originating demand.
+    lifecycle: A line begins as requested demand, participates in requisition review and approval, may be sourced or rejected, and may result in a purchase-order commitment. A requisition line can be partially ordered when demand is fulfilled through multiple suppliers, deliveries, or purchase orders.
+    example: A depot technician requests 20 replacement door seals needed by a specified date. The line references the standardized seal Product and its unit, while the description records the equipment/application requirement. Procurement may source the demand from an approved Supplier and create a PurchaseOrderLine for the quantity actually committed.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-PURCHASE-REQUISITION-LINE
