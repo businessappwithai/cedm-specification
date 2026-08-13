@@ -1,0 +1,104 @@
+entity:
+  name: PaymentAllocation
+  namespace: cedm.domain
+  kind: financial_settlement_detail
+  description: An explicit allocation of part or all of a Payment to a specific Invoice claim, preserving how settlement value is applied without conflating the payment event with the invoice balance.
+  identity:
+    key: paymentAllocationId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+    - name: paymentAllocationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable identity of the settlement allocation.
+        usage: Used for reconciliation, audit, invoice balance calculation, dispute handling, and payment reallocation.
+        relationshipContext: Identifies the allocation detail rather than the Payment or Invoice themselves.
+        workflowRole: Provides the auditable bridge between a payment event and an individual financial claim.
+        requiredMeaning: Required because one payment may settle multiple invoices and one invoice may receive multiple payments.
+    - name: allocatedAmount
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help:
+        summary: The portion of the Payment amount applied to the referenced Invoice.
+        usage: Drives invoice outstanding balance, payment reconciliation, customer or supplier statements, and settlement reporting.
+        relationshipContext: This amount belongs to the allocation relationship; Payment.amount remains the total payment event amount and Invoice.totalAmount remains the total claim.
+        workflowRole: Used when posting, reallocating, reversing, or reconciling settlement against a specific invoice.
+        requiredMeaning: Required for every allocation.
+    - name: allocationDate
+      type: datetime
+      required: true
+      help:
+        summary: The timestamp at which the allocation is recognized.
+        usage: Supports accounting periods, aging, reconciliation, and audit.
+        relationshipContext: May differ from Payment.paymentDate when cash is received before the remittance is identified or allocation occurs later.
+        workflowRole: Establishes when an unapplied payment becomes associated with a particular claim.
+        requiredMeaning: Required for settlement chronology.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, REVERSED]
+      help:
+        summary: Indicates whether the allocation currently contributes to settlement of the invoice.
+        usage: Supports corrections and payment reallocation without destroying historical evidence.
+        relationshipContext: Reversing an allocation does not reverse the underlying Payment unless a separate payment reversal occurs.
+        workflowRole: An ACTIVE allocation reduces the invoice outstanding amount; a REVERSED allocation removes that settlement effect.
+        requiredMeaning: Required to distinguish current settlement from historical allocation.
+    - name: reference
+      type: string
+      required: false
+      maxLength: 250
+      help:
+        summary: Optional operational or remittance reference explaining the allocation.
+        usage: Supports customer remittance, supplier settlement, dispute investigation, and reconciliation.
+        relationshipContext: Supplements but does not replace Payment and Invoice identities.
+        workflowRole: Useful when allocation was determined from remittance advice or manual reconciliation.
+        optionalMeaning: Optional when allocation is automatically determined.
+  relationships:
+    - name: payment
+      target: Payment
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the payment from which the allocated monetary amount originates.
+        usage: Allows total allocation to be reconciled against the payment event.
+        cardinalityMeaning: Every allocation belongs to exactly one Payment.
+        workflowRole: Payment remains the settlement event while PaymentAllocation determines how its amount is applied.
+    - name: invoice
+      target: Invoice
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the financial claim receiving the allocated payment amount.
+        usage: Allows invoice outstanding balance and settlement status to be derived from payment allocations.
+        cardinalityMeaning: Every allocation applies to exactly one Invoice.
+        workflowRole: ACTIVE allocations reduce the claim's outstanding amount according to accounting policy.
+  invariants:
+    - id: PAYMENT-ALLOCATION-001
+      rule: allocatedAmount must be greater than zero.
+    - id: PAYMENT-ALLOCATION-002
+      rule: The sum of active allocations for a Payment must not exceed Payment.amount unless an explicit over-allocation policy exists.
+    - id: PAYMENT-ALLOCATION-003
+      rule: Active allocations must not exceed the invoice's outstanding settlement amount unless an authorized overpayment policy exists.
+    - id: PAYMENT-ALLOCATION-004
+      rule: A reversed allocation must retain its original payment and invoice references for audit.
+    - id: PAYMENT-ALLOCATION-005
+      rule: A reversed Payment must not retain active allocations that continue to reduce invoice balances unless explicitly supported by reversal policy.
+  help:
+    summary: Represents the precise application of a payment to an invoice and is the missing reconciliation layer between cash events and financial claims.
+    businessMeaning: Payment records how much money moved. Invoice records how much is owed. PaymentAllocation records how the money is applied to the claim.
+    usage: Essential for partial payments, one payment against many invoices, one invoice paid by many payments, advances, unapplied cash, overpayments, reversals, and payment reallocation.
+    relationshipContext: SalesOrder and Shipment explain the commercial and physical origin of a sales claim. Invoice represents the claim. Payment represents settlement. PaymentAllocation connects the settlement to the claim. BankTransaction provides external financial-institution evidence and JournalEntry provides accounting recognition.
+    workflowContext: Payment received → reconciliation/remittance identification → PaymentAllocation created → Invoice outstanding balance recalculated → Invoice becomes PARTIALLY_PAID or PAID when settlement criteria are met. If allocation is wrong, reverse the allocation and create the corrected allocation rather than mutating history.
+    lifecycle: Allocation is created, validated, activated, and may later be reversed. Historical allocations remain auditable.
+    example: A customer pays 10,000 USD against three invoices. One Payment records the 10,000 USD receipt. Three PaymentAllocation records apply 4,000, 3,500, and 2,500 USD to the respective invoices. Each invoice's settlement state is calculated from its active allocations and other authorized credits.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-PAYMENT-ALLOCATION
