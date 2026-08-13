@@ -15,8 +15,9 @@ entity:
     immutable: true
     help:
       summary: The immutable identity of the inventory state record.
-      usage: Used to reference and reconcile the current stock position independently of movement events and business transactions.
-      relationshipContext: Identifies the balance record for a particular Product and InventoryLocation context; it is not the identity of the Product or location themselves.
+      usage: Used to reference and reconcile current stock state independently of movement events and business transactions.
+      relationshipContext: Identifies the balance record for a Product/location context, not the Product or location themselves.
+      workflowRole: Provides the state read by allocation and planning and the state updated after posted inventory events.
       requiredMeaning: Required for reliable stock-state traceability.
   - name: quantityOnHand
     type: decimal
@@ -25,10 +26,11 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: The physical or operational quantity currently recorded as present at the inventory location.
-      usage: Used for stock visibility, replenishment, counting, fulfillment, valuation, and inventory control.
-      relationshipContext: On-hand is the stock physically or operationally present; it is different from available quantity because some on-hand stock may already be reserved or otherwise restricted.
-      requiredMeaning: Required so the location has an explicit current stock position, including zero.
+      summary: The physical or operational quantity currently recorded as present at the location.
+      usage: Used for stock visibility, replenishment, counting, fulfillment, and inventory control.
+      relationshipContext: On-hand is physically present stock; it differs from available stock when reservations or restrictions apply.
+      workflowRole: Receipt and return movements increase it; issue and transfer-out movements decrease it; reservations normally do not change it.
+      requiredMeaning: Required, including when zero.
   - name: quantityReserved
     type: decimal
     required: true
@@ -36,10 +38,11 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: The portion of on-hand inventory committed to known demand and therefore not normally available for another allocation.
-      usage: Used for order allocation, fulfillment planning, availability calculation, and demand commitment.
-      relationshipContext: Reserved quantity reduces available quantity but normally does not reduce physical on-hand quantity; reservation events may be represented through InventoryMovement or a dedicated allocation model.
-      requiredMeaning: Required with zero when no stock is reserved.
+      summary: The portion of on-hand quantity committed to approved demand.
+      usage: Used for allocation, fulfillment planning, maintenance demand, and availability calculation.
+      relationshipContext: Reserved quantity reduces available quantity but normally leaves physical on-hand unchanged.
+      workflowRole: Reservation events increase it; release or fulfillment completion decreases it according to allocation policy.
+      requiredMeaning: Required with zero when nothing is reserved.
   - name: quantityAvailable
     type: decimal
     required: true
@@ -47,54 +50,60 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: The quantity that can normally be allocated to new demand after accounting for reservations and other applicable availability rules.
-      usage: Used by sales fulfillment, replenishment, allocation, purchasing, planning, and customer availability processes.
-      relationshipContext: Available quantity is a business availability measure, not necessarily a simple synonym for physical stock; the standard baseline is on-hand minus reserved, subject to additional quality, ownership, quarantine, or policy constraints where modeled.
-      requiredMeaning: Required because operational decisions depend on a clear statement of usable stock.
+      summary: Quantity normally eligible for new allocation after reservations and modeled availability restrictions.
+      usage: Used by sales fulfillment, replenishment, purchasing, maintenance allocation, and planning.
+      relationshipContext: Baseline available quantity is on-hand minus reserved; quarantine, ownership, quality, or other policy restrictions may further reduce availability.
+      workflowRole: Allocation workflows must read this state before committing demand and must update it atomically with reservation changes.
+      requiredMeaning: Required for operational allocation decisions.
   - name: lastUpdatedAt
     type: datetime
     required: true
     systemManaged: true
     help:
-      summary: The timestamp at which this balance was most recently recalculated or materially changed.
-      usage: Used for concurrency control, synchronization, audit, cache freshness, inventory reporting, and integration processing.
-      relationshipContext: It describes the currency of the balance state and is not a substitute for the timestamps on individual InventoryMovement events.
-      requiredMeaning: Required so consumers can assess how current the derived stock state is.
+      summary: The timestamp when the balance was most recently recalculated or materially changed.
+      usage: Used for concurrency, synchronization, audit, cache freshness, and integration.
+      relationshipContext: It describes state freshness and is not a substitute for InventoryMovement timestamps.
+      workflowRole: Helps detect stale allocation decisions and supports optimistic concurrency when stock is being reserved or issued.
+      requiredMeaning: Required for reliable current-state consumption.
   relationships:
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
-      summary: Identifies the Product whose quantity is represented by this balance.
-      usage: Connects inventory state to product master data, unit definitions, replenishment policy, and fulfillment rules.
-      cardinalityMeaning: Exactly one Product is represented by a balance record.
-      context: Product defines what is stocked; InventoryBalance defines how much of it is currently present and available at a location.
+      summary: Identifies the Product whose quantity is represented.
+      usage: Connects inventory state to product master data, units, replenishment, and fulfillment rules.
+      cardinalityMeaning: Exactly one Product per balance.
+      workflowRole: Demand, receiving, issue, and maintenance workflows resolve the stock item through Product.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
     help:
-      summary: Identifies the InventoryLocation at which the product quantity is held.
-      usage: Supports warehouse visibility, picking, put-away, replenishment, stock counts, and location-level availability.
-      cardinalityMeaning: Exactly one InventoryLocation is represented by a balance record.
-      context: InventoryLocation defines where the stock is; InventoryBalance defines its current quantity state there.
+      summary: Identifies where the Product quantity is held.
+      usage: Supports warehouse visibility, picking, put-away, replenishment, and counts.
+      cardinalityMeaning: Exactly one location per balance.
+      workflowRole: Movement and allocation workflows use the location context to determine where state changes occur.
   invariants:
   - id: INVENTORY-BALANCE-001
-    rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized negative-inventory policy applies.
+    rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy applies.
   - id: INVENTORY-BALANCE-002
     rule: quantityReserved must not normally exceed quantityOnHand.
   - id: INVENTORY-BALANCE-003
-    rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional availability restrictions are applied.
+    rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional restrictions.
   - id: INVENTORY-BALANCE-004
-    rule: The balance must be consistent with the applicable posted InventoryMovement history or approved reconciliation process.
+    rule: Balance state must reconcile with posted InventoryMovement history or an approved inventory reconciliation process.
+  - id: INVENTORY-BALANCE-005
+    rule: Reservation and release operations must update reserved and available quantities atomically with their corresponding authorization/event.
   help:
     summary: Represents the current inventory state from which operational availability decisions are made.
-    businessMeaning: InventoryBalance is a state projection, not the historical inventory ledger. It answers how much of a Product is currently recorded at a particular InventoryLocation and how much can normally be committed to new demand.
-    usage: Used by inventory control, warehouse management, order fulfillment, purchasing, replenishment, planning, availability checks, stock valuation, and reporting.
-    relationshipContext: Product identifies what is stocked. InventoryLocation identifies where it is stocked. InventoryBalance describes current state. InventoryMovement records the events that change that state. PurchaseOrder, SalesOrder, Shipment, and other transactions provide business reasons for those events.
-    lifecycle: A balance may be created when a Product first becomes relevant at a location, updated as movements or reservations occur, reconciled during stock counts, and eventually reduced to zero when the location no longer holds the product. Historical movements must remain available even when the balance disappears or reaches zero.
-    example: A warehouse has 100 units of a spare part in RACK-A-03-02. Twenty are reserved for approved maintenance demand, so quantityOnHand is 100, quantityReserved is 20, and quantityAvailable is normally 80. A receipt increases on-hand; an issue decreases on-hand; a reservation changes reserved and available quantities without physically moving stock; a release reverses the reservation.
+    businessMeaning: InventoryBalance is a state projection, not the historical inventory ledger. It answers how much of a Product is present at a location and how much can normally be committed to new demand.
+    usage: Used by inventory control, warehouse management, order fulfillment, purchasing, maintenance, replenishment, planning, availability checks, and reporting.
+    relationshipContext: Product identifies what is stocked. InventoryLocation identifies where. InventoryMovement records events. InventoryBalance is the current projection consumed by workflows.
+    workflowContext: GoodsReceipt acceptance posts receipt movements and increases on-hand. Put-away changes location balances. Reservation commits quantity without physical movement. Picking/issue reduces on-hand. Release restores availability. Stock counts may create adjustments. The balance must never be treated as independent of these workflows.
+    concurrency: Allocation and issue workflows must protect against two processes consuming the same available quantity. Implementations should use transactional locking, optimistic concurrency, or equivalent controls appropriate to the persistence technology.
+    lifecycle: A balance appears when a product becomes relevant at a location, changes as events are posted, may be reconciled through stock counts, and can reach zero without destroying historical movements.
+    example: A location holds 100 spare parts. Twenty are reserved for an approved maintenance work order. The balance is 100 on-hand, 20 reserved, 80 available. When three are issued to maintenance, on-hand becomes 97 and the remaining reservation/availability are adjusted according to the allocation workflow.
 specification:
   version: 0.2.0
   status: draft
