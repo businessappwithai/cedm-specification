@@ -69,7 +69,7 @@ entity:
     values: [LEASE, SALE, SCRAP, REPAIR, HOLD]
     help:
       summary: The intended operational or commercial outcome selected after evaluating condition and economics.
-      usage: Determines whether the asset returns to lease/service, enters a sale process, is scrapped, requires repair, or remains pending.
+      usage: Determines whether the asset returns to lease-related use, enters a sale process, is scrapped, requires repair, or remains pending.
       relationshipContext: Disposition is a decision about the asset, not a physical repair status. REPAIR may create a MaintenanceWorkOrder; SALE may create a SalesOrder or disposition transaction.
       valueSemantics:
         LEASE: Asset is intended to remain available for lease-related use after the applicable process.
@@ -154,6 +154,15 @@ entity:
       usage: Supports audit, damage evidence, dispute resolution, and maintenance traceability.
       cardinalityMeaning: Zero or one primary document is directly linked here; broader document associations can hold additional evidence.
       context: Evidence supports the structured estimate but does not replace its business data.
+  - name: maintenanceWorkOrders
+    target: MaintenanceWorkOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the estimate to maintenance work orders created from an approved REPAIR decision.
+      usage: Provides traceability from approved repair scope and amount into actual maintenance execution, including cases where one estimate is executed through multiple work orders or phases.
+      cardinalityMeaning: Zero or many work orders may be linked because an estimate may be rejected, held, cancelled, or executed through multiple controlled work orders.
+      context: RepairEstimate authorizes or informs the proposed repair decision; MaintenanceWorkOrder controls execution. Creation of a work order does not prove completion of the repair.
   invariants:
   - id: REPAIR-ESTIMATE-001
     rule: revision must be positive and must preserve prior approved decision history.
@@ -163,12 +172,15 @@ entity:
     rule: Monetary estimate fields must not be negative.
   - id: REPAIR-ESTIMATE-004
     rule: A REPAIR disposition should have sufficient RepairEstimateLine detail to establish the approved repair scope.
+  - id: REPAIR-ESTIMATE-005
+    rule: Only an APPROVED, non-CANCELLED estimate with disposition REPAIR may originate a repair MaintenanceWorkOrder under the standard workflow.
   help:
     summary: Represents the controlled decision assessment between asset condition and the eventual repair or commercial disposition action.
     businessMeaning: RepairEstimate is not the repair itself. It evaluates what is wrong, what it is expected to cost, and which outcome is economically or operationally appropriate. It therefore sits between inspection/condition evidence and downstream execution or disposition.
     usage: Used by depot maintenance, fleet management, repair vendors, asset managers, finance, approval workflows, and predictive analytics. Historical estimates can also provide labeled data for disposition and sale-value prediction.
     relationshipContext: Container identifies the asset. RepairEstimateLine explains technical scope. MaintenanceWorkOrder executes approved repair. SalesOrder or a disposition transaction executes sale. Inventory and financial transactions record actual operational and monetary outcomes. Currency qualifies monetary values and Document supplies evidence.
     lifecycle: DRAFT → SUBMITTED → APPROVED or REJECTED, followed by COMPLETED or CANCELLED according to policy. Approval authorizes a decision but does not itself perform repair or sale. Revisions preserve decision history rather than overwriting earlier approved facts.
+    workflowImpact: When disposition is REPAIR, an approved estimate may create one or more MaintenanceWorkOrders. The work order must reference the originating estimate, remain within the approved scope unless an authorized estimate revision is made, and record actual execution separately. Work-order completion does not automatically make the estimate's estimated amounts actual costs.
     example: A returned container has damaged flooring, side panels, and door hardware. The estimate contains line-level components and labor, compares expected repair cost with sale value and asset economics, and is approved with disposition REPAIR. A MaintenanceWorkOrder is then created for execution. The final actual repair cost is recorded separately from the estimate.
 specification:
   version: 0.2.0
