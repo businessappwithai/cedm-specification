@@ -2,128 +2,150 @@ entity:
   name: InventoryMovement
   namespace: cedm.domain
   kind: inventory_transaction
-  description: A traceable inventory event that changes, relocates, reserves, releases, receives, issues, returns, or corrects the quantity or availability of a Product at an InventoryLocation.
-  identity: {key: inventoryMovementId, type: uuid, generated: true, immutable: true}
+  description: A traceable inventory event that changes, relocates, reserves, releases, receives, issues, returns, or corrects the quantity or availability of a Product at one or more InventoryLocations.
+  identity:
+    key: inventoryMovementId
+    type: uuid
+    generated: true
+    immutable: true
   attributes:
-    - name: inventoryMovementId
-      type: uuid
-      required: true
-      immutable: true
-      help:
-        summary: The immutable identity of the inventory event.
-        usage: Used for stock ledger traceability, audit, reconciliation, integration, and investigation of inventory changes.
-        relationshipContext: Identifies the event independently of the Product, locations, quantity, and originating business transaction.
-        requiredMeaning: Required because inventory history must be individually traceable.
-    - name: movementNumber
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help:
-        summary: The human-facing reference assigned to the inventory movement.
-        usage: Used by warehouse operators, inventory controllers, auditors, and integrations to identify a specific stock event.
-        relationshipContext: It is a business reference for the movement and is distinct from the Product identity and any source document number.
-        requiredMeaning: Required for operational and audit traceability.
-    - name: movementType
-      type: enum
-      required: true
-      values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
-      help:
-        summary: Identifies the business operation that caused the inventory state to change.
-        usage: Determines how on-hand, available, reserved, and location balances are affected and how the event is reported.
-        relationshipContext: Movement type explains why quantity changed; the related business transaction explains the originating business process.
-        valueSemantics:
-          RECEIPT: Inventory becomes physically or operationally available at a location as a result of receiving goods or completing an inbound process.
-          ISSUE: Inventory leaves available stock for consumption, shipment, production, service, or another outbound purpose.
-          TRANSFER: Inventory changes from one location to another while remaining under inventory control.
-          ADJUSTMENT: Inventory is corrected to reconcile recorded stock with an approved physical count, investigation, or other adjustment reason.
-          RETURN: Previously issued or sold inventory is brought back into inventory under an authorized return process.
-          RESERVATION: Quantity is committed to a demand without necessarily changing physical on-hand quantity.
-          RELEASE: A previous reservation is removed so quantity becomes available for other demand.
-        requiredMeaning: Required because inventory accounting depends on the reason and direction of the event.
-    - name: quantity
-      type: decimal
-      required: true
-      precision: 20
-      scale: 6
-      help:
-        summary: The quantity affected by the movement, expressed in the Product's applicable UnitOfMeasure.
-        usage: Used to calculate inventory balances, available quantity, reservations, receipts, issues, transfers, and adjustments.
-        relationshipContext: Quantity must be interpreted together with Product, UnitOfMeasure, movementType, and locations; the same numeric quantity can have different inventory effects depending on the movement type.
-        requiredMeaning: Required because every inventory event must specify the quantity it affects.
-    - name: movementDate
-      type: datetime
-      required: true
-      help:
-        summary: The date and time at which the inventory event is recognized as occurring for operational or accounting purposes.
-        usage: Used for stock history, period-end balances, aging, warehouse reporting, audit, and reconciliation.
-        relationshipContext: It records the movement event rather than the creation timestamp of the system record or the date of a source order.
-        requiredMeaning: Required for chronological inventory history.
-    - name: reason
-      type: string
-      required: false
-      maxLength: 500
-      help:
-        summary: The business explanation for why the inventory movement occurred, particularly for adjustments, returns, or exceptional events.
-        usage: Supports audit, investigation, approval, root-cause analysis, and operational reporting.
-        relationshipContext: Reason provides explanatory context while movementType provides the standardized classification of the event.
-        optionalMeaning: Optional for routine movements where the source transaction already supplies an adequate reason.
+  - name: inventoryMovementId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable identity of the inventory event.
+      usage: Used for stock-ledger traceability, audit, reconciliation, integration, and investigation.
+      relationshipContext: Identifies the event independently of Product, location, quantity, and originating transaction.
+      workflowRole: Every posted receipt, issue, transfer, return, adjustment, reservation, and release uses this identity for audit and downstream balance reconciliation.
+      requiredMeaning: Required because inventory history must be individually traceable.
+  - name: movementNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The human-facing reference assigned to the inventory movement.
+      usage: Used by warehouse operators, inventory controllers, auditors, and integrations.
+      relationshipContext: It is distinct from Product identity and source transaction numbers.
+      workflowRole: Used to trace a physical or logical stock change from execution through reconciliation.
+      requiredMeaning: Required for operational and audit traceability.
+  - name: movementType
+    type: enum
+    required: true
+    values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
+    help:
+      summary: Identifies the inventory operation and state transition caused by the event.
+      usage: Determines how on-hand, reserved, available, and location balances change.
+      relationshipContext: Movement type describes the inventory effect; relatedTransaction explains the broader business reason.
+      workflowRole: Maps business workflow outcomes to the inventory ledger.
+      valueSemantics:
+        RECEIPT: Accepted inbound quantity becomes inventory at a target location after receiving controls.
+        ISSUE: Quantity leaves available inventory for shipment, consumption, maintenance, production, or another authorized outbound use.
+        TRANSFER: Quantity moves from one inventory location to another while remaining under inventory control.
+        ADJUSTMENT: Recorded quantity is corrected through an approved reconciliation or investigation.
+        RETURN: Previously issued or sold quantity returns to controlled inventory after authorization.
+        RESERVATION: Quantity is committed to demand without physical movement; normally increases reserved and reduces available.
+        RELEASE: A previous reservation is removed; normally reduces reserved and restores available.
+      requiredMeaning: Required because inventory accounting depends on event semantics.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: The quantity affected by the inventory event.
+      usage: Drives balance changes and allocation calculations.
+      relationshipContext: Must be interpreted with Product, UnitOfMeasure, movementType, and source/target locations.
+      workflowRole: For receipt/issue/transfer/return it changes physical quantity; for reservation/release it changes commitment state without physical movement.
+      requiredMeaning: Required for every inventory event.
+  - name: movementDate
+    type: datetime
+    required: true
+    help:
+      summary: The timestamp at which the inventory event is recognized for operational or accounting purposes.
+      usage: Used for stock history, period-end balances, aging, reporting, audit, and reconciliation.
+      relationshipContext: It is distinct from the source order date and record creation timestamp.
+      workflowRole: Establishes the chronological point at which the inventory state transition is effective.
+      requiredMeaning: Required for chronological inventory history.
+  - name: reason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: The business explanation for the movement, particularly for adjustments, returns, exceptions, and controlled releases.
+      usage: Supports audit, investigation, root-cause analysis, approval, and reporting.
+      relationshipContext: Reason supplements movementType; it does not replace standardized classification.
+      workflowRole: Especially important when no external transaction fully explains the event.
+      optionalMeaning: Optional for routine movements with complete source context.
   relationships:
-    - name: product
-      target: Product
-      cardinality: '1'
-      ownership: reference
-      help:
-        summary: Identifies the Product whose inventory state is affected by the movement.
-        usage: Connects the stock event to product master data, units, specifications, inventory policies, and reporting.
-        cardinalityMeaning: Exactly one Product is affected by each movement under this model.
-        context: Product defines what is being stocked; InventoryMovement records what happened to its stock.
-    - name: sourceLocation
-      target: InventoryLocation
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Identifies where inventory originated for movements that have a source location.
-        usage: Used for transfers, issues, outbound flows, and location-level stock reconciliation.
-        cardinalityMeaning: Optional for receipts or other events that originate outside the modeled inventory network.
-        context: For TRANSFER, sourceLocation and targetLocation together express the movement between inventory locations.
-    - name: targetLocation
-      target: InventoryLocation
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Identifies where inventory is placed or becomes associated after the movement.
-        usage: Used for receipts, transfers, returns, and location-level stock reconciliation.
-        cardinalityMeaning: Optional for issues or other events where stock leaves the modeled inventory network.
-        context: Target location represents the destination of the inventory event, not necessarily the customer's delivery address.
-    - name: party
-      target: Party
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Identifies the party associated with the inventory event when ownership, custody, supplier, customer, carrier, or other business responsibility is relevant.
-        usage: Used for consignment, supplier receipts, customer returns, custody tracking, and audit.
-        cardinalityMeaning: Optional because many internal stock movements do not involve an external or role-bearing party.
-        context: Party supplies identity; the applicable PartyRole determines whether the party acts as Supplier, Customer, Carrier, or another role.
-    - name: relatedTransaction
-      target: BusinessTransaction
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Links the inventory event to the broader business transaction that caused or justified the stock change.
-        usage: Provides end-to-end traceability from inventory movement back to purchase, sales, service, production, return, or adjustment processes.
-        cardinalityMeaning: Zero or one source transaction may be linked because some inventory adjustments originate from physical counts or controlled operational events rather than another transaction.
-        context: The relationship prevents inventory history from becoming disconnected from the business process that created it.
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Identifies the Product whose inventory state is affected.
+      usage: Connects the event to product master data, units, specifications, and policies.
+      cardinalityMeaning: Exactly one Product is affected by each movement.
+      workflowRole: Receiving, issuing, transfer, return, and maintenance-consumption workflows use Product to identify the stock item.
+  - name: sourceLocation
+    target: InventoryLocation
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the location from which inventory is removed or transferred.
+      usage: Used for transfer, issue, return-to-supplier, picking, and source reconciliation.
+      cardinalityMeaning: Optional for inbound receipts originating outside the managed inventory network.
+      workflowRole: Required when the movement physically or logically removes stock from an internal location.
+  - name: targetLocation
+    target: InventoryLocation
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the location into which inventory is received or transferred.
+      usage: Used for receipts, put-away, transfers, returns, staging, and destination reconciliation.
+      cardinalityMeaning: Optional for issues or movements leaving the managed inventory network.
+      workflowRole: Required when the event creates or increases stock at an internal location.
+  - name: party
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the party associated with the inventory event when ownership, custody, supplier, customer, or other responsibility matters.
+      usage: Supports supplier receipts, customer returns, consignment, custody, and audit.
+      cardinalityMeaning: Optional for internal movements.
+      workflowRole: Connects inventory events to the business party when a workflow crosses organizational or commercial boundaries.
+  - name: relatedTransaction
+    target: BusinessTransaction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Links the inventory event to the business transaction that caused or justified the stock change.
+      usage: Provides traceability from stock movement back to purchasing, sales, maintenance, shipment, return, production, or adjustment processes.
+      cardinalityMeaning: Optional for physical counts and internally generated reconciliation events.
+      workflowRole: Provides the bridge between operational business workflows and the inventory ledger.
   invariants:
-    - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
-    - {id: INVENTORY-MOVEMENT-002, rule: a TRANSFER requires both sourceLocation and targetLocation, and they must be different.}
-    - {id: INVENTORY-MOVEMENT-003, rule: a RECEIPT requires a targetLocation when inventory is managed at location level.}
-    - {id: INVENTORY-MOVEMENT-004, rule: a RELEASE must correspond to an existing reservation according to inventory allocation policy.}
+  - id: INVENTORY-MOVEMENT-001
+    rule: quantity must be greater than zero.
+  - id: INVENTORY-MOVEMENT-002
+    rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.
+  - id: INVENTORY-MOVEMENT-003
+    rule: RECEIPT requires targetLocation when inventory is location-managed.
+  - id: INVENTORY-MOVEMENT-004
+    rule: ISSUE requires sufficient available quantity unless an authorized negative-inventory policy applies.
+  - id: INVENTORY-MOVEMENT-005
+    rule: RELEASE must correspond to an existing reservation according to the applicable allocation policy.
+  - id: INVENTORY-MOVEMENT-006
+    rule: A posted inventory movement is immutable historical evidence; correction uses an authorized subsequent adjustment or reversal event.
   help:
     summary: Represents one auditable change to inventory state rather than the inventory balance itself.
-    businessMeaning: InventoryMovement is the event ledger from which inventory balances and availability can be understood. It records what changed, why it changed, when it changed, where it came from or went to, and which business transaction or party provided the context.
-    usage: Used by warehouse management, inventory control, procurement, order fulfillment, production, returns, stock counting, financial reconciliation, and analytics.
-    relationshipContext: Product identifies what is moving. InventoryLocation identifies where stock is held. PurchaseOrder, SalesOrder, production, service, or other BusinessTransaction explains why the movement occurred. Party can identify ownership or external responsibility. The resulting inventory balance is a derived state from movement history rather than a replacement for it.
-    lifecycle: A movement is normally an immutable business event once posted. Corrections should be represented through controlled adjustment or reversal events rather than rewriting historical movements, preserving a complete audit trail.
-    example: A depot receives 20 replacement containers' spare parts against a PurchaseOrder. A RECEIPT InventoryMovement records the Product, quantity 20, UnitOfMeasure, target inventory location, movement time, and source procurement transaction. Later, an ISSUE movement records 3 units consumed by a repair operation.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-MOVEMENT}
+    businessMeaning: InventoryMovement is the event ledger from which InventoryBalance is maintained. It records what changed, why, when, and where, while the originating workflow explains the business purpose.
+    usage: Used by receiving, warehouse execution, procurement, order fulfillment, maintenance, returns, stock counting, planning, reconciliation, and analytics.
+    relationshipContext: Product identifies what is stocked. InventoryLocation identifies where. InventoryBalance is current state. InventoryMovement is historical event evidence. PurchaseOrder/GoodsReceipt, SalesOrder/Shipment, MaintenanceWorkOrder, and other BusinessTransactions provide workflow context.
+    workflowContext: Procurement normally produces GoodsReceipt → RECEIPT movement → InventoryBalance increase. Fulfillment produces reservation → RELEASE/ISSUE or shipment-related movement. Maintenance produces reservation → pick/ISSUE → consumption. Transfers create source reduction and target increase. Adjustments reconcile physical count differences.
+    lifecycle: A movement is prepared, validated, posted, and then retained as immutable history. If an error is discovered, a compensating event or controlled reversal preserves the audit trail rather than rewriting the original event.
+    example: Twenty spare parts accepted on a GoodsReceipt create a RECEIPT movement into RECEIVING-01. Put-away creates a TRANSFER to RACK-A-03-02. A maintenance work order reserves three, then an ISSUE movement removes three for consumption. The balance reflects these events while the movement history preserves the complete chronology.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-INVENTORY-MOVEMENT
