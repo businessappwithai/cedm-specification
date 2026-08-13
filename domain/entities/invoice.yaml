@@ -11,171 +11,144 @@ entity:
       immutable: true
       help:
         summary: The immutable system identity of the invoice record.
-        usage: Used for financial integrations, audit trails, payment allocation, reconciliation, reporting, and navigation across the invoice lifecycle.
-        relationshipContext: It identifies the invoice independently of invoiceNumber, Customer, Supplier, and source orders so every financial process can refer to the same claim.
-        requiredMeaning: Required because each invoice must be uniquely traceable.
+        usage: Used for financial integrations, audit, payment allocation, reconciliation, reporting, and lifecycle navigation.
+        relationshipContext: Identifies the financial claim independently of invoiceNumber, source orders, receipts, and payments.
     - name: invoiceNumber
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: The business-facing reference assigned to the invoice for commercial and financial communication.
-        usage: Used by customers, suppliers, accounts receivable, accounts payable, tax processes, correspondence, and payment reconciliation.
-        relationshipContext: It is distinct from invoiceId and normally follows the issuer's legal or accounting numbering policy.
-        requiredMeaning: Required because financial parties need a recognizable reference for the claim.
+        summary: The business-facing reference assigned to the invoice.
+        usage: Used by suppliers, customers, accounts payable, accounts receivable, tax processes, and reconciliation.
+        relationshipContext: Distinct from invoiceId and source order numbers.
     - name: invoiceDate
       type: date
       required: true
       help:
         summary: The accounting and commercial date assigned to the invoice.
-        usage: Used for accounting periods, tax treatment, aging, reporting, payment-term calculation, and reconciliation with source transactions.
-        relationshipContext: It is distinct from the date goods were delivered, the date the invoice was issued electronically, and the payment date where those concepts are separately captured.
-        requiredMeaning: Required because the financial claim must belong to a defined business date.
+        usage: Used for accounting periods, tax, aging, reporting, and reconciliation.
     - name: dueDate
       type: date
       required: false
       help:
-        summary: The date by which the invoiced amount is contractually or commercially expected to be paid.
-        usage: Drives receivables aging, overdue classification, collections, cash forecasting, and supplier payment planning.
-        relationshipContext: It is derived or agreed from invoice terms and should normally be interpreted with PaymentTerm rather than as an arbitrary calendar date.
-        optionalMeaning: Optional when payment is immediate, not yet determined, or governed by a process that calculates the date later.
+        summary: The contractual or calculated date by which the claim is expected to be settled.
+        usage: Drives aging, collections, cash forecasting, and supplier payment planning.
+        relationshipContext: Normally interpreted with PaymentTerm.
     - name: invoiceType
       type: enum
       required: true
       values: [SALES, PURCHASE, CREDIT_NOTE, DEBIT_NOTE]
       help:
-        summary: Identifies the commercial direction and accounting nature of the invoice document.
-        usage: Determines whether the document represents a receivable, payable, credit adjustment, or debit adjustment and therefore influences accounting and workflow.
-        relationshipContext: The type must agree with the relevant Customer or Supplier relationship and source transaction. A credit or debit note normally adjusts a prior commercial position rather than representing an unrelated sale or purchase.
-        valueSemantics:
-          SALES: A claim issued by the selling organization to a Customer for goods or services supplied.
-          PURCHASE: A supplier-originated claim recorded by the buying organization for goods or services acquired.
-          CREDIT_NOTE: A document that reduces an existing receivable or payable through an approved credit adjustment.
-          DEBIT_NOTE: A document that increases an existing commercial claim through an approved debit adjustment.
-        requiredMeaning: Required because financial processing depends on the document's accounting direction and purpose.
+        summary: Identifies the commercial direction and accounting nature of the document.
+        usage: Determines receivable/payable processing and adjustment behavior.
+        relationshipContext: Must agree with Customer/Supplier and relevant source transaction.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ISSUED, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED, VOID]
       help:
-        summary: The lifecycle state of the invoice and its financial processing position.
-        usage: Controls posting, collection, payment allocation, aging, cancellation, and reporting behavior.
-        relationshipContext: Status summarizes the invoice claim; actual payments are represented by Payment records and should not be inferred solely from the status value.
-        valueSemantics:
-          DRAFT: The invoice is being prepared and is not yet an issued financial claim.
-          ISSUED: The invoice has been formally issued and the amount is available for settlement according to its terms.
-          PARTIALLY_PAID: One or more payments have been allocated but an outstanding balance remains.
-          PAID: The invoice's recognized payable or receivable amount has been fully settled according to reconciliation rules.
-          OVERDUE: The invoice has an outstanding balance after its applicable due date.
-          CANCELLED: The invoice has been cancelled through an authorized business process before or after issuance according to policy.
-          VOID: The invoice is invalidated for accounting purposes and must no longer be treated as an active claim.
-        requiredMeaning: Required because financial workflows depend on a controlled lifecycle state.
+        summary: The lifecycle state of the financial claim.
+        usage: Controls issuance, settlement, aging, cancellation, and reporting.
+        relationshipContext: Payment records provide settlement evidence; invoice status must not be inferred from a single payment event.
     - name: currencyId
       type: reference
       target: Currency
       required: true
       help:
-        summary: Identifies the currency denomination of the invoice amounts.
-        usage: Used for accounting, payment, reporting, tax, reconciliation, and currency conversion.
-        relationshipContext: Connects the invoice to the common Currency definition so monetary values such as subtotal and totalAmount have an explicit denomination.
-        requiredMeaning: Required because a monetary amount without a currency cannot be reliably interpreted.
+        summary: The currency denomination of invoice amounts.
+        usage: Used for accounting, payment, tax, reconciliation, and reporting.
     - name: subtotal
       type: decimal
       required: true
       precision: 20
       scale: 4
       help:
-        summary: The aggregate value of invoice lines before applicable tax and other invoice-level adjustments.
-        usage: Used for tax calculation, accounting, reporting, reconciliation, and validation of the invoice total.
-        relationshipContext: It is derived from InvoiceLine values and therefore should reconcile with the line-level commercial content.
-        requiredMeaning: Required when the invoice maintains a line-derived financial subtotal.
+        summary: Aggregate invoice-line value before tax and document-level adjustments.
+        usage: Used for tax, accounting, and reconciliation.
     - name: taxAmount
       type: decimal
       required: true
       precision: 20
       scale: 4
       help:
-        summary: The aggregate tax amount applied to the invoice according to the applicable tax rules and taxable lines.
-        usage: Used for tax reporting, accounting, customer charges, supplier claims, and total calculation.
-        relationshipContext: It is related to the taxable InvoiceLine content and applicable tax rules; it should not be treated as an arbitrary surcharge.
-        requiredMeaning: Required when tax is explicitly represented at invoice level; zero is valid when no tax applies.
+        summary: Aggregate tax applied under applicable rules.
+        usage: Used for tax reporting, accounting, and total calculation.
     - name: totalAmount
       type: decimal
       required: true
       precision: 20
       scale: 4
       help:
-        summary: The total financial claim represented by the invoice after applicable line values, tax, discounts, credits, and debits are accounted for.
-        usage: Used for payment requests, receivables or payables balances, aging, financial reporting, and reconciliation.
-        relationshipContext: It must reconcile with subtotal, taxAmount, applicable adjustments, and currencyId and represents the document's gross financial claim rather than the amount already paid.
-        requiredMeaning: Required because the invoice must establish the amount subject to settlement.
+        summary: Total financial claim after line values, tax, credits, and debits.
+        usage: Used for settlement, aging, reporting, and reconciliation.
+        relationshipContext: Represents the claim, not the amount already paid.
   relationships:
     - name: customer
       target: Customer
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Identifies the Customer that owes or is commercially associated with a sales invoice.
-        usage: Used for receivables, customer statements, collections, tax documentation, and sales reporting.
-        cardinalityMeaning: Zero or one Customer is associated because purchase invoices may instead be associated with a Supplier.
-        context: Customer identifies the commercial customer role of a Party; the invoice should not duplicate party identity data.
+        summary: Customer associated with a sales invoice.
+        usage: Supports receivables, statements, collections, and tax documentation.
     - name: supplier
       target: Supplier
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Identifies the Supplier that issued or is commercially associated with a purchase invoice.
-        usage: Used for payables, supplier statements, payment processing, procurement reconciliation, and supplier reporting.
-        cardinalityMeaning: Zero or one Supplier is associated because sales invoices may instead be associated with a Customer.
-        context: Supplier identifies the supplier role of a Party and supplies the commercial counterparty context for purchase invoices.
+        summary: Supplier associated with a purchase invoice.
+        usage: Supports payables, supplier statements, and procurement reconciliation.
     - name: lines
       target: InvoiceLine
       cardinality: 1..*
       ownership: aggregate
       help:
-        summary: Contains the individual billed goods, services, credits, or other invoice components from which the invoice amount is constructed.
-        usage: Used for detailed billing, tax calculation, reconciliation, customer or supplier dispute handling, and source-order matching.
-        cardinalityMeaning: An invoice requires at least one line under this model so the financial claim has explicit commercial detail.
-        context: InvoiceLine carries product/service, quantity, price, and line-level amounts; Invoice supplies document-level financial and lifecycle context.
+        summary: Detailed billed goods, services, credits, or adjustments.
+        usage: Provides the commercial detail from which invoice totals and matching are validated.
     - name: paymentTerms
       target: PaymentTerm
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Identifies the agreed rules governing when and how the invoice is expected to be settled.
-        usage: Used to calculate due dates, drive collection or payment workflows, and interpret commercial credit terms.
-        cardinalityMeaning: Zero or one payment term may be attached when terms are inherited or calculated elsewhere.
-        context: PaymentTerm provides the rule; dueDate is the resulting calendar date when explicitly stored.
+        summary: Rules governing expected settlement timing and conditions.
+        usage: Supports due-date calculation and payment workflows.
     - name: salesOrder
       target: SalesOrder
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a sales invoice to the customer order from which the billed commercial commitment originated.
-        usage: Supports order-to-cash traceability, billing reconciliation, customer disputes, and revenue reporting.
-        cardinalityMeaning: Zero or one SalesOrder is linked because not every invoice originates from a conventional sales order.
-        context: The order represents the commercial commitment, while the invoice represents the financial claim arising from it.
+        summary: Sales order from which a sales invoice may originate.
+        usage: Supports order-to-cash traceability and billing reconciliation.
+        context: SalesOrder is the commercial commitment; Invoice is the financial claim.
     - name: purchaseOrder
       target: PurchaseOrder
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a purchase invoice to the procurement order against which the supplier claim is evaluated.
-        usage: Supports three-way matching, accounts payable validation, spend analysis, and procurement reconciliation.
-        cardinalityMeaning: Zero or one PurchaseOrder is linked because some invoices arise without a conventional purchase order.
-        context: PurchaseOrder represents the buyer's procurement commitment; Invoice represents the supplier's financial claim.
+        summary: Purchase order against which a supplier invoice is evaluated.
+        usage: Supports procurement reconciliation and three-way matching.
+        context: PurchaseOrder represents commitment; GoodsReceipt represents fulfillment; Invoice represents the financial claim.
+    - name: goodsReceipts
+      target: GoodsReceipt
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: GoodsReceipt evidence used to validate invoiced supplier quantities and acceptance.
+        usage: Supports three-way matching among PurchaseOrder, GoodsReceipt, and Invoice.
+        cardinalityMeaning: Multiple receipts may support one invoice when billing covers multiple deliveries.
+        context: Receipt evidence must remain separate from the financial claim.
   invariants:
     - {id: INVOICE-001, rule: totalAmount must reconcile with subtotal, taxAmount, and applicable document-level adjustments.}
     - {id: INVOICE-002, rule: dueDate must not precede invoiceDate.}
     - {id: INVOICE-003, rule: an ISSUED invoice must have at least one InvoiceLine.}
     - {id: INVOICE-004, rule: an invoice should have either a Customer or Supplier relationship consistent with invoiceType.}
+    - {id: INVOICE-005, rule: A PURCHASE invoice linked to a PurchaseOrder must use applicable accepted GoodsReceipt evidence when three-way matching is required by procurement policy.}
   help:
-    summary: Represents a formal financial claim for supplied goods or services and the controlled lifecycle through which that claim is issued and settled.
-    businessMeaning: Invoice is the bridge between a commercial transaction and financial settlement. It records what is being claimed, from whom or to whom, the amount and currency, applicable terms, and the state of settlement.
-    usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, reporting, and audit processes.
-    relationshipContext: Invoice connects commercial source transactions such as SalesOrder or PurchaseOrder with Customer or Supplier, detailed InvoiceLine content, PaymentTerm, Currency, and downstream Payment records. The invoice amount is the claim; Payment represents settlement against that claim.
-    lifecycle: A draft invoice is prepared but not yet a formal claim. Issuance makes the claim operational. Payments can move it through partial settlement to paid. An outstanding claim beyond its due date becomes overdue. Cancellation or voiding terminates its active financial meaning under controlled accounting policy.
-    example: A supplier submits an invoice for 100 replacement parts delivered against a PurchaseOrder. The Invoice references the Supplier and PurchaseOrder, contains lines describing the billed products and quantities, states the invoice currency and payment terms, and is later matched against receipts before Payment is allocated.
+    summary: Represents a formal financial claim for supplied goods or services and its controlled settlement lifecycle.
+    businessMeaning: Invoice bridges commercial activity and financial settlement. It records the claim; it does not prove that ordered goods were received.
+    usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, and audit.
+    relationshipContext: For procure-to-pay, PurchaseOrder defines commitment, GoodsReceipt defines actual accepted fulfillment, Invoice defines the supplier claim, and Payment defines settlement. These facts must remain separate so partial deliveries, rejected quantities, advances, and discrepancies are representable.
+    lifecycle: Draft preparation precedes issuance. Issued claims can become partially paid, paid, overdue, cancelled, or void according to accounting controls.
+    example: A supplier invoices 96 parts against an order for 100. Receiving accepted 94. Accounts payable compares the invoice with the PurchaseOrder and GoodsReceipt before approving the payable, and any discrepancy remains explicit rather than being hidden by invoice status.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-INVOICE}
