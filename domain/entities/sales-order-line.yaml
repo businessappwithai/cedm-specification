@@ -2,74 +2,96 @@ entity:
   name: SalesOrderLine
   namespace: cedm.domain
   kind: transaction_line
-  description: An individual commercial commitment within a SalesOrder identifying exactly what product or service is requested, in what quantity, at what price, and under which measurement basis.
+  description: An individual commercial commitment within a SalesOrder identifying exactly what product or service is requested, in what quantity, at what price, and how much remains to be fulfilled.
   identity: {key: salesOrderLineId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: salesOrderLineId
       type: uuid
       required: true
       immutable: true
-      help: {summary: The immutable identity of this specific order commitment., usage: Used by fulfillment, inventory, invoicing, integration, and audit processes to reference one line without relying on its display position., relationshipContext: It identifies the line independently of its SalesOrder and Product references, allowing the line to remain traceable throughout fulfillment., requiredMeaning: Every line must be uniquely traceable.}
+      help: {summary: Immutable identity of the order commitment., usage: Used by allocation, fulfillment, shipment, invoicing, and audit., relationshipContext: Stable across downstream fulfillment records., workflowRole: Provides the key by which reservations, shipments, and invoices trace back to the exact demand., requiredMeaning: Every line must be independently traceable.}
     - name: lineNumber
       type: integer
       required: true
       minimum: 1
-      help: {summary: The human-facing sequence number of the line within its SalesOrder., usage: Used on order documents, user interfaces, customer communication, and reconciliation., relationshipContext: It is meaningful only within the parent SalesOrder and is not a global identifier., requiredMeaning: Each line needs an operational position for document and process clarity.}
+      help: {summary: Human-facing sequence within the parent order., usage: Used in documents and operational interfaces., relationshipContext: Scoped to SalesOrder., workflowRole: Provides a stable document-level reference., requiredMeaning: Required for order clarity.}
     - name: quantity
       type: decimal
       required: true
       precision: 20
       scale: 6
-      help: {summary: The quantity of the referenced Product or service being requested., usage: Drives availability, allocation, fulfillment, pricing extensions, and remaining-quantity calculations., relationshipContext: Quantity must be interpreted with Product and UnitOfMeasure; the same numeric quantity has different business meaning under different units., requiredMeaning: A commercial line cannot define the requested commitment without quantity.}
+      help: {summary: Total quantity commercially committed on the line., usage: Drives allocation, fulfillment, pricing, and remaining-demand calculations., relationshipContext: Interpreted with Product and UnitOfMeasure., workflowRole: Baseline against which reserved, shipped, delivered, and invoiced quantities are reconciled., requiredMeaning: Required for a measurable commitment.}
+    - name: quantityFulfilled
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help: {summary: Quantity accepted as fulfilled against this line under the applicable fulfillment policy., usage: Drives partial and full order fulfillment., relationshipContext: It is not automatically equal to quantity shipped; acceptance may occur at shipment, delivery, or another defined milestone., workflowRole: Used to derive remaining quantity and SalesOrder status., requiredMeaning: Required with zero before fulfillment begins.}
+    - name: quantityAllocated
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help: {summary: Quantity for which supply or capacity has been committed but fulfillment is not yet complete., usage: Supports allocation visibility and prevents double commitment., relationshipContext: Allocation is distinct from physical stock movement and shipment., workflowRole: Changes when inventory or capacity is reserved and is released when allocation is cancelled or consumed according to policy., requiredMeaning: Required with zero when no allocation exists.}
     - name: unitPrice
       type: decimal
       required: true
       precision: 20
       scale: 4
-      help: {summary: The agreed monetary price for one unit of the line's Product or service under the applicable pricing basis., usage: Used to calculate line value, customer charges, margin, invoicing, and pricing reconciliation., relationshipContext: Unit price must be interpreted with Product, UnitOfMeasure, currency context from the parent order, and applicable commercial terms., requiredMeaning: A priced sales commitment requires a defined unit price.}
+      help: {summary: Agreed monetary price for one unit under the applicable pricing basis., usage: Used for line value, invoicing, margin, and reconciliation., relationshipContext: Interpreted with parent currency and unit of measure., workflowRole: Supplies financial value to downstream invoice generation., requiredMeaning: Required for a priced commitment.}
     - name: discountAmount
       type: decimal
       required: false
       precision: 20
       scale: 4
-      help: {summary: The monetary reduction applied to the line price or extended value under an approved commercial discount., usage: Used for net-price calculation, pricing audit, margin analysis, and invoice reconciliation., relationshipContext: It reduces the commercial amount but does not change the ordered quantity or Product identity., optionalMeaning: Optional when no discount applies or discount is represented through another pricing mechanism.}
+      help: {summary: Approved monetary discount applied to the line., usage: Used for net pricing and invoice reconciliation., relationshipContext: Changes value, not quantity or fulfillment., workflowRole: Included in commercial calculation passed to billing., optionalMeaning: Optional when no discount applies.}
     - name: taxAmount
       type: decimal
       required: false
       precision: 20
       scale: 4
-      help: {summary: Tax assessed on the line under the applicable tax determination rules., usage: Used for tax reporting, invoice generation, customer charges, and reconciliation., relationshipContext: Tax depends on Product, customer, location, transaction date, and jurisdiction; it should not be treated as an arbitrary surcharge., optionalMeaning: Optional when tax is calculated later or is not applicable.}
+      help: {summary: Tax assessed on the line., usage: Supports tax and billing reconciliation., relationshipContext: Depends on customer, product, location, date, and jurisdiction., workflowRole: Contributes to invoice totals when tax is determined at order stage., optionalMeaning: Optional when tax is calculated later.}
     - name: lineAmount
       type: decimal
       required: true
       precision: 20
       scale: 4
-      help: {summary: The resulting monetary value of the line after applying quantity, price, discount, and applicable commercial rules., usage: Used in order totals, financial reporting, invoicing, credit exposure, and reconciliation., relationshipContext: It should reconcile with quantity, unitPrice, discountAmount, and tax treatment according to the organization's pricing model and the parent order currency., requiredMeaning: The commercial value of the commitment must be available once the line is executable.}
+      help: {summary: Calculated commercial value of the line., usage: Supports order total, credit, invoicing, and reporting., relationshipContext: Must reconcile with quantity, price, discount, tax treatment, and currency., workflowRole: Becomes source data for invoice calculation., requiredMeaning: Required once the line is executable.}
   relationships:
     - name: salesOrder
       target: SalesOrder
       cardinality: '1'
       ownership: reference
-      help: {summary: Identifies the parent order that owns this commercial commitment., usage: Provides customer, organization, currency, lifecycle, and fulfillment context., cardinalityMeaning: Every line belongs to exactly one SalesOrder., context: The parent controls the order-level lifecycle and the aggregate of its lines; a line should not exist independently of its order.}
+      help: {summary: Parent SalesOrder that owns the commitment., usage: Provides customer, organization, currency, delivery, and lifecycle context., cardinalityMeaning: Every line belongs to exactly one order., workflowRole: Parent controls activation, cancellation, and aggregate fulfillment state.}
     - name: product
       target: Product
       cardinality: '1'
       ownership: reference
-      help: {summary: Identifies the product or service being requested by the line., usage: Drives product-specific pricing, availability, fulfillment, inventory, tax, and reporting., cardinalityMeaning: Exactly one Product or service definition is required for the line., context: Product identifies what is sold; quantity and price belong to the line because they are specific to this commercial commitment.}
+      help: {summary: Product or service being committed., usage: Drives availability, fulfillment, pricing, tax, and inventory rules., cardinalityMeaning: Exactly one product/service per line., workflowRole: Identifies the stock or service requirement used by allocation and fulfillment.}
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: 0..1
       ownership: reference
-      help: {summary: Identifies how the ordered quantity is measured., usage: Supports quantity interpretation, conversion, inventory, fulfillment, and pricing calculations., cardinalityMeaning: A unit may be omitted only when the Product or service has an unambiguous default measurement basis., context: Quantity without its applicable unit can be semantically ambiguous, so processes should resolve a unit before fulfillment.}
+      help: {summary: Measurement basis for quantity., usage: Supports conversion, inventory, fulfillment, and pricing., cardinalityMeaning: Optional only when the product has an unambiguous default., workflowRole: Must be resolved before quantity is allocated or fulfilled when ambiguity exists.}
+    - name: shipments
+      target: Shipment
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Shipment executions that fulfill this line., usage: Provides shipment-to-demand traceability., cardinalityMeaning: Multiple shipments may fulfill one line., workflowRole: Shipment quantities contribute to fulfillment evidence and remaining demand according to acceptance policy.}
   invariants:
     - {id: SALES-ORDER-LINE-001, rule: quantity must be greater than zero.}
-    - {id: SALES-ORDER-LINE-002, rule: lineNumber must be unique within its SalesOrder.}
-    - {id: SALES-ORDER-LINE-003, rule: lineAmount must be consistent with the line pricing calculation.}
+    - {id: SALES-ORDER-LINE-002, rule: quantityAllocated must be between zero and quantity unless an authorized over-allocation policy applies.}
+    - {id: SALES-ORDER-LINE-003, rule: quantityFulfilled must be between zero and quantity unless an authorized over-fulfillment policy applies.}
+    - {id: SALES-ORDER-LINE-004, rule: lineNumber must be unique within its SalesOrder.}
+    - {id: SALES-ORDER-LINE-005, rule: lineAmount must be consistent with pricing calculation.}
   help:
-    summary: Represents one indivisible commercial commitment within a SalesOrder.
-    businessMeaning: SalesOrderLine is where the order becomes specific: it identifies the Product or service, requested quantity, measurement basis, agreed unit price, and resulting commercial value.
-    usage: Used by inventory allocation, fulfillment, shipping, invoicing, pricing, revenue analysis, customer service, and order reporting.
-    relationshipContext: It belongs to exactly one SalesOrder and references exactly one Product. The parent supplies customer, organization, currency, and overall lifecycle context while the line supplies product-specific commercial detail.
-    lifecycle: The line follows the parent order's lifecycle and may additionally have fulfillment quantities or shipment evidence in downstream entities. A line should not be independently activated or fulfilled outside its parent order.
-    example: A SalesOrder contains a line for 20 containers at a unit price of 850 USD. The line identifies the container product, quantity 20, applicable unit of measure, and calculated line amount.
+    summary: Represents one measurable commercial commitment and the quantities committed, allocated, and fulfilled against it.
+    businessMeaning: The line is the bridge between customer demand and downstream execution. It establishes the exact product/service and quantity that allocation, inventory, shipment, and invoicing processes must reconcile.
+    usage: Used by order management, inventory allocation, warehouse execution, shipment planning, billing, customer service, and fulfillment analytics.
+    relationshipContext: SalesOrder provides commercial context; Product identifies what is demanded; InventoryBalance and InventoryMovement provide stock execution; Shipment provides physical transport; Invoice provides financial claim evidence.
+    workflowContext: Confirmed line → availability check → allocation/reservation → pick/issue → shipment → accepted fulfillment. Remaining quantity is quantity minus fulfilled quantity. Allocation is not fulfillment, shipment is not automatically delivery, and invoicing is not proof of physical fulfillment.
+    lifecycle: Line lifecycle follows its parent order. Quantity may progress from unallocated to allocated to partially fulfilled to fully fulfilled. Historical fulfillment evidence must not be rewritten to alter the commercial commitment.
+    example: A line orders 20 containers. Twelve are allocated and shipped in the first shipment, so quantityAllocated and quantityFulfilled reflect the applicable milestones. A second shipment fulfills the remaining eight and closes the line.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER-LINE}
