@@ -2,78 +2,83 @@ entity:
   name: YardTier
   namespace: cedm.domain
   kind: logistics_location
-  description: A vertical stacking level within a yard bay that groups one or more atomic storage positions at the same stack height.
+  description: A vertical stacking level within a YardBay that establishes stack height, access dependencies, and the vertical context for one or more atomic container storage positions.
   identity:
     key: yardTierId
     type: uuid
     generated: true
     immutable: true
   attributes:
-    - name: yardTierId
-      type: uuid
-      required: true
-      immutable: true
-      help:
-        summary: The immutable identity of the vertical tier.
-        businessMeaning: Identifies one stack level within a specific yard bay.
-        usage: Used by yard addressing, stacking rules, capacity calculations, and movement planning.
-        relationshipContext: The tier inherits physical context from YardBay and provides the parent for YardSlot positions.
-        requiredMeaning: Required because each modeled stacking level must be uniquely addressable.
-    - name: tierNumber
-      type: integer
-      required: true
-      minimum: 1
-      help:
-        summary: The vertical stack level number within the parent bay.
-        businessMeaning: Represents how high the position is within the stack, using the yard's agreed numbering convention.
-        usage: Used to determine stack height, retrieval sequence, placement feasibility, and operator instructions.
-        relationshipContext: Its meaning is scoped to the parent YardBay; tierNumber 1 normally denotes the lowest modeled level unless the yard explicitly uses another convention.
-        requiredMeaning: Required to determine the vertical position of a slot.
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values: [ACTIVE, BLOCKED, CLOSED]
-      help:
-        summary: The operational availability of the entire tier.
-        businessMeaning: Determines whether positions at this stack level may be used for normal storage.
-        usage: Used by allocation and stacking algorithms to exclude unavailable levels.
-        relationshipContext: A blocked or closed tier can make all subordinate slots unavailable regardless of their individual status.
-        valueSemantics:
-          ACTIVE: Tier positions may be used subject to slot and equipment constraints.
-          BLOCKED: The tier is temporarily unavailable for placement or retrieval.
-          CLOSED: The tier is unavailable for normal operations until explicitly reactivated.
-        requiredMeaning: Required because tier-level restrictions affect subordinate storage positions.
+  - name: yardTierId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable identity of the vertical tier.
+      businessMeaning: Identifies one modeled stack level within a specific YardBay regardless of later operational status changes.
+      usage: Used by yard addressing, stacking rules, capacity calculation, movement planning, visualization, and historical references.
+      relationshipContext: YardBay establishes the horizontal lane; YardTier establishes the vertical level; YardSlot identifies the exact physical position.
+      requiredMeaning: Required because each stack level must be uniquely addressable.
+  - name: tierNumber
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: The ordinal vertical level of the tier within its parent YardBay.
+      businessMeaning: Expresses how high the tier is in the stack according to the yard's numbering convention, normally with 1 as the lowest level.
+      usage: Used to validate stack height, determine access dependencies, calculate rehandle risk, generate physical addresses, and instruct yard equipment.
+      relationshipContext: Tier number has meaning only within its YardBay; it is not a global location identifier.
+      requiredMeaning: Required because vertical position is fundamental to container stacking.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, BLOCKED, CLOSED]
+    help:
+      summary: The operational availability of the entire stack level.
+      businessMeaning: Determines whether subordinate positions can normally be used for placement, retrieval, or relocation.
+      usage: Used by allocation, stacking, crane planning, safety, and yard optimization algorithms.
+      relationshipContext: Tier status can make all subordinate YardSlots operationally unavailable even if their individual status is ACTIVE.
+      valueSemantics:
+        ACTIVE: Positions may be used subject to slot, container, equipment, safety, and yard rules.
+        BLOCKED: The tier is temporarily unavailable, for example because of equipment reach limits, safety restrictions, inspection, damage, or operational constraints.
+        CLOSED: The tier is administratively unavailable for normal operations until explicitly reactivated or reconfigured.
+      requiredMeaning: Required because a tier-level restriction propagates to its subordinate positions.
   relationships:
-    - name: bay
-      target: YardBay
-      cardinality: '1'
-      ownership: reference
-      help:
-        summary: Places the tier within its parent yard bay.
-        usage: Used to resolve physical addressing and the operational rules inherited from the bay and block.
-        cardinalityMeaning: Every tier belongs to exactly one bay.
-        context: The bay provides the scope in which tierNumber is interpreted.
-    - name: slots
-      target: YardSlot
-      cardinality: 1..*
-      ownership: aggregate
-      help:
-        summary: Defines the atomic storage positions available at this stack level.
-        usage: Used for exact container placement, capacity calculation, and movement instructions.
-        cardinalityMeaning: A modeled tier contains one or more slots.
-        context: Slot positions inherit the tier's vertical context and therefore form the complete physical stack address.
+  - name: bay
+    target: YardBay
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Places the tier within its parent YardBay and therefore within the containing block and yard.
+      usage: Provides the physical addressing scope, inherited operating constraints, and relationship to other stack levels in the same bay.
+      cardinalityMeaning: Every YardTier belongs to exactly one YardBay.
+      context: The bay provides horizontal context; the tier provides vertical context.
+  - name: slots
+    target: YardSlot
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Defines the atomic positions available at this vertical level.
+      usage: Supports exact container placement, slot occupancy, movement instructions, and capacity calculation.
+      cardinalityMeaning: A modeled tier contains one or more YardSlots.
+      context: A tier is not itself an atomic container position; the slot beneath it is the final placement address.
   invariants:
-    - id: YARD-TIER-001
-      rule: tierNumber must be unique within a bay.
+  - id: YARD-TIER-001
+    rule: tierNumber must be unique within its YardBay.
+  - id: YARD-TIER-002
+    rule: tierNumber must not exceed the maximum permitted stacking height configured for the parent YardBay, unless the yard explicitly supports dynamic height configuration.
+  - id: YARD-TIER-003
+    rule: BLOCKED or CLOSED tiers must not receive new normal placement allocations unless an explicit operational exception permits them.
   help:
-    summary: Represents one vertical stacking level within a container-yard bay.
-    businessMeaning: YardTier expresses stack height in the yard model. It allows the system to reason about vertical capacity, stacking restrictions, and retrieval dependencies.
-    usage: Used for stack-height calculation, placement validation, crane planning, rehandling, visualization, and yard optimization.
-    relationshipContext: YardTier sits between YardBay and YardSlot. The complete position is derived from the yard hierarchy rather than from tierNumber alone.
-    lifecycle: Tier availability follows the operational state of the stack area. Restrictions should account for containers already occupying subordinate slots and any safety or equipment limitations.
-    example: Bay 12 contains Tier 1 through Tier 5. A container stored at Tier 3 is physically above two lower positions and may require rehandling if a lower container must be retrieved first.
+    summary: Represents one vertical level in a container stack and provides the model's explicit representation of stacking height and access dependency.
+    businessMeaning: YardTier answers the question "how high in this bay is the position?" It is essential for calculating stack height, determining whether equipment can reach a container, and understanding whether retrieving one container requires moving containers above it.
+    usage: Used by yard allocation, crane planning, stacking validation, rehandle optimization, safety controls, capacity planning, digital-twin visualization, and operational reporting.
+    relationshipContext: The physical hierarchy is Yard → YardBlock → YardBay → YardTier → YardSlot. YardTier should not be treated as the final location of a container; YardSlot is the atomic position. Container.currentSlot points to the exact position, while ContainerMovement records changes between positions.
+    operationalSemantics: A higher tier generally implies greater retrieval dependency because containers beneath it can obstruct direct access. Placement algorithms therefore consider tier height together with container weight, allowable stacking, equipment reach, dwell time, expected retrieval order, hazardous/reefer rules, and rehandle cost. A tier can be structurally valid but operationally unusable because of equipment or safety restrictions.
+    lifecycle: A tier can be active, temporarily blocked, or closed. Changing its status must not erase existing occupancy. If containers must be relocated, those relocations are explicit ContainerMovement events and the resulting slot state is updated separately.
+    example: Bay B03-12 has tiers 1 through 5. A container at Tier 4 is above three lower stack positions. If the Tier 1 container is needed urgently, the yard optimizer may calculate one or more rehandles before retrieval. The tier model therefore directly contributes to movement cost and yard optimization.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-YARD-TIER
