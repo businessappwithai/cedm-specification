@@ -147,22 +147,34 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links the work order to an estimate that evaluates expected repair scope, components, labor, cost, or disposition.
-        usage: Supports repair authorization, cost approval, predictive maintenance, insurance or customer estimates, and repair-versus-replace decisions.
-        cardinalityMeaning: Zero or one estimate may be linked because inspection or routine preventive work may not require an estimate.
-        context: RepairEstimate predicts or proposes repair economics; MaintenanceWorkOrder authorizes and tracks the actual maintenance activity.
+        summary: Links the work order to the approved estimate that authorizes or informs the repair scope and financial boundary.
+        usage: Supports traceability from condition assessment and approved repair economics into executable maintenance work.
+        cardinalityMeaning: Zero or one estimate may be linked because inspection, preventive, corrective, and emergency work may not require a repair estimate.
+        context: RepairEstimate evaluates and authorizes the proposed repair decision; MaintenanceWorkOrder executes it. A work order must not be treated as proof that the estimate's predicted amount became actual cost.
+    - name: containerMovement
+      target: ContainerMovement
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Links maintenance execution to container movements required to bring a container into repair position, route it between work areas, or return it to operational storage.
+        usage: Provides physical execution traceability between maintenance workflow and yard/transport operations.
+        cardinalityMeaning: Zero or many movements may be linked because a repair can require multiple relocations, staging moves, or a return-to-yard move.
+        context: MaintenanceWorkOrder governs the maintenance activity; ContainerMovement governs physical movement of the container. A movement does not itself mean maintenance has started or completed.
   invariants:
     - {id: MWO-001, rule: COMPLETED status requires completedAt.}
     - {id: MWO-002, rule: completedAt must not precede requestedAt.}
     - {id: MWO-003, rule: IN_PROGRESS requires an identified Asset when the work is asset-specific.}
     - {id: MWO-004, rule: scheduledAt must not precede requestedAt.}
+    - {id: MWO-005, rule: A REPAIR work order created from RepairEstimate must reference an APPROVED, non-CANCELLED estimate with disposition REPAIR.}
+    - {id: MWO-006, rule: A completed REPAIR work order does not by itself change the Asset or Container lifecycle state; the applicable inspection, acceptance, and return-to-service workflow must confirm that transition.}
   lifecycle:
     states: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
   help:
     summary: Represents one controlled maintenance intervention from reported need through planning, assignment, execution, and completion or cancellation.
-    businessMeaning: MaintenanceWorkOrder is the executable maintenance record that turns an identified need into accountable work. It provides the bridge between Asset condition or maintenance policy and the technicians, contractors, parts, estimates, costs, and completion evidence needed to restore or preserve asset capability.
+    businessMeaning: MaintenanceWorkOrder is the executable maintenance record that turns an identified need into accountable work. It provides the bridge between Asset condition or maintenance policy and the technicians, contractors, parts, estimates, costs, physical movements, and completion evidence needed to restore or preserve asset capability.
     usage: Used by maintenance management, field service, depot repair, fleet maintenance, facilities management, manufacturing maintenance, container repair, utilities, aviation, automotive, and other asset-intensive operations.
-    relationshipContext: Asset identifies what requires work. MaintenancePlan explains recurring preventive work. Party identifies who is responsible. Location identifies where work occurs. RepairEstimate can define expected repair economics before execution. Detailed labor, parts, inspections, failures, and costs should be represented by their own related entities when required.
+    relationshipContext: Asset identifies what requires work. MaintenancePlan explains recurring preventive work. Party identifies who is responsible. Location identifies where work occurs. RepairEstimate can define expected repair economics before execution. ContainerMovement records physical repositioning when the maintained asset is a container. Detailed labor, parts, inspections, failures, and costs should be represented by their own related entities when required.
     lifecycle: A request opens the maintenance need. Planning establishes timing and resources. Assignment establishes accountability. In-progress records active execution. On-hold preserves the work order while a blocking condition is resolved. Completion records acceptance of the defined scope. Cancellation terminates the work without claiming that the maintenance objective was achieved.
-    example: A shipping container is found with damaged flooring during depot inspection. A corrective MaintenanceWorkOrder identifies the container asset, records the requested condition, receives high priority, links to a RepairEstimate for expected material and labor, is assigned to a repair team, progresses through execution, and is completed after the repair is inspected and accepted.
+    workflowImpact: For a container repair, an approved RepairEstimate with disposition REPAIR may create the MaintenanceWorkOrder. If the container is not already at the repair location, ContainerMovement moves it into the workshop or repair area. Work execution then consumes labor/material resources and produces completion evidence. After acceptance, a subsequent operational workflow may return the container to ACTIVE service and move it to an available YardSlot. None of these downstream facts should be inferred solely from work-order status.
+    example: A shipping container is found with damaged flooring during depot inspection. A corrective MaintenanceWorkOrder identifies the container asset, records the requested condition, receives high priority, links to an approved RepairEstimate for expected material and labor, is assigned to a repair team, may link to ContainerMovement events bringing the container into and out of the workshop, progresses through execution, and is completed after the repair is inspected and accepted.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-MAINTENANCE-WORK-ORDER}
