@@ -2,129 +2,101 @@ entity:
   name: SalesOrder
   namespace: cedm.domain
   kind: commercial_transaction
-  description: A formal customer commitment request for specified products or services, establishing what is being requested, for whom, under which commercial terms, and for what delivery requirements. It is the commercial source for downstream fulfillment, shipment, invoicing, and revenue processes.
+  description: A formal customer commitment for specified products or services, establishing what is requested, for whom, under which commercial terms, and for what fulfillment requirements; it is the commercial source for allocation, shipment, invoicing, and revenue processes.
   identity: {key: salesOrderId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: salesOrderId
       type: uuid
       required: true
       immutable: true
-      help:
-        summary: The immutable CEDM identity of the sales order.
-        usage: Used by transactions, integrations, fulfillment, billing, and audit trails to reference this exact order rather than the customer or an order line.
-        relationshipContext: It identifies the order independently of Customer, Organization, and SalesOrderLine records so those relationships can change without changing the order's identity.
-        requiredMeaning: Every order must remain uniquely identifiable throughout its lifecycle.
+      help: {summary: The immutable CEDM identity of the sales order., usage: Used by fulfillment, allocation, shipment, billing, integration, and audit processes., relationshipContext: Identifies the order independently of customer and line records., workflowRole: Provides the stable root reference across confirmation, allocation, fulfillment, shipment, invoicing, and closure., requiredMeaning: Every order must remain uniquely identifiable.}
     - name: orderNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help:
-        summary: The business-facing reference assigned to the order and normally shown to customers and operational users.
-        usage: Used for searching, communicating about, printing documents, and reconciling external order references.
-        relationshipContext: Unlike salesOrderId, it is intended for business communication and follows an organization's numbering policy.
-        requiredMeaning: Operational users and processes need a recognizable reference for every order.
+      help: {summary: The business-facing order reference., usage: Used for searching, documents, customer communication, and reconciliation., relationshipContext: Distinct from salesOrderId and external references., workflowRole: Used to correlate operational work and customer-facing documents., requiredMeaning: Every executable order needs a recognizable reference.}
     - name: orderDate
       type: datetime
       required: true
-      help:
-        summary: The date and time at which the business recognizes the order as placed or recorded.
-        usage: Drives commercial chronology, period reporting, eligibility rules, fulfillment prioritization, and audit analysis.
-        relationshipContext: It establishes when the SalesOrder entered the business process and is distinct from requested delivery or actual shipment dates.
-        requiredMeaning: Order processing and reporting require a defined commercial event time.
+      help: {summary: The time at which the order entered the recognized commercial process., usage: Drives chronology, reporting, eligibility, and audit., relationshipContext: Distinct from requested delivery and actual shipment dates., workflowRole: Establishes the beginning of the order lifecycle., requiredMeaning: Required for commercial chronology.}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
       help:
-        summary: The lifecycle state controlling whether the order is being prepared, is an executable commitment, is being fulfilled, or has ended.
-        usage: Downstream processes use status to determine permitted actions and transitions.
-        relationshipContext: Order status summarizes the commitment while line and shipment records provide detailed fulfillment evidence.
+        summary: The order-level lifecycle state controlling commercial and fulfillment permissions.
+        usage: Drives allocation, fulfillment, shipment readiness, cancellation, and closure decisions.
+        relationshipContext: Order status summarizes the aggregate commitment; SalesOrderLine and Shipment provide detailed fulfillment evidence.
+        workflowRole: CONFIRMED enables fulfillment; ALLOCATED indicates supply/capacity commitment; PARTIALLY_FULFILLED and FULFILLED are derived from downstream fulfillment; CANCELLED terminates remaining demand.
         valueSemantics:
-          DRAFT: The order is being prepared and is not yet an executable customer commitment.
-          CONFIRMED: The business has accepted the order and it is eligible for fulfillment processing.
-          ALLOCATED: Required inventory or capacity has been assigned against the order.
-          PARTIALLY_FULFILLED: Some ordered commitments have been fulfilled while others remain open.
-          FULFILLED: All required order commitments have been fulfilled.
-          CANCELLED: The order will no longer be fulfilled and remaining commitments are terminated.
+          DRAFT: Editable demand not yet accepted as an executable commitment.
+          CONFIRMED: Accepted commitment eligible for fulfillment.
+          ALLOCATED: Required inventory or capacity has been assigned.
+          PARTIALLY_FULFILLED: Some required quantities have been fulfilled while open quantities remain.
+          FULFILLED: All required commitments are fulfilled and no remaining executable quantity exists.
+          CANCELLED: Remaining unfulfilled commitment is terminated.
         requiredMeaning: Every order must have a known lifecycle state.
     - name: currencyId
       type: reference
       target: Currency
       required: false
-      help:
-        summary: Identifies the currency used to express monetary amounts on the order.
-        usage: Interprets totalAmount and line prices consistently across customers, organizations, and reporting contexts.
-        relationshipContext: References the common Currency entity rather than duplicating a currency code, allowing consistent currency metadata and rules.
-        optionalMeaning: It may be absent while commercial denomination is genuinely unresolved; committed monetary orders should have a currency.
+      help: {summary: Identifies the currency for order monetary values., usage: Interprets prices, totals, invoices, credit, and reporting., relationshipContext: References common Currency metadata., workflowRole: Must be resolved before an executable priced order is invoiced., optionalMeaning: May be absent while commercial denomination is unresolved.}
     - name: requestedDeliveryDate
       type: date
       required: false
-      help:
-        summary: The date by which the customer requests delivery or completion of the ordered commitment.
-        usage: Supports availability planning, allocation, shipment scheduling, customer communication, and service-level analysis.
-        relationshipContext: This is a customer requirement, not an actual delivery date or supplier promise.
-        optionalMeaning: Some orders do not have a requested delivery date when initially created.
+      help: {summary: The customer's requested fulfillment date., usage: Supports availability, allocation, shipment scheduling, and service analysis., relationshipContext: A request rather than an actual event or carrier promise., workflowRole: Feeds fulfillment priority and transport planning., optionalMeaning: Optional when no requested date exists.}
     - name: totalAmount
       type: decimal
       required: false
       precision: 20
       scale: 4
-      help:
-        summary: The monetary value of the order after applying the pricing represented by its lines and applicable adjustments.
-        usage: Used for order review, credit exposure, financial reporting, invoice preparation, and reconciliation.
-        relationshipContext: It should reconcile with SalesOrderLine monetary amounts and be interpreted using currencyId; it is not an independent pricing source.
-        optionalMeaning: It may be absent while pricing is incomplete or when the commercial model does not require an order-level total.
+      help: {summary: The calculated commercial value of the order., usage: Supports credit, financial reporting, invoicing, and reconciliation., relationshipContext: Must reconcile with SalesOrderLine values and currency., workflowRole: Becomes source context for invoicing and financial controls., optionalMeaning: May be absent while pricing is incomplete.}
   relationships:
     - name: customer
       target: Customer
       cardinality: '1'
       ownership: reference
-      help:
-        summary: Identifies the customer relationship for whose account the order is placed.
-        usage: Drives customer-specific pricing, credit, billing, service, reporting, and fulfillment context.
-        cardinalityMeaning: Exactly one Customer is associated with an executable SalesOrder.
-        context: Customer represents the commercial role; Party remains the underlying party identity and is not duplicated here.
+      help: {summary: Identifies the customer for whose account the order is placed., usage: Provides commercial, credit, billing, service, and fulfillment context., cardinalityMeaning: Exactly one customer for an executable order., context: Customer is the commercial role while Party is the underlying party identity.}
     - name: organization
       target: Organization
       cardinality: 0..1
       ownership: reference
-      help:
-        summary: Identifies the selling organization responsible for the order when organizational context matters.
-        usage: Supports ownership, legal entity, tax, pricing, inventory, fulfillment, and financial reporting decisions.
-        cardinalityMeaning: Zero or one organization may be specified when the selling context is not yet resolved or is inherited from another process.
-        context: Organization provides operational or legal context and is distinct from the Customer receiving the offering.
+      help: {summary: Identifies the selling organization., usage: Supports legal, tax, pricing, inventory, fulfillment, and financial context., cardinalityMeaning: Optional when inherited or unresolved., workflowRole: Determines organizational responsibility for fulfillment and billing.}
     - name: lines
       target: SalesOrderLine
       cardinality: 1..*
       ownership: aggregate
-      help:
-        summary: Contains the individual product or service commitments that make up the order.
-        usage: Lines determine what is ordered, quantities, prices, fulfillment requirements, and what may subsequently be shipped or invoiced.
-        cardinalityMeaning: An executable order requires at least one line; multiple lines allow different products, quantities, prices, schedules, or fulfillment characteristics.
-        context: SalesOrder owns the lifecycle of its lines, and line quantities and fulfillment contribute to order state.
+      help: {summary: Contains the product or service commitments., usage: Drives allocation, fulfillment, shipment, and invoicing., cardinalityMeaning: An executable order requires at least one line., workflowRole: Line quantities establish the demand against which allocation and fulfillment are measured.}
     - name: deliveryLocation
       target: Location
       cardinality: 0..1
       ownership: reference
-      help:
-        summary: Identifies the operational location to which the order is intended to be delivered or fulfilled.
-        usage: Used by allocation, routing, shipping, service scheduling, and delivery planning.
-        cardinalityMeaning: A location may be absent when delivery has not yet been determined or is handled through another mechanism.
-        context: It is the order-level destination context and should not be confused with a customer's address master or the actual shipment destination.
+      help: {summary: Identifies the intended operational delivery endpoint., usage: Supports allocation, routing, shipment, and delivery planning., cardinalityMeaning: Optional until delivery is resolved., workflowRole: Supplies destination context to Shipment and fulfillment processes.}
+    - name: shipments
+      target: Shipment
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Links physical shipment executions that fulfill this order., usage: Supports order-to-shipment traceability and fulfillment progress., cardinalityMeaning: An order may have multiple shipments due to partial, split, consolidated, or staged fulfillment., workflowRole: Shipment completion contributes evidence toward line and order fulfillment status.}
+    - name: invoices
+      target: Invoice
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Links financial claims generated from the order or its fulfilled commitments., usage: Supports billing and order-to-cash reconciliation., cardinalityMeaning: An order may produce multiple invoices or none depending on billing policy., workflowRole: Invoicing must not be treated as proof of physical shipment or delivery.}
   invariants:
     - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
     - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
-    - {id: SALES-ORDER-003, rule: totalAmount must reconcile with applicable SalesOrderLine amounts and commercial adjustments.}
-    - {id: SALES-ORDER-004, rule: CANCELLED orders must not create new fulfillment commitments.}
-  lifecycle:
-    states: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
+    - {id: SALES-ORDER-003, rule: totalAmount must reconcile with applicable line amounts and adjustments.}
+    - {id: SALES-ORDER-004, rule: CANCELLED orders must not create new allocation or fulfillment commitments.}
+    - {id: SALES-ORDER-005, rule: FULFILLED status requires all executable line quantities to have accepted fulfillment evidence according to the applicable workflow.}
+  lifecycle: {states: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]}
   help:
-    summary: Represents the commercial commitment between a Customer and the selling organization for products or services.
-    businessMeaning: A SalesOrder is more than a product list. It records accepted customer demand and provides the boundary from which fulfillment, shipment, invoicing, credit, and customer-service processes derive their work.
-    usage: Created when demand is captured, confirmed when the business accepts it, allocated when supply or capacity is assigned, and progressively fulfilled as commitments are delivered.
-    relationshipContext: SalesOrder connects Customer to ordered SalesOrderLine commitments and may connect an Organization and delivery Location. Product identity and quantity belong on lines; downstream Shipment and Invoice records should reference the order when applicable.
-    lifecycle: Draft orders are editable requests. Confirmation establishes an executable commitment. Allocation records supply assignment. Partial fulfillment indicates remaining open commitments. Fulfillment ends the operational obligation, while cancellation terminates unfulfilled commitments.
-    example: A customer orders 20 containers and 5 spare parts. The SalesOrder identifies the customer and currency, while SalesOrderLine records identify products and quantities. Once confirmed, inventory allocation and shipment processes act on those commitments.
+    summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
+    businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.
+    usage: Used by order management, allocation, inventory, warehouse execution, transportation, invoicing, customer service, and revenue processes.
+    relationshipContext: Customer supplies commercial context, SalesOrderLine supplies demand detail, InventoryBalance/InventoryMovement supply stock execution, Shipment supplies physical transport evidence, and Invoice supplies financial claim evidence.
+    workflowContext: Confirmed order → availability check → reservation/allocation → pick/issue → Shipment → delivery evidence → order fulfillment. Invoice may be generated according to billing policy and is independent evidence from shipment. Cancellation terminates remaining demand but must not erase historical fulfillment.
+    lifecycle: Draft is editable. Confirmation creates an executable commitment. Allocation reserves supply/capacity. Partial fulfillment reflects accepted downstream fulfillment. Fulfillment closes the remaining commitment. Cancellation terminates open demand.
+    example: A customer orders 20 containers. After confirmation, 12 are allocated and shipped first, making the order PARTIALLY_FULFILLED. A second shipment fulfills the remaining 8, after which the order becomes FULFILLED. Invoices may be issued per shipment or according to another billing policy.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER}
