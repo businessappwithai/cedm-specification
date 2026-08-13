@@ -1,6 +1,6 @@
 specification:
   name: CEDM Business Rule Semantics
-  version: 0.1.0
+  version: 0.2.0
   status: draft
 
 rule:
@@ -32,3 +32,48 @@ rule:
     - A rule may be enforced in more than one implementation layer.
     - Derived calculations must declare their source attributes and units where material.
     - Cross-entity rules belong to the domain rule layer rather than a single entity when they span aggregates.
+    - Every existing and newly created CEDM entity is subject to mandatory workflow-impact reconciliation.
+    - Any entity create or update MUST inspect all inbound and outbound relationships, lifecycle transitions, workflows, business processes, business rules, aggregate boundaries, and dependent entities affected by the change.
+    - If an entity change changes the meaning, lifecycle, state transition, relationship, invariant, responsibility, or workflow participation of another entity, that dependent entity MUST be updated in the same semantic change set.
+    - Entity help MUST explain not only the entity or field in isolation, but also its role in relevant workflows and its relationship to other affected entities.
+    - Workflow-impact reconciliation applies retroactively to all existing entities and prospectively to every new entity added to CEDM.
+    - An entity update is incomplete if its resulting definition cannot support every applicable CEDM workflow consistently with the definitions of the other participating entities.
+    - Workflow, lifecycle, business-rule, aggregate-boundary, domain-catalog, and entity-index definitions MUST be reconciled whenever an entity change affects them.
+    - Historical/event entities MUST be distinguished from current-state entities; a workflow must not overwrite historical facts when a corrective event or transition is required.
+
+  mandatoryEntityChangeProtocol:
+    appliesTo: [existing_entities, new_entities]
+    severity: error
+    steps:
+      - id: ECP-001
+        rule: Read the complete entity definition and identify all fields, relationships, invariants, lifecycle states, and aggregate ownership semantics.
+      - id: ECP-002
+        rule: Identify all inbound and outbound entity dependencies, including direct references, inverse relationships, derived state, and workflow participation.
+      - id: ECP-003
+        rule: Trace every workflow and business process that creates, reads, updates, transitions, consumes, or retires the entity.
+      - id: ECP-004
+        rule: Identify downstream and upstream entities whose definitions, help, lifecycle, relationships, invariants, or workflow participation are affected.
+      - id: ECP-005
+        rule: Update every materially affected entity and cross-entity rule in the same semantic reconciliation pass.
+      - id: ECP-006
+        rule: Reconcile lifecycle and state transitions across all participating entities so that workflow preconditions and postconditions remain executable.
+      - id: ECP-007
+        rule: Reconcile workflow, business-process, business-rule, aggregate-boundary, domain-catalog, and entity-index specifications where applicable.
+      - id: ECP-008
+        rule: Verify that entity and field help explains workflow usage, relationship context, and interaction with other affected entities.
+      - id: ECP-009
+        rule: Validate cross-entity invariants, ownership boundaries, event/state semantics, and historical traceability after the change.
+      - id: ECP-010
+        rule: Do not mark an entity change complete until the affected workflow graph is semantically consistent.
+
+  completionCriteria:
+    entityChangeIsCompleteOnlyWhen:
+      - entity_definition_is_consistent
+      - field_help_is_domain_specific
+      - relationship_help_is_domain_specific
+      - lifecycle_is_consistent
+      - workflow_participation_is_consistent
+      - cross_entity_rules_are_consistent
+      - aggregate_boundaries_are_consistent
+      - historical_vs_current_state_semantics_are_consistent
+      - affected_catalog_and_index_metadata_are_consistent
