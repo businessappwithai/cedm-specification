@@ -2,7 +2,7 @@ entity:
   name: InventoryLocation
   namespace: cedm.domain
   kind: inventory_master_entity
-  description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be stored, staged, picked, reserved, counted, or controlled.
+  description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be received, stored, staged, picked, reserved, counted, transferred, or controlled.
   identity:
     key: inventoryLocationId
     type: uuid
@@ -15,8 +15,9 @@ entity:
     immutable: true
     help:
       summary: The immutable system identity of the inventory location.
-      usage: Used to connect inventory balances, movements, warehouse tasks, receiving, picking, replenishment, and audit history to the same stock position.
-      relationshipContext: Identifies the stock-holding location independently of its code, type, warehouse, or current inventory balance.
+      usage: Connects balances, movements, receiving, picking, replenishment, reservations, counts, and audit history to the same stock position.
+      relationshipContext: Identifies the location independently of its code, type, warehouse, and current balance.
+      workflowRole: Receipt targets, put-away tasks, transfers, issues, returns, and stock counts use this identity to establish where inventory state changes occur.
       requiredMeaning: Required because inventory events need a stable location identity.
   - name: code
     type: string
@@ -26,81 +27,102 @@ entity:
     help:
       summary: The operational code used by warehouse personnel and systems to identify the stock-holding position.
       usage: Used on labels, scanners, receiving and picking tasks, inventory documents, warehouse interfaces, and integrations.
-      relationshipContext: The code is meaningful within the warehouse's location namespace and should not be confused with the Warehouse code or a Product code.
-      requiredMeaning: Required for physical and system navigation of inventory.
+      relationshipContext: The code is meaningful within the warehouse location namespace and must not be confused with a Warehouse or Product code.
+      workflowRole: Operators use the code when confirming receipt, put-away, picking, transfer, counting, and exception activities.
+      requiredMeaning: Required for physical and system navigation.
   - name: locationType
     type: enum
     required: true
-    values: [BIN, SHELF, RACK, FLOOR, YARD_SLOT, OTHER]
+    values: [RECEIVING, BIN, SHELF, RACK, FLOOR, PICK, STAGING, QUARANTINE, YARD_SLOT, OTHER]
     help:
-      summary: Classifies the physical or operational structure represented by the inventory location.
-      usage: Drives put-away, picking, capacity, accessibility, counting, and handling rules.
-      relationshipContext: Type describes the kind of stock position; it does not itself determine what inventory is currently stored there.
+      summary: Classifies the operational structure and purpose of the stock position.
+      usage: Drives receiving, put-away, picking, staging, quarantine, capacity, accessibility, counting, and handling rules.
+      relationshipContext: Type describes the location; InventoryBalance describes what is currently there.
+      workflowRole: Workflow rules use location type to determine whether a receipt, put-away, pick, shipment staging, quarantine, or transfer is permitted.
       valueSemantics:
-        BIN: A defined compartment or bin used for controlled storage.
-        SHELF: A shelf-level storage position used for item placement and retrieval.
-        RACK: A rack or rack-position storage area, often supporting palletized or structured storage.
-        FLOOR: A floor or open-area storage position where stock is placed without a dedicated bin or rack slot.
-        YARD_SLOT: A designated outdoor or yard position used for inventory or equipment that is managed spatially.
-        OTHER: A stock-holding position not represented by the standard location classifications.
-      requiredMeaning: Required because warehouse execution needs to understand the physical handling model.
+        RECEIVING: Temporary or controlled location where inbound goods are received before final disposition or put-away.
+        BIN: Defined compartment for controlled storage.
+        SHELF: Shelf-level storage position.
+        RACK: Structured rack storage position.
+        FLOOR: Open-area floor storage.
+        PICK: Location optimized for outbound picking.
+        STAGING: Temporary position used to consolidate goods for inbound or outbound execution.
+        QUARANTINE: Restricted location for stock awaiting inspection, quality disposition, or other authorization.
+        YARD_SLOT: Spatial yard position managed through the inventory model where applicable.
+        OTHER: A controlled stock position not covered by the standard classifications.
+      requiredMeaning: Required because execution workflows need to understand the operational role of the location.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, BLOCKED, INACTIVE]
     help:
-      summary: Indicates whether the inventory location is available for normal stock operations.
-      usage: Controls put-away, picking, transfers, counting, replenishment, and allocation decisions.
-      relationshipContext: Location status affects whether new movements may target the location; it does not erase existing InventoryBalance or historical InventoryMovement records.
+      summary: Indicates whether the inventory location can participate in normal stock operations.
+      usage: Controls put-away, receiving, picking, transfers, counting, replenishment, and allocation decisions.
+      relationshipContext: Status affects future movements and allocations but does not erase existing balances or movement history.
+      workflowRole: A BLOCKED or INACTIVE location may remain the source of historical stock while being excluded from new normal target allocations.
       valueSemantics:
-        ACTIVE: The location is available for normal inventory operations subject to product and warehouse rules.
-        BLOCKED: The location exists but is temporarily prohibited from one or more stock operations, for example because of damage, quarantine, inspection, or operational restriction.
-        INACTIVE: The location is no longer intended for normal use and should not receive new inventory assignments.
-      requiredMeaning: Required because warehouse processes need an authoritative availability state.
+        ACTIVE: Available for normal operations subject to product, inventory, and warehouse rules.
+        BLOCKED: Temporarily unavailable for one or more operations because of damage, inspection, congestion, quarantine, or another controlled restriction.
+        INACTIVE: No longer intended for new normal stock assignments.
+      requiredMeaning: Required for authoritative execution control.
   - name: capacity
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: The nominal capacity of the inventory location under a defined measurement convention.
-      usage: Used for put-away validation, utilization analysis, replenishment planning, and warehouse capacity management.
-      relationshipContext: Capacity must be interpreted with an applicable UnitOfMeasure or capacity policy; it may represent pieces, pallets, weight, volume, TEU, or another operational measure.
-      optionalMeaning: Optional when capacity is derived from warehouse configuration or managed through a separate slot-capacity model.
+      summary: The nominal capacity available at the location under a defined measurement convention.
+      usage: Used for put-away validation, utilization, replenishment, and capacity planning.
+      relationshipContext: Capacity must be interpreted with the applicable unit or capacity policy.
+      workflowRole: Put-away and transfer workflows use capacity to reject or reroute movements that would exceed permitted capacity.
+      optionalMeaning: Optional when capacity is derived from configuration or a dedicated capacity model.
   relationships:
   - name: warehouse
     target: Warehouse
     cardinality: '1'
     ownership: reference
     help:
-      summary: Identifies the Warehouse that owns or operationally contains this inventory location.
-      usage: Provides facility context for stock operations, access rules, capacity planning, and warehouse execution.
-      cardinalityMeaning: Exactly one Warehouse contains an InventoryLocation under this model.
-      context: Warehouse is the facility-level concept; InventoryLocation is the granular stock position inside it.
+      summary: Identifies the Warehouse containing or operationally managing this stock position.
+      usage: Supplies facility, operating calendar, authorization, and warehouse-execution context.
+      cardinalityMeaning: Exactly one Warehouse owns the location under this model.
+      workflowRole: Receiving, put-away, picking, transfer, and counting workflows use the warehouse context to apply facility-specific rules.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Contains the current or effective stock quantities maintained for Products at this inventory location.
-      usage: Supports available stock, on-hand quantity, reservations, allocation, picking, replenishment, and inventory reporting.
-      cardinalityMeaning: A location may have zero or many balances because it may be empty or contain multiple Products, lots, serials, or stock conditions.
-      context: InventoryBalance represents current derived/maintained state; InventoryMovement provides the auditable events that change that state.
+      summary: Contains current stock state for Products held at this location.
+      usage: Supports on-hand, reserved, available, allocation, picking, replenishment, and reporting.
+      cardinalityMeaning: A location may be empty or contain many product balances.
+      workflowRole: Posted InventoryMovement events update balances; allocation workflows read available quantity before committing demand.
+      context: InventoryBalance is current state; InventoryMovement is historical event evidence.
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Provides the inventory event history involving this location as source or target.
+      usage: Supports audit, reconciliation, movement history, stock counting, receiving, picking, transfer, return, and adjustment analysis.
+      cardinalityMeaning: A location participates in zero or many inventory movements.
+      workflowRole: Receipt, put-away, transfer, issue, return, reservation, release, and adjustment workflows create or consume these events.
   invariants:
   - id: INVENTORY-LOCATION-001
     rule: code must be unique within its Warehouse.
   - id: INVENTORY-LOCATION-002
     rule: capacity must be non-negative when supplied.
   - id: INVENTORY-LOCATION-003
-    rule: BLOCKED and INACTIVE locations must not receive new normal put-away or transfer movements unless an explicit exception workflow permits them.
+    rule: BLOCKED and INACTIVE locations must not receive new normal put-away, receipt, or transfer movements unless an explicit exception workflow permits them.
+  - id: INVENTORY-LOCATION-004
+    rule: A QUARANTINE location must not be treated as unrestricted available stock without an explicit quality/disposition decision.
   help:
     summary: Represents the granular place where inventory is physically or logically held and controlled within a warehouse or managed inventory network.
-    businessMeaning: InventoryLocation answers the operational question "where exactly is this stock?" It is more specific than Warehouse or Location and provides the spatial granularity required for warehouse execution.
-    usage: Used by receiving, put-away, picking, replenishment, stock counting, transfers, reservation, fulfillment, yard operations, and inventory control.
-    relationshipContext: Warehouse provides facility context. InventoryLocation identifies the stock position. InventoryBalance represents current quantity at that position. InventoryMovement records changes between positions or into/out of the inventory network. Product identifies what is stored.
-    lifecycle: A location is configured before use, becomes active for stock operations, may be blocked temporarily for safety, quality, maintenance, quarantine, or operational reasons, and may eventually become inactive. Changing location status must not destroy historical movement or balance information.
-    example: A distribution warehouse contains locations RECEIVING-01, RACK-A-03-02, PICK-01, and STAGE-OUT-02. A PurchaseOrder receipt creates an InventoryMovement into RECEIVING-01; a put-away movement transfers the stock to RACK-A-03-02; an outbound process later moves allocated stock to PICK-01 and staging before shipment.
+    businessMeaning: InventoryLocation answers where stock is held and what operational purpose that position serves. It is more specific than Warehouse and provides the spatial and workflow granularity required for inventory execution.
+    usage: Used by receiving, put-away, picking, replenishment, stock counting, transfers, reservation, fulfillment, yard operations, quarantine, and inventory control.
+    relationshipContext: Warehouse provides facility context. InventoryLocation identifies the stock position. InventoryBalance represents current quantity at that position. InventoryMovement records changes into, out of, or between positions. Product identifies what is stored.
+    lifecycle: A location is configured, activated, may be blocked or quarantined, and may become inactive. Status changes constrain future workflow actions but preserve existing inventory state and historical events.
+    workflowContext: A typical inbound flow is GoodsReceipt → receipt InventoryMovement → RECEIVING location → put-away InventoryMovement → storage location. An outbound flow is reservation → pick/issue movement → staging → Shipment. Transfer flows create paired source/target effects while preserving audit history.
+    example: A warehouse receives 20 spare parts into RECEIVING-01. After acceptance, a receipt movement increases on-hand there. A put-away movement transfers the 20 units to RACK-A-03-02. Later, 3 units are reserved for a maintenance work order, picked, and issued to the repair process.
 specification:
   version: 0.2.0
   status: draft
