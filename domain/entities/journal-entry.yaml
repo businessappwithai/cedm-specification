@@ -2,7 +2,7 @@ entity:
   name: JournalEntry
   namespace: cedm.domain
   kind: financial_transaction
-  description: A balanced accounting entry recording debits and credits for a business event.
+  description: A balanced accounting entry that records the debit and credit consequences recognized by the accounting system for an originating business event such as an invoice, payment, receipt, bank adjustment, asset event, or other authorized transaction.
   identity:
     key: journalEntryId
     type: uuid
@@ -14,122 +14,113 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the journal entry record associated with this JournalEntry. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating JournalEntry records, where
-        applicable.
-      relationshipContext: Its meaning is specific to JournalEntry; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable identity of the accounting entry.
+      usage: Used for posting, audit, reporting, reversal, reconciliation, and integration.
+      relationshipContext: Identifies the accounting event independently of its source transaction and journal lines.
+      workflowRole: Provides the stable root reference across accounting preparation, validation, posting, reporting, and reversal.
+      requiredMeaning: Required for accounting traceability.
   - name: entryNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of entry number for the JournalEntry. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating JournalEntry records, where
-        applicable.
-      relationshipContext: Its meaning is specific to JournalEntry; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The human-facing accounting journal reference.
+      usage: Used by accountants, auditors, reports, and integrations.
+      relationshipContext: Distinct from source transaction numbers such as Invoice or Payment references.
+      workflowRole: Identifies the posted accounting record in ledgers and audit trails.
+      requiredMeaning: Required for accounting operations.
   - name: entryDate
     type: datetime
     required: true
     help:
-      summary: Records the business date associated with the entry. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating JournalEntry records, where
-        applicable.
-      relationshipContext: Its meaning is specific to JournalEntry; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The accounting date at which the entry is recognized.
+      usage: Determines accounting period, reporting chronology, and period controls.
+      relationshipContext: May differ from the originating transaction date, bank value date, or document date.
+      workflowRole: Controls the period into which the entry is posted.
+      requiredMeaning: Required for accounting-period determination.
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values:
-    - DRAFT
-    - POSTED
-    - REVERSED
+    values: [DRAFT, POSTED, REVERSED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating JournalEntry records, where
-        applicable.
-      relationshipContext: Its meaning is specific to JournalEntry; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The accounting lifecycle state of the journal entry.
+      usage: Controls editing, posting, reporting, and reversal permissions.
+      relationshipContext: Journal status is independent of Payment, Invoice, and BankTransaction statuses.
+      workflowRole: DRAFT permits controlled preparation; POSTED establishes accounting recognition; REVERSED preserves the original entry while counteracting its accounting effect.
+      requiredMeaning: Required for controlled accounting processing.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of JournalEntry.
-        POSTED: Represents the posted state or classification in the context of JournalEntry.
-        REVERSED: Represents the reversed state or classification in the context of JournalEntry.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        DRAFT: Prepared but not recognized in the ledger.
+        POSTED: Validated, balanced, and recognized in the ledger.
+        REVERSED: Original accounting recognition remains historical and has been counteracted by an authorized reversal.
   - name: description
     type: string
     required: false
     maxLength: 1000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating JournalEntry records, where
-        applicable.
-      relationshipContext: Its meaning is specific to JournalEntry; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Human-readable explanation of the accounting event.
+      usage: Supports review, audit, reconciliation, and financial reporting.
+      relationshipContext: Complements sourceTransaction and lines; it must not be the sole source of accounting meaning.
+      workflowRole: Helps accountants understand why the entry was generated.
+      optionalMeaning: Optional when source and line information fully explain the event.
   relationships:
   - name: lines
     target: JournalEntryLine
     cardinality: 2..*
     ownership: aggregate
     help:
-      summary: Connects JournalEntry to JournalEntryLine so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about JournalEntryLine records associated with a JournalEntry.
-      cardinalityMeaning: The declared cardinality 2..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: The debit and credit lines that make up the accounting entry.
+      usage: Provide the accounts, amounts, dimensions, and currency details needed for posting.
+      cardinalityMeaning: At least two lines are required because a valid double-entry posting needs debit and credit effects.
+      workflowRole: Lines must balance before the JournalEntry can become POSTED.
   - name: sourceTransaction
     target: BusinessTransaction
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects JournalEntry to BusinessTransaction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about BusinessTransaction records associated with a JournalEntry.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the originating business transaction whose accounting consequences are represented by this entry.
+      usage: Provides traceability from accounting recognition back to the operational or financial event.
+      cardinalityMeaning: Optional for manual, system reconciliation, or opening/closing entries that do not originate from a single BusinessTransaction.
+      workflowRole: Connects invoices, payments, receipts, inventory events, asset events, and other business processes to accounting.
+  - name: payment
+    target: Payment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the Payment whose financial recognition is represented by this journal entry when the accounting source is a payment.
+      usage: Supports cash, receivable, payable, clearing, fee, and settlement accounting traceability.
+      cardinalityMeaning: Optional because not every journal entry originates from a payment.
+      workflowRole: A posted payment may generate accounting recognition while Payment status remains a separate operational fact.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects JournalEntry to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a JournalEntry.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the organization whose books recognize the accounting entry.
+      usage: Supports legal-entity accounting, reporting, period control, and ledger ownership.
+      cardinalityMeaning: Optional when organization is inherited from a ledger context.
+      workflowRole: Determines the accounting boundary and applicable chart/period policies.
   invariants:
   - id: JOURNAL-001
-    rule: a POSTED journal entry must have balanced debit and credit totals.
+    rule: A POSTED journal entry must contain at least two lines and total debits must equal total credits.
   - id: JOURNAL-002
-    rule: a POSTED journal entry is immutable except through an explicit reversal.
+    rule: A POSTED journal entry is immutable except through an explicit reversal entry.
+  - id: JOURNAL-003
+    rule: If payment is populated, the accounting entry must represent an authorized accounting consequence of that Payment.
+  - id: JOURNAL-004
+    rule: Reversal must preserve the original journal entry and reference the entry being reversed.
+  - id: JOURNAL-005
+    rule: JournalEntry must not be used as evidence that a Payment cleared the bank; bank evidence is represented by BankTransaction and reconciliation state.
   help:
-    summary: Represents a financial transaction called JournalEntry within the CEDM business model.
-    businessMeaning: JournalEntry is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate JournalEntry records.
-    relationshipContext: The entity participates in a wider business graph through relationships with JournalEntryLine, BusinessTransaction,
-      Organization. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical JournalEntry record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    summary: Represents the accounting recognition of a business event in a balanced double-entry ledger.
+    businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a financial claim, and JournalEntry records accounting recognition.
+    usage: Used by general ledger, accounts receivable, accounts payable, treasury, inventory accounting, asset accounting, tax, audit, period close, and financial reporting.
+    relationshipContext: sourceTransaction provides generic origin. Payment provides direct settlement traceability when applicable. JournalEntryLine contains the actual debit/credit effects. Organization provides the accounting boundary.
+    workflowContext: Business event → accounting determination → JournalEntry draft → line validation → balance validation → POSTED. Payment workflow may separately progress from approved → posted → cleared; those states must not be collapsed into JournalEntry status. A bank transaction can support reconciliation without itself being the accounting entry.
+    lifecycle: Draft entries may be prepared and corrected under authorization. Posting establishes immutable accounting recognition. Corrections after posting use explicit reversal and replacement entries rather than editing history.
+    example: A customer payment of USD 10,000 is posted internally and later matched to a bank transaction. A JournalEntry records the debit to the bank/cash account and credit to the appropriate receivable or clearing account. Bank reconciliation confirms external settlement, while PaymentAllocation determines which invoices are settled.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-JOURNAL-ENTRY
