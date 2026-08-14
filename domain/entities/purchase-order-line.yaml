@@ -2,106 +2,93 @@ entity:
   name: PurchaseOrderLine
   namespace: cedm.domain
   kind: transaction_line
-  description: An individual procurement commitment within a PurchaseOrder that specifies what is being purchased, how much, at what commercial price, and how much has subsequently been received.
+  description: An individual procurement commitment within a PurchaseOrder that specifies what is being purchased, how much, at what commercial price, and how much has subsequently been received and accepted through traceable GoodsReceiptLine events.
   identity: {key: purchaseOrderLineId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: purchaseOrderLineId
       type: uuid
       required: true
       immutable: true
-      help:
-        summary: The immutable identity of the individual procurement commitment line.
-        usage: Used by receiving, invoice matching, fulfillment, reporting, integrations, and audit processes to reference the exact ordered commitment.
-        relationshipContext: It identifies the line independently of the PurchaseOrder's human-facing number and of the Product it references.
-        requiredMeaning: Required because each procurement commitment must be individually traceable.
+      help: {summary: The immutable identity of the individual procurement commitment line., usage: Used by receiving, invoice matching, fulfillment, reporting, integrations, and audit., relationshipContext: It identifies the line independently of the PurchaseOrder number and Product., workflowRole: Provides the exact demand key against which GoodsReceiptLine events and invoice lines are reconciled., requiredMeaning: Required because each procurement commitment must be independently traceable.}
     - name: lineNumber
       type: integer
       required: true
       minimum: 1
-      help:
-        summary: The business-facing sequence number used to identify this line within its PurchaseOrder.
-        usage: Used on purchase orders, receipts, invoices, correspondence, and user interfaces to identify a specific ordered item or service.
-        relationshipContext: It is meaningful within the containing PurchaseOrder and should not be treated as a globally unique identifier.
-        requiredMeaning: Required because users and downstream documents need a stable way to refer to individual order commitments.
+      help: {summary: The business-facing sequence number within the PurchaseOrder., usage: Used on purchase orders, receipts, invoices, correspondence, and user interfaces., relationshipContext: Scoped to the containing PurchaseOrder and distinct from GoodsReceiptLine.lineNumber., workflowRole: Provides a stable document reference for the ordered commitment., requiredMeaning: Required for procurement document clarity.}
     - name: quantity
       type: decimal
       required: true
       precision: 20
       scale: 6
-      help:
-        summary: The quantity of the Product or service committed to be purchased.
-        usage: Drives supplier commitments, expected receipts, inventory planning, fulfillment, and invoice matching.
-        relationshipContext: Quantity must be interpreted together with Product and UnitOfMeasure; the numeric value alone does not define what is being ordered.
-        requiredMeaning: Required because a purchase commitment must state how much is expected.
+      help: {summary: The quantity commercially committed to be purchased., usage: Drives supplier commitment, expected receipts, inventory planning, fulfillment, and invoice matching., relationshipContext: Interpreted with Product and UnitOfMeasure and the PurchaseOrder currency/pricing context., workflowRole: Baseline against which received, accepted, rejected, pending, and outstanding quantities are reconciled., requiredMeaning: Required because a purchase commitment must state how much is expected.}
     - name: unitPrice
       type: decimal
       required: true
       precision: 20
       scale: 4
-      help:
-        summary: The agreed monetary price for one unit of the referenced Product or service under the purchase terms.
-        usage: Used to calculate line value, compare supplier pricing, approve spend, match invoices, and support financial reporting.
-        relationshipContext: It applies to the ordered quantity and UnitOfMeasure and is interpreted using the PurchaseOrder currency; it should not be confused with a product's current list price.
-        requiredMeaning: Required when the procurement commitment is financially valued.
+      help: {summary: The agreed monetary price for one unit under the purchase terms., usage: Used for line valuation, spend approval, invoice matching, and financial reporting., relationshipContext: Applies to quantity and UnitOfMeasure and is interpreted using PurchaseOrder.currencyId., workflowRole: Provides the commercial price basis for downstream invoice matching., requiredMeaning: Required when the procurement commitment is financially valued.}
     - name: lineAmount
       type: decimal
       required: true
       precision: 20
       scale: 4
-      help:
-        summary: The total monetary value attributable to this purchase line under its agreed quantity, unit price, and applicable adjustments.
-        usage: Contributes to purchase-order totals, approval thresholds, budget consumption, accruals, and invoice reconciliation.
-        relationshipContext: It should reconcile with quantity, unitPrice, applicable discounts or adjustments, and the PurchaseOrder currency rather than being treated as an unrelated amount.
-        requiredMeaning: Required when line-level financial valuation is maintained.
+      help: {summary: The monetary value attributable to the committed line., usage: Contributes to PurchaseOrder totals, approval, budget consumption, accruals, and invoice reconciliation., relationshipContext: Reconciles with quantity, unitPrice, adjustments, and currency., workflowRole: Provides commercial value independently of the physical receipt event., requiredMeaning: Required when line-level financial valuation is maintained.}
     - name: receivedQuantity
       type: decimal
       required: true
       default: 0
       precision: 20
       scale: 6
-      help:
-        summary: The cumulative quantity recorded as received against this purchase commitment.
-        usage: Used to determine outstanding quantity, partial receipt, completion, supplier performance, inventory receipt, and three-way matching.
-        relationshipContext: It represents an accumulated operational result against quantity; detailed receipt events should remain traceable through receiving transactions rather than being replaced by this summary value.
-        requiredMeaning: Required with a default of zero so an unreceived line has an explicit outstanding state.
+      help: {summary: The cumulative quantity physically recorded as received from all applicable GoodsReceiptLine events., usage: Measures delivery progress and supplier fulfillment., relationshipContext: It is an operational summary derived from receipt events and must not be used as a substitute for receipt history., workflowRole: Increases when received quantities are posted and supports partial-fulfillment calculations., requiredMeaning: Required with zero before receipt begins.}
+    - name: acceptedQuantity
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help: {summary: The cumulative quantity accepted from all applicable GoodsReceiptLine events., usage: Drives accepted fulfillment, inventory admission, and three-way invoice matching., relationshipContext: Accepted quantity is distinct from physically received quantity because rejected or pending quantities are excluded., workflowRole: Represents the quantity that has passed applicable receiving/inspection controls., requiredMeaning: Required with zero before acceptance begins.}
+    - name: outstandingQuantity
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help: {summary: The remaining quantity still expected under the procurement commitment after accepted fulfillment, subject to over-receipt and cancellation policies., usage: Drives open-order monitoring and supplier follow-up., relationshipContext: Normally quantity minus acceptedQuantity, but must respect explicit cancellation, tolerance, and service-completion rules., workflowRole: Used to determine whether the line remains operationally open., requiredMeaning: Required for fulfillment visibility.}
   relationships:
     - name: purchaseOrder
       target: PurchaseOrder
       cardinality: '1'
       ownership: reference
-      help:
-        summary: Identifies the PurchaseOrder that contains this procurement commitment.
-        usage: Provides supplier, organizational, currency, delivery, approval, and lifecycle context for the line.
-        cardinalityMeaning: Every PurchaseOrderLine belongs to exactly one PurchaseOrder.
-        context: The line cannot be interpreted independently of its parent order because the parent supplies the commercial and procurement context.
+      help: {summary: Identifies the PurchaseOrder containing this procurement commitment., usage: Provides supplier, organization, currency, delivery, approval, and lifecycle context., cardinalityMeaning: Every PurchaseOrderLine belongs to exactly one PurchaseOrder., workflowRole: Parent order controls authorization, cancellation, and aggregate fulfillment state.}
     - name: product
       target: Product
       cardinality: '1'
       ownership: reference
-      help:
-        summary: Identifies the product or service being procured.
-        usage: Connects procurement demand to product master data, specifications, inventory, supplier catalogs, receiving, and reporting.
-        cardinalityMeaning: Exactly one Product or service definition is associated with the line under this model.
-        context: Product describes what is being purchased; quantity and price describe the commercial commitment for that product on this specific order.
+      help: {summary: Identifies the product or service being procured., usage: Connects procurement demand to product master data, inventory, supplier catalogs, receiving, and reporting., cardinalityMeaning: Exactly one Product/service is associated with the line., workflowRole: Defines what GoodsReceiptLine and downstream inventory events must normally represent.}
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: 0..1
       ownership: reference
-      help:
-        summary: Defines the unit in which the ordered and received quantities are expressed.
-        usage: Used for quantity interpretation, conversion, receiving, inventory, planning, and supplier communication.
-        cardinalityMeaning: Zero or one unit may be explicitly associated when the product's standard unit is inherited or when a unit is not applicable to the service.
-        context: The unit provides semantic meaning to quantity; without it, a value such as 100 cannot reliably be interpreted as pieces, kilograms, meters, hours, or another measure.
+      help: {summary: Defines the unit in which ordered and receipt quantities are expressed., usage: Supports quantity interpretation, conversion, receiving, inventory, planning, and supplier communication., cardinalityMeaning: Zero or one explicit unit; product default may be inherited., workflowRole: Must be resolvable before quantity reconciliation when units are not inherently unambiguous.}
+    - name: goodsReceiptLines
+      target: GoodsReceiptLine
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: The detailed receipt events that fulfill this purchase-order line., usage: Provides traceable evidence for received, accepted, rejected, and pending quantities., cardinalityMeaning: A line may have zero or many receipt events because deliveries can be partial, split, inspected, or corrected., workflowRole: These events are the authoritative operational evidence from which receipt summaries are derived.}
   invariants:
     - {id: PURCHASE-ORDER-LINE-001, rule: quantity must be greater than zero.}
     - {id: PURCHASE-ORDER-LINE-002, rule: receivedQuantity must be zero or greater.}
-    - {id: PURCHASE-ORDER-LINE-003, rule: receivedQuantity must not exceed quantity except where an explicit over-receipt tolerance or policy permits it.}
-    - {id: PURCHASE-ORDER-LINE-004, rule: lineNumber must be unique within its PurchaseOrder.}
+    - {id: PURCHASE-ORDER-LINE-003, rule: acceptedQuantity must be zero or greater and must not exceed receivedQuantity.}
+    - {id: PURCHASE-ORDER-LINE-004, rule: outstandingQuantity must not be negative and normally equals quantity minus acceptedQuantity after applicable policy adjustments.}
+    - {id: PURCHASE-ORDER-LINE-005, rule: lineNumber must be unique within its PurchaseOrder.}
+    - {id: PURCHASE-ORDER-LINE-006, rule: receivedQuantity and acceptedQuantity must reconcile to posted GoodsReceiptLine events rather than being independently changed without an approved reconciliation process.}
+    - {id: PURCHASE-ORDER-LINE-007, rule: acceptedQuantity must not exceed quantity except where an explicit over-receipt tolerance or policy permits it.}
   help:
-    summary: Represents one specific commitment to purchase a Product or service within a PurchaseOrder.
-    businessMeaning: PurchaseOrderLine is the level at which procurement demand becomes measurable and financially actionable. It states what the buyer expects from the Supplier, in what quantity and unit, at what price, and how much has actually been received.
-    usage: Used by purchasing, supplier communication, receiving, inventory, accounts payable, budgeting, supplier performance, and three-way matching processes.
-    relationshipContext: The line is owned by PurchaseOrder and references Product and UnitOfMeasure. The PurchaseOrder supplies Supplier, organization, currency, and delivery context. Receipt transactions update operational fulfillment against the line, while invoices may reference the line for financial matching.
-    lifecycle: A line is created as part of an order, becomes an executable commitment when the parent order is approved or issued, accumulates received quantities as goods or services arrive, and becomes operationally complete when the ordered commitment has been fulfilled or otherwise terminated by policy.
-    example: A purchase order line may specify 500 kilograms of a material at 4.25 currency units per kilogram. As deliveries arrive, receipt transactions record actual quantities and the line's receivedQuantity progresses from zero toward the ordered quantity.
+    summary: Represents one measurable procurement commitment and its accumulated fulfillment state.
+    businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records each actual receiving event. The line's received and accepted quantities are projections of those events, not replacements for the receipt history.
+    usage: Used by purchasing, supplier communication, receiving, inventory, accounts payable, budgeting, supplier performance, and three-way matching.
+    relationshipContext: PurchaseOrder supplies Supplier, organization, currency, and delivery context. Product and UnitOfMeasure define what and how much is being ordered. GoodsReceiptLine supplies actual receipt evidence. InvoiceLine supplies financial claim evidence.
+    workflowContext: PurchaseOrderLine → GoodsReceiptLine → inspection/disposition → accepted quantity → InventoryMovement → InvoiceLine matching. Rejected and pending quantities do not become unrestricted accepted inventory. Partial receipts leave outstandingQuantity open.
+    lifecycle: Created with the order, becomes executable when the parent order is approved/issued, accumulates receipt events, may become fully accepted, and closes when fulfilled or otherwise terminated by policy.
+    example: A PO line orders 500 units. Two deliveries record 300 and 200 received. Inspection accepts 295 and 198 respectively. The line therefore records 500 received, 493 accepted, and 7 units rejected, with remaining demand determined by the applicable procurement policy.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
