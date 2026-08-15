@@ -15,6 +15,7 @@ entity:
         businessMeaning: Identifies the customer role independently from the underlying Party identity.
         usage: Used by orders, invoices, receivables, service cases, pricing, credit, contracts, and customer analytics.
         relationshipContext: Party.partyId identifies who the customer is; customerId identifies that party's customer relationship.
+        workflowRole: Provides the stable customer reference carried into SalesOrder, Invoice, Payment, shipment, service, and receivables workflows.
         requiredMeaning: Required because customer transactions must resolve to one unambiguous customer relationship.
     - name: partyRoleId
       type: reference
@@ -27,6 +28,7 @@ entity:
         businessMeaning: Establishes that this commercial customer relationship belongs to a particular party and customer role instance.
         usage: Used to navigate from customer-specific processes to the common party-role model.
         relationshipContext: It preserves the separation between party identity and commercial role; a party may have other roles independently.
+        workflowRole: Supplies common identity and role information to all customer-facing workflows.
         requiredMeaning: Required because Customer cannot exist without a PartyRole foundation.
     - name: customerCode
       type: string
@@ -38,6 +40,7 @@ entity:
         businessMeaning: Provides a stable business reference suitable for forms, documents, integrations, and communication.
         usage: Used in orders, invoices, statements, service interactions, searches, and external integrations.
         relationshipContext: Unlike customerId, customerCode is intended for business recognition and may be governed by organizational numbering policies.
+        workflowRole: Used to identify the customer during order capture, billing, collections, service, and support interactions.
         requiredMeaning: Required where the enterprise uses a customer account reference as part of normal operations.
     - name: customerType
       type: enum
@@ -48,6 +51,7 @@ entity:
         businessMeaning: Helps determine appropriate pricing, credit, taxation, service, onboarding, and reporting rules.
         usage: Used in segmentation, credit policy, pricing, customer service, and analytics.
         relationshipContext: This is a customer-role classification; it does not replace Party.partyType, which identifies person versus organization.
+        workflowRole: Supplies customer classification to transaction validation and policy selection.
         valueSemantics:
           INDIVIDUAL: Customer relationship is primarily with an individual consumer.
           BUSINESS: Customer relationship is with a commercial organization or business account.
@@ -64,6 +68,7 @@ entity:
         businessMeaning: Determines whether credit-based commercial activity can proceed under the organization's credit policy.
         usage: Used by order validation, credit checks, collections, accounts receivable, and customer service.
         relationshipContext: Credit status affects transactions involving credit exposure; it does not change the underlying Party identity or customer role.
+        workflowRole: SalesOrder authorization must evaluate current credit policy before allowing additional exposure where credit controls apply.
         valueSemantics:
           NOT_REVIEWED: Credit eligibility has not yet been assessed.
           APPROVED: Customer is eligible under the current credit policy.
@@ -80,6 +85,7 @@ entity:
         businessMeaning: Represents the monetary exposure the enterprise is prepared to carry before additional approval or settlement is required.
         usage: Used during order authorization, accounts receivable monitoring, credit review, and risk reporting.
         relationshipContext: Must be interpreted with currency, outstanding exposure, payment terms, and credit status; it is not itself a payment term.
+        workflowRole: Provides one input to credit checks before confirming credit-bearing SalesOrders or extending additional exposure.
         optionalMeaning: Optional for cash-only customers or organizations without credit management.
     - name: paymentTerms
       type: reference
@@ -90,6 +96,7 @@ entity:
         businessMeaning: Converts the commercial agreement into an operational rule for due dates and settlement expectations.
         usage: Used by order pricing, invoicing, receivables, collections, and cash-flow forecasting.
         relationshipContext: Payment terms affect transactions involving the Customer but may be overridden by an explicit contract or transaction-level agreement where permitted.
+        workflowRole: Supplies default due-date and settlement expectations to SalesOrder and Invoice creation.
         optionalMeaning: Optional when payment timing is determined elsewhere or immediate settlement is standard.
     - name: status
       type: enum
@@ -101,6 +108,7 @@ entity:
         businessMeaning: Determines whether the customer may normally participate in new commercial activity.
         usage: Used by order capture, billing, service, onboarding, and account-maintenance processes.
         relationshipContext: A retired customer can remain referenced by historical orders and invoices; lifecycle state must not imply deletion.
+        workflowRole: New transaction workflows must evaluate status while historical transactions retain their original customer relationship.
         valueSemantics:
           ACTIVE: Customer may participate in normal commercial processes.
           INACTIVE: Customer relationship is retained but normally not used for new activity.
@@ -109,7 +117,7 @@ entity:
         requiredMeaning: Required for transaction eligibility decisions.
   relationships:
     - name: partyRole
-      target: PartyRole
+n      target: PartyRole
       cardinality: '1'
       ownership: reference
       help:
@@ -117,6 +125,7 @@ entity:
         usage: Used to resolve the underlying party and common role attributes.
         cardinalityMeaning: Exactly one PartyRole represents the customer relationship.
         context: Customer is a specialization of PartyRole rather than an alternative identity root.
+        workflowRole: Supplies the party identity shared by commercial, service, contractual, and financial processes.
     - name: addresses
       target: Address
       cardinality: 0..*
@@ -126,6 +135,7 @@ entity:
         usage: Used by sales, fulfillment, invoicing, tax, service, and communications.
         cardinalityMeaning: A customer may have multiple addresses because one location may not serve every business purpose.
         context: Address purpose and effective dates determine which address a process should use.
+        workflowRole: SalesOrder and Shipment use the applicable delivery address; Invoice uses the applicable billing/tax address according to policy.
     - name: transactions
       target: BusinessTransaction
       cardinality: 0..*
@@ -135,14 +145,45 @@ entity:
         usage: Used for customer history, financial exposure, reporting, service context, and analytics.
         cardinalityMeaning: A customer can participate in many transactions over its lifecycle.
         context: Transactions should preserve the customer relationship used at the time of the transaction even if customer master data later changes.
+        workflowRole: Provides the cross-process history linking customer demand, fulfillment, billing, settlement, and service.
+    - name: salesOrders
+      target: SalesOrder
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Lists SalesOrders created for this customer.
+        usage: Supports order history, credit exposure, fulfillment, customer service, and commercial analytics.
+        cardinalityMeaning: A customer may have many orders over time.
+        workflowRole: SalesOrder creation and confirmation use Customer status and credit policy; fulfillment then progresses independently through inventory and shipment workflows.
+    - name: invoices
+      target: Invoice
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Lists invoices representing financial claims against this customer.
+        usage: Supports accounts receivable, statements, collections, payment allocation, and reporting.
+        cardinalityMeaning: A customer may have many invoices, including partial or milestone billing.
+        workflowRole: Invoice issuance creates receivable exposure; PaymentAllocation and Payment reduce outstanding exposure according to settlement policy.
+    - name: payments
+      target: Payment
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Links payments made by or on behalf of this customer.
+        usage: Supports settlement history, allocation, refunds, reconciliation, and customer statements.
+        cardinalityMeaning: A customer may make many payments, and one payment may be allocated across multiple invoices.
+        workflowRole: Payment is settlement evidence; PaymentAllocation determines which customer invoices the money settles.
   invariants:
     - {id: CUSTOMER-001, rule: partyRole.roleType must equal CUSTOMER.}
     - {id: CUSTOMER-002, rule: customerCode must be unique within its ERP context.}
+    - {id: CUSTOMER-003, rule: BLOCKED or RETIRED customers must not normally create new SalesOrders or other new credit-bearing commercial commitments unless an explicit exception workflow permits it.}
+    - {id: CUSTOMER-004, rule: Historical SalesOrder, Invoice, Payment, and service records must remain attributable to the customer relationship even after status changes.}
   help:
     summary: Represents the commercial customer relationship between a Party and the enterprise.
     businessMeaning: Customer is not the person or organization itself; it is the role that makes that party a buyer or consumer within the enterprise's commercial model.
     usage: Central to sales, order management, pricing, billing, receivables, customer service, contracts, fulfillment, and customer analytics.
-    relationshipContext: Customer derives identity from PartyRole and ultimately Party. It connects outward to addresses and transactions while credit and payment terms provide commercial controls.
+    relationshipContext: Customer derives identity from PartyRole and ultimately Party. It connects outward to SalesOrder, Invoice, Payment, addresses, and transactions while credit and payment terms provide commercial controls.
+    workflowContext: Customer onboarding → credit/eligibility evaluation → SalesOrder → allocation → Shipment → Invoice → PaymentAllocation → Payment settlement. Customer status and credit status constrain new commercial activity but do not rewrite historical transactions.
     lifecycle: Customer onboarding establishes the relationship, operational activity uses ACTIVE status, and closure or blocking restricts new activity without invalidating historical transactions.
-    example: A company can be one Party, a Customer in one commercial relationship, a Supplier in procurement, and a ContractParty elsewhere without duplicating its identity.
+    example: A company can be one Party, a Customer in one commercial relationship, a Supplier in procurement, and a ContractParty elsewhere without duplicating its identity. A customer's order may be fulfilled and invoiced even while its later status becomes BLOCKED; the historical records remain valid while new credit exposure is restricted.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER}
