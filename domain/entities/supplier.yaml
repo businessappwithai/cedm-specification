@@ -48,12 +48,6 @@ entity:
       summary: Classifies the type of party acting as the supplier.
       usage: Supports onboarding, compliance, sourcing, tax, contracting, and reporting rules.
       relationshipContext: This classifies the supplier relationship; the underlying Party remains the authoritative source for identity and legal information.
-      valueSemantics:
-        INDIVIDUAL: A natural person providing goods or services under the supplier relationship.
-        BUSINESS: A commercial organization providing goods, services, materials, or other inputs.
-        GOVERNMENT: A government entity providing or supplying under an applicable commercial or public-sector relationship.
-        INTERNAL: An internal organizational unit acting as a source of goods or services across organizational boundaries.
-        OTHER: A supplier type not represented by the standard classifications.
       optionalMeaning: Optional when the underlying Party classification already provides this information or it is not yet known.
   - name: qualificationStatus
     type: enum
@@ -63,12 +57,7 @@ entity:
       summary: Indicates whether the supplier has passed the organization's qualification and sourcing controls.
       usage: Used to determine whether procurement may source from the supplier, whether additional review is required, and whether existing relationships need restriction.
       relationshipContext: Qualification is a procurement control and is distinct from Supplier.status; a supplier can remain an active master record while being temporarily suspended from sourcing.
-      valueSemantics:
-        NOT_REVIEWED: Supplier has not yet completed the applicable qualification assessment.
-        PENDING: Qualification is underway or awaiting required evidence or approval.
-        QUALIFIED: Supplier has satisfied the applicable qualification requirements.
-        SUSPENDED: Supplier qualification or sourcing eligibility is temporarily suspended.
-        DISQUALIFIED: Supplier has failed or is prohibited from satisfying the applicable qualification requirements.
+      workflowRole: Qualification gates creation or approval of new procurement commitments, while historical orders, receipts, invoices, and payments remain traceable.
       optionalMeaning: Optional where qualification is not part of the organization's supplier governance process.
   - name: paymentTerms
     type: reference
@@ -103,7 +92,6 @@ entity:
       summary: Connects Supplier to the common PartyRole representation of the supplier role.
       usage: Provides access to the underlying Party identity and shared role information without duplicating it in Supplier.
       cardinalityMeaning: Exactly one PartyRole represents this Supplier specialization.
-      context: Supplier adds procurement-specific semantics to the general Party/PartyRole model.
   - name: addresses
     target: Address
     cardinality: 0..*
@@ -112,7 +100,42 @@ entity:
       summary: Associates addresses relevant to supplier operations, such as ordering, invoicing, remittance, manufacturing, or pickup locations.
       usage: Used for purchase orders, logistics, tax, correspondence, supplier onboarding, and site-specific procurement processes.
       cardinalityMeaning: A supplier may have multiple addresses serving different business purposes.
-      context: Address is reusable location/contact data; the purpose of each address should be captured through the applicable address-role model where needed.
+  - name: purchaseOrders
+    target: PurchaseOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The procurement commitments issued to this Supplier.
+      usage: Supports supplier order history, spend analysis, fulfillment monitoring, cancellation, and procurement audit.
+      cardinalityMeaning: A supplier may receive many purchase orders over its lifecycle.
+      workflowRole: PurchaseOrder establishes a specific commitment derived from the supplier relationship; Supplier qualification and status govern whether new commitments may be created.
+  - name: goodsReceipts
+    target: GoodsReceipt
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Receiving records associated with fulfillment provided by this Supplier.
+      usage: Supports delivery performance, quality, discrepancy management, accepted-quantity analysis, and invoice matching.
+      cardinalityMeaning: A supplier may have many receipts across many purchase orders.
+      workflowRole: Receipt evidence measures what the supplier actually delivered and what was accepted; it does not itself settle the supplier's invoice.
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Financial claims issued by or associated with this Supplier.
+      usage: Supports accounts payable, three-way matching, tax, supplier statements, payment approval, and reconciliation.
+      cardinalityMeaning: A supplier may issue many invoices across purchase orders and receipts.
+      workflowRole: Supplier invoice is a financial claim that must be validated against applicable commitment and accepted receipt evidence before approval where policy requires.
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Payments in which this Supplier is the receiving party for procurement settlement.
+      usage: Supports supplier settlement history, remittance, reconciliation, cash management, and audit.
+      cardinalityMeaning: A supplier may receive many payments and a payment may settle one or many supplier invoices through PaymentAllocation.
+      workflowRole: Payment settles approved financial claims; it does not prove receipt or invoice matching.
   - name: transactions
     target: BusinessTransaction
     cardinality: 0..*
@@ -138,13 +161,18 @@ entity:
     rule: supplierCode must be unique within its ERP or organizational procurement context.
   - id: SUPPLIER-003
     rule: A BLOCKED or RETIRED supplier must not be selected for new procurement transactions unless an explicit exception policy permits it.
+  - id: SUPPLIER-004
+    rule: Supplier qualification/status may restrict new PurchaseOrder creation or approval but must not invalidate historical PurchaseOrder, GoodsReceipt, Invoice, Payment, or PaymentAllocation records.
+  - id: SUPPLIER-005
+    rule: Supplier invoices and payments must remain traceable through the applicable PurchaseOrder, GoodsReceipt, Invoice, and PaymentAllocation relationships; supplier master state must not be used as a substitute for transaction evidence.
   help:
     summary: Represents the procurement-facing role of a Party that supplies goods, services, materials, assets, or other business inputs.
     businessMeaning: Supplier is not simply another name for Party. Party provides identity; PartyRole establishes the supplier role; Supplier adds procurement-specific qualification, commercial defaults, sourcing eligibility, and supplier-product relationships.
     usage: Used by supplier onboarding, sourcing, procurement, PurchaseOrder, receiving, accounts payable, invoice matching, payment, supplier performance, compliance, and spend analytics.
-    relationshipContext: Supplier connects PartyRole to Product, Address, BusinessTransaction, and PaymentTerm. PurchaseOrder records a specific procurement commitment, Receipt/InventoryMovement records physical receipt, Invoice records the supplier's financial claim, and Payment records settlement. These must remain distinct from the supplier master relationship.
+    relationshipContext: Supplier connects PartyRole to Product, Address, PurchaseOrder, GoodsReceipt, Invoice, Payment, BusinessTransaction, and PaymentTerm. PurchaseOrder records a specific procurement commitment, GoodsReceipt records physical or service fulfillment, Invoice records the supplier financial claim, and Payment records settlement. These must remain distinct from the supplier master relationship.
     lifecycle: A supplier may be onboarded and not yet reviewed, qualified for sourcing, temporarily suspended, made inactive, or retired. Lifecycle state changes restrict future procurement activity without rewriting historical transactions.
-    example: A container-repair company is onboarded as a Supplier. Its Party identity contains the legal organization information, PartyRole establishes its supplier role, Supplier records qualification and sourcing eligibility, Product associations identify repair materials/services it can provide, PurchaseOrders establish specific commitments, and Invoices/Payments record the resulting financial cycle.
+    workflowContext: Supplier qualification/status → PurchaseOrder eligibility → supplier fulfillment → GoodsReceipt acceptance → InventoryMovement → Invoice three-way matching → Invoice approval → Payment → PaymentAllocation/settlement. Each stage provides different evidence and must not be collapsed into Supplier status.
+    example: A container-repair company is onboarded as a Supplier. Its Party identity contains legal organization information, PartyRole establishes its supplier role, Supplier records qualification and sourcing eligibility, PurchaseOrders establish commitments, GoodsReceipts record accepted delivery, Invoices provide financial claims, and Payments settle approved claims.
 specification:
   version: 0.2.0
   status: draft
