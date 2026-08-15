@@ -26,7 +26,7 @@ entity:
     help:
       summary: The sequence of this line within its GoodsReceipt.
       usage: Used by receiving documents, operators, inspection, and reconciliation.
-      relationshipContext: Scoped to GoodsReceipt and distinct from the PurchaseOrderLine line number.
+      relationshipContext: Scoped to GoodsReceipt and distinct from the PurchaseOrderLine and InvoiceLine line numbers.
       workflowRole: Provides a stable human-facing reference for the receiving event.
       requiredMeaning: Required for receipt document clarity.
   - name: receivedQuantity
@@ -134,6 +134,15 @@ entity:
       usage: Provides auditability from receiving to inventory state.
       cardinalityMeaning: A line may create multiple movements when stock is split across locations or requires separate controlled postings.
       workflowRole: Only authorized accepted quantities may generate normal receipt movements.
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Identifies invoice lines that claim amounts against the accepted quantity represented by this receipt line.
+      usage: Supports line-level three-way matching and audit of which accepted receipt evidence supports each billed quantity.
+      cardinalityMeaning: One receipt line may support zero, one, or multiple invoice lines, subject to the applicable matching and billing policy.
+      workflowRole: Provides the accepted-fulfillment side of invoice matching; rejected and pending quantities cannot be used as ordinary accepted receipt evidence.
   invariants:
   - id: GOODS-RECEIPT-LINE-001
     rule: receivedQuantity must be greater than or equal to zero.
@@ -145,14 +154,16 @@ entity:
     rule: product must agree with PurchaseOrderLine.product unless an authorized substitution workflow exists.
   - id: GOODS-RECEIPT-LINE-005
     rule: rejectedQuantity and pendingInspectionQuantity must not be posted as unrestricted accepted inventory.
+  - id: GOODS-RECEIPT-LINE-006
+    rule: InvoiceLine matching must use acceptedQuantity and applicable price/quantity tolerances; receivedQuantity alone cannot establish a MATCHED invoice line.
   help:
-    summary: Provides the line-level bridge between what was ordered and what was actually received and accepted.
-    businessMeaning: GoodsReceiptLine solves the many-to-many fulfillment problem that cannot safely be represented by header-level receipt quantities. One PurchaseOrderLine may be fulfilled by many receipt lines, and one GoodsReceipt may contain many purchase-order lines.
+    summary: Provides the line-level bridge between what was ordered, what was actually received and accepted, and what can legitimately support a supplier invoice.
+    businessMeaning: GoodsReceiptLine solves the many-to-many fulfillment problem that cannot safely be represented by header-level receipt quantities. One PurchaseOrderLine may be fulfilled by many receipt lines, and one GoodsReceipt may contain many purchase-order lines. Accepted receipt lines are also the authoritative fulfillment evidence for three-way matching.
     usage: Used by receiving, quality, procurement, inventory, supplier management, accounts payable, invoice matching, returns, and audit.
     relationshipContext: PurchaseOrderLine is the commitment. GoodsReceiptLine is the actual receipt result. InventoryMovement is the stock consequence of accepted quantity. InvoiceLine is the financial claim that can be matched against accepted receipt evidence.
-    workflowContext: PurchaseOrderLine → GoodsReceiptLine → inspection/disposition → accepted quantity → InventoryMovement → invoice three-way matching. Rejected or pending quantities follow exception/quality workflows instead of normal inventory availability.
-    lifecycle: Draft receiving line becomes recorded, inspected where required, accepted/rejected/partially accepted, and then retained as historical evidence. Corrections use controlled reversals or disposition adjustments.
-    example: A PO line orders 100 units. A receipt line records 96 received: 94 accepted, 2 rejected, and 0 pending. Only 94 contributes to accepted fulfillment and normal inventory receipt; the 2 rejected units may enter a return or supplier-dispute workflow.
+    workflowContext: PurchaseOrderLine → GoodsReceiptLine → inspection/disposition → accepted quantity → InventoryMovement; separately PurchaseOrderLine → InvoiceLine. Three-way matching reconciles ordered quantity/price, accepted receipt quantity, and billed quantity/price.
+    lifecycle: Draft receiving line becomes recorded, inspected where required, accepted/rejected/partially accepted, matched to invoice evidence when applicable, and then retained as historical evidence. Corrections use controlled reversals or disposition adjustments.
+    example: A PO line orders 100 units. A receipt line records 96 received: 94 accepted, 2 rejected, and 0 pending. Only 94 supports normal inventory receipt and three-way invoice matching. An invoice for 96 therefore requires an exception unless policy explicitly permits billing rejected quantity.
 specification:
   version: 0.2.0
   status: draft
