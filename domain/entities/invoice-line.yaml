@@ -2,7 +2,7 @@ entity:
   name: InvoiceLine
   namespace: cedm.domain
   kind: financial_transaction_line
-  description: A billed product, service, quantity, tax, or adjustment line on an invoice.
+  description: A billed product, service, quantity, tax, credit, debit, or adjustment line on an Invoice, with optional procurement fulfillment evidence used for line-level matching.
   identity:
     key: invoiceLineId
     type: uuid
@@ -14,53 +14,41 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the invoice line record associated with this InvoiceLine. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The immutable identity of the invoice line.
+      usage: Used by billing, procurement matching, tax, accounting, payment, audit, and integration processes.
+      relationshipContext: Identifies the billed line independently of its invoice, product, purchase-order line, and receipt evidence.
+      requiredMeaning: Required for line-level financial traceability.
   - name: lineNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: Captures the business meaning of line number for the InvoiceLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The sequence of the line within its Invoice.
+      usage: Used in documents, review, matching, reconciliation, and customer or supplier communication.
+      relationshipContext: Scoped to the parent Invoice and distinct from PurchaseOrderLine.lineNumber.
+      requiredMeaning: Required for deterministic invoice-line identification.
   - name: quantity
     type: decimal
     required: false
     precision: 20
     scale: 6
     help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The quantity being billed on this invoice line in its declared UnitOfMeasure.
+      usage: Used for invoice calculation, procurement matching, tax, and settlement.
+      relationshipContext: For purchase invoices, this quantity is compared with accepted GoodsReceiptLine quantities rather than merely ordered quantities when three-way matching applies.
+      workflowRole: Supplies the billed quantity for ordered-versus-received-versus-invoiced reconciliation.
+      optionalMeaning: Optional for purely monetary, service, or adjustment lines where quantity is not meaningful.
   - name: unitPrice
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of unit price for the InvoiceLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The monetary price billed per unit under the invoice's pricing basis.
+      usage: Used for line valuation and purchase-order price matching.
+      relationshipContext: For procurement invoices it can be compared with the applicable PurchaseOrderLine price subject to tolerance policy.
+      workflowRole: Participates in price variance detection and invoice approval.
+      optionalMeaning: Optional for non-quantity-based charges.
   - name: taxAmount
     type: decimal
     required: true
@@ -68,87 +56,115 @@ entity:
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of tax amount for the InvoiceLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Tax amount attributable to this invoice line.
+      usage: Used for tax reporting, invoice totals, accounting, and reconciliation.
+      relationshipContext: Must be interpreted with tax jurisdiction, product, party, date, and invoice context.
+      requiredMeaning: Required, including zero when no tax applies.
   - name: lineAmount
     type: decimal
     required: true
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of line amount for the InvoiceLine. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Net financial amount represented by this invoice line after applicable line-level pricing adjustments and before or including tax according to the invoice calculation convention.
+      usage: Used for invoice totals, accounting, matching, payment, and reporting.
+      relationshipContext: Must reconcile with quantity, unit price, discounts, tax treatment, and the parent Invoice calculation convention.
+      requiredMeaning: Required for a financially actionable invoice line.
   - name: description
     type: string
     required: false
     maxLength: 1000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InvoiceLine records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InvoiceLine; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Human-readable description of the billed item or adjustment.
+      usage: Supports review, documents, exception handling, and audit.
+      relationshipContext: Supplements Product identity and must not be used as the sole matching key when a controlled product exists.
+      optionalMeaning: Optional when Product and source transaction references fully identify the charge.
+  - name: matchingStatus
+    type: enum
+    required: true
+    default: NOT_APPLICABLE
+    values: [NOT_APPLICABLE, UNMATCHED, MATCHED, PARTIALLY_MATCHED, EXCEPTION, WAIVED]
+    help:
+      summary: The current result of matching this invoice line against its applicable procurement commitment and accepted receipt evidence.
+      usage: Controls invoice approval, exception routing, accounts-payable review, and three-way matching reporting.
+      relationshipContext: It summarizes matching evidence; it does not replace PurchaseOrderLine, GoodsReceiptLine, or an auditable matching decision.
+      workflowRole: An invoice line becomes MATCHED only when the applicable ordered, accepted, and billed quantities/prices satisfy policy tolerances.
+      valueSemantics:
+        NOT_APPLICABLE: No procurement matching is required, such as a sales invoice or approved non-PO charge.
+        UNMATCHED: Required matching evidence has not yet been established.
+        MATCHED: Required matching criteria are satisfied.
+        PARTIALLY_MATCHED: Some billed quantity/value has acceptable receipt evidence while an open portion remains.
+        EXCEPTION: A variance requires review or resolution.
+        WAIVED: An authorized user or policy has explicitly waived a required variance.
+      requiredMeaning: Required so financial workflow can distinguish pending matching from approved matching.
   relationships:
   - name: invoice
     target: Invoice
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects InvoiceLine to Invoice so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Invoice records associated with a InvoiceLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the parent Invoice containing this billed line.
+      usage: Supplies party, currency, invoice type, date, payment, and accounting context.
+      cardinalityMeaning: Every InvoiceLine belongs to exactly one Invoice.
+      workflowRole: Parent lifecycle controls whether the line is draft, issued, cancelled, or void.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects InvoiceLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a InvoiceLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the Product or service being billed.
+      usage: Supports quantity, unit, tax, pricing, and matching rules.
+      cardinalityMeaning: Optional for free-text or adjustment lines.
+      workflowRole: Provides the controlled identity used when comparing invoice, purchase-order, and receipt lines.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects InvoiceLine to UnitOfMeasure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a InvoiceLine.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Identifies the unit in which the invoice quantity is expressed.
+      usage: Supports quantity conversion and matching.
+      cardinalityMeaning: Optional only when the product or charge has an unambiguous non-quantity basis.
+      workflowRole: Must be compatible with the PurchaseOrderLine and GoodsReceiptLine units or have an approved conversion.
+  - name: purchaseOrderLine
+    target: PurchaseOrderLine
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the procurement commitment against which this invoice line is billed when a purchase order is required.
+      usage: Provides ordered quantity, agreed price, product, and unit context for three-way matching.
+      cardinalityMeaning: Optional for non-PO invoices or charges explicitly permitted outside procurement commitments.
+      workflowRole: Supplies the ordered side of ordered-versus-received-versus-invoiced reconciliation.
+  - name: goodsReceiptLines
+    target: GoodsReceiptLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Identifies the accepted receipt lines that provide fulfillment evidence for this billed line.
+      usage: Supports three-way matching at receipt-line granularity, including partial and multiple receipts.
+      cardinalityMeaning: An invoice line may match zero, one, or multiple receipt lines; zero is valid while matching is pending or when receipt matching is not required.
+      workflowRole: Supplies accepted quantity and rejection/inspection context used to determine whether the billed quantity is supported.
   invariants:
   - id: INVOICE-LINE-001
     rule: lineNumber must be unique within the invoice.
+  - id: INVOICE-LINE-002
+    rule: quantity must be greater than zero when supplied.
+  - id: INVOICE-LINE-003
+    rule: For a purchase invoice requiring three-way matching, a MATCHED line must have applicable PurchaseOrderLine and accepted GoodsReceiptLine evidence unless an authorized matching exception or policy applies.
+  - id: INVOICE-LINE-004
+    rule: Billed quantity must not exceed the sum of matched accepted receipt quantities beyond the configured over-billing tolerance.
+  - id: INVOICE-LINE-005
+    rule: Billed price must not exceed the applicable PurchaseOrderLine price beyond the configured price tolerance unless an authorized variance is approved.
+  - id: INVOICE-LINE-006
+    rule: WAIVED or EXCEPTION matching states require an auditable reason or authorization according to the applicable policy.
   help:
-    summary: Represents a financial transaction line called InvoiceLine within the CEDM business model.
-    businessMeaning: InvoiceLine is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate InvoiceLine records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Invoice, Product, UnitOfMeasure.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical InvoiceLine record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: Represents one financial claim line and, where applicable, its exact procurement fulfillment evidence.
+    businessMeaning: InvoiceLine is the billing-side counterpart of PurchaseOrderLine and GoodsReceiptLine in procure-to-pay. It answers what the supplier is billing, while the PO answers what was committed and the receipt lines answer what was accepted.
+    usage: Used by accounts payable, procurement, receiving, tax, accounting, payment approval, audit, and three-way matching processes.
+    relationshipContext: Invoice supplies financial claim context. PurchaseOrderLine supplies ordered commitment. GoodsReceiptLine supplies accepted fulfillment. Product and UnitOfMeasure provide controlled identity and measurement context.
+    workflowContext: Supplier invoice received → InvoiceLine identified → PurchaseOrderLine matched → accepted GoodsReceiptLines matched → quantity/price/tax evaluated → MATCHED, PARTIALLY_MATCHED, EXCEPTION, or WAIVED → invoice approval → payment. Matching must not treat shipment arrival or raw received quantity as equivalent to accepted quantity.
+    lifecycle: A line begins unmatched or not applicable, may become partially matched, matched, exception, or waived, and remains historical evidence after invoice posting. Corrections use credit/debit documents or controlled adjustments rather than silently rewriting posted lines.
+    example: A PO line commits 100 units. Two GoodsReceiptLines record 60 and 30 accepted units, with 10 rejected. A supplier invoice for 90 units can be fully matched because accepted receipt quantity is 90. An invoice for 100 units would produce an exception unless policy permits the outstanding 10 under an authorized accrual or tolerance process.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-INVOICE-LINE
