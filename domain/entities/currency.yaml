@@ -86,7 +86,7 @@ entity:
       summary: Links the currency to products whose standard or reference prices may be expressed in it.
       usage: Supports catalog pricing and planning.
       cardinalityMeaning: A currency may be used by many products.
-      workflowRole: Provides a monetary context for optional Product standard pricing; transaction currency remains authoritative at transaction level.
+      workflowRole: Provides monetary context for optional Product standard pricing; transaction currency remains authoritative at transaction level.
   - name: salesOrders
     target: SalesOrder
     cardinality: 0..*
@@ -141,6 +141,24 @@ entity:
       usage: Supports accounting, reporting, consolidation, and audit.
       cardinalityMeaning: One currency may be represented by many journal entries.
       workflowRole: Provides currency context for accounting recognition; ledger/base-currency requirements may require additional currency amounts.
+  - name: exchangeRatesFrom
+    target: ExchangeRate
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Exchange rates in which this currency is the source denomination.
+      usage: Supports auditable conversion of Money values from this currency into another currency.
+      cardinalityMeaning: A currency can be the source for many rates over time and against many target currencies.
+      workflowRole: Supplies the source-side rate history used by multi-currency settlement and accounting workflows.
+  - name: exchangeRatesTo
+    target: ExchangeRate
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Exchange rates in which this currency is the target denomination.
+      usage: Supports auditable conversion of foreign Money values into this currency.
+      cardinalityMeaning: A currency can be the target for many rates over time and from many source currencies.
+      workflowRole: Supplies the target-side rate history used by settlement, reporting, and accounting conversion.
   invariants:
   - id: CURRENCY-001
     rule: code must conform to the ISO 4217 three-letter currency-code convention where an ISO code exists.
@@ -151,15 +169,15 @@ entity:
   - id: CURRENCY-004
     rule: Monetary amounts in different currencies must not be directly compared, summed, allocated, or reconciled without an explicit approved exchange-rate/conversion context.
   - id: CURRENCY-005
-    rule: PaymentAllocation between a Payment and Invoice in different currencies requires an explicit conversion rate, effective timestamp, rate source, and rounding policy when permitted.
+    rule: PaymentAllocation between a Payment and Invoice in different currencies requires an explicit ExchangeRate, effective timestamp, rate source, and rounding policy when permitted.
   help:
     summary: Defines the monetary denomination that gives financial amounts their business meaning.
     businessMeaning: Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting.
-    usage: Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, and financial reporting.
-    relationshipContext: Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. Currency provides the denomination context across all of them.
-    workflowContext: Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, conversion must be explicit and traceable; currency master data must never be used as a substitute for an exchange-rate record.
+    usage: Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting.
+    relationshipContext: Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations.
+    workflowContext: Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record.
     lifecycle: Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence.
-    example: A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved conversion context needed to settle the USD invoice, BankTransaction provides the bank evidence in EUR, and accounting records both transaction and applicable base-currency values according to accounting policy.
+    example: A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
 specification:
   version: 0.2.0
   status: draft
