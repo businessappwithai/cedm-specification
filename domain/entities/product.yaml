@@ -5,233 +5,91 @@ entity:
   description: A canonical business offering or managed item that can be purchased, sold, stocked, consumed, delivered, subscribed to, or otherwise referenced by commercial and operational processes.
   identity: {key: productId, type: uuid, generated: true, immutable: true}
   attributes:
-    - name: productId
-      type: uuid
-      required: true
-      immutable: true
-      help:
-        summary: Stable CEDM identity of the product master record.
-        businessMeaning: Identifies the product concept independently of price, inventory balance, supplier relationship, or transaction occurrence.
-        usage: Used by SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, InventoryBalance, InventoryMovement, Shipment-related processes, maintenance, manufacturing, and reporting.
-        relationshipContext: Product identity is referenced by transactions rather than duplicated into each transaction as a new master identity.
-        workflowRole: Provides the common product identity through demand, procurement, receipt, stock, fulfillment, billing, consumption, and reporting workflows.
-        requiredMeaning: Required because all product-dependent workflows need one canonical product identity.
-    - name: code
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help:
-        summary: Enterprise business code used to recognize the product.
-        businessMeaning: Human- and system-facing product reference used across operational and commercial processes.
-        usage: Used in catalogs, orders, invoices, procurement, inventory, labels, reports, and integrations.
-        relationshipContext: The code identifies the product concept; SKU and supplier-specific codes may identify operational or partner representations.
-        workflowRole: Used to resolve product selection during order capture, purchasing, receiving, stock operations, and billing.
-        requiredMeaning: Required where the enterprise maintains a canonical product catalog.
-    - name: name
-      type: string
-      required: true
-      maxLength: 300
-      help:
-        summary: Human-readable product name.
-        businessMeaning: Primary business description used to recognize the product across applications and documents.
-        usage: Used in catalogs, forms, documents, search, reports, and user interfaces.
-        relationshipContext: Describes the product master rather than a transaction-specific description.
-        workflowRole: Provides readable product identity to users throughout the business workflow.
-        requiredMeaning: Required for usable product master data.
-    - name: description
-      type: string
-      required: false
-      maxLength: 4000
-      help:
-        summary: Extended business description of the product.
-        businessMeaning: Captures descriptive information not represented by structured attributes.
-        usage: Used for catalogs, sales enablement, service information, documentation, and search.
-        relationshipContext: Complements structured characteristics and must not be the sole source for machine-enforced rules.
-        optionalMeaning: Optional where structured attributes and name are sufficient.
-    - name: productType
-      type: enum
-      required: true
-      values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
-      help:
-        summary: Defines the fundamental business behavior of the product.
-        businessMeaning: Determines which downstream processes may apply to the product.
-        usage: Used by sales, procurement, inventory, fulfillment, accounting, pricing, manufacturing, and lifecycle processes.
-        relationshipContext: Classification does not replace specialized transactional entities such as Asset, Subscription, or ServiceCase.
-        workflowRole: Controls applicability of stock, recurring billing, service fulfillment, asset tracking, and bundle processing.
-        valueSemantics:
-          GOOD: Physical item normally transferred to a customer or another party.
-          MATERIAL: Physical input, component, consumable, or production resource.
-          SERVICE: Non-physical offering fulfilled through an activity or service process.
-          SUBSCRIPTION: Offering whose commercial relationship normally recurs over time.
-          ASSET: Product concept that may become an identifiable managed asset.
-          BUNDLE: Commercial grouping of products or services.
-          OTHER: Product concept outside the standard classifications.
-        requiredMeaning: Required because product-dependent workflow behavior starts with product classification.
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
-      help:
-        summary: Controls product lifecycle eligibility for future business activity.
-        businessMeaning: Determines whether the product can normally be introduced, sold, purchased, stocked, or otherwise used.
-        usage: Used by catalog, sales, procurement, inventory, manufacturing, and fulfillment validation.
-        relationshipContext: Lifecycle status constrains future activity but does not invalidate historical transactions referencing the product.
-        workflowRole: New transactions must evaluate product status before allowing applicable activity; existing commitments follow their own lifecycle and exception policies.
-        valueSemantics:
-          DRAFT: Definition is being prepared and is not generally available.
-          ACTIVE: Approved for applicable normal business use.
-          DISCONTINUED: No longer intended for new introduction but may remain valid for existing obligations or stock depletion.
-          BLOCKED: Temporarily or conditionally prohibited.
-          RETIRED: Permanently removed from normal use while historical references remain valid.
-        requiredMeaning: Required for transaction eligibility.
-    - name: sku
-      type: string
-      required: false
-      maxLength: 100
-      help:
-        summary: Stock keeping identifier for inventory or retail operations.
-        businessMeaning: Provides an operational identifier that can differ from the enterprise product code.
-        usage: Used in warehouse, retail, e-commerce, picking, labeling, and inventory processes.
-        relationshipContext: SKU is an operational identifier and is not assumed globally unique unless separately governed.
-        optionalMeaning: Optional for services, non-stock offerings, or organizations using another inventory identifier.
-    - name: unitOfMeasure
-      type: reference
-      target: UnitOfMeasure
-      required: false
-      help:
-        summary: Standard unit in which product quantity is normally expressed.
-        businessMeaning: Gives semantic meaning to quantities such as pieces, kilograms, liters, hours, or other measures.
-        usage: Used by SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, InventoryBalance, InventoryMovement, manufacturing, logistics, and reporting.
-        relationshipContext: Transaction-specific units may differ and require valid conversion rules.
-        workflowRole: Quantity validation, receipt, allocation, issue, billing, and stock reconciliation depend on compatible units.
-        optionalMeaning: Optional when quantity is not meaningful or is defined by another measurement model.
-    - name: standardPrice
-      type: money
-      required: false
-      help:
-        summary: Reference monetary price for the product.
-        businessMeaning: Baseline used for planning, catalog display, valuation, or default pricing; it is not automatically the transaction price.
-        usage: Used as an input to pricing, quoting, planning, and analysis.
-        relationshipContext: Final transaction price may be determined by price lists, contracts, promotions, customer agreements, or transaction rules.
-        workflowRole: Supplies an optional pricing input without overriding negotiated transaction pricing.
-        optionalMeaning: Optional where pricing is dynamic or externally determined.
-    - name: taxCategory
-      type: string
-      required: false
-      maxLength: 100
-      help:
-        summary: Product-side tax classification.
-        businessMeaning: Input to tax determination for applicable transactions.
-        usage: Used by pricing, invoicing, tax calculation, reporting, and compliance.
-        relationshipContext: Classification is not itself a tax rate or tax transaction.
-        workflowRole: Supplies product context to transaction-level tax determination.
-        optionalMeaning: Optional when tax treatment comes entirely from another source.
-    - name: createdAt
-      type: datetime
-      required: true
-      systemManaged: true
-      help:
-        summary: Timestamp when the product master record was created.
-        usage: Used for governance, audit, synchronization, and master-data reporting.
-        relationshipContext: Indicates creation of the CEDM record, not invention or first commercial availability of the product.
-        workflowRole: Establishes the beginning of master-data audit history.
-        requiredMeaning: Required for traceability.
-    - name: updatedAt
-      type: datetime
-      required: true
-      systemManaged: true
-      help:
-        summary: Timestamp of the latest product master modification.
-        usage: Used by integrations, caching, audit, change detection, and reporting.
-        relationshipContext: Describes master-record modification rather than stock or transaction change.
-        workflowRole: Supports synchronization of downstream product consumers.
-        requiredMeaning: Required for reliable change tracking.
+  - {name: productId, type: uuid, required: true, immutable: true}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100}
+  - {name: name, type: string, required: true, maxLength: 300}
+  - {name: description, type: string, required: false, maxLength: 4000}
+  - name: productType
+    type: enum
+    required: true
+    values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+  - {name: sku, type: string, required: false, maxLength: 100}
+  - {name: unitOfMeasure, type: reference, target: UnitOfMeasure, required: false}
+  - {name: standardPrice, type: money, required: false}
+  - {name: taxCategory, type: string, required: false, maxLength: 100}
+  - {name: createdAt, type: datetime, required: true, systemManaged: true}
+  - {name: updatedAt, type: datetime, required: true, systemManaged: true}
   relationships:
-    - name: category
-      target: ProductCategory
-      cardinality: 0..1
-      ownership: reference
-      help:
-        summary: Classifies the product within a product taxonomy.
-        usage: Supports assortment, reporting, navigation, pricing, procurement, and analytics.
-        cardinalityMeaning: Zero or one primary category under this model.
-        workflowRole: Provides classification context without becoming the source of inventory or transaction state.
-    - name: suppliers
-      target: Supplier
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Identifies suppliers capable of providing the product.
-        usage: Supports sourcing, purchasing, supplier comparison, replenishment, and supply planning.
-        cardinalityMeaning: Multiple suppliers may provide one product.
-        workflowRole: Supplier-product relationships feed PurchaseOrderLine sourcing and supplier-specific procurement policy.
-    - name: locations
-      target: Location
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Associates operational locations where the product may be handled or made available.
-        usage: Supports warehouse, inventory, retail, distribution, and fulfillment configuration.
-        cardinalityMeaning: A product can apply to multiple locations.
-        workflowRole: Provides location applicability; actual quantity remains in InventoryBalance.
-    - name: salesOrderLines
-      target: SalesOrderLine
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Links product master data to customer demand lines.
-        usage: Supports demand history, product sales analysis, fulfillment, and traceability.
-        cardinalityMeaning: A product can occur on many sales order lines.
-        workflowRole: Product status and unit rules are evaluated when demand is created and fulfilled.
-    - name: purchaseOrderLines
-      target: PurchaseOrderLine
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Links product master data to procurement commitments.
-        usage: Supports purchasing history, sourcing, receiving, and supply analysis.
-        cardinalityMeaning: A product can occur on many purchase order lines.
-        workflowRole: Product identity and procurement rules flow into receipt and matching processes.
-    - name: inventoryBalances
-      target: InventoryBalance
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Links the product to its current stock state across locations.
-        usage: Supports availability, replenishment, allocation, picking, counting, and reporting.
-        cardinalityMeaning: A product may have many balances across locations.
-        workflowRole: InventoryBalance is current state and must reconcile with InventoryMovement history.
-    - name: inventoryMovements
-      target: InventoryMovement
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Links the product to historical inventory events.
-        usage: Supports receipt, issue, transfer, return, reservation, release, adjustment, and audit analysis.
-        cardinalityMeaning: A product can participate in many inventory movements.
-        workflowRole: Product identity is carried into the inventory event ledger.
-    - name: invoiceLines
-      target: InvoiceLine
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Links product master data to billed demand or supplied goods/services.
-        usage: Supports invoicing history, revenue/cost analysis, tax, and reconciliation.
-        cardinalityMeaning: A product can occur on many invoice lines.
-        workflowRole: Product identity supports invoice calculation and procure-to-pay three-way matching.
+  - name: category
+    target: ProductCategory
+    cardinality: 0..1
+    ownership: reference
+  - name: suppliers
+    target: Supplier
+    cardinality: 0..*
+    ownership: reference
+  - name: locations
+    target: Location
+    cardinality: 0..*
+    ownership: reference
+  - name: salesOrderLines
+    target: SalesOrderLine
+    cardinality: 0..*
+    ownership: reference
+  - name: purchaseOrderLines
+    target: PurchaseOrderLine
+    cardinality: 0..*
+    ownership: reference
+  - name: inventoryBalances
+    target: InventoryBalance
+    cardinality: 0..*
+    ownership: reference
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
   invariants:
-    - {id: PRODUCT-001, rule: code must be unique within its ERP context.}
-    - {id: PRODUCT-002, rule: A product that is DISCONTINUED, BLOCKED, or RETIRED must not be newly introduced into an incompatible transaction without an explicit exception or lifecycle transition.}
-    - {id: PRODUCT-003, rule: Product lifecycle changes must not rewrite or invalidate historical SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, InventoryMovement, or InventoryBalance history.}
-    - {id: PRODUCT-004, rule: Any transaction quantity referencing a product must use a compatible UnitOfMeasure or an approved conversion rule.}
+  - id: PRODUCT-001
+    rule: code must be unique within its ERP context.
+  - id: PRODUCT-002
+    rule: DISCONTINUED, BLOCKED, or RETIRED products cannot be newly introduced into incompatible transactions without an explicit exception or lifecycle transition.
+  - id: PRODUCT-003
+    rule: A Product status change must trigger dependency validation across active SalesOrderLine, PurchaseOrderLine, inventory, fulfillment, and billing workflows before future use is restricted.
+  - id: PRODUCT-004
+    rule: Product master changes must not rewrite historical transaction descriptions, units, prices, tax determinations, quantities, or other evidence required to reproduce completed transactions.
+  - id: PRODUCT-005
+    rule: Any transaction quantity referencing a Product must use a compatible UnitOfMeasure or an approved conversion rule.
+  - id: PRODUCT-006
+    rule: Changing the default UnitOfMeasure must trigger validation of open transaction lines and inventory processes; it must not silently reinterpret existing quantities.
+  - id: PRODUCT-007
+    rule: Changing taxCategory must trigger re-evaluation of applicable future tax determination but must not rewrite issued InvoiceLine tax evidence.
+  - id: PRODUCT-008
+    rule: Changing standardPrice must not overwrite negotiated, contracted, quoted, or already-captured transaction prices.
+  - id: PRODUCT-009
+    rule: Retiring a Product must validate open commitments and dependent inventory before retirement becomes effective; existing obligations require their own controlled continuation, substitution, cancellation, or exception workflow.
   help:
-    summary: The canonical CEDM concept for a good, material, service, subscription, asset offering, or bundle used by business processes.
-    businessMeaning: Product defines what is offered or managed; transactional entities define occurrences such as demand, procurement, receipt, stock, shipment, billing, and consumption.
-    usage: Central to catalog management, sales, procurement, inventory, manufacturing, logistics, pricing, service, subscriptions, and analytics.
-    relationshipContext: Product connects to categories, suppliers, units, locations, customer demand, procurement commitments, inventory state/events, and billing. It is deliberately not the owner of transactional quantities or financial settlement.
-    workflowContext: Product master → SalesOrderLine/PurchaseOrderLine → allocation/procurement → GoodsReceiptLine or Shipment → InventoryMovement/InventoryBalance → InvoiceLine → Payment. Different product types may branch into service, subscription, asset, manufacturing, or maintenance workflows.
-    lifecycle: Product moves from draft through activation and potentially discontinuation, blocking, or retirement. Status constrains future use while preserving historical references and transaction evidence.
-    example: A spare part may be an ACTIVE Product with a standard unit of EACH. A PurchaseOrderLine commits 100 units, GoodsReceiptLine accepts 96, InventoryMovement posts 96 into stock, an InventoryBalance reflects the current quantity, and InvoiceLine can only be fully matched against accepted receipt evidence according to the matching policy.
+    summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
+    businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.
+    usage: Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics.
+    relationshipContext: Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts.
+    workflowContext: Product create/update → validate category/unit/tax/location/supplier dependencies → propagate eligibility changes to open SalesOrderLine/PurchaseOrderLine and inventory workflows → resolve exceptions → permit future transactions. Product changes never silently recalculate issued documents or historical movements.
+    lifecycle: Draft → active → discontinued/blocked → retired. Lifecycle transitions require dependent-workflow validation and preserve historical references.
+    changePropagation:
+      status: [SalesOrderLine eligibility, PurchaseOrderLine eligibility, inventory operations, fulfillment eligibility, future InvoiceLine creation]
+      unitOfMeasure: [open order quantities, receipt quantities, inventory operations, conversion rules]
+      taxCategory: [future TaxRule determination, future InvoiceLine calculation]
+      standardPrice: [future default pricing only]
+      category: [catalog, assortment, reporting, policy eligibility]
+      supplierRelationship: [future sourcing and PurchaseOrder eligibility]
+      locationRelationship: [future operational availability and inventory configuration]
+    example: If a Product is blocked, the system validates open SalesOrders and PurchaseOrders, prevents new incompatible use, and identifies dependent inventory/fulfillment workflows. Existing invoices and inventory movements remain unchanged. If its tax category changes, future tax determination uses the new category while issued invoices retain their historical tax evidence.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PRODUCT}
