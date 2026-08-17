@@ -1,8 +1,8 @@
 entity:
   name: BankAccount
   namespace: cedm.domain
-  kind: financial_entity
-  description: A financial account maintained with a banking institution for a party or organization.
+  kind: financial_master_entity
+  description: A financial institution account maintained for a Party and used as the controlled account context for cash receipts, disbursements, bank transactions, reconciliation, treasury operations, and accounting.
   identity:
     key: bankAccountId
     type: uuid
@@ -14,132 +14,126 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the bank account record associated with this BankAccount. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankAccount records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BankAccount; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Stable identity of the internal BankAccount master record.
+      businessMeaning: Identifies the account independently of its institution, number, currency, or current lifecycle state.
+      usage: Used by Payment, BankTransaction, reconciliation, treasury, accounting, and integrations.
+      relationshipContext: The identifier is the CEDM identity; accountNumber is an operational banking identifier.
+      workflowRole: Provides the stable account context for payment execution and statement reconciliation.
+      requiredMeaning: Required for account traceability.
   - name: accountNumber
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of account number for the BankAccount. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankAccount records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BankAccount; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Banking identifier for the account, subject to applicable security and masking controls.
+      businessMeaning: Identifies the account at the financial institution for operational settlement and reconciliation.
+      usage: Used for payment routing, bank-feed matching, statements, and treasury operations, subject to sensitive-data controls.
+      relationshipContext: Must be interpreted with institution and account identity; it is not a CEDM entity identifier.
+      workflowRole: Allows external bank activity and payment instructions to be associated with the correct account.
+      requiredMeaning: Required where the banking institution provides an account identifier.
   - name: accountType
     type: enum
     required: true
-    values:
-    - CURRENT
-    - SAVINGS
-    - LOAN
-    - ESCROW
-    - OTHER
+    values: [CURRENT, SAVINGS, LOAN, ESCROW, OTHER]
     help:
-      summary: Captures the business meaning of account type for the BankAccount. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankAccount records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BankAccount; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Classification of the banking account's operational purpose.
+      businessMeaning: Describes how the account is intended to function in treasury and settlement processes.
+      usage: Used for payment eligibility, cash reporting, treasury controls, and accounting configuration.
+      relationshipContext: Account type does not determine accounting treatment by itself; ledger configuration may provide additional context.
+      workflowRole: Helps determine which Payment directions and banking operations are appropriate.
       valueSemantics:
-        CURRENT: Represents the current state or classification in the context of BankAccount.
-        SAVINGS: Represents the savings state or classification in the context of BankAccount.
-        LOAN: Represents the loan state or classification in the context of BankAccount.
-        ESCROW: Represents the escrow state or classification in the context of BankAccount.
-        OTHER: Represents the other state or classification in the context of BankAccount.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        CURRENT: Operational transaction account normally used for frequent receipts/disbursements.
+        SAVINGS: Account primarily maintained for savings or reserve purposes.
+        LOAN: Account associated with borrowing or loan-related banking arrangements.
+        ESCROW: Account holding funds under controlled escrow arrangements.
+        OTHER: Controlled account type outside the standard classifications.
+      requiredMeaning: Required for account governance.
   - name: currencyId
     type: reference
     target: Currency
     required: true
+    immutableAfterActivation: true
     help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
-        and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankAccount records, where
-        applicable.
-      relationshipContext: This field connects BankAccount to Currency. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related Currency.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Currency in which the bank account is normally denominated.
+      businessMeaning: Establishes the account's primary monetary denomination and expected statement currency.
+      usage: Used by Payment, BankTransaction, reconciliation, cash reporting, and treasury controls.
+      relationshipContext: A BankTransaction normally uses the account currency, although supported multi-currency bank products may require additional transaction-level currency rules.
+      workflowRole: Provides a currency baseline for validating Payment and BankTransaction activity.
+      requiredMeaning: Required for monetary account interpretation.
   - name: status
     type: enum
     required: true
-    default: ACTIVE
-    values:
-    - PENDING
-    - ACTIVE
-    - BLOCKED
-    - CLOSED
+    default: PENDING
+    values: [PENDING, ACTIVE, BLOCKED, CLOSED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankAccount records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BankAccount; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Lifecycle state controlling whether the account can participate in new banking operations.
+      businessMeaning: Indicates whether the account is awaiting activation, available, restricted, or closed.
+      usage: Used by Payment execution, bank-feed ingestion, reconciliation, treasury, and account administration.
+      relationshipContext: Closing an account must not invalidate historical BankTransactions, Payments, or JournalEntries.
+      workflowRole: ACTIVE permits normal use; BLOCKED prevents applicable new activity; CLOSED prevents new normal use while historical evidence remains accessible.
       valueSemantics:
-        PENDING: Represents the pending state or classification in the context of BankAccount.
-        ACTIVE: Represents the active state or classification in the context of BankAccount.
-        BLOCKED: Represents the blocked state or classification in the context of BankAccount.
-        CLOSED: Represents the closed state or classification in the context of BankAccount.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        PENDING: Account setup or verification is incomplete.
+        ACTIVE: Available for authorized banking activity.
+        BLOCKED: Temporarily prohibited from applicable activity.
+        CLOSED: Permanently unavailable for new normal activity.
+      requiredMeaning: Required for account lifecycle control.
   relationships:
-  - name: owner
+  - name: owners
     target: Party
     cardinality: 1..*
     ownership: reference
     help:
-      summary: Connects BankAccount to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a BankAccount.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Parties that own or are legally associated with the bank account.
+      usage: Supports ownership validation, payment authorization, treasury, compliance, and reporting.
+      cardinalityMeaning: One or more parties may be associated with an account because joint ownership or organizational structures may exist.
+      workflowRole: Provides the party context required when initiating or receiving payments through the account.
   - name: institution
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects BankAccount to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a BankAccount.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Financial institution maintaining the bank account.
+      usage: Supports bank-feed configuration, payment routing, statements, reconciliation, and institution-specific rules.
+      cardinalityMeaning: Exactly one institution maintains the account in this model.
+      workflowRole: Connects account operations to the correct banking organization.
   - name: transactions
     target: BankTransaction
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects BankAccount to BankTransaction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about BankTransaction records associated with a BankAccount.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Bank transactions appearing on this account's statements.
+      usage: Supports statement history, reconciliation, cash analysis, and audit.
+      cardinalityMeaning: An account can have many bank transactions over its lifetime.
+      workflowRole: Provides the external evidence stream reconciled against Payments and accounting.
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Internal Payment events executed through or expected to settle through this bank account.
+      usage: Supports payment execution, receipt processing, cash management, and reconciliation.
+      cardinalityMeaning: An account can support many Payments.
+      workflowRole: Connects internal settlement events to the bank account context used for execution and clearing.
+  invariants:
+  - id: BANK-ACCOUNT-001
+    rule: accountNumber and institution context must identify the intended external banking account under applicable uniqueness policy.
+  - id: BANK-ACCOUNT-002
+    rule: A CLOSED or BLOCKED BankAccount must not be selected for incompatible new Payment execution or receipt processing without an authorized exception.
+  - id: BANK-ACCOUNT-003
+    rule: Historical BankTransactions, Payments, and JournalEntries associated with a BankAccount must remain valid after the account is CLOSED.
+  - id: BANK-ACCOUNT-004
+    rule: BankTransaction matching must validate the BankAccount context before supporting Payment.CLEARED.
+  - id: BANK-ACCOUNT-005
+    rule: Account currency must be compatible with normal Payment and BankTransaction currency expectations; supported multi-currency account behavior requires an explicit account-level policy.
   help:
-    summary: Represents a financial entity called BankAccount within the CEDM business model.
-    businessMeaning: BankAccount is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate BankAccount records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
-      BankTransaction. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical BankAccount record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: Represents the controlled banking account context through which cash is received, disbursed, observed, and reconciled.
+    businessMeaning: BankAccount is master data for the financial account; it is not a bank transaction, payment, or accounting entry.
+    usage: Central to treasury, Payment execution, BankTransaction ingestion, bank reconciliation, cash reporting, and accounting.
+    relationshipContext: Party provides ownership context. Organization provides the financial institution. Payment represents internal settlement events. BankTransaction represents external statement evidence. JournalEntry represents accounting consequences.
+    workflowContext: BankAccount setup → verification → activation → Payment execution/receipt → BankTransaction import → account/date/currency/reference reconciliation → Payment clearing → accounting reconciliation. Account closure affects future activity but preserves historical evidence.
+    lifecycle: Pending → active → blocked or closed. Lifecycle controls future operational use and never deletes historical transactions.
+    example: A USD current account at a bank is ACTIVE. Customer Payments are received into it, corresponding USD BankTransactions are imported from the bank feed, each is reconciled to the appropriate Payment, and the Payment becomes CLEARED only after controlled matching.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-BANK-ACCOUNT
