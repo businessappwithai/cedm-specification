@@ -117,7 +117,7 @@ entity:
         requiredMeaning: Required for transaction eligibility decisions.
   relationships:
     - name: partyRole
-n      target: PartyRole
+      target: PartyRole
       cardinality: '1'
       ownership: reference
       help:
