@@ -2,7 +2,7 @@ entity:
   name: InvoiceLine
   namespace: cedm.domain
   kind: financial_transaction_line
-  description: A billed product, service, quantity, tax, credit, debit, or adjustment line on an Invoice, with optional procurement fulfillment evidence used for line-level matching.
+  description: A billed product, service, quantity, tax, credit, debit, or adjustment line on an Invoice, retaining the monetary calculation evidence needed to explain gross, discount, taxable, tax, and net amounts and, where applicable, procurement fulfillment matching.
   identity:
     key: invoiceLineId
     type: uuid
@@ -14,61 +14,86 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the invoice line.
+      summary: Immutable identity of the invoice line.
       usage: Used by billing, procurement matching, tax, accounting, payment, audit, and integration processes.
       relationshipContext: Identifies the billed line independently of its invoice, product, purchase-order line, and receipt evidence.
+      workflowRole: Provides stable line-level financial traceability through calculation, approval, posting, and settlement.
       requiredMeaning: Required for line-level financial traceability.
   - name: lineNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: The sequence of the line within its Invoice.
+      summary: Sequence of the line within its Invoice.
       usage: Used in documents, review, matching, reconciliation, and customer or supplier communication.
       relationshipContext: Scoped to the parent Invoice and distinct from PurchaseOrderLine.lineNumber.
-      requiredMeaning: Required for deterministic invoice-line identification.
+      workflowRole: Provides deterministic human-facing line identification.
+      requiredMeaning: Required for invoice document integrity.
   - name: quantity
     type: decimal
     required: false
     precision: 20
     scale: 6
     help:
-      summary: The quantity being billed on this invoice line in its declared UnitOfMeasure.
+      summary: Quantity being billed on this invoice line in its declared UnitOfMeasure.
       usage: Used for invoice calculation, procurement matching, tax, and settlement.
-      relationshipContext: For purchase invoices, this quantity is compared with accepted GoodsReceiptLine quantities rather than merely ordered quantities when three-way matching applies.
+      relationshipContext: For purchase invoices, quantity is compared with accepted GoodsReceiptLine quantities rather than merely ordered quantities when three-way matching applies.
       workflowRole: Supplies the billed quantity for ordered-versus-received-versus-invoiced reconciliation.
       optionalMeaning: Optional for purely monetary, service, or adjustment lines where quantity is not meaningful.
   - name: unitPrice
-    type: decimal
+    type: Money
     required: false
-    precision: 20
-    scale: 4
     help:
-      summary: The monetary price billed per unit under the invoice's pricing basis.
-      usage: Used for line valuation and purchase-order price matching.
-      relationshipContext: For procurement invoices it can be compared with the applicable PurchaseOrderLine price subject to tolerance policy.
-      workflowRole: Participates in price variance detection and invoice approval.
+      summary: Monetary price billed per unit under the invoice's pricing basis.
+      usage: Used for line valuation, price variance detection, and invoice calculation.
+      relationshipContext: Currency must agree with the invoice monetary context or use an explicitly supported conversion policy; for procurement invoices the price can be compared with PurchaseOrderLine price subject to tolerance.
+      workflowRole: Supplies the price component from which gross line value is calculated and price variance can be evaluated.
       optionalMeaning: Optional for non-quantity-based charges.
-  - name: taxAmount
-    type: decimal
+  - name: grossAmount
+    type: Money
+    required: true
+    help:
+      summary: Monetary value of the invoice line before line-level discounts and taxes according to the invoice calculation policy.
+      usage: Used as the starting point for discount and tax calculation and for audit of invoice totals.
+      relationshipContext: Normally derived from quantity and unitPrice, but controlled adjustments may have another calculation basis.
+      workflowRole: Establishes the pre-discount financial base for the line.
+      requiredMeaning: Required to make the line calculation reproducible.
+  - name: discountAmount
+    type: Money
     required: true
     default: 0
-    precision: 20
-    scale: 4
     help:
-      summary: Tax amount attributable to this invoice line.
-      usage: Used for tax reporting, invoice totals, accounting, and reconciliation.
-      relationshipContext: Must be interpreted with tax jurisdiction, product, party, date, and invoice context.
-      requiredMeaning: Required, including zero when no tax applies.
-  - name: lineAmount
-    type: decimal
+      summary: Monetary reduction applied to the invoice line under the applicable discount policy.
+      usage: Used to reconcile gross amount to the post-discount taxable or pricing base.
+      relationshipContext: Must use a compatible currency and must be supported by DiscountRule or another authorized pricing policy where policy requires it.
+      workflowRole: Reduces grossAmount before subsequent tax calculation when the applicable tax policy uses a post-discount base.
+      requiredMeaning: Required, including zero, so the calculation chain is explicit.
+  - name: taxableAmount
+    type: Money
     required: true
-    precision: 20
-    scale: 4
     help:
-      summary: Net financial amount represented by this invoice line after applicable line-level pricing adjustments and before or including tax according to the invoice calculation convention.
-      usage: Used for invoice totals, accounting, matching, payment, and reporting.
-      relationshipContext: Must reconcile with quantity, unit price, discounts, tax treatment, and the parent Invoice calculation convention.
+      summary: Monetary base to which applicable tax rules are applied for this invoice line.
+      usage: Used by tax calculation, tax reporting, invoice totals, and accounting.
+      relationshipContext: Usually grossAmount minus applicable discountAmount, but exemptions, inclusive taxes, or jurisdiction rules may produce a different controlled base.
+      workflowRole: Provides the exact financial base used by TaxRule determination and tax calculation.
+      requiredMeaning: Required for reproducible tax calculation, including zero-tax cases.
+  - name: taxAmount
+    type: Money
+    required: true
+    help:
+      summary: Tax amount attributable to this invoice line after applying the applicable tax determination to taxableAmount.
+      usage: Used for tax reporting, invoice totals, accounting, and reconciliation.
+      relationshipContext: Must be interpreted with TaxRule, jurisdiction, taxableAmount, tax date, and invoice context.
+      workflowRole: Records the result of tax calculation and prevents later rule changes from silently changing the historical invoice.
+      requiredMeaning: Required, including zero when no tax applies.
+  - name: netAmount
+    type: Money
+    required: true
+    help:
+      summary: Final monetary line amount after applicable discounts and taxes according to the invoice's calculation convention.
+      usage: Used for Invoice totals, accounting, receivable/payable claims, and reporting.
+      relationshipContext: Must reconcile with grossAmount, discountAmount, taxAmount, and any documented inclusive-tax or adjustment convention.
+      workflowRole: Supplies the line value that contributes to the invoice financial claim.
       requiredMeaning: Required for a financially actionable invoice line.
   - name: description
     type: string
@@ -77,7 +102,7 @@ entity:
     help:
       summary: Human-readable description of the billed item or adjustment.
       usage: Supports review, documents, exception handling, and audit.
-      relationshipContext: Supplements Product identity and must not be used as the sole matching key when a controlled product exists.
+      relationshipContext: Supplements Product identity and must not be the sole matching key when a controlled product exists.
       optionalMeaning: Optional when Product and source transaction references fully identify the charge.
   - name: matchingStatus
     type: enum
@@ -85,12 +110,12 @@ entity:
     default: NOT_APPLICABLE
     values: [NOT_APPLICABLE, UNMATCHED, MATCHED, PARTIALLY_MATCHED, EXCEPTION, WAIVED]
     help:
-      summary: The current result of matching this invoice line against its applicable procurement commitment and accepted receipt evidence.
+      summary: Current result of matching this invoice line against applicable procurement commitment and accepted receipt evidence.
       usage: Controls invoice approval, exception routing, accounts-payable review, and three-way matching reporting.
-      relationshipContext: It summarizes matching evidence; it does not replace PurchaseOrderLine, GoodsReceiptLine, or an auditable matching decision.
-      workflowRole: An invoice line becomes MATCHED only when the applicable ordered, accepted, and billed quantities/prices satisfy policy tolerances.
+      relationshipContext: Summarizes matching evidence; it does not replace PurchaseOrderLine, GoodsReceiptLine, or an auditable matching decision.
+      workflowRole: A purchase invoice line becomes MATCHED only when applicable ordered, accepted, billed quantities and prices satisfy policy tolerances.
       valueSemantics:
-        NOT_APPLICABLE: No procurement matching is required, such as a sales invoice or approved non-PO charge.
+        NOT_APPLICABLE: No procurement matching is required.
         UNMATCHED: Required matching evidence has not yet been established.
         MATCHED: Required matching criteria are satisfied.
         PARTIALLY_MATCHED: Some billed quantity/value has acceptable receipt evidence while an open portion remains.
@@ -115,16 +140,16 @@ entity:
       summary: Identifies the Product or service being billed.
       usage: Supports quantity, unit, tax, pricing, and matching rules.
       cardinalityMeaning: Optional for free-text or adjustment lines.
-      workflowRole: Provides the controlled identity used when comparing invoice, purchase-order, and receipt lines.
+      workflowRole: Provides controlled identity used when comparing invoice, purchase-order, and receipt lines.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Identifies the unit in which the invoice quantity is expressed.
+      summary: Identifies the unit in which invoice quantity is expressed.
       usage: Supports quantity conversion and matching.
-      cardinalityMeaning: Optional only when the product or charge has an unambiguous non-quantity basis.
-      workflowRole: Must be compatible with the PurchaseOrderLine and GoodsReceiptLine units or have an approved conversion.
+      cardinalityMeaning: Optional only when the charge has an unambiguous non-quantity basis.
+      workflowRole: Must be compatible with PurchaseOrderLine and GoodsReceiptLine units or have an approved conversion.
   - name: purchaseOrderLine
     target: PurchaseOrderLine
     cardinality: 0..1
@@ -139,31 +164,55 @@ entity:
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Identifies the accepted receipt lines that provide fulfillment evidence for this billed line.
+      summary: Identifies accepted receipt lines that provide fulfillment evidence for this billed line.
       usage: Supports three-way matching at receipt-line granularity, including partial and multiple receipts.
-      cardinalityMeaning: An invoice line may match zero, one, or multiple receipt lines; zero is valid while matching is pending or when receipt matching is not required.
-      workflowRole: Supplies accepted quantity and rejection/inspection context used to determine whether the billed quantity is supported.
+      cardinalityMeaning: An invoice line may match zero, one, or multiple receipt lines.
+      workflowRole: Supplies accepted quantity and rejection/inspection context used to determine whether billed quantity is supported.
+  - name: discountRule
+    target: DiscountRule
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the discount policy used to derive discountAmount when a reusable discount rule applies.
+      usage: Provides auditability of pricing policy behind the recorded discount.
+      cardinalityMeaning: Optional where no discount applies or a controlled transaction-specific adjustment is used.
+      workflowRole: Connects the transaction result to the reusable pricing policy without making historical results dependent on future rule changes.
+  - name: taxRule
+    target: TaxRule
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Identifies tax policies used to derive taxAmount for this line.
+      usage: Supports tax audit, reporting, jurisdictional compliance, and accounting.
+      cardinalityMeaning: Multiple tax rules may apply where taxes are layered or jurisdictionally required.
+      workflowRole: Provides the tax determination evidence behind the recorded taxAmount.
   invariants:
   - id: INVOICE-LINE-001
     rule: lineNumber must be unique within the invoice.
   - id: INVOICE-LINE-002
     rule: quantity must be greater than zero when supplied.
   - id: INVOICE-LINE-003
-    rule: For a purchase invoice requiring three-way matching, a MATCHED line must have applicable PurchaseOrderLine and accepted GoodsReceiptLine evidence unless an authorized matching exception or policy applies.
+    rule: grossAmount, discountAmount, taxableAmount, taxAmount, netAmount must use the invoice monetary currency unless an explicitly governed transaction supports otherwise.
   - id: INVOICE-LINE-004
-    rule: Billed quantity must not exceed the sum of matched accepted receipt quantities beyond the configured over-billing tolerance.
+    rule: discountAmount must not exceed grossAmount unless the invoice calculation policy explicitly permits a credit or rebate producing a negative taxable base.
   - id: INVOICE-LINE-005
-    rule: Billed price must not exceed the applicable PurchaseOrderLine price beyond the configured price tolerance unless an authorized variance is approved.
+    rule: For a purchase invoice requiring three-way matching, MATCHED requires applicable PurchaseOrderLine and accepted GoodsReceiptLine evidence unless an authorized exception or policy applies.
   - id: INVOICE-LINE-006
-    rule: WAIVED or EXCEPTION matching states require an auditable reason or authorization according to the applicable policy.
+    rule: Billed quantity must not exceed matched accepted receipt quantity beyond configured over-billing tolerance.
+  - id: INVOICE-LINE-007
+    rule: Billed price must not exceed applicable PurchaseOrderLine price beyond configured price tolerance unless authorized.
+  - id: INVOICE-LINE-008
+    rule: WAIVED or EXCEPTION matching states require an auditable reason or authorization.
+  - id: INVOICE-LINE-009
+    rule: Historical monetary calculation components must remain reproducible after DiscountRule or TaxRule changes.
   help:
-    summary: Represents one financial claim line and, where applicable, its exact procurement fulfillment evidence.
-    businessMeaning: InvoiceLine is the billing-side counterpart of PurchaseOrderLine and GoodsReceiptLine in procure-to-pay. It answers what the supplier is billing, while the PO answers what was committed and the receipt lines answer what was accepted.
+    summary: Represents one financial claim line and its complete monetary calculation and, where applicable, procurement fulfillment evidence.
+    businessMeaning: InvoiceLine answers what is being billed and how its gross, discount, taxable, tax, and net amounts were derived. In procure-to-pay it is the billing-side counterpart of PurchaseOrderLine and GoodsReceiptLine.
     usage: Used by accounts payable, procurement, receiving, tax, accounting, payment approval, audit, and three-way matching processes.
-    relationshipContext: Invoice supplies financial claim context. PurchaseOrderLine supplies ordered commitment. GoodsReceiptLine supplies accepted fulfillment. Product and UnitOfMeasure provide controlled identity and measurement context.
-    workflowContext: Supplier invoice received → InvoiceLine identified → PurchaseOrderLine matched → accepted GoodsReceiptLines matched → quantity/price/tax evaluated → MATCHED, PARTIALLY_MATCHED, EXCEPTION, or WAIVED → invoice approval → payment. Matching must not treat shipment arrival or raw received quantity as equivalent to accepted quantity.
+    relationshipContext: Invoice supplies financial claim context. Product and UnitOfMeasure supply identity and measurement. DiscountRule explains discount policy. TaxRule explains tax determination. PurchaseOrderLine supplies commitment. GoodsReceiptLine supplies accepted fulfillment evidence.
+    workflowContext: Source price → quantity × unit price → grossAmount → DiscountRule/discountAmount → taxableAmount → TaxRule/taxAmount → netAmount → invoice totals → matching/approval → posting → payment. Matching independently compares ordered, accepted, and billed quantities and prices.
     lifecycle: A line begins unmatched or not applicable, may become partially matched, matched, exception, or waived, and remains historical evidence after invoice posting. Corrections use credit/debit documents or controlled adjustments rather than silently rewriting posted lines.
-    example: A PO line commits 100 units. Two GoodsReceiptLines record 60 and 30 accepted units, with 10 rejected. A supplier invoice for 90 units can be fully matched because accepted receipt quantity is 90. An invoice for 100 units would produce an exception unless policy permits the outstanding 10 under an authorized accrual or tolerance process.
+    example: A PO commits 100 units. Receipts accept 60 and 30 units. An invoice for 90 units has gross USD 900, discount USD 90, taxable USD 810, tax USD 145.80, and net USD 955.80 under an 18% tax rule. The line can be fully matched because accepted receipt quantity is 90, while the financial calculation remains separately auditable.
 specification:
   version: 0.2.0
   status: draft
