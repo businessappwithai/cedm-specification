@@ -1,108 +1,204 @@
 entity:
   name: Payment
   namespace: cedm.domain
-  kind: financial_transaction
-  description: A financial settlement event in which money is received or disbursed to satisfy, partially satisfy, or advance one or more financial obligations.
+  kind: financial_settlement_transaction
+  description: A financial settlement event in which money is received or disbursed, with explicit monetary denomination, execution method, external clearing evidence, allocation to claims, and accounting recognition kept as separate business facts.
   identity: {key: paymentId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: paymentId
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable system identity of the payment transaction., usage: Used for bank reconciliation, allocation, accounting, audit, integration, and traceability., relationshipContext: Identifies the payment independently of payer, payee, invoices, bank instruments, and settlement status., workflowRole: Root reference across payment preparation, allocation, bank matching, accounting, and reversal., requiredMeaning: Every financial movement must be uniquely traceable.}
+      help:
+        summary: Stable identity of the payment event.
+        businessMeaning: Identifies the financial movement independently of its business reference, allocations, bank evidence, or accounting entries.
+        usage: Used for reconciliation, allocation, accounting, audit, integration, and reversal.
+        relationshipContext: Payment identity must remain stable even when allocations are reversed or bank evidence is corrected.
+        workflowRole: Root reference across preparation, authorization, posting, clearing, allocation, and reversal.
+        requiredMeaning: Required for financial traceability.
     - name: paymentNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business-facing payment reference., usage: Used in remittance, reconciliation, accounting, communication, and inquiries., relationshipContext: Distinct from paymentId and stable through posting and clearing., workflowRole: Correlates internal settlement work with remittance and accounting records., requiredMeaning: Required for financial traceability.}
+      help:
+        summary: Business-facing payment reference.
+        businessMeaning: Reference communicated in remittance, statements, bank reconciliation, and payment inquiries.
+        usage: Used by finance users, counterparties, integrations, and reconciliation processes.
+        relationshipContext: Distinct from paymentId and bank transaction identifiers.
+        workflowRole: Correlates the internal payment event with operational and external references.
+        requiredMeaning: Required for operational traceability.
     - name: paymentDate
       type: datetime
       required: true
-      help: {summary: Date and time at which the payment event is recognized for business processing., usage: Used for accounting periods, cash reporting, reconciliation, aging, and settlement analysis., relationshipContext: Distinct from invoice date, posting date, value date, and bank clearing date., workflowRole: Establishes the internal settlement chronology., requiredMeaning: Required for settlement chronology.}
+      help:
+        summary: Timestamp at which the payment event is recognized by the business process.
+        businessMeaning: Establishes internal settlement chronology.
+        usage: Used for accounting periods, cash reporting, reconciliation, aging, and settlement analysis.
+        relationshipContext: Distinct from bank value date, clearing date, posting date, and allocation date.
+        workflowRole: Provides the event time used by internal payment processing.
+        requiredMeaning: Required for settlement chronology.
     - name: direction
       type: enum
       required: true
       values: [RECEIPT, DISBURSEMENT]
-      help: {summary: Indicates whether money is received or paid., usage: Determines cash-flow and accounting interpretation., relationshipContext: Direction determines payer/payee interpretation relative to the accounting organization., workflowRole: Controls receivable versus payable settlement treatment., requiredMeaning: Required for correct settlement semantics.}
+      help:
+        summary: Indicates whether the organization receives or disburses the payment.
+        businessMeaning: Establishes cash-flow direction and payer/payee interpretation.
+        usage: Used by receivables, payables, treasury, accounting, refunds, and cash reporting.
+        relationshipContext: Direction must agree with applicable payer/payee and claim relationships.
+        workflowRole: Determines whether the payment normally settles receivable or payable exposure.
+        requiredMeaning: Required for correct financial semantics.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, POSTED, CLEARED, VOID, REVERSED]
       help:
-        summary: Lifecycle state of the payment event.
-        usage: Controls authorization, posting, reconciliation, reversal, and reporting.
-        relationshipContext: Payment status describes the money event; Invoice status depends on active PaymentAllocation evidence; JournalEntry status describes accounting recognition; BankTransaction status describes external bank evidence.
-        workflowRole: APPROVED authorizes processing, POSTED recognizes the payment internally, CLEARED confirms applicable external settlement evidence, and VOID/REVERSED invalidate or counteract the event according to policy.
-        requiredMeaning: Required for controlled financial processing.
+        summary: Lifecycle state of the payment event itself.
+        businessMeaning: Indicates authorization, internal recognition, external clearing, invalidation, or reversal.
+        usage: Controls payment execution, reconciliation, reporting, and correction workflows.
+        relationshipContext: Payment status is not Invoice settlement status, BankTransaction status, or JournalEntry posting status.
+        workflowRole: APPROVED authorizes processing; POSTED recognizes the payment internally; CLEARED confirms external settlement evidence; VOID and REVERSED handle controlled invalidation/correction.
         valueSemantics:
-          DRAFT: Payment is being prepared and is not yet authorized.
-          APPROVED: Payment is authorized for processing.
-          POSTED: Payment is recognized internally as a financial transaction.
+          DRAFT: Being prepared; not authorized.
+          APPROVED: Authorized for processing.
+          POSTED: Recognized as an internal financial transaction.
           CLEARED: Applicable external settlement evidence has been reconciled.
-          VOID: Payment was invalidated before it became an effective settlement event under policy.
-          REVERSED: An effective payment was counteracted by an authorized reversal; historical payment evidence remains.
+          VOID: Invalidated under policy without remaining effective settlement.
+          REVERSED: Counteracted by an authorized reversal while historical evidence remains.
+        requiredMeaning: Required for controlled payment lifecycle.
     - name: amount
-      type: decimal
+      type: Money
       required: true
-      precision: 20
-      scale: 4
-      help: {summary: Total monetary value of the payment event., usage: Used for cash position, settlement, allocation, accounting, and reconciliation., relationshipContext: May be allocated across multiple invoices; it is not the amount of any single claim., workflowRole: Supplies the monetary basis for PaymentAllocation and accounting recognition., requiredMeaning: Required because a payment without value has no settlement meaning.}
+      help:
+        summary: Total monetary value of the Payment event in its payment currency.
+        businessMeaning: Represents the amount of money received or disbursed, not the amount allocated to one particular claim.
+        usage: Used for cash position, allocation validation, accounting, reconciliation, and payment reporting.
+        relationshipContext: PaymentAllocation divides this total across claims; unallocated balance remains available according to policy.
+        workflowRole: Provides the source monetary amount from which allocation and reconciliation are derived.
+        requiredMeaning: Required because a payment without value has no settlement meaning.
     - name: currencyId
       type: reference
       target: Currency
       required: true
-      help: {summary: Currency in which the payment amount is denominated., usage: Used for accounting, reconciliation, conversion, and settlement., relationshipContext: Must be compatible with allocation and invoice currency rules or an explicit FX policy., workflowRole: Controls monetary comparison and accounting treatment., requiredMeaning: Required for financial interpretation.}
+      immutableAfterPosting: true
+      help:
+        summary: Currency denomination of the Payment amount.
+        businessMeaning: Defines how the payment amount must be interpreted.
+        usage: Used for allocation, exchange-rate selection, bank reconciliation, accounting, and reporting.
+        relationshipContext: Payment currency may differ from Invoice currency; such allocation requires explicit ExchangeRate evidence.
+        workflowRole: Establishes the source currency for PaymentAllocation and cross-currency settlement.
+        requiredMeaning: Required for monetary interpretation.
     - name: paymentMethod
       type: enum
       required: true
       values: [CASH, BANK_TRANSFER, CARD, CHEQUE, DIRECT_DEBIT, OTHER]
-      help: {summary: Mechanism through which money is settled., usage: Drives execution, reconciliation, clearing, instrument tracking, and treasury reporting., relationshipContext: Describes how money moved rather than which obligation it settles., workflowRole: Determines expected bank evidence and settlement processing., requiredMeaning: Required for settlement processing.}
+      help:
+        summary: Mechanism through which the payment is executed or received.
+        businessMeaning: Describes how the monetary event occurs rather than which obligation it settles.
+        usage: Drives execution, bank matching, instrument handling, clearing, treasury reporting, and reconciliation.
+        relationshipContext: Payment method does not replace BankTransaction or PaymentAllocation evidence.
+        workflowRole: Determines the expected settlement evidence and operational processing path.
+        requiredMeaning: Required for payment execution and reconciliation.
+    - name: valueDate
+      type: date
+      required: false
+      help:
+        summary: Date on which the funds are economically effective according to the applicable bank or settlement convention.
+        businessMeaning: Distinguishes economic cash availability from internal payment creation time.
+        usage: Used for cash forecasting, interest calculations, bank reconciliation, and accounting analysis.
+        relationshipContext: May differ from paymentDate and bank clearing timestamp.
+        workflowRole: Provides bank/settlement timing context without changing the Payment event identity.
+        optionalMeaning: Optional when the settlement mechanism does not provide a separate value date.
+    - name: externalReference
+      type: string
+      required: false
+      maxLength: 250
+      help:
+        summary: External remittance, bank, processor, or instrument reference associated with the payment.
+        businessMeaning: Connects internal payment evidence to an external settlement identifier.
+        usage: Used for bank reconciliation, customer remittance matching, payment gateway reconciliation, and audit.
+        relationshipContext: ExternalReference does not replace PaymentAllocation or BankTransaction identities.
+        workflowRole: Helps resolve external evidence to the correct Payment.
+        optionalMeaning: Optional when no external reference is supplied.
   relationships:
     - name: payer
       target: Party
       cardinality: 0..1
       ownership: reference
-      help: {summary: Party providing the payment in a receipt or associated with a disbursement., usage: Supports customer receipts, refunds, compliance, reconciliation, and audit., cardinalityMeaning: Optional when payer is aggregated or represented externally., context: Party can carry Customer, Supplier, Employee, or other business roles.}
+      help:
+        summary: Party providing the payment for a receipt or associated with a disbursement.
+        businessMeaning: Identifies the source-side business party.
+        usage: Supports customer receipts, refunds, compliance, reconciliation, and audit.
+        cardinalityMeaning: Optional when the payer is aggregated or represented only by an external settlement service.
+        workflowRole: Supplies party context for receipt or settlement processing.
     - name: payee
       target: Party
       cardinality: 0..1
       ownership: reference
-      help: {summary: Party receiving or designated to receive the payment., usage: Supports supplier payments, refunds, taxes, and reconciliation., cardinalityMeaning: Optional when settlement routing is external., context: Payee is a Party with applicable business roles.}
+      help:
+        summary: Party receiving or designated to receive the payment.
+        businessMeaning: Identifies the target-side business party.
+        usage: Supports supplier payments, refunds, taxes, payroll-related payments, and reconciliation.
+        cardinalityMeaning: Optional when settlement routing is external or otherwise represented separately.
+        workflowRole: Supplies party context for disbursement processing.
     - name: allocations
       target: PaymentAllocation
       cardinality: 0..*
       ownership: aggregate
-      help: {summary: Explicit applications of this payment to individual financial claims., usage: Supports partial settlement, multi-invoice settlement, advances, overpayments, reversals, and reallocation., cardinalityMeaning: A payment may be unapplied, allocated to one invoice, or distributed across many invoices., workflowRole: Active allocations determine how the payment reduces individual invoice balances; Payment.amount remains the total settlement event amount.}
+      help:
+        summary: Explicit applications of this payment to individual financial claims.
+        businessMeaning: Explains how the total Payment amount is distributed among invoices or other supported claims.
+        usage: Supports partial settlement, multi-invoice settlement, advances, overpayments, reversals, and reallocation.
+        cardinalityMeaning: A payment may remain unapplied or be allocated across many claims.
+        workflowRole: Active allocations determine claim settlement; Payment.amount remains the total payment event.
     - name: bankAccount
       target: BankAccount
       cardinality: 0..1
       ownership: reference
-      help: {summary: Bank account through which the payment is expected to be received or disbursed., usage: Supports treasury, payment execution, bank reconciliation, and cash management., cardinalityMeaning: Optional for cash or externally managed settlement., workflowRole: Connects the payment to the financial account used for settlement.}
+      help:
+        summary: Bank account through which the payment is expected to be received or disbursed.
+        businessMeaning: Connects the payment to the internal financial account involved in settlement.
+        usage: Supports treasury, cash management, payment execution, and bank reconciliation.
+        cardinalityMeaning: Optional for cash or externally managed settlement methods.
+        workflowRole: Provides the account context against which applicable bank evidence is reconciled.
     - name: bankTransactions
       target: BankTransaction
       cardinality: 0..*
       ownership: reference
-      help: {summary: Bank transaction evidence associated with the payment., usage: Supports reconciliation between internal payment records and financial-institution statements., cardinalityMeaning: A payment may map to one or multiple bank transactions depending on banking flows., workflowRole: Valid bank evidence supports CLEARED status but does not replace the Payment record.}
+      help:
+        summary: External bank transaction evidence associated with this payment.
+        businessMeaning: Represents financial-institution evidence rather than the internal Payment itself.
+        usage: Supports reconciliation, clearing, bank statement processing, and investigation.
+        cardinalityMeaning: One Payment may correspond to multiple bank transactions depending on bank flows, fees, splits, or corrections.
+        workflowRole: Reconciled bank evidence supports CLEARED status but does not replace Payment or PaymentAllocation.
     - name: journalEntries
       target: JournalEntry
       cardinality: 0..*
       ownership: reference
-      help: {summary: Accounting entries that recognize the accounting consequences of this payment., usage: Supports general ledger traceability, cash/receivable/payable accounting, audit, and reversal., cardinalityMeaning: A payment may create one or more accounting entries depending on fees, currency differences, clearing, or reversal policy., workflowRole: JournalEntry POSTED state represents accounting recognition and is independent from Payment.CLEARED bank settlement state.}
+      help:
+        summary: Accounting recognition generated from the Payment event.
+        businessMeaning: Represents accounting consequences rather than cash movement or bank evidence.
+        usage: Supports general ledger, audit, receivables/payables settlement, cash accounting, fees, FX differences, and reversal.
+        cardinalityMeaning: A payment may generate multiple entries depending on accounting treatment.
+        workflowRole: JournalEntry posting represents accounting recognition independently of bank clearing.
   invariants:
     - {id: PAYMENT-001, rule: amount must be greater than zero.}
-    - {id: PAYMENT-002, rule: The sum of active PaymentAllocation amounts must not exceed amount unless an explicit over-allocation policy exists.}
-    - {id: PAYMENT-003, rule: A REVERSED payment must identify its reversal/original relationship.}
-    - {id: PAYMENT-004, rule: CLEARED requires applicable bank or settlement evidence.}
-    - {id: PAYMENT-005, rule: Reversing a payment must not silently rewrite historical allocations; affected allocations require explicit reversal handling.}
-    - {id: PAYMENT-006, rule: A JournalEntry linked directly to a Payment must represent an authorized accounting consequence of that Payment and must not be used as evidence of bank clearing.}
+    - {id: PAYMENT-002, rule: The sum of active PaymentAllocation paymentAmount values must not exceed Payment.amount except under an explicitly authorized over-allocation policy.}
+    - {id: PAYMENT-003, rule: A cross-currency allocation must use an approved ExchangeRate and preserve the resulting target amount and rounding evidence.}
+    - {id: PAYMENT-004, rule: CLEARED requires reconciled external settlement evidence appropriate to the payment method.}
+    - {id: PAYMENT-005, rule: A REVERSED payment must preserve its original identity and identify the authorized reversal relationship.}
+    - {id: PAYMENT-006, rule: Reversing a Payment must not silently mutate historical PaymentAllocation records; affected allocations require explicit reversal handling.}
+    - {id: PAYMENT-007, rule: Payment status must not directly set Invoice status; Invoice settlement is determined from active PaymentAllocation records.}
+    - {id: PAYMENT-008, rule: JournalEntry posting must not be treated as evidence that the bank has cleared the Payment.}
+    - {id: PAYMENT-009, rule: Historical Payment amount, currency, date, and method must remain stable after posting except through an authorized correction/reversal workflow.}
   help:
-    summary: Represents the movement or recognition of money used to settle financial obligations.
-    businessMeaning: Payment is the settlement event, Invoice is the claim, PaymentAllocation explains exactly how settlement value is applied to each claim, BankTransaction supplies external settlement evidence, and JournalEntry supplies accounting recognition.
-    usage: Used by accounts receivable, accounts payable, treasury, banking integrations, cash management, reconciliation, accounting, collections, and supplier payment processes.
-    relationshipContext: Payment connects parties, currency, method, bank account, bank evidence, explicit PaymentAllocation records, and accounting JournalEntry records. These relationships represent different facts and must not be collapsed into one status field.
-    workflowContext: Payment prepared → approved → posted → allocations identified → bank transaction matched where applicable → Payment cleared. Separately, accounting determination produces JournalEntry draft → validation → posted. Invoice settlement is determined from active PaymentAllocation records, not from Payment or JournalEntry status alone.
-    lifecycle: Draft → approved → posted → cleared, with void and reversal paths. Status of Payment, settlement status of Invoice, bank status of BankTransaction, and accounting status of JournalEntry remain separate facts.
-    example: A customer transfers 10,000 USD. One Payment records the receipt, three PaymentAllocation records apply portions to three invoices, and a JournalEntry records the accounting recognition. After bank evidence is matched, the Payment becomes CLEARED. The invoices are settled according to their active allocations.
+    summary: Represents the movement or recognition of money while keeping payment execution, claim settlement, external bank evidence, and accounting recognition as separate but connected facts.
+    businessMeaning: Payment is the settlement event. Invoice is the claim. PaymentAllocation explains application to claims. BankTransaction provides external settlement evidence. JournalEntry provides accounting recognition.
+    usage: Central to accounts receivable, accounts payable, treasury, banking integrations, cash management, reconciliation, collections, supplier payments, refunds, and accounting.
+    relationshipContext: Currency defines denomination. Money carries amount plus currency. PaymentAllocation connects Payment to Invoice. ExchangeRate enables controlled cross-currency allocation. BankTransaction confirms external settlement. JournalEntry records accounting consequences.
+    workflowContext: Payment prepared → approved → posted → allocation/remittance identification → PaymentAllocation validation → bank evidence matched where applicable → CLEARED. Separately, accounting generates and posts JournalEntry. Invoice settlement is derived from active allocations, not from Payment or JournalEntry status alone.
+    lifecycle: Draft → approved → posted → cleared, with controlled void and reversal paths. Payment, Invoice, BankTransaction, and JournalEntry each retain independent lifecycle states because they represent different business facts.
+    example: A customer transfers USD 10,000. Payment records USD 10,000 and the bank-transfer method. Three active PaymentAllocation records distribute the payment across three invoices. BankTransaction evidence is matched and Payment becomes CLEARED. Each Invoice independently derives its settlement status from its active allocations.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PAYMENT}
