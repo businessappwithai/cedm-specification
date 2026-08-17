@@ -1,104 +1,170 @@
 entity:
   name: PaymentAllocation
   namespace: cedm.domain
-  kind: financial_settlement_detail
-  description: An explicit allocation of part or all of a Payment to a specific Invoice claim, preserving how settlement value is applied without conflating the payment event with the invoice balance.
-  identity:
-    key: paymentAllocationId
-    type: uuid
-    generated: true
-    immutable: true
+  kind: financial_settlement_transaction
+  description: A controlled settlement application that assigns all or part of a Payment to a financial claim such as an Invoice, preserving allocation currency, conversion evidence, rounding, and reversal history.
+  identity: {key: paymentAllocationId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: paymentAllocationId
       type: uuid
       required: true
       immutable: true
       help:
-        summary: The immutable identity of the settlement allocation.
-        usage: Used for reconciliation, audit, invoice balance calculation, dispute handling, and payment reallocation.
-        relationshipContext: Identifies the allocation detail rather than the Payment or Invoice themselves.
-        workflowRole: Provides the auditable bridge between a payment event and an individual financial claim.
-        requiredMeaning: Required because one payment may settle multiple invoices and one invoice may receive multiple payments.
-    - name: allocatedAmount
-      type: decimal
+        summary: Stable identity of the settlement allocation.
+        businessMeaning: Identifies the application of payment value to a claim independently of the Payment and Invoice identities.
+        usage: Used for reconciliation, audit, reversal, reallocation, and settlement projections.
+        relationshipContext: Payment identifies money received or sent; Invoice identifies the claim; PaymentAllocation connects the two.
+        workflowRole: Provides the auditable settlement bridge used to derive Invoice amountSettled and amountOutstanding.
+        requiredMeaning: Required for traceable allocation evidence.
+    - name: paymentId
+      type: reference
+      target: Payment
       required: true
-      precision: 20
-      scale: 4
+      immutable: true
       help:
-        summary: The portion of the Payment amount applied to the referenced Invoice.
-        usage: Drives invoice outstanding balance, payment reconciliation, customer or supplier statements, and settlement reporting.
-        relationshipContext: This amount belongs to the allocation relationship; Payment.amount remains the total payment event amount and Invoice.totalAmount remains the total claim.
-        workflowRole: Used when posting, reallocating, reversing, or reconciling settlement against a specific invoice.
-        requiredMeaning: Required for every allocation.
-    - name: allocationDate
+        summary: Payment from which the allocated settlement amount originates.
+        businessMeaning: Identifies the cash or settlement event being applied.
+        usage: Supports payment reconciliation, bank matching, and settlement audit.
+        relationshipContext: The allocation cannot create or replace the underlying Payment event.
+        workflowRole: Supplies the source monetary amount and payment currency for allocation.
+        requiredMeaning: Required to trace settlement to its source.
+    - name: invoiceId
+      type: reference
+      target: Invoice
+      required: true
+      immutable: true
+      help:
+        summary: Invoice claim to which the payment is applied.
+        businessMeaning: Identifies the financial obligation being reduced by the allocation.
+        usage: Supports receivables/payables settlement, aging, statements, and reconciliation.
+        relationshipContext: The allocation reduces the claim; it does not change the original Invoice total.
+        workflowRole: Supplies the target claim and invoice currency for settlement comparison.
+        requiredMeaning: Required to identify the settlement target.
+    - name: paymentAmount
+      type: Money
+      required: true
+      help:
+        summary: Portion of the Payment amount consumed by this allocation in the Payment currency.
+        businessMeaning: Represents how much of the source payment is assigned to this claim.
+        usage: Supports remaining-payment calculation and reconciliation to the Payment.
+        relationshipContext: Must use the Payment currency and must not exceed the unapplied source payment amount under policy.
+        workflowRole: Establishes the source-side settlement quantity before any cross-currency conversion.
+        requiredMeaning: Required for allocation calculation.
+    - name: invoiceAmount
+      type: Money
+      required: true
+      help:
+        summary: Amount of the Invoice claim satisfied by this allocation in the Invoice currency.
+        businessMeaning: Represents the claim-side effect of the allocation.
+        usage: Drives Invoice amountSettled and amountOutstanding projections.
+        relationshipContext: May differ numerically and in currency from paymentAmount when an approved ExchangeRate is used.
+        workflowRole: Supplies the target-side settlement value applied to the claim.
+        requiredMeaning: Required for deterministic claim settlement.
+    - name: exchangeRateId
+      type: reference
+      target: ExchangeRate
+      required: false
+      immutable: true
+      help:
+        summary: Exchange-rate record used when Payment and Invoice currencies differ.
+        businessMeaning: Preserves the exact conversion context used to translate payment currency into invoice currency.
+        usage: Supports audit, reconciliation, accounting, and reproducibility of cross-currency settlement.
+        relationshipContext: Required for cross-currency allocation and normally absent when currencies are identical.
+        workflowRole: Connects paymentAmount to invoiceAmount through an approved conversion rule.
+        optionalMeaning: Optional when source and target currencies are identical.
+    - name: allocatedAt
       type: datetime
       required: true
+      immutable: true
       help:
-        summary: The timestamp at which the allocation is recognized.
-        usage: Supports accounting periods, aging, reconciliation, and audit.
-        relationshipContext: May differ from Payment.paymentDate when cash is received before the remittance is identified or allocation occurs later.
-        workflowRole: Establishes when an unapplied payment becomes associated with a particular claim.
+        summary: Timestamp at which the allocation became effective.
+        businessMeaning: Establishes settlement chronology and supports period-sensitive reconciliation.
+        usage: Used for aging, accounting period determination, audit, and dispute investigation.
+        relationshipContext: Distinct from Payment creation time and bank clearing time.
+        workflowRole: Determines when the Invoice settlement projection is changed.
         requiredMeaning: Required for settlement chronology.
     - name: status
       type: enum
       required: true
       default: ACTIVE
-      values: [ACTIVE, REVERSED]
+      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
       help:
-        summary: Indicates whether the allocation currently contributes to settlement of the invoice.
-        usage: Supports corrections and payment reallocation without destroying historical evidence.
-        relationshipContext: Reversing an allocation does not reverse the underlying Payment unless a separate payment reversal occurs.
-        workflowRole: An ACTIVE allocation reduces the invoice outstanding amount; a REVERSED allocation removes that settlement effect.
-        requiredMeaning: Required to distinguish current settlement from historical allocation.
-    - name: reference
-      type: string
+        summary: Lifecycle state of the allocation.
+        businessMeaning: Indicates whether the allocation currently affects settlement or has been reversed/cancelled.
+        usage: Controls Invoice settlement projections, reconciliation, and audit.
+        relationshipContext: Invoice amountSettled must be derived from active allocations rather than every historical allocation record.
+        workflowRole: ACTIVE affects settlement; REVERSED removes the allocation effect through a controlled correction; CANCELLED prevents activation.
+        requiredMeaning: Required for controlled settlement state.
+    - name: reversalOfAllocationId
+      type: reference
+      target: PaymentAllocation
       required: false
-      maxLength: 250
+      immutable: true
       help:
-        summary: Optional operational or remittance reference explaining the allocation.
-        usage: Supports customer remittance, supplier settlement, dispute investigation, and reconciliation.
-        relationshipContext: Supplements but does not replace Payment and Invoice identities.
-        workflowRole: Useful when allocation was determined from remittance advice or manual reconciliation.
-        optionalMeaning: Optional when allocation is automatically determined.
+        summary: Original allocation that this record reverses.
+        businessMeaning: Links a correction to the settlement evidence it negates.
+        usage: Supports audit, dispute resolution, reallocation, and accounting correction.
+        relationshipContext: A reversal is a new historical event and does not rewrite the original allocation.
+        workflowRole: Enables controlled reversal followed by a corrected allocation.
+        optionalMeaning: Optional for normal allocations.
+    - name: roundingAdjustment
+      type: Money
+      required: false
+      help:
+        summary: Explicit rounding difference required to reconcile source and target settlement values under the approved conversion and currency precision policy.
+        businessMeaning: Represents a controlled rounding effect, not an unexplained difference in payment or invoice value.
+        usage: Used in cross-currency reconciliation and accounting adjustment.
+        relationshipContext: Must use an appropriate currency and remain within configured tolerance.
+        workflowRole: Makes small conversion/precision differences explicit and auditable.
+        optionalMeaning: Optional when no rounding adjustment is required.
   relationships:
     - name: payment
       target: Payment
       cardinality: '1'
       ownership: reference
       help:
-        summary: Identifies the payment from which the allocated monetary amount originates.
-        usage: Allows total allocation to be reconciled against the payment event.
-        cardinalityMeaning: Every allocation belongs to exactly one Payment.
-        workflowRole: Payment remains the settlement event while PaymentAllocation determines how its amount is applied.
+        summary: Source Payment for this allocation.
+        businessMeaning: Establishes the settlement event from which allocated value originates.
+        usage: Supports payment-to-claim traceability and reconciliation.
+        cardinalityMeaning: Exactly one Payment supplies each allocation.
+        workflowRole: Provides payment currency, available unapplied amount, and source settlement evidence.
     - name: invoice
       target: Invoice
       cardinality: '1'
       ownership: reference
       help:
-        summary: Identifies the financial claim receiving the allocated payment amount.
-        usage: Allows invoice outstanding balance and settlement status to be derived from payment allocations.
-        cardinalityMeaning: Every allocation applies to exactly one Invoice.
-        workflowRole: ACTIVE allocations reduce the claim's outstanding amount according to accounting policy.
+        summary: Target Invoice claim receiving this allocation.
+        businessMeaning: Establishes which financial obligation is reduced.
+        usage: Supports settlement, aging, statements, and reconciliation.
+        cardinalityMeaning: Exactly one Invoice is the target of each allocation.
+        workflowRole: Provides invoice currency, outstanding amount, and claim lifecycle context.
+    - name: exchangeRate
+      target: ExchangeRate
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Conversion evidence used for cross-currency allocation.
+        businessMeaning: Preserves the rate used to translate source payment value into target claim value.
+        usage: Supports audit and historical reproducibility.
+        cardinalityMeaning: At most one explicit ExchangeRate is associated with an allocation.
+        workflowRole: Makes cross-currency settlement deterministic.
   invariants:
-    - id: PAYMENT-ALLOCATION-001
-      rule: allocatedAmount must be greater than zero.
-    - id: PAYMENT-ALLOCATION-002
-      rule: The sum of active allocations for a Payment must not exceed Payment.amount unless an explicit over-allocation policy exists.
-    - id: PAYMENT-ALLOCATION-003
-      rule: Active allocations must not exceed the invoice's outstanding settlement amount unless an authorized overpayment policy exists.
-    - id: PAYMENT-ALLOCATION-004
-      rule: A reversed allocation must retain its original payment and invoice references for audit.
-    - id: PAYMENT-ALLOCATION-005
-      rule: A reversed Payment must not retain active allocations that continue to reduce invoice balances unless explicitly supported by reversal policy.
+    - {id: PAYMENT-ALLOCATION-001, rule: paymentAmount and invoiceAmount must both be positive for an active allocation.}
+    - {id: PAYMENT-ALLOCATION-002, rule: paymentAmount currency must equal the Payment currency.}
+    - {id: PAYMENT-ALLOCATION-003, rule: invoiceAmount currency must equal the Invoice currency.}
+    - {id: PAYMENT-ALLOCATION-004, rule: If Payment and Invoice currencies differ, exchangeRateId is required and must reference a valid rate for the allocation policy and time.}
+    - {id: PAYMENT-ALLOCATION-005, rule: If Payment and Invoice currencies are identical, an ExchangeRate is not required merely to perform allocation.}
+    - {id: PAYMENT-ALLOCATION-006, rule: Active paymentAmount allocations must not exceed the Payment's available unapplied amount under the applicable correction and concurrency policy.}
+    - {id: PAYMENT-ALLOCATION-007, rule: Active invoiceAmount allocations must not exceed the Invoice amountOutstanding plus authorized rounding or adjustment tolerance.}
+    - {id: PAYMENT-ALLOCATION-008, rule: Reversal must create controlled historical evidence and must not mutate the original allocation record.}
+    - {id: PAYMENT-ALLOCATION-009, rule: Invoice amountSettled and amountOutstanding must be projections of active allocations and authorized adjustments, not independently editable settlement facts.}
+    - {id: PAYMENT-ALLOCATION-010, rule: Cross-currency allocation must preserve ExchangeRate, effective context, rounding adjustment, and resulting target amount for historical reproducibility.}
   help:
-    summary: Represents the precise application of a payment to an invoice and is the missing reconciliation layer between cash events and financial claims.
-    businessMeaning: Payment records how much money moved. Invoice records how much is owed. PaymentAllocation records how the money is applied to the claim.
-    usage: Essential for partial payments, one payment against many invoices, one invoice paid by many payments, advances, unapplied cash, overpayments, reversals, and payment reallocation.
-    relationshipContext: SalesOrder and Shipment explain the commercial and physical origin of a sales claim. Invoice represents the claim. Payment represents settlement. PaymentAllocation connects the settlement to the claim. BankTransaction provides external financial-institution evidence and JournalEntry provides accounting recognition.
-    workflowContext: Payment received → reconciliation/remittance identification → PaymentAllocation created → Invoice outstanding balance recalculated → Invoice becomes PARTIALLY_PAID or PAID when settlement criteria are met. If allocation is wrong, reverse the allocation and create the corrected allocation rather than mutating history.
-    lifecycle: Allocation is created, validated, activated, and may later be reversed. Historical allocations remain auditable.
-    example: A customer pays 10,000 USD against three invoices. One Payment records the 10,000 USD receipt. Three PaymentAllocation records apply 4,000, 3,500, and 2,500 USD to the respective invoices. Each invoice's settlement state is calculated from its active allocations and other authorized credits.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-PAYMENT-ALLOCATION
+    summary: Provides the controlled bridge between a Payment event and an Invoice claim.
+    businessMeaning: Payment says money moved; Invoice says money is owed; PaymentAllocation says exactly how much of that payment satisfies that claim.
+    usage: Central to receivables, payables, collections, payment reconciliation, bank reconciliation, refunds, reallocation, and accounting.
+    relationshipContext: Payment supplies source funds. Invoice supplies target obligation. Currency defines denominations. ExchangeRate converts denominations when required. Invoice derives settlement projections from active allocations.
+    workflowContext: Payment received or posted → validate available unapplied amount → select Invoice → compare currencies → select approved ExchangeRate if required → calculate target invoice amount → apply rounding policy → activate PaymentAllocation → update Invoice amountSettled/amountOutstanding/status → reconcile with bank and accounting evidence.
+    lifecycle: Draft allocation → validation → active settlement → optional reversal/cancellation → corrected allocation if needed. Historical allocations are never silently rewritten.
+    example: A EUR 5,000 Payment is applied to a USD invoice using an approved EUR-to-USD ExchangeRate. paymentAmount remains EUR 5,000, invoiceAmount records the USD claim value satisfied, ExchangeRate preserves the conversion evidence, and any rounding adjustment is explicit. The Invoice is not marked paid until its active allocations satisfy its outstanding amount.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PAYMENT-ALLOCATION}
