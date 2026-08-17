@@ -2,90 +2,78 @@ entity:
   name: PartyRole
   namespace: cedm.domain
   kind: relationship_entity
-  description: A business role assigned to a Party that defines how that party participates in a particular business context. PartyRole separates the identity of a person or organization from the changing roles it performs, such as Customer, Supplier, Employee, Carrier, Owner, or Partner.
-  identity:
-    key: partyRoleId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A business role assigned to a Party that defines how that party participates in a particular business context. PartyRole separates stable identity from changing roles such as Customer, Supplier, Employee, Carrier, Owner, or Partner and provides the lifecycle, validity, authorization, and organizational scope for that participation.
+  identity: {key: partyRoleId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: partyRoleId
     type: uuid
     required: true
     immutable: true
     help:
-      summary: The immutable identifier of this specific role relationship, not the identity of the underlying Party.
-      usage: Used to reference the role instance from specialized entities such as Customer or Supplier and from transactions that need the party in a particular capacity.
-      relationshipContext: A single Party can have many PartyRole records. This identifier therefore distinguishes the role instance and its lifecycle from the Party identity identified by partyId.
-      requiredMeaning: Required because every role participation must be independently addressable for lifecycle, authorization, reporting, and audit purposes.
+      summary: Immutable identity of this specific role relationship.
+      usage: Referenced by specialized entities and transactions requiring the party in a defined business capacity.
+      relationshipContext: Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId.
+      workflowRole: Provides the stable role reference used throughout the role lifecycle.
+      requiredMeaning: Required for independent role traceability.
   - name: partyId
     type: reference
     target: Party
     required: true
+    immutable: true
     help:
-      summary: Identifies the person or organization that performs this business role.
-      usage: Used to navigate from a role to the underlying Party and to reuse the party's common identity, contact information, and other shared attributes.
-      relationshipContext: Party is the identity anchor; PartyRole adds contextual participation. The same Party may simultaneously hold multiple roles without duplicating the Party record.
-      requiredMeaning: Required because a role without an underlying participant has no business meaning.
+      summary: Identifies the underlying person or organization performing this role.
+      usage: Provides common identity without duplicating Party data.
+      relationshipContext: One Party may have multiple PartyRoles simultaneously or historically.
+      workflowRole: Connects role-specific processing back to the canonical identity.
+      requiredMeaning: Required because a role cannot exist without a participant.
   - name: roleType
     type: enum
     required: true
     values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
     help:
-      summary: Specifies the business capacity in which the Party participates in the relevant organization or business context.
-      usage: Determines which specialized capabilities, transactions, policies, workflows, and validations may apply to the Party. For example, CUSTOMER enables customer-specific commercial processes while SUPPLIER enables procurement processes.
-      relationshipContext: roleType is deliberately separate from Party.partyType. Party.partyType answers what the participant fundamentally is; roleType answers how that participant is acting in a business relationship.
-      valueSemantics:
-        CUSTOMER: The Party is treated as a recipient or purchaser of the organization's goods, services, or offerings.
-        SUPPLIER: The Party provides goods, services, materials, or other value to the organization.
-        EMPLOYEE: The Party participates as a worker under an employment relationship.
-        PARTNER: The Party participates in a strategic, channel, alliance, or other collaborative relationship.
-        CARRIER: The Party provides transportation or logistics services.
-        AGENT: The Party is authorized to act on behalf of another party within defined authority.
-        CONTRACTOR: The Party provides services under a contractual engagement without necessarily being an employee.
-        OWNER: The Party holds an ownership or beneficial-interest relationship with an asset, organization, or other object.
-        INVESTOR: The Party provides capital or holds an investment interest.
-        OTHER: A valid role not represented by the standard CEDM role vocabulary.
-      requiredMeaning: Required because downstream processes must know the capacity in which the party participates.
+      summary: Defines the business capacity in which the Party participates.
+      usage: Determines specialized capabilities, policies, workflows, and validations.
+      relationshipContext: Separate from Party.partyType, which describes whether the participant is a person or organization.
+      workflowRole: Selects the applicable downstream role specialization and business process.
+      requiredMeaning: Required for contextual participation.
   - name: code
     type: string
     required: false
     maxLength: 100
     help:
-      summary: A business-context identifier for the role, used when the organization assigns a locally meaningful code to a party participation.
-      usage: Useful for operational searches, external integrations, reports, and legacy identifiers when partyId and partyRoleId are not the identifiers users normally see.
-      relationshipContext: The code identifies the role instance within its business context; it should not be confused with Party identifiers or specialized Customer/Supplier codes.
-      optionalMeaning: Optional because the role can be uniquely identified by its system identity and relationships even when no business code has been assigned.
+      summary: Optional business-context identifier for this role instance.
+      usage: Supports operational search, integrations, reports, and legacy references.
+      relationshipContext: Identifies the role instance and must not replace Party or specialized role identifiers.
+      optionalMeaning: Optional when partyRoleId is sufficient.
   - name: validFrom
     type: date
     required: false
     help:
-      summary: The date on which the role becomes applicable for business processing.
-      usage: Used to prevent processes from treating a role as active before its contractual, organizational, or operational start date.
-      relationshipContext: Works with validTo and status to describe temporal applicability. A Party may have multiple historical roles with different validity periods.
-      optionalMeaning: Optional when the role is effective immediately or the source process does not maintain explicit effective dating.
+      summary: Date from which this role is eligible for ordinary business processing.
+      usage: Used by eligibility and transaction validation.
+      relationshipContext: Works with validTo and status; ending a role does not delete Party identity or other roles.
+      workflowRole: Prevents premature use of a newly established role.
+      optionalMeaning: Optional for immediately effective roles.
   - name: validTo
     type: date
     required: false
     help:
-      summary: The date after which the role is no longer intended to be valid for ordinary business processing.
-      usage: Used by eligibility checks, transaction validation, reporting, renewals, and role-expiry processes.
-      relationshipContext: Must be interpreted with validFrom and status. Expiration of a role does not delete the underlying Party or necessarily terminate other roles held by that Party.
-      optionalMeaning: Optional for open-ended roles that remain valid until explicitly ended.
+      summary: Date after which the role is no longer normally eligible for new business processing.
+      usage: Used by eligibility, renewal, reporting, and expiry workflows.
+      relationshipContext: Historical transactions may continue referencing the role after validTo.
+      workflowRole: Prevents new use after role expiration while preserving historical attribution.
+      optionalMeaning: Optional for open-ended roles.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, EXPIRED]
     help:
-      summary: The operational lifecycle state of the PartyRole relationship.
-      usage: Controls whether processes may normally use the role for new transactions, assignments, authorizations, or relationship-specific actions.
-      relationshipContext: Status belongs to the role, not to the Party. A Party can remain ACTIVE while one of its roles becomes INACTIVE or EXPIRED.
-      valueSemantics:
-        ACTIVE: The role is currently usable subject to other business rules and validity dates.
-        INACTIVE: The role is intentionally unavailable for ordinary processing but has not necessarily reached its validity end date.
-        EXPIRED: The role's validity has ended and it should not be used as an active participation without a new or renewed role.
-      requiredMeaning: Required because downstream processes must distinguish active participation from historical or unavailable participation.
+      summary: Operational lifecycle of the PartyRole relationship.
+      usage: Controls whether the role can normally participate in new transactions, assignments, or authorizations.
+      relationshipContext: Role status is independent of Party.status and other PartyRole statuses.
+      workflowRole: ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.
+      requiredMeaning: Required for role eligibility decisions.
   relationships:
   - name: party
     target: Party
@@ -93,37 +81,49 @@ entity:
     ownership: reference
     inverse: partyRoles
     help:
-      summary: Connects the role to the Party whose business participation it represents.
-      usage: Enables navigation from a role to common party identity and from a Party to all roles it holds.
-      cardinalityMeaning: Exactly one Party owns the identity represented by this role; the role cannot exist independently of that participant.
-      context: This is the foundational Party-to-role relationship. Specialized entities such as Customer and Supplier should reference the appropriate role rather than duplicating party identity data.
+      summary: Connects this role to the Party whose participation it represents.
+      usage: Provides navigation to canonical identity and all roles held by the party.
+      cardinalityMeaning: Exactly one Party is required.
+      workflowRole: Establishes the identity context for every role-specific workflow.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
-    description: The organizational or business context in which the role applies.
     help:
-      summary: Identifies the organization or organizational context that recognizes this PartyRole.
-      usage: Allows the same Party to hold different roles with different organizations, subsidiaries, business units, or operating contexts.
-      cardinalityMeaning: Zero means the role is globally or context-independently defined; one means the role is explicitly scoped to a single organization.
-      context: Organization scoping is important for multi-enterprise ERP environments where a party may be a Customer in one organization and a Supplier or Partner in another.
+      summary: Optional organizational scope in which the role is recognized.
+      usage: Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios.
+      cardinalityMeaning: Zero means global/context-independent; one means explicitly scoped to one organization.
+      workflowRole: Determines which organization can use the role for applicable transactions and policies.
+  - name: specializedRole
+    target: Customer|Supplier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Optional role specialization corresponding to the roleType.
+      usage: Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification.
+      cardinalityMeaning: At most one specialization is represented by this relationship in the current core model.
+      workflowRole: Allows specialized workflows to extend the role without duplicating Party identity.
   invariants:
   - id: ROLE-001
-    rule: validTo must not be earlier than validFrom.
+    rule: validTo must not be earlier than validFrom when both are supplied.
   - id: ROLE-002
-    rule: roleType must be supported by the referenced party's capabilities.
-  - id: ROLE-003
     rule: An ACTIVE role must not have a validTo date earlier than the current business date.
+  - id: ROLE-003
+    rule: PartyRole must not duplicate identity attributes owned by Party, Person, or Organization.
   - id: ROLE-004
-    rule: PartyRole must not be used to duplicate the identity attributes maintained by Party, Person, or Organization.
+    rule: Customer specialization requires roleType CUSTOMER and Supplier specialization requires roleType SUPPLIER.
+  - id: ROLE-005
+    rule: A Party may hold multiple roles, but one role instance must represent one roleType and one organizational scope.
+  - id: ROLE-006
+    rule: Ending or changing a PartyRole must not rewrite historical transactions that reference the role used at transaction time.
+  - id: ROLE-007
+    rule: Role eligibility for a new transaction requires Party status, PartyRole status, validity dates, organizational scope, and applicable specialized-role controls to all permit the transaction.
   help:
-    summary: Represents the contextual participation of a Party in a business relationship.
-    businessMeaning: PartyRole is the bridge between a stable party identity and the many roles that party may perform. It prevents the domain model from treating Customer, Supplier, Employee, Carrier, Owner, and similar concepts as unrelated identities when they may belong to the same person or organization.
-    usage: Used as the foundation for role-specific entities, relationship management, authorization, commercial processing, procurement, employment, logistics, ownership, and other domain capabilities.
-    relationshipContext: PartyRole belongs between Party and role-specific business concepts. Customer and Supplier, for example, specialize a role rather than creating a second independent party identity. Organization can optionally scope the role to a particular enterprise context.
-    lifecycle: The role has its own operational status and optional effective dates. Changing or ending a role does not inherently change the lifecycle of the underlying Party or other roles held by that Party.
-    example: An organization may be represented once as a Party, hold a SUPPLIER role for one enterprise, a CUSTOMER role for another, and a PARTNER role for a strategic relationship. Each role has its own identifier, validity, status, and downstream business behavior.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-PARTY-ROLE
+    summary: The bridge between stable Party identity and contextual business participation.
+    businessMeaning: Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior.
+    usage: Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management.
+    relationshipContext: Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed.
+    workflowContext: Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution.
+    lifecycle: Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles.
+    example: One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PARTY-ROLE}
