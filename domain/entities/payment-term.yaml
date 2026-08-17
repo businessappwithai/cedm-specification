@@ -2,7 +2,7 @@ entity:
   name: PaymentTerm
   namespace: cedm.domain
   kind: commercial_reference_entity
-  description: Terms defining when and how a financial obligation is expected to be settled.
+  description: A reusable commercial policy defining when and under what conditions a financial obligation becomes due and how settlement timing is determined.
   identity:
     key: paymentTermId
     type: uuid
@@ -14,105 +14,182 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the payment term record associated with this PaymentTerm. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Stable identity of the payment-term policy.
+      usage: Referenced by Customer, Supplier, SalesOrder, PurchaseOrder, Invoice, and applicable contracts.
+      relationshipContext: Identifies the policy definition, not a particular invoice due date or payment event.
+      workflowRole: Provides reusable settlement timing rules that are copied or resolved into transaction-level due-date calculations.
+      requiredMeaning: Required for traceable commercial terms.
   - name: code
     type: string
     required: true
     unique: true
     maxLength: 50
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Business code for the payment-term policy, such as NET30 or DUE_ON_RECEIPT.
+      usage: Used in customer/supplier master data, order entry, procurement, invoices, reports, and integrations.
+      relationshipContext: Code identifies the reusable policy; it is not itself a due date.
+      workflowRole: Provides a selectable default during commercial transaction creation.
+      requiredMeaning: Required for operational identification.
   - name: name
     type: string
     required: true
     maxLength: 150
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Human-readable name of the settlement-timing policy.
+      usage: Used in configuration, forms, documents, reporting, and user selection.
+      relationshipContext: Describes the policy represented by code and paymentTermId.
+      workflowRole: Makes commercial settlement conditions understandable during order, procurement, and billing processes.
+      requiredMeaning: Required for usable master data.
   - name: dueDays
     type: integer
     required: true
     minimum: 0
     help:
-      summary: Captures the business meaning of due days for the PaymentTerm. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Number of calendar days normally added to the applicable due-date base event to calculate contractual payment due date.
+      usage: Used by Invoice and receivables/payables processes to calculate expected settlement dates.
+      relationshipContext: Must be interpreted with dueDateBasis; it is not necessarily calculated from order date.
+      workflowRole: Converts a transaction's defined due-date basis into a scheduled due date.
+      requiredMeaning: Required for terms based on a day offset, including zero days.
+  - name: dueDateBasis
+    type: enum
+    required: true
+    default: INVOICE_DATE
+    values: [INVOICE_DATE, DELIVERY_DATE, RECEIPT_DATE, MONTH_END, CUSTOM]
+    help:
+      summary: Defines the business event from which dueDays is calculated.
+      usage: Used by invoicing, accounts receivable, accounts payable, collections, and cash-flow forecasting.
+      relationshipContext: The basis event comes from the applicable transaction workflow and may differ between sales and procurement contexts.
+      workflowRole: Determines how the Invoice due date or payable obligation date is derived.
+      valueSemantics:
+        INVOICE_DATE: Due date is calculated from the invoice issue/accounting date according to policy.
+        DELIVERY_DATE: Due date is calculated from the applicable delivery event.
+        RECEIPT_DATE: Due date is calculated from accepted receipt evidence, typically in procurement.
+        MONTH_END: Due date is calculated according to month-end terms and the configured day-offset interpretation.
+        CUSTOM: A transaction or agreement-specific rule supplies the due-date basis and calculation.
+      requiredMeaning: Required because dueDays has no complete business meaning without a basis.
+  - name: discountDays
+    type: integer
+    required: false
+    minimum: 0
+    help:
+      summary: Number of days during which an early-payment discount may be available.
+      usage: Used by receivables, payables, payment scheduling, cash forecasting, and discount calculation.
+      relationshipContext: Applies only when an early-payment discount rate or amount is also defined.
+      workflowRole: Establishes the time window for discounted settlement.
+      optionalMeaning: Optional when no early-payment discount is offered.
+  - name: discountPercent
+    type: decimal
+    required: false
+    precision: 9
+    scale: 6
+    minimum: 0
+    maximum: 100
+    help:
+      summary: Percentage reduction available when the applicable obligation is settled within the discount window.
+      usage: Used for payment planning, invoice presentation, cash forecasting, and settlement calculation.
+      relationshipContext: Must be interpreted together with discountDays and the applicable transaction amount.
+      workflowRole: Allows Payment scheduling and Invoice terms to determine whether early settlement qualifies for discount.
+      optionalMeaning: Optional when no percentage discount applies.
+  - name: graceDays
+    type: integer
+    required: false
+    minimum: 0
+    help:
+      summary: Additional days allowed after the nominal due date before a policy considers the obligation overdue for a defined process.
+      usage: Used by collections, credit control, late-payment reporting, and supplier payment management.
+      relationshipContext: Grace period does not necessarily change the contractual due date; it changes the operational escalation threshold.
+      workflowRole: Separates contractual due date from collection or escalation timing.
+      optionalMeaning: Optional when no grace period applies.
   - name: description
     type: string
     required: false
     maxLength: 1000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Human-readable explanation of the payment policy and its operational interpretation.
+      usage: Used in configuration, audit, transaction review, and user guidance.
+      relationshipContext: Supplements structured rules and must not be the sole source for due-date calculation.
+      optionalMeaning: Optional where structured attributes fully describe the policy.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
+    values: [ACTIVE, INACTIVE, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating PaymentTerm records, where
-        applicable.
-      relationshipContext: Its meaning is specific to PaymentTerm; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Controls whether the payment-term policy can be selected for new transactions.
+      usage: Used by customer/supplier maintenance, order capture, procurement, invoicing, and contracts.
+      relationshipContext: Retiring a term must not change historical transaction due dates that were calculated from it.
+      workflowRole: New transactions normally select ACTIVE terms; historical transactions preserve their effective terms and derived dates.
       valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of PaymentTerm.
-        INACTIVE: Represents the inactive state or classification in the context of PaymentTerm.
-        RETIRED: Represents the retired state or classification in the context of PaymentTerm.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+        ACTIVE: Available for normal new transaction use.
+        INACTIVE: Temporarily unavailable for new selection.
+        RETIRED: No longer available for new selection while historical references remain valid.
+      requiredMeaning: Required for master-data eligibility.
+  relationships:
+  - name: customers
+    target: Customer
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Identifies customers for whom this payment term is the default commercial settlement policy.
+      usage: Supports customer onboarding, credit management, order creation, invoicing, and receivables.
+      cardinalityMeaning: A payment term can be the default for many customers.
+      workflowRole: Supplies a default that may be copied or overridden according to customer, contract, and transaction policy.
+  - name: suppliers
+    target: Supplier
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Identifies suppliers for whom this payment term is the default payable settlement policy.
+      usage: Supports procurement, invoice matching, accounts payable, cash planning, and supplier management.
+      cardinalityMeaning: A payment term can be the default for many suppliers.
+      workflowRole: Supplies default payable timing for PurchaseOrder and supplier Invoice processes.
+  - name: salesOrders
+    target: SalesOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links payment terms used or selected for sales commitments.
+      usage: Supports commercial agreement, order review, and downstream billing expectations.
+      cardinalityMeaning: A payment term can apply to many SalesOrders.
+      workflowRole: Provides commercial settlement expectations that flow into invoicing where policy permits.
+  - name: purchaseOrders
+    target: PurchaseOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links payment terms used or selected for procurement commitments.
+      usage: Supports supplier commercial conditions and accounts payable planning.
+      cardinalityMeaning: A payment term can apply to many PurchaseOrders.
+      workflowRole: Provides payable timing expectations for supplier invoices.
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links payment terms used to establish invoice settlement expectations.
+      usage: Supports due-date calculation, statements, collections, payment scheduling, and reporting.
+      cardinalityMeaning: A payment term can be referenced by many invoices.
+      workflowRole: Supplies the policy from which an invoice due date and optional early-payment terms are derived.
   invariants:
   - id: PAYMENT-TERM-001
     rule: dueDays must be zero or greater.
-  tags:
-  - finance
-  - commercial
-  - reference-data
+  - id: PAYMENT-TERM-002
+    rule: discountDays must be zero or greater when supplied.
+  - id: PAYMENT-TERM-003
+    rule: discountPercent must be between 0 and 100 when supplied.
+  - id: PAYMENT-TERM-004
+    rule: discountPercent requires discountDays when an early-payment discount is configured.
+  - id: PAYMENT-TERM-005
+    rule: Retiring or changing a PaymentTerm must not rewrite already-issued invoice due dates or historical transaction terms unless an explicit authorized amendment workflow exists.
   help:
-    summary: Represents a commercial reference entity called PaymentTerm within the CEDM business model.
-    businessMeaning: PaymentTerm is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate PaymentTerm records.
-    relationshipContext: The entity participates in a wider business graph through relationships with other CEDM entities.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical PaymentTerm record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: Defines reusable commercial rules for when financial obligations become due and when early-settlement benefits or operational grace periods apply.
+    businessMeaning: PaymentTerm is a policy definition; an actual Invoice due date is a transaction-level result calculated from that policy and the applicable business event.
+    usage: Central to customer credit, supplier procurement, SalesOrder, PurchaseOrder, Invoice, receivables, payables, collections, cash forecasting, and payment scheduling.
+    relationshipContext: Customer and Supplier provide default role-level terms. SalesOrder and PurchaseOrder provide transaction context. Invoice derives an actual due date. Payment settles the obligation; PaymentTerm does not itself represent a Payment.
+    workflowContext: Customer/Supplier default → SalesOrder/PurchaseOrder selection → Invoice creation → due-date calculation → receivable/payable aging → Payment scheduling → settlement. A term may be overridden by an authorized contract or transaction-level agreement, but the effective term used for an issued financial document must remain auditable.
+    lifecycle: Payment terms can be created, activated, made inactive, and retired. Master-data changes affect future selection; issued transaction terms and calculated due dates remain historically stable unless formally amended.
+    example: NET30 with INVOICE_DATE and dueDays 30 means an invoice issued on 10 August has a nominal due date of 9 September. If the term also specifies 2% within 10 days, the early-payment window is separately evaluated; the PaymentTerm does not itself create or allocate a payment.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-PAYMENT-TERM
