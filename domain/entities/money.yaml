@@ -1,0 +1,68 @@
+entity:
+  name: Money
+  namespace: cedm.domain
+  kind: value_object
+  description: A monetary value consisting of an amount and its Currency, with explicit semantic context for pricing, taxation, discounting, invoicing, payment, banking, and accounting.
+  identity:
+    key: null
+    type: value_object
+    generated: false
+    immutable: true
+  attributes:
+  - name: amount
+    type: decimal
+    required: true
+    precision: 24
+    scale: 6
+    help:
+      summary: Numeric monetary value expressed in the associated Currency.
+      businessMeaning: Represents the magnitude of a financial amount but has no complete meaning without currency and amount semantics.
+      usage: Used for prices, discounts, taxes, invoice totals, payment amounts, allocations, bank amounts, and accounting amounts.
+      relationshipContext: Must always be interpreted with currency and the business field containing it; amount alone must never be assumed to represent a particular denomination or financial concept.
+      workflowRole: Carries the numeric component of financial facts through pricing, ordering, billing, settlement, banking, and accounting workflows.
+      requiredMeaning: Required because a Money value without an amount is incomplete.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: true
+    immutable: true
+    help:
+      summary: Identifies the currency in which amount is denominated.
+      businessMeaning: Supplies the monetary denomination required to interpret amount.
+      usage: Used whenever Money participates in cross-entity financial calculations or documents.
+      relationshipContext: Currency defines denomination; Money does not contain exchange-rate logic.
+      workflowRole: Ensures amounts from Product pricing, SalesOrder, Invoice, Payment, BankTransaction, and JournalEntry can be compared only when currency-compatible or explicitly converted.
+      requiredMeaning: Required because amount without currency is financially ambiguous.
+  - name: scalePolicy
+    type: enum
+    required: false
+    values: [CURRENCY_STANDARD, TRANSACTION_DEFINED, ACCOUNTING_DEFINED]
+    help:
+      summary: Identifies which precision policy governs representation and rounding of this Money value.
+      usage: Supports consistent calculation and presentation across transaction and accounting workflows.
+      relationshipContext: Currency supplies default decimalPlaces, while a transaction or accounting policy may require stricter precision.
+      workflowRole: Prevents silent precision changes during pricing, tax, allocation, conversion, and posting.
+      optionalMeaning: Optional when the consuming process has an unambiguous global precision policy.
+  invariants:
+  - id: MONEY-001
+    rule: currencyId is required for every Money value.
+  - id: MONEY-002
+    rule: Monetary arithmetic across different currencies requires an explicit approved exchange-rate/conversion context.
+  - id: MONEY-003
+    rule: Money values representing different business semantics must not be combined merely because they share the same currency; for example tax, discount, gross, net, paid, and outstanding amounts remain distinct facts.
+  - id: MONEY-004
+    rule: Rounding must be explicit and reproducible at the calculation boundary defined by the consuming transaction or accounting policy.
+  - id: MONEY-005
+    rule: Historical Money values must preserve their original currency and recorded amount even if Currency master data is later retired or its display metadata changes.
+  help:
+    summary: Canonical CEDM value object for an amount paired with its monetary denomination.
+    businessMeaning: Money provides the minimum semantic structure required to represent a financial amount safely. It does not determine whether the amount is a price, tax, discount, invoice total, payment, or accounting value; the containing field provides that business meaning.
+    usage: Used throughout commercial, procurement, invoicing, payment, banking, treasury, tax, and accounting domains.
+    relationshipContext: Money references Currency and is embedded by financial fields on transactional entities. It must not replace specialized entities such as Payment, Invoice, or JournalEntry because those entities carry business lifecycle and workflow semantics.
+    workflowContext: Product reference price → SalesOrder/PurchaseOrder amounts → tax/discount calculation → Invoice totals → Payment → PaymentAllocation → BankTransaction → JournalEntry. Currency conversion, where required, is a separate controlled operation and must be traceable.
+    lifecycle: Money is immutable as a value within a business fact. A correction creates a new value or reversal event rather than mutating historical financial evidence.
+    example: An InvoiceLine may contain a net amount of 100.00 USD, while a Payment may contain 92.00 EUR. These are separate Money values. Applying the payment to the invoice requires an explicit currency conversion context and PaymentAllocation; the Money value itself does not hide that conversion.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-MONEY
