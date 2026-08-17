@@ -3,25 +3,14 @@ entity:
   namespace: cedm.domain
   kind: party_specialization
   extends: Party
-  description: A natural person participating in business activities as a party.
-  identity:
-    key: personId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A natural person participating in business activities as a specialization of Party. Person supplies intrinsic individual identity; business participation is represented through PartyRole and specialized roles.
+  identity: {key: personId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: personId
     type: uuid
     required: true
     immutable: true
-    help:
-      summary: Identifies the person record associated with this Person. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Stable identity of the Person specialization, usage: individual identity processes, relationshipContext: Party.partyId remains canonical, workflowRole: identifies person-specific record, requiredMeaning: required for specialization traceability.}
   - name: partyId
     type: reference
     target: Party
@@ -29,112 +18,49 @@ entity:
     unique: true
     immutable: true
     help:
-      summary: Identifies the related Party associated with this Person. It provides the link needed to navigate from this
-        record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: This field connects Person to Party. The reference establishes business context between the two
-        entities and lets processes navigate from this record to the related Party.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Canonical Party identity represented by this Person specialization.
+      usage: Connects person-specific data to common Party identity and all PartyRoles.
+      relationshipContext: Exactly one Person specialization may represent a Party classified as PERSON.
+      workflowRole: Ensures transactions and roles use one stable person identity.
+      requiredMeaning: Required to prevent duplicate identity.
   - name: title
     type: string
     required: false
     maxLength: 50
-    help:
-      summary: Captures the business meaning of title for the Person. It is interpreted together with the entity's other attributes
-        and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Personal title, usage: documents and presentation, relationshipContext: presentation attribute, workflowRole: supports person display, optionalMeaning: optional.}
   - name: givenName
     type: string
     required: true
     maxLength: 150
-    help:
-      summary: Captures the business meaning of given name for the Person. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Given name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
   - name: middleName
     type: string
     required: false
     maxLength: 150
-    help:
-      summary: Captures the business meaning of middle name for the Person. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Middle name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, optionalMeaning: optional.}
   - name: familyName
     type: string
     required: true
     maxLength: 150
-    help:
-      summary: Captures the business meaning of family name for the Person. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Family name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
   - name: preferredName
     type: string
     required: false
     maxLength: 150
-    help:
-      summary: Captures the business meaning of preferred name for the Person. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Preferred display name, usage: communication and UI, relationshipContext: presentation not canonical identity, workflowRole: human interaction, optionalMeaning: optional.}
   - name: dateOfBirth
     type: date
     required: false
-    help:
-      summary: Captures the business meaning of date of birth for the Person. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Date of birth, usage: processes requiring verified individual identity, relationshipContext: sensitive person attribute subject to access policy, workflowRole: eligibility/verification where applicable, optionalMeaning: optional.}
   - name: gender
     type: enum
     required: false
-    values:
-    - FEMALE
-    - MALE
-    - NON_BINARY
-    - OTHER
-    - UNSPECIFIED
-    help:
-      summary: Captures the business meaning of gender for the Person. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        FEMALE: Represents the female state or classification in the context of Person.
-        MALE: Represents the male state or classification in the context of Person.
-        NON_BINARY: Represents the non binary state or classification in the context of Person.
-        OTHER: Represents the other state or classification in the context of Person.
-        UNSPECIFIED: Represents the unspecified state or classification in the context of Person.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    values: [FEMALE, MALE, NON_BINARY, OTHER, UNSPECIFIED]
+    help: {summary: Gender classification where required by the business process, usage: permitted business processes only, relationshipContext: person attribute and not role, workflowRole: process-specific, optionalMeaning: optional.}
   - name: nationality
     type: country_code
     required: false
-    help:
-      summary: Captures the business meaning of nationality for the Person. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Person records, where applicable.
-      relationshipContext: Its meaning is specific to Person; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Nationality, usage: applicable identity/compliance processes, relationshipContext: not Party identity, workflowRole: process-specific, optionalMeaning: optional.}
   relationships:
   - name: party
     target: Party
@@ -142,46 +68,33 @@ entity:
     ownership: reference
     inverse: person
     help:
-      summary: Connects Person to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Person.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Canonical Party represented by this Person specialization.
+      usage: Navigates to common party identity and PartyRoles.
+      cardinalityMeaning: Exactly one Party.
+      workflowRole: Connects intrinsic person identity to business participation.
   - name: employerOrganizations
     target: Organization
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Person to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Person.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Organizations associated with the person as employers or organizational contexts.
+      usage: Supports employment and organizational relationships.
+      cardinalityMeaning: Zero or many.
+      workflowRole: Provides context for employment/worker workflows; it does not itself establish an Employee role.
   invariants:
-  - id: PERSON-001
-    rule: party.partyType must equal PERSON.
-  - id: PERSON-002
-    rule: givenName and familyName must be present.
-  audit:
-    enabled: true
-  tags:
-  - person
-  - party
-  - identity
+  - {id: PERSON-001, rule: partyType must equal PERSON for the referenced Party.}
+  - {id: PERSON-002, rule: givenName and familyName must be present.}
+  - {id: PERSON-003, rule: One Party cannot have multiple Person specializations.}
+  - {id: PERSON-004, rule: Person status/attributes must not be used as a substitute for PartyRole eligibility.}
+  - {id: PERSON-005, rule: Changes to Person identity attributes must preserve historical transaction snapshots or references according to the transaction's audit policy.}
+  audit: {enabled: true}
+  tags: [person, party, specialization, identity]
   help:
-    summary: Represents a party specialization called Person within the CEDM business model.
-    businessMeaning: Person is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Person records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Person record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-PERSON
+    summary: Person is the individual specialization of Party, not a business role.
+    businessMeaning: Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates.
+    usage: Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity.
+    relationshipContext: Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context.
+    workflowContext: Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles.
+    lifecycle: Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole.
+    example: One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PERSON}
