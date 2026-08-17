@@ -33,31 +33,31 @@ entity:
       required: true
       help:
         summary: Accounting and commercial date assigned to the invoice.
-        businessMeaning: Establishes the date used for financial chronology and applicable billing/tax rules.
+        businessMeaning: Establishes the date used for financial chronology and applicable billing and tax rules.
         usage: Used for accounting periods, tax, payment-term calculation, aging, reporting, and reconciliation.
         relationshipContext: Distinct from payment, bank settlement, and clearing dates.
-        workflowRole: Provides the temporal anchor for invoice issuance and, where applicable, PaymentTerm due-date calculation.
+        workflowRole: Provides the temporal anchor for invoice issuance and applicable PaymentTerm calculation.
         requiredMeaning: Required for financial chronology.
     - name: dueDate
       type: date
       required: false
       help:
-        summary: Contractual or operational date by which the claim is expected to be settled.
-        businessMeaning: Represents the transaction-level result of applying the effective PaymentTerm and due-date basis.
+        summary: Transaction-level date by which the claim is expected to be settled.
+        businessMeaning: Result of applying the effective PaymentTerm and due-date basis to the invoice.
         usage: Drives aging, collections, cash forecasting, and payment planning.
-        relationshipContext: PaymentTerm is the policy; dueDate is the invoice-specific result and must not be silently recalculated after issuance.
+        relationshipContext: PaymentTerm is policy; dueDate is the invoice-specific result and must not be silently recalculated after issue.
         workflowRole: Determines when the outstanding claim becomes overdue under the applicable policy.
-        optionalMeaning: Optional while payment conditions remain unresolved or for claim types where no due date applies.
+        optionalMeaning: Optional while terms remain unresolved or for claim types without a due date.
     - name: invoiceType
       type: enum
       required: true
       values: [SALES, PURCHASE, CREDIT_NOTE, DEBIT_NOTE]
       help:
         summary: Defines the commercial direction and accounting nature of the invoice document.
-        businessMeaning: Determines whether the document establishes a receivable, payable, or adjustment to an existing claim.
+        businessMeaning: Determines whether the document establishes a receivable, payable, or adjustment.
         usage: Used by accounting, tax, receivables, payables, matching, and reporting.
-        relationshipContext: Must agree with Customer/Supplier and applicable source transaction relationships.
-        workflowRole: Controls which party and settlement processes apply.
+        relationshipContext: Must agree with Customer/Supplier and source transaction relationships.
+        workflowRole: Controls which party, matching, tax, and settlement processes apply.
         requiredMeaning: Required for correct financial treatment.
     - name: status
       type: enum
@@ -67,14 +67,14 @@ entity:
       help:
         summary: Lifecycle state of the financial claim.
         businessMeaning: Indicates whether the claim is being prepared, outstanding, settled, overdue, cancelled, or voided.
-        usage: Controls issuance, settlement, aging, cancellation, reporting, and downstream accounting workflows.
-        relationshipContext: PaymentAllocation supplies settlement evidence; Payment status alone must never be used as invoice payment status.
+        usage: Controls issuance, settlement, aging, cancellation, reporting, and accounting workflows.
+        relationshipContext: PaymentAllocation supplies settlement evidence; Payment status alone must never determine invoice payment status.
         workflowRole: ISSUED establishes the claim; active allocations change settlement projection; PAID requires no remaining amount under policy; OVERDUE is time-based and may coexist with partial settlement.
         valueSemantics:
-          DRAFT: Claim is being prepared and is not yet issued.
+          DRAFT: Claim is being prepared and is not issued.
           ISSUED: Claim is formally outstanding.
           PARTIALLY_PAID: Active settlement evidence covers part of the amount due.
-          PAID: Applicable active settlement evidence fully satisfies the claim.
+          PAID: Active settlement evidence fully satisfies the claim under policy.
           OVERDUE: Claim remains outstanding after its due date.
           CANCELLED: Claim has been cancelled under authorized controls.
           VOID: Claim has been invalidated under accounting controls.
@@ -85,33 +85,33 @@ entity:
       required: true
       immutableAfterIssue: true
       help:
-        summary: Currency denomination of all invoice Money values.
-        businessMeaning: Defines the monetary denomination of the claim and its line totals.
+        summary: Currency denomination shared by the invoice's monetary values.
+        businessMeaning: Defines the monetary denomination of the claim and its calculated totals.
         usage: Used for accounting, payment allocation, tax, reconciliation, reporting, and document presentation.
-        relationshipContext: Payment may use another currency; cross-currency settlement requires an explicit ExchangeRate and PaymentAllocation context.
-        workflowRole: Provides the financial denomination against which invoice amounts and settlement applications are evaluated.
+        relationshipContext: Payment may use another currency; cross-currency settlement requires ExchangeRate and PaymentAllocation evidence.
+        workflowRole: Provides the denomination against which invoice amounts and settlement applications are evaluated.
         requiredMeaning: Required for interpreting the claim.
     - name: subtotal
       type: Money
       required: true
       help:
-        summary: Aggregate of invoice line net amounts before invoice-level tax and other applicable document adjustments according to the calculation policy.
-        businessMeaning: Represents the pre-tax financial base produced by invoice lines.
+        summary: Aggregate of invoice line amounts before document-level tax and other applicable document adjustments.
+        businessMeaning: Represents the pre-tax financial base derived from invoice lines after line-level pricing treatment.
         usage: Used for tax calculation, accounting, reconciliation, and document totals.
-        relationshipContext: Must use invoice currency and reconcile to the applicable InvoiceLine monetary fields.
-        workflowRole: Feeds document-level tax and adjustment calculations.
+        relationshipContext: Must use invoice currency and reconcile with InvoiceLine monetary values.
+        workflowRole: Feeds document-level discount, tax, and total calculations according to policy.
         requiredMeaning: Required for claim calculation.
     - name: discountAmount
       type: Money
       required: true
       default: {amount: 0}
       help:
-        summary: Aggregate invoice-level discount applied after applicable line pricing and before the taxable base where policy requires.
-        businessMeaning: Represents a document-level reduction distinct from line-level discounts.
+        summary: Aggregate document-level discount applied after applicable line pricing and before taxable base where policy requires.
+        businessMeaning: Represents a document-level reduction distinct from line-level discounts and settlement discounts.
         usage: Used for invoice calculation, tax determination, reporting, and reconciliation.
-        relationshipContext: Must be distinguished from InvoiceLine discount amounts and from payment discounts taken at settlement.
-        workflowRole: Contributes to the invoice taxable base and total according to the applicable calculation policy.
-        requiredMeaning: Required as a zero-valued projection when no document-level discount exists.
+        relationshipContext: Must reconcile with applicable DiscountRule evidence and must not be confused with early-payment discount taken during settlement.
+        workflowRole: Reduces the applicable document base before tax according to the invoice calculation policy.
+        requiredMeaning: Required as a zero-valued projection when no document discount exists.
     - name: taxableAmount
       type: Money
       required: true
@@ -119,47 +119,48 @@ entity:
         summary: Aggregate monetary base on which applicable invoice taxes are calculated.
         businessMeaning: Represents the amount subject to tax after applicable discounts and exemptions.
         usage: Used for tax calculation, tax reporting, audit, and reconciliation.
-        relationshipContext: Must reconcile with line taxable amounts and document-level tax rules.
-        workflowRole: Supplies the base to TaxRule determination and tax calculation.
+        relationshipContext: Must reconcile with InvoiceLine taxable amounts and document-level tax determinations.
+        workflowRole: Supplies the base for TaxRule application and tax calculation.
         requiredMeaning: Required for deterministic tax calculation.
     - name: taxAmount
       type: Money
       required: true
+      default: {amount: 0}
       help:
-        summary: Aggregate tax amount calculated for the invoice under applicable TaxRules and tax determinations.
+        summary: Aggregate tax amount calculated under applicable TaxRules and transaction tax determinations.
         businessMeaning: Represents tax charged or otherwise recognized on the claim, not the taxable base.
         usage: Used for tax reporting, invoice totals, accounting, and reconciliation.
         relationshipContext: Must reconcile with transaction-level tax evidence and jurisdictional treatment.
-        workflowRole: Contributes to totalAmount and downstream accounting/tax reporting.
+        workflowRole: Contributes to totalAmount and downstream tax/accounting reporting.
         requiredMeaning: Required, including zero when no tax applies.
     - name: totalAmount
       type: Money
       required: true
       help:
-        summary: Total financial claim after applicable line amounts, discounts, taxes, credits, debits, and document adjustments.
-        businessMeaning: Represents the gross amount owed under the invoice document before settlement allocations.
+        summary: Total financial claim after applicable line values, discounts, taxes, credits, debits, and document adjustments.
+        businessMeaning: Represents the amount owed under the invoice before settlement allocations.
         usage: Used for settlement, aging, statements, reporting, and accounting.
         relationshipContext: Represents the claim itself, not the amount already paid.
-        workflowRole: Provides the ceiling against which active PaymentAllocation amounts are evaluated.
+        workflowRole: Provides the claim total against which active PaymentAllocation amounts are evaluated.
         requiredMeaning: Required for financial settlement.
     - name: amountSettled
       type: Money
       required: true
       default: {amount: 0}
       help:
-        summary: Projection of the total active settlement amount applied to this invoice.
-        businessMeaning: Represents how much of the claim has been settled according to active PaymentAllocation records.
+        summary: Projection of active settlement amounts applied to this invoice.
+        businessMeaning: Represents how much of the claim is settled according to active PaymentAllocation records.
         usage: Used to calculate outstanding balance and derive settlement status.
-        relationshipContext: It is not an independent cash event; Payment and PaymentAllocation provide the underlying evidence.
+        relationshipContext: Not an independent cash event; Payment and PaymentAllocation provide the underlying evidence.
         workflowRole: Changes when allocations are posted, activated, reversed, or corrected.
-        requiredMeaning: Required as a settlement-state projection, including zero before payment.
+        requiredMeaning: Required as a settlement projection.
     - name: amountOutstanding
       type: Money
       required: true
       default: {amount: 0}
       help:
         summary: Projection of the portion of the invoice claim that remains unsettled.
-        businessMeaning: Represents the current open financial exposure under applicable accounting and rounding policy.
+        businessMeaning: Represents current open exposure under the applicable accounting and rounding policy.
         usage: Drives collections, payment allocation, aging, statements, and cash forecasting.
         relationshipContext: Normally reconciles totalAmount less active settlement and authorized adjustments in invoice currency.
         workflowRole: Determines whether additional allocation is permitted and whether PAID can be reached.
@@ -174,7 +175,7 @@ entity:
         businessMeaning: Identifies the party against whom a receivable claim is established.
         usage: Supports receivables, statements, collections, tax, credit, and customer reporting.
         relationshipContext: Required for SALES invoices unless another controlled party model applies.
-        workflowRole: Supplies commercial party context for the claim and subsequent settlement.
+        workflowRole: Supplies commercial party context for the claim and settlement.
     - name: supplier
       target: Supplier
       cardinality: 0..1
@@ -190,8 +191,8 @@ entity:
       cardinality: 1..*
       ownership: aggregate
       help:
-        summary: Detailed billed goods, services, credits, debits, or adjustment lines from which invoice calculations are derived.
-        businessMeaning: Invoice lines are the source detail for the claim; header totals are controlled aggregates rather than unrelated facts.
+        summary: Detailed billed goods, services, credits, debits, or adjustments from which invoice calculations are derived.
+        businessMeaning: Invoice lines are the source detail for the claim; header totals are controlled aggregates.
         usage: Provides billing detail, pricing, tax, matching, and audit evidence.
         cardinalityMeaning: An issued invoice requires at least one line.
         workflowRole: Lines feed subtotal, discount, taxable amount, tax amount, and total calculations.
@@ -201,10 +202,10 @@ entity:
       ownership: reference
       help:
         summary: Effective settlement policy used to determine expected payment timing.
-        businessMeaning: Supplies policy context from which the invoice dueDate is calculated.
+        businessMeaning: Supplies policy context from which dueDate is calculated.
         usage: Supports due-date calculation, aging, collections, payables, and payment planning.
         relationshipContext: The effective term on an issued invoice must remain auditable even if master PaymentTerm later changes.
-        workflowRole: Feeds the invoice due-date calculation and overdue determination.
+        workflowRole: Feeds invoice due-date calculation and overdue determination.
     - name: paymentAllocations
       target: PaymentAllocation
       cardinality: 0..*
@@ -213,7 +214,7 @@ entity:
         summary: Explicit applications of Payment amounts against this invoice claim.
         businessMeaning: Establishes how settlement money is assigned to the claim.
         usage: Supports partial payments, consolidated payments, reallocations, reversals, refunds, and audit.
-        cardinalityMeaning: An invoice may have no allocations, one allocation, or many over its lifecycle.
+        cardinalityMeaning: An invoice may have none, one, or many allocations.
         workflowRole: Active allocations determine amountSettled and contribute to invoice status.
     - name: salesOrder
       target: SalesOrder
@@ -241,27 +242,27 @@ entity:
       ownership: reference
       help:
         summary: Accepted receipt evidence associated with the purchase invoice.
-        businessMeaning: Connects the financial claim to physical fulfillment evidence without making receipt itself a financial claim.
+        businessMeaning: Connects the claim to physical fulfillment evidence without making receipt itself a financial claim.
         usage: Supports three-way matching and procurement audit.
         cardinalityMeaning: Multiple accepted receipts may support one invoice.
         workflowRole: Supplies fulfillment evidence consumed by InvoiceLine matching.
   invariants:
-    - {id: INVOICE-001, rule: All Money values on an Invoice must use the Invoice currency.}
-    - {id: INVOICE-002, rule: totalAmount must reconcile with line-derived amounts, discountAmount, taxAmount, credits, debits, and applicable document adjustments.}
+    - {id: INVOICE-001, rule: All Invoice Money values must use the Invoice currency.}
+    - {id: INVOICE-002, rule: totalAmount must reconcile with line-derived amounts, document discounts, taxes, credits, debits, and authorized adjustments.}
     - {id: INVOICE-003, rule: dueDate must not precede invoiceDate.}
     - {id: INVOICE-004, rule: An ISSUED invoice must have at least one InvoiceLine.}
-    - {id: INVOICE-005, rule: SALES invoices require Customer context and PURCHASE invoices require Supplier context unless an explicitly supported invoice subtype provides another party model.}
+    - {id: INVOICE-005, rule: SALES invoices require Customer context and PURCHASE invoices require Supplier context unless an explicitly supported subtype provides another party model.}
     - {id: INVOICE-006, rule: A PURCHASE invoice linked to a PurchaseOrder must use applicable accepted GoodsReceipt evidence when three-way matching is required.}
-    - {id: INVOICE-007, rule: amountSettled must reconcile with active PaymentAllocation records, including their currency-conversion context where applicable.}
+    - {id: INVOICE-007, rule: amountSettled must reconcile with active PaymentAllocation records, including currency-conversion context where applicable.}
     - {id: INVOICE-008, rule: amountOutstanding must reconcile with totalAmount, active settlement allocations, and authorized adjustments in invoice currency.}
     - {id: INVOICE-009, rule: PAID requires amountOutstanding to satisfy the applicable zero-tolerance or rounding policy.}
-    - {id: INVOICE-010, rule: Issued monetary results must preserve the applicable pricing, discount, tax, currency, and rounding evidence required for historical reproducibility.}
+    - {id: INVOICE-010, rule: Issued monetary results must preserve applicable pricing, discount, tax, currency, exchange-rate, and rounding evidence required for historical reproducibility.}
   help:
     summary: Represents a formal financial claim and its controlled settlement state.
-    businessMeaning: Invoice records what is owed. Payment records money moved. PaymentAllocation records how money is applied to this claim. This separation is essential for accurate settlement and audit.
+    businessMeaning: Invoice records what is owed. Payment records money moved. PaymentAllocation records how money is applied to this claim.
     usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, and audit.
-    relationshipContext: SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment for sales where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, Payment provides settlement, and PaymentAllocation connects settlement to the claim.
-    workflowContext: Invoice preparation → line calculation → discount → taxable base → tax determination → total → PaymentTerm due-date calculation → issue → payment received → Payment posted/cleared as applicable → PaymentAllocation → amountSettled/amountOutstanding projection → PARTIALLY_PAID or PAID. OVERDUE is time-based and can coexist with partial settlement.
-    lifecycle: Draft → issued → partially paid or overdue → paid, with cancellation and void paths. Corrections use credit/debit documents, controlled adjustments, or allocation reversals rather than silently rewriting posted financial evidence.
+    relationshipContext: SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, Payment provides settlement, and PaymentAllocation connects settlement to the claim.
+    workflowContext: Invoice preparation → line calculation → discount → taxable base → tax determination → total → PaymentTerm due-date calculation → issue → payment → PaymentAllocation → amountSettled/amountOutstanding → PARTIALLY_PAID or PAID. OVERDUE is time-based and may coexist with partial settlement.
+    lifecycle: Draft → issued → partially paid or overdue → paid, with cancellation and void paths. Corrections use credit/debit documents, controlled adjustments, or allocation reversals rather than silently rewriting posted evidence.
     example: An invoice totals 10,000 USD. A 4,000 USD payment is allocated to it, producing amountSettled of 4,000 USD and amountOutstanding of 6,000 USD. A later 6,000 USD allocation closes the claim. If the first allocation is wrong, it is reversed and corrected rather than changing historical payment evidence.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-INVOICE}
