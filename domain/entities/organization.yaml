@@ -1,285 +1,182 @@
 entity:
   name: Organization
   namespace: cedm.domain
-  kind: party_role
-  description: An organization is an identifiable structured group of people or legal entities that participates in business
-    activities. It may represent a legal entity, company, business unit, department, branch, or other organizational unit.
-  identity:
-    key: organizationId
-    type: uuid
-    generated: true
-    immutable: true
+  kind: party_specialization
+  extends: Party
+  description: Legal, commercial, governmental, nonprofit, or other organized body represented as a specialization of Party. Organization provides intrinsic organizational identity; business participation is represented through PartyRole and specialized roles such as Customer or Supplier.
+  identity: {key: organizationId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: organizationId
     type: uuid
     required: true
     immutable: true
     help:
-      summary: Identifies the organization record associated with this Organization. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Stable identity of the Organization specialization.
+      usage: Used to navigate organizational identity details from the underlying Party.
+      relationshipContext: Party.partyId remains the canonical party identity; organizationId identifies the specialization record.
+      workflowRole: Provides stable reference for organization-specific information.
+      requiredMeaning: Required for specialization traceability.
+  - name: partyId
+    type: reference
+    target: Party
+    required: true
+    unique: true
+    immutable: true
+    help:
+      summary: Canonical Party identity represented by this Organization specialization.
+      usage: Connects organizational details to the shared Party identity used by all roles and transactions.
+      relationshipContext: One Party may have exactly one Organization specialization when partyType is ORGANIZATION.
+      workflowRole: Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization.
+      requiredMeaning: Required to prevent duplicate party identity.
   - name: code
     type: string
     required: true
-    unique: true
     maxLength: 50
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Business code for the organization within its governed business context.
+      usage: Used for operations, reporting, integrations, and organizational selection.
+      relationshipContext: Code is not the canonical Party identity and uniqueness is governed by organization scope.
+      workflowRole: Provides operational reference for organization hierarchy and business context.
+      requiredMeaning: Required where the organization participates in governed operational processes.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Common organizational name used in business operations.
+      usage: Used in search, forms, reports, documents, and transactions.
+      relationshipContext: LegalName may differ and provides formal legal identity.
+      workflowRole: Provides human-readable organizational identification.
+      requiredMeaning: Required for operational recognition.
   - name: organizationType
     type: enum
     required: true
-    values:
-    - ENTERPRISE
-    - COMPANY
-    - BUSINESS_UNIT
-    - DIVISION
-    - DEPARTMENT
-    - BRANCH
-    - SUBSIDIARY
-    - OTHER
+    values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
     help:
-      summary: Captures the business meaning of organization type for the Organization. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ENTERPRISE: Represents the enterprise state or classification in the context of Organization.
-        COMPANY: Represents the company state or classification in the context of Organization.
-        BUSINESS_UNIT: Represents the business unit state or classification in the context of Organization.
-        DIVISION: Represents the division state or classification in the context of Organization.
-        DEPARTMENT: Represents the department state or classification in the context of Organization.
-        BRANCH: Represents the branch state or classification in the context of Organization.
-        SUBSIDIARY: Represents the subsidiary state or classification in the context of Organization.
-        OTHER: Represents the other state or classification in the context of Organization.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Classifies the organizational structure represented by the specialization.
+      usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration.
+      relationshipContext: Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations.
+      workflowRole: Controls applicable organizational hierarchy and operating-context rules.
+      requiredMeaning: Required for organizational interpretation.
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - DRAFT
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
+    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of Organization.
-        ACTIVE: Represents the active state or classification in the context of Organization.
-        INACTIVE: Represents the inactive state or classification in the context of Organization.
-        RETIRED: Represents the retired state or classification in the context of Organization.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Lifecycle of the organizational specialization.
+      usage: Controls whether the organization can normally be selected as an organizational context.
+      relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
+      workflowRole: Governs organizational use while preserving historical relationships.
+      requiredMeaning: Required for eligibility checks.
   - name: legalName
     type: string
     required: false
     maxLength: 300
     help:
-      summary: Captures the business meaning of legal name for the Organization. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Formal legal name of the organization.
+      usage: Used for contracts, invoices, tax, regulatory reporting, and legal documentation.
+      relationshipContext: LegalName is distinct from the operational name.
+      workflowRole: Supplies legal presentation and compliance context.
+      optionalMeaning: Optional when the organization is not a legal entity or the information is not yet known.
   - name: registrationNumber
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Captures the business meaning of registration number for the Organization. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Registration identifier assigned by a competent authority.
+      usage: Used for legal verification, compliance, tax, and integrations.
+      relationshipContext: Registration number identifies the organization in an external legal system, not in CEDM.
+      workflowRole: Supports identity verification and compliance controls.
+      optionalMeaning: Optional for organizational units without separate registration.
   - name: taxIdentifier
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Captures the business meaning of tax identifier for the Organization. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: Tax identifier applicable to the organization in a relevant jurisdiction.
+      usage: Used for tax determination, invoices, reporting, and compliance.
+      relationshipContext: Tax identity may vary by jurisdiction and should not replace Party identity.
+      workflowRole: Supports tax-rule applicability and statutory reporting.
+      optionalMeaning: Optional when no tax identifier applies or is known.
   - name: createdAt
     type: datetime
     required: true
     systemManaged: true
-    help:
-      summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and
-        operational reporting.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: CEDM creation timestamp, usage: audit and synchronization, relationshipContext: record lifecycle only, requiredMeaning: required for traceability.}
   - name: createdBy
     type: reference
     target: Party
     required: false
     systemManaged: true
-    help:
-      summary: The party or user responsible for creating the record. It links the record to its audit actor and should not
-        normally be supplied as ordinary business data.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: This field connects Organization to Party. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related Party.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Actor that created the record, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when source cannot identify actor.}
   - name: updatedAt
     type: datetime
     required: true
     systemManaged: true
-    help:
-      summary: The system-managed timestamp recording the latest modification of the record. It supports synchronization,
-        audit, and change detection.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Organization; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Latest CEDM modification timestamp, usage: synchronization and audit, relationshipContext: record modification only, requiredMeaning: required for change tracking.}
   - name: updatedBy
     type: reference
     target: Party
     required: false
     systemManaged: true
-    help:
-      summary: The party or user responsible for the latest modification. It provides the audit link for the most recent change.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Organization records, where
-        applicable.
-      relationshipContext: This field connects Organization to Party. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related Party.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    help: {summary: Actor responsible for latest modification, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when unavailable.}
   relationships:
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    inverse: organization
+    help:
+      summary: Canonical Party represented by this Organization specialization.
+      usage: Provides shared identity for all PartyRoles.
+      cardinalityMeaning: Exactly one Party is represented.
+      workflowRole: Connects intrinsic organization identity to commercial and operational roles.
   - name: parentOrganization
     target: Organization
     cardinality: 0..1
     ownership: reference
-    description: Immediate parent organizational unit.
     help:
-      summary: Connects Organization to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Organization.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Immediate parent organizational unit.
+      usage: Supports enterprise hierarchy and organizational scope.
+      cardinalityMeaning: Zero or one immediate parent.
+      workflowRole: Determines inherited organizational context where explicitly supported.
   - name: childOrganizations
     target: Organization
     cardinality: 0..*
     ownership: reference
     inverse: parentOrganization
     help:
-      summary: Connects Organization to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Organization.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: party
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    description: Party identity represented by this organization.
-    help:
-      summary: Connects Organization to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Organization.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      summary: Immediate child organizational units.
+      usage: Supports hierarchy navigation and organizational reporting.
+      cardinalityMeaning: Zero or many children.
+      workflowRole: Maintains the organizational graph.
   - name: addresses
     target: Address
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Connects Organization to Address so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Address records associated with a Organization.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    help: {summary: Organization addresses, usage: billing/service/legal/contact processes, cardinalityMeaning: zero or many, workflowRole: supplies location context.}
   - name: locations
     target: Location
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Connects Organization to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Organization.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    help: {summary: Organization operating locations, usage: logistics/service/organizational processes, cardinalityMeaning: zero or many, workflowRole: supplies operational location context.}
   invariants:
-  - id: ORG-001
-    rule: An organization cannot be its own parent.
-  - id: ORG-002
-    rule: The organizational hierarchy must not contain cycles.
-  - id: ORG-003
-    rule: code must be unique within its ERP/business context.
-  lifecycle:
-    states:
-    - DRAFT
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
-  audit:
-    enabled: true
-    trackCreatedBy: true
-    trackCreatedAt: true
-    trackUpdatedBy: true
-    trackUpdatedAt: true
-  tags:
-  - organization
-  - party
-  - hierarchy
-  - master-data
+  - {id: ORG-001, rule: partyType must equal ORGANIZATION for the referenced Party.}
+  - {id: ORG-002, rule: An Organization cannot be its own parent.}
+  - {id: ORG-003, rule: The organizational hierarchy must not contain cycles.}
+  - {id: ORG-004, rule: One Party cannot have multiple Organization specializations.}
+  - {id: ORG-005, rule: Organization status alone must not authorize a transaction; Party and applicable PartyRole eligibility must also permit it.}
+  - {id: ORG-006, rule: Organizational hierarchy or master-data changes must not rewrite historical transaction organizational context.}
+  lifecycle: {states: [DRAFT, ACTIVE, INACTIVE, RETIRED]}
+  audit: {enabled: true, trackCreatedBy: true, trackCreatedAt: true, trackUpdatedBy: true, trackUpdatedAt: true}
+  tags: [organization, party, specialization, hierarchy, master-data]
   help:
-    summary: Represents a party role called Organization within the CEDM business model.
-    businessMeaning: Organization is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Organization records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Organization,
-      Party, Address, Location. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Organization record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
-specification:
-  version: 0.1.0
-  status: draft
-  identifier: CEDM-ENTITY-ORGANIZATION
+    summary: Organization is the organizational specialization of Party, not an independent party identity or business role.
+    businessMeaning: Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior.
+    usage: Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy.
+    relationshipContext: Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities.
+    workflowContext: Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context.
+    lifecycle: Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles.
+    example: One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-ORGANIZATION}
