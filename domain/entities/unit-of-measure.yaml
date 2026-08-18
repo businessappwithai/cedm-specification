@@ -2,196 +2,170 @@ entity:
   name: UnitOfMeasure
   namespace: cedm.domain
   kind: reference_master_entity
-  description: A standardized measurement definition used to give semantic meaning to quantities on products, sales orders, purchase orders, receipts, invoices, inventory, manufacturing, logistics, and service transactions.
-  identity:
-    key: unitOfMeasureId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A standardized measurement definition used to give semantic meaning to quantities on products, sales orders, purchase orders, receipts, invoices, inventory, manufacturing, logistics, and service transactions. Changes to an active unit or its conversion definition are controlled because they can alter the interpretation of quantities across dependent workflows.
+  identity: {key: unitOfMeasureId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: unitOfMeasureId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the unit-of-measure definition.
-      usage: Referenced by Product, transaction lines, inventory, and conversion rules.
-      relationshipContext: Identifies the measurement definition rather than a quantity value.
-      workflowRole: Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted.
-      requiredMeaning: Required for unambiguous measurement semantics.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 30
-    help:
-      summary: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY.
-      usage: Used in forms, integrations, documents, validation, and quantity display.
-      relationshipContext: Code identifies the unit definition; it does not represent a conversion or quantity itself.
-      workflowRole: Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting.
-      requiredMeaning: Required for operational interoperability.
-  - name: name
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: Human-readable name of the measurement unit.
-      usage: Used in user interfaces, reports, documents, catalogs, and search.
-      relationshipContext: Describes the unit definition identified by code and unitOfMeasureId.
-      workflowRole: Provides understandable measurement context to business users.
-      requiredMeaning: Required for clear business interpretation.
-  - name: symbol
-    type: string
-    required: false
-    maxLength: 20
-    help:
-      summary: Standard display symbol for the unit.
-      usage: Used for compact display in documents, labels, reports, and interfaces.
-      relationshipContext: Symbol is presentation metadata and does not replace the canonical unit code.
-      workflowRole: Improves human-readable representation of quantities.
-      optionalMeaning: Optional when the unit has no standard symbol or display policy does not require one.
-  - name: category
-    type: enum
-    required: true
-    values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
-    help:
-      summary: Defines the dimensional family of the unit.
-      usage: Prevents invalid conversions and supports dimensional validation.
-      relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
-      workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
-      valueSemantics:
-        QUANTITY: General measurable quantity family.
-        LENGTH: Linear dimension.
-        AREA: Surface area.
-        VOLUME: Cubic or liquid volume.
-        MASS: Weight or mass.
-        TIME: Duration or time quantity.
-        COUNT: Discrete count of units.
-        CURRENCY: Monetary measurement; normally monetary values should additionally use Currency for financial semantics.
-        OTHER: Controlled dimension outside the standard categories.
-      requiredMeaning: Required to establish dimensional compatibility.
-  - name: conversionFactor
-    type: decimal
-    required: false
-    precision: 24
-    scale: 12
-    help:
-      summary: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies.
-      usage: Used for quantity conversion when no context-specific conversion rule overrides the default.
-      relationshipContext: Interpreted with baseUnit and category; it is not sufficient for nonlinear or context-dependent conversions.
-      workflowRole: Allows quantities entered in purchasing, sales, receipt, inventory, or invoicing units to be converted to a common base quantity.
-      optionalMeaning: Optional for base units or units whose conversion requires a dedicated rule.
-  - name: baseUnitId
-    type: reference
-    target: UnitOfMeasure
-    required: false
-    help:
-      summary: Identifies the canonical base unit against which this derived unit is normally converted.
-      usage: Supports standardized quantity storage and conversion.
-      relationshipContext: A derived unit belongs to the same dimensional category as its base unit.
-      workflowRole: Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.
-      optionalMeaning: Optional for a base unit itself.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [ACTIVE, INACTIVE, RETIRED]
-    help:
-      summary: Controls whether the unit can be used for new transactions.
-      usage: Used by master-data validation and transaction entry.
-      relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
-      workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
-      valueSemantics:
-        ACTIVE: Available for normal use.
-        INACTIVE: Temporarily unavailable for new normal use.
-        RETIRED: Permanently unavailable for new normal use while historical references remain valid.
-      requiredMeaning: Required for transaction eligibility.
+    - name: unitOfMeasureId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the unit-of-measure definition.
+        usage: Referenced by Product, transaction lines, inventory, and conversion rules.
+        relationshipContext: Identifies the measurement definition rather than a quantity value.
+        workflowRole: Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted.
+        requiredMeaning: Required for unambiguous measurement semantics.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 30
+      help:
+        summary: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY.
+        usage: Used in forms, integrations, documents, validation, and quantity display.
+        relationshipContext: Code identifies the unit definition; it does not represent a conversion or quantity itself.
+        workflowRole: Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting.
+        requiredMeaning: Required for operational interoperability.
+    - name: name
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: Human-readable name of the measurement unit.
+        usage: Used in user interfaces, reports, documents, catalogs, and search.
+        relationshipContext: Describes the unit definition identified by code and unitOfMeasureId.
+        workflowRole: Provides understandable measurement context to business users.
+        requiredMeaning: Required for clear business interpretation.
+    - name: symbol
+      type: string
+      required: false
+      maxLength: 20
+      help:
+        summary: Standard display symbol for the unit.
+        usage: Used for compact display in documents, labels, reports, and interfaces.
+        relationshipContext: Symbol is presentation metadata and does not replace the canonical unit code.
+        workflowRole: Improves human-readable representation of quantities.
+        optionalMeaning: Optional when the unit has no standard symbol or display policy does not require one.
+    - name: category
+      type: enum
+      required: true
+      values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
+      help:
+        summary: Defines the dimensional family of the unit.
+        usage: Prevents invalid conversions and supports dimensional validation.
+        relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
+        workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
+        requiredMeaning: Required to establish dimensional compatibility.
+    - name: conversionFactor
+      type: decimal
+      required: false
+      precision: 24
+      scale: 12
+      help:
+        summary: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies.
+        businessMeaning: Defines a master conversion used for future quantity interpretation.
+        usage: Used for quantity conversion when no context-specific conversion rule overrides the default.
+        relationshipContext: Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation.
+        workflowRole: Supplies the conversion used by new and eligible future quantity transactions after dependency validation.
+        optionalMeaning: Optional for base units or units whose conversion requires a dedicated rule.
+    - name: baseUnitId
+      type: reference
+      target: UnitOfMeasure
+      required: false
+      help:
+        summary: Identifies the canonical base unit against which this derived unit is normally converted.
+        usage: Supports standardized quantity storage and conversion.
+        relationshipContext: A derived unit belongs to the same dimensional category as its base unit.
+        workflowRole: Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.
+        optionalMeaning: Optional for a base unit itself.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+      help:
+        summary: Controls whether the unit can be used for new transactions.
+        usage: Used by master-data validation and transaction entry.
+        relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
+        workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
+        requiredMeaning: Required for transaction eligibility.
   relationships:
-  - name: baseUnit
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a derived unit to its base measurement unit.
-      usage: Supports conversion and dimensional consistency.
-      cardinalityMeaning: A base unit has no parent base unit under this model; a derived unit has at most one.
-      workflowRole: Provides the canonical measurement basis used when quantities must be compared across transactions.
-  - name: derivedUnits
-    target: UnitOfMeasure
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Lists units derived from this unit as their base.
-      usage: Supports conversion navigation and master-data maintenance.
-      cardinalityMeaning: One base unit can support many derived units.
-      workflowRole: Enables quantity conversion paths for procurement, sales, receiving, inventory, and billing.
-  - name: products
-    target: Product
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Links the unit to Products for which it is the standard measurement basis.
-      usage: Supports product master validation and quantity interpretation.
-      cardinalityMeaning: One unit may be the standard unit for many products.
-      workflowRole: Product supplies the default unit used when transaction lines do not specify another compatible unit.
-  - name: salesOrderLines
-    target: SalesOrderLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Identifies sales commitments expressed in this unit.
-      usage: Supports quantity validation, conversion, fulfillment, and billing.
-      cardinalityMeaning: A unit can be used by many sales order lines.
-      workflowRole: Ensures ordered and fulfilled quantities are comparable.
-  - name: purchaseOrderLines
-    target: PurchaseOrderLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Identifies procurement commitments expressed in this unit.
-      usage: Supports ordering, receiving, matching, and supplier communication.
-      cardinalityMeaning: A unit can be used by many purchase order lines.
-      workflowRole: Establishes the measurement basis for ordered and received quantities.
-  - name: goodsReceiptLines
-    target: GoodsReceiptLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Identifies receipt quantities expressed in this unit.
-      usage: Supports accepted quantity reconciliation and three-way matching.
-      cardinalityMeaning: A unit can appear on many receipt lines.
-      workflowRole: Receipt quantities must be converted or compared consistently with their originating PO quantities.
-  - name: invoiceLines
-    target: InvoiceLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Identifies billed quantities expressed in this unit.
-      usage: Supports invoice calculation and PO/receipt/invoice matching.
-      cardinalityMeaning: A unit can appear on many invoice lines.
-      workflowRole: Ensures billed quantity is comparable with ordered and accepted quantities.
+    - name: baseUnit
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links a derived unit to its base measurement unit.
+        usage: Supports conversion and dimensional consistency.
+        workflowRole: Provides the canonical measurement basis used when quantities must be compared across transactions.
+    - name: derivedUnits
+      target: UnitOfMeasure
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Lists units derived from this unit as their base.
+        usage: Supports conversion navigation and master-data maintenance.
+        workflowRole: Enables quantity conversion paths for procurement, sales, receiving, inventory, and billing.
+    - name: products
+      target: Product
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Products using this unit as a standard measurement basis.
+        workflowRole: A UOM change must validate affected Product defaults and all open transactions using those products.
+    - name: salesOrderLines
+      target: SalesOrderLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Sales commitments expressed in this unit.
+        workflowRole: Open lines must be checked before conversion semantics are changed or the unit is retired.
+    - name: purchaseOrderLines
+      target: PurchaseOrderLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Procurement commitments expressed in this unit.
+        workflowRole: Open procurement lines must be validated before conversion semantics are changed.
+    - name: goodsReceiptLines
+      target: GoodsReceiptLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Receipt quantities expressed in this unit.
+        workflowRole: Historical receipt quantities retain their original UOM; future receipts require an active compatible unit.
+    - name: invoiceLines
+      target: InvoiceLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Billed quantities expressed in this unit.
+        workflowRole: Issued invoices retain their recorded UOM; future invoice calculations require compatible active units.
+    - name: inventoryMovements
+      target: InventoryMovement
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Inventory events expressed in this unit.
+        workflowRole: Movement history is immutable in measurement meaning; future movements must use a valid conversion.
   invariants:
-  - id: UOM-001
-    rule: conversionFactor must be positive when supplied.
-  - id: UOM-002
-    rule: A unit must not reference itself as its base unit.
-  - id: UOM-003
-    rule: baseUnit and derived unit must have the same category unless an explicit dimensional conversion model permits otherwise.
-  - id: UOM-004
-    rule: A conversion must not be applied between incompatible categories.
-  - id: UOM-005
-    rule: Retiring a unit must preserve historical transaction quantities and must not rewrite their recorded unit.
-  - id: UOM-006
-    rule: Quantity comparison across SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InventoryMovement, InventoryBalance, and InvoiceLine requires compatible units or an explicit conversion rule.
+    - {id: UOM-001, rule: conversionFactor must be positive when supplied.}
+    - {id: UOM-002, rule: A unit must not reference itself as its base unit.}
+    - {id: UOM-003, rule: baseUnit and derived unit must have the same category unless an explicit dimensional conversion model permits otherwise.}
+    - {id: UOM-004, rule: A conversion must not be applied between incompatible categories.}
+    - {id: UOM-005, rule: Retiring a unit must preserve historical transaction quantities and must not rewrite their recorded unit.}
+    - {id: UOM-006, rule: Quantity comparison across SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InventoryMovement, InventoryBalance, and InvoiceLine requires compatible units or an explicit conversion rule.}
+    - {id: UOM-007, rule: Changing conversionFactor, baseUnitId, or category is a controlled master-data change and must identify and validate all dependent Products, open transaction lines, inventory policies, conversion rules, and downstream workflows before becoming effective.}
+    - {id: UOM-008, rule: A conversion change must not retroactively reinterpret historical quantities, posted inventory movements, accepted receipts, or issued invoice lines.}
+    - {id: UOM-009, rule: If an effective UOM change makes an open transaction ambiguous or materially changes its quantity meaning, the affected transaction must be blocked, revalidated, or explicitly converted through an authorized workflow before continuation.}
+    - {id: UOM-010, rule: A Product using a unit that becomes INACTIVE or RETIRED must be evaluated for future sales, procurement, inventory, and billing eligibility before the unit status change is finalized.}
   help:
     summary: Defines the measurement semantics that make numeric quantities comparable across CEDM workflows.
     businessMeaning: A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly.
     usage: Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting.
     relationshipContext: Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching.
-    workflowContext: Product standard unit → SalesOrderLine/PurchaseOrderLine transaction unit → quantity conversion if required → GoodsReceiptLine accepted quantity → InventoryMovement/InventoryBalance → InvoiceLine matching. Any conversion must preserve dimensional validity and declared precision/tolerance.
+    workflowContext: UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation.
     lifecycle: Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities.
-    example: A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX, the receipt accepts 4 BOX, and inventory posts 40 EACH after conversion. An invoice for 40 EACH can then be compared to the accepted receipt; an invoice for 5 BOX can be converted to the same base quantity.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-UNIT-OF-MEASURE
+    changePropagation: A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable.
+    example: A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-UNIT-OF-MEASURE}
