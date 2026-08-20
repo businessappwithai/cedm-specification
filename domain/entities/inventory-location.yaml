@@ -2,128 +2,65 @@ entity:
   name: InventoryLocation
   namespace: cedm.domain
   kind: inventory_master_entity
-  description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be received, stored, staged, picked, reserved, counted, transferred, or controlled.
-  identity:
-    key: inventoryLocationId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be received, stored, staged, picked, reserved, counted, transferred, or controlled. Location lifecycle changes propagate to dependent inventory and execution workflows while preserving historical stock evidence.
+  identity: {key: inventoryLocationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: inventoryLocationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable system identity of the inventory location.
-      usage: Connects balances, movements, receiving, picking, replenishment, reservations, counts, and audit history to the same stock position.
-      relationshipContext: Identifies the location independently of its code, type, warehouse, and current balance.
-      workflowRole: Receipt targets, put-away tasks, transfers, issues, returns, and stock counts use this identity to establish where inventory state changes occur.
-      requiredMeaning: Required because inventory events need a stable location identity.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: The operational code used by warehouse personnel and systems to identify the stock-holding position.
-      usage: Used on labels, scanners, receiving and picking tasks, inventory documents, warehouse interfaces, and integrations.
-      relationshipContext: The code is meaningful within the warehouse location namespace and must not be confused with a Warehouse or Product code.
-      workflowRole: Operators use the code when confirming receipt, put-away, picking, transfer, counting, and exception activities.
-      requiredMeaning: Required for physical and system navigation.
-  - name: locationType
-    type: enum
-    required: true
-    values: [RECEIVING, BIN, SHELF, RACK, FLOOR, PICK, STAGING, QUARANTINE, YARD_SLOT, OTHER]
-    help:
-      summary: Classifies the operational structure and purpose of the stock position.
-      usage: Drives receiving, put-away, picking, staging, quarantine, capacity, accessibility, counting, and handling rules.
-      relationshipContext: Type describes the location; InventoryBalance describes what is currently there.
-      workflowRole: Workflow rules use location type to determine whether a receipt, put-away, pick, shipment staging, quarantine, or transfer is permitted.
-      valueSemantics:
-        RECEIVING: Temporary or controlled location where inbound goods are received before final disposition or put-away.
-        BIN: Defined compartment for controlled storage.
-        SHELF: Shelf-level storage position.
-        RACK: Structured rack storage position.
-        FLOOR: Open-area floor storage.
-        PICK: Location optimized for outbound picking.
-        STAGING: Temporary position used to consolidate goods for inbound or outbound execution.
-        QUARANTINE: Restricted location for stock awaiting inspection, quality disposition, or other authorization.
-        YARD_SLOT: Spatial yard position managed through the inventory model where applicable.
-        OTHER: A controlled stock position not covered by the standard classifications.
-      requiredMeaning: Required because execution workflows need to understand the operational role of the location.
+  - {name: inventoryLocationId, type: uuid, required: true, immutable: true}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100}
+  - {name: locationType, type: enum, required: true, values: [RECEIVING, BIN, SHELF, RACK, FLOOR, PICK, STAGING, QUARANTINE, YARD_SLOT, OTHER]}
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, BLOCKED, INACTIVE]
     help:
-      summary: Indicates whether the inventory location can participate in normal stock operations.
-      usage: Controls put-away, receiving, picking, transfers, counting, replenishment, and allocation decisions.
-      relationshipContext: Status affects future movements and allocations but does not erase existing balances or movement history.
-      workflowRole: A BLOCKED or INACTIVE location may remain the source of historical stock while being excluded from new normal target allocations.
-      valueSemantics:
-        ACTIVE: Available for normal operations subject to product, inventory, and warehouse rules.
-        BLOCKED: Temporarily unavailable for one or more operations because of damage, inspection, congestion, quarantine, or another controlled restriction.
-        INACTIVE: No longer intended for new normal stock assignments.
-      requiredMeaning: Required for authoritative execution control.
-  - name: capacity
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The nominal capacity available at the location under a defined measurement convention.
-      usage: Used for put-away validation, utilization, replenishment, and capacity planning.
-      relationshipContext: Capacity must be interpreted with the applicable unit or capacity policy.
-      workflowRole: Put-away and transfer workflows use capacity to reject or reroute movements that would exceed permitted capacity.
-      optionalMeaning: Optional when capacity is derived from configuration or a dedicated capacity model.
+      summary: Controls whether the location can participate in normal future inventory operations.
+      usage: Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging.
+      relationshipContext: Status constrains future operations; it never deletes current balances or historical movements.
+      workflowRole: Status changes trigger dependent-workflow validation before operational eligibility changes become effective.
+  - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
   relationships:
   - name: warehouse
     target: Warehouse
     cardinality: '1'
     ownership: reference
-    help:
-      summary: Identifies the Warehouse containing or operationally managing this stock position.
-      usage: Supplies facility, operating calendar, authorization, and warehouse-execution context.
-      cardinalityMeaning: Exactly one Warehouse owns the location under this model.
-      workflowRole: Receiving, put-away, picking, transfer, and counting workflows use the warehouse context to apply facility-specific rules.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Contains current stock state for Products held at this location.
-      usage: Supports on-hand, reserved, available, allocation, picking, replenishment, and reporting.
-      cardinalityMeaning: A location may be empty or contain many product balances.
-      workflowRole: Posted InventoryMovement events update balances; allocation workflows read available quantity before committing demand.
-      context: InventoryBalance is current state; InventoryMovement is historical event evidence.
+      summary: Current product/location stock projections.
+      workflowRole: Location status changes must validate balances and outstanding reservations before new operations are blocked.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Provides the inventory event history involving this location as source or target.
-      usage: Supports audit, reconciliation, movement history, stock counting, receiving, picking, transfer, return, and adjustment analysis.
-      cardinalityMeaning: A location participates in zero or many inventory movements.
-      workflowRole: Receipt, put-away, transfer, issue, return, reservation, release, and adjustment workflows create or consume these events.
+      summary: Historical inventory events involving this location.
+      workflowRole: Historical movements remain valid evidence even when the location is blocked or inactive.
+  - name: openReservations
+    target: InventoryReservation
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Active reservations dependent on the location's available stock.
+      workflowRole: Blocking or retiring a location requires controlled handling of outstanding reservations before the location is removed from future allocation.
   invariants:
-  - id: INVENTORY-LOCATION-001
-    rule: code must be unique within its Warehouse.
-  - id: INVENTORY-LOCATION-002
-    rule: capacity must be non-negative when supplied.
-  - id: INVENTORY-LOCATION-003
-    rule: BLOCKED and INACTIVE locations must not receive new normal put-away, receipt, or transfer movements unless an explicit exception workflow permits them.
-  - id: INVENTORY-LOCATION-004
-    rule: A QUARANTINE location must not be treated as unrestricted available stock without an explicit quality/disposition decision.
+  - {id: INVENTORY-LOCATION-001, rule: code must be unique within its Warehouse.}
+  - {id: INVENTORY-LOCATION-002, rule: capacity must be non-negative when supplied.}
+  - {id: INVENTORY-LOCATION-003, rule: BLOCKED and INACTIVE locations must not receive new normal put-away, receipt, or transfer movements unless an explicit exception workflow permits them.}
+  - {id: INVENTORY-LOCATION-004, rule: QUARANTINE stock must not be treated as unrestricted available inventory without explicit quality/disposition authorization.}
+  - {id: INVENTORY-LOCATION-005, rule: Changing status, warehouse, location type, capacity semantics, or operational eligibility must identify affected InventoryBalance, InventoryMovement, InventoryReservation, receiving, picking, transfer, replenishment, and fulfillment workflows before becoming effective.}
+  - {id: INVENTORY-LOCATION-006, rule: A location with on-hand stock cannot be made operationally inaccessible without a controlled relocation, exception, or stock-management workflow.}
+  - {id: INVENTORY-LOCATION-007, rule: Existing reservations on a blocked/inactive location must be released, transferred, or explicitly retained under an authorized exception before the location is excluded from allocation.}
+  - {id: INVENTORY-LOCATION-008, rule: Historical inventory movements and balances must retain the original location identity even after the location becomes inactive.}
   help:
-    summary: Represents the granular place where inventory is physically or logically held and controlled within a warehouse or managed inventory network.
-    businessMeaning: InventoryLocation answers where stock is held and what operational purpose that position serves. It is more specific than Warehouse and provides the spatial and workflow granularity required for inventory execution.
-    usage: Used by receiving, put-away, picking, replenishment, stock counting, transfers, reservation, fulfillment, yard operations, quarantine, and inventory control.
-    relationshipContext: Warehouse provides facility context. InventoryLocation identifies the stock position. InventoryBalance represents current quantity at that position. InventoryMovement records changes into, out of, or between positions. Product identifies what is stored.
-    lifecycle: A location is configured, activated, may be blocked or quarantined, and may become inactive. Status changes constrain future workflow actions but preserve existing inventory state and historical events.
-    workflowContext: A typical inbound flow is GoodsReceipt → receipt InventoryMovement → RECEIVING location → put-away InventoryMovement → storage location. An outbound flow is reservation → pick/issue movement → staging → Shipment. Transfer flows create paired source/target effects while preserving audit history.
-    example: A warehouse receives 20 spare parts into RECEIVING-01. After acceptance, a receipt movement increases on-hand there. A put-away movement transfers the 20 units to RACK-A-03-02. Later, 3 units are reserved for a maintenance work order, picked, and issued to the repair process.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-INVENTORY-LOCATION
+    summary: Granular inventory position whose lifecycle controls future execution while preserving historical inventory state.
+    businessMeaning: A location is operational infrastructure, not merely an address. Changing its status can affect receiving, put-away, reservations, picking, transfers, replenishment and shipment staging.
+    usage: Receiving, warehouse execution, picking, replenishment, stock counting, transfers, reservation, fulfillment, quarantine and yard operations.
+    relationshipContext: Warehouse supplies facility context. InventoryLocation supplies operational position. InventoryBalance supplies current state. InventoryMovement supplies historical event evidence. InventoryReservation supplies committed demand.
+    workflowContext: Location create → configure capacity/type → activate → participate in receiving/put-away/reservation/picking/transfer → block or quarantine when necessary → resolve dependent stock/reservations → inactive. Status changes trigger dependency validation rather than simply toggling a flag.
+    changePropagation: Location status changes affect future transaction eligibility; location hierarchy/warehouse changes require validation of balances and open reservations; capacity/type changes require validation of affected put-away and transfer rules; historical movements remain unchanged.
+    lifecycle: Configured → ACTIVE → BLOCKED/QUARANTINE operational state → resolved or INACTIVE. Existing stock is retained and must be deliberately relocated or handled through authorized workflow.
+    example: A storage rack is blocked because of damage. New put-away and allocation are stopped. Existing stock and reservations are identified; reservations are moved or released and stock is transferred to valid locations. Historical movements still point to the original rack.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-LOCATION}
