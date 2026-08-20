@@ -2,7 +2,7 @@ entity:
   name: InventoryBalance
   namespace: cedm.domain
   kind: inventory_state_entity
-  description: The current or effective stock position for a Product at an InventoryLocation, including physical on-hand quantity, committed quantity, and quantity available for new demand.
+  description: The current stock-state projection for a Product at an InventoryLocation, derived from posted InventoryMovement and reservation workflows. It is not an independently editable inventory ledger.
   identity:
     key: inventoryBalanceId
     type: uuid
@@ -14,11 +14,10 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the inventory state record.
-      usage: Used to reference and reconcile current stock state independently of movement events and business transactions.
-      relationshipContext: Identifies the balance record for a Product/location context, not the Product or location themselves.
-      workflowRole: Provides the state read by allocation and planning and the state updated after posted inventory events.
-      requiredMeaning: Required for reliable stock-state traceability.
+      summary: Immutable identity of the inventory state projection.
+      usage: Used to reference and reconcile current stock state independently of movement events.
+      relationshipContext: Identifies one Product/location state projection rather than a Product or location itself.
+      workflowRole: Provides the current state consumed by allocation, fulfillment, replenishment and inventory control.
   - name: quantityOnHand
     type: decimal
     required: true
@@ -26,11 +25,10 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: The physical or operational quantity currently recorded as present at the location.
-      usage: Used for stock visibility, replenishment, counting, fulfillment, and inventory control.
-      relationshipContext: On-hand is physically present stock; it differs from available stock when reservations or restrictions apply.
-      workflowRole: Receipt and return movements increase it; issue and transfer-out movements decrease it; reservations normally do not change it.
-      requiredMeaning: Required, including when zero.
+      summary: Physical quantity currently recorded as present at the location.
+      usage: Stock visibility, replenishment, counting, fulfillment and inventory control.
+      relationshipContext: Represents physical stock and is distinct from reserved and available quantities.
+      workflowRole: Derived from posted receipt, issue, transfer, return and adjustment movements.
   - name: quantityReserved
     type: decimal
     required: true
@@ -38,11 +36,10 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: The portion of on-hand quantity committed to approved demand.
-      usage: Used for allocation, fulfillment planning, maintenance demand, and availability calculation.
-      relationshipContext: Reserved quantity reduces available quantity but normally leaves physical on-hand unchanged.
-      workflowRole: Reservation events increase it; release or fulfillment completion decreases it according to allocation policy.
-      requiredMeaning: Required with zero when nothing is reserved.
+      summary: Portion of on-hand stock committed to approved demand.
+      usage: Allocation and fulfillment planning.
+      relationshipContext: Reservations normally do not change physical on-hand quantity.
+      workflowRole: Derived from active reservation/release workflows and adjusted when fulfillment consumes or releases a reservation.
   - name: quantityAvailable
     type: decimal
     required: true
@@ -50,61 +47,52 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Quantity normally eligible for new allocation after reservations and modeled availability restrictions.
-      usage: Used by sales fulfillment, replenishment, purchasing, maintenance allocation, and planning.
-      relationshipContext: Baseline available quantity is on-hand minus reserved; quarantine, ownership, quality, or other policy restrictions may further reduce availability.
-      workflowRole: Allocation workflows must read this state before committing demand and must update it atomically with reservation changes.
-      requiredMeaning: Required for operational allocation decisions.
+      summary: Quantity eligible for new allocation after reservations and applicable restrictions.
+      usage: Availability checks, fulfillment, replenishment and planning.
+      relationshipContext: Normally equals on-hand minus reserved before additional restrictions.
+      workflowRole: Must be recalculated atomically with reservation and movement state changes.
   - name: lastUpdatedAt
     type: datetime
     required: true
     systemManaged: true
     help:
-      summary: The timestamp when the balance was most recently recalculated or materially changed.
-      usage: Used for concurrency, synchronization, audit, cache freshness, and integration.
-      relationshipContext: It describes state freshness and is not a substitute for InventoryMovement timestamps.
-      workflowRole: Helps detect stale allocation decisions and supports optimistic concurrency when stock is being reserved or issued.
-      requiredMeaning: Required for reliable current-state consumption.
+      summary: Timestamp of the latest material projection update.
+      usage: Concurrency, synchronization, cache freshness, audit and integration.
+      relationshipContext: Does not replace movement or reservation event timestamps.
+      workflowRole: Supports stale-state detection during allocation and issue processing.
   relationships:
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
-    help:
-      summary: Identifies the Product whose quantity is represented.
-      usage: Connects inventory state to product master data, units, replenishment, and fulfillment rules.
-      cardinalityMeaning: Exactly one Product per balance.
-      workflowRole: Demand, receiving, issue, and maintenance workflows resolve the stock item through Product.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
     help:
-      summary: Identifies where the Product quantity is held.
-      usage: Supports warehouse visibility, picking, put-away, replenishment, and counts.
-      cardinalityMeaning: Exactly one location per balance.
-      workflowRole: Movement and allocation workflows use the location context to determine where state changes occur.
+      summary: Posted inventory events contributing to the balance projection.
+      workflowRole: Supplies the historical event stream against which the balance must reconcile.
   invariants:
-  - id: INVENTORY-BALANCE-001
-    rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy applies.
-  - id: INVENTORY-BALANCE-002
-    rule: quantityReserved must not normally exceed quantityOnHand.
-  - id: INVENTORY-BALANCE-003
-    rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional restrictions.
-  - id: INVENTORY-BALANCE-004
-    rule: Balance state must reconcile with posted InventoryMovement history or an approved inventory reconciliation process.
-  - id: INVENTORY-BALANCE-005
-    rule: Reservation and release operations must update reserved and available quantities atomically with their corresponding authorization/event.
+  - {id: INVENTORY-BALANCE-001, rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy permits it.}
+  - {id: INVENTORY-BALANCE-002, rule: quantityReserved must not normally exceed quantityOnHand.}
+  - {id: INVENTORY-BALANCE-003, rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional availability restrictions.}
+  - {id: INVENTORY-BALANCE-004, rule: InventoryBalance is a derived projection and must not be used as an independent source of historical inventory truth.}
+  - {id: INVENTORY-BALANCE-005, rule: Every material balance change must be attributable to a posted InventoryMovement, reservation/release event, or approved reconciliation workflow.}
+  - {id: INVENTORY-BALANCE-006, rule: Reservation and release operations must update reserved and available quantities atomically with their authorization/event and concurrency control.}
+  - {id: INVENTORY-BALANCE-007, rule: Product or UnitOfMeasure master changes must not directly rewrite historical inventory quantities; affected future operations require validation of measurement and product eligibility.}
+  - {id: INVENTORY-BALANCE-008, rule: InventoryLocation status or hierarchy changes must trigger validation of affected future movements, reservations, transfers and fulfillment workflows before the location becomes unavailable.}
+  - {id: INVENTORY-BALANCE-009, rule: A posted inventory correction must be represented by an adjustment/reversal event and must not directly overwrite quantityOnHand history.}
   help:
-    summary: Represents the current inventory state from which operational availability decisions are made.
-    businessMeaning: InventoryBalance is a state projection, not the historical inventory ledger. It answers how much of a Product is present at a location and how much can normally be committed to new demand.
-    usage: Used by inventory control, warehouse management, order fulfillment, purchasing, maintenance, replenishment, planning, availability checks, and reporting.
-    relationshipContext: Product identifies what is stocked. InventoryLocation identifies where. InventoryMovement records events. InventoryBalance is the current projection consumed by workflows.
-    workflowContext: GoodsReceipt acceptance posts receipt movements and increases on-hand. Put-away changes location balances. Reservation commits quantity without physical movement. Picking/issue reduces on-hand. Release restores availability. Stock counts may create adjustments. The balance must never be treated as independent of these workflows.
-    concurrency: Allocation and issue workflows must protect against two processes consuming the same available quantity. Implementations should use transactional locking, optimistic concurrency, or equivalent controls appropriate to the persistence technology.
-    lifecycle: A balance appears when a product becomes relevant at a location, changes as events are posted, may be reconciled through stock counts, and can reach zero without destroying historical movements.
-    example: A location holds 100 spare parts. Twenty are reserved for an approved maintenance work order. The balance is 100 on-hand, 20 reserved, 80 available. When three are issued to maintenance, on-hand becomes 97 and the remaining reservation/availability are adjusted according to the allocation workflow.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-INVENTORY-BALANCE
+    summary: Current inventory state projection maintained from authoritative inventory events and reservation workflows.
+    businessMeaning: InventoryBalance answers the current operational question of what is on hand, reserved and available. InventoryMovement remains the historical ledger; reservation events explain commitment state.
+    usage: Inventory control, warehouse management, order fulfillment, purchasing, maintenance, replenishment, planning and availability.
+    relationshipContext: Product defines the stocked item, UnitOfMeasure defines quantity semantics, InventoryLocation defines where stock is held, InventoryMovement records physical/logical stock events, and reservation workflows govern committed quantity.
+    workflowContext: Source transaction → authorization → posted inventory event → InventoryBalance projection. Reservations update commitment state without physical movement. Product/UOM/Location changes trigger dependent-workflow validation rather than direct balance mutation.
+    concurrency: Allocation and issue must protect against concurrent consumption of the same available quantity using transactional locking, optimistic concurrency or equivalent controls.
+    lifecycle: Created when a Product/location combination becomes inventory-relevant → continuously projected from events → reconciled through controlled stock counts/adjustments → retained at zero when history remains relevant.
+    example: 100 units are received, 20 are reserved, and 3 are issued. The projection becomes 97 on-hand and, depending on the reservation workflow, 17 reserved and 80 available. If the product UOM conversion later changes, existing stock is not silently reinterpreted; a controlled conversion/reconciliation workflow is required.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-BALANCE}
