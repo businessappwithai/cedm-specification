@@ -2,110 +2,69 @@ entity:
   name: GoodsReceipt
   namespace: cedm.domain
   kind: procurement_fulfillment_transaction
-  description: A controlled record confirming physical or service fulfillment received against a PurchaseOrder, with line-level evidence of quantities received, accepted, rejected, or pending inspection.
-  identity:
-    key: goodsReceiptId
-    type: uuid
-    generated: true
-    immutable: true
+  description: A controlled record confirming physical or service fulfillment received against a PurchaseOrder, with line-level evidence of quantities received, accepted, rejected, or pending inspection. Header state and totals are projections of line-level receipt disposition and downstream posting state.
+  identity: {key: goodsReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: goodsReceiptId
-    type: uuid
-    required: true
-    immutable: true
-    help: {summary: The immutable identity of the receipt event., usage: Used for receiving audit, inventory posting, purchase-order fulfillment, invoice matching, and traceability., relationshipContext: Identifies the receipt independently of PurchaseOrder, supplier, lines, inventory movements, and invoice., workflowRole: Root identity for the receiving transaction.}
-  - name: receiptNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help: {summary: The human-facing reference for the receipt., usage: Used by receiving teams, procurement, suppliers, warehouse personnel, accounts payable, and integrations., relationshipContext: Distinct from PurchaseOrder.orderNumber and supplier invoiceNumber., workflowRole: Provides operational traceability for the receiving event.}
-  - name: receiptDate
-    type: datetime
-    required: true
-    help: {summary: The date and time the receipt was recorded., usage: Supports inventory timing, supplier performance, matching, period reporting, and fulfillment measurement., relationshipContext: Distinct from PurchaseOrder.requestedDeliveryDate and Invoice.invoiceDate., workflowRole: Establishes receipt chronology.}
+  - {name: goodsReceiptId, type: uuid, required: true, immutable: true}
+  - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100}
+  - {name: receiptDate, type: datetime, required: true}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
     help:
-      summary: The controlled state of the receiving document.
-      usage: Determines whether receipt evidence and accepted quantities can affect fulfillment, inventory, and invoice matching.
-      relationshipContext: Header status summarizes the document; GoodsReceiptLine carries the detailed quantity dispositions.
-      workflowRole: Controls posting and disposition of receiving results.
-      valueSemantics:
-        DRAFT: Being prepared and not posted as fulfillment evidence.
-        RECEIVED: Physical/service receipt recorded but acceptance may remain pending.
-        INSPECTION_PENDING: Receipt requires inspection or verification.
-        ACCEPTED: Receipt is fully accepted under applicable rules.
-        PARTIALLY_ACCEPTED: Some quantities accepted while others are rejected or pending.
-        REJECTED: Receipt is not accepted.
-        CANCELLED: Receipt was voided through an authorized correction process.
-  - name: receivedQuantity
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help: {summary: Aggregate quantity physically received across this receipt's GoodsReceiptLine records., usage: Provides header-level receiving visibility., relationshipContext: Must reconcile to the sum of line received quantities and is not the authoritative line-level evidence., workflowRole: Supports document summaries and controls but detailed receiving decisions occur at GoodsReceiptLine level.}
-  - name: acceptedQuantity
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help: {summary: Aggregate quantity accepted across this receipt's GoodsReceiptLine records., usage: Supports inventory posting, purchase-order fulfillment, and matching summaries., relationshipContext: Must reconcile to line accepted quantities and excludes rejected/pending quantities., workflowRole: Determines the accepted portion eligible for normal inventory receipt.}
-  - name: notes
-    type: string
-    required: false
-    maxLength: 2000
-    help: {summary: Header-level receiving observations., usage: Supports discrepancy investigation, supplier communication, inspection context, and audit., relationshipContext: Supplements structured line quantities and statuses., workflowRole: Captures context applying to the overall receipt.}
+      summary: Controlled receiving-document lifecycle state.
+      usage: Determines whether receipt evidence can affect PO fulfillment, inventory and invoice matching.
+      relationshipContext: Header status summarizes line dispositions and posting state; it must not contradict line-level evidence.
+      workflowRole: Controls receiving progression and authorized corrections.
+  - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: notes, type: string, required: false, maxLength: 2000}
   relationships:
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: '1'
     ownership: reference
-    help: {summary: Identifies the procurement commitment against which this receipt is recorded., usage: Provides supplier, ordered lines, delivery location, commercial context, and lifecycle., cardinalityMeaning: Every GoodsReceipt belongs to one PurchaseOrder., workflowRole: Establishes the commitment against which line-level fulfillment is reconciled.}
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help: {summary: Identifies the supplier delivering the goods or services., usage: Supports supplier performance, discrepancy handling, receiving accountability, and invoice reconciliation., cardinalityMeaning: Exactly one supplier is associated with the receipt and should normally agree with the PurchaseOrder supplier., workflowRole: Identifies the external fulfillment party.}
   - name: lines
     target: GoodsReceiptLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: Contains the line-level receiving evidence for products or services received under the PurchaseOrder., usage: Records actual, accepted, rejected, and pending quantities and their traceability to PurchaseOrderLine., cardinalityMeaning: A posted receipt requires at least one line., workflowRole: Lines are the authoritative detail from which header totals and PO fulfillment are derived.}
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
-    help: {summary: Links accepted receipt quantities to resulting inventory events., usage: Provides traceability from receiving evidence to inventory state changes., cardinalityMeaning: A receipt may generate multiple movements because stock can be split across locations or controlled postings., workflowRole: Only authorized accepted quantities may create normal receipt movements.}
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
-    help: {summary: Supplier financial claims matched or associated with this receipt., usage: Supports three-way matching and accounts payable., cardinalityMeaning: Multiple invoices may reference one receipt and one invoice may cover multiple receipts according to billing policy., workflowRole: Invoice matching uses receipt-line acceptance evidence rather than treating the receipt itself as payment or settlement.}
   invariants:
-  - id: GOODS-RECEIPT-001
-    rule: receivedQuantity must equal the sum of GoodsReceiptLine.receivedQuantity for this receipt.
-  - id: GOODS-RECEIPT-002
-    rule: acceptedQuantity must equal the sum of GoodsReceiptLine.acceptedQuantity for this receipt.
-  - id: GOODS-RECEIPT-003
-    rule: Each GoodsReceiptLine must reference a PurchaseOrderLine belonging to this receipt's PurchaseOrder unless an authorized exception workflow exists.
-  - id: GOODS-RECEIPT-004
-    rule: ACCEPTED or PARTIALLY_ACCEPTED quantities may create inventory receipt movements only for accepted line quantities.
-  - id: GOODS-RECEIPT-005
-    rule: A rejected or pending quantity must not increase accepted inventory.
-  - id: GOODS-RECEIPT-006
-    rule: Receipt supplier must match PurchaseOrder supplier unless an authorized supplier substitution process exists.
+  - {id: GOODS-RECEIPT-001, rule: receivedQuantity must equal the sum of GoodsReceiptLine.receivedQuantity.}
+  - {id: GOODS-RECEIPT-002, rule: acceptedQuantity must equal the sum of GoodsReceiptLine.acceptedQuantity.}
+  - {id: GOODS-RECEIPT-003, rule: Every posted GoodsReceiptLine must reference a PurchaseOrderLine belonging to this receipt's PurchaseOrder unless an authorized exception workflow exists.}
+  - {id: GOODS-RECEIPT-004, rule: Supplier must match PurchaseOrder.supplier unless an authorized supplier substitution process exists.}
+  - {id: GOODS-RECEIPT-005, rule: ACCEPTED requires all lines to have completed required acceptance/disposition and all accepted quantities to have successful inventory posting or an explicitly non-stock service disposition.}
+  - {id: GOODS-RECEIPT-006, rule: PARTIALLY_ACCEPTED requires at least one accepted quantity and at least one rejected or pending quantity, unless an explicit disposition policy defines another interpretation.}
+  - {id: GOODS-RECEIPT-007, rule: REJECTED requires no accepted quantity unless a controlled partial-rejection workflow is represented by PARTIALLY_ACCEPTED.}
+  - {id: GOODS-RECEIPT-008, rule: INSPECTION_PENDING requires at least one line with pendingInspectionQuantity greater than zero.}
+  - {id: GOODS-RECEIPT-009, rule: A DRAFT receipt must not update PurchaseOrder fulfillment, InventoryBalance, InventoryMovement posting state, or invoice matching evidence.}
+  - {id: GOODS-RECEIPT-010, rule: Transition out of DRAFT requires line validation, product/UOM validation, PO linkage validation and duplicate/idempotency validation.}
+  - {id: GOODS-RECEIPT-011, rule: Posting accepted receipt quantities must update PurchaseOrderLine fulfillment and InventoryBalance through one controlled workflow and must be idempotent.}
+  - {id: GOODS-RECEIPT-012, rule: A receipt cannot be marked ACCEPTED if an accepted line's required InventoryMovement posting failed or is incomplete, unless an explicitly governed service/non-stock workflow applies.}
+  - {id: GOODS-RECEIPT-013, rule: CANCELLED receipts cannot be physically reversed by status change alone; if posted effects exist, cancellation requires compensating reversal/disposition events.}
+  - {id: GOODS-RECEIPT-014, rule: Corrections to posted receipt evidence must use reversal, return, rejection or adjustment workflows and must preserve the original receipt.}
+  - {id: GOODS-RECEIPT-015, rule: Changes to PurchaseOrder, Supplier, Product, UnitOfMeasure, Warehouse or InventoryLocation that affect an open receipt require revalidation before posting or acceptance continues.}
   help:
-    summary: Represents the controlled receiving document and its line-level evidence that procurement fulfillment actually occurred.
-    businessMeaning: GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. GoodsReceiptLine is the authoritative detail; header quantities are projections for document-level visibility.
-    usage: Used by receiving, warehouse operations, procurement, quality inspection, supplier management, accounts payable, inventory control, and three-way matching.
-    relationshipContext: PurchaseOrder says what should be supplied. GoodsReceipt says what arrived. GoodsReceiptLine says exactly what arrived and what was accepted. InventoryMovement records accepted stock consequences. Invoice records the supplier financial claim. Payment settles that claim.
-    workflowContext: PurchaseOrderLine → GoodsReceiptLine → inspection/disposition → accepted quantity → InventoryMovement → InvoiceLine matching. Partial deliveries create multiple receipt lines/events against the same PO line. Rejected and pending quantities follow exception workflows.
-    lifecycle: Draft → received → inspection/acceptance → accepted/partially accepted/rejected → controlled correction if required. Posted receiving evidence is corrected through reversal or disposition rather than silently rewriting history.
-    example: A PO contains 100 units on one line. A receipt records 96 received. The line accepts 94, rejects 2, and creates inventory receipt evidence only for 94. The PO line's cumulative received and accepted quantities are updated from receipt-line evidence.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-GOODS-RECEIPT}
+    summary: Controlled receiving document whose header state and totals are derived from line-level receiving evidence and synchronized with procurement fulfillment and inventory posting.
+    businessMeaning: GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. GoodsReceiptLine is authoritative for quantities; the header summarizes and controls the document lifecycle.
+    usage: Receiving, warehouse operations, procurement, quality, supplier management, accounts payable, inventory control and three-way matching.
+    relationshipContext: PurchaseOrder is the commitment. GoodsReceiptLine is the actual receipt/disposition evidence. InventoryMovement is the physical stock consequence. InvoiceLine is the financial claim. Payment settles the invoice.
+    workflowContext: Draft → line validation → received → inspection/disposition → accepted/partially accepted/rejected → accepted inventory posting and PO fulfillment → invoice matching. Every downstream update must be idempotent and traceable to the receipt line.
+    lifecycle: Draft → Received → Inspection Pending → Accepted/Partially Accepted/Rejected → controlled correction if required. Posted evidence is never destructively rewritten.
+    propagation: Header status changes drive allowed downstream workflow, while line changes recalculate header totals/state. Accepted posting updates PO fulfillment and InventoryBalance atomically or through a recoverable orchestration with idempotency controls.
+    example: A receipt records 96 units: 94 accepted and 2 rejected. The header becomes PARTIALLY_ACCEPTED. Exactly 94 units update PO accepted fulfillment and create receipt inventory movements. A retry of posting does not add another 94 units. Cancelling later requires compensating events rather than merely setting status to CANCELLED.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-GOODS-RECEIPT}
