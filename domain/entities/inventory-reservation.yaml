@@ -1,0 +1,58 @@
+entity:
+  name: InventoryReservation
+  namespace: cedm.domain
+  kind: inventory_commitment_entity
+  description: An authorized commitment of available inventory to a demand source without changing physical on-hand quantity. It bridges demand such as SalesOrder or work demand to InventoryBalance and fulfillment, and its lifecycle controls reserved and available quantities.
+  identity: {key: inventoryReservationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: inventoryReservationId, type: uuid, required: true, immutable: true}
+  - {name: quantityReserved, type: decimal, required: true, precision: 20, scale: 6}
+  - {name: quantityConsumed, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: quantityReleased, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
+  - {name: priority, type: integer, required: false, default: 100}
+  - {name: expiresAt, type: datetime, required: false}
+  - {name: createdAt, type: datetime, required: true, systemManaged: true}
+  - {name: updatedAt, type: datetime, required: true, systemManaged: true}
+  relationships:
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+  - name: inventoryLocation
+    target: InventoryLocation
+    cardinality: '1'
+    ownership: reference
+  - name: salesOrderLine
+    target: SalesOrderLine
+    cardinality: 0..1
+    ownership: reference
+  - name: inventoryBalance
+    target: InventoryBalance
+    cardinality: '1'
+    ownership: reference
+  invariants:
+  - {id: INVENTORY-RESERVATION-001, rule: quantityReserved must be greater than zero when a reservation is created.}
+  - {id: INVENTORY-RESERVATION-002, rule: quantityConsumed plus quantityReleased must not exceed quantityReserved.}
+  - {id: INVENTORY-RESERVATION-003, rule: A reservation must reference exactly one Product and one InventoryLocation and must use compatible quantity semantics.}
+  - {id: INVENTORY-RESERVATION-004, rule: Creating or increasing an ACTIVE reservation must atomically verify and consume the corresponding available quantity without changing physical quantityOnHand.}
+  - {id: INVENTORY-RESERVATION-005, rule: Consuming a reservation through fulfillment must create the appropriate InventoryMovement and reduce the remaining reservation atomically or through an equivalent recoverable workflow.}
+  - {id: INVENTORY-RESERVATION-006, rule: Releasing or cancelling a reservation must restore the released quantity to available inventory without creating physical stock.}
+  - {id: INVENTORY-RESERVATION-007, rule: Product, UnitOfMeasure, InventoryLocation, SalesOrderLine, or demand-status changes that invalidate an active reservation must trigger a controlled revalidation, transfer, reduction, or release workflow.}
+  - {id: INVENTORY-RESERVATION-008, rule: An InventoryLocation becoming BLOCKED or INACTIVE must not leave an active reservation silently available for allocation; it must be transferred, released, or explicitly excepted.}
+  - {id: INVENTORY-RESERVATION-009, rule: Reservation lifecycle changes must update InventoryBalance.quantityReserved and quantityAvailable through the authoritative reservation workflow, not by direct balance edits.}
+  - {id: INVENTORY-RESERVATION-010, rule: Historical consumed/released reservation evidence must remain auditable even after the reservation reaches a terminal status.}
+  help:
+    summary: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement.
+    businessMeaning: Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it.
+    usage: Sales fulfillment, maintenance demand, allocation, picking, replenishment, production and inventory control.
+    relationshipContext: Product identifies stock, InventoryLocation identifies where it is reserved, InventoryBalance supplies available state, and SalesOrderLine supplies one possible demand source.
+    workflowContext: Demand approved → availability checked → reservation created → InventoryBalance reserved/available updated → pick/issue/fulfillment → reservation consumed and InventoryMovement posted. Cancellation/expiry releases reserved quantity. Master or location changes trigger revalidation.
+    lifecycle: Pending → Active → Partially consumed → Consumed, or Active → Released/Cancelled/Expired. Terminal states preserve history.
+    concurrency: Reservation creation, increase, consumption and release require transactional concurrency control so available inventory cannot be reserved twice.
+    example: 100 units are available. A SalesOrderLine reserves 30, making 70 available. Picking consumes 10 reserved units and posts the corresponding issue movement; the reservation has 20 remaining. If the location is blocked, the reservation must be transferred or released before the stock can be considered available elsewhere.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-RESERVATION}
