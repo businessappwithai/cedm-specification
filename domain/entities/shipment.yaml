@@ -2,113 +2,75 @@ entity:
   name: Shipment
   namespace: cedm.domain
   kind: logistics_transaction
-  description: A planned or executed logistics movement coordinating transportation of goods, assets, or containers from an origin to a destination under a defined fulfillment context.
+  description: A planned or executed logistics movement coordinating transportation of goods, assets, or containers from an origin to a destination under a defined fulfillment context. Shipment execution is distinct from inventory ledger posting, commercial fulfillment and financial settlement.
   identity: {key: shipmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - name: shipmentId
-      type: uuid
-      required: true
-      immutable: true
-      help: {summary: Immutable shipment identity., usage: Used for tracking, integrations, audit, exceptions, and navigation., relationshipContext: Stable independently of order, carrier, containers, and locations., workflowRole: Root reference across booking, dispatch, transit, delivery, and closure., requiredMeaning: Every shipment must be traceable.}
-    - name: shipmentNumber
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help: {summary: Business-facing shipment reference., usage: Used by logistics operators, customers, carriers, and documents., relationshipContext: Distinct from shipmentId and external tracking references., workflowRole: Operational correlation key., requiredMeaning: Required for logistics traceability.}
-    - name: shipmentType
-      type: enum
-      required: true
-      values: [INBOUND, OUTBOUND, TRANSFER, RETURN]
-      help:
-        summary: Business direction and purpose of the shipment.
-        usage: Determines expected origin/destination and fulfillment/inventory workflow.
-        relationshipContext: Does not replace the originating SalesOrder, PurchaseOrder, or return transaction.
-        workflowRole: Determines whether the shipment normally consumes, receives, transfers, or returns inventory.
-        valueSemantics:
-          INBOUND: Transport into the managed operational network.
-          OUTBOUND: Transport from the network toward a customer or other destination.
-          TRANSFER: Movement between controlled locations under the same operational ownership/control.
-          RETURN: Movement returning goods/assets to a designated party or location.
-        requiredMeaning: Required for correct execution semantics.
-    - name: status
-      type: enum
-      required: true
-      default: PLANNED
-      values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
-      help:
-        summary: Operational execution state of the shipment.
-        usage: Controls booking, dispatch, tracking, delivery, exception, and cancellation actions.
-        relationshipContext: Shipment status is not inventory status and does not by itself prove customer acceptance or invoice payment.
-        workflowRole: Delivery can provide fulfillment evidence, while InventoryMovement records stock consequences separately.
-        valueSemantics:
-          PLANNED: Shipment defined but not committed for execution.
-          BOOKED: Transport capacity/carrier arrangement confirmed.
-          IN_TRANSIT: Physical movement underway.
-          DELIVERED: Destination delivery confirmed under the applicable proof process.
-          CANCELLED: Shipment terminated before completion.
-          EXCEPTION: Shipment requires corrective operational action.
-        requiredMeaning: Required for controlled transport execution.
-    - name: plannedDate
-      type: date
-      required: false
-      help: {summary: Planned execution date., usage: Supports transport and warehouse scheduling., relationshipContext: Not an actual movement event., workflowRole: Feeds booking and dispatch planning., optionalMeaning: Optional until scheduled.}
-    - name: actualDate
-      type: date
-      required: false
-      help: {summary: Actual shipment execution/completion date under the organization's convention., usage: Supports delivery performance and logistics reporting., relationshipContext: Must be interpreted with status and detailed transport events., workflowRole: Supplies actual chronology after execution., optionalMeaning: Optional until the relevant event occurs.}
-    - name: trackingReference
-      type: string
-      required: false
-      maxLength: 200
-      help: {summary: External carrier or transport-network tracking reference., usage: Supports tracking and carrier integration., relationshipContext: Distinct from CEDM shipmentNumber., workflowRole: Synchronizes external movement state., optionalMeaning: Optional when external tracking is unavailable.}
+  - {name: shipmentId, type: uuid, required: true, immutable: true}
+  - {name: shipmentNumber, type: string, required: true, unique: true, maxLength: 100}
+  - {name: shipmentType, type: enum, required: true, values: [INBOUND, OUTBOUND, TRANSFER, RETURN]}
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
+    help:
+      summary: Operational execution state of the shipment.
+      usage: Controls booking, dispatch, tracking, delivery, exception and cancellation actions.
+      relationshipContext: Status is not inventory status and does not itself prove customer acceptance or invoice payment.
+      workflowRole: Drives permitted logistics transitions and downstream fulfillment/movement workflows.
+  - {name: plannedDate, type: date, required: false}
+  - {name: actualDate, type: date, required: false}
+  - {name: trackingReference, type: string, required: false, maxLength: 200}
   relationships:
-    - name: origin
-      target: Location
-      cardinality: 0..1
-      ownership: reference
-      help: {summary: Operational origin of transport., usage: Supports routing, pickup, dispatch, and transit planning., cardinalityMeaning: Optional when managed externally., workflowRole: Normally the source for outbound movement or destination-side receiving context for inbound shipments.}
-    - name: destination
-      target: Location
-      cardinality: 0..1
-      ownership: reference
-      help: {summary: Operational delivery or handover destination., usage: Supports routing, receiving, customer service, and proof of delivery., cardinalityMeaning: Optional when managed externally., workflowRole: Supplies the endpoint used to confirm delivery.}
-    - name: carrier
-      target: Party
-      cardinality: 0..1
-      ownership: reference
-      help: {summary: Party responsible for transportation., usage: Supports booking, execution, tracking, freight settlement, and performance., cardinalityMeaning: Optional before carrier selection., workflowRole: Becomes operationally important at booking and dispatch.}
-    - name: containers
-      target: Container
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Physical containers transported by the shipment., usage: Supports container tracking and transport visibility., cardinalityMeaning: Zero or many depending on containerization., workflowRole: ContainerMovement records gate/yard/transport state changes around shipment execution.}
-    - name: salesOrder
-      target: SalesOrder
-      cardinality: 0..1
-      ownership: reference
-      help: {summary: Customer order whose commitments are being fulfilled., usage: Provides commercial demand context., cardinalityMeaning: Optional for transfers, returns, or other logistics processes., workflowRole: Shipment quantities and delivery evidence may contribute to SalesOrderLine fulfillment.}
-    - name: purchaseOrder
-      target: PurchaseOrder
-      cardinality: 0..1
-      ownership: reference
-      help: {summary: Procurement commitment being fulfilled by inbound transport., usage: Supports supplier coordination and receiving., cardinalityMeaning: Optional for consolidated or externally initiated transport., workflowRole: Shipment arrival supports GoodsReceipt but does not itself prove acceptance.}
-    - name: inventoryMovements
-      target: InventoryMovement
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Inventory events caused or associated with shipment execution., usage: Connects physical transport to stock state changes., cardinalityMeaning: A shipment may have multiple inventory events or none if inventory is not managed by CEDM., workflowRole: Shipment dispatch/delivery can trigger issue, receipt, or transfer events according to fulfillment policy.}
+  - name: origin
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+  - name: destination
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+  - name: carrier
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+  - name: containers
+    target: Container
+    cardinality: 0..*
+    ownership: reference
+  - name: salesOrder
+    target: SalesOrder
+    cardinality: 0..1
+    ownership: reference
+  - name: purchaseOrder
+    target: PurchaseOrder
+    cardinality: 0..1
+    ownership: reference
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
   invariants:
-    - {id: SHIPMENT-001, rule: DELIVERED shipments must have actualDate.}
-    - {id: SHIPMENT-002, rule: IN_TRANSIT shipments must have an origin or externally managed origin reference.}
-    - {id: SHIPMENT-003, rule: CANCELLED shipments must not become IN_TRANSIT or DELIVERED without authorized reinstatement.}
-    - {id: SHIPMENT-004, rule: Shipment completion must not directly mutate inventory state without corresponding authorized InventoryMovement evidence.}
+  - {id: SHIPMENT-001, rule: DELIVERED shipments must have actualDate.}
+  - {id: SHIPMENT-002, rule: IN_TRANSIT shipments must have an origin or externally managed origin reference.}
+  - {id: SHIPMENT-003, rule: CANCELLED shipments must not become IN_TRANSIT or DELIVERED without authorized reinstatement.}
+  - {id: SHIPMENT-004, rule: Shipment completion must not directly mutate inventory state without corresponding authorized InventoryMovement evidence.}
+  - {id: SHIPMENT-005, rule: An OUTBOUND shipment linked to a SalesOrder must have validated allocation/fulfillment eligibility before dispatch; shipment status alone cannot create customer fulfillment quantities.}
+  - {id: SHIPMENT-006, rule: An INBOUND shipment arrival does not create accepted inventory; accepted stock requires GoodsReceiptLine disposition and InventoryMovement posting.}
+  - {id: SHIPMENT-007, rule: A TRANSFER shipment must have validated source and destination locations and corresponding transfer inventory movements according to inventory policy.}
+  - {id: SHIPMENT-008, rule: A RETURN shipment must reference an authorized return/receiving workflow before returned goods increase available inventory.}
+  - {id: SHIPMENT-009, rule: Dispatch or delivery events that affect inventory or SalesOrderLine fulfillment must be idempotent and traceable to the originating shipment execution event.}
+  - {id: SHIPMENT-010, rule: Cancelling or reversing a shipment with posted inventory or fulfillment effects requires compensating InventoryMovement and fulfillment reversal/reconciliation workflows; status change alone is insufficient.}
+  - {id: SHIPMENT-011, rule: Changes to SalesOrder, PurchaseOrder, Product, UnitOfMeasure, InventoryLocation, Carrier or container eligibility that affect an open shipment must trigger controlled revalidation before dispatch or delivery progression.}
+  - {id: SHIPMENT-012, rule: DELIVERED is transport evidence and must not directly set Invoice status to paid or settled.}
   help:
-    summary: Represents physical logistics execution bridging commercial fulfillment and transport.
-    businessMeaning: Shipment answers how a fulfillment commitment is physically transported; it does not itself represent the commercial order, inventory ledger, or financial settlement.
-    usage: Used by transportation, warehouse operations, procurement, order fulfillment, carrier management, customs, customer service, and container logistics.
-    relationshipContext: SalesOrder provides outbound demand, PurchaseOrder provides inbound procurement context, Container provides equipment, Location provides endpoints, and InventoryMovement records stock consequences.
-    workflowContext: Outbound: confirmed SalesOrder → allocation → pick/issue → Shipment booked → dispatch → ContainerMovement/gate execution → IN_TRANSIT → DELIVERED → fulfillment acceptance. Inbound: PurchaseOrder → expected shipment → arrival → GoodsReceipt acceptance → receipt InventoryMovement. Shipment arrival alone is not accepted inventory.
-    lifecycle: Planned → booked → in transit → delivered, with cancellation and exception paths. Delivery evidence contributes to fulfillment but does not automatically imply invoice payment.
-    example: Twelve containers are allocated to an outbound order. A Shipment books the carrier and records the twelve containers. Dispatch creates the appropriate ContainerMovement and inventory issue evidence. Delivery confirmation contributes to fulfillment, while the invoice remains a separate financial process.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-SHIPMENT}
+    summary: Represents physical logistics execution bridging commercial fulfillment and transport while keeping inventory and financial state under their authoritative workflows.
+    businessMeaning: Shipment answers how goods are physically moved. It is not itself the inventory ledger, SalesOrder fulfillment ledger, GoodsReceipt acceptance, or financial settlement.
+    usage: Transportation, warehouse operations, procurement, order fulfillment, carrier management, customs, customer service and container logistics.
+    relationshipContext: SalesOrder supplies outbound demand, PurchaseOrder supplies inbound procurement context, Container supplies equipment, Location supplies endpoints, InventoryMovement supplies stock consequences, GoodsReceipt supplies inbound acceptance, and Invoice supplies financial claim.
+    workflowContext: Outbound: confirmed SalesOrder → allocation/reservation → pick/issue → Shipment booked → dispatch → transport → delivery evidence → SalesOrder fulfillment update. Inbound: PurchaseOrder → expected shipment → arrival → GoodsReceipt → acceptance → InventoryMovement. Transfer: source allocation → dispatch issue → transit → destination receipt. Return: authorized return → transport → receipt/inspection → disposition → inventory movement.
+    lifecycle: Planned → booked → in transit → delivered, with cancellation and exception paths. Delivery evidence contributes to fulfillment but never bypasses authoritative inventory or financial workflows.
+    propagation: Shipment status changes invoke dependent workflow transitions; master-data changes affecting an open shipment require revalidation; posted downstream effects require compensating events for reversal.
+    concurrency: Dispatch, delivery and inventory posting require idempotency keys and concurrency control to prevent duplicate issue/receipt/fulfillment effects.
+    example: Twelve units are reserved for an outbound SalesOrder. Dispatch creates one authoritative inventory issue event for the shipped quantity and updates fulfillment through the controlled workflow. A retry cannot issue the same quantity twice. Delivery confirms transport completion but does not itself settle the invoice.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-SHIPMENT}
