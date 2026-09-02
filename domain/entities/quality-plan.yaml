@@ -52,7 +52,7 @@ entity:
     target: SamplingPlan
     cardinality: 0..*
     ownership: reference
-    help: {summary: Sampling definitions available to or assigned within this quality plan., businessMeaning: Identifies governed policies for selecting inspection samples when sampling is required., usage: Plan authoring, sample-size determination, inspection execution, audit, and impact analysis., cardinalityMeaning: A quality plan may use zero or many reusable SamplingPlans., context: QualityPlan remains the quality-control definition while SamplingPlan governs population selection and SamplingRule supplies conditional quantities and acceptance thresholds.}
+    help: {summary: Reusable sampling definitions assigned to this quality plan., businessMeaning: Identifies governed policies for selecting inspection samples from eligible populations., usage: Plan authoring, sample-size determination, inspection execution, audit, and impact analysis., cardinalityMeaning: A quality plan may use zero or many SamplingPlans., context: SamplingPlan defines the general sampling method and SamplingRule defines conditional sample quantities and acceptance thresholds; QualityInspection and InspectionSample preserve the configuration used at execution time.}
   - name: inspections
     target: QualityInspection
     cardinality: 0..*
@@ -63,17 +63,17 @@ entity:
   - {id: QUALITY-PLAN-002, rule: An ACTIVE QualityPlan must have valid QualityPlanCharacteristic configurations whenever the plan declares characteristic-based inspection controls.}
   - {id: QUALITY-PLAN-003, rule: A RETIRED or SUSPENDED QualityPlan must not be selected for new governed inspections except through an explicit authorized exception or historical/reinspection workflow.}
   - {id: QUALITY-PLAN-004, rule: Material changes to characteristics, acceptance criteria, or sampling policies must not silently change the interpretation of completed QualityInspections or QualityMeasurements; use controlled versioning or replacement semantics.}
-  - {id: QUALITY-PLAN-005, rule: Changes to product applicability, characteristic configuration, sampling configuration, status, or acceptance criteria must trigger impact analysis across open QualityInspections, QualityMeasurements, SamplingPlan/SamplingRule execution, Nonconformance, disposition, supplier-quality, and reporting workflows.}
+  - {id: QUALITY-PLAN-005, rule: Changes to product applicability, characteristic configuration, sampling configuration, status, or acceptance criteria must trigger impact analysis across open QualityInspections, QualityMeasurements, SamplingPlan/SamplingRule execution, InspectionSample, Nonconformance, disposition, supplier-quality, and reporting workflows.}
   - {id: QUALITY-PLAN-006, rule: Plan configuration changes must be idempotent and auditable.}
   help:
     summary: Governed definition of how a product or process is inspected.
-    businessMeaning: QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements, sampling policies, and QualityInspection execution. Reusable quality meaning belongs to QualityCharacteristic and reusable sample selection belongs to SamplingPlan rather than being duplicated in every plan.
+    businessMeaning: QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements, reusable SamplingPlan policies, and QualityInspection execution. Reusable quality meaning belongs to QualityCharacteristic and reusable sample selection belongs to SamplingPlan rather than being duplicated in every inspection.
     usage: Quality master data, inspection processes, supplier quality, incoming inspection, process control, laboratory testing, compliance, forms, reports, integrations, and analytics.
-    relationshipContext: Product provides applicability; QualityPlanCharacteristic supplies detailed requirements; SamplingPlan and SamplingRule supply sample-selection controls; QualityInspection executes them; QualityMeasurement records observations; Nonconformance and disposition consume failed outcomes.
-    lifecycle: Draft → active → suspended/retired under governed change control. Historical inspections retain the plan, characteristic, and sampling configuration applicable when executed.
+    relationshipContext: Product provides applicability; QualityPlanCharacteristic supplies detailed requirements; SamplingPlan and SamplingRule supply sample-selection controls; QualityInspection executes them; InspectionSample records actual selection; QualityMeasurement records observations; Nonconformance and disposition consume failed outcomes.
+    lifecycle: Draft → active → suspended/retired under governed change control. Historical inspections retain the plan, characteristic, sampling plan, and sampling rule configuration applicable when executed.
     changePropagation: Material plan changes propagate to open inspections and measurements, sample-selection execution, requirement evaluation, nonconformance and disposition workflows, supplier performance evidence, reporting, and audit history. Completed evidence must not be rewritten.
-    example: An incoming-receipt plan contains required WEIGHT and TEMPERATURE configurations and assigns an acceptance-sampling policy. A QualityInspection selects the governed sample, captures measurements, evaluates each required characteristic, and determines the overall result.
+    example: An incoming-receipt plan contains required WEIGHT and TEMPERATURE configurations and assigns an acceptance-sampling SamplingPlan. A QualityInspection selects the governed sample through its SamplingRule, captures measurements, and determines the overall result.
 specification:
-  version: 0.2.0
+  version: 0.3.0
   status: draft
   identifier: CEDM-ENTITY-QUALITY-PLAN
