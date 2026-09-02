@@ -2,7 +2,7 @@ entity:
   name: QualityPlan
   namespace: cedm.domain
   kind: quality_definition
-  description: A defined set of inspections, tests, sampling rules, and acceptance criteria.
+  description: A defined set of inspections, tests, sampling rules, quality characteristics, and acceptance criteria governing how a product or process is evaluated.
   identity:
     key: qualityPlanId
     type: uuid
@@ -13,100 +13,61 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help:
-      summary: Identifies the quality plan record associated with this QualityPlan. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating QualityPlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to QualityPlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Stable identity of the quality plan., businessMeaning: Identifies one governed collection of inspection and acceptance requirements., usage: Referencing, authoring, inspection execution, audit, reporting, and integration., relationshipContext: Connects the plan to Product, QualityPlanCharacteristic configurations, and QualityInspection executions., requiredMeaning: Required for stable plan identity.}
   - name: code
     type: string
     required: true
     unique: true
     maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating QualityPlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to QualityPlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Business code identifying the quality plan., businessMeaning: Provides a stable human-readable reference for the governed inspection definition., usage: Plan selection, search, reports, integrations, and operational instructions., relationshipContext: Distinguishes the plan from its characteristic requirements and inspection transactions., requiredMeaning: Required for operational identification.}
   - name: name
     type: string
     required: true
     maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating QualityPlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to QualityPlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    help: {summary: Human-readable name of the quality plan., businessMeaning: Explains the purpose of the inspection definition., usage: Authoring, selection, inspection execution, reporting, and audit., relationshipContext: Names the overall plan whose detailed controls are represented by QualityPlanCharacteristic., requiredMeaning: Required for understandable plan governance.}
   - name: status
     type: enum
     required: true
     default: ACTIVE
-    values:
-    - DRAFT
-    - ACTIVE
-    - SUSPENDED
-    - RETIRED
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating QualityPlan records, where
-        applicable.
-      relationshipContext: Its meaning is specific to QualityPlan; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of QualityPlan.
-        ACTIVE: Represents the active state or classification in the context of QualityPlan.
-        SUSPENDED: Represents the suspended state or classification in the context of QualityPlan.
-        RETIRED: Represents the retired state or classification in the context of QualityPlan.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Lifecycle state of the quality plan.
+      businessMeaning: Controls whether the plan may normally govern new inspections.
+      usage: Plan selection, workflow gating, governance, and retirement.
+      relationshipContext: Status affects characteristic configurations and creation of new QualityInspection records; historical inspections remain evidence.
+      valueSemantics: {DRAFT: Plan is being prepared and is not normally used for production inspection execution., ACTIVE: Plan is approved for governed inspection use., SUSPENDED: Plan is temporarily unavailable for new governed use while retained for traceability., RETIRED: Plan is no longer normally selected for new inspections but remains historical evidence.}
+      requiredMeaning: Required to govern lifecycle behavior.
   relationships:
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
-    help:
-      summary: Connects QualityPlan to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a QualityPlan.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    help: {summary: Product to which the quality plan applies when product-specific., businessMeaning: Establishes the material or product context for the quality requirements., usage: Plan selection, inspection creation, supplier quality, and traceability., cardinalityMeaning: A plan may be generic or associated with one product., context: Product context influences applicable characteristics and acceptance criteria.}
+  - name: characteristics
+    target: QualityPlanCharacteristic
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Plan-specific quality characteristic requirements governed by this plan., businessMeaning: Defines what properties must be observed and how each is evaluated under the plan., usage: Plan authoring, inspection execution, measurement evaluation, completion gating, audit, and analytics., cardinalityMeaning: A plan may define zero or many characteristic requirements., context: QualityPlanCharacteristic bridges reusable QualityCharacteristic meaning to this plan's specific limits, methods, targets, units, sequence, and requiredness.}
   - name: inspections
     target: QualityInspection
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Connects QualityPlan to QualityInspection so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about QualityInspection records associated with a QualityPlan.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    help: {summary: Inspection transactions executed under this quality plan., businessMeaning: Shows operational inspections governed by the plan., usage: Traceability, plan effectiveness, audit, reporting, and quality analytics., cardinalityMeaning: A plan may govern zero or many inspections., context: QualityInspection is execution evidence and must preserve the applicable plan configuration used at inspection time.}
   invariants:
-  - id: QUALITY-PLAN-001
-    rule: code must be unique within the owning ERP context.
+  - {id: QUALITY-PLAN-001, rule: code must be unique within the owning ERP context.}
+  - {id: QUALITY-PLAN-002, rule: An ACTIVE QualityPlan must have valid QualityPlanCharacteristic configurations whenever the plan declares characteristic-based inspection controls.}
+  - {id: QUALITY-PLAN-003, rule: A RETIRED or SUSPENDED QualityPlan must not be selected for new governed inspections except through an explicit authorized exception or historical/reinspection workflow.}
+  - {id: QUALITY-PLAN-004, rule: Material changes to characteristics or acceptance criteria must not silently change the interpretation of completed QualityInspections or QualityMeasurements; use controlled versioning or replacement semantics.}
+  - {id: QUALITY-PLAN-005, rule: Changes to product applicability, characteristic configuration, status, or acceptance criteria must trigger impact analysis across open QualityInspections, QualityMeasurements, Nonconformance, disposition, supplier-quality, and reporting workflows.}
+  - {id: QUALITY-PLAN-006, rule: Plan configuration changes must be idempotent and auditable.}
   help:
-    summary: Represents a quality definition called QualityPlan within the CEDM business model.
-    businessMeaning: QualityPlan is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate QualityPlan records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Product, QualityInspection.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical QualityPlan record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: Governed definition of how a product or process is inspected.
+    businessMeaning: QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements and the execution context for QualityInspection. Reusable quality meaning belongs to QualityCharacteristic rather than being duplicated in every plan.
+    usage: Quality master data, inspection processes, supplier quality, incoming inspection, process control, laboratory testing, compliance, forms, reports, integrations, and analytics.
+    relationshipContext: Product provides applicability; QualityPlanCharacteristic supplies detailed requirements; QualityInspection executes them; QualityMeasurement records observations; Nonconformance and disposition consume failed outcomes.
+    lifecycle: Draft → active → suspended/retired under governed change control. Historical inspections retain the plan configuration applicable when executed.
+    changePropagation: Material plan changes propagate to open inspections and measurements, requirement evaluation, nonconformance and disposition workflows, supplier performance evidence, reporting, and audit history. Completed evidence must not be rewritten.
+    example: An incoming-receipt plan contains required WEIGHT and TEMPERATURE configurations. A QualityInspection captures measurements and evaluates each required characteristic before determining the overall result.
 specification:
   version: 0.1.0
   status: draft
