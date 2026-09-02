@@ -1,0 +1,139 @@
+entity:
+  name: SupplierReturn
+  namespace: cedm.domain
+  kind: reverse_procurement_transaction
+  description: An authorized return of previously received supplier goods that reverses or adjusts procurement fulfillment without deleting PurchaseOrder, GoodsReceipt, InventoryMovement, or supplier Invoice evidence.
+  identity: {key: supplierReturnId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: supplierReturnId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Immutable identity of the supplier return event.
+      businessMeaning: Identifies the reverse-procurement transaction independently of its supplier reference, receipt, shipment, inventory or financial adjustment.
+      usage: Used for authorization, warehouse execution, supplier communication, accounting, audit and integration.
+      relationshipContext: Distinct from returnNumber and all original PurchaseOrder, GoodsReceipt and Invoice identities.
+      workflowRole: Stable root reference across authorization, dispatch, receipt by supplier, inventory reversal and supplier credit processing.
+      requiredMeaning: Required for traceability.
+  - name: returnNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Human-facing supplier return reference.
+      businessMeaning: Operational identifier communicated to warehouse staff and the supplier.
+      usage: Used for logistics, supplier communication, investigation and reconciliation.
+      relationshipContext: Distinct from the original purchase order, receipt and invoice numbers.
+      workflowRole: Correlates operational return activity across systems.
+      requiredMeaning: Required for operational traceability.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED_BY_SUPPLIER, COMPLETED, CANCELLED, EXCEPTION]
+    help:
+      summary: Lifecycle state of the supplier return.
+      businessMeaning: Indicates authorization, transport, supplier receipt, completion or controlled exception.
+      usage: Controls logistics, inventory and financial workflows.
+      relationshipContext: Return status does not itself reverse inventory or accounts payable.
+      workflowRole: Coordinates dependent workflows without replacing InventoryMovement or SupplierCreditNote evidence.
+      requiredMeaning: Required for controlled lifecycle.
+  - name: returnDate
+    type: datetime
+    required: true
+    help:
+      summary: Business timestamp for initiating the supplier return.
+      businessMeaning: Establishes the chronology of the reverse-procurement event.
+      usage: Supports logistics, audit, reporting and supplier claims.
+      relationshipContext: Distinct from original receipt date and supplier acceptance date.
+      workflowRole: Anchors the return event.
+      requiredMeaning: Required for chronology.
+  - name: reasonCode
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: Reason for returning received goods to the supplier.
+      businessMeaning: Classifies defects, over-receipt, wrong item, damage, commercial rejection or other causes.
+      usage: Supports quality, supplier performance, warranty, claims and analytics.
+      relationshipContext: Explains why the return occurs and is distinct from physical disposition.
+      workflowRole: Drives applicable approval and supplier-claim policies.
+      optionalMeaning: Optional only when policy permits an uncoded reason.
+  relationships:
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Supplier to whom the goods are being returned.
+      businessMeaning: Identifies the external party receiving the returned goods.
+      usage: Supports authorization, logistics, supplier claims and payable reconciliation.
+      workflowRole: Must normally agree with the source PurchaseOrder and GoodsReceipt supplier.
+  - name: purchaseOrder
+    target: PurchaseOrder
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Original procurement commitment associated with the returned goods.
+      businessMeaning: Connects the reverse event to the commercial purchase commitment.
+      usage: Supports quantity eligibility and procurement traceability.
+      workflowRole: Supplies original commitment context; it is not itself changed by the return.
+  - name: goodsReceipt
+    target: GoodsReceipt
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Receipt evidence from which eligible returned quantities originated.
+      businessMeaning: Establishes that the organization previously received the goods.
+      usage: Supports reverse logistics, inventory reconciliation and supplier claims.
+      workflowRole: Provides authoritative receipt evidence for return eligibility.
+  - name: invoice
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier invoices financially associated with the returned goods.
+      businessMeaning: Connects physical procurement reversal to accounts-payable claims.
+      usage: Supports supplier credit reconciliation and payable adjustment.
+      workflowRole: Provides financial source context without mutating the original invoice.
+  - name: lines
+    target: SupplierReturnLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Quantity-level details of goods returned to the supplier.
+      businessMeaning: Defines exactly which received items and quantities are being reversed.
+      usage: Drives inventory reversal and supplier credit eligibility.
+      cardinalityMeaning: At least one line is required for an authorized return.
+      workflowRole: Supplies authoritative quantity evidence for downstream effects.
+  - name: supplierCreditNotes
+    target: SupplierCreditNote
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier financial adjustments arising from the return.
+      businessMeaning: Connects the physical return to explicit payable reduction or supplier credit.
+      usage: Supports accounts payable and reconciliation.
+      workflowRole: Credit-note posting is separate from physical inventory reversal.
+  invariants:
+  - {id: SUPPLIER-RETURN-001, rule: AUTHORIZED requires supplier context and at least one valid return line.}
+  - {id: SUPPLIER-RETURN-002, rule: Returned quantity must not exceed eligible previously accepted receipt quantity except under an explicitly authorized exception.}
+  - {id: SUPPLIER-RETURN-003, rule: Authorization or dispatch does not by itself change InventoryBalance.}
+  - {id: SUPPLIER-RETURN-004, rule: Inventory reduction occurs only through an attributable InventoryMovement generated by the approved return workflow.}
+  - {id: SUPPLIER-RETURN-005, rule: A supplier return must not directly mutate GoodsReceiptLine accepted quantities; corrections require compensating inventory and reconciliation events.}
+  - {id: SUPPLIER-RETURN-006, rule: Financial reduction of a supplier claim requires an explicit SupplierCreditNote or governed financial adjustment and must not mutate the original Invoice or InvoiceLine.}
+  - {id: SUPPLIER-RETURN-007, rule: Completion requires all lines to have posted physical consequences and all required financial consequences posted or explicitly excepted.}
+  - {id: SUPPLIER-RETURN-008, rule: Cancellation after posted effects requires compensating reversal workflows and cannot erase historical evidence.}
+  - {id: SUPPLIER-RETURN-009, rule: Changes to Supplier, PurchaseOrderLine, GoodsReceiptLine, Product, UnitOfMeasure or Invoice affecting an open return require controlled revalidation.}
+  - {id: SUPPLIER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory reductions or supplier credits.}
+  help:
+    summary: Coordinates the controlled reversal of accepted procurement fulfillment while preserving original purchasing, receiving, inventory and financial history.
+    businessMeaning: A supplier return is a new reverse-procurement event; it does not delete or rewrite the original PurchaseOrder, GoodsReceipt or Invoice.
+    usage: Purchasing, warehouse operations, quality, supplier management, accounts payable and audit.
+    relationshipContext: PurchaseOrder identifies the commitment, GoodsReceipt identifies accepted receipt, SupplierReturnLine identifies returned quantity, InventoryMovement records physical reversal, and SupplierCreditNote records financial adjustment.
+    workflowContext: Return request → authorization → dispatch → supplier receipt → inventory reversal → supplier credit assessment/posting → completion. Each physical and financial consequence has independent evidence.
+    lifecycle: Draft → authorized → in transit → received by supplier → completed, with cancellation and exception paths.
+    example: Ten accepted units were received from a supplier and three are defective. A supplier return authorizes three units, InventoryMovement reduces eligible stock by three, and a SupplierCreditNote reduces the payable claim for the approved amount. The original receipt and invoice remain historical evidence.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-RETURN}
