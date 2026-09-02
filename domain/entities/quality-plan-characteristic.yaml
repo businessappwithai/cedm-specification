@@ -89,7 +89,7 @@ entity:
       summary: Plan-specific procedure or method required to evaluate the characteristic.
       businessMeaning: Defines how the characteristic must be observed when this plan is executed.
       usage: Inspection instructions, reproducibility, compliance, and audit.
-      relationshipContext: May refine or override the general QualityCharacteristic evaluationMethod.
+      relationshipContext: May refine or override the reusable QualityCharacteristic evaluationMethod.
       optionalMeaning: Optional when the reusable characteristic method is sufficient.
   - name: samplingRequired
     type: boolean
@@ -99,7 +99,7 @@ entity:
       summary: Indicates whether this characteristic participates in explicit sampling controls under the plan.
       businessMeaning: Distinguishes characteristics that require sampled observations from those evaluated on every applicable inspection item.
       usage: Sampling workflow design and inspection execution.
-      relationshipContext: Sampling parameters may be governed by the broader QualityPlan or sampling policy; this flag identifies participation.
+      relationshipContext: When true, the samplingPlan relationship identifies the governed selection policy used for this characteristic.
       requiredMeaning: Required to make sampling participation explicit.
   relationships:
   - name: qualityPlan
@@ -122,6 +122,16 @@ entity:
       usage: Reuse, semantic interpretation, measurement linkage, and governance.
       cardinalityMeaning: Every configuration references exactly one reusable QualityCharacteristic.
       context: Separating reusable meaning from plan-specific criteria prevents conflicting definitions when the same property is used by multiple plans.
+  - name: samplingPlan
+    target: SamplingPlan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: SamplingPlan governing how observations of this characteristic are selected when samplingRequired is true.
+      businessMeaning: Connects a plan-specific characteristic requirement to the deterministic sample-selection policy used during inspection.
+      usage: Sample-size calculation, inspection execution, completion gating, audit, and reproducibility.
+      cardinalityMeaning: A characteristic requirement uses zero or one sampling plan; zero is appropriate when every applicable unit is evaluated or sampling is governed elsewhere.
+      context: SamplingPlan defines selection policy; SamplingRule supplies conditional sample quantities and acceptance thresholds.
   - name: measurements
     target: QualityMeasurement
     cardinality: 0..*
@@ -146,21 +156,23 @@ entity:
   - id: QUALITY-PLAN-CHAR-006
     rule: required characteristics must have evaluated measurement evidence before a QualityInspection may be finalized when the governing QualityPlan requires complete characteristic coverage.
   - id: QUALITY-PLAN-CHAR-007
-    rule: A QualityPlanCharacteristic used by completed inspections must not be changed in a way that silently changes historical measurement interpretation; controlled versioning or replacement is required.
+    rule: When samplingRequired is true, samplingPlan must be present and active at inspection execution unless an authorized plan-level sampling exception applies.
   - id: QUALITY-PLAN-CHAR-008
-    rule: Retiring or materially changing the linked QualityCharacteristic or QualityPlan requires impact analysis and revalidation of open inspections and measurements.
+    rule: A QualityPlanCharacteristic used by completed inspections must not be changed in a way that silently changes historical measurement interpretation; controlled versioning or replacement is required.
   - id: QUALITY-PLAN-CHAR-009
+    rule: Retiring or materially changing the linked QualityCharacteristic, QualityPlan, or SamplingPlan requires impact analysis and revalidation of open inspections and measurements.
+  - id: QUALITY-PLAN-CHAR-010
     rule: Configuration creation and changes must be idempotent and must not create duplicate active configurations for the same plan, characteristic, and effective configuration context.
   help:
-    summary: Plan-specific configuration of a reusable quality characteristic, including acceptance criteria and execution guidance.
-    businessMeaning: QualityPlanCharacteristic answers how a QualityCharacteristic is controlled in one particular QualityPlan. This separation allows one reusable characteristic to have different limits, methods, units, targets, or requiredness across plans.
+    summary: Plan-specific configuration of a reusable quality characteristic, including acceptance criteria, execution guidance, and optional sampling policy.
+    businessMeaning: QualityPlanCharacteristic answers how a QualityCharacteristic is controlled in one particular QualityPlan and, when required, how its observations are sampled. This separation allows reusable characteristics and sampling policies to be combined without duplicating definitions.
     usage: Quality-plan authoring, incoming inspection, supplier quality, process inspection, laboratory testing, compliance, sampling, audit, and analytics.
-    relationshipContext: QualityPlan provides the governing plan; QualityCharacteristic provides reusable meaning; QualityMeasurement records observations; QualityInspection executes the plan; Nonconformance may consume failed results.
-    workflowContext: Define QualityCharacteristic → configure QualityPlanCharacteristic → activate QualityPlan → create QualityInspection → capture required QualityMeasurements → evaluate against this configuration → finalize inspection → create Nonconformance or disposition when criteria fail.
+    relationshipContext: QualityPlan provides the governing plan; QualityCharacteristic provides reusable meaning; SamplingPlan and SamplingRule govern sample selection; QualityMeasurement records observations; QualityInspection executes the plan; Nonconformance may consume failed results.
+    workflowContext: Define QualityCharacteristic → configure QualityPlanCharacteristic → assign SamplingPlan when sampling is required → activate QualityPlan → create QualityInspection → select required sample → capture QualityMeasurements → evaluate against criteria → finalize inspection → create Nonconformance or disposition when criteria fail.
     lifecycle: Draft through governed plan configuration to active use; changes after execution require controlled versioning or replacement rather than silent mutation.
-    changePropagation: Changes affect QualityPlan authoring, open QualityInspections, QualityMeasurements, nonconformance evaluation, reporting, and downstream supplier or corrective-action workflows. Historical inspection evidence must retain the configuration applicable at capture time.
-    example: QualityCharacteristic WEIGHT is configured for a receiving plan with required=true, lowerLimit=9.8, upperLimit=10.2, targetValue=10.0, and unitOfMeasure=KG. A QualityMeasurement of 10.35 KG therefore evaluates to FAIL under this specific plan.
+    changePropagation: Changes affect QualityPlan authoring, SamplingPlan/SamplingRule selection, open QualityInspections, QualityMeasurements, nonconformance evaluation, reporting, and downstream supplier or corrective-action workflows. Historical inspection evidence must retain the configuration applicable at capture time.
+    example: QualityCharacteristic WEIGHT is configured as required and sampled under a receiving plan. The associated SamplingPlan selects 20 units from the lot; each selected unit receives a QualityMeasurement evaluated against the configured weight limits.
 specification:
-  version: 0.1.0
+  version: 0.2.0
   status: draft
   identifier: CEDM-ENTITY-QUALITY-PLAN-CHARACTERISTIC
