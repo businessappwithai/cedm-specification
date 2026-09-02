@@ -1,0 +1,64 @@
+entity:
+  name: CustomerReturn
+  namespace: cedm.domain
+  kind: reverse_fulfillment_transaction
+  description: An authorized customer return that reverses or adjusts previously fulfilled sales demand without deleting the original SalesOrder, Shipment, InventoryMovement, or Invoice evidence. It coordinates return authorization, physical receipt, inspection, disposition, inventory effects, and financial adjustment.
+  identity: {key: customerReturnId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: customerReturnId, type: uuid, required: true, immutable: true}
+  - {name: returnNumber, type: string, required: true, unique: true, maxLength: 100}
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
+    help:
+      summary: Lifecycle state of the authorized customer return.
+      usage: Controls transport, receiving, inspection, disposition, inventory and financial adjustment progression.
+      relationshipContext: Return status does not itself change inventory or invoice balances.
+      workflowRole: Coordinates dependent return workflows.
+  - {name: returnDate, type: datetime, required: true}
+  - {name: reasonCode, type: string, required: false, maxLength: 100}
+  - {name: notes, type: string, required: false, maxLength: 2000}
+  relationships:
+  - name: customer
+    target: Customer
+    cardinality: '1'
+    ownership: reference
+  - name: salesOrder
+    target: SalesOrder
+    cardinality: 0..1
+    ownership: reference
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+  - name: invoice
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+  - name: lines
+    target: CustomerReturnLine
+    cardinality: 1..*
+    ownership: aggregate
+  invariants:
+  - {id: CUSTOMER-RETURN-001, rule: AUTHORIZED requires customer, return reason and at least one valid return line.}
+  - {id: CUSTOMER-RETURN-002, rule: Returned quantity must not exceed previously fulfilled quantity unless an explicit authorized exception permits it.}
+  - {id: CUSTOMER-RETURN-003, rule: A return does not change InventoryBalance merely by being authorized, shipped or received.}
+  - {id: CUSTOMER-RETURN-004, rule: Inventory increases only from an accepted disposition that posts the appropriate InventoryMovement.}
+  - {id: CUSTOMER-RETURN-005, rule: Quarantine, repair and scrap dispositions must not increase unrestricted available inventory.}
+  - {id: CUSTOMER-RETURN-006, rule: Financial adjustment must use an explicit credit/debit/adjustment document or workflow; the original Invoice and InvoiceLine remain immutable historical evidence.}
+  - {id: CUSTOMER-RETURN-007, rule: Completion requires all return lines to have a terminal physical disposition and all required inventory and financial effects to have been successfully posted or explicitly excepted.}
+  - {id: CUSTOMER-RETURN-008, rule: Cancellation after posted physical or financial effects requires compensating reversal/reconciliation workflows and cannot erase historical evidence.}
+  - {id: CUSTOMER-RETURN-009, rule: Product, UnitOfMeasure, Customer, SalesOrderLine, Shipment or Invoice changes affecting an open return require controlled revalidation.}
+  - {id: CUSTOMER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory receipts or financial adjustments.}
+  help:
+    summary: Coordinates the controlled reversal of a customer fulfillment while preserving original commercial, inventory and financial history.
+    businessMeaning: A return is a new business event caused by a prior sale; it is not deletion or mutation of the original sale.
+    usage: Customer service, reverse logistics, warehouse receiving, quality, inventory, credit processing, accounts receivable and audit.
+    relationshipContext: SalesOrder/SalesOrderLine identify original demand, Shipment identifies prior logistics, Invoice identifies financial claims, CustomerReturnLine identifies returned quantities, and disposition determines inventory consequences.
+    workflowContext: Return request → authorization → return shipment → receipt → inspection → disposition → inventory movement if applicable → credit/debit adjustment if applicable → completion. Original sale remains unchanged.
+    lifecycle: Draft → authorized → in transit → received → inspection → dispositioned → completed, with cancellation and exception paths.
+    propagation: Authorization validates prior fulfillment; receipt creates no unrestricted inventory by itself; disposition drives inventory; approved financial adjustment reconciles customer balance/invoice without mutating original documents.
+    example: A customer returns 5 of 20 shipped units. The return is authorized, received and inspected. Three are restocked, one is quarantined and one is scrapped. Inventory receives only the three restock units; a credit workflow handles the financial adjustment for the approved credit amount.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN}
