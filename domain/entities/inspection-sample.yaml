@@ -1,0 +1,171 @@
+entity:
+  name: InspectionSample
+  namespace: cedm.domain
+  kind: quality_sampling_transaction
+  description: A recorded selection of one or more units, portions, or specimens from an inspection population for execution of governed QualityMeasurements under a SamplingPlan and SamplingRule.
+  identity:
+    key: inspectionSampleId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: inspectionSampleId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the inspection sample record.
+      businessMeaning: Identifies one executed sample selection independently of the inspection and measurements performed on it.
+      usage: Traceability, audit, sample reconciliation, quality analytics, and integration.
+      relationshipContext: Connects the actual selected sample to QualityInspection and the SamplingRule that governed its selection.
+      requiredMeaning: Required.
+  - name: sampleNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Human-facing identifier for the selected inspection sample.
+      businessMeaning: Provides an operational reference for labeling, handling, testing, and audit.
+      usage: Inspection execution, laboratory handling, reports, and traceability.
+      relationshipContext: Identifies the executed sample rather than the sampling policy or parent inspection.
+      requiredMeaning: Required.
+  - name: selectedAt
+    type: datetime
+    required: true
+    help:
+      summary: Time at which the sample was selected from the eligible population.
+      businessMeaning: Establishes when the actual sampling event occurred.
+      usage: Chain of custody, audit, reproducibility, and inspection chronology.
+      relationshipContext: Distinct from QualityInspection.inspectionDate and measuredAt on QualityMeasurement.
+      requiredMeaning: Required.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 30
+    scale: 12
+    help:
+      summary: Quantity represented by the selected sample.
+      businessMeaning: States how much material or how many units the sample represents under its unit of measure.
+      usage: Sample reconciliation, measurement scope, inventory traceability, and audit.
+      relationshipContext: Must reconcile with the eligible inspection population and sample-selection rule.
+      requiredMeaning: Required.
+  - name: unitOfMeasure
+    type: reference
+    target: UnitOfMeasure
+    required: true
+    help:
+      summary: Unit in which the sample quantity is expressed.
+      businessMeaning: Gives semantic meaning to the selected sample quantity.
+      usage: Reconciliation, reporting, conversion, and audit.
+      relationshipContext: Must be compatible with the source population and governing sampling configuration.
+      requiredMeaning: Required.
+  - name: status
+    type: enum
+    required: true
+    default: SELECTED
+    values: [SELECTED, IN_TESTING, TESTED, REJECTED, DISPOSED, CANCELLED]
+    help:
+      summary: Lifecycle state of the selected sample.
+      businessMeaning: Shows whether the sample is awaiting testing, being tested, has completed testing, or has been otherwise dispositioned.
+      usage: Sample handling, measurement gating, chain of custody, and audit.
+      relationshipContext: Sample status is distinct from overall QualityInspection status and does not independently determine product disposition.
+      valueSemantics:
+        SELECTED: Sample has been selected and is awaiting testing or handling.
+        IN_TESTING: Sample is actively undergoing governed testing.
+        TESTED: Required testing for the sample has completed.
+        REJECTED: Sample itself was rejected or invalidated for the governed purpose.
+        DISPOSED: Sample has been physically disposed of under an authorized process.
+        CANCELLED: Sample selection was cancelled under controlled workflow.
+      requiredMeaning: Required.
+  - name: selectionBasis
+    type: string
+    required: false
+    maxLength: 1000
+    help:
+      summary: Evidence or description of how this particular sample was selected.
+      businessMeaning: Preserves the operational selection basis needed to reproduce or audit the sampling event.
+      usage: Compliance, audit, supplier disputes, and statistical review.
+      relationshipContext: Complements the authoritative SamplingRule and does not replace it.
+      optionalMeaning: Optional when selection is fully reproducible from the governed rule and execution metadata.
+  relationships:
+  - name: qualityInspection
+    target: QualityInspection
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: QualityInspection for which this sample was selected.
+      businessMeaning: Provides the execution context and population being inspected.
+      usage: Sample traceability, inspection completion, measurement linkage, and audit.
+      cardinalityMeaning: Every InspectionSample belongs to exactly one QualityInspection.
+      context: Inspection status and result remain independent; the sample supplies evidence to the inspection.
+  - name: samplingPlan
+    target: SamplingPlan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: SamplingPlan governing the sample-selection event.
+      businessMeaning: Preserves the reusable sampling policy applied at execution time.
+      usage: Audit, reproducibility, analytics, and change-impact analysis.
+      cardinalityMeaning: A sample may reference zero or one sampling plan when sampling is not governed by an explicit reusable plan.
+      context: When populated, the plan must agree with the governing SamplingRule.
+  - name: samplingRule
+    target: SamplingRule
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: SamplingRule used to determine this sample selection.
+      businessMeaning: Identifies the exact conditional rule that determined sample quantity and acceptance logic.
+      usage: Audit, reproducibility, sample reconciliation, and inspection completion.
+      cardinalityMeaning: A sample may have zero or one rule only when an explicit rule is not applicable.
+      context: When populated, the rule and SamplingPlan must be mutually consistent.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Product represented by the selected sample.
+      businessMeaning: Identifies the material from which the sample was taken.
+      usage: Product quality history, supplier analysis, and traceability.
+      cardinalityMeaning: Optional when product context is inherited unambiguously from QualityInspection.
+      context: Must agree with the inspection product when both are populated.
+  - name: measurements
+    target: QualityMeasurement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: QualityMeasurement observations performed on or represented by this sample.
+      businessMeaning: Links selected sample evidence to the actual quality observations generated from it.
+      usage: Result evaluation, audit, trend analysis, and nonconformance evidence.
+      cardinalityMeaning: A sample may have zero or many measurements depending on the governing characteristics.
+      context: Measurements remain independent evidence and do not change the sample-selection record.
+  invariants:
+  - id: INSPECTION-SAMPLE-001
+    rule: qualityInspection and quantity are required; quantity must be positive.
+  - id: INSPECTION-SAMPLE-002
+    rule: When samplingRule is present, the selected sample quantity must conform to the applicable SamplingRule and eligible population.
+  - id: INSPECTION-SAMPLE-003
+    rule: samplingRule and samplingPlan, when both present, must belong to the same governed sampling definition.
+  - id: INSPECTION-SAMPLE-004
+    rule: Product and UnitOfMeasure context must reconcile with the inspection population when those contexts are available.
+  - id: INSPECTION-SAMPLE-005
+    rule: A sample selection does not itself change inventory balances, receipt quantities, return quantities, or financial balances.
+  - id: INSPECTION-SAMPLE-006
+    rule: Required QualityMeasurements associated with the sample must be completed before the sample is considered TESTED when the governing plan requires measurement evidence.
+  - id: INSPECTION-SAMPLE-007
+    rule: Historical sample selection cannot be silently regenerated after a SamplingPlan or SamplingRule change; a new controlled sample-selection event is required.
+  - id: INSPECTION-SAMPLE-008
+    rule: Sample selection must be idempotent for the same inspection, governed rule, execution context, and selection request.
+  help:
+    summary: Execution record of the actual sample selected for a governed quality inspection.
+    businessMeaning: InspectionSample separates sampling policy from the physical or logical sample actually selected. SamplingPlan and SamplingRule define how selection should occur; InspectionSample records what was actually selected; QualityMeasurement records observations from it.
+    usage: Incoming inspection, supplier quality, acceptance sampling, laboratory testing, process quality, chain of custody, compliance, and audit.
+    relationshipContext: QualityInspection is the parent execution; SamplingPlan and SamplingRule define selection policy; Product and UnitOfMeasure identify population semantics; QualityMeasurement records test evidence; Nonconformance and disposition consume resulting quality decisions.
+    workflowContext: QualityPlan → QualityPlanCharacteristic → SamplingPlan/SamplingRule → QualityInspection → InspectionSample selection → sample testing → QualityMeasurement capture/evaluation → aggregate inspection result → Nonconformance/disposition where required.
+    lifecycle: Selected → in testing → tested → disposed/rejected/cancelled as applicable. Historical selection evidence is retained.
+    changePropagation: Sampling policy changes affect open inspections that have not selected samples. Once a sample is selected, later policy changes do not silently change its historical basis.
+    example: A 500-unit receipt is governed by a rule requiring 20 sampled units. InspectionSample records the selected 20 units and their quantity, preserves the governing rule, and links subsequent weight and purity QualityMeasurements to the sample.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-INSPECTION-SAMPLE
