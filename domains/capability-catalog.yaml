@@ -1,6 +1,6 @@
 # CEDM Cross-Domain Capability Catalog
 catalog:
-  version: 0.3.0
+  version: 0.4.0
   capabilities:
     - id: party-management
       name: Party Management
@@ -48,8 +48,8 @@ catalog:
       processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
     - id: quality-management
       name: Quality Management
-      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, SamplingPlan, SamplingRule, QualityInspection, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification]
-      processes: [quality-definition, characteristic-configuration, sampling, inspection, measurement, nonconformance, corrective-action, verification, release]
+      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification]
+      processes: [quality-definition, characteristic-configuration, sampling-plan, sample-selection, inspection, measurement, nonconformance, corrective-action, verification, release]
     - id: financial-accounting
       name: Financial Accounting
       entities: [Account, JournalEntry, JournalEntryLine, Invoice, Payment, Currency]
