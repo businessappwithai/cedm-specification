@@ -2,7 +2,7 @@ entity:
   name: Invoice
   namespace: cedm.domain
   kind: financial_commercial_transaction
-  description: A formal commercial document that records a financial claim for supplied goods, services, credits, debits, or adjustments and establishes the amount owed and settlement conditions. Credit notes reduce eligible claims through explicit financial adjustment evidence without mutating the original invoice history.
+  description: A formal commercial document that records a financial claim for supplied goods, services, credits, debits, or adjustments and establishes the amount owed and settlement conditions. Credit notes and debit adjustments reduce or increase eligible claims through explicit financial adjustment evidence without mutating the original invoice history.
   identity: {key: invoiceId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: invoiceId
@@ -11,9 +11,9 @@ entity:
       immutable: true
       help:
         summary: Immutable system identity of the invoice claim.
-        businessMeaning: Identifies the financial claim independently of its number, lines, source order, receipts, credits, or payments.
+        businessMeaning: Identifies the financial claim independently of its number, lines, source order, receipts, credits, debits, or payments.
         usage: Used for financial integrations, audit, payment allocation, reconciliation, reporting, and lifecycle navigation.
-        relationshipContext: InvoiceId identifies the claim; InvoiceNumber is its business-facing reference; CreditNote provides later financial adjustment evidence.
+        relationshipContext: InvoiceId identifies the claim; InvoiceNumber is its business-facing reference; CreditNote and supplier debit/credit applications provide later financial adjustment evidence.
         workflowRole: Provides the stable identity carried through issuance, settlement, adjustment, reversal, and accounting.
         requiredMeaning: Required for claim traceability.
     - name: invoiceNumber
@@ -35,7 +35,7 @@ entity:
         summary: Accounting and commercial date assigned to the invoice.
         businessMeaning: Establishes the date used for financial chronology and applicable billing and tax rules.
         usage: Used for accounting periods, tax, payment-term calculation, aging, reporting, and reconciliation.
-        relationshipContext: Distinct from payment, bank settlement, credit-note, and clearing dates.
+        relationshipContext: Distinct from payment, bank settlement, credit-note, debit-note, and clearing dates.
         workflowRole: Provides the temporal anchor for invoice issuance and applicable PaymentTerm calculation.
         requiredMeaning: Required for financial chronology.
     - name: dueDate
@@ -56,7 +56,7 @@ entity:
         summary: Defines the commercial direction and accounting nature of the invoice document.
         businessMeaning: Determines whether the document establishes a receivable, payable, or adjustment.
         usage: Used by accounting, tax, receivables, payables, matching, and reporting.
-        relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote is preferred for explicit customer credit adjustments.
+        relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote or SupplierDebitNote is preferred for explicit financial adjustments.
         workflowRole: Controls which party, matching, tax, and settlement processes apply.
         requiredMeaning: Required for correct financial treatment.
     - name: status
@@ -68,8 +68,8 @@ entity:
         summary: Lifecycle state of the financial claim.
         businessMeaning: Indicates whether the claim is being prepared, outstanding, settled, overdue, cancelled, or voided.
         usage: Controls issuance, settlement, aging, cancellation, reporting, and accounting workflows.
-        relationshipContext: PaymentAllocation supplies settlement evidence; CreditNote application supplies authorized reduction evidence; Payment status alone must never determine invoice payment status.
-        workflowRole: ISSUED establishes the claim; active allocations and authorized credit applications change settlement projection; PAID requires no remaining amount under policy; OVERDUE is time-based and may coexist with partial settlement.
+        relationshipContext: PaymentAllocation supplies settlement evidence; CreditNote and SupplierDebitNoteApplication supply authorized adjustment evidence; Payment status alone must never determine invoice payment status.
+        workflowRole: ISSUED establishes the claim; active allocations and authorized adjustment applications change settlement projection; PAID requires no remaining amount under policy; OVERDUE is time-based and may coexist with partial settlement.
         valueSemantics:
           DRAFT: Claim is being prepared and is not issued.
           ISSUED: Claim is formally outstanding.
@@ -87,8 +87,8 @@ entity:
       help:
         summary: Currency denomination shared by the invoice's monetary values.
         businessMeaning: Defines the monetary denomination of the claim and its calculated totals.
-        usage: Used for accounting, payment allocation, tax, reconciliation, reporting, and credit adjustment.
-        relationshipContext: Payment or CreditNote may use another currency only under explicitly governed exchange-rate treatment.
+        usage: Used for accounting, payment allocation, tax, reconciliation, reporting, and credit or debit adjustment.
+        relationshipContext: Payment, CreditNote, SupplierCreditNote, or SupplierDebitNote may use another currency only under explicitly governed exchange-rate treatment.
         workflowRole: Provides the denomination against which invoice amounts, settlement and adjustments are evaluated.
         requiredMeaning: Required for interpreting the claim.
     - name: subtotal
@@ -138,10 +138,10 @@ entity:
       required: true
       help:
         summary: Total financial claim after applicable line values, discounts, taxes, credits, debits, and document adjustments.
-        businessMeaning: Represents the amount owed under the original invoice before settlement allocations and later CreditNote applications.
+        businessMeaning: Represents the amount owed under the original invoice before settlement allocations and later adjustment applications.
         usage: Used for settlement, aging, statements, reporting, and accounting.
-        relationshipContext: Represents the original claim itself, not the amount already paid or subsequently credited.
-        workflowRole: Provides the claim base against which active PaymentAllocation and authorized CreditNote application evidence are evaluated.
+        relationshipContext: Represents the original claim itself, not the amount already paid or subsequently adjusted.
+        workflowRole: Provides the claim base against which active PaymentAllocation and authorized adjustment application evidence are evaluated.
         requiredMeaning: Required for financial settlement.
     - name: amountSettled
       type: Money
@@ -170,11 +170,11 @@ entity:
       required: true
       default: {amount: 0}
       help:
-        summary: Projection of the portion of the invoice claim that remains unsettled after authorized credits.
+        summary: Projection of the portion of the invoice claim that remains unsettled after authorized credits and debits.
         businessMeaning: Represents current open exposure under the applicable accounting and rounding policy.
         usage: Drives collections, payment allocation, aging, statements, and cash forecasting.
-        relationshipContext: Normally reconciles totalAmount less active settlement and authorized CreditNote applications in invoice currency.
-        workflowRole: Determines whether additional allocation is permitted and whether PAID can be reached.
+        relationshipContext: Normally reconciles totalAmount less active settlement and authorized adjustment applications in invoice currency.
+        workflowRole: Determines whether additional allocation or adjustment application is permitted and whether PAID can be reached.
         requiredMeaning: Required for operational settlement decisions.
   relationships:
     - name: customer
@@ -262,11 +262,51 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Posted or in-process financial credits that reduce eligible exposure on this invoice.
-        businessMeaning: Connects the original invoice to explicit later adjustment documents while preserving the invoice as historical evidence.
+        summary: Posted or in-process customer financial credits that reduce eligible exposure on this invoice.
+        businessMeaning: Connects the original invoice to explicit later customer adjustment documents while preserving invoice history.
         usage: Supports return credits, billing corrections, tax adjustments, statements and audit.
         cardinalityMeaning: An invoice may have no credits, one credit, or multiple controlled credits.
         workflowRole: CreditNote application changes amountCredited and amountOutstanding through explicit application evidence.
+    - name: supplierCreditNotes
+      target: SupplierCreditNote
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Supplier-issued financial credits relevant to a purchase invoice payable claim.
+        businessMeaning: Connects a supplier credit document to the original payable claim without mutating invoice history.
+        usage: Supports accounts payable reconciliation, supplier statements, returns and recovery audit.
+        cardinalityMeaning: A purchase invoice may have none, one, or multiple supplier credits.
+        workflowRole: SupplierCreditNoteApplication provides explicit claim-level application evidence.
+    - name: supplierCreditNoteApplications
+      target: SupplierCreditNoteApplication
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Explicit applications of supplier credits against this purchase invoice.
+        businessMeaning: Records how a posted supplier credit reduces payable exposure on the claim.
+        usage: Supports accounts payable settlement, supplier statements, reconciliation and audit.
+        cardinalityMeaning: An invoice may have many applications across supplier credits.
+        workflowRole: Active applications contribute to the payable exposure projection.
+    - name: supplierDebitNotes
+      target: SupplierDebitNote
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Buyer-issued supplier debits that increase recovery against this purchase invoice or related payable claim.
+        businessMeaning: Connects an explicit recovery adjustment to the original payable claim without rewriting it.
+        usage: Supports shortage, overcharge, damage, penalty, tax and supplier-claim recovery.
+        cardinalityMeaning: A purchase invoice may be affected by multiple supplier debit notes.
+        workflowRole: SupplierDebitNoteApplication provides explicit claim-level application evidence.
+    - name: supplierDebitNoteApplications
+      target: SupplierDebitNoteApplication
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Explicit applications of supplier debit amounts against this invoice.
+        businessMeaning: Records how buyer-issued recovery is consumed against the payable claim.
+        usage: Supports accounts payable reconciliation, supplier statements and audit.
+        cardinalityMeaning: An invoice may have many applications across supplier debit notes.
+        workflowRole: Active applications reduce payable exposure according to governed policy.
   invariants:
     - {id: INVOICE-001, rule: All Invoice Money values must use the Invoice currency.}
     - {id: INVOICE-002, rule: totalAmount must reconcile with line-derived amounts, document discounts, taxes, credits, debits, and authorized adjustments.}
@@ -276,17 +316,18 @@ entity:
     - {id: INVOICE-006, rule: A PURCHASE invoice linked to a PurchaseOrder must use applicable accepted GoodsReceipt evidence when three-way matching is required.}
     - {id: INVOICE-007, rule: amountSettled must reconcile with active PaymentAllocation records, including currency-conversion context where applicable.}
     - {id: INVOICE-008, rule: amountCredited must reconcile with active CreditNote application evidence and must not exceed the eligible claim under configured policy.}
-    - {id: INVOICE-009, rule: amountOutstanding must reconcile with totalAmount, active settlement allocations, and authorized CreditNote applications in invoice currency.}
+    - {id: INVOICE-009, rule: amountOutstanding must reconcile with totalAmount, active settlement allocations, and authorized CreditNote, SupplierCreditNoteApplication, and SupplierDebitNoteApplication evidence in invoice currency.}
     - {id: INVOICE-010, rule: PAID requires amountOutstanding to satisfy the applicable zero-tolerance or rounding policy.}
     - {id: INVOICE-011, rule: Issued monetary results must preserve applicable pricing, discount, tax, currency, exchange-rate, and rounding evidence required for historical reproducibility.}
-    - {id: INVOICE-012, rule: Original Invoice and InvoiceLine values remain immutable after posting; returns, corrections and concessions use explicit CreditNote or other authorized adjustment documents.}
+    - {id: INVOICE-012, rule: Original Invoice and InvoiceLine values remain immutable after posting; returns, corrections and concessions use explicit CreditNote, SupplierCreditNote, SupplierDebitNote, or other authorized adjustment documents.}
+    - {id: INVOICE-013, rule: Active SupplierCreditNoteApplication and SupplierDebitNoteApplication records must be validated against eligible PURCHASE invoice exposure and must not create duplicate claim-level settlement effects.}
   help:
     summary: Represents a formal financial claim and its controlled settlement and adjustment state.
-    businessMeaning: Invoice records what was originally claimed. Payment records money moved. PaymentAllocation records how money is applied. CreditNote records a separate authorized reduction of the claim.
-    usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, customer credit and audit.
-    relationshipContext: SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, CreditNote provides later financial reduction, Payment provides settlement, and PaymentAllocation connects settlement to the claim.
-    workflowContext: Invoice preparation → line calculation → discount → taxable base → tax determination → total → PaymentTerm due-date calculation → issue → payment → PaymentAllocation → credit-note eligibility where applicable → CreditNote posting/application → amountSettled/amountCredited/amountOutstanding → PARTIALLY_PAID or PAID. OVERDUE is time-based and may coexist with partial settlement.
-    lifecycle: Draft → issued → partially paid or overdue → paid, with cancellation and void paths. Corrections use CreditNote, debit documents, controlled adjustments, or allocation reversals rather than silently rewriting posted evidence.
-    changePropagation: Changes to Customer, Product, UOM, pricing, discount, tax, Currency, SalesOrder, GoodsReceipt or return evidence affecting an open transaction trigger controlled revalidation. Posted invoice history is not silently recalculated. Posted credits are handled through explicit reversal/replacement.
-    example: An invoice totals 10,000 USD. A 4,000 USD payment is allocated to it and a later 1,000 USD CreditNote is applied, producing amountSettled of 4,000 USD, amountCredited of 1,000 USD and amountOutstanding of 5,000 USD. The original invoice remains unchanged.
-specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-INVOICE}
+    businessMeaning: Invoice records what was originally claimed. Payment records money moved. PaymentAllocation records how money is applied. CreditNote, SupplierCreditNote, and SupplierDebitNote record separate authorized financial adjustments; their application entities record claim-level consumption.
+    usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, customer credit, supplier recovery and audit.
+    relationshipContext: SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, CreditNote provides customer reduction, SupplierCreditNote provides supplier reduction, SupplierDebitNote provides buyer recovery, Payment provides settlement, and application entities connect each adjustment to the claim.
+    workflowContext: Invoice preparation → line calculation → discount → taxable base → tax determination → total → PaymentTerm due-date calculation → issue → payment → PaymentAllocation and/or approved adjustment application → amountSettled/amountCredited/amountOutstanding → PARTIALLY_PAID or PAID. Supplier credit and debit applications remain explicit non-cash financial evidence.
+    lifecycle: Draft → issued → partially paid or overdue → paid, with cancellation and void paths. Corrections use CreditNote, SupplierCreditNote, SupplierDebitNote, controlled adjustments, or allocation/application reversals rather than silently rewriting posted evidence.
+    changePropagation: Changes to Customer, Supplier, Product, UOM, pricing, discount, tax, Currency, SalesOrder, PurchaseOrder, GoodsReceipt, return, claim, credit, or debit evidence affecting an open transaction trigger controlled revalidation. Posted invoice history is not silently recalculated. Posted adjustments and applications are corrected through explicit reversal/replacement.
+    example: A purchase invoice totals 10,000 EUR. A 1,000 EUR supplier credit and a 500 EUR supplier debit are each explicitly applied through their application entities; the invoice's original values remain unchanged while payable exposure is reconciled from the active settlement and adjustment evidence.
+specification: {version: 0.4.0, status: draft, identifier: CEDM-ENTITY-INVOICE}
