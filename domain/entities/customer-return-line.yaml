@@ -1,0 +1,60 @@
+entity:
+  name: CustomerReturnLine
+  namespace: cedm.domain
+  kind: reverse_fulfillment_transaction_line
+  description: A line within a CustomerReturn recording the quantity returned against a prior SalesOrderLine or fulfillment evidence and its inspection/disposition result. It is the quantity-level bridge to inventory and financial adjustment workflows.
+  identity: {key: customerReturnLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: customerReturnLineId, type: uuid, required: true, immutable: true}
+  - {name: lineNumber, type: integer, required: true, minimum: 1}
+  - {name: quantityReturned, type: decimal, required: true, precision: 20, scale: 6}
+  - {name: quantityRestocked, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: quantityQuarantined, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: quantityToRepair, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: quantityScrapped, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - name: disposition
+    type: enum
+    required: true
+    values: [PENDING, RESTOCK, QUARANTINE, REPAIR, SCRAP, MIXED]
+    help:
+      summary: Physical disposition assigned after inspection of returned goods.
+      usage: Determines whether and how returned quantity affects inventory.
+      relationshipContext: Disposition is distinct from the customer's return reason.
+      workflowRole: Drives the appropriate InventoryMovement or downstream repair/disposal workflow.
+  - {name: approvedCreditAmount, type: Money, required: false}
+  relationships:
+  - name: customerReturn
+    target: CustomerReturn
+    cardinality: '1'
+    ownership: reference
+  - name: salesOrderLine
+    target: SalesOrderLine
+    cardinality: '1'
+    ownership: reference
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+  invariants:
+  - {id: CUSTOMER-RETURN-LINE-001, rule: quantityReturned must be greater than zero.}
+  - {id: CUSTOMER-RETURN-LINE-002, rule: quantityRestocked + quantityQuarantined + quantityToRepair + quantityScrapped must equal quantityReturned unless an explicit pending disposition exists.}
+  - {id: CUSTOMER-RETURN-LINE-003, rule: quantityReturned must not exceed the eligible previously fulfilled quantity without an authorized exception.}
+  - {id: CUSTOMER-RETURN-LINE-004, rule: Only quantityRestocked may create unrestricted positive inventory movement.}
+  - {id: CUSTOMER-RETURN-LINE-005, rule: Quarantined, repair and scrapped quantities must follow their respective restricted, work-order or disposal workflows and cannot be treated as unrestricted stock.}
+  - {id: CUSTOMER-RETURN-LINE-006, rule: Restock posting must be idempotent and attributable to this return-line disposition.}
+  - {id: CUSTOMER-RETURN-LINE-007, rule: Approved credit amount must follow applicable billing, original transaction price, tax, discount and return policy and must not directly mutate the original InvoiceLine.}
+  - {id: CUSTOMER-RETURN-LINE-008, rule: Changes to SalesOrderLine, Product, UnitOfMeasure, Shipment or Invoice that affect an open return line require controlled revalidation.}
+  - {id: CUSTOMER-RETURN-LINE-009, rule: Corrections after disposition posting require compensating inventory or financial events rather than destructive mutation.}
+  help:
+    summary: Quantity-level return evidence connecting returned goods to original fulfillment, disposition, inventory and financial adjustment.
+    businessMeaning: CustomerReturnLine explains exactly what quantity came back and what happened to it. It does not itself move inventory or issue a credit.
+    usage: Reverse logistics, quality, inventory, customer service, credit processing and audit.
+    relationshipContext: SalesOrderLine identifies the original commitment; InvoiceLine identifies the financial claim; InventoryMovement records physical consequences.
+    workflowContext: Return authorization → returned quantity → receipt → inspection → disposition → restock/quarantine/repair/scrap → financial credit assessment. Each consequence is posted through its authoritative workflow.
+    lifecycle: Pending → inspected → dispositioned → posted/completed, with controlled correction if necessary.
+    example: Five units returned: three restocked, one quarantined and one scrapped. Only three generate unrestricted positive inventory movement. The approved credit is calculated separately from the physical disposition.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN-LINE}
