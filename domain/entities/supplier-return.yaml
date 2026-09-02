@@ -14,7 +14,7 @@ entity:
       businessMeaning: Identifies the reverse-procurement transaction independently of its supplier reference, receipt, shipment, inventory or financial adjustment.
       usage: Used for authorization, warehouse execution, supplier communication, accounting, audit and integration.
       relationshipContext: Distinct from returnNumber and all original PurchaseOrder, GoodsReceipt and Invoice identities.
-      workflowRole: Stable root reference across authorization, dispatch, receipt by supplier, inventory reversal and supplier credit processing.
+      workflowRole: Stable root reference across authorization, dispatch, supplier receipt, quality inspection, inventory reversal and supplier credit processing.
       requiredMeaning: Required for traceability.
   - name: returnNumber
     type: string
@@ -38,7 +38,7 @@ entity:
       businessMeaning: Indicates authorization, transport, supplier receipt, completion or controlled exception.
       usage: Controls logistics, inventory and financial workflows.
       relationshipContext: Return status does not itself reverse inventory or accounts payable.
-      workflowRole: Coordinates dependent workflows without replacing InventoryMovement or SupplierCreditNote evidence.
+      workflowRole: Coordinates dependent workflows without replacing InventoryMovement, QualityInspection or SupplierCreditNote evidence.
       requiredMeaning: Required for controlled lifecycle.
   - name: returnDate
     type: datetime
@@ -59,7 +59,7 @@ entity:
       businessMeaning: Classifies defects, over-receipt, wrong item, damage, commercial rejection or other causes.
       usage: Supports quality, supplier performance, warranty, claims and analytics.
       relationshipContext: Explains why the return occurs and is distinct from physical disposition.
-      workflowRole: Drives applicable approval and supplier-claim policies.
+      workflowRole: Drives applicable approval, quality and supplier-claim policies.
       optionalMeaning: Optional only when policy permits an uncoded reason.
   relationships:
   - name: supplier
@@ -99,7 +99,7 @@ entity:
       usage: Supports supplier credit reconciliation and payable adjustment.
       workflowRole: Provides financial source context without mutating the original invoice.
   - name: lines
-    target: SupplierReturnLine
+n    target: SupplierReturnLine
     cardinality: 1..*
     ownership: aggregate
     help:
@@ -108,6 +108,16 @@ entity:
       usage: Drives inventory reversal and supplier credit eligibility.
       cardinalityMeaning: At least one line is required for an authorized return.
       workflowRole: Supplies authoritative quantity evidence for downstream effects.
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Quality inspections associated with returned goods when return policy requires inspection.
+      businessMeaning: Connects reverse-procurement execution to quality evidence used to validate defects, supplier acceptance or exception handling.
+      usage: Supports supplier disputes, return authorization, quarantine, reinspection and completion controls.
+      cardinalityMeaning: A return may have no inspection, one inspection, or multiple inspections for partial quantities or reinspection.
+      workflowRole: Quality results can gate return completion or create controlled exception paths; inspection does not itself change inventory or payable balances.
   - name: supplierCreditNotes
     target: SupplierCreditNote
     cardinality: 0..*
@@ -116,7 +126,7 @@ entity:
       summary: Supplier financial adjustments arising from the return.
       businessMeaning: Connects the physical return to explicit payable reduction or supplier credit.
       usage: Supports accounts payable and reconciliation.
-      workflowRole: Credit-note posting is separate from physical inventory reversal.
+      workflowRole: Credit-note posting is separate from physical inventory reversal and quality evidence.
   invariants:
   - {id: SUPPLIER-RETURN-001, rule: AUTHORIZED requires supplier context and at least one valid return line.}
   - {id: SUPPLIER-RETURN-002, rule: Returned quantity must not exceed eligible previously accepted receipt quantity except under an explicitly authorized exception.}
@@ -128,12 +138,14 @@ entity:
   - {id: SUPPLIER-RETURN-008, rule: Cancellation after posted effects requires compensating reversal workflows and cannot erase historical evidence.}
   - {id: SUPPLIER-RETURN-009, rule: Changes to Supplier, PurchaseOrderLine, GoodsReceiptLine, Product, UnitOfMeasure or Invoice affecting an open return require controlled revalidation.}
   - {id: SUPPLIER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory reductions or supplier credits.}
+  - {id: SUPPLIER-RETURN-011, rule: Where return policy requires quality inspection, completion cannot bypass an unresolved required QualityInspection result or disposition.}
   help:
-    summary: Coordinates the controlled reversal of accepted procurement fulfillment while preserving original purchasing, receiving, inventory and financial history.
+    summary: Coordinates the controlled reversal of accepted procurement fulfillment while preserving original purchasing, receiving, inventory, quality and financial history.
     businessMeaning: A supplier return is a new reverse-procurement event; it does not delete or rewrite the original PurchaseOrder, GoodsReceipt or Invoice.
     usage: Purchasing, warehouse operations, quality, supplier management, accounts payable and audit.
-    relationshipContext: PurchaseOrder identifies the commitment, GoodsReceipt identifies accepted receipt, SupplierReturnLine identifies returned quantity, InventoryMovement records physical reversal, and SupplierCreditNote records financial adjustment.
-    workflowContext: Return request → authorization → dispatch → supplier receipt → inventory reversal → supplier credit assessment/posting → completion. Each physical and financial consequence has independent evidence.
+    relationshipContext: PurchaseOrder identifies the commitment, GoodsReceipt identifies accepted receipt, SupplierReturnLine identifies returned quantity, QualityInspection provides quality evidence where required, InventoryMovement records physical reversal, and SupplierCreditNote records financial adjustment.
+    workflowContext: Return request → authorization → quality inspection where required → dispatch → supplier receipt → inventory reversal → supplier credit assessment/posting → completion. Each physical, quality and financial consequence has independent evidence.
     lifecycle: Draft → authorized → in transit → received by supplier → completed, with cancellation and exception paths.
-    example: Ten accepted units were received from a supplier and three are defective. A supplier return authorizes three units, InventoryMovement reduces eligible stock by three, and a SupplierCreditNote reduces the payable claim for the approved amount. The original receipt and invoice remain historical evidence.
+    changePropagation: Changes to source receipt, supplier return lines, product, quality policy or financial eligibility affecting an open return trigger revalidation of dependent inspections, inventory and credit workflows.
+    example: Ten accepted units were received from a supplier and three are defective. A supplier return authorizes three units, QualityInspection records the failed inspection and return disposition, InventoryMovement reduces eligible stock by three, and a SupplierCreditNote reduces the payable claim for the approved amount. The original receipt and invoice remain historical evidence.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-RETURN}
