@@ -1,0 +1,132 @@
+entity:
+  name: SupplierDebitNoteLine
+  namespace: cedm.domain
+  kind: supplier_financial_adjustment_transaction_line
+  description: A line-level component of a SupplierDebitNote identifying the quantity, value, tax, reason, or other measurable basis for a buyer-issued supplier debit.
+  identity: {key: supplierDebitNoteLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: supplierDebitNoteLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Immutable identity of the supplier debit line.
+      businessMeaning: Identifies one adjustment component independently of its parent debit note and source transactions.
+      usage: Accounting, reconciliation, audit and integration.
+      relationshipContext: Distinct from InvoiceLine, SupplierClaim and SupplierReturnLine identities.
+      workflowRole: Stable attribution for calculation and accounting.
+      requiredMeaning: Required.
+  - name: lineNumber
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: Sequence number of the debit line within its SupplierDebitNote.
+      businessMeaning: Provides deterministic ordering and human-readable identification.
+      usage: Documents, review and reconciliation.
+      relationshipContext: Unique within the parent debit note.
+      workflowRole: Identifies the line during approval and posting.
+      requiredMeaning: Required.
+  - name: quantity
+    type: decimal
+    required: false
+    precision: 20
+    scale: 6
+    help:
+      summary: Quantity to which the debit calculation applies when the adjustment is quantity-based.
+      businessMeaning: Measures the affected goods or services for shortage, overcharge, damage or other quantity-driven recovery.
+      usage: Calculation, reconciliation and audit.
+      relationshipContext: Must reconcile with relevant InvoiceLine, GoodsReceiptLine or claim evidence when applicable.
+      workflowRole: Supplies quantity basis for adjustment valuation.
+      optionalMeaning: Optional for purely monetary adjustments.
+  - name: unitPrice
+    type: Money
+    required: false
+    help:
+      summary: Unit monetary value used to calculate a quantity-based debit.
+      businessMeaning: Captures the transaction-time valuation relevant to the recovery.
+      usage: Calculation and audit.
+      relationshipContext: Should derive from original commercial evidence rather than current master pricing.
+      workflowRole: Supports reproducible line valuation.
+      optionalMeaning: Optional for non-quantity adjustments.
+  - name: grossAmount
+    type: Money
+    required: true
+    help:
+      summary: Pre-tax financial amount of the debit line before applicable deductions or tax.
+      businessMeaning: Represents the base recovery attributable to this line.
+      usage: Total calculation, accounting and reconciliation.
+      workflowRole: Feeds taxableAmount and totalAmount.
+      requiredMeaning: Required.
+  - name: taxAmount
+    type: Money
+    required: true
+    default: {amount: 0}
+    help:
+      summary: Tax component associated with the debit line.
+      businessMeaning: Represents applicable tax added to the adjustment.
+      usage: Tax reporting and accounting.
+      workflowRole: Contributes to the line and header total.
+      requiredMeaning: Required, including zero.
+  - name: netAmount
+    type: Money
+    required: true
+    help:
+      summary: Final financial amount represented by this debit line.
+      businessMeaning: Represents the line's gross adjustment plus applicable tax under the governing calculation policy.
+      usage: Supplier reconciliation and accounting.
+      workflowRole: Contributes to SupplierDebitNote.totalAmount.
+      requiredMeaning: Required.
+  - name: reasonCode
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Reason explaining why this particular debit amount is being raised.
+      businessMeaning: Provides line-level cause such as shortage, overcharge, damage or penalty.
+      usage: Supplier dispute, reporting and recovery analytics.
+      relationshipContext: Complements SupplierClaim.claimType and source transaction evidence.
+      workflowRole: Supports validation and approval.
+      requiredMeaning: Required for line-level auditability.
+  relationships:
+  - name: supplierDebitNote
+    target: SupplierDebitNote
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Parent supplier debit note containing this line.
+      businessMeaning: Supplies supplier, currency, lifecycle and posting context.
+      workflowRole: Controls whether the line can be posted.
+  - name: supplierClaim
+    target: SupplierClaim
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Claim evidence supporting the debit line.
+      businessMeaning: Connects the monetary adjustment to the supplier issue being recovered.
+      usage: Investigation, approval and audit.
+      workflowRole: Supplies justification for the debit.
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Original supplier invoice lines affected by this debit.
+      businessMeaning: Identifies the historical payable evidence relevant to the adjustment.
+      usage: AP reconciliation and audit.
+      workflowRole: Supplies transaction-time quantity, price and tax evidence.
+  invariants:
+  - {id: SUPPLIER-DEBIT-LINE-001, rule: lineNumber must be unique within SupplierDebitNote.}
+  - {id: SUPPLIER-DEBIT-LINE-002, rule: Monetary values must use SupplierDebitNote.currencyId.}
+  - {id: SUPPLIER-DEBIT-LINE-003, rule: quantity, when present, must be greater than zero.}
+  - {id: SUPPLIER-DEBIT-LINE-004, rule: grossAmount and taxAmount must reconcile to netAmount under the governing tax and rounding policy.}
+  - {id: SUPPLIER-DEBIT-LINE-005, rule: Quantity-based valuation must preserve sufficient original InvoiceLine or other source evidence for reproducibility.}
+  - {id: SUPPLIER-DEBIT-LINE-006, rule: Posted line values are immutable except through explicit reversal or compensating adjustment workflows.}
+  help:
+    summary: Provides the auditable financial detail supporting one component of a SupplierDebitNote.
+    businessMeaning: The line explains exactly how a supplier recovery amount was calculated; it does not replace the original invoice or supplier claim.
+    usage: Accounts payable, supplier disputes, accounting, tax and audit.
+    relationshipContext: SupplierClaim supplies the business case, InvoiceLine supplies original financial evidence, and SupplierDebitNote aggregates approved recovery lines.
+    workflowContext: Gather source evidence → determine line basis → calculate amount and tax → approve → post with parent SupplierDebitNote → reconcile payable.
+    example: A supplier billed 100 units but 5 were not received. A debit line records quantity 5 and the applicable transaction-time unit value, with supporting InvoiceLine evidence and a shortage claim.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-DEBIT-NOTE-LINE}
