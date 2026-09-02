@@ -2,7 +2,7 @@ entity:
   name: PurchaseOrderLine
   namespace: cedm.domain
   kind: transaction_line
-  description: An individual procurement commitment within a PurchaseOrder that preserves the transaction-time product, quantity, UOM, price, currency and fulfillment evidence used for receiving and invoice matching.
+  description: An individual procurement commitment within a PurchaseOrder that preserves transaction-time product, quantity, UOM, price, currency, fulfillment, billing and reverse-fulfillment evidence.
   identity: {key: purchaseOrderLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: purchaseOrderLineId, type: uuid, required: true, immutable: true}
@@ -12,65 +12,74 @@ entity:
   - {name: lineAmount, type: Money, required: true}
   - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
   - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
+  - {name: returnedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
   - {name: outstandingQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6}
   - name: priceSource
     type: enum
     required: false
     values: [PRICE_LIST, CONTRACT, SUPPLIER_AGREEMENT, QUOTATION, MANUAL, OTHER]
-    help:
-      summary: Source used to determine the procurement price.
-      usage: Supports audit, spend analysis, supplier negotiations and invoice matching.
-      relationshipContext: Source metadata does not replace the transaction-time unitPrice.
-      workflowRole: Explains the price determination used by the commitment.
-      optionalMeaning: Optional when source attribution is not maintained.
+    help: {summary: Source used to determine procurement price., usage: Supports audit, spend analysis and supplier negotiations., relationshipContext: Does not replace transaction-time unitPrice., workflowRole: Explains price determination.}
   - name: priceDeterminedAt
     type: datetime
     required: false
-    help:
-      summary: Time at which the effective purchase price was determined.
-      usage: Supports effective-dated pricing and audit.
-      relationshipContext: Distinct from PurchaseOrder creation time.
-      workflowRole: Anchors commercial pricing evidence.
-      optionalMeaning: Optional where timing is not separately captured.
+    help: {summary: Time at which effective purchase price was determined., usage: Supports effective-dated pricing and audit., relationshipContext: Distinct from PurchaseOrder creation time., workflowRole: Anchors commercial pricing evidence.}
   relationships:
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: '1'
     ownership: reference
+    help: {summary: Parent procurement commitment., businessMeaning: Supplies supplier, organization, currency and lifecycle context., workflowRole: Controls commitment and closure.}
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
+    help: {summary: Product or item being procured., businessMeaning: Identifies what was committed., workflowRole: Must reconcile across receipt, return and invoice evidence.}
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
+    help: {summary: Unit used to quantify the commitment., businessMeaning: Defines how quantity is interpreted., workflowRole: Must reconcile with receiving and return conversions.}
   - name: goodsReceiptLines
     target: GoodsReceiptLine
     cardinality: 0..*
     ownership: reference
+    help: {summary: Receipt evidence against this commitment., businessMeaning: Records actual received and accepted fulfillment., workflowRole: Supplies eligibility for later supplier returns.}
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
+    help: {summary: Supplier invoice lines matched to this commitment., businessMeaning: Records financial claims against the order line., workflowRole: Uses accepted receipt and original price evidence.}
+  - name: supplierReturnLines
+    target: SupplierReturnLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Reverse-procurement lines returning previously accepted quantities associated with this purchase commitment.
+      businessMeaning: Connects the original commitment to later return events without rewriting the commitment itself.
+      usage: Supports return quantity reconciliation, inventory reversal and supplier credit.
+      cardinalityMeaning: A purchase line may have multiple partial returns.
+      workflowRole: Returned quantity is accumulated from posted SupplierReturnLine events.
   invariants:
   - {id: PURCHASE-ORDER-LINE-001, rule: quantity must be greater than zero.}
   - {id: PURCHASE-ORDER-LINE-002, rule: receivedQuantity must be zero or greater.}
   - {id: PURCHASE-ORDER-LINE-003, rule: acceptedQuantity must be zero or greater and must not exceed receivedQuantity.}
-  - {id: PURCHASE-ORDER-LINE-004, rule: outstandingQuantity must not be negative and normally equals quantity minus acceptedQuantity after applicable policy adjustments.}
-  - {id: PURCHASE-ORDER-LINE-005, rule: lineNumber must be unique within its PurchaseOrder.}
-  - {id: PURCHASE-ORDER-LINE-006, rule: receivedQuantity and acceptedQuantity must reconcile to posted GoodsReceiptLine events rather than being independently changed without an approved reconciliation process.}
-  - {id: PURCHASE-ORDER-LINE-007, rule: acceptedQuantity must not exceed quantity except where an explicit over-receipt tolerance or policy permits it.}
-  - {id: PURCHASE-ORDER-LINE-008, rule: InvoiceLine matching must use accepted receipt evidence and applicable price/quantity tolerances; ordered quantity alone cannot establish a MATCHED invoice line.}
-  - {id: PURCHASE-ORDER-LINE-009, rule: unitPrice and lineAmount must use the PurchaseOrder currency and reconcile under the configured pricing and rounding policy.}
-  - {id: PURCHASE-ORDER-LINE-010, rule: Changes to Product, PriceList, DiscountRule, Currency or UnitOfMeasure must not silently rewrite an approved PurchaseOrderLine; affected open lines require explicit revalidation or repricing workflow.}
-  - {id: PURCHASE-ORDER-LINE-011, rule: Invoice matching must use the effective PurchaseOrderLine price evidence, not a current Product or supplier price retrieved after the commitment was approved.}
+  - {id: PURCHASE-ORDER-LINE-004, rule: returnedQuantity must be zero or greater and must not exceed eligible accepted quantity except under an authorized exception.}
+  - {id: PURCHASE-ORDER-LINE-005, rule: outstandingQuantity must not be negative and normally equals quantity minus acceptedQuantity plus applicable policy adjustments; return quantity does not recreate the original unreceived commitment.}
+  - {id: PURCHASE-ORDER-LINE-006, rule: lineNumber must be unique within its PurchaseOrder.}
+  - {id: PURCHASE-ORDER-LINE-007, rule: receivedQuantity and acceptedQuantity must reconcile to posted GoodsReceiptLine events rather than being independently changed without approved reconciliation.}
+  - {id: PURCHASE-ORDER-LINE-008, rule: acceptedQuantity must not exceed quantity except where explicit over-receipt policy permits it.}
+  - {id: PURCHASE-ORDER-LINE-009, rule: InvoiceLine matching must use accepted receipt evidence and applicable price/quantity tolerances.}
+  - {id: PURCHASE-ORDER-LINE-010, rule: unitPrice and lineAmount must use PurchaseOrder currency and reconcile under pricing and rounding policy.}
+  - {id: PURCHASE-ORDER-LINE-011, rule: Invoice matching must use effective transaction-time PurchaseOrderLine price evidence, not mutable current supplier pricing.}
+  - {id: PURCHASE-ORDER-LINE-012, rule: returnedQuantity must reconcile with posted SupplierReturnLine quantities attributable to this PurchaseOrderLine.}
+  - {id: PURCHASE-ORDER-LINE-013, rule: SupplierReturnLine must reference eligible accepted GoodsReceiptLine evidence before return execution.}
+  - {id: PURCHASE-ORDER-LINE-014, rule: Changes to Product, PriceList, DiscountRule, Currency or UnitOfMeasure must not silently rewrite an approved PurchaseOrderLine; open commitments require explicit revalidation or repricing.}
   help:
-    summary: Represents one measurable procurement commitment and its accumulated fulfillment and billing state while preserving agreed commercial pricing.
-    businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records actual receiving. InvoiceLine records the supplier claim. Pricing master data determines future commitments but does not rewrite an approved commitment.
-    usage: Purchasing, supplier communication, receiving, inventory, accounts payable, budgeting, supplier performance and three-way matching.
-    relationshipContext: PurchaseOrder supplies Supplier, organization, currency and delivery context. Product and UOM define what and how much. GoodsReceiptLine supplies receipt evidence. InvoiceLine supplies financial claim evidence.
-    workflowContext: Pricing determination → PurchaseOrderLine snapshot → approval → GoodsReceiptLine → inspection/acceptance → InventoryMovement; in parallel PurchaseOrderLine → InvoiceLine → price/quantity matching. Master changes affect future purchasing and trigger validation of open commitments.
-    lifecycle: Created → approved/issued → partially/fully received → partially/fully billed → closed/cancelled according to policy. Historical commercial evidence remains reproducible.
-    example: A PO line is approved at EUR 80 per unit. The supplier later changes its catalog price to EUR 85. The approved line remains EUR 80; a new PO may use EUR 85, while an explicit repricing workflow is required to alter an eligible open commitment.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
+    summary: Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state.
+    businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier claim.
+    usage: Purchasing, supplier communication, receiving, inventory, supplier returns, accounts payable, budgeting and three-way matching.
+    relationshipContext: PurchaseOrder supplies supplier and commercial context; GoodsReceiptLine supplies accepted fulfillment; SupplierReturnLine supplies reverse quantity; SupplierCreditNoteLine supplies financial adjustment.
+    workflowContext: Pricing → commitment → receipt → acceptance → InventoryMovement; if goods are returned, eligible accepted quantity → SupplierReturnLine → InventoryMovement reversal → SupplierCreditNoteLine. Historical commitment remains unchanged.
+    lifecycle: Created → approved/issued → partially/fully received → optionally partially/fully returned → billed/closed according to policy. Historical commercial evidence remains reproducible.
+    example: A line commits to 100 units, 94 are accepted, and three are later returned. receivedQuantity remains the receipt projection, acceptedQuantity remains accepted fulfillment evidence, returnedQuantity becomes three from posted return events, and the original quantity/price remain unchanged.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
