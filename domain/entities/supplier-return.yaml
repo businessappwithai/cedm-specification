@@ -99,7 +99,7 @@ entity:
       usage: Supports supplier credit reconciliation and payable adjustment.
       workflowRole: Provides financial source context without mutating the original invoice.
   - name: lines
-n    target: SupplierReturnLine
+    target: SupplierReturnLine
     cardinality: 1..*
     ownership: aggregate
     help:
