@@ -9,7 +9,7 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the inspection record., businessMeaning: Identifies one inspection event independently of the item, receipt, return, result or corrective action., usage: Used for quality traceability, audit, reporting and integrations., relationshipContext: Links the inspection to source receipt/return evidence without replacing those transactions., workflowRole: Root reference through planning, execution, result and disposition., requiredMeaning: Required.}
+    help: {summary: Stable identity of the inspection record., businessMeaning: Identifies one inspection event independently of the item, receipt, return, result or corrective action., usage: Used for quality traceability, audit, reporting and integrations., relationshipContext: Links the inspection to source receipt/return evidence without replacing those transactions., workflowRole: Root reference through planning, execution, measurement, result and disposition., requiredMeaning: Required.}
   - name: inspectionNumber
     type: string
     required: true
@@ -30,7 +30,7 @@ entity:
     type: enum
     required: false
     values: [PASS, FAIL, CONDITIONAL, NOT_TESTED]
-    help: {summary: Outcome of inspection or test., businessMeaning: Records whether inspected material satisfies the applicable requirement., usage: Drives acceptance, rejection, quarantine, return, repair or release decisions., relationshipContext: Result must be interpreted with QualityPlan, inspection scope and disposition policy., workflowRole: Supplies evidence for controlled disposition., optionalMeaning: Optional until testing is complete.}
+    help: {summary: Overall outcome of inspection or test., businessMeaning: Records whether the inspected scope satisfies applicable requirements after evaluating relevant measurements and other evidence., usage: Drives acceptance, rejection, quarantine, return, repair or release decisions., relationshipContext: May be derived from QualityMeasurement results and other governed evidence; it does not replace individual measurements., workflowRole: Supplies aggregate evidence for controlled disposition., optionalMeaning: Optional until testing is complete.}
   - name: disposition
     type: enum
     required: false
@@ -40,7 +40,7 @@ entity:
     type: string
     required: false
     maxLength: 4000
-    help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured results., usage: Quality review, supplier disputes and audit., relationshipContext: Complements structured measurements and Nonconformance; does not replace them., workflowRole: Supports disposition decisions., optionalMeaning: Optional.}
+    help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured measurements., usage: Quality review, supplier disputes and audit., relationshipContext: Complements QualityMeasurement and Nonconformance; does not replace structured measurement evidence., workflowRole: Supports disposition decisions., optionalMeaning: Optional.}
   relationships:
   - name: qualityPlan
     target: QualityPlan
@@ -77,11 +77,16 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Supplier return lines within the inspection scope., businessMeaning: Identifies exact returned quantities evaluated for quality or supplier acceptance., usage: Return execution and exception management., workflowRole: Quality outcome may control completion/dispute state.}
+  - name: measurements
+    target: QualityMeasurement
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Structured observations captured during this inspection., businessMeaning: Provides individual quantitative or categorical evidence used to evaluate the inspection., usage: Acceptance testing, trend analysis, nonconformance evidence and corrective-action verification., cardinalityMeaning: An inspection may contain zero or many measurements depending on inspection method., workflowRole: Measurements are captured and evaluated before the overall inspection result is finalized.}
   - name: nonconformances
     target: Nonconformance
     cardinality: 0..*
     ownership: reference
-    help: {summary: Quality issues identified by the inspection., businessMeaning: Captures deviations requiring containment or corrective action., usage: Supplier quality, CAPA and audit., workflowRole: Failed or conditional results may create nonconformance records.}
+    help: {summary: Quality issues identified by the inspection., businessMeaning: Captures deviations requiring containment or corrective action., usage: Supplier quality, CAPA and audit., workflowRole: Failed measurements or other inspection evidence may create nonconformance records.}
   invariants:
   - {id: INSPECTION-001, rule: result must be present when status is PASSED, FAILED or CONDITIONAL.}
   - {id: INSPECTION-002, rule: A disposition requires a completed result unless an explicitly authorized inspection-exception workflow applies.}
@@ -92,13 +97,15 @@ entity:
   - {id: INSPECTION-007, rule: SupplierReturn completion may require successful inspection/disposition when return policy requires inspection of returned material.}
   - {id: INSPECTION-008, rule: Inspection records become immutable historical evidence after completion except through controlled correction/reinspection workflows.}
   - {id: INSPECTION-009, rule: A completed inspection that verifies a CorrectiveAction must retain attributable CorrectiveActionVerification evidence; verification does not itself alter inventory or financial balances.}
+  - {id: INSPECTION-010, rule: Measurements associated with an inspection must belong to that inspection and must be evaluated before the overall inspection result is finalized when the governing QualityPlan requires measurements.}
+  - {id: INSPECTION-011, rule: A failed required measurement must not be silently omitted from the inspection evidence or treated as a passing result without an authorized conditional or exception workflow.}
   help:
-    summary: Represents a quality inspection and its controlled result/disposition across inbound receiving and supplier-return workflows.
-    businessMeaning: QualityInspection provides evidence for deciding whether material is accepted, rejected, quarantined, repaired, scrapped, released or returned. It does not itself perform inventory or financial changes.
+    summary: Represents a quality inspection and its controlled measurements, result and disposition across inbound receiving and supplier-return workflows.
+    businessMeaning: QualityInspection provides the execution context and overall decision; QualityMeasurement records individual factual observations. The inspection does not itself perform inventory or financial changes.
     usage: Receiving quality, supplier quality, returns, quarantine, nonconformance, corrective action, compliance and audit.
-    relationshipContext: GoodsReceipt/GoodsReceiptLine establish inbound evidence; SupplierReturn/SupplierReturnLine establish reverse-procurement evidence; InventoryMovement records physical stock consequence; SupplierCreditNote records financial consequence; Nonconformance records deviations; CorrectiveActionVerification records effectiveness evidence where corrective actions are evaluated through inspection.
-    workflowContext: GoodsReceipt → inspection → pass/fail/conditional → disposition → accepted inventory or quarantine/rejection/return. For supplier returns, SupplierReturn → inspection where required → disposition/acceptance → attributable InventoryMovement → SupplierCreditNote/exception completion. For corrective actions, implementation → follow-up inspection/evidence → CorrectiveActionVerification → action completion or reopening.
-    lifecycle: Open → in progress → passed/failed/conditional → dispositioned, with cancellation or controlled reinspection.
-    changePropagation: Changes to receipt, supplier return, product, quality plan or corrective-action evidence affecting an open inspection trigger revalidation. Completed inspection history is not silently rewritten; reinspection or correction creates explicit evidence.
-    example: A received batch fails inspection, creating a Nonconformance and a corrective action. Subsequent lots are inspected after the supplier implements the action; the results provide evidence for CorrectiveActionVerification, which determines whether the corrective action is effective.
-specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-QUALITY-INSPECTION}
+    relationshipContext: GoodsReceipt/GoodsReceiptLine establish inbound evidence; SupplierReturn/SupplierReturnLine establish reverse-procurement evidence; QualityMeasurement provides structured test evidence; InventoryMovement records physical stock consequence; SupplierCreditNote records financial consequence; Nonconformance records deviations; CorrectiveActionVerification records effectiveness evidence.
+    workflowContext: QualityPlan → QualityInspection → measurement capture → evaluate measurements → aggregate pass/fail/conditional result → disposition → accepted inventory or quarantine/rejection/return. For supplier returns, SupplierReturn → inspection where required → measurements/disposition → attributable InventoryMovement → SupplierCreditNote/exception completion. For corrective actions, implementation → follow-up inspection and measurements → CorrectiveActionVerification → action completion or reopening.
+    lifecycle: Open → in progress → measurements/evidence captured → passed/failed/conditional → dispositioned, with cancellation or controlled reinspection.
+    changePropagation: Changes to receipt, supplier return, product, quality plan, unit definitions or measurement evidence affecting an open inspection trigger revalidation. Completed inspection history is not silently rewritten; reinspection or correction creates explicit evidence.
+    example: A received batch is tested for weight and purity. QualityMeasurement records each observation and identifies one failed characteristic. The inspection aggregates those measurements into a failed result, creates a Nonconformance, and drives controlled quarantine or supplier-return disposition.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-QUALITY-INSPECTION}
