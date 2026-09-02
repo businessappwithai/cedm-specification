@@ -1,0 +1,141 @@
+entity:
+  name: SamplingRule
+  namespace: cedm.domain
+  kind: quality_sampling_configuration
+  description: A conditional rule within a SamplingPlan that determines eligible population ranges, sample quantity, and acceptance or rejection thresholds for a governed inspection scope.
+  identity:
+    key: samplingRuleId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: samplingRuleId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the sampling rule.
+      businessMeaning: Identifies one conditional sampling configuration within a SamplingPlan.
+      usage: Sampling execution, audit, traceability, and integration.
+      relationshipContext: The rule belongs to a SamplingPlan and determines how a qualifying inspection population is sampled.
+      requiredMeaning: Required.
+  - name: ruleNumber
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Business reference for the sampling rule.
+      businessMeaning: Identifies the rule within its sampling plan for authoring, review, and audit.
+      usage: Configuration, inspection execution, reporting, and integration.
+      relationshipContext: Rule identity is scoped to the SamplingPlan and is distinct from actual sample records.
+      requiredMeaning: Required.
+  - name: populationMin
+    type: integer
+    required: false
+    help:
+      summary: Minimum population quantity for which this rule applies.
+      businessMeaning: Defines the lower boundary of the eligible lot or population range.
+      usage: Rule selection and deterministic sampling execution.
+      relationshipContext: Interpreted with populationMax and sampleSize.
+      optionalMeaning: Optional when the rule has no lower population boundary.
+  - name: populationMax
+    type: integer
+    required: false
+    help:
+      summary: Maximum population quantity for which this rule applies.
+      businessMeaning: Defines the upper boundary of the eligible lot or population range.
+      usage: Rule selection and deterministic sampling execution.
+      relationshipContext: Interpreted with populationMin and sampleSize.
+      optionalMeaning: Optional when the rule has no upper population boundary.
+  - name: sampleSize
+    type: integer
+    required: true
+    help:
+      summary: Number of units or observations to select when this rule applies.
+      businessMeaning: Defines the required sample quantity before the inspection can satisfy the sampling requirement.
+      usage: Sample selection, inspection execution, and completion gating.
+      relationshipContext: Must not exceed the eligible population except where the governing method explicitly permits census behavior.
+      requiredMeaning: Required.
+  - name: acceptanceNumber
+    type: integer
+    required: false
+    help:
+      summary: Maximum number of failing sampled units permitted for acceptance under this rule.
+      businessMeaning: Defines the failure threshold for acceptance-sampling plans.
+      usage: Automated sample evaluation and inspection decision support.
+      relationshipContext: Used with rejectionNumber and sample results when method is acceptance sampling.
+      optionalMeaning: Optional when the plan uses another acceptance mechanism.
+  - name: rejectionNumber
+    type: integer
+    required: false
+    help:
+      summary: Number of failing sampled units at which the sampled population is rejected.
+      businessMeaning: Defines the rejection threshold for acceptance-sampling plans.
+      usage: Automated evaluation and inspection decision support.
+      relationshipContext: Must be greater than acceptanceNumber when both are configured.
+      optionalMeaning: Optional when the plan uses another acceptance mechanism.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, RETIRED]
+    help:
+      summary: Lifecycle state of the sampling rule.
+      businessMeaning: Controls whether the rule can be selected for new sample executions.
+      usage: Governance, authoring, and inspection execution.
+      relationshipContext: Retired rules remain available for historical sample traceability.
+      valueSemantics:
+        DRAFT: Rule is being prepared and is not normally selectable.
+        ACTIVE: Rule is approved for sampling execution.
+        RETIRED: Rule is no longer selected for new sampling but remains historical evidence.
+      requiredMeaning: Required.
+  relationships:
+  - name: samplingPlan
+    target: SamplingPlan
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: SamplingPlan that owns this conditional sampling rule.
+      businessMeaning: Provides the overall sampling method and governance context.
+      usage: Rule selection, execution, traceability, and audit.
+      cardinalityMeaning: Every rule belongs to exactly one SamplingPlan.
+      context: The plan supplies the method; the rule supplies conditional quantity and acceptance parameters.
+  - name: qualityPlan
+    target: QualityPlan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: QualityPlan in which this rule is specifically used when a direct plan association is needed.
+      businessMeaning: Provides explicit traceability from a sampling rule to the quality plan it supports.
+      usage: Plan impact analysis, reporting, governance, and integration.
+      cardinalityMeaning: A rule may be reusable or directly associated with one QualityPlan.
+      context: When populated, the associated QualityPlan must agree with the SamplingPlan assignment.
+  invariants:
+  - id: SAMPLING-RULE-001
+    rule: samplingPlan is required.
+  - id: SAMPLING-RULE-002
+    rule: populationMin and populationMax, when both present, must be positive and populationMin must not exceed populationMax.
+  - id: SAMPLING-RULE-003
+    rule: sampleSize must be positive and must not exceed the eligible population unless the governing sampling method explicitly represents census selection.
+  - id: SAMPLING-RULE-004
+    rule: acceptanceNumber and rejectionNumber, when configured, must be non-negative and rejectionNumber must be greater than acceptanceNumber.
+  - id: SAMPLING-RULE-005
+    rule: Active rules within one SamplingPlan must not have overlapping population ranges unless an explicit priority or condition makes rule selection deterministic.
+  - id: SAMPLING-RULE-006
+    rule: Retiring or materially changing a rule must not silently alter completed sample selections or inspection conclusions.
+  - id: SAMPLING-RULE-007
+    rule: Rule changes must trigger revalidation of open inspections whose required sampling has not yet been executed.
+  - id: SAMPLING-RULE-008
+    rule: Rule selection and sample-size calculation must be deterministic and idempotent for the same governed input and execution context.
+  help:
+    summary: Conditional sampling configuration that translates a SamplingPlan into a deterministic sample size and acceptance threshold.
+    businessMeaning: SamplingRule answers how many units to inspect for a qualifying population and, where applicable, how many failures are permitted before rejection.
+    usage: Acceptance sampling, incoming inspection, supplier quality, process control, laboratory sampling, compliance, and audit.
+    relationshipContext: SamplingPlan defines the sampling method; QualityPlan may consume the sampling definition; QualityPlanCharacteristic identifies characteristics that participate; QualityInspection executes the sample; QualityMeasurement records observations from selected samples.
+    lifecycle: Draft → active → retired. Historical executions preserve the applicable rule.
+    changePropagation: Changes affect open QualityInspections, sample selection, required measurement coverage, and final inspection evaluation. Completed inspection evidence remains governed by the rule in effect at execution.
+    example: For lots of 101–500 units, an active rule may require 20 sampled units and accept the lot with no more than one failing sampled unit, with a rejection threshold of two failures.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-SAMPLING-RULE
