@@ -3,145 +3,103 @@ entity:
   namespace: cedm.domain
   kind: procurement_transaction
   description: A formal procurement commitment issued by a buying organization to a Supplier for specified goods or services under agreed commercial and delivery conditions.
-  identity:
-    key: purchaseOrderId
-    type: uuid
-    generated: true
-    immutable: true
+  identity: {key: purchaseOrderId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: purchaseOrderId
     type: uuid
     required: true
     immutable: true
-    help:
-      summary: The immutable system identity of the purchase order.
-      usage: Used for procurement, receiving, invoice matching, audit, and integrations.
-      relationshipContext: Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt, and Invoice.
+    help: {summary: Immutable system identity of the purchase order., usage: Used for procurement, receiving, invoice matching, supplier returns, audit and integrations., relationshipContext: Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt and SupplierReturn., workflowRole: Stable root reference across commitment, fulfillment, reversal and closure., requiredMeaning: Required for procurement traceability.}
   - name: orderNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help:
-      summary: The human-facing procurement reference.
-      usage: Used by buyers, suppliers, receiving, accounts payable, and integrations.
-      relationshipContext: Business reference distinct from the technical purchaseOrderId.
+    help: {summary: Human-facing procurement reference., usage: Used by buyers, suppliers, receiving, accounts payable and integrations., relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability.}
   - name: orderDate
     type: datetime
     required: true
-    help:
-      summary: The date and time the procurement commitment is created or issued.
-      usage: Supports chronology, approval, reporting, and downstream reconciliation.
-      relationshipContext: Distinct from requested delivery, receipt, invoice, and payment dates.
+    help: {summary: Date and time the procurement commitment is created or issued., usage: Supports chronology, approval, reporting and reconciliation., relationshipContext: Distinct from requested delivery, receipt, return, invoice and payment dates., workflowRole: Anchors the commitment lifecycle., requiredMeaning: Required for chronology.}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
     help:
-      summary: The lifecycle state of the procurement commitment.
-      usage: Controls authorization, issuance, fulfillment, cancellation, and closure.
-      relationshipContext: PurchaseOrder status does not prove physical receipt or invoice settlement; GoodsReceipt and Invoice provide those facts.
-      valueSemantics:
-        DRAFT: Being prepared and not yet approved.
-        APPROVED: Internally authorized for issuance.
-        SENT: Communicated to the Supplier.
-        PARTIALLY_RECEIVED: Some committed quantity has been accepted but outstanding fulfillment remains.
-        RECEIVED: Required fulfillment has been accepted under applicable rules; financial settlement may remain open.
-        CANCELLED: Remaining commitment has been terminated.
-        CLOSED: Operational and financial processing requiring the order is complete.
+      summary: Lifecycle state of the procurement commitment.
+      usage: Controls authorization, issuance, fulfillment, cancellation and closure.
+      relationshipContext: PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.
+      valueSemantics: {DRAFT: Being prepared., APPROVED: Internally authorized., SENT: Communicated to Supplier., PARTIALLY_RECEIVED: Some committed quantity accepted while outstanding fulfillment remains., RECEIVED: Required fulfillment accepted under policy., CANCELLED: Remaining commitment terminated., CLOSED: Required operational and financial processing complete.}
   - name: currencyId
     type: reference
     target: Currency
     required: false
-    help:
-      summary: Currency qualifying order monetary values.
-      usage: Used for pricing, totals, invoice matching, and financial reporting.
-      relationshipContext: Qualifies amounts and does not identify the Supplier or Product.
+    help: {summary: Currency qualifying order monetary values., usage: Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting., relationshipContext: Qualifies amounts and does not identify Supplier or Product.}
   - name: requestedDeliveryDate
     type: date
     required: false
-    help:
-      summary: The buyer's requested delivery or completion date.
-      usage: Used for supplier communication and fulfillment planning.
-      relationshipContext: It is a request, not proof of actual receipt; GoodsReceipt.receiptDate records fulfillment.
+    help: {summary: Buyer's requested delivery or completion date., usage: Used for supplier communication and fulfillment planning., relationshipContext: A request, not proof of actual receipt or return., workflowRole: Supports delivery planning.}
   - name: totalAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
-    help:
-      summary: The order-level value derived from committed lines and commercial adjustments.
-      usage: Used for approval, budget, supplier commitment, and invoice reconciliation.
-      relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId.
+    help: {summary: Order-level value derived from committed lines and commercial adjustments., usage: Used for approval, budget, supplier commitment and invoice reconciliation., relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId.}
   relationships:
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help:
-      summary: The Supplier receiving the procurement commitment.
-      usage: Drives sourcing, delivery, receiving, supplier performance, and accounts payable.
-      context: GoodsReceipt supplier should normally match this supplier.
+    help: {summary: Supplier receiving the procurement commitment., usage: Drives sourcing, delivery, receiving, supplier performance, returns and accounts payable., context: GoodsReceipt and SupplierReturn supplier should normally match this supplier.}
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
-    help:
-      summary: The buying organization responsible for the commitment.
-      usage: Supports authorization, legal entity, budget, tax, and reporting.
+    help: {summary: Buying organization responsible for the commitment., usage: Supports authorization, legal entity, budget, tax and reporting.}
   - name: lines
     target: PurchaseOrderLine
     cardinality: 1..*
     ownership: aggregate
-    help:
-      summary: The individual commercial commitments within the order.
-      usage: Defines products/services, quantities, units, prices, and fulfillment expectations.
-      context: GoodsReceipt quantities must be evaluated against these ordered lines.
+    help: {summary: Individual commercial commitments within the order., usage: Defines products/services, quantities, units, prices and fulfillment expectations., context: GoodsReceipt and SupplierReturn quantities must be evaluated against these ordered lines.}
   - name: deliveryLocation
     target: Location
     cardinality: 0..1
     ownership: reference
-    help:
-      summary: Intended operational destination for the ordered goods or services.
-      usage: Used for receiving and logistics planning.
+    help: {summary: Intended operational destination for ordered goods or services., usage: Used for receiving and logistics planning.}
   - name: goodsReceipts
     target: GoodsReceipt
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: The fulfillment confirmations recorded against this purchase order.
-      usage: Measures actual received and accepted quantities and supports three-way matching.
-      cardinalityMeaning: Multiple receipts may fulfill one order through partial deliveries.
-      context: PurchaseOrder is the commitment; GoodsReceipt is evidence of fulfillment.
+    help: {summary: Fulfillment confirmations recorded against this purchase order., usage: Measures actual received and accepted quantities and supports three-way matching., cardinalityMeaning: Multiple receipts may fulfill one order through partial deliveries., context: PurchaseOrder is commitment; GoodsReceipt is fulfillment evidence.}
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
+    help: {summary: Supplier financial claims associated with this procurement commitment., usage: Supports three-way matching, accounts payable and reconciliation., cardinalityMeaning: Multiple invoices may reference one order., context: Invoice is a financial claim and cannot substitute for GoodsReceipt evidence.}
+  - name: supplierReturns
+    target: SupplierReturn
+    cardinality: 0..*
+    ownership: reference
     help:
-      summary: Supplier financial claims associated with this procurement commitment.
-      usage: Supports three-way matching, accounts payable, and reconciliation.
-      cardinalityMeaning: Multiple invoices may reference one order for partial deliveries or billing arrangements.
-      context: Invoice is a financial claim and cannot substitute for GoodsReceipt evidence.
+      summary: Authorized reverse-procurement transactions against goods previously committed and received under this order.
+      businessMeaning: Connects the original procurement commitment to subsequent physical and financial reversals.
+      usage: Supports supplier returns, inventory reversal, supplier claims and payable reconciliation.
+      cardinalityMeaning: One purchase order may have multiple returns across partial deliveries and return events.
+      workflowRole: Provides original commitment context for SupplierReturn eligibility without mutating the purchase order history.
   invariants:
-  - id: PURCHASE-ORDER-001
-    rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.
-  - id: PURCHASE-ORDER-002
-    rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when maintained.
-  - id: PURCHASE-ORDER-003
-    rule: CANCELLED purchase orders must not create new receiving commitments.
-  - id: PURCHASE-ORDER-004
-    rule: RECEIVED indicates operational fulfillment completion and does not imply supplier invoice settlement.
-  - id: PURCHASE-ORDER-005
-    rule: Order fulfillment quantities must be derived from accepted GoodsReceipt quantities rather than invoice quantities.
+  - {id: PURCHASE-ORDER-001, rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.}
+  - {id: PURCHASE-ORDER-002, rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when maintained.}
+  - {id: PURCHASE-ORDER-003, rule: CANCELLED purchase orders must not create new receiving commitments.}
+  - {id: PURCHASE-ORDER-004, rule: RECEIVED indicates operational fulfillment completion and does not imply supplier invoice settlement or absence of later returns.}
+  - {id: PURCHASE-ORDER-005, rule: Order fulfillment quantities must be derived from accepted GoodsReceipt quantities rather than invoice quantities.}
+  - {id: PURCHASE-ORDER-006, rule: SupplierReturn eligibility must be derived from previously accepted GoodsReceipt evidence and applicable return policy; PurchaseOrder quantity alone is insufficient.}
+  - {id: PURCHASE-ORDER-007, rule: Supplier returns must not silently reduce the historical ordered quantity or rewrite approved PurchaseOrderLine commercial evidence.}
   help:
     summary: Represents the formal commercial procurement commitment between a buying organization and a Supplier.
-    businessMeaning: PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that the goods arrived.
-    usage: Used by purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning, and analytics.
-    relationshipContext: PurchaseRequisition represents internal demand. PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the commitment. GoodsReceipt records actual receipt and acceptance. InventoryMovement records resulting stock changes. Invoice records the supplier financial claim. Payment settles the claim.
-    lifecycle: Draft, approval, issuance, partial receipt, complete receipt, cancellation, and closure are distinct stages. Financial settlement can continue after physical fulfillment.
-    example: A depot orders 100 parts, receives 96, accepts 94, and rejects 2. GoodsReceipt records the actual fulfillment. The order remains partially fulfilled, InventoryMovement records only accepted stock, and the supplier Invoice is matched against the appropriate order and accepted receipt evidence.
-specification:
-  version: 0.2.0
-  status: draft
-  identifier: CEDM-ENTITY-PURCHASE-ORDER
+    businessMeaning: PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that goods arrived or that later returns occurred.
+    usage: Purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning and analytics.
+    relationshipContext: PurchaseRequisition represents internal demand. PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the commitment. GoodsReceipt records actual receipt and acceptance. InventoryMovement records stock effects. SupplierReturn reverses eligible fulfillment. Invoice records the supplier claim. SupplierCreditNote records authorized financial reduction. Payment settles claims.
+    lifecycle: Draft, approval, issuance, receipt, return, cancellation and closure are distinct stages. Financial settlement can continue after physical fulfillment or return.
+    workflowContext: PurchaseOrder → GoodsReceipt → acceptance → InventoryMovement; when goods must be returned, eligible receipt → SupplierReturn → InventoryMovement reversal → SupplierCreditNote → payable reconciliation.
+    example: A depot orders 100 parts, receives 96 and accepts 94. Later, three accepted parts are returned as defective. The original order and receipt remain unchanged; SupplierReturn and its inventory/credit workflows record the reversal.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER}
