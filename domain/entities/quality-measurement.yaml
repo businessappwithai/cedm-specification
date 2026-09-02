@@ -1,0 +1,94 @@
+entity:
+  name: QualityMeasurement
+  namespace: cedm.domain
+  kind: quality_measurement_evidence
+  description: A structured quantitative or categorical observation captured during a QualityInspection against a defined quality characteristic, preserving the observed value, unit, acceptance limits, method, and result as auditable evidence.
+  identity: {key: qualityMeasurementId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: qualityMeasurementId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Stable identity of one quality measurement., businessMeaning: Identifies one observation independently of its inspection and characteristic., usage: Traceability, audit, analytics and integrations., relationshipContext: Distinct from QualityInspection and the measured Product., workflowRole: Stable reference from capture through review., requiredMeaning: Required.}
+  - name: measurementNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Human-facing measurement reference., businessMeaning: Provides an operational identifier for one observation., usage: Inspection review, audit and integration., relationshipContext: Distinct from the parent inspection number., workflowRole: Supports individual observation traceability., requiredMeaning: Required.}
+  - name: characteristicCode
+    type: string
+    required: true
+    maxLength: 100
+    help: {summary: Quality characteristic being evaluated., businessMeaning: States what property is observed, such as weight, temperature, dimension, purity or appearance., usage: Connects evidence to a quality requirement and enables analysis., relationshipContext: Interpreted with QualityPlan and inspection context., workflowRole: Defines the semantic meaning of the observation., requiredMeaning: Required.}
+  - name: measuredValue
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help: {summary: Numeric value observed during inspection., businessMeaning: Records the factual quantitative observation before evaluation., usage: Acceptance evaluation, trend analysis and audit., relationshipContext: Requires a compatible unit for dimensional characteristics., workflowRole: Supplies evidence used against acceptance limits., optionalMeaning: Optional for categorical characteristics.}
+  - name: measuredText
+    type: string
+    required: false
+    maxLength: 1000
+    help: {summary: Categorical or textual observation., businessMeaning: Records observations such as color, grade, appearance or classification., usage: Quality evaluation where numeric measurement is inappropriate., relationshipContext: Used instead of measuredValue for categorical characteristics., workflowRole: Supplies structured qualitative evidence., optionalMeaning: Optional for numeric characteristics.}
+  - name: unitOfMeasure
+    type: reference
+    target: UnitOfMeasure
+    required: false
+    help: {summary: Unit in which a numeric measurement is expressed., businessMeaning: Defines the dimensional interpretation of measuredValue., usage: Comparison, conversion, reporting and audit., relationshipContext: Must be compatible with the characteristic and governing quality requirement., workflowRole: Makes numeric observations semantically comparable., optionalMeaning: Optional for unitless or categorical characteristics.}
+  - name: lowerLimit
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help: {summary: Lower acceptance boundary when applicable., businessMeaning: Defines the minimum acceptable observed value., usage: Automated evaluation, review and audit., relationshipContext: Interpreted with upperLimit and governing limit semantics., workflowRole: Supports measurement evaluation., optionalMeaning: Optional when no lower boundary applies.}
+  - name: upperLimit
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help: {summary: Upper acceptance boundary when applicable., businessMeaning: Defines the maximum acceptable observed value., usage: Automated evaluation, review and audit., relationshipContext: Interpreted with lowerLimit and governing limit semantics., workflowRole: Supports measurement evaluation., optionalMeaning: Optional when no upper boundary applies.}
+  - name: result
+    type: enum
+    required: true
+    values: [PASS, FAIL, CONDITIONAL, NOT_EVALUATED]
+    help: {summary: Evaluation of this measurement against its governing criterion., businessMeaning: States whether the individual observation satisfies the applicable requirement., usage: Inspection completion, nonconformance and analytics., relationshipContext: Contributes evidence to QualityInspection.result but does not replace it., workflowRole: Supplies structured evidence for the overall inspection decision., requiredMeaning: Required.}
+  - name: measuredAt
+    type: datetime
+    required: true
+    help: {summary: Time when the observation was captured., businessMeaning: Establishes chronology of the measured fact., usage: Traceability, sampling, compliance and audit., relationshipContext: Distinct from QualityInspection.inspectionDate., workflowRole: Preserves temporal measurement evidence., requiredMeaning: Required.}
+  - name: method
+    type: string
+    required: false
+    maxLength: 500
+    help: {summary: Method or procedure used to obtain the observation., businessMeaning: Identifies how the measurement or test was performed., usage: Reproducibility, laboratory audit and compliance., relationshipContext: Should align with QualityPlan requirements where applicable., workflowRole: Establishes how evidence was produced., optionalMeaning: Optional when inherited unambiguously from the governing plan.}
+  - name: notes
+    type: string
+    required: false
+    maxLength: 2000
+    help: {summary: Supporting context for the observation., businessMeaning: Captures anomalies or conditions not represented structurally., usage: Review and audit., relationshipContext: Complements measured values and result without replacing them., workflowRole: Provides supporting evidence., optionalMeaning: Optional.}
+  relationships:
+  - {name: qualityInspection, target: QualityInspection, cardinality: '1', ownership: reference, help: {summary: Inspection during which the measurement was captured., businessMeaning: Provides the governing inspection context., usage: Quality traceability and aggregate evaluation., workflowRole: Parent inspection controls measurement lifecycle.}}
+  - {name: qualityPlan, target: QualityPlan, cardinality: 0..1, ownership: reference, help: {summary: Quality plan requirement used to interpret the measurement., businessMeaning: Connects the observation to defined controls and acceptance criteria., usage: Requirement traceability and audit., workflowRole: Supplies expected characteristic and evaluation context.}}
+  - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product associated with the observation., businessMeaning: Identifies the item whose characteristic was measured., usage: Product quality history and supplier analysis., workflowRole: Supplies item context when not inherited from the inspection.}}
+  invariants:
+  - {id: QUALITY-MEASUREMENT-001, rule: qualityInspection is required for every QualityMeasurement.}
+  - {id: QUALITY-MEASUREMENT-002, rule: Exactly one of measuredValue or measuredText must be supplied according to the characteristic definition.}
+  - {id: QUALITY-MEASUREMENT-003, rule: A numeric measuredValue requires a dimensionally compatible UnitOfMeasure unless the characteristic is explicitly unitless.}
+  - {id: QUALITY-MEASUREMENT-004, rule: lowerLimit must not exceed upperLimit when both are present.}
+  - {id: QUALITY-MEASUREMENT-005, rule: PASS requires the observed value or category to satisfy the governing criterion; FAIL requires evidence that it does not; CONDITIONAL requires an authorized conditional criterion.}
+  - {id: QUALITY-MEASUREMENT-006, rule: QualityMeasurement records evidence and must not itself change inventory, financial balances, QualityInspection status, or disposition.}
+  - {id: QUALITY-MEASUREMENT-007, rule: A failed measurement may support Nonconformance creation or update, while the measurement remains immutable historical evidence after inspection completion.}
+  - {id: QUALITY-MEASUREMENT-008, rule: Changes to QualityPlan, Product or UnitOfMeasure affecting an open measurement trigger revalidation; completed evidence is corrected through explicit amendment or remeasurement.}
+  - {id: QUALITY-MEASUREMENT-009, rule: Measurement capture and evaluation must be idempotent and must not create duplicate observations on retry.}
+  help:
+    summary: Structured auditable evidence for one quality characteristic observed during a QualityInspection.
+    businessMeaning: QualityMeasurement separates the factual observation from the inspection-level conclusion. QualityInspection determines the overall outcome; QualityMeasurement records individual evidence supporting that outcome.
+    usage: Incoming inspection, supplier quality, laboratory testing, dimensional checks, sampling, process quality, compliance, nonconformance and corrective-action verification.
+    relationshipContext: QualityInspection is the execution context; QualityPlan supplies requirements; Product identifies material; UnitOfMeasure supplies dimensional semantics; Nonconformance may consume failed evidence; CorrectiveActionVerification may use later measurements as effectiveness evidence.
+    workflowContext: QualityPlan requirement → QualityInspection → measurement capture → validate unit/method → evaluate against criteria → measurement result → aggregate inspection result → Nonconformance/disposition where required → later measurements for corrective-action verification.
+    lifecycle: Captured → evaluated → retained as completed inspection evidence; corrections use explicit amendment or remeasurement.
+    changePropagation: Changes to governing requirements, product or unit definitions affect open measurements and trigger revalidation; completed measurements remain historical evidence.
+    example: A product requires weight between 9.8 kg and 10.2 kg. A measurement records 10.35 kg in kilograms and evaluates to FAIL, providing evidence for the parent inspection and any resulting Nonconformance.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-QUALITY-MEASUREMENT}
