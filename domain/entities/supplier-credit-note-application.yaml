@@ -1,0 +1,78 @@
+entity:
+  name: SupplierCreditNoteApplication
+  namespace: cedm.domain
+  kind: financial_settlement_adjustment
+  description: An explicit application of a posted SupplierCreditNote against one eligible supplier Invoice payable claim, preserving the amount, currency, timing and reversal evidence used to reduce payable exposure without rewriting the original invoice.
+  identity: {key: supplierCreditNoteApplicationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: supplierCreditNoteApplicationId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: Immutable identity of the supplier credit application., businessMeaning: Identifies one controlled application independently of its supplier credit and invoice., usage: Used for payable reconciliation, audit, reversal and settlement projections., relationshipContext: SupplierCreditNote supplies the adjustment; Invoice supplies the payable claim; this entity records the application bridge., workflowRole: Stable reference for applying and reversing supplier credit., requiredMeaning: Required.}
+    - name: supplierCreditAmount
+      type: Money
+      required: true
+      help: {summary: Portion of the SupplierCreditNote consumed by this application., businessMeaning: Represents the source-side amount of supplier credit allocated to an invoice., usage: Controls remaining unapplied supplier credit and reconciliation., relationshipContext: Must use the SupplierCreditNote currency., workflowRole: Establishes the amount consumed from the supplier credit., requiredMeaning: Required.}
+    - name: invoiceAmount
+      type: Money
+      required: true
+      help: {summary: Amount by which the purchase Invoice payable claim is reduced., businessMeaning: Represents the target-side financial effect on the payable., usage: Drives payable exposure and reconciliation., relationshipContext: Must use the Invoice currency and may differ from supplierCreditAmount only under governed exchange-rate treatment., workflowRole: Supplies the claim-side adjustment., requiredMeaning: Required.}
+    - name: exchangeRateId
+      type: reference
+      target: ExchangeRate
+      required: false
+      immutable: true
+      help: {summary: Exchange rate used when supplier credit and invoice currencies differ., businessMeaning: Preserves conversion evidence for cross-currency supplier credit application., usage: Supports audit and reproducibility., relationshipContext: Required for permitted cross-currency applications., workflowRole: Connects source supplier credit value to target invoice value., optionalMeaning: Optional when currencies are identical.}
+    - name: appliedAt
+      type: datetime
+      required: true
+      immutable: true
+      help: {summary: Timestamp when the supplier credit application became effective., businessMeaning: Establishes adjustment chronology., usage: Supports accounting periods, supplier statements, audit and reconciliation., relationshipContext: Distinct from SupplierCreditNoteDate and InvoiceDate., workflowRole: Determines when payable exposure changes., requiredMeaning: Required.}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+      help: {summary: Lifecycle state of the supplier credit application., businessMeaning: Indicates whether the application currently reduces payable exposure., usage: Controls SupplierCreditNote and Invoice projections., relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts., workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event., requiredMeaning: Required.}
+    - name: reversalOfApplicationId
+      type: reference
+      target: SupplierCreditNoteApplication
+      required: false
+      immutable: true
+      help: {summary: Prior supplier credit application reversed by this record., businessMeaning: Links correction to the original payable adjustment application., usage: Supports audit and controlled reallocation., relationshipContext: Reversal is a new historical event and does not edit the original., workflowRole: Enables correction while preserving history., optionalMeaning: Optional for normal applications.}
+  relationships:
+    - name: supplierCreditNote
+      target: SupplierCreditNote
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Supplier credit note supplying the payable reduction., businessMeaning: Identifies the authorized supplier financial credit being consumed., usage: Supports payable reconciliation and supplier statements., cardinalityMeaning: Exactly one SupplierCreditNote supplies each application., workflowRole: Supplies available credit and currency context.}
+    - name: invoice
+      target: Invoice
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Purchase Invoice receiving the payable reduction., businessMeaning: Identifies the supplier claim whose exposure is reduced., usage: Supports accounts payable, reconciliation and supplier statements., cardinalityMeaning: Exactly one Invoice is targeted., workflowRole: Supplies eligible payable exposure and currency context.}
+    - name: exchangeRate
+      target: ExchangeRate
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Conversion evidence for cross-currency application., businessMeaning: Preserves the rate used to calculate invoice-side supplier credit., usage: Supports audit and reproducibility., cardinalityMeaning: At most one rate is associated., workflowRole: Makes conversion deterministic.}
+  invariants:
+    - {id: SUPPLIER-CREDIT-APPLICATION-001, rule: supplierCreditAmount and invoiceAmount must be positive for an ACTIVE application.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-002, rule: supplierCreditAmount currency must equal the SupplierCreditNote currency.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-003, rule: invoiceAmount currency must equal the Invoice currency.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-004, rule: Cross-currency application requires an approved ExchangeRate and preserved conversion evidence.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-005, rule: Active supplierCreditAmount must not exceed the SupplierCreditNote's unapplied eligible amount.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-006, rule: Active invoiceAmount must not exceed the Invoice's eligible payable exposure under policy.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-007, rule: Reversal creates compensating history and must not mutate the original application.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-008, rule: Payable exposure projections must be derived from active applications and other authorized adjustment evidence, not independently editable facts.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-009, rule: Application activation must be idempotent and protected against concurrent duplicate effects.}
+  help:
+    summary: Provides the auditable bridge by which a posted SupplierCreditNote is consumed against a purchase Invoice.
+    businessMeaning: SupplierCreditNote establishes the authorized payable reduction; Invoice remains the original claim; SupplierCreditNoteApplication records exactly where and how much of the credit was used.
+    usage: Accounts payable, supplier returns, supplier statements, invoice reconciliation, tax, audit and payment planning.
+    relationshipContext: SupplierCreditNoteLine explains source credit detail; InvoiceLine explains original payable detail; this entity records header-level application evidence; JournalEntry records accounting recognition.
+    workflowContext: SupplierCreditNote posted → select eligible purchase Invoice → validate remaining credit and payable exposure → currency/rate validation → activate application → update SupplierCreditNote amountApplied/amountUnapplied and payable exposure → reverse and reallocate when required.
+    lifecycle: Draft → active → reversed/cancelled. Historical applications are retained.
+    changePropagation: Changes to posted SupplierCreditNote or Invoice never rewrite an application; corrections use reversal and replacement applications.
+    example: A posted USD 1,000 SupplierCreditNote is applied to a USD 1,000 purchase invoice. The application consumes USD 1,000 of available supplier credit and reduces the payable exposure by USD 1,000. If applied incorrectly, the application is reversed and a new application is created.
