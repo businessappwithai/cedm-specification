@@ -1,0 +1,166 @@
+entity:
+  name: QualityPlanCharacteristic
+  namespace: cedm.domain
+  kind: quality_plan_configuration
+  description: A contextual configuration that assigns a reusable QualityCharacteristic to a QualityPlan and defines the acceptance limits, target, method, sequence, and control semantics applicable in that plan.
+  identity:
+    key: qualityPlanCharacteristicId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: qualityPlanCharacteristicId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of one characteristic configuration within a QualityPlan.
+      businessMeaning: Identifies the specific plan-level requirement that governs how one QualityCharacteristic is inspected.
+      usage: Traceability, configuration, inspection execution, audit, and integration.
+      relationshipContext: Links one QualityPlan to one reusable QualityCharacteristic and its plan-specific criteria.
+      requiredMeaning: Required because plan-level requirements need an unambiguous identity.
+  - name: sequenceNumber
+    type: integer
+    required: true
+    help:
+      summary: Execution or presentation order of this quality characteristic within the plan.
+      businessMeaning: Determines where the characteristic appears in inspection instructions and can support ordered sampling or testing.
+      usage: Inspection forms, operator guidance, reports, and workflow orchestration.
+      relationshipContext: Sequence is scoped to the QualityPlan and does not change the reusable characteristic's identity.
+      requiredMeaning: Required where plan execution requires deterministic ordering.
+  - name: required
+    type: boolean
+    required: true
+    default: true
+    help:
+      summary: Indicates whether evidence for this characteristic is mandatory for the governing plan.
+      businessMeaning: Determines whether the absence of a measurement can prevent inspection completion.
+      usage: Inspection validation, completion gating, audit, and exception handling.
+      relationshipContext: QualityInspection uses this setting when determining whether all required measurements have been evaluated.
+      requiredMeaning: Required because optional and mandatory characteristics have different workflow consequences.
+  - name: lowerLimit
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help:
+      summary: Plan-specific lower acceptance boundary for a numeric characteristic.
+      businessMeaning: Defines the minimum acceptable value under this particular QualityPlan.
+      usage: Automated evaluation and inspection review.
+      relationshipContext: Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.
+      optionalMeaning: Optional when the criterion has no lower numeric boundary.
+  - name: upperLimit
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help:
+      summary: Plan-specific upper acceptance boundary for a numeric characteristic.
+      businessMeaning: Defines the maximum acceptable value under this particular QualityPlan.
+      usage: Automated evaluation and inspection review.
+      relationshipContext: Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.
+      optionalMeaning: Optional when the criterion has no upper numeric boundary.
+  - name: targetValue
+    type: decimal
+    required: false
+    precision: 30
+    scale: 12
+    help:
+      summary: Preferred numeric target for the characteristic under this plan.
+      businessMeaning: Represents the desired value rather than the minimum or maximum acceptance boundary.
+      usage: Process optimization, inspection guidance, analytics, and trend analysis.
+      relationshipContext: Must be compatible with the characteristic data type and acceptance limits.
+      optionalMeaning: Optional where only pass/fail boundaries are relevant.
+  - name: unitOfMeasure
+    type: reference
+    target: UnitOfMeasure
+    required: false
+    help:
+      summary: Unit used for numeric limits and target values in this plan configuration.
+      businessMeaning: Gives dimensional meaning to the configured numeric criteria.
+      usage: Measurement evaluation, conversion, reporting, and audit.
+      relationshipContext: Must be dimensionally compatible with the QualityCharacteristic and QualityMeasurement unit.
+      optionalMeaning: Optional for unitless or non-numeric characteristics.
+  - name: method
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Plan-specific procedure or method required to evaluate the characteristic.
+      businessMeaning: Defines how the characteristic must be observed when this plan is executed.
+      usage: Inspection instructions, reproducibility, compliance, and audit.
+      relationshipContext: May refine or override the general QualityCharacteristic evaluationMethod.
+      optionalMeaning: Optional when the reusable characteristic method is sufficient.
+  - name: samplingRequired
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Indicates whether this characteristic participates in explicit sampling controls under the plan.
+      businessMeaning: Distinguishes characteristics that require sampled observations from those evaluated on every applicable inspection item.
+      usage: Sampling workflow design and inspection execution.
+      relationshipContext: Sampling parameters may be governed by the broader QualityPlan or sampling policy; this flag identifies participation.
+      requiredMeaning: Required to make sampling participation explicit.
+  relationships:
+  - name: qualityPlan
+    target: QualityPlan
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: QualityPlan in which this characteristic requirement is configured.
+      businessMeaning: Provides the governing inspection context for the requirement.
+      usage: Plan authoring, inspection execution, traceability, and lifecycle control.
+      cardinalityMeaning: Every configuration belongs to exactly one QualityPlan.
+      context: The plan determines when and why the configured characteristic is evaluated.
+  - name: qualityCharacteristic
+    target: QualityCharacteristic
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Reusable quality property being controlled by this plan configuration.
+      businessMeaning: Identifies what is observed while this entity supplies the context-specific acceptance rules.
+      usage: Reuse, semantic interpretation, measurement linkage, and governance.
+      cardinalityMeaning: Every configuration references exactly one reusable QualityCharacteristic.
+      context: Separating reusable meaning from plan-specific criteria prevents conflicting definitions when the same property is used by multiple plans.
+  - name: measurements
+    target: QualityMeasurement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: QualityMeasurement observations evaluated under this plan-specific requirement.
+      businessMeaning: Provides evidence that the configured characteristic was actually observed and evaluated during inspections.
+      usage: Traceability, completion gating, audit, analytics, and nonconformance evidence.
+      cardinalityMeaning: A plan characteristic may have zero or many observations across inspections.
+      context: Measurements must retain the governing configuration applicable when they were captured.
+  invariants:
+  - id: QUALITY-PLAN-CHAR-001
+    rule: qualityPlan and qualityCharacteristic are both required and must reference valid records.
+  - id: QUALITY-PLAN-CHAR-002
+    rule: sequenceNumber must be positive and unique within the QualityPlan unless the plan explicitly permits parallel characteristics.
+  - id: QUALITY-PLAN-CHAR-003
+    rule: lowerLimit must not exceed upperLimit; targetValue must fall within configured limits when both boundaries are present unless an explicit criterion semantics permits otherwise.
+  - id: QUALITY-PLAN-CHAR-004
+    rule: Numeric limits and targetValue require a dimensionally compatible UnitOfMeasure when the characteristic is dimensional.
+  - id: QUALITY-PLAN-CHAR-005
+    rule: Non-numeric characteristics must not use numeric limits or targetValue.
+  - id: QUALITY-PLAN-CHAR-006
+    rule: required characteristics must have evaluated measurement evidence before a QualityInspection may be finalized when the governing QualityPlan requires complete characteristic coverage.
+  - id: QUALITY-PLAN-CHAR-007
+    rule: A QualityPlanCharacteristic used by completed inspections must not be changed in a way that silently changes historical measurement interpretation; controlled versioning or replacement is required.
+  - id: QUALITY-PLAN-CHAR-008
+    rule: Retiring or materially changing the linked QualityCharacteristic or QualityPlan requires impact analysis and revalidation of open inspections and measurements.
+  - id: QUALITY-PLAN-CHAR-009
+    rule: Configuration creation and changes must be idempotent and must not create duplicate active configurations for the same plan, characteristic, and effective configuration context.
+  help:
+    summary: Plan-specific configuration of a reusable quality characteristic, including acceptance criteria and execution guidance.
+    businessMeaning: QualityPlanCharacteristic answers how a QualityCharacteristic is controlled in one particular QualityPlan. This separation allows one reusable characteristic to have different limits, methods, units, targets, or requiredness across plans.
+    usage: Quality-plan authoring, incoming inspection, supplier quality, process inspection, laboratory testing, compliance, sampling, audit, and analytics.
+    relationshipContext: QualityPlan provides the governing plan; QualityCharacteristic provides reusable meaning; QualityMeasurement records observations; QualityInspection executes the plan; Nonconformance may consume failed results.
+    workflowContext: Define QualityCharacteristic → configure QualityPlanCharacteristic → activate QualityPlan → create QualityInspection → capture required QualityMeasurements → evaluate against this configuration → finalize inspection → create Nonconformance or disposition when criteria fail.
+    lifecycle: Draft through governed plan configuration to active use; changes after execution require controlled versioning or replacement rather than silent mutation.
+    changePropagation: Changes affect QualityPlan authoring, open QualityInspections, QualityMeasurements, nonconformance evaluation, reporting, and downstream supplier or corrective-action workflows. Historical inspection evidence must retain the configuration applicable at capture time.
+    example: QualityCharacteristic WEIGHT is configured for a receiving plan with required=true, lowerLimit=9.8, upperLimit=10.2, targetValue=10.0, and unitOfMeasure=KG. A QualityMeasurement of 10.35 KG therefore evaluates to FAIL under this specific plan.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-QUALITY-PLAN-CHARACTERISTIC
