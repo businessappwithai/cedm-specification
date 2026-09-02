@@ -1,0 +1,141 @@
+entity:
+  name: QualityCharacteristic
+  namespace: cedm.domain
+  kind: quality_definition
+  description: A reusable definition of a measurable or observable quality property, such as weight, temperature, dimension, purity, appearance, grade, or other acceptance characteristic. It defines the semantic nature of an observation; plan-specific limits and methods belong to QualityPlanCharacteristic.
+  identity:
+    key: qualityCharacteristicId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: qualityCharacteristicId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the reusable quality characteristic definition.
+      businessMeaning: Identifies what property is being measured or observed independently of any one QualityPlan or QualityInspection.
+      usage: Used to reference, reuse, version, search, audit, and integrate a quality characteristic across quality plans and measurements.
+      relationshipContext: QualityCharacteristic defines the semantic property; QualityPlanCharacteristic supplies plan-specific acceptance configuration; QualityMeasurement records an observation of it.
+      requiredMeaning: Required because the characteristic cannot be reliably referenced without a stable identity.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Business code identifying the quality characteristic.
+      businessMeaning: Provides a stable human-readable identifier such as WEIGHT, TEMPERATURE, LENGTH, or APPEARANCE.
+      usage: Used in quality plans, measurements, reports, integrations, and validation rules.
+      relationshipContext: The code identifies the characteristic, while QualityPlanCharacteristic determines how that characteristic is controlled in a particular plan.
+      requiredMeaning: Required for reliable reuse and integration.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: Human-readable name of the quality characteristic.
+      businessMeaning: States what property the characteristic represents in language understandable to quality personnel and other users.
+      usage: Used in quality-plan authoring, inspection screens, reports, analytics, and training.
+      relationshipContext: Complements code and provides the business-facing meaning of measurements referencing this characteristic.
+      requiredMeaning: Required so the reusable definition remains understandable.
+  - name: description
+    type: string
+    required: false
+    maxLength: 2000
+    help:
+      summary: Detailed explanation of the characteristic and its intended interpretation.
+      businessMeaning: Clarifies exactly what is observed and prevents different processes from interpreting the same code differently.
+      usage: Quality-plan design, inspection execution, audit, integration, and governance.
+      relationshipContext: Explains the semantic property independently of plan-specific limits.
+      optionalMeaning: Optional when the name and governed definition are already sufficient.
+  - name: dataType
+    type: enum
+    required: true
+    values: [DECIMAL, INTEGER, STRING, BOOLEAN, ENUM]
+    help:
+      summary: Data representation expected for observations of this characteristic.
+      businessMeaning: Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid.
+      usage: Controls QualityMeasurement value selection, validation, user-interface behavior, and downstream analytics.
+      relationshipContext: QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria.
+      valueSemantics:
+        DECIMAL: A numeric observation that may contain fractional values.
+        INTEGER: A whole-number observation.
+        STRING: A textual or categorical observation represented as text.
+        BOOLEAN: A true/false observation.
+        ENUM: An observation selected from a governed set of allowed values.
+      requiredMeaning: Required because evaluation depends on the characteristic data type.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, RETIRED]
+    help:
+      summary: Lifecycle state of the reusable characteristic definition.
+      businessMeaning: Controls whether the characteristic may be newly assigned to quality plans and used for new measurements.
+      usage: Governance, authoring, validation, and retirement control.
+      relationshipContext: Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations.
+      valueSemantics:
+        DRAFT: Definition is being prepared and is not normally available for new governed use.
+        ACTIVE: Definition is approved for use in applicable QualityPlanCharacteristic records.
+        RETIRED: Definition is no longer normally assigned to new configurations but remains available for historical traceability.
+      requiredMeaning: Required to govern lifecycle behavior.
+  - name: evaluationMethod
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: General method or interpretation approach for observing this characteristic.
+      businessMeaning: Describes the expected measurement or observation approach when a reusable default is appropriate.
+      usage: Provides guidance for quality-plan authoring and inspection execution.
+      relationshipContext: Plan-specific method overrides or requirements belong to QualityPlanCharacteristic when they differ by plan.
+      optionalMeaning: Optional because some characteristics are self-evident or fully governed by plan-specific configuration.
+  relationships:
+  - name: qualityPlanCharacteristics
+    target: QualityPlanCharacteristic
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects the reusable characteristic to each quality-plan configuration in which it is governed.
+      businessMeaning: Shows where this characteristic is used and which plan-specific acceptance configurations apply.
+      usage: Requirement traceability, impact analysis, plan authoring, audit, and change propagation.
+      cardinalityMeaning: A characteristic may be used by zero or many plan-specific configurations.
+      context: QualityPlanCharacteristic is the contextual bridge between reusable characteristic meaning and plan-specific limits, method, sequence, and sampling.
+  - name: measurements
+    target: QualityMeasurement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Connects the characteristic to observations recorded during inspections.
+      businessMeaning: Shows the historical measurement evidence generated for this property.
+      usage: Traceability, quality analytics, trend analysis, supplier evaluation, and audit.
+      cardinalityMeaning: A characteristic may have zero or many observations across inspections.
+      context: Measurements are historical evidence and do not inherit later definition changes silently.
+  invariants:
+  - id: QUALITY-CHARACTERISTIC-001
+    rule: code must be unique within the governing CEDM quality-definition namespace.
+  - id: QUALITY-CHARACTERISTIC-002
+    rule: dataType is required and QualityMeasurement observations must conform to it.
+  - id: QUALITY-CHARACTERISTIC-003
+    rule: Numeric data types may use dimensional units; non-numeric data types must not require numeric unit conversion.
+  - id: QUALITY-CHARACTERISTIC-004
+    rule: An ACTIVE characteristic may be assigned to new QualityPlanCharacteristic records; a RETIRED characteristic remains valid only for governed historical configurations unless explicitly reactivated through controlled change.
+  - id: QUALITY-CHARACTERISTIC-005
+    rule: Changing the semantic meaning or dataType of a characteristic already used by measurements must not silently rewrite historical evidence; use controlled versioning, replacement, or amendment semantics.
+  - id: QUALITY-CHARACTERISTIC-006
+    rule: Retiring a characteristic must trigger impact analysis for active QualityPlanCharacteristic configurations and open QualityInspections that depend on them.
+  - id: QUALITY-CHARACTERISTIC-007
+    rule: Characteristic definition changes must be auditable and idempotent and must not create duplicate active definitions for the same governed code.
+  help:
+    summary: Reusable definition of one quality property that can be configured by quality plans and observed through quality measurements.
+    businessMeaning: QualityCharacteristic answers what property is being evaluated. It intentionally does not own plan-specific limits because the same property can have different acceptance criteria for different products, suppliers, processes, or inspection plans.
+    usage: Quality master data, inspection design, supplier quality, incoming inspection, process control, laboratory testing, compliance, analytics, and audit.
+    relationshipContext: QualityCharacteristic is the reusable semantic definition; QualityPlanCharacteristic configures it for a QualityPlan; QualityPlan selects the governed controls; QualityInspection executes them; QualityMeasurement records observations; Nonconformance may consume failed evidence.
+    lifecycle: Draft → active → retired. Retirement preserves historical references and evidence.
+    changePropagation: Changes to meaning, type, or lifecycle require impact analysis across QualityPlanCharacteristic, QualityPlan, open QualityInspection, QualityMeasurement, Nonconformance, and reporting workflows. Historical completed evidence must retain the definition applicable when it was captured.
+    example: A WEIGHT characteristic has dataType DECIMAL. One QualityPlanCharacteristic may require 9.8–10.2 kg while another plan may require 9.5–10.5 kg; both use the same reusable QualityCharacteristic.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-QUALITY-CHARACTERISTIC
