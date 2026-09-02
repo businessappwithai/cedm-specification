@@ -32,7 +32,7 @@ entity:
   - {id: SUPPLIER-001, rule: partyRole.roleType must equal SUPPLIER.}
   - {id: SUPPLIER-002, rule: supplierCode must be unique within its organizational procurement context.}
   - {id: SUPPLIER-003, rule: BLOCKED or RETIRED supplier must not normally be selected for new procurement commitments or new return transactions without authorized exception.}
-  - {id: SUPPLIER-004, rule: qualification or status changes must not invalidate historical PurchaseOrder GoodsReceipt Invoice Payment PaymentAllocation SupplierReturn SupplierCreditNote SupplierDebitNote SupplierClaim SupplierClaimResolution or SupplierPerformanceAssessment records.}}
+  - {id: SUPPLIER-004, rule: qualification or status changes must not invalidate historical PurchaseOrder GoodsReceipt Invoice Payment PaymentAllocation SupplierReturn SupplierCreditNote SupplierDebitNote SupplierClaim SupplierClaimResolution or SupplierPerformanceAssessment records.}
   - {id: SUPPLIER-005, rule: Supplier invoice approval must use applicable PurchaseOrder and accepted GoodsReceipt evidence when three-way matching is required.}
   - {id: SUPPLIER-006, rule: Supplier payment settlement must remain traceable from Payment through PaymentAllocation to applicable Invoice; supplier master status is not settlement evidence.}
   - {id: SUPPLIER-007, rule: SupplierReturn must reference eligible previously accepted GoodsReceipt evidence and must not create a financial credit merely because a return was authorized.}
