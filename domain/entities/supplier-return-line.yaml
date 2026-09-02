@@ -2,7 +2,7 @@ entity:
   name: SupplierReturnLine
   namespace: cedm.domain
   kind: reverse_procurement_transaction_line
-  description: A quantity-level supplier return detail linking previously accepted procurement fulfillment to the quantity being returned and its inventory and financial consequences.
+  description: A quantity-level supplier return detail linking previously accepted procurement fulfillment to the quantity being returned and its quality, inventory and financial consequences.
   identity: {key: supplierReturnLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierReturnLineId
@@ -12,7 +12,7 @@ entity:
     help:
       summary: Immutable identity of the supplier return line.
       businessMeaning: Identifies one quantity-level reverse-procurement instruction.
-      usage: Used for inventory, supplier credit, reconciliation and audit.
+      usage: Used for inventory, supplier credit, quality, reconciliation and audit.
       relationshipContext: Distinct from the original PurchaseOrderLine and GoodsReceiptLine identities.
       workflowRole: Provides stable attribution for every downstream reversal.
       requiredMeaning: Required for traceability.
@@ -57,7 +57,7 @@ entity:
       summary: Operational result governing how the returned procurement quantity is handled.
       businessMeaning: Identifies whether the quantity is actually being returned to the supplier or requires exception processing.
       usage: Supports warehouse and supplier-claim workflows.
-      relationshipContext: Distinct from the original GoodsReceipt acceptance status.
+      relationshipContext: Distinct from the original GoodsReceipt acceptance status and any QualityInspection disposition.
       workflowRole: Controls whether the normal supplier-return workflow may proceed.
       requiredMeaning: Required for controlled physical processing.
   relationships:
@@ -85,6 +85,16 @@ entity:
       summary: Accepted receipt evidence from which this return quantity originates.
       businessMeaning: Establishes the physical receipt history supporting the return.
       workflowRole: Supplies authoritative eligibility and quantity evidence.
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Quality inspections covering the returned quantity when inspection is required.
+      businessMeaning: Links this return line to evidence supporting defect, acceptance, rejection or exception decisions.
+      usage: Supports partial inspection, supplier disputes, reinspection and controlled disposition.
+      cardinalityMeaning: A return line may have no inspection or multiple inspections where quantities are inspected separately or reinspected.
+      workflowRole: Inspection results may gate physical completion or exception handling but do not themselves post inventory or financial effects.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
@@ -117,11 +127,13 @@ entity:
   - {id: SUPPLIER-RETURN-LINE-005, rule: Approved credit must not exceed the eligible financial value under the original invoice, return and tolerance policies.}
   - {id: SUPPLIER-RETURN-LINE-006, rule: Supplier credit must not directly mutate the original InvoiceLine.}
   - {id: SUPPLIER-RETURN-LINE-007, rule: Changes after posted inventory or credit effects require compensating events rather than destructive mutation.}
+  - {id: SUPPLIER-RETURN-LINE-008, rule: Where inspection is required, the returned quantity cannot be dispositioned or completed in contradiction to the applicable QualityInspection result without an authorized exception.}
   help:
-    summary: Defines exactly what previously accepted procurement quantity is being returned and connects that quantity to physical and financial consequences.
-    businessMeaning: SupplierReturnLine is the bridge between accepted receiving evidence and reverse inventory/payable workflows.
+    summary: Defines exactly what previously accepted procurement quantity is being returned and connects that quantity to quality, physical and financial consequences.
+    businessMeaning: SupplierReturnLine is the bridge between accepted receiving evidence and quality, reverse inventory and payable workflows.
     usage: Reverse logistics, supplier claims, quality, warehouse control and accounts payable.
-    relationshipContext: PurchaseOrderLine states the commitment; GoodsReceiptLine states accepted fulfillment; SupplierReturnLine states reversal; InventoryMovement records stock reduction; SupplierCreditNoteLine records payable adjustment.
-    workflowContext: Validate eligible receipt quantity → authorize return → execute physical return → post InventoryMovement → assess supplier credit → post SupplierCreditNoteLine.
-    example: Three defective units from a five-unit accepted receipt are returned. The line records quantityReturned=3, inventory is reduced by three through an attributable movement, and any approved supplier credit is calculated from the original invoice evidence.
+    relationshipContext: PurchaseOrderLine states the commitment; GoodsReceiptLine states accepted fulfillment; QualityInspection provides quality evidence; SupplierReturnLine states reversal; InventoryMovement records stock reduction; SupplierCreditNoteLine records payable adjustment.
+    workflowContext: Validate eligible receipt quantity → inspect where required → authorize return → execute physical return → post InventoryMovement → assess supplier credit → post SupplierCreditNoteLine.
+    changePropagation: Changes to receipt eligibility, inspection result, product, UOM or approved credit affecting an open line trigger revalidation of dependent return, inventory and financial workflows.
+    example: Three defective units from a five-unit accepted receipt are returned. QualityInspection records the failed result and return disposition, this line records quantityReturned=3, inventory is reduced by three through an attributable movement, and any approved supplier credit is calculated from the original invoice evidence.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-RETURN-LINE}
