@@ -5,8 +5,29 @@ entity:
   description: An authorized customer return that reverses or adjusts previously fulfilled sales demand without deleting the original SalesOrder, Shipment, InventoryMovement, or Invoice evidence. It coordinates return authorization, physical receipt, inspection, disposition, inventory effects, and financial adjustment.
   identity: {key: customerReturnId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: customerReturnId, type: uuid, required: true, immutable: true}
-  - {name: returnNumber, type: string, required: true, unique: true, maxLength: 100}
+  - name: customerReturnId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Immutable identity of the customer return.
+      businessMeaning: Identifies the reverse-fulfillment event independently of its number, lines, shipment, invoice or credit note.
+      usage: Used for reverse logistics, inventory, financial adjustment, audit and integration.
+      relationshipContext: Stable root identity for CustomerReturnLine and downstream CreditNote evidence.
+      workflowRole: Carries the return identity through authorization, receipt, disposition and financial settlement.
+      requiredMeaning: Required for return traceability.
+  - name: returnNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Business-facing customer return reference.
+      businessMeaning: Identifies the return for customer service, warehouse and finance operations.
+      usage: Used in return authorization, transport, receiving, inspection, credit and audit.
+      relationshipContext: Distinct from customerReturnId, Shipment and CreditNote numbers.
+      workflowRole: Provides operational reference throughout the return lifecycle.
+      requiredMeaning: Required for operational traceability.
   - name: status
     type: enum
     required: true
@@ -14,51 +35,118 @@ entity:
     values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
     help:
       summary: Lifecycle state of the authorized customer return.
-      usage: Controls transport, receiving, inspection, disposition, inventory and financial adjustment progression.
+      businessMeaning: Controls progression through transport, receipt, inspection, disposition, inventory and financial adjustment.
+      usage: Controls return processing and completion decisions.
       relationshipContext: Return status does not itself change inventory or invoice balances.
-      workflowRole: Coordinates dependent return workflows.
-  - {name: returnDate, type: datetime, required: true}
-  - {name: reasonCode, type: string, required: false, maxLength: 100}
-  - {name: notes, type: string, required: false, maxLength: 2000}
+      workflowRole: Coordinates dependent return workflows; CreditNote posting is a separate financial state.
+  - name: returnDate
+    type: datetime
+    required: true
+    help:
+      summary: Date and time the return event was initiated or recognized.
+      businessMeaning: Anchors return chronology independently from receipt and credit-note dates.
+      usage: Used for service metrics, logistics, audit and policy evaluation.
+      relationshipContext: Distinct from shipment, receipt, disposition and CreditNote dates.
+      workflowRole: Provides temporal context for return authorization and processing.
+      requiredMeaning: Required for return chronology.
+  - name: reasonCode
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: Business reason supplied for the customer return.
+      businessMeaning: Explains why goods or services are being returned.
+      usage: Used for approval, quality, analytics, warranty and customer service.
+      relationshipContext: May differ from the financial CreditNote.reasonCode.
+      workflowRole: Supports eligibility and policy determination.
+      optionalMeaning: Optional when the reason is represented through another controlled return classification.
+  - name: notes
+    type: string
+    required: false
+    maxLength: 2000
+    help:
+      summary: Additional operational context for the return.
+      businessMeaning: Captures information not represented by structured return fields.
+      usage: Supports warehouse, customer service and audit review.
+      relationshipContext: Notes supplement but do not replace structured evidence.
+      workflowRole: Provides contextual information during exception handling.
+      optionalMeaning: Optional free-form context.
   relationships:
   - name: customer
     target: Customer
     cardinality: '1'
     ownership: reference
+    help:
+      summary: Customer requesting or receiving the return process.
+      businessMeaning: Identifies the party associated with the reverse transaction.
+      usage: Supports authorization, logistics, credit and customer service.
+      workflowRole: Supplies party eligibility and financial context.
   - name: salesOrder
     target: SalesOrder
     cardinality: 0..1
     ownership: reference
+    help:
+      summary: Original sales commitment associated with the returned goods or services.
+      businessMeaning: Connects reverse fulfillment to the original customer demand.
+      usage: Supports eligibility and fulfillment reconciliation.
+      workflowRole: Provides original commitment context for return validation.
   - name: shipment
     target: Shipment
     cardinality: 0..1
     ownership: reference
+    help:
+      summary: Prior outbound shipment associated with the return.
+      businessMeaning: Connects the return to logistics evidence of the original fulfillment.
+      usage: Supports quantity and delivery traceability.
+      workflowRole: Supplies prior fulfillment evidence; return receipt remains a separate event.
   - name: invoice
     target: Invoice
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Original financial claims potentially affected by the return.
+      businessMeaning: Identifies the invoices whose eligible exposure may be reduced through a separate CreditNote.
+      usage: Supports credit eligibility, audit and reconciliation.
+      workflowRole: Supplies source financial evidence; the return never directly mutates invoice history.
   - name: lines
     target: CustomerReturnLine
     cardinality: 1..*
     ownership: aggregate
+    help:
+      summary: Quantity-level details of the returned goods or services.
+      businessMeaning: Records returned quantities and physical dispositions.
+      usage: Drives inventory and credit eligibility workflows.
+      cardinalityMeaning: An authorized return requires at least one valid line.
+      workflowRole: Lines provide the quantity and approved credit basis consumed downstream.
+  - name: creditNotes
+    target: CreditNote
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Financial adjustment documents generated from eligible return outcomes.
+      businessMeaning: Connects the reverse-fulfillment event to explicit customer financial credits without treating the return itself as a financial posting.
+      usage: Supports return-to-credit traceability, customer statements, tax and audit.
+      cardinalityMeaning: A return may create no credit, one credit, or multiple credits when policy permits.
+      workflowRole: Approved return disposition and credit eligibility feed CreditNote creation and posting.
   invariants:
   - {id: CUSTOMER-RETURN-001, rule: AUTHORIZED requires customer, return reason and at least one valid return line.}
   - {id: CUSTOMER-RETURN-002, rule: Returned quantity must not exceed previously fulfilled quantity unless an explicit authorized exception permits it.}
   - {id: CUSTOMER-RETURN-003, rule: A return does not change InventoryBalance merely by being authorized, shipped or received.}
   - {id: CUSTOMER-RETURN-004, rule: Inventory increases only from an accepted disposition that posts the appropriate InventoryMovement.}
   - {id: CUSTOMER-RETURN-005, rule: Quarantine, repair and scrap dispositions must not increase unrestricted available inventory.}
-  - {id: CUSTOMER-RETURN-006, rule: Financial adjustment must use an explicit credit/debit/adjustment document or workflow; the original Invoice and InvoiceLine remain immutable historical evidence.}
+  - {id: CUSTOMER-RETURN-006, rule: Financial adjustment must use an explicit CreditNote or other authorized adjustment workflow; the original Invoice and InvoiceLine remain immutable historical evidence.}
   - {id: CUSTOMER-RETURN-007, rule: Completion requires all return lines to have a terminal physical disposition and all required inventory and financial effects to have been successfully posted or explicitly excepted.}
   - {id: CUSTOMER-RETURN-008, rule: Cancellation after posted physical or financial effects requires compensating reversal/reconciliation workflows and cannot erase historical evidence.}
   - {id: CUSTOMER-RETURN-009, rule: Product, UnitOfMeasure, Customer, SalesOrderLine, Shipment or Invoice changes affecting an open return require controlled revalidation.}
   - {id: CUSTOMER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory receipts or financial adjustments.}
+  - {id: CUSTOMER-RETURN-011, rule: A return-based CreditNote must be traceable from CreditNoteLine to the originating CustomerReturnLine and must not exceed its approved credit basis.}
   help:
     summary: Coordinates the controlled reversal of a customer fulfillment while preserving original commercial, inventory and financial history.
-    businessMeaning: A return is a new business event caused by a prior sale; it is not deletion or mutation of the original sale.
+    businessMeaning: A return is a new business event caused by a prior sale; it is not deletion or mutation of the original sale. A CreditNote is the separate financial consequence.
     usage: Customer service, reverse logistics, warehouse receiving, quality, inventory, credit processing, accounts receivable and audit.
-    relationshipContext: SalesOrder/SalesOrderLine identify original demand, Shipment identifies prior logistics, Invoice identifies financial claims, CustomerReturnLine identifies returned quantities, and disposition determines inventory consequences.
-    workflowContext: Return request → authorization → return shipment → receipt → inspection → disposition → inventory movement if applicable → credit/debit adjustment if applicable → completion. Original sale remains unchanged.
+    relationshipContext: SalesOrder/SalesOrderLine identify original demand, Shipment identifies prior logistics, Invoice identifies financial claims, CustomerReturnLine identifies returned quantities, disposition determines inventory consequences, and CreditNote records approved financial adjustment.
+    workflowContext: Return request → authorization → return shipment → receipt → inspection → disposition → inventory movement if applicable → credit eligibility → CreditNote approval/posting if applicable → completion. Original sale and invoice remain unchanged.
     lifecycle: Draft → authorized → in transit → received → inspection → dispositioned → completed, with cancellation and exception paths.
-    propagation: Authorization validates prior fulfillment; receipt creates no unrestricted inventory by itself; disposition drives inventory; approved financial adjustment reconciles customer balance/invoice without mutating original documents.
-    example: A customer returns 5 of 20 shipped units. The return is authorized, received and inspected. Three are restocked, one is quarantined and one is scrapped. Inventory receives only the three restock units; a credit workflow handles the financial adjustment for the approved credit amount.
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN}
+    propagation: Authorization validates prior fulfillment; receipt creates no unrestricted inventory by itself; disposition drives inventory; approved financial adjustment creates CreditNote and accounting/application effects without mutating original documents.
+    example: A customer returns 5 of 20 shipped units. Three are restocked, one quarantined and one scrapped. Inventory receives only the three restock units; an approved CreditNote handles the financial adjustment for the eligible credited amount.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN}
