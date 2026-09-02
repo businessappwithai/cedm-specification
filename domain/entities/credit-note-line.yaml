@@ -1,0 +1,176 @@
+entity:
+  name: CreditNoteLine
+  namespace: cedm.domain
+  kind: financial_adjustment_transaction_line
+  description: A line on a CreditNote that records the specific quantity or monetary component being credited, its original InvoiceLine basis, optional CustomerReturnLine justification, transaction-time pricing and tax evidence, and resulting credit amount.
+  identity: {key: creditNoteLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: creditNoteLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Immutable identity of the credit-note line.
+      businessMeaning: Identifies one financial adjustment detail independently of its source invoice or return.
+      usage: Used for accounting, audit, reconciliation, tax and correction workflows.
+      relationshipContext: Links the line to CreditNote while preserving distinct source InvoiceLine and CustomerReturnLine identities.
+      workflowRole: Stable reference for calculation, posting and reversal.
+      requiredMeaning: Required for traceability.
+  - name: lineNumber
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: Business sequence number within the CreditNote.
+      businessMeaning: Orders the adjustment details for document presentation and audit.
+      usage: Used for documents, reconciliation and integrations.
+      relationshipContext: Unique within the parent CreditNote and independent of original InvoiceLine.lineNumber.
+      workflowRole: Supports deterministic document reconstruction.
+      requiredMeaning: Required for line identification.
+  - name: quantity
+    type: decimal
+    required: false
+    precision: 20
+    scale: 6
+    help:
+      summary: Quantity being financially credited when the adjustment is quantity-based.
+      businessMeaning: Represents the credited quantity, which may be less than or equal to the returned quantity or originally billed quantity.
+      usage: Used for return credits, quantity corrections and reconciliation.
+      relationshipContext: Must reconcile with eligible source InvoiceLine and CustomerReturnLine quantities.
+      workflowRole: Feeds line valuation where credit is quantity-derived.
+      optionalMeaning: Optional for purely monetary corrections.
+  - name: unitPrice
+    type: Money
+    required: false
+    help:
+      summary: Transaction-time unit value used to calculate the credit where applicable.
+      businessMeaning: Preserves the original or policy-approved value rather than using mutable current pricing.
+      usage: Supports reproducibility, dispute resolution and audit.
+      relationshipContext: Should reconcile with source InvoiceLine pricing evidence or authorized return-credit policy.
+      workflowRole: Supplies valuation evidence for quantity-based credits.
+      optionalMeaning: Optional for fixed monetary adjustments.
+  - name: subtotal
+    type: Money
+    required: true
+    help:
+      summary: Pre-tax monetary credit represented by this line.
+      businessMeaning: The line's financial base before credited tax.
+      usage: Used for CreditNote calculation, accounting and reconciliation.
+      relationshipContext: Must reconcile with quantity, unitPrice, discounts and source evidence where applicable.
+      workflowRole: Feeds taxable amount and total line credit.
+      requiredMeaning: Required for deterministic financial calculation.
+  - name: discountAmount
+    type: Money
+    required: true
+    default: {amount: 0}
+    help:
+      summary: Discount component included in determining the credited line value.
+      businessMeaning: Preserves the applicable discount treatment from the original transaction or return policy.
+      usage: Used for reconciliation and tax calculation.
+      relationshipContext: Must not be confused with a new settlement discount.
+      workflowRole: Determines the credited taxable base according to policy.
+      requiredMeaning: Required, including zero when no discount applies.
+  - name: taxableAmount
+    type: Money
+    required: true
+    help:
+      summary: Taxable base of the credited line.
+      businessMeaning: Amount to which applicable tax treatment is applied for the credit.
+      usage: Used for tax reporting and accounting.
+      relationshipContext: Must reconcile with original InvoiceLine tax treatment or authorized correction policy.
+      workflowRole: Feeds credited tax calculation.
+      requiredMeaning: Required for tax determinism.
+  - name: taxAmount
+    type: Money
+    required: true
+    default: {amount: 0}
+    help:
+      summary: Tax amount reversed or credited on this line.
+      businessMeaning: Represents the tax consequence of the credited value.
+      usage: Used for tax reporting, accounting and reconciliation.
+      relationshipContext: Must reconcile with applicable TaxRule and source invoice tax evidence.
+      workflowRole: Contributes to the line's total credit.
+      requiredMeaning: Required, including zero when no tax applies.
+  - name: totalAmount
+    type: Money
+    required: true
+    help:
+      summary: Total credit represented by this line including applicable tax.
+      businessMeaning: Financial reduction attributable to this specific adjustment detail.
+      usage: Aggregated into CreditNote.totalAmount and used for accounting/application.
+      relationshipContext: Does not mutate the original InvoiceLine amount.
+      workflowRole: Provides authoritative line contribution to the CreditNote total.
+      requiredMeaning: Required for document reconciliation.
+  - name: pricingEvidence
+    type: object
+    required: false
+    help:
+      summary: Snapshot of material valuation inputs used for the credited amount.
+      businessMeaning: Preserves original price, source, effective date or authorized override required to reproduce the credit.
+      usage: Supports audit and dispute resolution.
+      relationshipContext: Connects valuation to original InvoiceLine evidence without making the credit depend on current price master data.
+      workflowRole: Provides historical calculation evidence.
+  - name: taxEvidence
+    type: object
+    required: false
+    help:
+      summary: Snapshot of material tax inputs used to determine credited tax.
+      businessMeaning: Preserves tax rule/version, jurisdiction, rate, base and rounding used for the adjustment.
+      usage: Supports tax audit and historical reproducibility.
+      relationshipContext: Should reconcile with source InvoiceLine tax evidence and applicable correction policy.
+      workflowRole: Supports deterministic tax calculation and posting.
+  relationships:
+  - name: creditNote
+    target: CreditNote
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Parent financial adjustment document containing this line.
+      businessMeaning: Establishes the document context for the adjustment detail.
+      usage: Supports aggregation, approval, posting and audit.
+      workflowRole: Line totals feed the parent CreditNote totals and lifecycle.
+  - name: invoiceLine
+    target: InvoiceLine
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Original billed line from which the credit is derived or corrected.
+      businessMeaning: Preserves the financial claim basis without modifying its historical values.
+      usage: Supports return credit, billing correction, tax correction and audit.
+      workflowRole: Supplies eligible quantity, price, discount and tax evidence.
+  - name: customerReturnLine
+    target: CustomerReturnLine
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Return line providing physical or commercial justification for a return-based credit.
+      businessMeaning: Connects credited quantity to the reverse-fulfillment event.
+      usage: Supports return-to-credit traceability and approval.
+      workflowRole: Supplies approvedCreditAmount and disposition context where applicable.
+  - name: taxRule
+    target: TaxRule
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Tax policies used to determine the credited tax treatment.
+      businessMeaning: Identifies the governing tax rules for the adjustment.
+      usage: Supports compliance, audit and calculation.
+      workflowRole: Determines credited tax together with preserved taxEvidence.
+  invariants:
+  - {id: CREDIT-NOTE-LINE-001, rule: lineNumber must be unique within the parent CreditNote.}
+  - {id: CREDIT-NOTE-LINE-002, rule: quantity must be greater than zero when supplied.}
+  - {id: CREDIT-NOTE-LINE-003, rule: subtotal, discountAmount, taxableAmount, taxAmount and totalAmount must reconcile under the applicable credit calculation and rounding policy.}
+  - {id: CREDIT-NOTE-LINE-004, rule: A return-based quantity credit must not exceed eligible quantity from the referenced InvoiceLine and CustomerReturnLine without an authorized exception.}
+  - {id: CREDIT-NOTE-LINE-005, rule: A posted CreditNoteLine must retain transaction-time pricing and tax evidence sufficient to reproduce its financial result.}
+  - {id: CREDIT-NOTE-LINE-006, rule: CreditNoteLine never directly changes the original InvoiceLine; all financial correction is represented by the CreditNote and its accounting/application workflows.}
+  - {id: CREDIT-NOTE-LINE-007, rule: Changes to InvoiceLine, CustomerReturnLine, Product, UnitOfMeasure, TaxRule, Currency or pricing policy affecting an open line require controlled revalidation.}
+  - {id: CREDIT-NOTE-LINE-008, rule: Posted line corrections require explicit reversal/replacement rather than destructive mutation.}
+  help:
+    summary: Represents one auditable financial adjustment detail and its source evidence.
+    businessMeaning: CreditNoteLine translates an eligible original invoice or return into a specific credited value while preserving historical source facts.
+    usage: Return credits, billing corrections, tax adjustments, customer concessions and audit.
+    relationshipContext: InvoiceLine is the original financial evidence; CustomerReturnLine is the reverse-fulfillment evidence; CreditNoteLine is the new financial result.
+    workflowContext: Validate source → determine eligible quantity/value → apply return and pricing/tax policy → snapshot evidence → calculate line credit → approve → post through CreditNote. Corrections use reversal/replacement.
+    lifecycle: Draft → calculated → approved → posted, with controlled reversal after posting.
+    example: Three returned units are eligible for credit at the original transaction value. CreditNoteLine records quantity 3, preserves the source InvoiceLine and CustomerReturnLine, recalculates applicable tax, and contributes its total to CreditNote without changing the original invoice line.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CREDIT-NOTE-LINE}
