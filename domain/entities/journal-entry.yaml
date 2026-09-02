@@ -2,7 +2,7 @@ entity:
   name: JournalEntry
   namespace: cedm.domain
   kind: financial_transaction
-  description: A balanced accounting entry that records the debit and credit consequences recognized by the accounting system for an originating business event such as an invoice, payment, credit note, supplier credit, receipt, bank adjustment, asset event, or other authorized transaction.
+  description: A balanced accounting entry that records the debit and credit consequences recognized by the accounting system for an originating business event such as an invoice, payment, credit note, supplier credit, supplier debit, receipt, bank adjustment, asset event, or other authorized transaction.
   identity:
     key: journalEntryId
     type: uuid
@@ -19,17 +19,17 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing accounting journal reference., usage: Used by accountants, auditors, reports and integrations., relationshipContext: Distinct from source transaction numbers such as Invoice, Payment, CreditNote and SupplierCreditNote references., workflowRole: Identifies the accounting record in ledgers and audit trails., requiredMeaning: Required.}
+    help: {summary: Human-facing accounting journal reference., usage: Used by accountants, auditors, reports and integrations., relationshipContext: Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references., workflowRole: Identifies the accounting record in ledgers and audit trails., requiredMeaning: Required.}
   - name: entryDate
     type: datetime
     required: true
-    help: {summary: Accounting date at which the entry is recognized., usage: Determines accounting period, reporting chronology and period controls., relationshipContext: May differ from originating transaction, bank value, invoice, CreditNote or SupplierCreditNote date., workflowRole: Controls the period into which the entry is posted., requiredMeaning: Required.}
+    help: {summary: Accounting date at which the entry is recognized., usage: Determines accounting period, reporting chronology and period controls., relationshipContext: May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date., workflowRole: Controls the period into which the entry is posted., requiredMeaning: Required.}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, POSTED, REVERSED]
-    help: {summary: Accounting lifecycle state., usage: Controls editing, posting, reporting and reversal permissions., relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses., workflowRole: DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting its effect., requiredMeaning: Required.}
+    help: {summary: Accounting lifecycle state., usage: Controls editing, posting, reporting and reversal permissions., relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction statuses., workflowRole: DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting its effect., requiredMeaning: Required.}
   - name: description
     type: string
     required: false
@@ -45,7 +45,7 @@ entity:
     target: BusinessTransaction
     cardinality: 0..1
     ownership: reference
-    help: {summary: Originating business transaction whose accounting consequences are represented., usage: Provides traceability from accounting recognition to operational or financial event., cardinalityMeaning: Optional for manual, reconciliation, opening or closing entries., workflowRole: Connects invoices, payments, receipts, inventory events, asset events, credit notes, supplier credits and other business processes to accounting.}
+    help: {summary: Originating business transaction whose accounting consequences are represented., usage: Provides traceability from accounting recognition to operational or financial event., cardinalityMeaning: Optional for manual, reconciliation, opening or closing entries., workflowRole: Connects invoices, payments, receipts, inventory events, asset events, credit notes, supplier credits, supplier debits and other business processes to accounting.}
   - name: payment
     target: Payment
     cardinality: 0..1
@@ -61,6 +61,11 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: SupplierCreditNote whose payable reduction is represented by this accounting entry., businessMeaning: Links supplier-issued or buyer-recognized credit to its accounting consequences without rewriting the original supplier invoice., usage: Supports accounts payable, inventory/expense, tax, supplier reconciliation and audit., cardinalityMeaning: Optional because not every journal entry represents a supplier credit., workflowRole: SupplierCreditNote posting requires appropriate accounting recognition before the credit is treated as financially posted.}
+  - name: supplierDebitNote
+    target: SupplierDebitNote
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: SupplierDebitNote whose recovery adjustment is represented by this accounting entry., businessMeaning: Links a buyer-issued supplier debit to its accounting consequences without rewriting the original supplier invoice., usage: Supports accounts payable recovery, tax, expense or inventory correction, supplier reconciliation and audit., cardinalityMeaning: Optional because not every journal entry represents a supplier debit., workflowRole: SupplierDebitNote posting requires appropriate balanced accounting recognition.}
   - name: organization
     target: Organization
     cardinality: 0..1
@@ -72,19 +77,20 @@ entity:
   - {id: JOURNAL-003, rule: If payment is populated, the accounting entry must represent an authorized accounting consequence of that Payment.}
   - {id: JOURNAL-004, rule: If creditNote is populated, the accounting entry must represent the authorized accounting consequence of that CreditNote and reconcile to its posted amount and applicable tax/accounting policy.}
   - {id: JOURNAL-005, rule: If supplierCreditNote is populated, the accounting entry must represent the authorized accounting consequence of that SupplierCreditNote and reconcile to its posted amount and applicable payable, tax and accounting policy.}
-  - {id: JOURNAL-006, rule: Reversal must preserve the original journal entry and reference the entry being reversed.}
-  - {id: JOURNAL-007, rule: JournalEntry must not be used as evidence that a Payment or refund Payment cleared the bank; bank evidence is represented by BankTransaction and reconciliation state.}
-  - {id: JOURNAL-008, rule: A posted CreditNote or SupplierCreditNote must not be treated as financially posted until required JournalEntry recognition has been posted or an explicitly governed accounting exception exists.}
+  - {id: JOURNAL-006, rule: If supplierDebitNote is populated, the accounting entry must represent the authorized accounting consequence of that SupplierDebitNote and reconcile to its posted amount and applicable payable, tax and accounting policy.}
+  - {id: JOURNAL-007, rule: Reversal must preserve the original journal entry and reference the entry being reversed.}
+  - {id: JOURNAL-008, rule: JournalEntry must not be used as evidence that a Payment or refund Payment cleared the bank; bank evidence is represented by BankTransaction and reconciliation state.}
+  - {id: JOURNAL-009, rule: A posted CreditNote, SupplierCreditNote, or SupplierDebitNote must not be treated as financially posted until required JournalEntry recognition has been posted or an explicitly governed accounting exception exists.}
   help:
     summary: Represents accounting recognition of a business event in a balanced double-entry ledger.
-    businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, and JournalEntry records accounting recognition.
+    businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, SupplierDebitNote records buyer recovery, and JournalEntry records accounting recognition.
     usage: General ledger, accounts receivable, accounts payable, treasury, inventory accounting, asset accounting, tax, audit, period close and financial reporting.
-    relationshipContext: sourceTransaction provides generic origin. Payment, CreditNote and SupplierCreditNote provide direct traceability when applicable. JournalEntryLine contains debit/credit effects. Organization provides accounting boundary.
-    workflowContext: Business event → accounting determination → JournalEntry draft → line validation → balance validation → POSTED. Customer and supplier credit posting follows adjustment calculation and approval and must create/link required accounting recognition. Payment workflow independently progresses through payment states and bank reconciliation.
+    relationshipContext: sourceTransaction provides generic origin. Payment, CreditNote, SupplierCreditNote and SupplierDebitNote provide direct traceability when applicable. JournalEntryLine contains debit/credit effects. Organization provides accounting boundary.
+    workflowContext: Business event → accounting determination → JournalEntry draft → line validation → balance validation → POSTED. Customer and supplier credit/debit posting follows adjustment calculation and approval and must create/link required accounting recognition. Payment workflow independently progresses through payment states and bank reconciliation.
     lifecycle: Draft entries may be prepared and corrected under authorization. Posting establishes immutable recognition. Corrections after posting use explicit reversal and replacement entries.
-    changePropagation: Changes to unposted CreditNote or SupplierCreditNote require accounting recalculation. Posted credit changes require reversal/replacement JournalEntry treatment; posted journal history is never destructively rewritten.
-    example: A USD 1,000 SupplierCreditNote reduces accounts payable and applicable tax/expense balances. A balanced JournalEntry records the accounting consequence. If the supplier credit is later reversed, the original JournalEntry remains and a compensating reversal entry is posted.
+    changePropagation: Changes to unposted CreditNote, SupplierCreditNote or SupplierDebitNote require accounting recalculation. Posted adjustment changes require reversal/replacement JournalEntry treatment; posted journal history is never destructively rewritten.
+    example: A USD 500 SupplierDebitNote increases supplier recovery exposure. A balanced JournalEntry records the authorized accounting consequence. If the debit is later reversed, the original JournalEntry remains and a compensating reversal entry is posted.
 specification:
-  version: 0.4.0
+  version: 0.5.0
   status: draft
   identifier: CEDM-ENTITY-JOURNAL-ENTRY
