@@ -1,0 +1,127 @@
+entity:
+  name: SupplierReturnLine
+  namespace: cedm.domain
+  kind: reverse_procurement_transaction_line
+  description: A quantity-level supplier return detail linking previously accepted procurement fulfillment to the quantity being returned and its inventory and financial consequences.
+  identity: {key: supplierReturnLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: supplierReturnLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Immutable identity of the supplier return line.
+      businessMeaning: Identifies one quantity-level reverse-procurement instruction.
+      usage: Used for inventory, supplier credit, reconciliation and audit.
+      relationshipContext: Distinct from the original PurchaseOrderLine and GoodsReceiptLine identities.
+      workflowRole: Provides stable attribution for every downstream reversal.
+      requiredMeaning: Required for traceability.
+  - name: lineNumber
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: Sequence number of the return line within SupplierReturn.
+      businessMeaning: Provides human-readable ordering of returned items.
+      usage: Used in documents, warehouse operations and reconciliation.
+      relationshipContext: Unique within the parent return, not globally.
+      workflowRole: Identifies a line during approval and execution.
+      requiredMeaning: Required for deterministic line identification.
+  - name: quantityReturned
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: Quantity of previously accepted goods being returned to the supplier.
+      businessMeaning: Measures the physical quantity leaving the organization through the reverse procurement process.
+      usage: Drives eligibility, inventory reversal and supplier credit calculation.
+      relationshipContext: Must reconcile to eligible GoodsReceiptLine accepted quantity and UOM.
+      workflowRole: Primary quantity input for return execution.
+      requiredMeaning: Required because a return line without quantity has no physical meaning.
+  - name: approvedCreditAmount
+    type: Money
+    required: false
+    help:
+      summary: Maximum or approved financial amount eligible for supplier credit for this return line.
+      businessMeaning: Separates the financial claim from the physical quantity returned.
+      usage: Feeds SupplierCreditNote calculation and accounts-payable reconciliation.
+      relationshipContext: Must be derived using original transaction price, tax, discount, currency and return policy rather than current supplier pricing.
+      workflowRole: Provides controlled input to financial adjustment after applicable approval.
+      optionalMeaning: Optional where no supplier credit is expected.
+  - name: disposition
+    type: enum
+    required: true
+    values: [RETURN_TO_SUPPLIER, REJECTED, EXCEPTION]
+    help:
+      summary: Operational result governing how the returned procurement quantity is handled.
+      businessMeaning: Identifies whether the quantity is actually being returned to the supplier or requires exception processing.
+      usage: Supports warehouse and supplier-claim workflows.
+      relationshipContext: Distinct from the original GoodsReceipt acceptance status.
+      workflowRole: Controls whether the normal supplier-return workflow may proceed.
+      requiredMeaning: Required for controlled physical processing.
+  relationships:
+  - name: supplierReturn
+    target: SupplierReturn
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Parent reverse-procurement transaction containing this line.
+      businessMeaning: Supplies supplier, authorization and overall lifecycle context.
+      workflowRole: Controls whether this line may execute.
+  - name: purchaseOrderLine
+    target: PurchaseOrderLine
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Original procurement commitment associated with the returned item.
+      businessMeaning: Identifies what was originally ordered.
+      workflowRole: Supplies product, UOM and commercial context.
+  - name: goodsReceiptLines
+    target: GoodsReceiptLine
+    cardinality: 1..*
+    ownership: reference
+    help:
+      summary: Accepted receipt evidence from which this return quantity originates.
+      businessMeaning: Establishes the physical receipt history supporting the return.
+      workflowRole: Supplies authoritative eligibility and quantity evidence.
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier invoice lines financially associated with the returned goods.
+      businessMeaning: Identifies claims that may require a supplier credit.
+      workflowRole: Supplies original transaction-value and tax evidence for financial adjustment.
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Inventory ledger events that remove returned goods from organizational stock.
+      businessMeaning: Records physical stock consequence independently of the return instruction.
+      workflowRole: Authoritative evidence that the physical reversal was posted.
+  - name: supplierCreditNoteLines
+    target: SupplierCreditNoteLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Financial adjustment lines generated from this supplier return line.
+      businessMeaning: Connects approved physical returns to payable reductions.
+      workflowRole: Provides explicit financial evidence without modifying original InvoiceLine history.
+  invariants:
+  - {id: SUPPLIER-RETURN-LINE-001, rule: quantityReturned must be greater than zero.}
+  - {id: SUPPLIER-RETURN-LINE-002, rule: quantityReturned must not exceed the eligible accepted quantity from referenced GoodsReceiptLine records except under an authorized exception.}
+  - {id: SUPPLIER-RETURN-LINE-003, rule: Product and UnitOfMeasure must reconcile with the referenced PurchaseOrderLine and GoodsReceiptLine evidence.}
+  - {id: SUPPLIER-RETURN-LINE-004, rule: Inventory reduction must equal the physically executed return quantity and must be attributable to this line.}
+  - {id: SUPPLIER-RETURN-LINE-005, rule: Approved credit must not exceed the eligible financial value under the original invoice, return and tolerance policies.}
+  - {id: SUPPLIER-RETURN-LINE-006, rule: Supplier credit must not directly mutate the original InvoiceLine.}
+  - {id: SUPPLIER-RETURN-LINE-007, rule: Changes after posted inventory or credit effects require compensating events rather than destructive mutation.}
+  help:
+    summary: Defines exactly what previously accepted procurement quantity is being returned and connects that quantity to physical and financial consequences.
+    businessMeaning: SupplierReturnLine is the bridge between accepted receiving evidence and reverse inventory/payable workflows.
+    usage: Reverse logistics, supplier claims, quality, warehouse control and accounts payable.
+    relationshipContext: PurchaseOrderLine states the commitment; GoodsReceiptLine states accepted fulfillment; SupplierReturnLine states reversal; InventoryMovement records stock reduction; SupplierCreditNoteLine records payable adjustment.
+    workflowContext: Validate eligible receipt quantity → authorize return → execute physical return → post InventoryMovement → assess supplier credit → post SupplierCreditNoteLine.
+    example: Three defective units from a five-unit accepted receipt are returned. The line records quantityReturned=3, inventory is reduced by three through an attributable movement, and any approved supplier credit is calculated from the original invoice evidence.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-RETURN-LINE}
