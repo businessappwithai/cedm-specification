@@ -71,6 +71,11 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Returned quantities affected by the quality issue., businessMeaning: Identifies exact return lines associated with the deviation., usage: Return validation and supplier accountability., workflowRole: Provides line-level response context.}
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Controlled disposition decisions addressing affected returned material., businessMeaning: Records operational outcomes such as quarantine, restock, repair, scrap or return-to-supplier without treating the decision itself as inventory movement., usage: Containment, inventory control, return processing and audit., workflowRole: Supplies disposition evidence required for issue closure when applicable.}
   - name: owner
     target: Party
     cardinality: 0..1
@@ -81,19 +86,27 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Corrective actions addressing the deviation., businessMeaning: Defines actions intended to remove causes or prevent recurrence., usage: CAPA and supplier improvement., workflowRole: Supports transition toward closure.}
+  - name: verifications
+    target: CorrectiveActionVerification
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Effectiveness verification evidence associated with actions addressing this issue., businessMeaning: Records whether corrective or preventive measures achieved the intended result., usage: CAPA closure, audit and recurrence analysis., workflowRole: Supports final issue closure when required by severity and quality policy.}
   invariants:
   - {id: NONCONFORMANCE-001, rule: closedAt must be present when status is CLOSED.}
   - {id: NONCONFORMANCE-002, rule: A supplier-quality nonconformance should reference the inspection or receipt/return evidence that establishes the deviation unless an authorized external complaint or observation is the source.}
   - {id: NONCONFORMANCE-003, rule: A nonconformance associated with a SupplierReturn must not by itself change return quantity, inventory, payable exposure, or credit amount. Those effects require their respective controlled workflows.}
   - {id: NONCONFORMANCE-004, rule: Containment or disposition actions affecting inventory require attributable InventoryMovement evidence.}
-  - {id: NONCONFORMANCE-005, rule: Closure requires required corrective-action, disposition and verification evidence according to severity and quality policy.}
-  - {id: NONCONFORMANCE-006, rule: Historical issue evidence is immutable after closure except through explicit re-opening or linked corrective/reinspection records.}
+  - {id: NONCONFORMANCE-005, rule: A return disposition affecting the issue must remain within the eligible return-line quantity and must not be treated as an inventory transaction itself.}
+  - {id: NONCONFORMANCE-006, rule: Closure requires required corrective-action, disposition and verification evidence according to severity and quality policy.}
+  - {id: NONCONFORMANCE-007, rule: An ineffective or not-verifiable CorrectiveActionVerification must prevent silent closure and require additional action or an authorized exception.}
+  - {id: NONCONFORMANCE-008, rule: Historical issue evidence is immutable after closure except through explicit re-opening, reinspection, additional disposition or corrective records.}
   help:
-    summary: Represents a controlled quality deviation and its investigation, containment and corrective-action lifecycle.
-    businessMeaning: Nonconformance captures the quality problem; QualityInspection provides test evidence; GoodsReceipt/GoodsReceiptLine provide inbound evidence; SupplierReturn provides physical response; SupplierCreditNote provides financial response; CorrectiveAction addresses recurrence.
+    summary: Represents a controlled quality deviation and its investigation, containment, disposition and corrective-action lifecycle.
+    businessMeaning: Nonconformance captures the quality problem; QualityInspection provides test evidence; ReturnDisposition records controlled operational outcomes; SupplierReturn provides physical response; CorrectiveAction addresses recurrence; CorrectiveActionVerification proves effectiveness.
     usage: Supplier quality, incoming inspection, returns, CAPA, compliance, audit, supplier performance and risk management.
     relationshipContext: A quality issue may begin at receiving, inspection, customer/supplier return or external complaint. Operational, inventory and financial consequences remain separate business facts linked through traceable relationships.
-    workflowContext: Inspection/receipt/return evidence → Nonconformance → containment → disposition → SupplierReturn where appropriate → attributable InventoryMovement → SupplierCreditNote where financially justified → corrective action → verification → closure.
+    workflowContext: Inspection/receipt/return evidence → Nonconformance → containment → ReturnDisposition where applicable → SupplierReturn/InventoryMovement → CorrectiveAction → effectiveness verification → closure. Financial consequences remain separate through authorized credit/debit workflows.
     lifecycle: Open → under review → contained → corrective action → closed, with rejection where the issue is invalid.
-    changePropagation: Changes to inspection, receipt, supplier return or product evidence affecting an open issue trigger revalidation. Financial and inventory consequences are never inferred solely from Nonconformance status.
-    example: Incoming inspection detects defective units. Nonconformance records the defect, links the receipt lines, containment occurs, a supplier return is authorized, inventory is reduced through an attributable movement, and a supplier credit is applied separately. CorrectiveAction addresses the supplier root cause.
+    changePropagation: Changes to inspection, receipt, return, disposition, product, corrective action or verification evidence affecting an open issue trigger revalidation. Financial and inventory consequences are never inferred solely from Nonconformance status.
+    example: Incoming inspection detects defective units. Nonconformance records the defect, affected receipt lines are contained, a return disposition sends the units to quarantine, a supplier return and inventory movement execute the physical response, CorrectiveAction addresses the root cause, and an effective verification supplies closure evidence.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-NONCONFORMANCE}
