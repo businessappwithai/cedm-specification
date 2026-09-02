@@ -9,159 +9,99 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help:
-      summary: Immutable identity of the supplier credit note.
-      businessMeaning: Identifies the financial adjustment independently of its number, source return, invoice and accounting entries.
-      usage: Used for accounts payable, reconciliation, audit, tax and integration.
-      workflowRole: Stable identity across drafting, approval, posting, application and reversal.
-      requiredMeaning: Required for traceability.
+    help: {summary: Immutable identity of the supplier credit note., businessMeaning: Identifies the financial adjustment independently of its number, source return, invoice, application and accounting entries., usage: Used for accounts payable, reconciliation, audit, tax and integration., workflowRole: Stable identity across drafting, approval, posting, application and reversal., requiredMeaning: Required.}
   - name: creditNoteNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help:
-      summary: Business-facing supplier credit reference.
-      businessMeaning: Identifies the credit document for supplier communication and financial reconciliation.
-      usage: Used by accounts payable, suppliers, auditors and integrations.
-      workflowRole: Correlates the internal adjustment with external supplier documentation.
-      requiredMeaning: Required for operational traceability.
+    help: {summary: Business-facing supplier credit reference., businessMeaning: Identifies the credit document for supplier communication and financial reconciliation., usage: Used by accounts payable, suppliers, auditors and integrations., workflowRole: Correlates internal adjustment with external supplier documentation., requiredMeaning: Required.}
   - name: creditNoteDate
     type: date
     required: true
-    help:
-      summary: Effective date of the supplier credit adjustment.
-      businessMeaning: Establishes the financial chronology and applicable accounting/tax period.
-      usage: Used for payable aging, tax, reporting and period control.
-      workflowRole: Anchors recognition of the adjustment.
-      requiredMeaning: Required for financial chronology.
+    help: {summary: Effective date of supplier credit adjustment., businessMeaning: Establishes financial chronology and applicable accounting/tax period., usage: Payable aging, tax, reporting and period control., workflowRole: Anchors recognition of adjustment., requiredMeaning: Required.}
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, APPROVED, POSTED, APPLIED, CANCELLED, REVERSED]
-    help:
-      summary: Lifecycle state of the supplier credit.
-      businessMeaning: Separates preparation, authorization, accounting recognition and application against supplier claims.
-      usage: Controls posting, payable reconciliation and reversal.
-      relationshipContext: Status does not change the original Invoice or GoodsReceipt history.
-      workflowRole: POSTED establishes the financial adjustment; APPLIED records its controlled application to payable exposure.
-      requiredMeaning: Required for controlled financial lifecycle.
+    values: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, CANCELLED, REVERSED]
+    help: {summary: Lifecycle state of supplier credit., businessMeaning: Separates preparation, authorization, accounting recognition and application against supplier claims., usage: Controls posting, payable reconciliation and reversal., relationshipContext: Status does not change original Invoice or GoodsReceipt history., workflowRole: POSTED establishes adjustment; application states reflect controlled consumption., requiredMeaning: Required.}
   - name: currencyId
     type: reference
     target: Currency
     required: true
     immutableAfterPosting: true
-    help:
-      summary: Currency in which the supplier credit is denominated.
-      businessMeaning: Defines the monetary denomination of the adjustment.
-      usage: Used for payable reconciliation, accounting, tax and application.
-      workflowRole: Qualifies all credit monetary values.
-      requiredMeaning: Required for monetary interpretation.
+    help: {summary: Currency in which supplier credit is denominated., businessMeaning: Defines monetary denomination of adjustment., usage: Payable reconciliation, accounting, tax and application., workflowRole: Qualifies all credit monetary values., requiredMeaning: Required.}
   - name: subtotal
     type: Money
     required: true
-    help:
-      summary: Credit value before applicable tax.
-      businessMeaning: Represents the pre-tax reduction derived from credit lines.
-      usage: Supports tax calculation and reconciliation.
-      workflowRole: Feeds total credit calculation.
-      requiredMeaning: Required for deterministic calculation.
+    help: {summary: Credit value before applicable tax., businessMeaning: Pre-tax reduction derived from credit lines., usage: Tax calculation and reconciliation., workflowRole: Feeds total credit calculation., requiredMeaning: Required.}
   - name: taxAmount
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Tax component reversed or adjusted by the supplier credit.
-      businessMeaning: Represents tax correction associated with credited value.
-      usage: Supports tax reporting and accounting reconciliation.
-      workflowRole: Contributes to total credit amount.
-      requiredMeaning: Required, including zero when no tax adjustment applies.
+    help: {summary: Tax component reversed or adjusted., businessMeaning: Tax correction associated with credited value., usage: Tax reporting and accounting reconciliation., workflowRole: Contributes to total credit., requiredMeaning: Required, including zero.}
   - name: totalAmount
     type: Money
     required: true
-    help:
-      summary: Total payable reduction represented by the supplier credit.
-      businessMeaning: Represents the financial value recognized as a credit against supplier exposure.
-      usage: Used for accounts payable, reconciliation, statements and accounting.
-      workflowRole: Determines the adjustment amount applied to eligible supplier claims.
-      requiredMeaning: Required for financial settlement.
+    help: {summary: Total payable reduction represented by supplier credit., businessMeaning: Financial value recognized as credit against supplier exposure., usage: Accounts payable, reconciliation, statements and accounting., workflowRole: Determines maximum adjustment available for application., requiredMeaning: Required.}
   - name: amountApplied
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Portion of the supplier credit already applied to payable claims.
-      businessMeaning: Separates the credit created from the portion consumed against invoices.
-      usage: Drives open credit and payable reconciliation.
-      workflowRole: Changes only through explicit application/reversal events.
-      requiredMeaning: Required as a settlement projection.
+    help: {summary: Portion of supplier credit already applied to payable claims., businessMeaning: Separates credit created from portion consumed against invoices., usage: Drives open credit and payable reconciliation., relationshipContext: Must reconcile with active SupplierCreditNoteApplication records., workflowRole: Changes only through explicit application/reversal events., requiredMeaning: Required.}
   - name: amountUnapplied
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Remaining supplier credit not yet applied to payable claims.
-      businessMeaning: Represents available credit exposure under policy.
-      usage: Supports future invoice application or supplier refund/offset processing.
-      workflowRole: Must reconcile totalAmount less active applications.
-      requiredMeaning: Required for deterministic credit management.
+    help: {summary: Remaining supplier credit not yet applied., businessMeaning: Available credit exposure under policy., usage: Future invoice application or supplier settlement/refund processing., workflowRole: Reconciles totalAmount less active applications., requiredMeaning: Required.}
   relationships:
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help:
-      summary: Supplier associated with the credit.
-      businessMeaning: Identifies the supplier whose payable exposure is reduced.
-      workflowRole: Must reconcile with source Invoice and SupplierReturn context.
+    help: {summary: Supplier associated with the credit., businessMeaning: Identifies supplier whose payable exposure is reduced., usage: Payables and supplier statements., workflowRole: Reconciles source Invoice and SupplierReturn context.}
   - name: sourceReturn
     target: SupplierReturn
     cardinality: 0..1
     ownership: reference
-    help:
-      summary: Supplier return that caused the credit.
-      businessMeaning: Connects the financial adjustment to the physical reverse-procurement event.
-      workflowRole: Provides return eligibility and approval evidence.
+    help: {summary: Supplier return that caused the credit., businessMeaning: Connects financial adjustment to physical reverse-procurement event., usage: Return-to-credit traceability and approval., workflowRole: Provides return eligibility evidence.}
   - name: lines
     target: SupplierCreditNoteLine
     cardinality: 1..*
     ownership: aggregate
-    help:
-      summary: Detailed credit components and their original financial evidence.
-      businessMeaning: Explain which supplier invoice values are being reduced.
-      workflowRole: Feed subtotal, tax and total calculations.
+    help: {summary: Detailed credit components and original financial evidence., businessMeaning: Explain which supplier invoice values are reduced., usage: Calculation, tax, audit and reconciliation., workflowRole: Feed subtotal, tax and total.}
   - name: invoices
     target: Invoice
     cardinality: 1..*
     ownership: reference
-    help:
-      summary: Supplier invoices whose payable claims are reduced by this credit.
-      businessMeaning: Identifies original claims without modifying them.
-      workflowRole: Controls eligible application and payable reconciliation.
+    help: {summary: Supplier invoices whose payable claims are reduced., businessMeaning: Identifies original claims without modifying them., usage: Application and payable reconciliation., workflowRole: Controls eligible application.}
+  - name: applications
+    target: SupplierCreditNoteApplication
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Explicit applications of this supplier credit against eligible purchase invoices., businessMeaning: Records exactly how the posted credit is consumed without rewriting original invoice history., usage: Supports accounts payable, supplier statements, reconciliation, audit, reversal and remaining-credit calculation., cardinalityMeaning: A supplier credit may be unapplied, partially applied or consumed through multiple controlled applications., workflowRole: Active applications drive amountApplied and amountUnapplied and application status.}
   - name: journalEntries
     target: JournalEntry
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Accounting entries recognizing the supplier credit.
-      businessMeaning: Separates accounting recognition from the credit document itself.
-      workflowRole: Posted credit requires appropriate balanced accounting recognition.
+    help: {summary: Accounting entries recognizing supplier credit., businessMeaning: Separates accounting recognition from credit document., usage: Payable, expense/inventory, tax and audit accounting., workflowRole: Posted credit requires balanced accounting recognition.}
   invariants:
   - {id: SUPPLIER-CREDIT-001, rule: A POSTED supplier credit must contain at least one line.}
   - {id: SUPPLIER-CREDIT-002, rule: totalAmount must reconcile with line values, tax and rounding evidence.}
-  - {id: SUPPLIER-CREDIT-003, rule: amountApplied must not exceed totalAmount except under an explicitly governed correction policy.}
-  - {id: SUPPLIER-CREDIT-004, rule: amountUnapplied must equal totalAmount less active applications under the configured rounding policy.}
-  - {id: SUPPLIER-CREDIT-005, rule: A return-originated credit must reference eligible SupplierReturn evidence and cannot exceed approved credit value.}
-  - {id: SUPPLIER-CREDIT-006, rule: The original Invoice and InvoiceLine records remain immutable; crediting them occurs through explicit adjustment/application evidence.}
+  - {id: SUPPLIER-CREDIT-003, rule: amountApplied must not exceed totalAmount except under explicitly governed correction policy.}
+  - {id: SUPPLIER-CREDIT-004, rule: amountUnapplied must equal totalAmount less active SupplierCreditNoteApplication source-side amounts under configured rounding policy.}
+  - {id: SUPPLIER-CREDIT-005, rule: Return-originated credit must reference eligible SupplierReturn evidence and cannot exceed approved credit value.}
+  - {id: SUPPLIER-CREDIT-006, rule: Original Invoice and InvoiceLine records remain immutable; crediting them occurs through explicit adjustment/application evidence.}
   - {id: SUPPLIER-CREDIT-007, rule: POSTED credit notes are immutable except through explicit reversal or compensating adjustment workflows.}
   - {id: SUPPLIER-CREDIT-008, rule: Posting must be idempotent and must not create duplicate accounting adjustments on retry.}
+  - {id: SUPPLIER-CREDIT-009, rule: amountApplied must reconcile with active SupplierCreditNoteApplication records and application status must reflect the resulting remaining amount.}
   help:
     summary: Represents an explicit financial reduction of supplier payable exposure while preserving original procurement and invoice history.
-    businessMeaning: SupplierCreditNote is the financial consequence of an approved adjustment; it is not the physical return and is not a rewritten supplier invoice.
+    businessMeaning: SupplierCreditNote is the financial consequence of an approved adjustment; SupplierReturn is the physical event; SupplierCreditNoteApplication records consumption against invoices; JournalEntry records accounting recognition.
     usage: Accounts payable, procurement, supplier reconciliation, tax, accounting and audit.
-    relationshipContext: SupplierReturn records physical reversal, SupplierReturnLine records quantities, Invoice records original payable claim, SupplierCreditNote records financial reduction, and JournalEntry records accounting recognition.
-    workflowContext: Return/adjustment approval → credit calculation from original transaction evidence → supplier credit approval → posting → JournalEntry → application against Invoice → payable balance reconciliation. Refund or supplier settlement is a separate financial workflow.
-    lifecycle: Draft → approved → posted → applied, with cancellation before posting and reversal after posting.
-    example: A supplier invoice contains five units at EUR 100. Three defective units are returned and approved for full credit. SupplierCreditNote records EUR 300 plus applicable tax, posts the accounting reduction, and applies the resulting credit against the supplier invoice without changing the historical invoice lines.
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-CREDIT-NOTE}
+    relationshipContext: SupplierReturn records physical reversal, SupplierReturnLine records quantities, Invoice records original payable claim, SupplierCreditNoteLine records financial detail, SupplierCreditNoteApplication records payable application, and JournalEntry records accounting.
+    workflowContext: Return/adjustment approval → credit calculation from original transaction evidence → supplier credit approval → posting → JournalEntry → SupplierCreditNoteApplication against eligible Invoice → payable balance reconciliation. Supplier settlement or refund is a separate financial workflow.
+    lifecycle: Draft → approved → posted → partially applied/fully applied, with cancellation before posting and reversal after posting.
+    changePropagation: Changes to return or invoice evidence trigger revalidation before posting. Posted credit changes require reversal/replacement. Applications are corrected by reversal/reallocation rather than mutation.
+    example: Three defective units at EUR 100 are returned. SupplierCreditNote records EUR 300 plus applicable tax, posts accounting recognition, and a SupplierCreditNoteApplication applies the credit against the supplier invoice without changing historical invoice lines.
