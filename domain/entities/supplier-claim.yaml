@@ -1,0 +1,99 @@
+entity:
+  name: SupplierClaim
+  namespace: cedm.domain
+  kind: supplier_quality_or_commercial_claim
+  description: A formal claim raised against a supplier for defective, damaged, short, excess, incorrect, nonconforming, warranty-related, or otherwise disputed goods or services. It preserves claim evidence separately from SupplierReturn, SupplierCreditNote, and the original procurement transactions.
+  identity: {key: supplierClaimId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: supplierClaimId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Stable identity of the supplier claim., businessMeaning: Identifies one claim independently of its supplier, source transaction, return, inspection or financial settlement., usage: Used for supplier performance, dispute management, quality, warranty, recovery and audit., relationshipContext: SupplierClaim is a case/evidence record; SupplierReturn handles physical reversal and SupplierCreditNote handles financial credit., workflowRole: Root reference through claim investigation, resolution and closure., requiredMeaning: Required.}
+  - name: claimNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Business-facing supplier claim reference., businessMeaning: Identifies the claim for procurement, quality and supplier communication., usage: Used in correspondence, investigations, reporting and reconciliation., relationshipContext: Distinct from PurchaseOrder, GoodsReceipt, SupplierReturn and SupplierCreditNote numbers., workflowRole: Provides the operational reference throughout the claim lifecycle., requiredMeaning: Required.}
+  - name: claimDate
+    type: datetime
+    required: true
+    immutable: true
+    help: {summary: Date and time the claim was raised., businessMeaning: Establishes when the organization formally asserted the supplier issue., usage: Supports SLA measurement, dispute aging, supplier performance and audit., relationshipContext: Distinct from receipt, inspection, return and credit-note dates., workflowRole: Anchors claim chronology., requiredMeaning: Required.}
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [DRAFT, OPEN, UNDER_REVIEW, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, RESOLVED, CLOSED, CANCELLED, ESCALATED]
+    help: {summary: Lifecycle state of the supplier claim., businessMeaning: Indicates whether the issue is being prepared, investigated, accepted, disputed, resolved or closed., usage: Controls investigation, supplier response, settlement and escalation., relationshipContext: Claim status is independent from SupplierReturn and SupplierCreditNote statuses., workflowRole: Coordinates the case while physical and financial effects remain separate transactions., requiredMeaning: Required.}
+  - name: claimType
+    type: enum
+    required: true
+    values: [QUALITY, DAMAGE, SHORTAGE, OVERAGE, WRONG_ITEM, WARRANTY, SERVICE, COMMERCIAL, DELIVERY, DOCUMENTATION, OTHER]
+    help: {summary: Classification of the supplier issue., businessMeaning: States the principal business nature of the claim., usage: Drives routing, evidence requirements, supplier scorecards and analytics., relationshipContext: May be supported by QualityInspection or receiving evidence and may result in SupplierReturn or SupplierCreditNote., workflowRole: Determines investigation and resolution policy., requiredMeaning: Required.}
+  - name: claimedAmount
+    type: Money
+    required: false
+    help: {summary: Financial value asserted by the organization in the claim., businessMeaning: Represents the requested or estimated monetary recovery before supplier agreement or final credit., usage: Supports negotiation, exposure reporting and recovery analysis., relationshipContext: It is not itself an accounting posting and must not be confused with SupplierCreditNote.totalAmount., workflowRole: Provides commercial context for settlement negotiation., optionalMeaning: Optional for non-financial claims.}
+  - name: resolutionCode
+    type: enum
+    required: false
+    values: [NO_ACTION, REPLACEMENT, REPAIR, RETURN, CREDIT, DEBIT_ADJUSTMENT, PRICE_ADJUSTMENT, ACCEPTED_EXCEPTION, REJECTED]
+    help: {summary: Agreed outcome of the supplier claim., businessMeaning: Records how the claim was resolved without itself executing the resulting transaction., usage: Supports supplier performance, recovery analytics and downstream workflow routing., relationshipContext: RETURN may create SupplierReturn; CREDIT may create SupplierCreditNote; the claim remains the case record., workflowRole: Determines which controlled downstream transaction is required., optionalMeaning: Optional until resolution is agreed.}
+  - name: notes
+    type: string
+    required: false
+    maxLength: 4000
+    help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication, investigation, escalation and audit., relationshipContext: Complements structured inspection and receipt evidence without replacing it., workflowRole: Supports review and resolution., optionalMeaning: Optional.}
+  relationships:
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help: {summary: Supplier against whom the claim is raised., businessMeaning: Identifies the external party responsible for the disputed supply or service., usage: Supports supplier communication, scorecards, recovery and escalation., workflowRole: Supplies supplier qualification and commercial context.}
+  - name: purchaseOrder
+    target: PurchaseOrder
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Procurement commitment associated with the claim., businessMeaning: Connects the supplier issue to the original purchasing commitment., usage: Supports contractual, price and quantity investigation., workflowRole: Supplies commercial source evidence.}
+  - name: goodsReceipts
+    target: GoodsReceipt
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Receipt evidence supporting the supplier claim., businessMeaning: Identifies received goods or services involved in the issue., usage: Supports quantity, date, acceptance and supplier-performance investigation., workflowRole: Supplies authoritative receiving evidence.}
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Quality inspections supporting the claim., businessMeaning: Links claim assertions to structured quality evidence., usage: Supports defect, nonconformance and supplier-quality investigations., workflowRole: Supplies inspection results and disposition evidence.}
+  - name: supplierReturns
+    target: SupplierReturn
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Physical supplier returns associated with the claim., businessMeaning: Connects the case to reverse-procurement transactions used to return material., usage: Supports quantity recovery, logistics and claim resolution., workflowRole: A RETURN resolution may require one or more SupplierReturn records.}
+  - name: supplierCreditNotes
+    target: SupplierCreditNote
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Supplier financial credits associated with the claim., businessMeaning: Connects commercial recovery to explicit financial adjustment evidence., usage: Supports accounts payable reconciliation and recovery reporting., workflowRole: A CREDIT resolution may result in one or more SupplierCreditNote records.}
+  invariants:
+  - {id: SUPPLIER-CLAIM-001, rule: OPEN or later claim status requires supplier context and claimType.}
+  - {id: SUPPLIER-CLAIM-002, rule: claimedAmount, when present, must be non-negative and use the governed claim currency.}
+  - {id: SUPPLIER-CLAIM-003, rule: ACCEPTED or PARTIALLY_ACCEPTED requires supporting investigation evidence appropriate to claimType.}
+  - {id: SUPPLIER-CLAIM-004, rule: A CREDIT resolution does not itself create accounting or payable reduction; an authorized SupplierCreditNote or other financial adjustment is required.}
+  - {id: SUPPLIER-CLAIM-005, rule: A RETURN resolution does not itself change inventory; an authorized SupplierReturn and attributable InventoryMovement are required.}
+  - {id: SUPPLIER-CLAIM-006, rule: Original PurchaseOrder, GoodsReceipt, Invoice and quality records remain immutable historical evidence; claim resolution must not rewrite them.}
+  - {id: SUPPLIER-CLAIM-007, rule: Closed claims retain links to all physical, quality and financial resolution evidence.}
+  - {id: SUPPLIER-CLAIM-008, rule: Corrections after closure use explicit amendment, reopening or compensating evidence according to policy and do not erase claim history.}
+  - {id: SUPPLIER-CLAIM-009, rule: Claim creation and resolution workflows must be idempotent so retries cannot duplicate returns or financial adjustments.}
+  help:
+    summary: Provides a formal, auditable case for supplier-related quality or commercial recovery while keeping physical and financial consequences as separate controlled transactions.
+    businessMeaning: SupplierClaim explains what went wrong and what recovery was requested or agreed. SupplierReturn records physical reversal; SupplierCreditNote records financial credit; QualityInspection records quality evidence.
+    usage: Supplier quality, procurement, warranty, dispute management, recovery, supplier scorecards, accounts payable and audit.
+    relationshipContext: PurchaseOrder and GoodsReceipt provide source procurement evidence; QualityInspection provides technical evidence; SupplierReturn provides physical recovery; SupplierCreditNote provides financial recovery.
+    workflowContext: Issue detected → claim opened → evidence collected → supplier review → accepted/rejected → resolution agreed → create required SupplierReturn/SupplierCreditNote/other adjustment → reconcile outcome → close claim. No downstream effect is inferred merely from claim acceptance.
+    lifecycle: Draft → open → under review → accepted/partially accepted/rejected → resolved → closed, with cancellation and escalation paths.
+    changePropagation: Changes to source receipt, inspection, return or financial resolution evidence trigger claim revalidation or reconciliation; completed source transactions remain immutable.
+    example: Three received units fail inspection. A SupplierClaim records the defect and requested recovery. The agreed resolution is RETURN plus CREDIT; a SupplierReturn handles physical movement and a SupplierCreditNote handles the approved payable reduction. The claim closes only after both required outcomes reconcile.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-CLAIM}
