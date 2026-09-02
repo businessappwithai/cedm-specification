@@ -1,0 +1,78 @@
+entity:
+  name: CreditNoteApplication
+  namespace: cedm.domain
+  kind: financial_settlement_adjustment
+  description: An explicit application of a posted customer CreditNote against one eligible Invoice claim, preserving the amount, currency, timing, and reversal evidence used to derive the Invoice's credited exposure.
+  identity: {key: creditNoteApplicationId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: creditNoteApplicationId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: Immutable identity of the credit application., businessMeaning: Identifies one controlled application independently of the CreditNote and Invoice., usage: Used for reconciliation, audit, reversal and settlement projections., relationshipContext: CreditNote supplies the adjustment; Invoice supplies the claim; this entity records the application bridge., workflowRole: Stable reference for applying and reversing customer credit., requiredMeaning: Required for traceability.}
+    - name: creditNoteAmount
+      type: Money
+      required: true
+      help: {summary: Portion of the CreditNote consumed by this application., businessMeaning: Represents the source-side amount of credit allocated to an invoice., usage: Controls remaining unapplied credit and reconciliation., relationshipContext: Must use the CreditNote currency., workflowRole: Establishes the amount consumed from the credit., requiredMeaning: Required.}
+    - name: invoiceAmount
+      type: Money
+      required: true
+      help: {summary: Amount by which the Invoice claim is reduced by this application., businessMeaning: Represents the target-side financial effect on the invoice., usage: Drives Invoice amountCredited and amountOutstanding., relationshipContext: Must use the Invoice currency and may differ from creditNoteAmount only under governed exchange-rate treatment., workflowRole: Supplies the claim-side adjustment., requiredMeaning: Required.}
+    - name: exchangeRateId
+      type: reference
+      target: ExchangeRate
+      required: false
+      immutable: true
+      help: {summary: Exchange rate used when CreditNote and Invoice currencies differ., businessMeaning: Preserves conversion evidence for cross-currency credit application., usage: Supports audit and reproducibility., relationshipContext: Required for permitted cross-currency applications., workflowRole: Connects source credit value to target invoice value., optionalMeaning: Optional when currencies are identical.}
+    - name: appliedAt
+      type: datetime
+      required: true
+      immutable: true
+      help: {summary: Timestamp when the application became effective., businessMeaning: Establishes adjustment chronology., usage: Supports accounting periods, statements, audit and reconciliation., relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes., requiredMeaning: Required.}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+      help: {summary: Lifecycle state of the application., businessMeaning: Indicates whether the application currently reduces the invoice., usage: Controls credit and invoice projections., relationshipContext: CreditNote and Invoice statuses remain independent historical facts., workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event., requiredMeaning: Required.}
+    - name: reversalOfApplicationId
+      type: reference
+      target: CreditNoteApplication
+      required: false
+      immutable: true
+      help: {summary: Prior application reversed by this record., businessMeaning: Links correction to the original adjustment application., usage: Supports audit and controlled reallocation., relationshipContext: Reversal is a new historical event and does not edit the original., workflowRole: Enables correction while preserving history., optionalMeaning: Optional for normal applications.}
+  relationships:
+    - name: creditNote
+      target: CreditNote
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Customer credit note supplying the adjustment., businessMeaning: Identifies the authorized financial credit being consumed., usage: Supports credit lifecycle and reconciliation., cardinalityMeaning: Exactly one CreditNote supplies each application., workflowRole: Supplies available credit and currency context.}
+    - name: invoice
+      target: Invoice
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Invoice receiving the financial reduction., businessMeaning: Identifies the claim whose outstanding exposure is reduced., usage: Supports receivables and statements., cardinalityMeaning: Exactly one Invoice is targeted., workflowRole: Supplies eligible outstanding exposure and currency context.}
+    - name: exchangeRate
+      target: ExchangeRate
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Conversion evidence for cross-currency application., businessMeaning: Preserves the rate used to calculate invoice-side credit., usage: Supports audit and reproducibility., cardinalityMeaning: At most one rate is associated., workflowRole: Makes conversion deterministic.}
+  invariants:
+    - {id: CREDIT-APPLICATION-001, rule: creditNoteAmount and invoiceAmount must be positive for an ACTIVE application.}
+    - {id: CREDIT-APPLICATION-002, rule: creditNoteAmount currency must equal the CreditNote currency.}
+    - {id: CREDIT-APPLICATION-003, rule: invoiceAmount currency must equal the Invoice currency.}
+    - {id: CREDIT-APPLICATION-004, rule: Cross-currency application requires an approved ExchangeRate and preserved conversion evidence.}
+    - {id: CREDIT-APPLICATION-005, rule: Active creditNoteAmount must not exceed the CreditNote's unapplied eligible amount.}
+    - {id: CREDIT-APPLICATION-006, rule: Active invoiceAmount must not exceed the Invoice's eligible outstanding exposure under policy.}
+    - {id: CREDIT-APPLICATION-007, rule: Reversal creates compensating history and must not mutate the original application.}
+    - {id: CREDIT-APPLICATION-008, rule: Invoice amountCredited and amountOutstanding must be projections of active applications and other authorized adjustment evidence.}
+    - {id: CREDIT-APPLICATION-009, rule: Application activation must be idempotent and protected against concurrent duplicate effects.}
+  help:
+    summary: Provides the auditable bridge by which a posted customer CreditNote is consumed against an Invoice.
+    businessMeaning: CreditNote establishes the authorized financial reduction; Invoice remains the original claim; CreditNoteApplication records exactly where and how much of the credit was used.
+    usage: Receivables, customer statements, returns, billing corrections, tax, reconciliation, audit and refund-versus-application decisions.
+    relationshipContext: CreditNoteLine explains source credit detail; InvoiceLine explains original claim detail; this entity records header-level application evidence; JournalEntry records accounting recognition; Payment records any separate refund.
+    workflowContext: CreditNote posted → select eligible Invoice → validate remaining credit and invoice exposure → currency/rate validation → activate application → update CreditNote amountApplied/amountRemaining and Invoice amountCredited/amountOutstanding/status → reverse and reallocate when required.
+    lifecycle: Draft → active → reversed/cancelled. Historical applications are retained.
+    changePropagation: Changes to posted CreditNote or Invoice never rewrite an application; corrections use reversal and replacement applications.
+    example: A posted USD 590 CreditNote is applied to a USD 590 open invoice. The application consumes USD 590 of available credit and reduces the invoice exposure by USD 590. If applied incorrectly, the application is reversed and a new application is created.
