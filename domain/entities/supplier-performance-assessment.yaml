@@ -1,0 +1,112 @@
+entity:
+  name: SupplierPerformanceAssessment
+  namespace: cedm.domain
+  kind: supplier_performance_management_transaction
+  description: A controlled assessment of a supplier's performance over a defined evaluation period, using procurement, delivery, quality, commercial, service and recovery evidence to support supplier governance and improvement decisions.
+  identity: {key: supplierPerformanceAssessmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: supplierPerformanceAssessmentId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Immutable identity of the supplier performance assessment., businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope., usage: Supplier governance, sourcing decisions, improvement plans, audit and reporting., relationshipContext: Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections., workflowRole: Stable reference across calculation, review, approval and follow-up., requiredMeaning: Required.}
+  - name: assessmentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Human-facing assessment reference., businessMeaning: Identifies the performance evaluation for operational and supplier communication., usage: Review meetings, supplier scorecards, audit and reporting., relationshipContext: Distinct from supplierCode, claimNumber and purchase order numbers., workflowRole: Correlates evidence and decisions throughout the assessment lifecycle., requiredMeaning: Required.}
+  - name: assessmentDate
+    type: date
+    required: true
+    help: {summary: Date on which the assessment is formally recorded., businessMeaning: Establishes the governance point at which the evaluated performance becomes an assessment record., usage: Supplier reviews, audit, reporting and decision chronology., workflowRole: Anchors approval and follow-up actions., requiredMeaning: Required.}
+  - name: periodStart
+    type: date
+    required: true
+    help: {summary: Beginning of the performance evaluation period., businessMeaning: Defines the historical window from which performance evidence is evaluated., usage: Score calculation, supplier comparison and trend reporting., relationshipContext: Evidence transactions must fall within or be explicitly associated with this evaluation scope., workflowRole: Establishes assessment boundaries., requiredMeaning: Required.}
+  - name: periodEnd
+    type: date
+    required: true
+    help: {summary: End of the performance evaluation period., businessMeaning: Defines the closing boundary of the performance evidence window., usage: Score calculation, reporting and supplier review., workflowRole: Completes the assessment scope., requiredMeaning: Required.}
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, IN_REVIEW, APPROVED, PUBLISHED, SUPERSEDED, CANCELLED]
+    help: {summary: Lifecycle state of the supplier performance assessment., businessMeaning: Separates calculation, review, approval, publication and replacement of scorecard results., usage: Controls whether the assessment may be changed or consumed by supplier governance., relationshipContext: Does not change the status of Supplier, PurchaseOrder, GoodsReceipt, Invoice or SupplierClaim records., workflowRole: PUBLISHED makes the assessment an approved historical scorecard; corrections use a replacement or superseding assessment., requiredMeaning: Required.}
+  - name: overallScore
+    type: decimal
+    required: false
+    minimum: 0
+    maximum: 100
+    help: {summary: Aggregate supplier performance score for the assessment scope., businessMeaning: Represents the governed result of the configured supplier scorecard calculation., usage: Supplier ranking, sourcing decisions, escalation and trend analysis., relationshipContext: Must be derived from defined performance measures and must not be treated as raw transaction evidence., workflowRole: Supports approval and supplier governance decisions., optionalMeaning: Optional until score calculation is complete.}
+  - name: rating
+    type: enum
+    required: false
+    values: [EXCELLENT, GOOD, ACCEPTABLE, NEEDS_IMPROVEMENT, UNSATISFACTORY]
+    help: {summary: Interpreted supplier performance rating., businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category., usage: Supplier segmentation, review cadence and improvement decisions., relationshipContext: Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence., workflowRole: Supports governance actions and escalation., optionalMeaning: Optional until the assessment is evaluated.}
+  - name: notes
+    type: string
+    required: false
+    maxLength: 4000
+    help: {summary: Qualitative context supporting the assessment., businessMeaning: Records material observations, explanations or agreed context that structured scores do not capture., usage: Supplier review, audit and improvement planning., workflowRole: Supplements but does not replace measurable evidence., optionalMeaning: Optional.}
+  relationships:
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help: {summary: Supplier being evaluated., businessMeaning: Identifies the external party whose performance is assessed., usage: Supplier governance, sourcing and improvement management., workflowRole: Supplies the master relationship and qualification context.}
+  - name: purchaseOrders
+    target: PurchaseOrder
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Procurement commitments included in the assessment scope., businessMeaning: Provides commercial demand evidence used to evaluate supplier performance., usage: Delivery, price, fulfillment and procurement analysis., workflowRole: Supplies source transaction evidence.}
+  - name: goodsReceipts
+    target: GoodsReceipt
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Receipt evidence used to evaluate supplier delivery and acceptance performance., businessMeaning: Provides actual received quantities and dates for supplier performance measurement., usage: On-time delivery, quantity accuracy, acceptance and receiving analysis., workflowRole: Supplies operational performance evidence.}
+  - name: supplierClaims
+    target: SupplierClaim
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Supplier claims included in the performance assessment., businessMeaning: Provides quality, shortage, damage, commercial and service issue evidence., usage: Defect rates, recovery outcomes, escalation and supplier improvement., workflowRole: Supplies negative-performance and recovery evidence.}
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Quality inspection evidence contributing to supplier performance evaluation., businessMeaning: Provides objective inspection outcomes for supplied material or services., usage: Acceptance rates, defect trends and supplier quality scorecards., workflowRole: Supplies quality evidence without being modified by the assessment.}
+  - name: supplierReturns
+    target: SupplierReturn
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Supplier returns considered in the assessment., businessMeaning: Provides evidence of material returned because of quality, quantity, commercial or other supplier-related issues., usage: Return rates, supplier recovery and corrective-action analysis., workflowRole: Supplies reverse-procurement evidence.}
+  - name: supplierClaimResolutions
+    target: SupplierClaimResolution
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Claim resolutions considered when evaluating supplier recovery and responsiveness., businessMeaning: Shows how supplier issues were resolved and whether agreed remedies were executed., usage: Recovery effectiveness, dispute management and supplier governance., workflowRole: Supplies resolution evidence without changing the underlying claim or remedy transactions.}
+  - name: correctiveActions
+    target: CorrectiveAction
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Corrective actions associated with supplier performance issues., businessMeaning: Provides evidence of supplier improvement work arising from nonconformances or claims., usage: CAPA effectiveness and supplier development., workflowRole: Helps assess whether recurring problems are being addressed.}
+  invariants:
+  - {id: SUPPLIER-PERFORMANCE-001, rule: periodEnd must not precede periodStart.}
+  - {id: SUPPLIER-PERFORMANCE-002, rule: APPROVED or PUBLISHED assessments must reference exactly one Supplier and have sufficient evidence for the configured scorecard.}
+  - {id: SUPPLIER-PERFORMANCE-003, rule: overallScore, when present, must be between 0 and 100 and must be reproducible from the governed assessment methodology.}
+  - {id: SUPPLIER-PERFORMANCE-004, rule: rating, when present, must reconcile with the approved scoring policy and overallScore where score-based rating is configured.}
+  - {id: SUPPLIER-PERFORMANCE-005, rule: Assessment calculations must not mutate PurchaseOrder, GoodsReceipt, QualityInspection, SupplierClaim, SupplierReturn, Invoice, Payment or corrective-action history.}
+  - {id: SUPPLIER-PERFORMANCE-006, rule: Evidence included in an assessment must remain traceable to its source transaction and evaluation period or an explicitly documented exception.}
+  - {id: SUPPLIER-PERFORMANCE-007, rule: PUBLISHED assessment results are immutable historical governance evidence; corrections require a superseding or replacement assessment.}
+  - {id: SUPPLIER-PERFORMANCE-008, rule: Assessment publication must be idempotent and must not create duplicate scorecards for the same assessment identity.}
+  help:
+    summary: Provides a governed supplier scorecard that converts procurement, receipt, quality, claim, return and corrective-action evidence into an auditable performance assessment.
+    businessMeaning: Supplier remains the master relationship; operational transactions provide evidence; SupplierPerformanceAssessment interprets that evidence for governance without rewriting the underlying facts.
+    usage: Supplier qualification, sourcing, supplier reviews, performance management, corrective improvement, risk management and procurement analytics.
+    relationshipContext: PurchaseOrder and GoodsReceipt provide commercial and delivery evidence; QualityInspection and SupplierClaim provide quality evidence; SupplierReturn and SupplierClaimResolution provide recovery evidence; CorrectiveAction provides improvement evidence.
+    workflowContext: Define evaluation period and methodology → collect transaction evidence → calculate measures → review → approve → publish scorecard → trigger supplier improvement, qualification or sourcing decisions where policy requires → later supersede with a new assessment.
+    lifecycle: Draft → in review → approved → published, with superseded and cancelled paths.
+    changePropagation: Changes to source transactions do not rewrite a published assessment; they trigger governed re-evaluation or a superseding assessment when the change materially affects the score. Supplier qualification decisions consuming the assessment must retain the assessment identity as evidence.
+    example: A quarterly assessment evaluates 120 purchase orders, 115 receipts, inspection failures, supplier claims and returns. The governed score is 82 and rating GOOD. The published assessment supports the next supplier review while all underlying transactions remain independently auditable.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-PERFORMANCE-ASSESSMENT}
