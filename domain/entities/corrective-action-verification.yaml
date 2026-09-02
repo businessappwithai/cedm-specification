@@ -1,0 +1,70 @@
+entity:
+  name: CorrectiveActionVerification
+  namespace: cedm.domain
+  kind: quality_verification_transaction
+  description: A controlled verification record that determines whether an implemented CorrectiveAction or PreventiveAction achieved its intended result and whether the associated quality issue can progress toward closure.
+  identity: {key: correctiveActionVerificationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: correctiveActionVerificationId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Stable identity of the verification record., businessMeaning: Identifies one independent verification event assessing an implemented corrective or preventive action., usage: Quality assurance CAPA audit supplier performance and closure evidence., relationshipContext: Distinct from CorrectiveAction and Nonconformance identities., workflowRole: Provides traceable evidence for a completion decision., requiredMeaning: Required.}
+  - name: verificationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Human-facing verification reference., businessMeaning: Identifies the verification event for quality operations and audit., usage: Reporting approval audit and supplier communication., relationshipContext: Distinct from actionNumber and nonconformance number., workflowRole: Correlates verification evidence throughout closure., requiredMeaning: Required.}
+  - name: verificationDate
+    type: datetime
+    required: true
+    help: {summary: Date and time effectiveness verification was performed., businessMeaning: Establishes when evidence was evaluated against the intended outcome., usage: Audit SLA quality reporting and closure chronology., workflowRole: Anchors the verification event., requiredMeaning: Required.}
+  - name: result
+    type: enum
+    required: true
+    values: [EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_VERIFIABLE]
+    help: {summary: Outcome of effectiveness verification., businessMeaning: States whether the action achieved its intended quality outcome., usage: Controls corrective-action completion recurrence handling and escalation., relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence., workflowRole: Determines whether action may be completed or must be reopened., requiredMeaning: Required.}
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, IN_PROGRESS, COMPLETED, REOPENED, CANCELLED]
+    help: {summary: Lifecycle state of verification., businessMeaning: Separates preparation evaluation completion and follow-up., usage: Quality governance and audit., workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required., requiredMeaning: Required.}
+  - name: findings
+    type: string
+    required: true
+    maxLength: 4000
+    help: {summary: Evidence and observations supporting the verification result., businessMeaning: Explains what was checked and why the result was reached., usage: Audit quality review supplier improvement and recurrence analysis., workflowRole: Supports effectiveness decision., requiredMeaning: Required.}
+  - name: verifiedBy
+    type: reference
+    target: Party
+    required: true
+    help: {summary: Party accountable for performing or approving effectiveness verification., businessMeaning: Establishes accountability for the verification decision., usage: Audit trail quality governance and segregation of duties., workflowRole: Provides verification authority., requiredMeaning: Required.}
+  relationships:
+  - name: correctiveAction
+    target: CorrectiveAction
+    cardinality: '1'
+    ownership: reference
+    help: {summary: Corrective action being evaluated., businessMeaning: Connects verification evidence to the action whose implementation is assessed., usage: CAPA closure audit and quality reporting., workflowRole: Verification result controls whether action can be completed.}
+  - name: nonconformance
+    target: Nonconformance
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Nonconformance for which the action was established., businessMeaning: Connects effectiveness evidence to the original quality deviation., usage: Issue closure and recurrence analysis., workflowRole: Provides context for determining whether the underlying issue is controlled.}
+  invariants:
+  - {id: CORRECTIVE-ACTION-VERIFICATION-001, rule: A COMPLETED verification must have a result and findings.}
+  - {id: CORRECTIVE-ACTION-VERIFICATION-002, rule: EFFECTIVE verification may support CorrectiveAction completion only when all required implementation evidence exists.}
+  - {id: CORRECTIVE-ACTION-VERIFICATION-003, rule: INEFFECTIVE or NOT_VERIFIABLE verification must not silently complete the associated CorrectiveAction; additional action or explicit exception is required.}
+  - {id: CORRECTIVE-ACTION-VERIFICATION-004, rule: Verification evidence must not mutate historical Nonconformance or completed CorrectiveAction records.}
+  - {id: CORRECTIVE-ACTION-VERIFICATION-005, rule: Verification must be idempotent and duplicate completion evidence must not create conflicting effectiveness decisions.}
+  help:
+    summary: Provides independent auditable evidence that a corrective or preventive action achieved its intended result.
+    businessMeaning: CorrectiveAction records what was done; CorrectiveActionVerification records whether it worked; Nonconformance records the original quality problem.
+    usage: CAPA supplier quality compliance audit recurrence prevention and issue closure.
+    relationshipContext: Verification closes the evidence loop between Nonconformance and CorrectiveAction without conflating implementation with effectiveness.
+    workflowContext: Nonconformance → CorrectiveAction → implementation → effectiveness verification → effective closure or ineffective/reopened action → Nonconformance closure when all required evidence is satisfied.
+    lifecycle: Open → in progress → completed, with reopened or cancelled paths.
+    changePropagation: Ineffective verification reopens or creates additional CorrectiveAction work according to policy; it must not silently close the underlying Nonconformance.
+    example: A supplier defect causes a corrective action requiring a packaging-process change. After implementation, verification evaluates subsequent lots, records EFFECTIVE, and provides evidence needed to complete the action and eventually close the nonconformance.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CORRECTIVE-ACTION-VERIFICATION}
