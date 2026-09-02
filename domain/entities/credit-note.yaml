@@ -2,42 +2,24 @@ entity:
   name: CreditNote
   namespace: cedm.domain
   kind: financial_adjustment_transaction
-  description: A formal financial adjustment that reduces a customer's receivable claim or otherwise credits an eligible original Invoice, preserving the original invoice as immutable historical evidence and recording the authorized reason, lines, tax, currency, accounting recognition, and return linkage.
+  description: A formal financial adjustment that reduces a customer's receivable claim or otherwise credits an eligible original Invoice, preserving the original invoice as immutable historical evidence and recording the authorized reason, lines, tax, currency, accounting recognition, application, return linkage, and refund evidence.
   identity: {key: creditNoteId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: creditNoteId
     type: uuid
     required: true
     immutable: true
-    help:
-      summary: Immutable identity of the credit note.
-      businessMeaning: Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, or refund.
-      usage: Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows.
-      relationshipContext: CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim.
-      workflowRole: Root reference across preparation, approval, posting, reversal, reporting and refund processing.
-      requiredMeaning: Required for financial traceability.
+    help: {summary: Immutable identity of the credit note., businessMeaning: Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, application or refund., usage: Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows., relationshipContext: CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim., workflowRole: Root reference across preparation, approval, posting, application, reversal, reporting and refund processing., requiredMeaning: Required.}
   - name: creditNoteNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help:
-      summary: Business-facing reference assigned to the credit note.
-      businessMeaning: Identifies the adjustment in customer communication, tax documents, statements and finance operations.
-      usage: Used for reconciliation, customer service, reporting, tax and integrations.
-      relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber.
-      workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle.
-      requiredMeaning: Required for operational and financial communication.
+    help: {summary: Business-facing reference assigned to the credit note., businessMeaning: Identifies the adjustment in customer communication, tax documents, statements and finance operations., usage: Used for reconciliation, customer service, reporting, tax and integrations., relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber., workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle., requiredMeaning: Required.}
   - name: creditNoteDate
     type: date
     required: true
-    help:
-      summary: Commercial and accounting date of the credit adjustment.
-      businessMeaning: Establishes the temporal basis for accounting, tax and customer balance treatment.
-      usage: Used for accounting periods, tax reporting, statements and audit.
-      relationshipContext: May differ from the CustomerReturn returnDate and refund payment date.
-      workflowRole: Anchors the financial adjustment in the applicable accounting and tax period.
-      requiredMeaning: Required for financial chronology.
+    help: {summary: Commercial and accounting date of the credit adjustment., businessMeaning: Establishes the temporal basis for accounting, tax and customer balance treatment., usage: Used for accounting periods, tax reporting, statements and audit., relationshipContext: May differ from CustomerReturn returnDate and refund payment date., workflowRole: Anchors the financial adjustment in the applicable accounting and tax period., requiredMeaning: Required.}
   - name: status
     type: enum
     required: true
@@ -47,181 +29,103 @@ entity:
       summary: Lifecycle state of the credit adjustment.
       businessMeaning: Indicates preparation, authorization, accounting recognition, application to invoices, customer refund obligation, settlement, cancellation or reversal.
       usage: Controls approval, posting, application, refund and correction workflows.
-      relationshipContext: CreditNote status is independent of Invoice, CustomerReturn and Payment status.
-      workflowRole: POSTED establishes the financial adjustment; application reduces eligible outstanding receivable; refund states apply when the customer has already paid and policy requires money to be returned.
-      requiredMeaning: Required for controlled adjustment lifecycle.
-      valueSemantics:
-        DRAFT: Being prepared and not financially recognized.
-        APPROVED: Authorized but not yet posted.
-        POSTED: Financial adjustment recognized in accounting and customer balance processing.
-        PARTIALLY_APPLIED: Part of the credit has been applied to eligible claims.
-        FULLY_APPLIED: Entire credit has been applied under policy.
-        REFUND_DUE: Credit exceeds applicable open claims or relates to already-settled customer exposure and a refund is authorized or required.
-        REFUNDED: Required refund has been settled through a separate Payment workflow.
-        CANCELLED: Cancelled before financial recognition or under authorized controls.
-        REVERSED: Posted credit has been counteracted by an explicit financial reversal.
+      relationshipContext: CreditNote status is independent of Invoice, CustomerReturn, Payment and CreditNoteApplication status.
+      workflowRole: POSTED establishes the financial adjustment; application reduces eligible outstanding receivable; refund states apply when money must be returned.
+      requiredMeaning: Required.
   - name: currencyId
     type: reference
     target: Currency
     required: true
     immutableAfterPosting: true
-    help:
-      summary: Currency in which the credit note is denominated.
-      businessMeaning: Defines the monetary denomination of all credit-note amounts.
-      usage: Used for calculation, tax, accounting, invoice application, customer balance and refund processing.
-      relationshipContext: Must normally match the credited Invoice currency; any permitted cross-currency treatment requires explicit ExchangeRate evidence.
-      workflowRole: Establishes the monetary basis for the adjustment and its application.
-      requiredMeaning: Required for interpreting credit values.
+    help: {summary: Currency in which the credit note is denominated., businessMeaning: Defines the monetary denomination of all credit-note amounts., usage: Used for calculation, tax, accounting, invoice application, customer balance and refund processing., relationshipContext: Must normally match credited Invoice currency; permitted cross-currency application requires explicit ExchangeRate evidence., workflowRole: Establishes monetary basis for adjustment and application., requiredMeaning: Required.}
   - name: reasonCode
     type: string
     required: true
     maxLength: 100
-    help:
-      summary: Controlled business reason for issuing the credit.
-      businessMeaning: Explains why customer exposure is being reduced, such as returned goods, pricing correction, service concession or billing error.
-      usage: Used for approval, policy, analytics, tax, audit and customer communication.
-      relationshipContext: Return reason and credit reason may differ; reasonCode records the financial justification.
-      workflowRole: Determines applicable approval, calculation, tax and posting policy.
-      requiredMeaning: Required to make the adjustment auditable.
+    help: {summary: Controlled business reason for issuing the credit., businessMeaning: Explains why customer exposure is reduced., usage: Used for approval, policy, analytics, tax, audit and customer communication., relationshipContext: Return reason and financial credit reason may differ., workflowRole: Determines applicable approval, calculation, tax and posting policy., requiredMeaning: Required.}
   - name: subtotal
     type: Money
     required: true
-    help:
-      summary: Aggregate credit value before document-level tax and adjustments.
-      businessMeaning: Sum of credit-note line bases after applicable line pricing treatment.
-      usage: Used for tax, reconciliation, accounting and reporting.
-      relationshipContext: Must reconcile with CreditNoteLine amounts and original transaction evidence.
-      workflowRole: Feeds taxable amount and total credit calculation.
-      requiredMeaning: Required for deterministic calculation.
+    help: {summary: Aggregate credit value before document-level tax and adjustments., businessMeaning: Sum of credit-note line bases after applicable line pricing treatment., usage: Used for tax, reconciliation, accounting and reporting., relationshipContext: Must reconcile with CreditNoteLine amounts and original transaction evidence., workflowRole: Feeds taxable amount and total credit calculation., requiredMeaning: Required.}
   - name: taxAmount
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Tax component reversed or credited by the adjustment.
-      businessMeaning: Represents the tax reduction associated with the credited transaction under applicable tax policy.
-      usage: Used for tax reporting, accounting and reconciliation.
-      relationshipContext: Must reconcile with CreditNoteLine tax evidence and the original InvoiceLine tax treatment where applicable.
-      workflowRole: Contributes to the total financial adjustment.
-      requiredMeaning: Required, including zero when no tax applies.
+    help: {summary: Tax component reversed or credited by the adjustment., businessMeaning: Represents tax reduction associated with credited transaction., usage: Used for tax reporting, accounting and reconciliation., relationshipContext: Must reconcile with CreditNoteLine tax evidence and original InvoiceLine treatment where applicable., workflowRole: Contributes to total adjustment., requiredMeaning: Required, including zero.}
   - name: totalAmount
     type: Money
     required: true
-    help:
-      summary: Total monetary reduction represented by the credit note.
-      businessMeaning: Amount by which eligible customer exposure is reduced before application or refund settlement.
-      usage: Used for receivable adjustment, customer statements, tax, accounting, application and refund decisions.
-      relationshipContext: It is not itself a cash refund; a refund requires a separate Payment event.
-      workflowRole: Establishes the maximum amount that can be applied or refunded under policy.
-      requiredMeaning: Required for financial settlement.
+    help: {summary: Total monetary reduction represented by the credit note., businessMeaning: Amount by which eligible customer exposure is reduced before application or refund settlement., usage: Used for receivable adjustment, statements, tax, accounting, application and refund decisions., relationshipContext: Not itself a cash refund; refund requires a separate Payment event., workflowRole: Maximum amount that can be applied or refunded under policy., requiredMeaning: Required.}
   - name: amountApplied
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Portion of the posted credit note already applied to eligible invoice balances.
-      businessMeaning: Represents non-cash use of the credit to reduce customer receivable exposure.
-      usage: Used for application status, statements and remaining credit calculation.
-      relationshipContext: Application must be supported by explicit allocation evidence; it does not mutate the original Invoice.
-      workflowRole: Changes through controlled credit application or reversal workflows.
-      requiredMeaning: Required as a settlement projection.
+    help: {summary: Portion of the posted credit note already applied to eligible invoice balances., businessMeaning: Represents non-cash use of the credit to reduce receivable exposure., usage: Used for application status, statements and remaining credit calculation., relationshipContext: Must reconcile with active CreditNoteApplication records., workflowRole: Changes through controlled application or reversal workflows., requiredMeaning: Required as a settlement projection.}
   - name: amountRefunded
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Portion of the credit that has actually been paid back to the customer.
-      businessMeaning: Represents cash settlement of customer credit, not merely authorization of a refund.
-      usage: Used for refund reconciliation, customer balance and audit.
-      relationshipContext: Must reconcile with separate refund Payment evidence; creating a CreditNote never by itself changes historical Payment records.
-      workflowRole: Changes only after an authorized refund Payment is posted and linked.
-      requiredMeaning: Required as a refund projection.
+    help: {summary: Portion of the credit actually paid back to the customer., businessMeaning: Represents cash settlement of customer credit., usage: Used for refund reconciliation, customer balance and audit., relationshipContext: Must reconcile with refund Payment evidence., workflowRole: Changes only after an authorized refund Payment is posted and linked., requiredMeaning: Required as a refund projection.}
   - name: amountRemaining
     type: Money
     required: true
     default: {amount: 0}
-    help:
-      summary: Unapplied and unrefunded portion of the posted credit.
-      businessMeaning: Represents remaining customer credit exposure available for future application or refund according to policy.
-      usage: Drives application, refund and reconciliation decisions.
-      relationshipContext: Reconciles totalAmount against active application and refund evidence.
-      workflowRole: Determines whether the credit can be further applied or requires resolution.
-      requiredMeaning: Required for controlled credit settlement.
+    help: {summary: Unapplied and unrefunded portion of the posted credit., businessMeaning: Represents remaining customer credit exposure available for application or refund., usage: Drives application, refund and reconciliation decisions., relationshipContext: Reconciles totalAmount against active application and refund evidence., workflowRole: Determines whether further application or refund is permitted., requiredMeaning: Required.}
   relationships:
   - name: customer
     target: Customer
     cardinality: '1'
     ownership: reference
-    help:
-      summary: Customer whose financial exposure is reduced by the credit note.
-      businessMeaning: Identifies the party receiving the financial benefit of the adjustment.
-      usage: Supports statements, receivables, approval, tax, refund and audit.
-      workflowRole: Provides customer context for eligibility and settlement.
+    help: {summary: Customer whose financial exposure is reduced., businessMeaning: Identifies party receiving financial benefit., usage: Supports statements, receivables, approval, tax, refund and audit., workflowRole: Provides customer eligibility and settlement context.}
   - name: originalInvoices
     target: Invoice
     cardinality: 1..*
     ownership: reference
-    help:
-      summary: Original financial claims to which the credit note relates.
-      businessMeaning: Establishes the historical claim basis for the adjustment without modifying those invoices.
-      usage: Supports audit, customer statements, tax, reconciliation and credit application.
-      cardinalityMeaning: A credit note may correct one or multiple eligible invoices when policy permits.
-      workflowRole: Supplies the original claim context used to validate credit eligibility.
+    help: {summary: Original financial claims to which the credit relates., businessMeaning: Establishes historical claim basis without modifying invoices., usage: Supports audit, statements, tax, reconciliation and application., cardinalityMeaning: One or more eligible invoices may be referenced., workflowRole: Supplies claim context for credit eligibility.}
   - name: lines
     target: CreditNoteLine
     cardinality: 1..*
     ownership: aggregate
-    help:
-      summary: Detailed credited quantities, values, taxes and source references.
-      businessMeaning: Provides the calculation evidence from which the credit note total is derived.
-      usage: Supports return-based credit, pricing corrections, tax adjustments, audit and reconciliation.
-      workflowRole: Lines determine subtotal, tax and total and preserve source InvoiceLine/CustomerReturnLine evidence.
+    help: {summary: Detailed credited quantities, values, taxes and source references., businessMeaning: Provides calculation evidence for credit total., usage: Supports return-based credit, pricing corrections, tax adjustments and audit., workflowRole: Lines determine subtotal, tax and total.}
   - name: customerReturns
     target: CustomerReturn
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Customer returns that provide physical or commercial justification for the credit.
-      businessMeaning: Links the financial adjustment to reverse-fulfillment events without making physical return status itself a financial posting.
-      usage: Supports return-to-credit traceability, approval, audit and dispute handling.
-      workflowRole: Approved return disposition can provide the eligibility and quantity basis for credit calculation.
+    help: {summary: Customer returns providing physical or commercial justification., businessMeaning: Links financial adjustment to reverse fulfillment., usage: Supports return-to-credit traceability, approval and audit., workflowRole: Approved return disposition provides eligibility and quantity basis.}
+  - name: applications
+    target: CreditNoteApplication
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Explicit applications of this credit note against eligible Invoice claims., businessMeaning: Records exactly how the posted credit is consumed without changing original invoice history., usage: Supports receivable settlement, statements, reconciliation, audit, reversal and remaining-credit calculation., cardinalityMeaning: A credit may be unapplied, partially applied or applied through multiple controlled applications., workflowRole: Active applications drive amountApplied and amountRemaining and may transition the credit to PARTIALLY_APPLIED or FULLY_APPLIED.}
   - name: journalEntries
     target: JournalEntry
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Accounting entries recognizing the credit note and its reversals.
-      businessMeaning: Separates accounting recognition from the credit-note business document.
-      usage: Supports receivable, revenue, tax, inventory and audit accounting.
-      workflowRole: POSTED credit requires appropriate accounting recognition according to configured policy.
+    help: {summary: Accounting entries recognizing the credit note and its reversals., businessMeaning: Separates accounting recognition from the business adjustment document., usage: Supports receivable, revenue, tax and audit accounting., workflowRole: Posted credit requires appropriate accounting recognition.}
   - name: refundPayments
     target: Payment
     cardinality: 0..*
     ownership: reference
-    help:
-      summary: Payments disbursed to settle a refund arising from the credit note.
-      businessMeaning: Connects the financial adjustment to actual cash returned to the customer.
-      usage: Supports refund execution, bank reconciliation and audit.
-      workflowRole: A refund Payment is a separate settlement event and must not overwrite the original receipt payment.
+    help: {summary: Payments disbursed to settle a refund arising from the credit note., businessMeaning: Connects financial adjustment to actual cash returned., usage: Supports refund execution, bank reconciliation and audit., workflowRole: Refund Payment is separate settlement evidence and never overwrites original payment history.}
   invariants:
   - {id: CREDIT-NOTE-001, rule: totalAmount must reconcile with CreditNoteLine values, tax, rounding and applicable adjustment policy.}
-  - {id: CREDIT-NOTE-002, rule: A posted CreditNote must reference at least one eligible original Invoice or another explicitly supported source transaction.}
+  - {id: CREDIT-NOTE-002, rule: A posted CreditNote must reference at least one eligible original Invoice or explicitly supported source transaction.}
   - {id: CREDIT-NOTE-003, rule: Original Invoice and InvoiceLine history must never be destructively changed to create a credit.}
-  - {id: CREDIT-NOTE-004, rule: Return-based credit cannot exceed the approved credit amount supported by eligible CustomerReturnLine evidence and applicable pricing, tax, discount and return policy.}
-  - {id: CREDIT-NOTE-005, rule: A CreditNote must not itself be treated as a cash refund; refund cash requires a separate Payment with explicit linkage.}
-  - {id: CREDIT-NOTE-006, rule: amountApplied plus amountRefunded must not exceed totalAmount except under an explicitly authorized correction/reversal policy.}
-  - {id: CREDIT-NOTE-007, rule: Posting a CreditNote must generate or link the required JournalEntry accounting recognition before the adjustment is treated as financially posted.}
+  - {id: CREDIT-NOTE-004, rule: Return-based credit cannot exceed approved credit supported by eligible CustomerReturnLine evidence and applicable pricing, tax, discount and return policy.}
+  - {id: CREDIT-NOTE-005, rule: CreditNote is not itself a cash refund; refund cash requires separate Payment evidence.}
+  - {id: CREDIT-NOTE-006, rule: amountApplied plus amountRefunded must not exceed totalAmount except under explicitly authorized correction/reversal policy.}
+  - {id: CREDIT-NOTE-007, rule: Posting a CreditNote must generate or link required JournalEntry accounting recognition before financial posting.}
   - {id: CREDIT-NOTE-008, rule: Tax, currency, pricing, discount and rounding treatment must preserve sufficient transaction-time evidence to reproduce the adjustment.}
-  - {id: CREDIT-NOTE-009, rule: Reversal or cancellation after posting requires compensating accounting and application/refund workflows; historical credit evidence is retained.}
+  - {id: CREDIT-NOTE-009, rule: Reversal or cancellation after posting requires compensating accounting and application/refund workflows; historical evidence is retained.}
   - {id: CREDIT-NOTE-010, rule: Credit-note posting and application must be idempotent and protected against concurrent duplicate financial effects.}
   - {id: CREDIT-NOTE-011, rule: Changes to CustomerReturn, CustomerReturnLine, Invoice, InvoiceLine, Customer, Currency, TaxRule or pricing policy affecting an open credit require controlled revalidation.}
+  - {id: CREDIT-NOTE-012, rule: amountApplied must equal the active CreditNoteApplication invoice-side amounts under the applicable currency and rounding policy.}
   help:
-    summary: Represents an explicit reduction of a customer's financial claim while preserving the original invoice and return evidence.
-    businessMeaning: CustomerReturn records the reverse-fulfillment event; CreditNote records the financial adjustment; Invoice remains the original historical claim; JournalEntry records accounting recognition; Payment records any actual refund cash.
+    summary: Represents an explicit reduction of a customer's financial claim while preserving original invoice, return, accounting, application and refund evidence.
+    businessMeaning: CustomerReturn records reverse fulfillment; CreditNote records the financial adjustment; CreditNoteApplication records how it is consumed; Invoice remains the historical claim; JournalEntry records accounting; Payment records any refund cash.
     usage: Customer returns, accounts receivable, billing corrections, tax adjustments, customer concessions, statements, audit and refunds.
-    relationshipContext: CustomerReturnLine provides returned quantity and approved credit basis. InvoiceLine provides original billed quantity/value/tax evidence. CreditNoteLine captures the credited result. JournalEntry records accounting. Payment records any subsequent refund.
-    workflowContext: Return authorized → received/inspected → disposition approved → credit eligibility calculated → CreditNote draft → approval → accounting determination → post → apply to open Invoice balance or establish refund due → refund Payment if required → reconcile → fully applied/refunded. Original Invoice and Payment history remain immutable.
+    relationshipContext: CustomerReturnLine provides returned quantity and approved credit basis. InvoiceLine provides original billed evidence. CreditNoteLine captures adjustment detail. CreditNoteApplication connects the adjustment to invoice exposure. JournalEntry records accounting. Payment records refund.
+    workflowContext: Return authorized → received/inspected → disposition approved → credit eligibility calculated → CreditNote draft → approval → accounting determination → post → create CreditNoteApplication against open Invoice or establish refund due → refund Payment if required → reconcile → fully applied/refunded. Original Invoice and Payment history remain immutable.
     lifecycle: Draft → approved → posted → partially applied/fully applied or refund due → refunded, with cancellation and reversal paths.
-    changePropagation: Changes to return disposition or original invoice evidence can trigger revalidation of an unposted credit. Posted credit changes require explicit reversal and replacement. A refund payment changes the credit settlement state but never rewrites the original receipt payment.
-    example: A customer returns five units with an approved credit of USD 590. A CreditNote is posted for USD 590 and reduces the eligible receivable. If the original invoice is already fully paid, the USD 590 becomes refund due and a separate refund Payment settles it. The original invoice and original receipt payment remain historical evidence.
-specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CREDIT-NOTE}
+    changePropagation: Changes to return disposition or original invoice evidence trigger revalidation of an unposted credit. Posted credit changes require explicit reversal and replacement. Applications are corrected by reversal/reallocation, and refund payments remain separate evidence.
+    example: A customer returns five units with approved credit of USD 590. CreditNote is posted for USD 590. A CreditNoteApplication can consume the credit against an open invoice; if no eligible balance exists, the credit becomes refund due and a separate Payment settles it.
