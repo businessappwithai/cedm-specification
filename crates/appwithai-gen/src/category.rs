@@ -13,6 +13,8 @@
 
 use std::collections::BTreeMap;
 
+use crate::records::CategoryDeclaration;
+
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
@@ -104,17 +106,16 @@ fn is_truthy(value: &str) -> bool {
     )
 }
 
-/// Every `%%category` directive in a document, in declaration order.
-///
-/// Duplicate codes merge — later fields win, entity lists append — so a model
-/// split across files does not silently lose assignments.
+/// Every `%%category` directive in a document, compiled, in declaration order.
+#[cfg(test)]
 pub fn parse_categories(source: &str) -> Vec<Category> {
-    // Insertion order matters (it is the seed order), so this keeps a Vec and
-    // an index rather than relying on a map's iteration order.
-    let mut categories: Vec<Category> = Vec::new();
-    let mut index_by_code: BTreeMap<String, usize> = BTreeMap::new();
-    let mut order: i64 = 0;
+    compile_category_declarations(&read_category_directives(source))
+}
 
+/// Read every `%%category` directive into a declaration, uncompiled. A
+/// directive without a `name` is not a declaration: there is nothing to render.
+pub fn read_category_directives(source: &str) -> Vec<CategoryDeclaration> {
+    let mut declarations = Vec::new();
     for line in unfold(source) {
         let Some(body) = strip_directive(&line, "category") else {
             continue;
@@ -130,40 +131,64 @@ pub fn parse_categories(source: &str) -> Vec<Category> {
         if name.is_empty() {
             continue;
         }
+        let non_empty = |key: &str| fields.get(key).filter(|v| !v.is_empty()).cloned();
 
-        let code = fields
-            .get("code")
-            .map(|c| c.trim().to_string())
-            .filter(|c| !c.is_empty())
-            .unwrap_or_else(|| slugify(&name));
+        declarations.push(CategoryDeclaration {
+            name,
+            code: fields
+                .get("code")
+                .map(|c| c.trim().to_string())
+                .filter(|c| !c.is_empty()),
+            description: non_empty("description"),
+            icon: non_empty("icon"),
+            color: non_empty("color"),
+            seq: fields.get("seq").and_then(|s| s.trim().parse::<i64>().ok()),
+            is_default: fields.map_get_truthy("default"),
+            entities: fields
+                .get("entities")
+                .map(|raw| {
+                    raw.split(',')
+                        .map(|e| e.trim().to_string())
+                        .filter(|e| !e.is_empty())
+                        .collect()
+                })
+                .unwrap_or_default(),
+        });
+    }
+    declarations
+}
+
+/// Compile category declarations. Duplicate codes merge — later fields win,
+/// entity lists append — so a model split across files does not silently lose
+/// assignments.
+pub fn compile_category_declarations(declarations: &[CategoryDeclaration]) -> Vec<Category> {
+    // Insertion order matters (it is the seed order), so this keeps a Vec and
+    // an index rather than relying on a map's iteration order.
+    let mut categories: Vec<Category> = Vec::new();
+    let mut index_by_code: BTreeMap<String, usize> = BTreeMap::new();
+    let mut order: i64 = 0;
+
+    for declaration in declarations {
+        let name = declaration.name.clone();
+        let code = declaration.code.clone().unwrap_or_else(|| slugify(&name));
         if code.is_empty() {
             continue;
         }
-
-        let entities: Vec<String> = fields
-            .get("entities")
-            .map(|raw| {
-                raw.split(',')
-                    .map(|e| e.trim().to_string())
-                    .filter(|e| !e.is_empty())
-                    .collect()
-            })
-            .unwrap_or_default();
-
-        let seq = fields.get("seq").and_then(|s| s.trim().parse::<i64>().ok());
-        let declared_default = fields.map_get_truthy("default");
+        let entities = declaration.entities.clone();
+        let seq = declaration.seq;
+        let declared_default = declaration.is_default;
 
         match index_by_code.get(&code).copied() {
             Some(existing_index) => {
                 let existing = &mut categories[existing_index];
                 existing.name = name;
-                if let Some(value) = fields.get("description").filter(|v| !v.is_empty()) {
+                if let Some(value) = &declaration.description {
                     existing.description = Some(value.clone());
                 }
-                if let Some(value) = fields.get("icon").filter(|v| !v.is_empty()) {
+                if let Some(value) = &declaration.icon {
                     existing.icon = Some(value.clone());
                 }
-                if let Some(value) = fields.get("color").filter(|v| !v.is_empty()) {
+                if let Some(value) = &declaration.color {
                     existing.color = Some(value.clone());
                 }
                 if let Some(value) = seq {
@@ -186,9 +211,9 @@ pub fn parse_categories(source: &str) -> Vec<Category> {
                 categories.push(Category {
                     name,
                     code: code.clone(),
-                    description: fields.get("description").filter(|v| !v.is_empty()).cloned(),
-                    icon: fields.get("icon").filter(|v| !v.is_empty()).cloned(),
-                    color: fields.get("color").filter(|v| !v.is_empty()).cloned(),
+                    description: declaration.description.clone(),
+                    icon: declaration.icon.clone(),
+                    color: declaration.color.clone(),
                     seq_no: seq.unwrap_or(order),
                     is_default: declared_default,
                     entities: deduped,
@@ -233,8 +258,17 @@ pub(crate) fn strip_directive(line: &str, keyword: &str) -> Option<String> {
 ///
 /// A model that declares none still gets a single "General" default holding
 /// every entity, so the dashboard and admin screens work out of the box.
+#[cfg(test)]
 pub fn resolve_categories(source: &str, entity_names: &[String]) -> Vec<Category> {
-    let mut declared = parse_categories(source);
+    resolve_category_declarations(&read_category_directives(source), entity_names)
+}
+
+/// `resolve_categories` over declarations already read, from either syntax.
+pub fn resolve_category_declarations(
+    declarations: &[CategoryDeclaration],
+    entity_names: &[String],
+) -> Vec<Category> {
+    let mut declared = compile_category_declarations(declarations);
 
     if declared.is_empty() {
         return vec![Category {

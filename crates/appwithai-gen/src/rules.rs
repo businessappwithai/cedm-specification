@@ -16,6 +16,7 @@
 //! rather than writing null), and `serde_json::to_string` is the only
 //! serialiser used — `to_string_pretty` would add whitespace JS never emits.
 
+use crate::records::{RuleAction, RuleDeclaration, RuleEdge, RuleNode};
 use std::collections::BTreeMap;
 
 use serde::Serialize;
@@ -301,6 +302,30 @@ pub enum NodeShape {
     Rect,
     Circle,
     Round,
+}
+
+impl NodeShape {
+    /// The shape's name in the model records and the YAML model language.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            NodeShape::Stadium => "stadium",
+            NodeShape::Diamond => "diamond",
+            NodeShape::Rect => "rect",
+            NodeShape::Circle => "circle",
+            NodeShape::Round => "round",
+        }
+    }
+
+    pub fn from_name(name: &str) -> Option<Self> {
+        Some(match name {
+            "stadium" => NodeShape::Stadium,
+            "diamond" => NodeShape::Diamond,
+            "rect" => NodeShape::Rect,
+            "circle" => NodeShape::Circle,
+            "round" => NodeShape::Round,
+            _ => return None,
+        })
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -704,8 +729,20 @@ fn parse_action_props(rest: &str) -> BTreeMap<String, String> {
     props
 }
 
-/// `%%action <name> <type> when: <expr> <key>: <value> ...`
+/// `%%action <name> <type> when: <expr> <key>: <value> ...`, compiled: an
+/// action with no `when:` fires on every write.
+#[cfg(test)]
 pub fn parse_rule_actions(flowchart: &str) -> Vec<CompiledRuleAction> {
+    read_rule_actions(flowchart)
+        .iter()
+        .map(with_default_condition)
+        .collect()
+}
+
+/// Read a rule body's `%%action` lines as written: an action that states no
+/// `when:` keeps none, so "always" said outright and "always" by omission —
+/// which the checker tells apart (EML282) — survive reading.
+pub fn read_rule_actions(flowchart: &str) -> Vec<RuleAction> {
     let mut actions = Vec::new();
     for raw_line in flowchart.lines() {
         let line = raw_line.trim();
@@ -734,10 +771,9 @@ pub fn parse_rule_actions(flowchart: &str) -> Vec<CompiledRuleAction> {
         let when = props
             .remove("when")
             .map(|value| value.trim().to_string())
-            .filter(|value| !value.is_empty())
-            .unwrap_or_else(|| "true".to_string());
+            .filter(|value| !value.is_empty());
 
-        actions.push(CompiledRuleAction {
+        actions.push(RuleAction {
             name: name.to_string(),
             action_type: action_type.to_string(),
             when,
@@ -745,6 +781,16 @@ pub fn parse_rule_actions(flowchart: &str) -> Vec<CompiledRuleAction> {
         });
     }
     actions
+}
+
+/// An action as the rules engine runs it: no condition means always.
+fn with_default_condition(action: &RuleAction) -> CompiledRuleAction {
+    CompiledRuleAction {
+        name: action.name.clone(),
+        action_type: action.action_type.clone(),
+        when: action.when.clone().unwrap_or_else(|| "true".to_string()),
+        props: action.props.clone(),
+    }
 }
 
 /// `[A-Za-z_][\w-]*` — an identifier that may carry hyphens after the first
@@ -968,53 +1014,385 @@ fn to_table_name(entity: &str) -> String {
     }
 }
 
-/// Compile the `%%rule` sections of a model into seedable JDM.
+/// Compile a model's `%%rule` sections into JDM decision graphs.
 ///
-/// A section whose flowchart cannot be parsed is skipped with a warning rather
-/// than failing the build: one malformed rule should not stop an application
-/// from being generated, and the checker already reports the syntax problem.
+/// A section that will not compile is warned about and skipped rather than
+/// fatal: one malformed rule should not stop an application from being
+/// generated.
+#[cfg(test)]
 pub fn compile_rules(
     sections: &[EmlRuleSection],
+    on_warn: impl FnMut(String),
+) -> Vec<CompiledRule> {
+    let declarations: Vec<RuleDeclaration> = sections.iter().map(read_rule_section).collect();
+    compile_rule_declarations(&declarations, on_warn)
+}
+
+const DECISION_TABLE_DIRECTIVE: &str = "%%decision-table ";
+
+/// The table the rules editor hangs off a `%%decision-table` line, if any.
+fn parse_decision_table_directive(flowchart: &str) -> Option<serde_json::Value> {
+    let line = flowchart
+        .lines()
+        .map(str::trim)
+        .find(|line| line.starts_with(DECISION_TABLE_DIRECTIVE))?;
+    match serde_json::from_str::<serde_json::Value>(&line[DECISION_TABLE_DIRECTIVE.len()..]) {
+        Ok(value @ (serde_json::Value::Object(_) | serde_json::Value::Array(_))) => Some(value),
+        _ => None,
+    }
+}
+
+/// Read one `%%rule` section into a declaration: its binding, the decision
+/// flowchart as nodes and edges, its `%%action` lines and any editor-authored
+/// `%%decision-table`. Nothing is compiled here.
+pub fn read_rule_section(section: &EmlRuleSection) -> RuleDeclaration {
+    let ast = parse_mermaid_flowchart(&section.flowchart);
+    RuleDeclaration {
+        name: section.name.clone(),
+        entity: section.entity.clone(),
+        event: section.event.clone(),
+        priority: section.priority,
+        nodes: ast
+            .iter()
+            .map(|node| RuleNode {
+                id: node.id.clone(),
+                label: node.label.clone(),
+                shape: node.shape.as_str().to_string(),
+            })
+            .collect(),
+        edges: ast
+            .edges
+            .iter()
+            .map(|edge| RuleEdge {
+                source: edge.source.clone(),
+                target: edge.target.clone(),
+                label: edge.label.clone(),
+            })
+            .collect(),
+        actions: read_rule_actions(&section.flowchart),
+        decision_table: parse_decision_table_directive(&section.flowchart),
+    }
+}
+
+/// Compile rule declarations read from either syntax.
+///
+/// What a rule compiles *from* follows one precedence: an editor-authored
+/// decision table, then its actions, then the flowchart itself. A rule with no
+/// table and no nodes compiles to nothing and is skipped.
+pub fn compile_rule_declarations(
+    declarations: &[RuleDeclaration],
     mut on_warn: impl FnMut(String),
 ) -> Vec<CompiledRule> {
     let mut compiled = Vec::new();
 
-    for section in sections {
-        if section.entity.is_empty() {
+    for declaration in declarations {
+        if declaration.entity.is_empty() {
             on_warn(format!(
                 "Rule \"{}\" declares no entity; skipping.",
-                section.name
+                declaration.name
             ));
             continue;
         }
 
-        let ast = parse_mermaid_flowchart(&section.flowchart);
-        if ast.nodes.is_empty() {
-            on_warn(format!("Rule \"{}\" has no nodes; skipping.", section.name));
+        // A table authored in the editor carries its own directive and only a
+        // placeholder flowchart, so it has to be read before the AST —
+        // compiling the placeholder yields a rule that decides nothing.
+        if declaration.decision_table.is_none() && declaration.nodes.is_empty() {
+            on_warn(format!(
+                "Rule \"{}\" has no nodes; skipping.",
+                declaration.name
+            ));
             continue;
         }
 
-        // A section that declares actions compiles to a decision table: that is
+        // A rule that declares actions compiles to a decision table: that is
         // the only JDM shape the rules engine reads actions out of.
-        let actions = parse_rule_actions(&section.flowchart);
-        let jdm = if actions.is_empty() {
-            convert_to_jdm(&ast)
+        let jdm = if let Some(table) = &declaration.decision_table {
+            match build_editor_decision_table(&declaration.name, table) {
+                Ok(jdm) => jdm,
+                Err(message) => {
+                    on_warn(format!(
+                        "Rule \"{}\" could not be compiled: {message}",
+                        declaration.name
+                    ));
+                    continue;
+                }
+            }
+        } else if !declaration.actions.is_empty() {
+            let actions: Vec<CompiledRuleAction> = declaration
+                .actions
+                .iter()
+                .map(with_default_condition)
+                .collect();
+            build_action_decision_table(&declaration.name, &actions)
         } else {
-            build_action_decision_table(&section.name, &actions)
+            let mut ast = FlowAst::default();
+            for node in &declaration.nodes {
+                let Some(shape) = NodeShape::from_name(&node.shape) else {
+                    continue;
+                };
+                ast.insert_node(FlowNode {
+                    id: node.id.clone(),
+                    label: node.label.clone(),
+                    shape,
+                });
+            }
+            ast.edges = declaration
+                .edges
+                .iter()
+                .map(|edge| FlowEdge {
+                    source: edge.source.clone(),
+                    target: edge.target.clone(),
+                    label: edge.label.clone(),
+                })
+                .collect();
+            convert_to_jdm(&ast)
         };
 
         compiled.push(CompiledRule {
-            name: section.name.clone(),
-            entity: section.entity.clone(),
-            table_name: to_table_name(&section.entity),
-            event: section.event.clone(),
-            operation: event_to_operation(&section.event).to_string(),
-            priority: section.priority.unwrap_or(100),
+            name: declaration.name.clone(),
+            entity: declaration.entity.clone(),
+            table_name: to_table_name(&declaration.entity),
+            event: declaration.event.clone(),
+            operation: event_to_operation(&declaration.event).to_string(),
+            priority: declaration.priority.unwrap_or(100),
             jdm_content: serialize_jdm(&jdm),
         });
     }
 
     compiled
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Decision tables authored in the editor                                     */
+/* -------------------------------------------------------------------------- */
+
+/// Whether JavaScript's `Number(value)` reads `value` as a number. `value` is
+/// already trimmed and non-empty.
+fn is_js_numeric(value: &str) -> bool {
+    let unsigned = value.strip_prefix(['+', '-']).unwrap_or(value);
+    if unsigned == "Infinity" {
+        return true;
+    }
+    if value.len() == unsigned.len() {
+        let radix = |prefix: &[&str], digits: fn(char) -> bool| {
+            prefix
+                .iter()
+                .find_map(|p| value.strip_prefix(p))
+                .is_some_and(|rest| !rest.is_empty() && rest.chars().all(digits))
+        };
+        if radix(&["0x", "0X"], |c| c.is_ascii_hexdigit())
+            || radix(&["0o", "0O"], |c| ('0'..='7').contains(&c))
+            || radix(&["0b", "0B"], |c| c == '0' || c == '1')
+        {
+            return true;
+        }
+    }
+    let (mantissa, exponent) = match unsigned.find(['e', 'E']) {
+        Some(at) => (&unsigned[..at], Some(&unsigned[at + 1..])),
+        None => (unsigned, None),
+    };
+    let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
+    let digits = |part: &str| part.chars().all(|c| c.is_ascii_digit());
+    let mantissa_ok =
+        digits(whole) && digits(fraction) && !(whole.is_empty() && fraction.is_empty());
+    let exponent_ok = exponent.is_none_or(|exp| {
+        let exp = exp.strip_prefix(['+', '-']).unwrap_or(exp);
+        !exp.is_empty() && digits(exp)
+    });
+    mantissa_ok && exponent_ok
+}
+
+fn is_bare_literal(value: &str) -> bool {
+    matches!(value, "true" | "false" | "null") || (!value.is_empty() && is_js_numeric(value))
+}
+
+fn is_quoted(value: &str) -> bool {
+    let mut chars = value.chars();
+    let first = chars.next();
+    value.chars().count() >= 2
+        && matches!(first, Some('\'') | Some('"'))
+        && value.ends_with(first.unwrap_or(' '))
+}
+
+/// The editor stores what the user typed; zen evaluates expressions, so a bare
+/// word becomes a string literal and a literal stays one.
+fn zen_cell(raw: &str) -> String {
+    let value = raw.trim();
+    if value.is_empty() {
+        return String::new();
+    }
+    if is_quoted(value) || is_bare_literal(value) {
+        return value.to_string();
+    }
+    zen_literal(value)
+}
+
+/// Input cells may carry a leading comparison: `>= 70` stays a unary
+/// comparison, `= hot` drops the operator (zen reads a bare value as equality).
+fn zen_input_cell(raw: &str) -> String {
+    let value = raw.trim();
+    if value.is_empty() {
+        return String::new();
+    }
+    let operator = [">=", "<=", "!=", "=", ">", "<"]
+        .into_iter()
+        .find(|operator| value.starts_with(operator));
+    let Some(operator) = operator else {
+        return zen_cell(value);
+    };
+    let cell = zen_cell(value[operator.len()..].trim_start());
+    if cell.is_empty() {
+        return String::new();
+    }
+    if operator == "=" {
+        cell
+    } else {
+        format!("{operator} {cell}")
+    }
+}
+
+/// A string field of an editor object: absent or null is `None`; anything but
+/// a string is an error, as it is where the TypeScript compiler calls `.trim()`.
+fn string_field(value: &serde_json::Value, key: &str) -> Result<Option<String>, String> {
+    match value.get(key) {
+        None | Some(serde_json::Value::Null) => Ok(None),
+        Some(serde_json::Value::String(text)) => Ok(Some(text.clone())),
+        Some(other) => Err(format!("{key} is {other}, not text")),
+    }
+}
+
+/// JavaScript object key order: canonical array indexes first, ascending, then
+/// every other key in insertion order; assigning an existing key keeps its
+/// place. `JSON.stringify` writes a row's cells in this order.
+fn js_object_insert(row: &mut Vec<(String, String)>, key: String, value: String) {
+    if let Some(slot) = row.iter_mut().find(|(existing, _)| *existing == key) {
+        slot.1 = value;
+        return;
+    }
+    row.push((key, value));
+}
+
+fn js_object_order(row: Vec<(String, String)>) -> Vec<(String, String)> {
+    let index = |key: &str| -> Option<u32> {
+        let canonical =
+            key == "0" || (!key.starts_with('0') && key.chars().all(|c| c.is_ascii_digit()));
+        if !canonical {
+            return None;
+        }
+        key.parse::<u32>().ok().filter(|n| *n < u32::MAX)
+    };
+    let (mut indexed, named): (Vec<_>, Vec<_>) =
+        row.into_iter().partition(|(key, _)| index(key).is_some());
+    indexed.sort_by_key(|(key, _)| index(key));
+    indexed.extend(named);
+    indexed
+}
+
+/// Compile the editor's table into the one JDM shape the rules engine reads:
+/// input → decision table → output. Mirrors `buildEditorDecisionTable`.
+fn build_editor_decision_table(
+    rule_name: &str,
+    table: &serde_json::Value,
+) -> Result<JdmGraph, String> {
+    let columns = |key: &str| -> Result<Vec<JdmColumn>, String> {
+        let mut kept = Vec::new();
+        let Some(list) = table.get(key).and_then(serde_json::Value::as_array) else {
+            return Ok(kept);
+        };
+        for column in list {
+            let field = string_field(column, "field")?.unwrap_or_default();
+            if field.trim().is_empty() {
+                continue;
+            }
+            let id = string_field(column, "id")?
+                .ok_or_else(|| format!("a decision-table column in {key} has no id"))?;
+            kept.push(JdmColumn {
+                name: string_field(column, "name")?.unwrap_or_else(|| id.clone()),
+                id,
+                field,
+            });
+        }
+        Ok(kept)
+    };
+    let inputs = columns("inputs")?;
+    let outputs = columns("outputs")?;
+
+    let mut rows = Vec::new();
+    if let Some(list) = table.get("rules").and_then(serde_json::Value::as_array) {
+        for (index, row) in list.iter().enumerate() {
+            let id = match row.get("_id") {
+                Some(serde_json::Value::String(text)) if !text.is_empty() => text.clone(),
+                None
+                | Some(serde_json::Value::Null)
+                | Some(serde_json::Value::Bool(false))
+                | Some(serde_json::Value::String(_)) => format!("{rule_name}-{}", index + 1),
+                Some(serde_json::Value::Number(number)) if number.as_f64() == Some(0.0) => {
+                    format!("{rule_name}-{}", index + 1)
+                }
+                Some(other) => return Err(format!("a decision-table row _id is {other}")),
+            };
+            let mut compiled: Vec<(String, String)> = Vec::new();
+            js_object_insert(&mut compiled, "_id".to_string(), id);
+            for column in &inputs {
+                let raw = string_field(row, &column.id)?.unwrap_or_default();
+                js_object_insert(&mut compiled, column.id.clone(), zen_input_cell(&raw));
+            }
+            for column in &outputs {
+                let raw = string_field(row, &column.id)?.unwrap_or_default();
+                js_object_insert(&mut compiled, column.id.clone(), zen_cell(&raw));
+            }
+            rows.push(JdmRow(js_object_order(compiled)));
+        }
+    }
+
+    let hit_policy = match table.get("hitPolicy").and_then(serde_json::Value::as_str) {
+        Some("collect") => "collect",
+        _ => "first",
+    };
+    let table_id = format!("{rule_name}-table");
+
+    Ok(JdmGraph {
+        nodes: vec![
+            JdmNode {
+                id: "input".to_string(),
+                name: "Input".to_string(),
+                node_type: "inputNode".to_string(),
+                content: None,
+            },
+            JdmNode {
+                id: table_id.clone(),
+                name: rule_name.to_string(),
+                node_type: "decisionTableNode".to_string(),
+                content: Some(JdmDecisionTable {
+                    hit_policy: hit_policy.to_string(),
+                    inputs,
+                    outputs,
+                    rules: rows,
+                }),
+            },
+            JdmNode {
+                id: "output".to_string(),
+                name: "Output".to_string(),
+                node_type: "outputNode".to_string(),
+                content: None,
+            },
+        ],
+        edges: vec![
+            JdmEdge {
+                id: "edge-1".to_string(),
+                name: None,
+                source_id: "input".to_string(),
+                target_id: table_id.clone(),
+            },
+            JdmEdge {
+                id: "edge-2".to_string(),
+                name: None,
+                source_id: table_id,
+                target_id: "output".to_string(),
+            },
+        ],
+    })
 }
 
 /// `JSON.stringify(jdm)` — compact, insertion-ordered, no trailing newline.

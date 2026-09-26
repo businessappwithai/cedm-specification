@@ -134,7 +134,7 @@
         "description": { "$ref": "#/$defs/categoryText" },
         "icon": { "$ref": "#/$defs/categoryText" },
         "color": { "$ref": "#/$defs/categoryText" },
-        "seq": { "type": "number" },
+        "seq": { "description": "Ordering hint for admin listings.", "type": "integer" },
         "default": {
           "description": "Marks the category that receives entities placed in no other. At most one takes effect.",
           "type": "boolean"

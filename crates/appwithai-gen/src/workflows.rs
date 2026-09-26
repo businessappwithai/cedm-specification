@@ -13,7 +13,8 @@
 //! sharing a directive: a saga is a sequence of steps to *run*, a state machine
 //! is a set of moves to *permit*.
 
-use std::collections::{BTreeMap, HashMap};
+use crate::records::{StateMachineDeclaration, StateTransitionDeclaration};
+use std::collections::HashMap;
 
 use uuid::Uuid;
 
@@ -138,29 +139,29 @@ fn to_table_name(entity: &str) -> String {
 }
 
 /// Read the state machines a document declares.
+#[cfg(test)]
 pub fn compile_workflows(
     source: &str,
     known_entities: &[String],
-    mut on_warn: impl FnMut(String),
+    on_warn: impl FnMut(String),
 ) -> Vec<CompiledWorkflow> {
-    let mut compiled = Vec::new();
+    compile_state_machine_declarations(&read_state_machines(source), known_entities, on_warn)
+}
+
+/// Read every `kind: state` section into a declaration, uncompiled. States are
+/// listed in the order they first appear on a transition line; `[*] --> x`
+/// names the starting state (the last such line wins) and `x --> [*]` a
+/// terminal one.
+pub fn read_state_machines(source: &str) -> Vec<StateMachineDeclaration> {
+    let mut declarations = Vec::new();
 
     for section in extract_workflow_sections(source) {
         if section.kind != "state" {
             continue;
         }
 
-        if !known_entities.is_empty() && !known_entities.contains(&section.entity) {
-            on_warn(format!(
-                "Workflow \"{}\" targets unknown entity \"{}\" — skipped.",
-                section.name, section.entity
-            ));
-            continue;
-        }
-
-        let mut state_order: Vec<String> = Vec::new();
-        let mut seen: BTreeMap<String, ()> = BTreeMap::new();
-        let mut transitions: Vec<WorkflowTransition> = Vec::new();
+        let mut states: Vec<String> = Vec::new();
+        let mut transitions: Vec<StateTransitionDeclaration> = Vec::new();
         let mut terminal: Vec<String> = Vec::new();
         let mut initial: Option<String> = None;
 
@@ -174,8 +175,8 @@ pub fn compile_workflows(
             };
 
             for name in [&from, &to] {
-                if name != START_MARKER && seen.insert(name.clone(), ()).is_none() {
-                    state_order.push(name.clone());
+                if name != START_MARKER && !states.contains(name) {
+                    states.push(name.clone());
                 }
             }
 
@@ -191,34 +192,72 @@ pub fn compile_workflows(
                 terminal.push(from);
                 continue;
             }
-            transitions.push(WorkflowTransition { from, to, trigger });
+            transitions.push(StateTransitionDeclaration { from, to, trigger });
         }
 
-        if state_order.is_empty() {
+        declarations.push(StateMachineDeclaration {
+            name: section.name,
+            entity: section.entity,
+            states,
+            initial,
+            r#final: terminal,
+            transitions,
+        });
+    }
+
+    declarations
+}
+
+/// Compile state machine declarations read from either syntax.
+pub fn compile_state_machine_declarations(
+    declarations: &[StateMachineDeclaration],
+    known_entities: &[String],
+    mut on_warn: impl FnMut(String),
+) -> Vec<CompiledWorkflow> {
+    let mut compiled = Vec::new();
+
+    for declaration in declarations {
+        if !known_entities.is_empty() && !known_entities.contains(&declaration.entity) {
             on_warn(format!(
-                "Workflow \"{}\" declares no states — skipped.",
-                section.name
+                "Workflow \"{}\" targets unknown entity \"{}\" — skipped.",
+                declaration.name, declaration.entity
             ));
             continue;
         }
-        if initial.is_none() {
+        if declaration.states.is_empty() {
+            on_warn(format!(
+                "Workflow \"{}\" declares no states — skipped.",
+                declaration.name
+            ));
+            continue;
+        }
+        if declaration.initial.is_none() {
             on_warn(format!(
                 "Workflow \"{}\" has no starting state — records will not be stamped.",
-                section.name
+                declaration.name
             ));
         }
 
         compiled.push(CompiledWorkflow {
-            table_name: to_table_name(&section.entity),
-            name: section.name,
-            entity: section.entity,
-            states: state_order
-                .into_iter()
-                .map(|name| WorkflowState { name })
+            table_name: to_table_name(&declaration.entity),
+            name: declaration.name.clone(),
+            entity: declaration.entity.clone(),
+            states: declaration
+                .states
+                .iter()
+                .map(|name| WorkflowState { name: name.clone() })
                 .collect(),
-            transitions,
-            initial,
-            terminal,
+            transitions: declaration
+                .transitions
+                .iter()
+                .map(|transition| WorkflowTransition {
+                    from: transition.from.clone(),
+                    to: transition.to.clone(),
+                    trigger: transition.trigger.clone(),
+                })
+                .collect(),
+            initial: declaration.initial.clone(),
+            terminal: declaration.r#final.clone(),
         });
     }
 

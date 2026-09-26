@@ -14,6 +14,7 @@
 //! See the TypeScript module's header for why handler modules are written once
 //! and the registry is rewritten every run.
 
+use crate::records::HookDeclaration;
 use std::collections::{BTreeMap, BTreeSet};
 
 use regex::Regex;
@@ -256,38 +257,62 @@ fn parse_fields(bracket: Option<&str>) -> Option<String> {
     None
 }
 
-/// Read every `%%hook` directive in the document.
+/// Compile every `%%hook` directive in the document.
 ///
 /// `known_entities` is what the ERD declares. A hook naming something else
 /// would generate a call into a module for an entity that does not exist, so it
 /// is reported and dropped rather than allowed to break the build.
+#[cfg(test)]
 pub fn compile_hooks(
     source: &str,
     known_entities: &[String],
     mut on_warn: impl FnMut(String),
 ) -> Vec<CompiledHook> {
+    let declarations = read_hook_directives(source, &mut on_warn);
+    compile_hook_declarations(&declarations, known_entities, on_warn)
+}
+
+/// Read every `%%hook` line into a declaration, uncompiled. Only the line's
+/// shape is checked; the event vocabulary and the entity are the compiler's.
+pub fn read_hook_directives(source: &str, mut on_warn: impl FnMut(String)) -> Vec<HookDeclaration> {
     let directive = Regex::new(DIRECTIVE).expect("hook directive regex");
     let directive_line = Regex::new(DIRECTIVE_LINE).expect("hook directive line regex");
-    let known: BTreeSet<&str> = known_entities.iter().map(String::as_str).collect();
-    let mut hooks: Vec<CompiledHook> = Vec::new();
-    let mut seen: BTreeSet<String> = BTreeSet::new();
-    let mut per_entity: BTreeMap<String, usize> = BTreeMap::new();
+    let mut declarations = Vec::new();
 
     for raw_line in source.lines() {
         let line = raw_line.trim();
         if !directive_line.is_match(line) {
             continue;
         }
-
         let Some(caps) = directive.captures(line) else {
             on_warn(format!("Skipping malformed hook directive: {line}"));
             continue;
         };
+        declarations.push(HookDeclaration {
+            event: caps.get(1).map_or("", |m| m.as_str()).to_string(),
+            handler: caps.get(2).map_or("", |m| m.as_str()).to_string(),
+            entity: caps.get(3).map_or("", |m| m.as_str()).to_string(),
+            field: parse_fields(caps.get(4).map(|m| m.as_str())),
+        });
+    }
+    declarations
+}
 
-        let type_name = caps.get(1).map_or("", |m| m.as_str());
-        let handler = caps.get(2).map_or("", |m| m.as_str());
-        let entity = caps.get(3).map_or("", |m| m.as_str());
-        let bracket = caps.get(4).map(|m| m.as_str());
+/// Compile hook declarations read from either syntax.
+pub fn compile_hook_declarations(
+    declarations: &[HookDeclaration],
+    known_entities: &[String],
+    mut on_warn: impl FnMut(String),
+) -> Vec<CompiledHook> {
+    let known: BTreeSet<&str> = known_entities.iter().map(String::as_str).collect();
+    let mut hooks: Vec<CompiledHook> = Vec::new();
+    let mut seen: BTreeSet<String> = BTreeSet::new();
+    let mut per_entity: BTreeMap<String, usize> = BTreeMap::new();
+
+    for declaration in declarations {
+        let type_name = declaration.event.as_str();
+        let handler = declaration.handler.as_str();
+        let entity = declaration.entity.as_str();
 
         let Some(hook_type) = HookType::parse(type_name) else {
             on_warn(format!(
@@ -322,7 +347,7 @@ pub fn compile_hooks(
             entity: entity.to_string(),
             hook_type,
             handler: handler.to_string(),
-            field: parse_fields(bracket),
+            field: declaration.field.clone(),
             order: this_order,
         });
     }

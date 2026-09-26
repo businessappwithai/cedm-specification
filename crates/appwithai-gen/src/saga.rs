@@ -13,6 +13,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::language::Language;
+use crate::records::{SagaDeclaration, SagaStepDeclaration};
 
 /// One `%%step` line, bound to a flowchart node by its id.
 #[derive(Debug, Clone)]
@@ -398,13 +399,24 @@ fn leading_identifier(part: &str) -> Option<String> {
 
 // ── Parsing ──────────────────────────────────────────────────────────────────
 
-/// Every saga in an EML document, with its steps in flowchart order.
-///
-/// Sections are delimited by `%%workflow`; a document may hold several.
-pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
+/// One `kind: saga` section as written, before any step is checked.
+struct SagaBlock {
+    name: String,
+    entity: String,
+    meta: BTreeMap<String, String>,
+    labels: HashMap<String, String>,
+    /// Node ids in the order the flowchart's edges first reach them.
+    order: Vec<String>,
+    /// Every `%%step`, in declaration order, including ones that will be refused.
+    raw_steps: Vec<SagaStepDeclaration>,
+}
+
+/// Each `%%workflow … kind: saga` section: from its directive to the next
+/// `%%workflow`.
+fn saga_blocks(source: &str) -> Vec<SagaBlock> {
     let normalized = source.replace("\r\n", "\n");
     let lines: Vec<&str> = normalized.lines().collect();
-    let mut result = SagaParseResult::default();
+    let mut blocks = Vec::new();
 
     let starts: Vec<usize> = lines
         .iter()
@@ -436,13 +448,6 @@ pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
             .find(|(key, _)| key == "entity")
             .map(|(_, value)| value.clone())
             .unwrap_or_default();
-        if entity.is_empty() {
-            result.diagnostics.push(SagaDiagnostic {
-                workflow: name.clone(),
-                node_id: None,
-                message: "saga declares no entity".to_string(),
-            });
-        }
 
         let mut meta: BTreeMap<String, String> = BTreeMap::new();
         for line in block {
@@ -452,71 +457,140 @@ pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
         }
 
         let labels = parse_node_labels(block);
-        let order = parse_edge_order(block);
-
-        let mut by_node: Vec<(String, SagaStep)> = Vec::new();
+        let mut raw_steps = Vec::new();
         for line in block {
             let Some((node_id, node_type, rest)) = parse_step_header(line.trim()) else {
                 continue;
             };
-
-            if !lang.is_step_node_type(&node_type) {
-                result.diagnostics.push(SagaDiagnostic {
-                    workflow: name.clone(),
-                    node_id: Some(node_id),
-                    message: format!("unknown step type \"{node_type}\""),
-                });
-                continue;
-            }
-            if by_node.iter().any(|(id, _)| *id == node_id) {
-                result.diagnostics.push(SagaDiagnostic {
-                    workflow: name.clone(),
-                    node_id: Some(node_id.clone()),
-                    message: format!(
-                        "node \"{node_id}\" already has a step; the second is ignored"
-                    ),
-                });
-                continue;
-            }
-
-            let properties = parse_step_properties(&rest);
-            let lookup: BTreeMap<String, String> = properties.iter().cloned().collect();
-            for missing in lang.missing_step_props(&node_type, &lookup) {
-                result.diagnostics.push(SagaDiagnostic {
-                    workflow: name.clone(),
-                    node_id: Some(node_id.clone()),
-                    message: format!("{node_type} is missing {missing}"),
-                });
-            }
-            if !order.contains(&node_id) && !labels.contains_key(&node_id) {
-                result.diagnostics.push(SagaDiagnostic {
-                    workflow: name.clone(),
-                    node_id: Some(node_id.clone()),
-                    message: format!(
-                        "no node \"{node_id}\" in the flowchart — the step will never run"
-                    ),
-                });
-            }
-
-            let label = labels
-                .get(&node_id)
-                .cloned()
-                .unwrap_or_else(|| node_id.clone());
-            by_node.push((
-                node_id.clone(),
-                SagaStep {
-                    node_id,
-                    node_type,
-                    label,
-                    properties,
-                },
-            ));
+            raw_steps.push(SagaStepDeclaration {
+                label: Some(
+                    labels
+                        .get(&node_id)
+                        .cloned()
+                        .unwrap_or_else(|| node_id.clone()),
+                ),
+                id: node_id,
+                step_type: node_type,
+                properties: parse_step_properties(&rest),
+            });
         }
+
+        blocks.push(SagaBlock {
+            name,
+            entity,
+            meta,
+            order: parse_edge_order(block),
+            labels,
+            raw_steps,
+        });
+    }
+
+    blocks
+}
+
+/// "no node in the flowchart" — the one check only a drawn saga can fail.
+fn unreachable_step(block: &SagaBlock, node_id: &str) -> Option<SagaDiagnostic> {
+    if block.order.iter().any(|id| id == node_id) || block.labels.contains_key(node_id) {
+        return None;
+    }
+    Some(SagaDiagnostic {
+        workflow: block.name.clone(),
+        node_id: Some(node_id.to_string()),
+        message: format!("no node \"{node_id}\" in the flowchart — the step will never run"),
+    })
+}
+
+/// The steps of a saga that can run, in declaration order.
+///
+/// A step of an unknown type is dropped, and so is a second step on a node that
+/// already has one; a step missing a property its type requires is kept and
+/// reported. `after_each` runs once per accepted step, after its own checks.
+fn accept_saga_steps(
+    workflow: &str,
+    declared: &[SagaStepDeclaration],
+    lang: &Language,
+    diagnostics: &mut Vec<SagaDiagnostic>,
+    mut after_each: impl FnMut(&str, &mut Vec<SagaDiagnostic>),
+) -> Vec<(String, SagaStep)> {
+    let mut by_node: Vec<(String, SagaStep)> = Vec::new();
+
+    for step in declared {
+        let node_id = step.id.clone();
+        let node_type = step.step_type.clone();
+        if !lang.is_step_node_type(&node_type) {
+            diagnostics.push(SagaDiagnostic {
+                workflow: workflow.to_string(),
+                node_id: Some(node_id),
+                message: format!("unknown step type \"{node_type}\""),
+            });
+            continue;
+        }
+        if by_node.iter().any(|(id, _)| *id == node_id) {
+            diagnostics.push(SagaDiagnostic {
+                workflow: workflow.to_string(),
+                node_id: Some(node_id.clone()),
+                message: format!("node \"{node_id}\" already has a step; the second is ignored"),
+            });
+            continue;
+        }
+
+        let lookup: BTreeMap<String, String> = step.properties.iter().cloned().collect();
+        for missing in lang.missing_step_props(&node_type, &lookup) {
+            diagnostics.push(SagaDiagnostic {
+                workflow: workflow.to_string(),
+                node_id: Some(node_id.clone()),
+                message: format!("{node_type} is missing {missing}"),
+            });
+        }
+        after_each(&node_id, diagnostics);
+
+        by_node.push((
+            node_id.clone(),
+            SagaStep {
+                label: step.label.clone().unwrap_or_else(|| node_id.clone()),
+                node_id,
+                node_type,
+                properties: step.properties.clone(),
+            },
+        ));
+    }
+
+    by_node
+}
+
+/// Every saga in an EML document, with its steps in flowchart order.
+///
+/// Sections are delimited by `%%workflow`; a document may hold several.
+#[cfg(test)]
+pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
+    let mut result = SagaParseResult::default();
+
+    for block in saga_blocks(source) {
+        let name = block.name.clone();
+        if block.entity.is_empty() {
+            result.diagnostics.push(SagaDiagnostic {
+                workflow: name.clone(),
+                node_id: None,
+                message: "saga declares no entity".to_string(),
+            });
+        }
+
+        let mut by_node = accept_saga_steps(
+            &name,
+            &block.raw_steps,
+            lang,
+            &mut result.diagnostics,
+            |node_id, diagnostics| {
+                if let Some(diagnostic) = unreachable_step(&block, node_id) {
+                    diagnostics.push(diagnostic);
+                }
+            },
+        );
 
         // Flowchart order first; a step whose node is missing from the edges
         // still runs, after the ones that are placed.
         let mut steps: Vec<SagaStep> = Vec::new();
-        for node_id in &order {
+        for node_id in &block.order {
             if let Some(index) = by_node.iter().position(|(id, _)| id == node_id) {
                 steps.push(by_node.remove(index).1);
             }
@@ -534,16 +608,122 @@ pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
 
         result.workflows.push(SagaWorkflow {
             name,
-            entity,
-            operation: meta
+            entity: block.entity.clone(),
+            operation: block
+                .meta
                 .get("operation")
                 .map(|value| value.to_uppercase())
                 .unwrap_or_else(|| "ALL".to_string()),
-            trigger: meta
+            trigger: block
+                .meta
                 .get("trigger")
                 .cloned()
                 .unwrap_or_else(|| "rule".to_string()),
-            description: meta.get("description").cloned(),
+            description: block.meta.get("description").cloned(),
+            steps,
+        });
+    }
+
+    result
+}
+
+/// Read every saga section into a declaration, without checking its steps.
+///
+/// Steps are listed in the order the saga runs them — the order its edges reach
+/// their nodes, any step on no edge after, in declaration order. The
+/// diagnostics are the ones only a flowchart can raise.
+pub fn read_saga_directives(source: &str) -> (Vec<SagaDeclaration>, Vec<SagaDiagnostic>) {
+    let mut declarations = Vec::new();
+    let mut diagnostics = Vec::new();
+
+    for block in saga_blocks(source) {
+        let rank = |id: &str| {
+            block
+                .order
+                .iter()
+                .position(|candidate| candidate == id)
+                .unwrap_or(usize::MAX)
+        };
+        let mut indexed: Vec<(usize, &SagaStepDeclaration)> =
+            block.raw_steps.iter().enumerate().collect();
+        indexed
+            .sort_by(|(a_pos, a), (b_pos, b)| rank(&a.id).cmp(&rank(&b.id)).then(a_pos.cmp(b_pos)));
+        let steps: Vec<SagaStepDeclaration> =
+            indexed.into_iter().map(|(_, step)| step.clone()).collect();
+
+        let mut reported: BTreeSet<String> = BTreeSet::new();
+        for step in &block.raw_steps {
+            if reported.insert(step.id.clone()) {
+                if let Some(diagnostic) = unreachable_step(&block, &step.id) {
+                    diagnostics.push(diagnostic);
+                }
+            }
+        }
+
+        declarations.push(SagaDeclaration {
+            name: block.name.clone(),
+            entity: block.entity.clone(),
+            operation: block.meta.get("operation").cloned(),
+            trigger: block.meta.get("trigger").cloned(),
+            description: block.meta.get("description").cloned(),
+            steps,
+        });
+    }
+
+    (declarations, diagnostics)
+}
+
+/// Compile saga declarations. The same checks `parse_sagas` makes, except that
+/// steps run in the order listed: a declaration states its order outright.
+pub fn compile_saga_declarations(
+    declarations: &[SagaDeclaration],
+    lang: &Language,
+) -> SagaParseResult {
+    let mut result = SagaParseResult::default();
+
+    for declaration in declarations {
+        let name = declaration.name.clone();
+        if declaration.entity.is_empty() {
+            result.diagnostics.push(SagaDiagnostic {
+                workflow: name.clone(),
+                node_id: None,
+                message: "saga declares no entity".to_string(),
+            });
+        }
+
+        let steps: Vec<SagaStep> = accept_saga_steps(
+            &name,
+            &declaration.steps,
+            lang,
+            &mut result.diagnostics,
+            |_, _| {},
+        )
+        .into_iter()
+        .map(|(_, step)| step)
+        .collect();
+
+        if steps.is_empty() {
+            result.diagnostics.push(SagaDiagnostic {
+                workflow: name.clone(),
+                node_id: None,
+                message: "saga has no %%step directives, so it compiles to an empty process"
+                    .to_string(),
+            });
+        }
+
+        result.workflows.push(SagaWorkflow {
+            name,
+            entity: declaration.entity.clone(),
+            operation: declaration
+                .operation
+                .as_deref()
+                .map(str::to_uppercase)
+                .unwrap_or_else(|| "ALL".to_string()),
+            trigger: declaration
+                .trigger
+                .clone()
+                .unwrap_or_else(|| "rule".to_string()),
+            description: declaration.description.clone(),
             steps,
         });
     }

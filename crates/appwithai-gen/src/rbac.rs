@@ -29,6 +29,8 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::records::RbacDeclaration;
+
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -210,8 +212,43 @@ fn parse_directive(line: &str) -> Option<(String, String, String)> {
 /// transition event on that entity. One that matches neither is skipped with a
 /// warning naming both possibilities, because at that point the model has said
 /// something the generator genuinely cannot act on.
+#[cfg(test)]
 pub fn compile_rbac(
     source: &str,
+    known_entities: &[String],
+    state_machines: &[RbacStateMachine],
+    mut on_warn: impl FnMut(String),
+) -> CompiledRbac {
+    let declarations = read_rbac_directives(source, &mut on_warn);
+    compile_rbac_declarations(&declarations, known_entities, state_machines, on_warn)
+}
+
+/// Read every `%%rbac` line into a declaration, uncompiled. Only the line's
+/// shape is checked here; the entity, the roles and whether the target is an
+/// operation or a transition are the compiler's questions.
+pub fn read_rbac_directives(source: &str, mut on_warn: impl FnMut(String)) -> Vec<RbacDeclaration> {
+    let mut declarations = Vec::new();
+    for raw_line in source.lines() {
+        let line = raw_line.trim();
+        if !line.starts_with("%%rbac") {
+            continue;
+        }
+        let Some((role_expr, entity, target)) = parse_directive(line) else {
+            on_warn(format!("Skipping malformed %%rbac directive: {line}"));
+            continue;
+        };
+        declarations.push(RbacDeclaration {
+            roles: parse_role_expression(&role_expr),
+            entity,
+            target,
+        });
+    }
+    declarations
+}
+
+/// Compile `%%rbac` declarations read from either syntax.
+pub fn compile_rbac_declarations(
+    declarations: &[RbacDeclaration],
     known_entities: &[String],
     state_machines: &[RbacStateMachine],
     mut on_warn: impl FnMut(String),
@@ -252,16 +289,9 @@ pub fn compile_rbac(
         found
     };
 
-    for raw_line in source.lines() {
-        let line = raw_line.trim();
-        if !line.starts_with("%%rbac") {
-            continue;
-        }
-
-        let Some((role_expr, entity, raw_target)) = parse_directive(line) else {
-            on_warn(format!("Skipping malformed %%rbac directive: {line}"));
-            continue;
-        };
+    for declaration in declarations {
+        let entity = declaration.entity.clone();
+        let raw_target = declaration.target.clone();
 
         if !known.is_empty() && !known.contains(entity.as_str()) {
             on_warn(format!(
@@ -270,7 +300,12 @@ pub fn compile_rbac(
             continue;
         }
 
-        let roles = parse_role_expression(&role_expr);
+        let roles: Vec<String> = declaration
+            .roles
+            .iter()
+            .filter(|role| !role.is_empty())
+            .cloned()
+            .collect();
         if roles.is_empty() {
             // A directive with no role names would compile to a rule nobody can
             // satisfy, locking the target for everyone including its author.

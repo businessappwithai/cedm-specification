@@ -13,6 +13,7 @@
 //! in a document becomes a statement, so it is guarded by the checker
 //! (EML293), by this compiler, and again by `controllers::report` at run time.
 
+use crate::records::ReportDeclaration;
 use std::collections::{HashMap, HashSet};
 
 use uuid::Uuid;
@@ -119,7 +120,14 @@ fn strip_trailing_semicolon(sql: &str) -> &str {
 ///
 /// `Err` carries the reason, which the caller turns into a warning naming the
 /// line — silence is what this whole module exists to fix.
+#[cfg(test)]
 pub fn parse_report_directive(line: &str) -> Result<CompiledReport, String> {
+    validate_report_declaration(read_report_declaration(line)?)
+}
+
+/// Read one `%%report` line into a declaration, checking only its shape: that
+/// it is the directive and has a name and a `sql:` clause.
+pub fn read_report_declaration(line: &str) -> Result<ReportDeclaration, String> {
     let trimmed = line.trim();
     // Anchored, and a run of `%%` is allowed for the same reason `hooks.rs`
     // allows it: older generated flowcharts emitted `%%%%`. A `%%` line that
@@ -139,6 +147,34 @@ pub fn parse_report_directive(line: &str) -> Result<CompiledReport, String> {
         None => return Err("has no name".to_string()),
     };
 
+    Ok(ReportDeclaration {
+        title: read_key(&keys, "title"),
+        entity: read_key(&keys, "entity"),
+        chart: read_key(&keys, "chart"),
+        x: read_key(&keys, "x"),
+        y: read_key(&keys, "y"),
+        help: read_key(&keys, "help"),
+        name,
+        sql,
+    })
+}
+
+/// Hold a report to its shape — a single read, and a chart only with both of
+/// its axes — whichever syntax it was written in.
+pub fn validate_report_declaration(
+    declaration: ReportDeclaration,
+) -> Result<CompiledReport, String> {
+    let ReportDeclaration {
+        name,
+        title,
+        entity,
+        chart,
+        x,
+        y,
+        help,
+        sql,
+    } = declaration;
+
     if !is_read_only(&sql) {
         return Err("sql: is not a SELECT or WITH query".to_string());
     }
@@ -146,14 +182,11 @@ pub fn parse_report_directive(line: &str) -> Result<CompiledReport, String> {
         return Err("sql: contains more than one statement".to_string());
     }
 
-    let chart = read_key(&keys, "chart");
     if let Some(chart) = chart.as_deref() {
         if !REPORT_CHART_TYPES.contains(&chart) {
             return Err(format!("has unknown chart type \"{chart}\""));
         }
     }
-    let x = read_key(&keys, "x");
-    let y = read_key(&keys, "y");
     // A chart with one axis renders nothing and reports no error, which is
     // worse than not being a chart.
     if let Some(chart) = chart.as_deref() {
@@ -163,13 +196,13 @@ pub fn parse_report_directive(line: &str) -> Result<CompiledReport, String> {
     }
 
     Ok(CompiledReport {
-        title: read_key(&keys, "title").unwrap_or_else(|| spaced(&name)),
+        title: title.unwrap_or_else(|| spaced(&name)),
         name,
-        entity: read_key(&keys, "entity"),
+        entity,
         chart,
         x,
         y,
-        help: read_key(&keys, "help"),
+        help,
         sql,
     })
 }
@@ -298,42 +331,107 @@ fn spaced(name: &str) -> String {
 /// an entity the model does not declare is kept, but loses the grouping,
 /// because the query is still a valid question about the database even when the
 /// label on it is wrong.
+#[cfg(test)]
 pub fn compile_reports<F: FnMut(String)>(
     source: &str,
     entity_names: &[String],
     mut warn: F,
 ) -> Vec<CompiledReport> {
-    let known: HashSet<&str> = entity_names.iter().map(String::as_str).collect();
-    let mut seen: HashSet<String> = HashSet::new();
-    let mut out: Vec<CompiledReport> = Vec::new();
+    let mut accumulator = ReportAccumulator::new(entity_names);
 
     for line in source.lines() {
         if strip_directive(line.trim()).is_none() {
             continue;
         }
+        let shown: String = line.trim().chars().take(120).collect();
+        match read_report_declaration(line) {
+            Ok(declaration) => accumulator.add(declaration, &shown, &mut warn),
+            Err(reason) => warn(format!("%%report {reason} — skipped: {shown}")),
+        }
+    }
 
-        let mut report = match parse_report_directive(line) {
-            Ok(report) => report,
+    accumulator.reports
+}
+
+/// Every `%%report` line in a model, read but not validated.
+pub fn read_report_directives<F: FnMut(String)>(
+    source: &str,
+    mut warn: F,
+) -> Vec<ReportDeclaration> {
+    let mut declarations = Vec::new();
+    for line in source.lines() {
+        if strip_directive(line.trim()).is_none() {
+            continue;
+        }
+        match read_report_declaration(line) {
+            Ok(declaration) => declarations.push(declaration),
             Err(reason) => {
                 let shown: String = line.trim().chars().take(120).collect();
                 warn(format!("%%report {reason} — skipped: {shown}"));
-                continue;
+            }
+        }
+    }
+    declarations
+}
+
+/// Compile report declarations read from either syntax.
+pub fn compile_report_declarations<F: FnMut(String)>(
+    declarations: &[ReportDeclaration],
+    entity_names: &[String],
+    mut warn: F,
+) -> Vec<CompiledReport> {
+    let mut accumulator = ReportAccumulator::new(entity_names);
+    for declaration in declarations {
+        let context = format!("report {}", declaration.name);
+        accumulator.add(declaration.clone(), &context, &mut warn);
+    }
+    accumulator.reports
+}
+
+/// The per-report checks in declaration order: validate, refuse a duplicate
+/// name, ungroup a report naming an entity the model lacks.
+struct ReportAccumulator<'a> {
+    known: HashSet<&'a str>,
+    seen: HashSet<String>,
+    reports: Vec<CompiledReport>,
+}
+
+impl<'a> ReportAccumulator<'a> {
+    fn new(entity_names: &'a [String]) -> Self {
+        Self {
+            known: entity_names.iter().map(String::as_str).collect(),
+            seen: HashSet::new(),
+            reports: Vec::new(),
+        }
+    }
+
+    fn add<F: FnMut(String)>(
+        &mut self,
+        declaration: ReportDeclaration,
+        context: &str,
+        warn: &mut F,
+    ) {
+        let mut report = match validate_report_declaration(declaration) {
+            Ok(report) => report,
+            Err(reason) => {
+                warn(format!("%%report {reason} — skipped: {context}"));
+                return;
             }
         };
 
         // The checker reports a duplicate name as EML292. Reaching here with
         // one means the model was not checked, and two rows under one key would
         // make whichever the seed wrote last the only one anybody could open.
-        if seen.contains(&report.name) {
+        if self.seen.contains(&report.name) {
             warn(format!(
                 "%%report \"{}\" is declared more than once — keeping the first",
                 report.name
             ));
-            continue;
+            return;
         }
 
         if let Some(entity) = report.entity.as_deref() {
-            if !known.contains(entity) {
+            if !self.known.contains(entity) {
                 warn(format!(
                     "%%report \"{}\" names entity \"{entity}\", which the model does not declare — ungrouped",
                     report.name
@@ -342,11 +440,9 @@ pub fn compile_reports<F: FnMut(String)>(
             }
         }
 
-        seen.insert(report.name.clone());
-        out.push(report);
+        self.seen.insert(report.name.clone());
+        self.reports.push(report);
     }
-
-    out
 }
 
 pub struct ReportsSeedOptions<'a> {

@@ -8,6 +8,9 @@ use serde::Serialize;
 
 use crate::language::Language;
 use crate::naming::{add_bus_prefix, snake_case};
+use crate::records::{
+    AttributeDeclaration, EntityDeclaration, ErdRecords, IndexDeclaration, RelationshipDeclaration,
+};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Attribute {
@@ -136,31 +139,23 @@ pub struct Model {
 /// Parse Mermaid ERD source into entities, relationships and enums.
 ///
 /// EML directives ride on `%%` lines, which Mermaid treats as comments and
-/// renders as nothing. That is the whole trick of the language — but it means a
-/// parser that skips every `%%` line, as this one used to, throws away
-/// `%%index`, `%%enum`, `%%field` and `%%entity` before anything downstream can
-/// see them. They are read here instead, and attached once the entities they
-/// name have all been parsed: the language does not require a directive to
-/// follow the block it refers to.
+/// renders as nothing. They are read here too, and attached once every entity
+/// they name has been read: the language does not require a directive to
+/// follow the block it refers to. The reading is `read_erd` and the meaning is
+/// `compile_erd` — the same compiler a YAML model's ERD goes through.
+#[cfg(test)]
 pub fn parse_erd(source: &str, lang: &Language) -> Model {
-    let normalized = source.replace("\r\n", "\n");
+    compile_erd(&read_erd(source, lang), lang)
+}
 
-    let mut entities: Vec<Entity> = Vec::new();
-    let mut relationships: Vec<Relationship> = Vec::new();
+/// Read what an EML document's ERD layer declares, without compiling it.
+pub fn read_erd(source: &str, lang: &Language) -> ErdRecords {
+    let normalized = source.replace("\r\n", "\n");
+    let mut records = ErdRecords::default();
 
     let mut current_entity: Option<String> = None;
-    let mut current_attributes: Vec<Attribute> = Vec::new();
+    let mut current_attributes: Vec<AttributeDeclaration> = Vec::new();
     let mut in_entity_block = false;
-
-    // Directives are collected as they appear and resolved at the end: the
-    // language does not say a directive has to follow the block it names.
-    let mut declared_indexes: Vec<(String, EntityIndex)> = Vec::new();
-    let mut declared_enums: Vec<(String, Vec<String>)> = Vec::new();
-    let mut enum_bindings: Vec<(String, String, String)> = Vec::new();
-    let mut field_help: Vec<(String, String, String)> = Vec::new();
-    let mut entity_help: Vec<(String, String)> = Vec::new();
-    let mut entity_icons: Vec<(String, String)> = Vec::new();
-    let mut entity_parents: Vec<(String, String)> = Vec::new();
 
     for raw_line in normalized.lines() {
         let line = raw_line.trim();
@@ -170,53 +165,47 @@ pub fn parse_erd(source: &str, lang: &Language) -> Model {
         }
 
         if line.starts_with("%%") {
-            if let Some(index) = parse_index_directive(line) {
-                declared_indexes.push(index);
+            if let Some((entity, index)) = parse_index_directive(line) {
+                records.indexes.push(IndexDeclaration {
+                    entity,
+                    columns: index.columns,
+                    unique: index.unique,
+                });
             }
-            if let Some((name, values)) = parse_enum_directive(line) {
-                if !declared_enums.iter().any(|(existing, _)| *existing == name) {
-                    declared_enums.push((name, values));
-                }
+            if let Some(declared) = parse_enum_directive(line) {
+                records.enums.push(declared);
             }
             if let Some(binding) = parse_field_enum_directive(line) {
-                enum_bindings.push(binding);
+                records.enum_bindings.push(binding);
             }
             if let Some(help) = parse_field_help_directive(line) {
-                field_help.push(help);
+                records.field_help.push(help);
             }
-            if let Some((entity, help)) = parse_entity_help_directive(line) {
-                if !entity_help.iter().any(|(existing, _)| *existing == entity) {
-                    entity_help.push((entity, help));
-                }
+            if let Some(help) = parse_entity_help_directive(line) {
+                records.entity_help.push(help);
             }
-            if let Some((entity, icon)) = parse_entity_icon_directive(line) {
-                if !entity_icons.iter().any(|(existing, _)| *existing == entity) {
-                    entity_icons.push((entity, icon));
-                }
+            if let Some(icon) = parse_entity_icon_directive(line) {
+                records.entity_icons.push(icon);
             }
-            if let Some((entity, parent)) = parse_entity_parent_directive(line) {
-                if !entity_parents
-                    .iter()
-                    .any(|(existing, _)| *existing == entity)
-                {
-                    entity_parents.push((entity, parent));
-                }
+            if let Some(parent) = parse_entity_parent_directive(line) {
+                records.entity_parents.push(parent);
             }
             continue;
         }
 
-        if let Some(rel) = parse_relationship(line, lang) {
-            relationships.push(rel);
+        if let Some(relationship) = read_relationship(line, lang) {
+            records.relationships.push(relationship);
             continue;
         }
 
         if let Some(name) = parse_entity_start(line) {
             if let Some(previous) = current_entity.take() {
+                // An unclosed entity is kept only if it declared something.
                 if !current_attributes.is_empty() {
-                    entities.push(complete_entity(
-                        previous,
-                        std::mem::take(&mut current_attributes),
-                    ));
+                    records.entities.push(EntityDeclaration {
+                        name: previous,
+                        attributes: std::mem::take(&mut current_attributes),
+                    });
                 }
             }
             current_entity = Some(name);
@@ -227,18 +216,18 @@ pub fn parse_erd(source: &str, lang: &Language) -> Model {
 
         if line == "}" {
             if let Some(name) = current_entity.take() {
-                entities.push(complete_entity(
+                records.entities.push(EntityDeclaration {
                     name,
-                    std::mem::take(&mut current_attributes),
-                ));
+                    attributes: std::mem::take(&mut current_attributes),
+                });
             }
             in_entity_block = false;
             continue;
         }
 
         if in_entity_block && current_entity.is_some() {
-            if let Some(attr) = parse_attribute(line, lang) {
-                current_attributes.push(attr);
+            if let Some(attribute) = read_attribute(line) {
+                current_attributes.push(attribute);
             }
         }
     }
@@ -246,13 +235,83 @@ pub fn parse_erd(source: &str, lang: &Language) -> Model {
     // An entity whose closing brace is missing still counts.
     if let Some(name) = current_entity {
         if !current_attributes.is_empty() {
-            entities.push(complete_entity(name, current_attributes));
+            records.entities.push(EntityDeclaration {
+                name,
+                attributes: current_attributes,
+            });
         }
     }
 
+    records
+}
+
+/// Resolve repeated `(key, value)` annotations: the last value wins, and the
+/// key keeps the position of its first appearance.
+fn last_wins(list: &[(String, String)]) -> Vec<(String, String)> {
+    let mut resolved: Vec<(String, String)> = Vec::new();
+    for (key, value) in list {
+        match resolved.iter_mut().find(|(existing, _)| existing == key) {
+            Some(slot) => slot.1 = value.clone(),
+            None => resolved.push((key.clone(), value.clone())),
+        }
+    }
+    resolved
+}
+
+/// Compile what an ERD declares into entities, relationships and enums.
+///
+/// The only place ERD declarations become entities: EML and YAML are both read
+/// into `ErdRecords` and both end here. Repeats resolve as the TypeScript
+/// compiler resolves them — the first `%%enum` of a name counts; for entity
+/// annotations the last one wins.
+pub fn compile_erd(records: &ErdRecords, lang: &Language) -> Model {
+    let mut entities: Vec<Entity> = records
+        .entities
+        .iter()
+        .map(|declaration| {
+            complete_entity(
+                declaration.name.clone(),
+                declaration
+                    .attributes
+                    .iter()
+                    .map(|attribute| attribute_from_declaration(attribute, lang))
+                    .collect(),
+            )
+        })
+        .collect();
+    let relationships: Vec<Relationship> = records
+        .relationships
+        .iter()
+        .filter_map(|declaration| relationship_from_declaration(declaration, lang))
+        .collect();
+
+    let mut declared_enums: Vec<(String, Vec<String>)> = Vec::new();
+    for (name, values) in &records.enums {
+        if !declared_enums.iter().any(|(existing, _)| existing == name) {
+            declared_enums.push((name.clone(), values.clone()));
+        }
+    }
+    let declared_indexes: Vec<(String, EntityIndex)> = records
+        .indexes
+        .iter()
+        .map(|index| {
+            (
+                index.entity.clone(),
+                EntityIndex {
+                    columns: index.columns.clone(),
+                    unique: index.unique,
+                },
+            )
+        })
+        .collect();
+
     attach_indexes(&mut entities, &declared_indexes);
-    attach_help(&mut entities, &field_help, &entity_help);
-    for (name, icon) in &entity_icons {
+    attach_help(
+        &mut entities,
+        &records.field_help,
+        &last_wins(&records.entity_help),
+    );
+    for (name, icon) in &last_wins(&records.entity_icons) {
         if let Some(entity) = entities
             .iter_mut()
             .find(|candidate| candidate.name == *name)
@@ -260,8 +319,8 @@ pub fn parse_erd(source: &str, lang: &Language) -> Model {
             entity.icon = Some(icon.clone());
         }
     }
-    attach_parents(&mut entities, &entity_parents);
-    let enums = attach_enums(&mut entities, &declared_enums, &enum_bindings);
+    attach_parents(&mut entities, &last_wins(&records.entity_parents));
+    let enums = attach_enums(&mut entities, &declared_enums, &records.enum_bindings);
 
     Model {
         entities,
@@ -619,8 +678,10 @@ fn parse_entity_start(line: &str) -> Option<String> {
     Some(stripped.to_string())
 }
 
-/// Left glyphs are `||`, `|o`, `}o`, `}|`; right glyphs `||`, `o|`, `o{`, `|{`.
-fn parse_relationship(line: &str, lang: &Language) -> Option<Relationship> {
+/// Read a relationship line. Left glyphs are `||`, `|o`, `}o`, `}|`; right
+/// glyphs `||`, `o|`, `o{`, `|{` — and only the eight operators the language
+/// defines are relationships.
+fn read_relationship(line: &str, lang: &Language) -> Option<RelationshipDeclaration> {
     let (before_label, raw_label) = match line.split_once(':') {
         Some((head, tail)) => (head.trim(), Some(tail.trim().trim_matches('"').trim())),
         None => (line, None),
@@ -637,9 +698,29 @@ fn parse_relationship(line: &str, lang: &Language) -> Option<Relationship> {
     if !is_identifier(source) || !is_identifier(target) {
         return None;
     }
-    let cardinality = lang.cardinality_kind(operator)?;
+    lang.cardinality_kind(operator)?;
 
-    let name = match raw_label {
+    Some(RelationshipDeclaration {
+        source: source.to_string(),
+        target: target.to_string(),
+        operator: operator.to_string(),
+        label: raw_label
+            .filter(|label| !label.is_empty())
+            .map(str::to_string),
+    })
+}
+
+/// The relationship a declaration compiles to, or `None` for an operator the
+/// language does not define.
+fn relationship_from_declaration(
+    declaration: &RelationshipDeclaration,
+    lang: &Language,
+) -> Option<Relationship> {
+    let cardinality = lang.cardinality_kind(&declaration.operator)?;
+    let source = declaration.source.as_str();
+    let target = declaration.target.as_str();
+
+    let name = match declaration.label.as_deref().map(str::trim) {
         Some(label) if !label.is_empty() => normalize_relationship_name(label),
         _ => format!("{}_{}", source.to_lowercase(), target.to_lowercase()),
     };
@@ -683,16 +764,31 @@ fn normalize_relationship_name(label: &str) -> String {
         .to_lowercase()
 }
 
-/// `type name [MODIFIERS…]` — e.g. `string email UK`, `decimal price OPTIONAL`.
-fn parse_attribute(line: &str, lang: &Language) -> Option<Attribute> {
+/// Read a column declaration: `type name [MODIFIERS…]`, tokens as written.
+fn read_attribute(line: &str) -> Option<AttributeDeclaration> {
     let parts: Vec<&str> = line.split_whitespace().collect();
     if parts.len() < 2 {
         return None;
     }
+    Some(AttributeDeclaration {
+        ty: parts[0].to_string(),
+        name: parts[1].to_string(),
+        modifiers: parts[2..].iter().map(|m| (*m).to_string()).collect(),
+    })
+}
 
-    let raw_type = parts[0].to_ascii_lowercase();
-    let name = parts[1];
-    let modifiers: Vec<String> = parts[2..].iter().map(|m| m.to_ascii_uppercase()).collect();
+/// The attribute a column declaration compiles to — e.g. `string email UK`,
+/// `decimal price OPTIONAL`.
+pub fn attribute_from_declaration(
+    declaration: &AttributeDeclaration,
+    lang: &Language,
+) -> Attribute {
+    let raw_type = declaration.ty.to_ascii_lowercase();
+    let modifiers: Vec<String> = declaration
+        .modifiers
+        .iter()
+        .map(|m| m.to_ascii_uppercase())
+        .collect();
     let has = |m: &str| modifiers.iter().any(|found| found == m);
 
     let is_primary_key = has("PK");
@@ -712,8 +808,8 @@ fn parse_attribute(line: &str, lang: &Language) -> Option<Attribute> {
         .find(|alias| **alias == base_type)
         .map(|alias| (*alias).to_string());
 
-    Some(Attribute {
-        name: name.to_string(),
+    Attribute {
+        name: declaration.name.clone(),
         ty: lang.normalize_type(&raw_type),
         // A primary key is generated, so it is never "required" input.
         required: !is_optional && !is_primary_key,
@@ -726,7 +822,7 @@ fn parse_attribute(line: &str, lang: &Language) -> Option<Attribute> {
         enum_ref: None,
         enum_values: None,
         enum_reference_id: None,
-    })
+    }
 }
 
 /// Collapse a column declared more than once into a single attribute.

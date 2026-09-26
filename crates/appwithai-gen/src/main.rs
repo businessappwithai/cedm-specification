@@ -24,8 +24,10 @@ mod hooks;
 mod language;
 mod logging;
 mod model;
+mod model_source;
 mod naming;
 mod rbac;
+mod records;
 mod reports;
 mod rules;
 mod saga;
@@ -33,8 +35,9 @@ mod scaffold;
 mod system;
 mod templates;
 mod workflows;
+mod yaml_model;
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::{bail, Context, Result};
 use clap::Parser;
@@ -67,27 +70,13 @@ fn list_stacks() {
     println!("  neutral  butter  chocolate  matcha  stone  gothic  y2k");
 }
 
-/// Every model file's text, concatenated.
-///
-/// Directives (`%%category`, `%%workflow`, `%%step`) are Mermaid comments, so
-/// the parsed ERD cannot carry them and anything reading them needs the source
-/// exactly as written.
-fn read_sources(paths: &[PathBuf]) -> Result<String> {
-    let mut sources = Vec::new();
-    for path in paths {
-        let text = std::fs::read_to_string(path)
-            .with_context(|| format!("reading model file {}", path.display()))?;
-        sources.push(text);
-    }
-    Ok(sources.join("\n"))
-}
-
 fn info(input: &Path) -> Result<()> {
     let lang = Language::load();
-    let source = read_sources(std::slice::from_ref(&input.to_path_buf()))?;
-    let parsed = model::parse_erd(&source, &lang);
+    let records =
+        model_source::read_model_files(std::slice::from_ref(&input.to_path_buf()), &lang, |_| {})?;
+    let parsed = model::compile_erd(&records.erd, &lang);
     let names: Vec<String> = parsed.entities.iter().map(|e| e.name.clone()).collect();
-    let categories = category::resolve_categories(&source, &names);
+    let categories = category::resolve_category_declarations(&records.categories, &names);
 
     println!("📄 {}", input.display());
     println!(
@@ -151,8 +140,12 @@ fn generate(args: &GenerateArgs) -> Result<()> {
 
     // ── Parse ───────────────────────────────────────────────────────────
     let lang = Language::load();
-    let source = read_sources(&model_files)?;
-    let parsed = model::parse_erd(&source, &lang);
+    let records = model_source::read_model_files(&model_files, &lang, |message| {
+        if !args.quiet {
+            println!("  ⚠️  {message}");
+        }
+    })?;
+    let parsed = model::compile_erd(&records.erd, &lang);
 
     if parsed.entities.is_empty() {
         bail!(
@@ -167,7 +160,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     }
 
     let entity_names: Vec<String> = parsed.entities.iter().map(|e| e.name.clone()).collect();
-    let categories = category::resolve_categories(&source, &entity_names);
+    let categories = category::resolve_category_declarations(&records.categories, &entity_names);
 
     if !quiet {
         println!("📊 Entities found:");
@@ -258,18 +251,20 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     // Compiled before `%%rbac` because a directive may name a *transition*
     // rather than a CRUD operation — `%%rbac role:manager on Deal.close_won` —
     // and only the machines can say which edges that covers.
-    let compiled_workflows = workflows::compile_workflows(&source, &entity_names, warn);
+    let compiled_workflows =
+        workflows::compile_state_machine_declarations(&records.state_machines, &entity_names, warn);
     let state_machines: Vec<rbac::RbacStateMachine> = compiled_workflows
         .iter()
         .map(workflows::CompiledWorkflow::as_state_machine)
         .collect();
 
-    let compiled_rbac = rbac::compile_rbac(&source, &entity_names, &state_machines, warn);
+    let compiled_rbac =
+        rbac::compile_rbac_declarations(&records.rbac, &entity_names, &state_machines, warn);
 
     // `%%rule` sections are decision flowcharts. Compiled here rather than in
     // the emission layer so a malformed one is reported once, at the point the
     // model is read, rather than per output file.
-    let compiled_rules = rules::compile_rules(&rules::extract_rule_sections(&source), |message| {
+    let compiled_rules = rules::compile_rule_declarations(&records.rules, |message| {
         if !quiet {
             println!("  ⚠️  {message}");
         }
@@ -279,11 +274,12 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     // it. Compiled here, with the rules, so a malformed directive is reported
     // once at the point the model is read — and so the refusal of anything that
     // is not a single read happens before a query can reach a seed file.
-    let compiled_reports = reports::compile_reports(&source, &entity_names, |message| {
-        if !quiet {
-            println!("  ⚠️  {message}");
-        }
-    });
+    let compiled_reports =
+        reports::compile_report_declarations(&records.reports, &entity_names, |message| {
+            if !quiet {
+                println!("  ⚠️  {message}");
+            }
+        });
 
     // ── Backend: scaffold, then overlay ─────────────────────────────────
     if !args.skip_backend {
@@ -464,7 +460,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             );
         }
 
-        let sagas = compile_sagas(&source, &context.entities, &lang);
+        let sagas = compile_sagas(&records.sagas, &context.entities, &lang);
         backend::write_workflow_seed(&backend_dir, &project_name, &sagas)?;
         if !quiet {
             let steps: usize = sagas.iter().map(|saga| saga.steps.len()).sum();
@@ -484,7 +480,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         // The model's `%%hook` directives. Compiled here rather than beside the
         // other compilers above because nothing else reads them: they become
         // Rust source under `src/hooks/`, not a seed row.
-        let compiled_hooks = hooks::compile_hooks(&source, &entity_names, warn);
+        let compiled_hooks = hooks::compile_hook_declarations(&records.hooks, &entity_names, warn);
         let hook_entities = backend::write_hook_handlers(&backend_dir, &compiled_hooks)?;
         if !quiet {
             println!(
@@ -564,11 +560,11 @@ const EXECUTABLE_STEP_TYPES: [&str; 6] = [
 /// Takes no `quiet` flag on purpose: everything it prints is a warning, and
 /// warnings are not progress chatter.
 fn compile_sagas(
-    source: &str,
+    declarations: &[records::SagaDeclaration],
     entities: &[bus::BusEntity],
     lang: &Language,
 ) -> Vec<saga::SagaWorkflow> {
-    let parsed = saga::parse_sagas(source, lang);
+    let parsed = saga::compile_saga_declarations(declarations, lang);
     let table_by_name: std::collections::HashMap<String, String> = entities
         .iter()
         .map(|entity| (entity.name.to_lowercase(), entity.table_name.clone()))
