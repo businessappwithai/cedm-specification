@@ -165,8 +165,8 @@ export interface RuleEdge {
 export interface RuleAction {
   name: string;
   type: string;
-  /** The condition, in the rule engine's expression language. */
-  when: string;
+  /** The condition, in the rule engine's expression language. Absent means always. */
+  when?: string;
   props: Record<string, string>;
 }
 

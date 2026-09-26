@@ -14,7 +14,7 @@ export * from "./flowchart-parser";
 export * from "./jdm-converter";
 
 import type { EmlRuleSection } from "../eml";
-import type { RuleDeclaration } from "../model/records";
+import type { RuleAction, RuleDeclaration } from "../model/records";
 import { type FlowAST, parseMermaidFlowchart } from "./flowchart-parser";
 import { convertToJdm, type JdmGraph } from "./jdm-converter";
 
@@ -86,7 +86,16 @@ function parseActionProps(rest: string): Record<string, string> {
 }
 
 export function parseRuleActions(flowchart: string): CompiledRuleAction[] {
-  const actions: CompiledRuleAction[] = [];
+  return readRuleActions(flowchart).map(withDefaultCondition);
+}
+
+/**
+ * Read a rule body's `%%action` lines as written: an action that states no
+ * `when:` keeps none, so the difference between "always" said outright and
+ * "always" by omission — which the checker reports (EML282) — survives reading.
+ */
+export function readRuleActions(flowchart: string): RuleAction[] {
+  const actions: RuleAction[] = [];
   for (const rawLine of (flowchart ?? "").split("\n")) {
     const line = rawLine.trim();
     if (!line.startsWith("%%action")) continue;
@@ -95,9 +104,15 @@ export function parseRuleActions(flowchart: string): CompiledRuleAction[] {
     const [, name, type, rest] = match as unknown as [string, string, string, string];
     const props = parseActionProps(rest ?? "");
     const { when, ...others } = props;
-    actions.push({ name, type, when: when?.trim() || "true", props: others });
+    const condition = when?.trim();
+    actions.push({ name, type, ...(condition ? { when: condition } : {}), props: others });
   }
   return actions;
+}
+
+/** An action as the rules engine runs it: no condition means always. */
+function withDefaultCondition(action: RuleAction): CompiledRuleAction {
+  return { name: action.name, type: action.type, when: action.when ?? "true", props: action.props };
 }
 
 /** Quote a value for a zen decision-table output cell. */
@@ -537,7 +552,7 @@ export function readRuleSection(section: EmlRuleSection): RuleDeclaration {
       target,
       ...(label !== undefined ? { label } : {}),
     })),
-    actions: parseRuleActions(section.flowchart),
+    actions: readRuleActions(section.flowchart),
     ...(decisionTable ? { decisionTable } : {}),
   };
 }
@@ -577,7 +592,10 @@ export function compileRuleDeclarations(
       if (editorTable) {
         jdm = buildEditorDecisionTable(declaration.name, editorTable);
       } else if (declaration.actions.length) {
-        jdm = buildActionDecisionTable(declaration.name, declaration.actions);
+        jdm = buildActionDecisionTable(
+          declaration.name,
+          declaration.actions.map(withDefaultCondition)
+        );
       } else {
         const ast: FlowAST = {
           nodes: new Map(declaration.nodes.map((node) => [node.id, { ...node }])),

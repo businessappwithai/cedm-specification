@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appwithai.dev/schema/eml-yaml/1.0/eml.schema.json",
+  "title": "EML YAML model",
+  "description": "An AppWithAI application model written in YAML. Every construct corresponds to exactly one EML construct and compiles through the same compiler; the Mermaid rendering of a model is derived from this document and is never its source.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eml", "entities"],
+  "properties": {
+    "eml": {
+      "description": "Version of the YAML model language this document is written in.",
+      "const": "1.0"
+    },
+    "name": {
+      "description": "The model's name. EML: `%%meta name:` at the head of the document.",
+      "$ref": "#/$defs/line"
+    },
+    "version": {
+      "description": "The model's own version. EML: `%%meta version:`.",
+      "$ref": "#/$defs/line"
+    },
+    "description": {
+      "description": "What the application is for, in one sentence. EML: `%%meta description:`. Rendered at the top of the generated manual.",
+      "$ref": "#/$defs/line"
+    },
+    "enums": {
+      "description": "Value lists a column can be bound to. EML: `%%enum Name: a, b, c`. Only enums some attribute binds to reach the dictionary.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/enum" }
+    },
+    "categories": {
+      "description": "Dashboard groupings. EML: `%%category`. Entities placed in none go to the default category.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/category" }
+    },
+    "entities": {
+      "description": "The business entities, in the order their tables are created. EML: the `erDiagram` entity blocks with their `%%entity`, `%%field` and `%%index` annotations.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/entity" }
+    },
+    "relationships": {
+      "description": "Relationship lines. EML: `Source ||--o{ Target : label`.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    },
+    "hooks": {
+      "description": "Lifecycle handlers the generated backend dispatches to. EML: `%%hook <event> <handler> on <Entity> [field: <column>]`.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "rbac": {
+      "description": "Role restrictions on operations and transitions. EML: `%%rbac role:a|role:b on Entity.action`. A target with no rule stays open.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/rbac" }
+    },
+    "reports": {
+      "description": "Analytical questions shipped with the application. EML: `%%report`. The query must be a single SELECT or WITH.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/report" }
+    },
+    "rules": {
+      "description": "Business rules bound to a lifecycle event. EML: a `%%rule` flowchart section.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "stateMachines": {
+      "description": "Status machines: which moves a record may make. EML: a `%%workflow … kind: state` stateDiagram section.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/stateMachine" }
+    },
+    "sagas": {
+      "description": "Multi-step processes run on a write. EML: a `%%workflow … kind: saga` flowchart section with `%%step` directives.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/saga" }
+    },
+    "hookDiagrams": {
+      "description": "Drawings of a hook's logic. EML: a `%%workflow … kind: hook` section. Carried for the diagram view; not compiled.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/hookDiagram" }
+    }
+  },
+  "$defs": {
+    "line": {
+      "description": "Single-line text with no leading or trailing whitespace.",
+      "type": "string",
+      "pattern": "^[^\\s](?:[^\\n\\r]*[^\\s])?$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "entityName": {
+      "description": "An entity name: begins with a letter; letters, digits and underscores. PascalCase by convention.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "token": {
+      "description": "A single word with no whitespace.",
+      "type": "string",
+      "pattern": "^\\S+$"
+    },
+    "categoryText": {
+      "description": "Category field text: single line, no `;`, and not ending in a backslash (both are EML category syntax).",
+      "type": "string",
+      "pattern": "^[^\\s;](?:[^;\\n\\r]*[^\\s;\\\\])?$"
+    },
+    "enum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "values"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "description": "One value. No commas: EML lists values comma-separated.",
+            "type": "string",
+            "pattern": "^[^\\s,](?:[^,\\n\\r]*[^\\s,])?$"
+          }
+        }
+      }
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "#/$defs/categoryText" },
+        "code": {
+          "description": "Stable identifier. Derived from the name when omitted; categories sharing a code are merged.",
+          "$ref": "#/$defs/categoryText"
+        },
+        "description": { "$ref": "#/$defs/categoryText" },
+        "icon": { "$ref": "#/$defs/categoryText" },
+        "color": { "$ref": "#/$defs/categoryText" },
+        "seq": { "type": "number" },
+        "default": {
+          "description": "Marks the category that receives entities placed in no other. At most one takes effect.",
+          "type": "boolean"
+        },
+        "entities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/entityName" }
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "attributes"],
+      "properties": {
+        "name": { "$ref": "#/$defs/entityName" },
+        "help": {
+          "description": "What one record of this entity is. EML: `%%entity <E> help:`.",
+          "$ref": "#/$defs/line"
+        },
+        "icon": {
+          "description": "A lucide icon id, e.g. `flask-conical`. EML: `%%entity <E> icon:`.",
+          "type": "string",
+          "pattern": "^[\\w.-]+$"
+        },
+        "parent": {
+          "description": "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent. EML: `%%entity <E> parent:`.",
+          "$ref": "#/$defs/identifier"
+        },
+        "attributes": {
+          "description": "Columns in declaration order. An `id` key is added when no attribute is the key.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/attribute" }
+        },
+        "indexes": {
+          "description": "Composite or explicit indexes. EML: `%%index <E>(a, b) [unique]`.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/index" }
+        }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "type": {
+          "description": "An EML type or alias, with an optional length: `string`, `string(255)`, `text`, `integer`, `decimal`, `boolean`, `date`, `datetime`, `uuid`, `json`, `email`, `url`, `phone`, `password`, `color`, …",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(?:\\([0-9,]+\\))?$"
+        },
+        "pk": { "description": "Primary key. EML modifier `PK`.", "type": "boolean" },
+        "fk": { "description": "Foreign key. EML modifier `FK`.", "type": "boolean" },
+        "unique": { "description": "Unique. EML modifier `UK`.", "type": "boolean" },
+        "optional": {
+          "description": "Nullable. EML modifier `OPTIONAL`. Attributes are required unless optional or the primary key.",
+          "type": "boolean"
+        },
+        "comment": {
+          "description": "The Mermaid attribute comment, shown in the diagram only.",
+          "type": "string",
+          "pattern": "^[^\"\\n\\r]+$"
+        },
+        "enum": {
+          "description": "Binds the column to a declared enum, making it a dropdown. EML: `%%field <E>.<c> enum:`.",
+          "$ref": "#/$defs/identifier"
+        },
+        "help": {
+          "description": "Guidance shown under the form control. EML: `%%field <E>.<c> help:`.",
+          "$ref": "#/$defs/line"
+        }
+      }
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns"],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "unique": { "type": "boolean" }
+      }
+    },
+    "cardinality": {
+      "description": "How many records may stand at one end of a relationship.",
+      "enum": ["exactly-one", "zero-or-one", "zero-or-more", "one-or-more"]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "fromCardinality", "toCardinality"],
+      "properties": {
+        "from": { "$ref": "#/$defs/identifier" },
+        "fromCardinality": { "$ref": "#/$defs/cardinality" },
+        "to": { "$ref": "#/$defs/identifier" },
+        "toCardinality": { "$ref": "#/$defs/cardinality" },
+        "label": {
+          "description": "The relationship's name. Defaults to `<from>_<to>`.",
+          "type": "string",
+          "pattern": "^[^\\s\"](?:[^\"\\n\\r]*[^\\s\"])?$"
+        }
+      },
+      "$comment": "Only the eight Mermaid operators the language defines are valid pairs: exactly-one/exactly-one, exactly-one/zero-or-more, exactly-one/one-or-more, zero-or-more/exactly-one, one-or-more/exactly-one, zero-or-more/zero-or-more, one-or-more/one-or-more, zero-or-one/zero-or-one.",
+      "anyOf": [
+        { "properties": { "fromCardinality": { "const": "exactly-one" }, "toCardinality": { "enum": ["exactly-one", "zero-or-more", "one-or-more"] } } },
+        { "properties": { "fromCardinality": { "enum": ["zero-or-more", "one-or-more"] }, "toCardinality": { "const": "exactly-one" } } },
+        { "properties": { "fromCardinality": { "const": "zero-or-more" }, "toCardinality": { "const": "zero-or-more" } } },
+        { "properties": { "fromCardinality": { "const": "one-or-more" }, "toCardinality": { "const": "one-or-more" } } },
+        { "properties": { "fromCardinality": { "const": "zero-or-one" }, "toCardinality": { "const": "zero-or-one" } } }
+      ]
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "event", "handler"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "event": {
+          "enum": [
+            "beforeCreate",
+            "afterCreate",
+            "beforeUpdate",
+            "afterUpdate",
+            "beforeDelete",
+            "afterDelete",
+            "beforeRead",
+            "afterRead",
+            "beforeQuery",
+            "afterQuery",
+            "beforeList",
+            "afterList",
+            "customValidate"
+          ]
+        },
+        "handler": {
+          "description": "The function name in the entity's handler module. One name serves one event.",
+          "$ref": "#/$defs/identifier"
+        },
+        "field": {
+          "description": "The column a field-level hook concerns.",
+          "type": "string",
+          "pattern": "^\\w+$"
+        }
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "action", "roles"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "action": {
+          "description": "`create`, `read`, `update`, `delete` (or an alias such as `insert`, `view`, `edit`, `remove`), `*` for all four, or the trigger of a transition in the entity's state machine.",
+          "type": "string",
+          "pattern": "^[A-Za-z_*]\\w*$"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^(?!role:)[^\\s|]+$"
+          }
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sql"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][\\w-]*$" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "chart": { "enum": ["bar", "line", "pie", "area"] },
+        "x": { "$ref": "#/$defs/line" },
+        "y": { "$ref": "#/$defs/line" },
+        "help": { "$ref": "#/$defs/line" },
+        "sql": {
+          "description": "A single SELECT or WITH statement. May span lines. The generated application caps it at 5,000 rows.",
+          "type": "string",
+          "pattern": "^\\s*(?:[Ww][Ii][Tt][Hh]|[Ss][Ee][Ll][Ee][Cc][Tt])\\b"
+        }
+      },
+      "dependentRequired": { "chart": ["x", "y"] }
+    },
+    "ruleNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "shape"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "label": { "$ref": "#/$defs/line" },
+        "shape": {
+          "description": "`stadium` start/end, `diamond` decision, `rect` action, `round` expression, `circle` connector.",
+          "enum": ["stadium", "diamond", "rect", "circle", "round"]
+        }
+      }
+    },
+    "ruleEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "$ref": "#/$defs/identifier" },
+        "to": { "$ref": "#/$defs/identifier" },
+        "label": {
+          "description": "A branch label, e.g. `Yes`.",
+          "type": "string",
+          "pattern": "^[^\\s|](?:[^|\\n\\r]*[^\\s|])?$"
+        }
+      }
+    },
+    "ruleAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][\\w-]*$" },
+        "type": {
+          "description": "e.g. `set-field`, `notify`, `reject`, `trigger-workflow`.",
+          "type": "string",
+          "pattern": "^[A-Za-z][\\w-]*$"
+        },
+        "when": {
+          "description": "Condition in the rule engine's expression language. Defaults to `true`.",
+          "$ref": "#/$defs/line"
+        },
+        "props": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z_]\\w*$" },
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        }
+      }
+    },
+    "decisionTableColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "field": { "type": "string" }
+      }
+    },
+    "decisionTable": {
+      "description": "A decision table authored in the rules editor. Takes precedence over actions and the flowchart.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hitPolicy": { "enum": ["first", "collect"] },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/decisionTableColumn" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/decisionTableColumn" } },
+        "rules": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": { "type": "string" } }
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "event", "nodes", "edges"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "event": {
+          "description": "The lifecycle event the rule runs on, e.g. `beforeCreate`, `afterUpdate`.",
+          "$ref": "#/$defs/token"
+        },
+        "priority": { "description": "Lower runs first. Defaults to 100.", "type": "integer" },
+        "direction": { "enum": ["TD", "TB", "BT", "LR", "RL"] },
+        "nodes": { "type": "array", "items": { "$ref": "#/$defs/ruleNode" } },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/ruleEdge" } },
+        "actions": { "type": "array", "items": { "$ref": "#/$defs/ruleAction" } },
+        "decisionTable": { "$ref": "#/$defs/decisionTable" }
+      }
+    },
+    "stateMachine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "states", "transitions"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "states": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "initial": {
+          "description": "The state a new record is stamped with.",
+          "$ref": "#/$defs/identifier"
+        },
+        "final": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "$ref": "#/$defs/identifier" },
+              "to": { "$ref": "#/$defs/identifier" },
+              "trigger": {
+                "description": "The event that makes the move. An `rbac` rule may name it as its action.",
+                "$ref": "#/$defs/line"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sagaStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "type": {
+          "description": "A step node type from the language definition, e.g. `CreateEntity`, `UpdateEntity`, `CallRest`, `SendEmail`.",
+          "$ref": "#/$defs/identifier"
+        },
+        "label": { "$ref": "#/$defs/line" },
+        "properties": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z_]\\w*$" },
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        }
+      }
+    },
+    "saga": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "steps"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "operation": {
+          "description": "Which write runs the saga. Defaults to ALL.",
+          "enum": ["CREATE", "UPDATE", "DELETE", "ALL"]
+        },
+        "trigger": {
+          "description": "`rule` runs it only when a rule's trigger-workflow action names it (the default); `automatic` runs it on every matching write.",
+          "enum": ["rule", "automatic"]
+        },
+        "description": { "$ref": "#/$defs/line" },
+        "steps": {
+          "description": "In execution order.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/sagaStep" }
+        }
+      }
+    },
+    "hookDiagram": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "diagram"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "diagram": {
+          "description": "The Mermaid flowchart, verbatim. The one place a model carries diagram text: it is a drawing, and nothing compiles it.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
