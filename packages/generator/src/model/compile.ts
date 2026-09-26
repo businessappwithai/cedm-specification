@@ -15,10 +15,7 @@ import { type CompiledRbac, compileRbacDeclarations } from "../rbac";
 import { type CompiledReport, compileReportDeclarations } from "../reports";
 import { type CompiledRule, compileRuleDeclarations } from "../rules";
 import { compileSagaDeclarations, type SagaWorkflow } from "../workflows/sagas";
-import {
-  type CompiledWorkflow,
-  compileStateMachineDeclarations,
-} from "../workflows/state-machine";
+import { type CompiledWorkflow, compileStateMachineDeclarations } from "../workflows/state-machine";
 import type { ErdRecords, ModelRecords } from "./records";
 
 /** Everything a model contributes to generation. */
@@ -82,7 +79,13 @@ export function compileModelRecords(
 
   const entityNames = entities.map((entity) => entity.name);
   const categories = resolveCategoryDeclarations(records.categories, entityNames);
-  const { workflows: sagas } = compileSagaDeclarations(records.sagas);
+  const { workflows: sagas, diagnostics: sagaDiagnostics } = compileSagaDeclarations(records.sagas);
+  for (const diagnostic of sagaDiagnostics) {
+    const where = diagnostic.nodeId
+      ? `${diagnostic.workflow}.${diagnostic.nodeId}`
+      : diagnostic.workflow;
+    warn(`saga ${where}: ${diagnostic.message}`);
+  }
 
   /*
    * State machines are compiled before access control because an `rbac` rule

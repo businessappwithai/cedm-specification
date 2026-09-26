@@ -228,7 +228,11 @@ export function compileErdRecords(records: ErdRecords): {
  * a column conjured out of a help line would be a column the schema has no
  * place for.
  */
-function attachHelp(entities: Entity[], fieldHelp: FieldHelp[], entityHelp: Map<string, string>): void {
+function attachHelp(
+  entities: Entity[],
+  fieldHelp: FieldHelp[],
+  entityHelp: Map<string, string>
+): void {
   for (const [name, help] of entityHelp) {
     const entity = entities.find((candidate) => candidate.name === name);
     if (entity) entity.description = help;

@@ -91,9 +91,7 @@ describe("the YAML model language over the repository's EML corpus", () => {
     const read = readModelYaml(text);
 
     it("reads back through every validation layer without an error", () => {
-      expect(read.diagnostics.filter((d) => d.code === "YAML" || d.code === "SCHEMA")).toEqual(
-        []
-      );
+      expect(read.diagnostics.filter((d) => d.code === "YAML" || d.code === "SCHEMA")).toEqual([]);
       expect(read.document).toBeDefined();
     });
 

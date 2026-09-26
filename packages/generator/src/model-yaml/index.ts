@@ -75,7 +75,9 @@ export class ModelYamlError extends Error {
     super(
       `${source} has ${errors.length} error(s):\n` +
         errors
-          .map((error) => `  ${source}:${error.line}:${error.column} ${error.code} ${error.message}`)
+          .map(
+            (error) => `  ${source}:${error.line}:${error.column} ${error.code} ${error.message}`
+          )
           .join("\n")
     );
     this.name = "ModelYamlError";

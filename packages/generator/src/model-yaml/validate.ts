@@ -82,7 +82,11 @@ function pathLabel(path: DocumentPath): string {
   if (!path.length) return "document";
   return path.reduce<string>(
     (label, segment) =>
-      typeof segment === "number" ? `${label}[${segment}]` : label ? `${label}.${segment}` : segment,
+      typeof segment === "number"
+        ? `${label}[${segment}]`
+        : label
+          ? `${label}.${segment}`
+          : segment,
     ""
   );
 }
@@ -317,10 +321,7 @@ function drawableForm(document: ModelDocument): ModelDocument {
   };
 }
 
-function viewDiagnostic(
-  path: DocumentPath,
-  at: { line: number; column: number }
-): ModelDiagnostic {
+function viewDiagnostic(path: DocumentPath, at: { line: number; column: number }): ModelDiagnostic {
   return {
     severity: "warning",
     code: "VIEW",

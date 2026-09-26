@@ -524,7 +524,9 @@ export function recordsToDocument(records: ModelRecords): {
     ...(records.version !== undefined ? { version: records.version } : {}),
     ...(records.description !== undefined ? { description: records.description } : {}),
     ...(records.erd.enums.length ? { enums: enumsOf(records.erd.enums, issues) } : {}),
-    ...(records.categories.length ? { categories: records.categories.map(categoryDocumentOf) } : {}),
+    ...(records.categories.length
+      ? { categories: records.categories.map(categoryDocumentOf) }
+      : {}),
     entities: entitiesOf(records.erd, issues),
     ...(records.erd.relationships.length
       ? {

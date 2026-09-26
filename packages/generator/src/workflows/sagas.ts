@@ -168,15 +168,22 @@ function parseEdgeOrder(lines: string[]): string[] {
   return order;
 }
 
-/**
- * Every saga in an EML document, with its steps in flowchart order.
- *
- * Sections are delimited by `%%workflow`; a document may hold several.
- */
-export function parseSagas(source: string): SagaParseResult {
+/** One `kind: saga` section as written, before any step is checked. */
+interface SagaBlock {
+  name: string;
+  entity: string;
+  meta: Record<string, string>;
+  labels: Map<string, string>;
+  /** Node ids in the order the flowchart's edges first reach them. */
+  order: string[];
+  /** Every `%%step`, in declaration order, including ones that will be refused. */
+  rawSteps: SagaStepDeclaration[];
+}
+
+/** Each `%%workflow … kind: saga` section: from its directive to the next `%%workflow`. */
+function sagaBlocks(source: string): SagaBlock[] {
   const lines = source.split(/\r?\n/);
-  const workflows: SagaWorkflow[] = [];
-  const diagnostics: SagaDiagnostic[] = [];
+  const blocks: SagaBlock[] = [];
 
   // Section boundaries: each `%%workflow` opens one and closes the previous.
   const starts: number[] = [];
@@ -193,12 +200,6 @@ export function parseSagas(source: string): SagaParseResult {
     const attrs = parseStepProperties(header[2] ?? "");
     if ((attrs["kind"] ?? "").toLowerCase() !== "saga") continue;
 
-    const name = header[1]!;
-    const entity = attrs["entity"] ?? "";
-    if (!entity) {
-      diagnostics.push({ workflow: name, message: "saga declares no entity" });
-    }
-
     const meta: Record<string, string> = {};
     for (const line of block) {
       const match = META_RE.exec(line.trim());
@@ -206,8 +207,6 @@ export function parseSagas(source: string): SagaParseResult {
     }
 
     const labels = parseNodeLabels(block);
-    const order = parseEdgeOrder(block);
-
     const rawSteps: SagaStepDeclaration[] = [];
     for (const line of block) {
       const match = STEP_RE.exec(line.trim());
@@ -221,14 +220,99 @@ export function parseSagas(source: string): SagaParseResult {
       });
     }
 
+    blocks.push({
+      name: header[1]!,
+      entity: attrs["entity"] ?? "",
+      meta,
+      labels,
+      order: parseEdgeOrder(block),
+      rawSteps,
+    });
+  }
+
+  return blocks;
+}
+
+/** "no node in the flowchart" — the one check only a drawn saga can fail. */
+function unreachableStep(block: SagaBlock, nodeId: string): SagaDiagnostic | null {
+  if (block.order.includes(nodeId) || block.labels.has(nodeId)) return null;
+  return {
+    workflow: block.name,
+    nodeId,
+    message: `no node "${nodeId}" in the flowchart — the step will never run`,
+  };
+}
+
+/**
+ * Read every saga section into a declaration, without checking its steps.
+ *
+ * Steps are listed in the order the saga runs them — the order its edges reach
+ * their nodes, with any step on no edge after, in declaration order — so a
+ * declaration states outright what the flowchart draws. Which steps are refused
+ * is `compileSagaDeclarations`' question. The diagnostics returned are the ones
+ * only a flowchart can raise: a step on a node the diagram never draws.
+ */
+export function readSagaDirectives(source: string): {
+  declarations: SagaDeclaration[];
+  diagnostics: SagaDiagnostic[];
+} {
+  const declarations: SagaDeclaration[] = [];
+  const diagnostics: SagaDiagnostic[] = [];
+
+  for (const block of sagaBlocks(source)) {
+    const rank = (id: string) => {
+      const index = block.order.indexOf(id);
+      return index === -1 ? Number.POSITIVE_INFINITY : index;
+    };
+    const steps = block.rawSteps
+      .map((step, position) => ({ step, position }))
+      .sort((a, b) => rank(a.step.id) - rank(b.step.id) || a.position - b.position)
+      .map(({ step }) => step);
+
+    const reported = new Set<string>();
+    for (const step of block.rawSteps) {
+      if (reported.has(step.id)) continue;
+      reported.add(step.id);
+      const diagnostic = unreachableStep(block, step.id);
+      if (diagnostic) diagnostics.push(diagnostic);
+    }
+
+    declarations.push({
+      name: block.name,
+      entity: block.entity,
+      ...(block.meta["operation"] !== undefined ? { operation: block.meta["operation"] } : {}),
+      ...(block.meta["trigger"] !== undefined ? { trigger: block.meta["trigger"] } : {}),
+      ...(block.meta["description"] !== undefined
+        ? { description: block.meta["description"] }
+        : {}),
+      steps,
+    });
+  }
+
+  return { declarations, diagnostics };
+}
+
+/**
+ * Compile every saga section in an EML document.
+ *
+ * Steps run in the order the flowchart's edges reach them; a step whose type
+ * the language does not declare, or on a node that already has one, is dropped
+ * with a diagnostic.
+ */
+export function parseSagas(source: string): SagaParseResult {
+  const workflows: SagaWorkflow[] = [];
+  const diagnostics: SagaDiagnostic[] = [];
+
+  for (const block of sagaBlocks(source)) {
+    const { name, entity, meta, rawSteps } = block;
+    if (!entity) {
+      diagnostics.push({ workflow: name, message: "saga declares no entity" });
+    }
+    const order = block.order;
+
     const byNode = acceptSagaSteps(name, rawSteps, diagnostics, (nodeId) => {
-      if (!order.includes(nodeId) && !labels.has(nodeId)) {
-        diagnostics.push({
-          workflow: name,
-          nodeId,
-          message: `no node "${nodeId}" in the flowchart — the step will never run`,
-        });
-      }
+      const diagnostic = unreachableStep(block, nodeId);
+      if (diagnostic) diagnostics.push(diagnostic);
     });
 
     const steps: SagaStep[] = [];

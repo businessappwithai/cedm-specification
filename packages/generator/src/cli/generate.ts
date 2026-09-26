@@ -23,10 +23,18 @@ import {
   LocoBackendGenerator,
 } from "../generators/tanstack-astryx-loco";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-astryx-loco/tanstack-start-frontend.generator";
-import { resolveCategories } from "../parsers/category.parser";
-import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, parseModel } from "../pipeline";
+import {
+  compileModelDocument,
+  emlToModelDocument,
+  isModelYamlPath,
+  MODEL_YAML_SUFFIX,
+  readModelYaml,
+  renderEmlView,
+  serializeModelDocument,
+} from "../model-yaml";
 import { cliLogger } from "../pipeline/logger-port";
+import { loadModelFile, validateModelYamlFile } from "./model-input";
 import { CliExecutor } from "../utils/cli-executor";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -47,15 +55,16 @@ function getStackDescription(stack: StackOption): string {
     : "tanstack-astryx-loco - Rust Web (TanStack Start + Astryx | Loco.rs)";
 }
 
-/** Parse an ERD / EML / Mermaid file and return entities + relationships. */
+/**
+ * Read a model file — EML or the YAML model language — and return its
+ * entities, relationships and enums. A YAML model is validated first, and a
+ * model with errors is refused.
+ */
 async function parseFile(
   filePath: string
 ): Promise<{ entities: Entity[]; relationships: Relationship[]; enums: EntityEnum[] }> {
-  const absPath = resolvePath(filePath);
-  await fs.access(absPath);
-  const content = await fs.readFile(absPath, "utf-8");
-  const parser = new MermaidParser();
-  return parser.parse(content);
+  const { model } = await loadModelFile(resolvePath(filePath), { verbose: false });
+  return { entities: model.entities, relationships: model.relationships, enums: model.enums };
 }
 
 /**
@@ -374,6 +383,15 @@ async function runE2ETests(opts: {
  * then re-check. Throws if errors remain after fixing.
  */
 async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
+  // A YAML model is checked in-process, against its own lines, and never
+  // rewritten: the fixer edits EML text, and the YAML is the author's source.
+  if (isModelYamlPath(mmdPath)) {
+    log(`\n🔍 Validating ${path.basename(mmdPath)}…`, quiet);
+    await validateModelYamlFile(mmdPath, { verbose: !quiet });
+    log("   ✓ No model errors found.", quiet);
+    return;
+  }
+
   // Workspace root is 4 levels above packages/generator/src/cli/
   const workspaceRoot = path.resolve(__dirname, "../../../../");
   const checkerScript = path.join(workspaceRoot, "language", "checker.ts");
@@ -453,7 +471,7 @@ const program = new Command();
 
 program
   .name("appwithai")
-  .description("Generate full-stack applications from EML / Mermaid ERD diagrams")
+  .description("Generate full-stack applications from YAML models (.eml.yaml) or EML diagrams")
   .version("5.2.0");
 
 // ---------------------------------------------------------------------------
@@ -462,9 +480,12 @@ program
 
 program
   .command("generate")
-  .description("Generate a full-stack application from a Mermaid ERD or EML file")
+  .description("Generate a full-stack application from a YAML model (.eml.yaml) or EML file")
   // Input sources
-  .option("-i, --input <file>", "Input Mermaid ERD / EML file (single-file mode)")
+  .option(
+    "-i, --input <file>",
+    "Input model (single-file mode): the YAML model language (.eml.yaml) or EML (.mmd)"
+  )
   .option("--sys-file <file>", "System entities file (sys_ tables, multi-file mode)")
   .option("--bus-file <file>", "Business entities file (bus_ tables, multi-file mode)")
   .option("--ref-file <file>", "Reference entities file (REF_ tables, multi-file mode)")
@@ -605,13 +626,31 @@ program
       // `parseModel` over the joined source, so the CLI reads a model the same
       // way the web app does — including the directives that ride on `%%` lines
       // and never reach the ERD parser at all.
-      const modelSource = await readSources([
-        options.input,
-        options.sysFile,
-        options.busFile,
-        options.refFile,
-      ]);
-      const model = parseModel(modelSource);
+      //
+      // A YAML model is the source itself: it is compiled from the document and
+      // shipped as `model/model.eml.yaml`. Multi-file mode reads EML only — each
+      // file's ERD compiles on its own, which one YAML document cannot express.
+      if (isMultiFileMode) {
+        for (const flag of [options.sysFile, options.busFile, options.refFile]) {
+          if (flag && isModelYamlPath(flag)) {
+            throw new Error(
+              `--sys-file / --bus-file / --ref-file read EML; "${flag}" is a YAML model. ` +
+                "Pass a YAML model as a single --input."
+            );
+          }
+        }
+      }
+      const loaded = isMultiFileMode
+        ? undefined
+        : await loadModelFile(resolvePath(options.input), { verbose: false });
+      const modelSource =
+        loaded?.format === "eml"
+          ? loaded.text
+          : loaded
+            ? ""
+            : await readSources([options.sysFile, options.busFile, options.refFile]);
+      const model = loaded?.model ?? parseModel(modelSource);
+      const document = loaded?.format === "yaml" ? loaded.document : undefined;
       const categories = model.categories;
 
       // ── Entity summary ──────────────────────────────────────────────────
@@ -718,7 +757,7 @@ program
         // progress display to a terminal, and JSON through the middle of it
         // helps nobody. See `pipeline/logger-port.ts`.
         logger: cliLogger(getLogger("pipeline")),
-        sources: modelSource,
+        ...(document ? { document } : { sources: modelSource }),
         model,
         stackOption,
         astryxTheme: options.theme,
@@ -1059,7 +1098,7 @@ program
                 "so they are rewritten as a whole)"
             );
           }
-          const modelSource = await fs.readFile(resolvePath(options.input), "utf-8");
+          const { model } = await loadModelFile(resolvePath(options.input), { verbose: false });
           const backendGen = new LocoBackendGenerator({
             projectName: String(manifest.name ?? "my-app"),
             projectVersion: String(manifest.version ?? "1.0.0"),
@@ -1068,11 +1107,8 @@ program
             frontendPort: Number(manifest.frontendPort ?? 3001),
             database: (manifest.database ?? "postgres") as DatabaseTarget,
             skipCliScaffold: true,
-            modelSource,
-            categories: resolveCategories(
-              modelSource,
-              entities.map((e) => e.name)
-            ),
+            sagas: model.sagas,
+            categories: model.categories,
           });
           await backendGen.generate(entities, relationships, backendDir);
         } else {
@@ -1128,12 +1164,124 @@ program
 // ---------------------------------------------------------------------------
 
 program
+  .command("convert")
+  .description("Convert an EML (Mermaid) model to the YAML model language")
+  .argument("<input>", "EML model file (.mmd)")
+  .option("-o, --output <file>", "YAML file to write (default: <input> as .eml.yaml)")
+  .option("--force", "Overwrite the output file if it exists")
+  .action(async (input, options) => {
+    try {
+      const inputPath = resolvePath(input);
+      if (isModelYamlPath(inputPath)) {
+        throw new Error(`"${input}" is already a YAML model.`);
+      }
+      const outputPath = resolvePath(
+        options.output ?? inputPath.replace(/(\.eml)?\.(mmd|mermaid|md)$/i, "") + MODEL_YAML_SUFFIX
+      );
+      if (!options.force) {
+        const exists = await fs
+          .access(outputPath)
+          .then(() => true)
+          .catch(() => false);
+        if (exists) throw new Error(`"${outputPath}" exists. Use --force to overwrite it.`);
+      }
+
+      const source = await fs.readFile(inputPath, "utf-8");
+      const conversion = emlToModelDocument(source);
+      const yaml = serializeModelDocument(conversion.document);
+
+      // The file is written only if it means what the EML means: compiled, the
+      // two must be the same model. A difference is a converter defect, and a
+      // YAML file that silently generated a different application would be
+      // worse than none.
+      const read = readModelYaml(yaml, { check: false });
+      const quiet = console.warn;
+      console.warn = () => {};
+      let equivalent = false;
+      try {
+        equivalent =
+          !!read.document &&
+          JSON.stringify(compileModelDocument(read.document)) ===
+            JSON.stringify(parseModel(source));
+      } finally {
+        console.warn = quiet;
+      }
+      if (!equivalent) {
+        throw new Error(
+          `The YAML converted from "${input}" does not compile to the same model. ` +
+            "Nothing was written; please report this with the model attached."
+        );
+      }
+
+      await fs.writeFile(outputPath, yaml, "utf-8");
+      console.log(`✅ Wrote ${outputPath}`);
+      console.log(
+        `   ${conversion.document.entities.length} entities; compiles to the same application as ${path.basename(inputPath)}.`
+      );
+
+      if (conversion.issues.length) {
+        console.log(`\n⚠️  ${conversion.issues.length} declaration(s) resolved or not carried:`);
+        for (const issue of conversion.issues) {
+          console.log(`   • ${issue.construct} — ${issue.message}`);
+        }
+      }
+      const reserved = conversion.uncarried.filter(
+        (line) => line.reason === "uncompiled-directive"
+      );
+      if (reserved.length) {
+        console.log(`\n⚠️  ${reserved.length} directive(s) no compiler reads yet, not carried:`);
+        for (const line of reserved)
+          console.log(`   ${path.basename(inputPath)}:${line.line}  ${line.text}`);
+      }
+      const comments = conversion.uncarried.length - reserved.length;
+      if (comments) {
+        console.log(`\nℹ️  ${comments} %% comment line(s) not carried; use # comments in the YAML.`);
+      }
+    } catch (error) {
+      console.error(`\n❌ ${error instanceof Error ? error.message : String(error)}`);
+      process.exit(1);
+    }
+  });
+
+program
+  .command("view")
+  .description("Render a YAML model as its Mermaid (EML) view, for diagram viewers")
+  .argument("<input>", "YAML model file (.eml.yaml)")
+  .option("-o, --output <file>", "File to write (default: <input> as .eml.mmd; - for stdout)")
+  .action(async (input, options) => {
+    try {
+      const { document } = await validateModelYamlFile(resolvePath(input), { verbose: false });
+      const { text } = renderEmlView(document);
+      if (options.output === "-") {
+        process.stdout.write(text);
+        return;
+      }
+      const outputPath = resolvePath(
+        options.output ?? resolvePath(input).replace(/(\.eml)?\.ya?ml$/i, "") + ".eml.mmd"
+      );
+      await fs.writeFile(outputPath, text, "utf-8");
+      console.log(`✅ Wrote ${outputPath} (derived from ${path.basename(input)}; edit the YAML)`);
+    } catch (error) {
+      console.error(`\n❌ ${error instanceof Error ? error.message : String(error)}`);
+      process.exit(1);
+    }
+  });
+
+program
   .command("validate")
-  .description("Validate an ERD / EML file for structural correctness")
-  .argument("<file>", "Mermaid ERD or EML file to validate")
+  .description("Validate a model: EML (.mmd) or the YAML model language (.eml.yaml)")
+  .argument("<file>", "Model file to validate")
   .option("--strict", "Fail on warnings in addition to errors")
   .action(async (file, options) => {
     try {
+      if (isModelYamlPath(file)) {
+        const { diagnostics } = await validateModelYamlFile(resolvePath(file));
+        const warnings = diagnostics.filter((d) => d.severity === "warning").length;
+        console.log(`\n✅ ${path.basename(file)} is a valid model (${warnings} warning(s)).`);
+        if (options.strict && warnings > 0) process.exit(1);
+        return;
+      }
+
       const { entities, relationships } = await parseFile(file);
 
       const errors: string[] = [];

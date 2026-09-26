@@ -149,7 +149,13 @@ function stateLines(machine: StateMachineDocument, path: DocumentPath) {
   type Line = { text: string; states: string[]; path: DocumentPath };
   const queues: Line[][] = [
     machine.initial !== undefined
-      ? [{ text: `[*] --> ${machine.initial}`, states: [machine.initial], path: [...path, "initial"] }]
+      ? [
+          {
+            text: `[*] --> ${machine.initial}`,
+            states: [machine.initial],
+            path: [...path, "initial"],
+          },
+        ]
       : [],
     machine.transitions.map((transition, index) => ({
       text: `${transition.from} --> ${transition.to}${
@@ -367,7 +373,8 @@ export function renderEmlView(document: ModelDocument): RenderedView {
     if (saga.operation !== undefined) {
       view.add(`%%meta operation: ${saga.operation}`, [...path, "operation"]);
     }
-    if (saga.trigger !== undefined) view.add(`%%meta trigger: ${saga.trigger}`, [...path, "trigger"]);
+    if (saga.trigger !== undefined)
+      view.add(`%%meta trigger: ${saga.trigger}`, [...path, "trigger"]);
     if (saga.description !== undefined) {
       view.add(`%%meta description: ${saga.description}`, [...path, "description"]);
     }

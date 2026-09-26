@@ -15,7 +15,7 @@ import { MermaidParser } from "../parsers/mermaid.parser";
 import { readRbacDirectives } from "../rbac";
 import { readReportDirectives } from "../reports";
 import { readRuleSection } from "../rules";
-import { parseSagas } from "../workflows/sagas";
+import { readSagaDirectives } from "../workflows/sagas";
 import { readStateMachines } from "../workflows/state-machine";
 import type { HookDiagramDeclaration, ModelRecords, SagaDeclaration } from "./records";
 
@@ -130,29 +130,24 @@ function readHookDiagrams(source: string, sagaNames: Set<string>): HookDiagramDe
     });
 }
 
-function readSagaDeclarations(source: string): SagaDeclaration[] {
+function readSagaDeclarations(source: string, warn: (message: string) => void): SagaDeclaration[] {
   const titles = new Map(
     extractWorkflowSections(source)
       .filter((section) => section.title)
       .map((section) => [section.name, section.title as string])
   );
 
-  return parseSagas(source).workflows.map((saga) => {
+  const { declarations, diagnostics } = readSagaDirectives(source);
+  for (const diagnostic of diagnostics) {
+    const where = diagnostic.nodeId
+      ? `${diagnostic.workflow}.${diagnostic.nodeId}`
+      : diagnostic.workflow;
+    warn(`saga ${where}: ${diagnostic.message}`);
+  }
+
+  return declarations.map((saga) => {
     const title = titles.get(saga.name);
-    return {
-      name: saga.name,
-      ...(title ? { title } : {}),
-      entity: saga.entity,
-      operation: saga.operation,
-      trigger: saga.trigger,
-      ...(saga.description !== undefined ? { description: saga.description } : {}),
-      steps: saga.steps.map((step) => ({
-        id: step.nodeId,
-        type: step.nodeType,
-        label: step.label,
-        properties: { ...step.properties },
-      })),
-    };
+    return title ? { ...saga, title } : saga;
   });
 }
 
@@ -164,7 +159,7 @@ export function readEmlModel(
   const name = headerMeta(source, "name");
   const version = headerMeta(source, "version");
   const description = modelDescription(source);
-  const sagas = readSagaDeclarations(source);
+  const sagas = readSagaDeclarations(source, warn);
 
   return {
     ...(name ? { name } : {}),

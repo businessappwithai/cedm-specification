@@ -35,7 +35,7 @@ import { deriveAccess } from "../../rbac/roles";
 import type { CompiledReport } from "../../reports";
 import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
-import { buildWorkflowSeedSql, parseSagas, type SagaWorkflow } from "../../workflows/saga";
+import { buildWorkflowSeedSql, type SagaWorkflow } from "../../workflows/saga";
 import type { CompiledWorkflow } from "../../workflows/state-machine";
 import { BaseGenerator } from "../base.generator";
 import { buildAccessSeedSql } from "./access-seed";
@@ -130,9 +130,12 @@ export interface LocoBackendOptions {
    */
   modelEnums?: EntityEnum[];
   /** Entity categories from the model's `%%category` directives. */
-  /** Raw EML source, so `kind: saga` sections can be compiled. */
-  modelSource?: string;
   categories?: EntityCategory[];
+  /**
+   * The model's sagas, compiled. `seed/workflows.sql` is built from these, so
+   * a model written in either syntax seeds the same processes.
+   */
+  sagas?: SagaWorkflow[];
   /**
    * `%%rbac` restrictions, compiled.
    *
@@ -777,8 +780,9 @@ export class LocoBackendGenerator extends BaseGenerator {
    * previous generation's file behind.
    */
   private async writeWorkflowSeed(outputDir: string, entities: Entity[]): Promise<void> {
-    const source = this.options.modelSource ?? "";
-    const { workflows, diagnostics } = parseSagas(source);
+    // A copy: entity names are rewritten to tables below, and the compiled
+    // model belongs to the caller.
+    const workflows: SagaWorkflow[] = structuredClone(this.options.sagas ?? []);
 
     // A saga names its entity the way the ERD does — `DeviationReport` — but
     // everything downstream resolves physical tables. Normalising here rather
@@ -798,13 +802,6 @@ export class LocoBackendGenerator extends BaseGenerator {
       }
     }
 
-    for (const diagnostic of diagnostics) {
-      const where = diagnostic.nodeId
-        ? `${diagnostic.workflow}.${diagnostic.nodeId}`
-        : diagnostic.workflow;
-      console.warn(`  ⚠️  saga ${where}: ${diagnostic.message}`);
-    }
-
     // The language declares more step types than this backend executes. An
     // unimplemented one is skipped at run time with only a log line, so a saga
     // that leans on it appears to succeed while doing nothing. Say so at
@@ -819,7 +816,7 @@ export class LocoBackendGenerator extends BaseGenerator {
       }
     }
 
-    const seed = buildWorkflowSeedSql(workflows as SagaWorkflow[], this.options.projectName);
+    const seed = buildWorkflowSeedSql(workflows, this.options.projectName);
     await fs.writeFile(path.join(outputDir, "seed/workflows.sql"), seed);
 
     const steps = workflows.reduce((total, workflow) => total + workflow.steps.length, 0);

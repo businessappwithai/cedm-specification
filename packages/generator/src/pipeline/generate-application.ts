@@ -25,6 +25,13 @@ import {
 } from "../generators/full-stack.generator";
 import type { AstryxTheme, DatabaseTarget } from "../generators/tanstack-astryx-loco";
 import { renderManual } from "../manual";
+import {
+  compileModelDocument,
+  emlToModelDocument,
+  type ModelDocument,
+  renderEmlView,
+  serializeModelDocument,
+} from "../model-yaml";
 import type { PipelineLogger } from "./logger-port";
 import {
   GENERATION_DEFAULTS,
@@ -32,6 +39,8 @@ import {
   type ParsedModel,
   parseModel,
 } from "./parse-model";
+
+const warnOnConsole = (message: string) => console.warn(`  \u26a0\ufe0f  ${message}`);
 
 /** Re-exported so an importer needs only this module. */
 export { GENERATION_DEFAULTS, type GenerationSettings, type ParsedModel, parseModel };
@@ -55,13 +64,14 @@ export async function readModelSources(filePaths: Array<string | undefined>): Pr
  * Assemble the generator's options from a parsed model plus settings.
  *
  * This is the function that has to stay single. Every field below was once
- * spelled out at each call site, and the site that forgot `categories` and
- * `modelSource` shipped applications missing features the model had asked for.
+ * spelled out at each call site, and the site that forgot `categories` and the
+ * model's sagas shipped applications missing features the model had asked for.
+ * Everything comes from the compiled model, so how the model was written — EML
+ * or YAML — cannot reach the generators.
  */
 export function buildGeneratorOptions(
   model: ParsedModel,
-  settings: GenerationSettings,
-  modelSource: string
+  settings: GenerationSettings
 ): FullStackGeneratorOptions {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
 
@@ -93,7 +103,7 @@ export function buildGeneratorOptions(
     compiledReports: model.reports,
     compiledWorkflows: model.workflows,
     compiledHooks: model.hooks,
-    modelSource,
+    sagas: model.sagas,
   };
 }
 
@@ -195,24 +205,67 @@ async function writeManual(
   }
 }
 
-export async function writeModelSource(
-  outputDir: string,
-  sources: string | string[]
-): Promise<void> {
-  const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join("\n\n");
-  if (!document.trim()) return;
+/**
+ * What the generated project ships of its model.
+ *
+ * `model/model.eml.yaml` is the source: the YAML model language, canonical
+ * form. `model/model.eml.mmd` is its Mermaid view, for the diagram viewers;
+ * for a model written in EML it is the author's own text.
+ */
+export interface ModelFiles {
+  yaml?: string;
+  mermaid?: string;
+}
 
+/** The files a model ships as, from whichever syntax it was written in. */
+export function modelFilesFor(options: {
+  document?: ModelDocument;
+  sources?: string | string[];
+}): ModelFiles {
+  if (options.document) {
+    return {
+      yaml: serializeModelDocument(options.document),
+      mermaid: renderEmlView(options.document).text,
+    };
+  }
+
+  const list = (Array.isArray(options.sources) ? options.sources : [options.sources ?? ""]).filter(
+    Boolean
+  );
+  const mermaid = list.join("\n\n");
+  if (!mermaid.trim()) return {};
+
+  // A single EML document converts losslessly to what it compiles to. Several
+  // (the CLI's --sys-file/--bus-file/--ref-file) compile their ERDs apart, so
+  // no one YAML document means the same thing, and none is written.
+  return list.length === 1
+    ? { yaml: serializeModelDocument(emlToModelDocument(list[0]!).document), mermaid }
+    : { mermaid };
+}
+
+export async function writeModelFiles(outputDir: string, files: ModelFiles): Promise<void> {
+  if (!files.yaml && !files.mermaid) return;
   try {
     await fs.mkdir(path.join(outputDir, "model"), { recursive: true });
-    await fs.writeFile(path.join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
+    if (files.yaml) {
+      await fs.writeFile(path.join(outputDir, "model", "model.eml.yaml"), files.yaml, "utf-8");
+    }
+    if (files.mermaid) {
+      await fs.writeFile(path.join(outputDir, "model", "model.eml.mmd"), files.mermaid, "utf-8");
+    }
   } catch {
     // Non-fatal, exactly like the manifest: the application runs without it.
   }
 }
 
 export interface GenerateApplicationOptions extends GenerationSettings {
-  /** Model source text. Several are concatenated (CLI multi-file mode). */
-  sources: string | string[];
+  /**
+   * The model as a YAML model document — the source of truth. When given,
+   * `sources` is not read.
+   */
+  document?: ModelDocument;
+  /** EML model text. Several are concatenated (CLI multi-file mode). */
+  sources?: string | string[];
   /** Pre-parsed model, when the caller has already parsed and logged it. */
   model?: ParsedModel;
   manifest?: ManifestExtras;
@@ -235,9 +288,14 @@ export interface GenerateApplicationOptions extends GenerationSettings {
 export async function generateApplication(
   options: GenerateApplicationOptions
 ): Promise<ParsedModel> {
-  const sources = Array.isArray(options.sources) ? options.sources : [options.sources];
-  const modelSource = sources.filter(Boolean).join("\n");
-  const model = options.model ?? parseModel(sources);
+  if (!options.document && !options.sources) {
+    throw new Error("generateApplication needs a model: a YAML `document` or EML `sources`.");
+  }
+  const model =
+    options.model ??
+    (options.document
+      ? compileModelDocument(options.document, { warn: warnOnConsole })
+      : parseModel(options.sources ?? []));
 
   // The CLI's own progress lines are the report to whoever is watching the
   // terminal; these are the record for whatever is watching the process. A CLI
@@ -256,10 +314,10 @@ export async function generateApplication(
   try {
     await fs.mkdir(options.outputDir, { recursive: true });
 
-    const generator = new FullStackGenerator(buildGeneratorOptions(model, options, modelSource));
+    const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
     await generator.generate(model.entities, model.relationships);
 
-    await writeModelSource(options.outputDir, sources);
+    await writeModelFiles(options.outputDir, modelFilesFor(options));
     await writeManual(options.outputDir, model, options);
 
     if (options.writeManifestFile !== false) {

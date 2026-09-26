@@ -226,7 +226,11 @@ describe("compiling a YAML model", () => {
 
   it("gives only bound enums a reference id, and binds the column to it", () => {
     expect(model.enums).toEqual([
-      { name: "OrderStatus", values: ["draft", "submitted", "shipped", "cancelled"], referenceId: 1000 },
+      {
+        name: "OrderStatus",
+        values: ["draft", "submitted", "shipped", "cancelled"],
+        referenceId: 1000,
+      },
     ]);
     const status = model.entities
       .find((entity) => entity.name === "Order")!
@@ -271,7 +275,10 @@ describe("compiling a YAML model", () => {
   it("does not warn about a multi-line query the view can draw on one line", () => {
     const flattened = readModelYaml(ORDERS).diagnostics.filter((d) => d.code === "VIEW");
     expect(flattened).toEqual([]);
-    const commented = ORDERS.replace("GROUP BY status", "-- one row per status\n      GROUP BY status");
+    const commented = ORDERS.replace(
+      "GROUP BY status",
+      "-- one row per status\n      GROUP BY status"
+    );
     expect(readModelYaml(commented).diagnostics).toContainEqual(
       expect.objectContaining({ code: "VIEW", path: ["reports", 0] })
     );

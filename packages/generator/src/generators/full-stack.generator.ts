@@ -20,6 +20,7 @@ import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRbac } from "../rbac";
 import type { CompiledReport } from "../reports";
 import type { CompiledRule } from "../rules";
+import type { SagaWorkflow } from "../workflows/saga";
 import type { CompiledWorkflow } from "../workflows/state-machine";
 import type { CompiledHook } from "../hooks";
 import {
@@ -97,12 +98,8 @@ export interface FullStackGeneratorOptions {
    */
   modelEnums?: EntityEnum[];
 
-  /**
-   * Raw EML source, so the backend generator can compile `kind: saga` sections.
-   * The parsed ERD cannot carry them: the Mermaid parser drops `%%` lines, the
-   * same reason `%%category` is read from source.
-   */
-  modelSource?: string;
+  /** The model's sagas, compiled — the source of `seed/workflows.sql`. */
+  sagas?: SagaWorkflow[];
   /**
    * `%%rbac` restrictions, compiled: which roles may perform which operation,
    * and which may cross which state-machine edge.
@@ -208,7 +205,7 @@ export class FullStackGenerator {
         skipCliScaffold: this.options.skipCliScaffold,
         categories: this.options.categories,
         modelEnums: this.options.modelEnums,
-        modelSource: this.options.modelSource,
+        sagas: this.options.sagas,
         compiledRbac: this.options.compiledRbac,
         compiledRules: this.options.compiledRules,
         compiledReports: this.options.compiledReports,

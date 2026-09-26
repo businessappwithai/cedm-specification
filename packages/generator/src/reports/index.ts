@@ -243,7 +243,8 @@ export function compileReportDeclarations(
   warn: (message: string) => void = () => {}
 ): CompiledReport[] {
   const accumulator = reportAccumulator(entityNames, warn);
-  for (const declaration of declarations) accumulator.add(declaration, `report ${declaration.name}`);
+  for (const declaration of declarations)
+    accumulator.add(declaration, `report ${declaration.name}`);
   return accumulator.reports();
 }
 
