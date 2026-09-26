@@ -13,7 +13,7 @@
  *   serializeModelDocument(d)  document → canonical YAML text
  */
 
-import { stringify } from "yaml";
+import { Document, isScalar, visit } from "yaml";
 import { extractWorkflowSections } from "../eml";
 import { type CompileOptions, compileModelRecords, type ParsedModel } from "../model/compile";
 import { readEmlModel, type UncarriedLine, uncarriedDirectiveLines } from "../model/read-eml";
@@ -50,10 +50,20 @@ export function isModelYamlPath(filePath: string): boolean {
  * diff between two saves is exactly the change.
  */
 export function serializeModelDocument(document: ModelDocument): string {
-  return stringify(canonicalDocument(document), {
+  const yaml = new Document(canonicalDocument(document));
+  // A list of plain values — enum values, index columns, states, roles — is
+  // written on one line, the way a person writes it; a list of mappings stays
+  // a block. Decided by shape alone, so the output is the same on every save.
+  visit(yaml, {
+    Seq(_key, node) {
+      if (node.items.length && node.items.every((item) => isScalar(item))) node.flow = true;
+    },
+  });
+  return yaml.toString({
     lineWidth: 0,
     blockQuote: "literal",
     indentSeq: true,
+    flowCollectionPadding: false,
   });
 }
 

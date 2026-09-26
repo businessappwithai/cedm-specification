@@ -109,6 +109,7 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run generate` | Generate an app (all flags passed through) |
 | `bun run generate:tanstack` | Same, with `--stack tanstack-astryx-loco` pinned (`--db postgres` \| `neon`) |
 | `bun run eml` | The `eml` language CLI (`validate`, `info`, `sagas`, `generate`) |
+| `appwithai convert <model.mmd>` | Convert an EML model to the YAML model language (see "The YAML model language") |
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@appwithai/web`) |
 | `bun run test:generator` | Generator unit tests (Vitest, via `@appwithai/generator`) |
@@ -1098,6 +1099,53 @@ function DesignPage() {
 - **Server** (`server.handlers`, lib server modules): `process.env.*`
 
 ---
+
+## The YAML model language (`language/yaml/`) — the source of truth
+
+In this repository a model is written as YAML (`*.eml.yaml`); its Mermaid (EML)
+rendering is a derived view for the diagram viewers and the ERD designer and is
+never read for generation. Reference: `language/yaml/README.md`. Plan and
+remaining phases: `CEDM_YAML_Architecture_Design.md`.
+
+```bash
+bun packages/generator/dist/cli/generate.js convert model.eml.mmd    # EML → YAML
+bun packages/generator/dist/cli/generate.js validate model.eml.yaml
+bun packages/generator/dist/cli/generate.js view model.eml.yaml -o -
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-discovery
+```
+
+- **One semantic layer.** EML and YAML are both read into the records in
+  `packages/generator/src/model/records.ts` and compiled by
+  `compileModelRecords` (`model/compile.ts`). Every compiler is a reader
+  (`MermaidParser.read`, `readRbacDirectives`, `readSagaDirectives`, …) plus a
+  record compiler (`compileErdRecords`, `compileRbacDeclarations`,
+  `compileSagaDeclarations`, …). **Never compile from text again**: a new
+  construct gets a record type, an EML reader, a YAML key, and one compiler.
+- **The schema is the language.** `language/yaml/eml.schema.json` is what
+  `readModelYaml` validates with (ajv 2020). Change the schema, `document.ts`,
+  `convert.ts` and `render-eml.ts` together, then grow a corpus model.
+- **Semantic diagnostics come from the EML checker run over the view.**
+  `renderEmlView` records the document path of every line it draws; a checker
+  finding is reported at that path's YAML line. The view's layout is
+  load-bearing (model-wide directives first, rules before workflows, sagas
+  last) — see the header of `render-eml.ts` before reordering anything.
+- **The gates.** `model-yaml/__tests__/corpus-equivalence.test.ts` converts
+  every `.mmd` in the repo and requires the YAML to compile to exactly what the
+  EML compiles to; `pipeline/__tests__/yaml-source.test.ts` generates
+  drug-discovery both ways and compares all 475 files;
+  `examples-in-sync.test.ts` holds each checked-in `.eml.yaml` to the
+  conversion of its `.mmd` — regenerate with `convert --force` after editing
+  the `.mmd`.
+- **No generator reads model text.** The loco backend takes compiled sagas
+  from `ParsedModel`; `generateApplication` takes a YAML `document` or EML
+  `sources`. A generated project ships `model/model.eml.yaml` and
+  `model/model.eml.mmd`.
+- **Known EML defect, deliberately not fixed yet:** a saga's `trigger:` /
+  `operation:` on its `%%workflow` line is ignored by both generators, which
+  read only `%%meta trigger:` / `%%meta operation:`. crm's `ClosedWonHandoff`
+  and `RenewalPlaybook` therefore compile as rule-triggered and never run.
+  YAML follows the compiler; `convert` reports each affected saga. The fix
+  changes both generators' output and is Phase 6.
 
 ## EML — AppWithAI Modeling Language (`language/`)
 

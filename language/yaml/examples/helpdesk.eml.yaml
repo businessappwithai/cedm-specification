@@ -1,0 +1,220 @@
+eml: "1.0"
+name: Helpdesk
+version: 1.0.0
+enums:
+  - name: TicketStatus
+    values: [open, in_progress, resolved, closed]
+  - name: TicketPriority
+    values: [low, medium, high, urgent]
+  - name: CustomerTier
+    values: [free, pro, enterprise]
+entities:
+  - name: Customer
+    help: An organisation or individual entitled to support, and the reason a ticket is answered at all. The tier on this record is what decides how quickly a ticket is picked up, so a customer is set up before their first ticket rather than created alongside it.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+        help: The address support correspondence is sent to and the customer's identity in the system. Unique across the helpdesk — two records with the same address mean two histories for one customer, and the agent sees whichever they happen to open.
+      - name: name
+        type: string
+        help: The organisation as the agent should address it in a reply. Shown wherever a ticket names its customer, so use the trading name rather than the legal entity.
+      - name: tier
+        type: string
+        enum: CustomerTier
+        help: free — best effort, no target; pro — business-hours response; enterprise — round-the-clock, with an account manager. The tier is the support contract in one column and is set from the contract, never from the ticket.
+      - name: is_active
+        type: boolean
+        help: Whether the customer's support entitlement still stands. Cleared when a contract lapses; their ticket history stays readable, and new tickets should not be opened against them.
+    indexes:
+      - columns: [email]
+        unique: true
+  - name: Agent
+    help: "A member of the support team who answers tickets. Agents are the assignable side of a ticket: an unassigned ticket has no agent, and the lifecycle cannot leave `open` until one takes it."
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+        help: The agent's work address — how they sign in, and where assignment notifications go. Unique, because it identifies the person rather than describing them.
+      - name: name
+        type: string
+        help: The name that appears to the customer on a reply. Keep it the name the team actually uses in correspondence, not an internal handle.
+      - name: is_active
+        type: boolean
+        help: Whether the agent is still taking work. Cleared when someone leaves the team or goes on extended absence; their closed tickets stay attributed to them, but they should not appear in the assignment list.
+  - name: Ticket
+    help: "One customer problem, from the moment it arrives to the moment it is closed. A ticket is the unit of work the whole helpdesk is organised around: it carries the customer's account of the problem, who is answering it, how urgent it is, and where it has reached in its lifecycle. It is audited, because who changed a ticket and when is the first question asked whenever a response target is missed."
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+        help: The customer this problem belongs to. It decides which support contract applies and therefore how quickly the ticket has to be answered, so it is set when the ticket is opened and changed only if the ticket was raised against the wrong account.
+      - name: agent_id
+        type: string
+        fk: true
+        optional: true
+        help: The agent who owns the answer. Empty while the ticket is unassigned, which is exactly the queue the team works from; assigning it is what moves the ticket to `in_progress`.
+      - name: subject
+        type: string
+        help: One line saying what is wrong, as the customer put it. This is what the agent reads in the queue before opening anything, so it should be specific enough to triage from.
+      - name: description
+        type: text
+        optional: true
+        help: The customer's full account of the problem — what they did, what happened, and what they expected instead. Optional because a ticket can arrive as a subject line, but a ticket without it usually costs a round trip before any work starts.
+      - name: impact_score
+        type: integer
+        help: "0-100, how much of the customer's operation this is blocking. It is the only input to the prioritisation rule: 80 and above becomes urgent, 50 and above high, anything less low. Set it from the business impact the customer describes, not from how loudly they describe it."
+      - name: priority
+        type: string
+        optional: true
+        enum: TicketPriority
+        help: urgent — work starts now; high — today; low — when the queue allows. Written by the prioritisation rule from impact_score when the ticket is created, so an agent overriding it by hand is making a deliberate exception.
+      - name: status
+        type: string
+        optional: true
+        enum: TicketStatus
+        help: open — waiting for an agent; in_progress — being worked; resolved — an answer has been given and the customer has not disagreed yet; closed — finished. Only the transitions the lifecycle diagram draws are allowed, which is why a ticket cannot jump from open to resolved without being assigned.
+    indexes:
+      - columns: [customer_id, status]
+  - name: Comment
+    help: One entry in the conversation on a ticket, from either side. Comments are the ticket's history in the participants' own words — the record of what was asked, tried and concluded — and an internal comment is how the team reasons about a problem without saying it to the customer.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: ticket_id
+        type: string
+        fk: true
+        help: The ticket this entry belongs to. A comment has no meaning away from its ticket, which is why the whole conversation is read inside the ticket rather than from a list of comments.
+      - name: author
+        type: string
+        help: Who wrote it — an agent's name, or the customer's. Recorded as text rather than a reference because a comment can arrive from an address that belongs to neither an agent nor the account's registered contact.
+      - name: body
+        type: text
+        help: What was said. This is the substance of the ticket's history, so it is written to be read months later by somebody who was not there.
+      - name: is_internal
+        type: boolean
+        help: Whether this entry is for the team only. Internal comments are never shown to the customer, which is what makes them safe for diagnosis, escalation notes and anything not yet confirmed — set it before saving, because a comment cannot be unsent.
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Ticket
+    toCardinality: zero-or-more
+    label: opens
+  - from: Agent
+    fromCardinality: exactly-one
+    to: Ticket
+    toCardinality: zero-or-more
+    label: assigned
+  - from: Ticket
+    fromCardinality: exactly-one
+    to: Comment
+    toCardinality: zero-or-more
+    label: has
+hooks:
+  - entity: Ticket
+    event: beforeCreate
+    handler: stampReference
+  - entity: Ticket
+    event: afterCreate
+    handler: notifyCustomer
+  - entity: Ticket
+    event: afterUpdate
+    handler: logStatusChange
+rbac:
+  - entity: Ticket
+    action: update
+    roles: [agent, admin]
+rules:
+  - name: prioritize
+    title: Ticket Prioritization
+    entity: Ticket
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Ticket Created"
+        shape: stadium
+      - id: B
+        label: impact_score >= 80?
+        shape: diamond
+      - id: P1
+        label: Set Priority urgent
+        shape: rect
+      - id: C
+        label: impact_score >= 50?
+        shape: diamond
+      - id: P2
+        label: Set Priority high
+        shape: rect
+      - id: P3
+        label: Set Priority low
+        shape: rect
+      - id: E
+        label: "End: Prioritized"
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: P1
+        label: Yes
+      - from: B
+        to: C
+        label: No
+      - from: C
+        to: P2
+        label: Yes
+      - from: C
+        to: P3
+        label: No
+      - from: P1
+        to: E
+      - from: P2
+        to: E
+      - from: P3
+        to: E
+stateMachines:
+  - name: TicketLifecycle
+    title: Ticket Lifecycle
+    entity: Ticket
+    states: [open, in_progress, closed, resolved]
+    initial: open
+    final: [closed]
+    transitions:
+      - from: open
+        to: in_progress
+        trigger: assign
+      - from: open
+        to: closed
+        trigger: cancel
+      - from: in_progress
+        to: resolved
+        trigger: resolve
+      - from: resolved
+        to: in_progress
+        trigger: reopen
+      - from: resolved
+        to: closed
+        trigger: close
+hookDiagrams:
+  - name: TicketHooks
+    title: Ticket Hooks
+    entity: Ticket
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate Request]
+          B --> C[beforeCreate: stampReference]
+          C --> D[Process Ticket]
+          D --> E[afterCreate: notifyCustomer]
+          E --> F[afterUpdate: logStatusChange]
+          F --> G[Response]

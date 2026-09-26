@@ -56,3 +56,23 @@ The catalog is intentionally extensible: additional industries and specialized d
 ## Status
 
 The specification is in broad-domain construction and normalization. Entity definitions remain `draft` until the cross-domain conformance pass is complete.
+
+## Application platform
+
+This repository also carries the AppWithAI application platform (imported from
+`app-with-ai-rust`): the generator that turns an application model into a
+TanStack Start + Astryx frontend on a Loco.rs backend, the modelling web tool,
+and the Rust generator. See `README.platform.md` and `CLAUDE.md`.
+
+Application models are written in the **YAML model language** (`*.eml.yaml`),
+defined by `language/yaml/eml.schema.json` and documented in
+`language/yaml/README.md`. YAML is the source of truth; the Mermaid rendering of
+a model is a derived view. `CEDM_YAML_Architecture_Design.md` sets out the
+architecture, what has been delivered and verified, and the remaining phases.
+
+```bash
+bun install
+bun --filter @appwithai/core build && bun --filter @appwithai/generator build
+bun packages/generator/dist/cli/generate.js generate \
+  -i examples/drug-discovery.eml.yaml -o generated-projects/drug-discovery -n drug-discovery
+```

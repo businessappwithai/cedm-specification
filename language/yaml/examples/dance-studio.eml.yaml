@@ -1,0 +1,689 @@
+eml: "1.0"
+name: Acme Dance Studio
+version: 1.0.0
+enums:
+  - name: MemberStatus
+    values: [active, lapsed, suspended]
+  - name: ClassLevel
+    values: [beginner, improver, intermediate, advanced]
+  - name: SessionStatus
+    values: [scheduled, running, completed, cancelled]
+  - name: BookingStatus
+    values: [held, attended, cancelled, forfeited, no_show]
+  - name: WaitlistStatus
+    values: [waiting, promoted, expired]
+  - name: PackStatus
+    values: [active, exhausted, expired]
+  - name: PaymentMethod
+    values: [card, cash, bank_transfer]
+categories:
+  - name: Scheduling
+    icon: calendar
+    entities: [ClassOffering, ClassSession, Room]
+  - name: Membership
+    icon: users
+    entities: [Member, ClassPack, Booking]
+  - name: Teaching
+    icon: user-check
+    entities: [Instructor]
+  - name: Finance
+    icon: credit-card
+    entities: [Payment]
+entities:
+  - name: Member
+    help: A person who buys class packs and books places in sessions. Created at first sign-up and kept after their last booking so attendance history survives.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+        help: The address all booking confirmations and cancellation notices go to. Unique — a second sign-up with the same address updates the existing member rather than creating a rival record.
+      - name: full_name
+        type: string
+        help: The name shown on the instructor's attendance sheet. Stored as one field because the studio prints it, never sorts by surname.
+      - name: phone
+        type: string
+        optional: true
+        help: Used only for same-day cancellations, where email is too slow to be worth sending. Optional; most members never supply one.
+      - name: status
+        type: string
+        enum: MemberStatus
+        help: active — may book; lapsed — no active pack, still visible for re-engagement; suspended — barred from booking after repeated no-shows, cleared by a manager.
+      - name: joined_on
+        type: date
+        help: The date of first sign-up. Drives the loyalty reporting and never changes, even if the member lapses and returns.
+      - name: marketing_opt_in
+        type: boolean
+        help: Consent to receive class announcements. Must be set by the member, never by staff; cleared on request and the clearing is audited.
+  - name: Instructor
+    help: A teacher the studio schedules against sessions. Kept separate from Member because an instructor may also attend classes as a member.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+        help: The address the weekly teaching rota is sent to. Unique per instructor.
+      - name: full_name
+        type: string
+        help: The name shown on the public timetable beside each session.
+      - name: bio
+        type: string
+        optional: true
+        help: The short paragraph shown on the timetable when a member taps the instructor's name. Optional; blank hides the panel entirely.
+      - name: is_active
+        type: boolean
+        help: Cleared when an instructor stops teaching. Inactive instructors keep their session history but cannot be assigned to a new session.
+  - name: Room
+    help: A physical studio space with a capacity. The capacity is the ceiling a session's bookable places are set from.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The short label staff use on the printed timetable, e.g. STU1. Unique, and stable — it is written on the door.
+      - name: name
+        type: string
+        help: The full room name shown to members, e.g. "Main Studio".
+      - name: capacity
+        type: integer
+        help: The maximum number of people the room legally holds. A session's own capacity may be lower but is never allowed above this.
+      - name: is_active
+        type: boolean
+        help: Cleared while a room is out of use for refurbishment. Inactive rooms keep their past sessions but cannot take new ones.
+  - name: ClassOffering
+    help: A class the studio sells — a name, a level and a duration. Distinct from the individual sessions it is scheduled as.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The short code used on the timetable and in reporting, e.g. BALLET-1. Unique and stable across terms.
+      - name: name
+        type: string
+        help: The class name members see when browsing the timetable.
+      - name: level
+        type: string
+        enum: ClassLevel
+        help: beginner — no experience assumed; improver — one term completed; intermediate — assessed by an instructor; advanced — invitation only. The booking rule reads this against the member's history.
+      - name: duration_minutes
+        type: integer
+        help: How long a session of this class runs. Used to compute a session's end time when it is scheduled, so a change here does not move sessions already booked.
+      - name: credit_cost
+        type: integer
+        help: How many pack credits one place in this class costs. Advanced classes cost more than one; the booking rule refuses when the pack cannot cover it.
+      - name: is_active
+        type: boolean
+        help: Cleared when a class is retired from the timetable. Past sessions survive; no new session can be scheduled against it.
+  - name: ClassSession
+    help: One dated, timed occurrence of an offering, in a room, taught by an instructor. This is the thing a member actually books.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: class_offering_id
+        type: string
+        fk: true
+        help: The class being taught. Fixed at scheduling — moving a session to a different class is a cancellation and a new session, because the members who booked chose the class.
+      - name: room_id
+        type: string
+        fk: true
+        help: Where the session runs. Changing it after bookings exist notifies every booked member, because the room is on the door they walk to.
+      - name: instructor_id
+        type: string
+        fk: true
+        help: Who teaches it. A substitution is an edit here and is deliberately not a cancellation — the class still runs.
+      - name: starts_at
+        type: datetime
+        help: When the class begins, in studio local time. The cancellation cutoff is measured back from this, so it is the field the forfeit rule reads.
+      - name: ends_at
+        type: datetime
+        help: When the class finishes. Derived from the offering's duration at scheduling time and held rather than recomputed, so a later change to the offering cannot move a session already sold.
+      - name: capacity
+        type: integer
+        help: Places available in this session. Seeded from the room's capacity and lowered for classes that need floor space; never raised above the room's.
+      - name: status
+        type: string
+        enum: SessionStatus
+        help: scheduled — open for booking; running — started, no longer bookable; completed — attendance taken; cancelled — the studio pulled it, which credits every held booking back.
+      - name: cancellation_reason
+        type: text
+        optional: true
+        help: Why the studio cancelled. Shown to every affected member in the cancellation notice, so it is written for them, not for staff.
+    indexes:
+      - columns: [starts_at, status]
+  - name: Booking
+    help: One member's place in one session. Created when the place is taken; terminal once attended, cancelled, forfeited or marked a no-show.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: class_session_id
+        type: string
+        fk: true
+        help: The session the place is held in. Never changed — moving to another session is a cancellation and a new booking, so the credit accounting stays honest.
+      - name: member_id
+        type: string
+        fk: true
+        help: Who holds the place. A booking may not be transferred between members; the studio's insurance names the attendee.
+      - name: class_pack_id
+        type: string
+        fk: true
+        optional: true
+        help: The pack the credit was drawn from. Blank for a drop-in place paid at the door, which is why it is optional.
+      - name: status
+        type: string
+        enum: BookingStatus
+        help: held — the place is reserved; attended — the member came; cancelled — released before the cutoff, credit returned; forfeited — released after the cutoff, credit kept; no_show — never cancelled and never attended, credit kept and counted toward suspension.
+      - name: booked_at
+        type: datetime
+        help: When the place was taken. Sets the member's position if the booking is later cancelled and the waitlist promotes in join order.
+      - name: cancelled_at
+        type: datetime
+        optional: true
+        help: When the member released the place. Compared against the session's start to decide cancelled versus forfeited, so it is the field the cutoff rule reads.
+      - name: fee_waived
+        type: boolean
+        help: Set when a manager returns a credit that the cutoff rule had forfeited. Every waiver appears on the monthly exceptions report.
+      - name: waiver_reason
+        type: text
+        optional: true
+        help: Why the forfeit was waived. Required whenever fee_waived is set — an unexplained waiver is the one the auditor asks about.
+    indexes:
+      - columns: [class_session_id, status]
+      - columns: [member_id, status]
+  - name: WaitlistEntry
+    help: A member's position in the queue for a full session. Promoted to a Booking in join order when a place is released.
+    parent: ClassSession
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: class_session_id
+        type: string
+        fk: true
+        help: The full session being waited for. This is the link back to the parent record, so the entry appears as a tab on the session rather than a screen of its own.
+      - name: member_id
+        type: string
+        fk: true
+        help: Who is waiting. A member may hold only one entry per session.
+      - name: queue_position
+        type: integer
+        help: Place in the queue, lowest first. Assigned on joining and never renumbered, so a promotion cannot quietly reorder the people behind it.
+      - name: status
+        type: string
+        enum: WaitlistStatus
+        help: waiting — still queued; promoted — a place was released and a Booking now exists; expired — the session started before a place came free.
+      - name: joined_at
+        type: datetime
+        help: When the member joined the queue. The tiebreaker when two entries somehow share a position.
+    indexes:
+      - columns: [class_session_id, queue_position]
+  - name: ClassPack
+    help: A block of prepaid class credits bought by a member. Credits are drawn down by bookings and expire on a fixed date.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: member_id
+        type: string
+        fk: true
+        help: Who owns the credits. Packs are not transferable between members, including within a household.
+      - name: credits_purchased
+        type: integer
+        help: How many credits were bought. Never changes — a top-up is a second pack, which keeps each pack's expiry independent.
+      - name: credits_remaining
+        type: integer
+        help: Credits still available. Decremented when a booking is held and returned when a booking is cancelled before the cutoff, but not when it is forfeited.
+      - name: purchased_on
+        type: date
+        help: The date of purchase. The expiry is measured from here, so a backdated purchase shortens the pack.
+      - name: expires_on
+        type: date
+        help: The last date a credit may be spent. Booking a session that starts after this date is refused even when credits remain.
+      - name: status
+        type: string
+        enum: PackStatus
+        help: active — credits available and unexpired; exhausted — every credit spent; expired — the date passed with credits unspent, which the studio does not refund.
+    indexes:
+      - columns: [member_id, status]
+  - name: Payment
+    help: Money received against a class pack. Recorded once and never edited; a correction is a second, offsetting record.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: class_pack_id
+        type: string
+        fk: true
+        help: The pack this money bought. One pack may be settled by more than one payment where the studio allowed a split.
+      - name: amount
+        type: decimal
+        help: The sum received, gross, in studio currency. Never edited — a correction is a second, negative record so the trail stays intact.
+      - name: method
+        type: string
+        enum: PaymentMethod
+        help: card — taken at the desk or online; cash — counted into the till and reconciled nightly; bank_transfer — matched against the statement, so it may be recorded days after the pack was issued.
+      - name: received_at
+        type: datetime
+        help: When the money actually arrived, not when it was keyed in. Bank transfers are commonly recorded late and the reconciliation depends on this distinction.
+      - name: reference
+        type: string
+        optional: true
+        help: The card authorisation code or bank reference used to match the payment against the statement. Optional for cash, where there is nothing to match.
+relationships:
+  - from: ClassOffering
+    fromCardinality: exactly-one
+    to: ClassSession
+    toCardinality: zero-or-more
+    label: scheduled as
+  - from: Room
+    fromCardinality: exactly-one
+    to: ClassSession
+    toCardinality: zero-or-more
+    label: hosts
+  - from: Instructor
+    fromCardinality: exactly-one
+    to: ClassSession
+    toCardinality: zero-or-more
+    label: teaches
+  - from: ClassSession
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: holds
+  - from: ClassSession
+    fromCardinality: exactly-one
+    to: WaitlistEntry
+    toCardinality: zero-or-more
+    label: queues
+  - from: Member
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: makes
+  - from: Member
+    fromCardinality: exactly-one
+    to: WaitlistEntry
+    toCardinality: zero-or-more
+    label: joins
+  - from: Member
+    fromCardinality: exactly-one
+    to: ClassPack
+    toCardinality: zero-or-more
+    label: buys
+  - from: ClassPack
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: pays for
+  - from: ClassPack
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: settled by
+hooks:
+  - entity: Booking
+    event: beforeCreate
+    handler: drawCredit
+  - entity: Booking
+    event: afterCreate
+    handler: sendConfirmation
+  - entity: Booking
+    event: afterUpdate
+    handler: returnCreditOnCancel
+rbac:
+  - entity: Member
+    action: read
+    roles: [member, receptionist, manager]
+  - entity: Member
+    action: update
+    roles: [receptionist, manager]
+  - entity: Member
+    action: delete
+    roles: [manager]
+  - entity: Instructor
+    action: read
+    roles: [member, receptionist, instructor, manager]
+  - entity: Instructor
+    action: update
+    roles: [manager]
+  - entity: Room
+    action: read
+    roles: [receptionist, manager]
+  - entity: Room
+    action: update
+    roles: [manager]
+  - entity: ClassOffering
+    action: read
+    roles: [member, receptionist, instructor, manager]
+  - entity: ClassOffering
+    action: update
+    roles: [manager]
+  - entity: ClassSession
+    action: read
+    roles: [member, receptionist, instructor, manager]
+  - entity: ClassSession
+    action: update
+    roles: [receptionist, manager]
+  - entity: ClassSession
+    action: cancel
+    roles: [manager]
+  - entity: Booking
+    action: read
+    roles: [member, receptionist, instructor, manager]
+  - entity: Booking
+    action: create
+    roles: [member, receptionist, manager]
+  - entity: Booking
+    action: attend
+    roles: [instructor, receptionist, manager]
+  - entity: Booking
+    action: waive
+    roles: [manager]
+  - entity: WaitlistEntry
+    action: read
+    roles: [member, receptionist, manager]
+  - entity: ClassPack
+    action: read
+    roles: [member, receptionist, manager]
+  - entity: ClassPack
+    action: create
+    roles: [receptionist, manager]
+  - entity: Payment
+    action: read
+    roles: [receptionist, manager]
+  - entity: Payment
+    action: create
+    roles: [receptionist, manager]
+reports:
+  - name: member-upcoming-bookings
+    title: Places held for upcoming classes
+    entity: Booking
+    help: The screen a member opens to check what they have committed to this week. A held place is a seat nobody else can take, so a member who has forgotten one costs the studio the room.
+    sql: SELECT m.full_name AS member, o.name AS class, i.full_name AS instructor, s.starts_at FROM bus_booking b JOIN bus_member m ON m.id = b.member_id JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_instructor i ON i.id = s.instructor_id WHERE b.deleted_at IS NULL AND s.deleted_at IS NULL AND b.status = 'held' AND s.starts_at > now() ORDER BY s.starts_at
+  - name: member-classes-with-places
+    title: Upcoming classes that still have room
+    entity: ClassSession
+    help: "What a member actually wants: not a list of classes, but the ones they can still get into. Capacity minus places already held, so a full class never appears."
+    sql: SELECT o.name AS class, o.level, i.full_name AS instructor, s.starts_at, s.capacity - COUNT(b.id) AS places_left FROM bus_class_session s JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_instructor i ON i.id = s.instructor_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status = 'held' WHERE s.deleted_at IS NULL AND s.status = 'scheduled' AND s.starts_at > now() GROUP BY s.id, o.name, o.level, i.full_name, s.starts_at, s.capacity HAVING s.capacity - COUNT(b.id) > 0 ORDER BY s.starts_at
+  - name: member-credits-expiring
+    title: Credits about to expire unused
+    entity: ClassPack
+    help: A pack expires on a date nobody is told about, and the credits simply stop existing. Thirty days is enough notice to book them and not so much that the warning is ignored.
+    sql: SELECT m.full_name AS member, p.credits_remaining, p.expires_on, (p.expires_on - now()::date) AS days_left FROM bus_class_pack p JOIN bus_member m ON m.id = p.member_id WHERE p.deleted_at IS NULL AND p.status = 'active' AND p.credits_remaining > 0 AND p.expires_on BETWEEN now()::date AND (now() + interval '30 days')::date ORDER BY p.expires_on
+  - name: member-waitlist-standing
+    title: Where each member sits on a waitlist
+    entity: WaitlistEntry
+    help: "A member on a waitlist wants one number: how many people are ahead of them. Without it they book a second class they do not need, and then cancel one of the two late."
+    sql: SELECT m.full_name AS member, o.name AS class, s.starts_at, w.queue_position FROM bus_waitlist_entry w JOIN bus_member m ON m.id = w.member_id JOIN bus_class_session s ON s.id = w.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE w.deleted_at IS NULL AND s.deleted_at IS NULL AND w.status = 'waiting' AND s.starts_at > now() ORDER BY s.starts_at, w.queue_position
+  - name: reception-today-roster
+    title: Today's classes and who is coming
+    entity: ClassSession
+    help: The first thing opened at the desk each morning, and the sheet the register is taken from. Held rather than attended, because attendance is what the day is about to record.
+    sql: SELECT o.name AS class, i.full_name AS instructor, r.name AS room, s.starts_at, s.capacity, COUNT(b.id) AS booked FROM bus_class_session s JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_instructor i ON i.id = s.instructor_id LEFT JOIN bus_room r ON r.id = s.room_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status = 'held' WHERE s.deleted_at IS NULL AND s.status IN ('scheduled', 'running') AND s.starts_at >= date_trunc('day', now()) AND s.starts_at < date_trunc('day', now()) + interval '1 day' GROUP BY s.id, o.name, i.full_name, r.name, s.starts_at, s.capacity ORDER BY s.starts_at
+  - name: reception-waitlist-with-space
+    title: People waiting for a class that has room
+    entity: WaitlistEntry
+    help: The exception that should never exist. Somebody is waiting on a session with an empty place, which means the promotion saga did not run or a cancellation freed a seat nobody handed on. Fix it by hand today.
+    sql: SELECT m.full_name AS member, o.name AS class, s.starts_at, w.queue_position, s.capacity - COUNT(b.id) AS places_free FROM bus_waitlist_entry w JOIN bus_member m ON m.id = w.member_id JOIN bus_class_session s ON s.id = w.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status = 'held' WHERE w.deleted_at IS NULL AND s.deleted_at IS NULL AND w.status = 'waiting' AND s.status = 'scheduled' AND s.starts_at > now() GROUP BY w.id, m.full_name, o.name, s.starts_at, w.queue_position, s.capacity HAVING s.capacity - COUNT(b.id) > 0 ORDER BY s.starts_at, w.queue_position
+  - name: reception-packs-without-payment
+    title: Class packs with no payment recorded
+    entity: ClassPack
+    help: Credits were issued and no money was ever attached to them. Almost always a card that failed after the pack was created, and it is invisible from the member screen.
+    sql: SELECT m.full_name AS member, p.credits_purchased, p.purchased_on, p.status FROM bus_class_pack p JOIN bus_member m ON m.id = p.member_id LEFT JOIN bus_payment y ON y.class_pack_id = p.id AND y.deleted_at IS NULL WHERE p.deleted_at IS NULL GROUP BY p.id, m.full_name, p.credits_purchased, p.purchased_on, p.status HAVING COUNT(y.id) = 0 ORDER BY p.purchased_on DESC
+  - name: reception-lapsed-holding-credits
+    title: Lapsed members who still hold credits
+    entity: Member
+    help: Someone stopped coming while still owning classes they paid for. It is the cheapest call the desk can make, and the member is usually glad to be reminded.
+    sql: SELECT m.full_name AS member, m.email, m.phone, SUM(p.credits_remaining) AS credits, MIN(p.expires_on) AS first_expiry FROM bus_member m JOIN bus_class_pack p ON p.member_id = m.id AND p.deleted_at IS NULL AND p.status = 'active' AND p.credits_remaining > 0 WHERE m.deleted_at IS NULL AND m.status = 'lapsed' GROUP BY m.id, m.full_name, m.email, m.phone ORDER BY credits DESC
+  - name: reception-recent-no-shows
+    title: No-shows worth a phone call
+    entity: Booking
+    help: A no-show costs the studio a seat and usually costs the member a credit. Called the same week it is a courtesy; called a month later it is an argument about a refund.
+    sql: SELECT m.full_name AS member, m.phone, o.name AS class, s.starts_at, b.fee_waived FROM bus_booking b JOIN bus_member m ON m.id = b.member_id JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE b.deleted_at IS NULL AND b.status = 'no_show' AND s.starts_at > now() - interval '14 days' ORDER BY s.starts_at DESC
+  - name: instructor-upcoming-roster
+    title: Each instructor's next classes and headcount
+    entity: ClassSession
+    help: What an instructor checks the night before. Numbers change how a class is taught — four people is a workshop, twenty is a routine — and the room assignment is how they know where to go.
+    sql: SELECT i.full_name AS instructor, o.name AS class, o.level, r.name AS room, s.starts_at, COUNT(b.id) AS booked, s.capacity FROM bus_class_session s JOIN bus_instructor i ON i.id = s.instructor_id JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_room r ON r.id = s.room_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status = 'held' WHERE s.deleted_at IS NULL AND s.status = 'scheduled' AND s.starts_at BETWEEN now() AND now() + interval '7 days' GROUP BY s.id, i.full_name, o.name, o.level, r.name, s.starts_at, s.capacity ORDER BY s.starts_at
+  - name: instructor-under-filled-sessions
+    title: Classes too empty to run
+    entity: ClassSession
+    help: A class within three days that has almost nobody in it is a decision — cancel it now and free the instructor, or promote it. Left alone it runs at a loss and the instructor finds out on arrival.
+    sql: SELECT o.name AS class, i.full_name AS instructor, s.starts_at, COUNT(b.id) AS booked, s.capacity FROM bus_class_session s JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_instructor i ON i.id = s.instructor_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status = 'held' WHERE s.deleted_at IS NULL AND s.status = 'scheduled' AND s.starts_at BETWEEN now() AND now() + interval '3 days' GROUP BY s.id, o.name, i.full_name, s.starts_at, s.capacity HAVING COUNT(b.id) < 3 ORDER BY s.starts_at
+  - name: instructor-attendance-rate
+    title: Attendance against places held, by instructor
+    entity: Instructor
+    chart: bar
+    x: instructor
+    y: attendance_pct
+    help: How many of the people who booked actually came. A consistently low rate is not the instructor's fault, but it is their signal — a class scheduled at the wrong hour, or one people book to keep a habit and skip.
+    sql: SELECT i.full_name AS instructor, COUNT(*) FILTER (WHERE b.status = 'attended') AS attended, COUNT(*) AS places, ROUND(100.0 * COUNT(*) FILTER (WHERE b.status = 'attended') / NULLIF(COUNT(*), 0)) AS attendance_pct FROM bus_booking b JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_instructor i ON i.id = s.instructor_id WHERE b.deleted_at IS NULL AND s.deleted_at IS NULL AND s.status = 'completed' AND b.status IN ('attended', 'no_show', 'forfeited') GROUP BY i.id, i.full_name ORDER BY attendance_pct
+  - name: manager-revenue-by-month
+    title: Money taken by month
+    entity: Payment
+    chart: line
+    x: month
+    y: revenue
+    help: The one number the owner asks for, and the only report here that a bank would recognise. Taken from payments received rather than packs sold, so an unpaid pack never counts as income.
+    sql: SELECT to_char(date_trunc('month', y.received_at), 'YYYY-MM') AS month, SUM(y.amount) AS revenue, COUNT(*) AS payments FROM bus_payment y WHERE y.deleted_at IS NULL AND y.received_at > now() - interval '12 months' GROUP BY 1 ORDER BY 1
+  - name: manager-room-utilisation
+    title: How full each room actually runs
+    entity: Room
+    chart: bar
+    x: room
+    y: fill_pct
+    help: Places sold against places built, per room. A room consistently under half full is either the wrong size for what is scheduled in it or a slot nobody wants, and both are fixable from the timetable.
+    sql: SELECT r.name AS room, r.capacity AS seats, COUNT(b.id) AS booked, ROUND(100.0 * COUNT(b.id) / NULLIF(SUM(s.capacity), 0)) AS fill_pct FROM bus_class_session s JOIN bus_room r ON r.id = s.room_id LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status IN ('held', 'attended') WHERE s.deleted_at IS NULL AND s.status IN ('scheduled', 'completed') AND s.starts_at > now() - interval '90 days' GROUP BY r.id, r.name, r.capacity ORDER BY fill_pct
+  - name: manager-cancelled-sessions
+    title: Classes the studio cancelled, and why
+    entity: ClassSession
+    help: "Every cancelled session is members told no. The reason column is the point: a handful of instructor illnesses is life, a pattern of under-booking is a timetable that needs changing."
+    sql: SELECT o.name AS class, i.full_name AS instructor, s.starts_at, s.cancellation_reason FROM bus_class_session s JOIN bus_class_offering o ON o.id = s.class_offering_id LEFT JOIN bus_instructor i ON i.id = s.instructor_id WHERE s.deleted_at IS NULL AND s.status = 'cancelled' AND s.starts_at > now() - interval '90 days' ORDER BY s.starts_at DESC
+  - name: manager-offering-demand
+    title: Which classes people actually book
+    entity: ClassOffering
+    chart: bar
+    x: class
+    y: booked
+    help: What to put more of on the timetable and what to retire. Bookings per offering over a quarter, which is long enough that one bad week does not decide it.
+    sql: SELECT o.name AS class, o.level, COUNT(b.id) AS booked, COUNT(DISTINCT s.id) AS sessions FROM bus_class_offering o LEFT JOIN bus_class_session s ON s.class_offering_id = o.id AND s.deleted_at IS NULL AND s.starts_at > now() - interval '90 days' LEFT JOIN bus_booking b ON b.class_session_id = s.id AND b.deleted_at IS NULL AND b.status IN ('held', 'attended') WHERE o.deleted_at IS NULL AND o.is_active GROUP BY o.id, o.name, o.level ORDER BY booked DESC
+  - name: manager-members-drifting
+    title: Active members who have stopped coming
+    entity: Member
+    help: The report that rots silently. A member still marked active who has not attended in sixty days has already left; nobody has told the system and nobody has phoned them. This is the list churn is prevented from.
+    sql: SELECT m.full_name AS member, m.email, m.joined_on, MAX(s.starts_at) AS last_attended FROM bus_member m LEFT JOIN bus_booking b ON b.member_id = m.id AND b.deleted_at IS NULL AND b.status = 'attended' LEFT JOIN bus_class_session s ON s.id = b.class_session_id AND s.deleted_at IS NULL WHERE m.deleted_at IS NULL AND m.status = 'active' GROUP BY m.id, m.full_name, m.email, m.joined_on HAVING MAX(s.starts_at) IS NULL OR MAX(s.starts_at) < now() - interval '60 days' ORDER BY last_attended NULLS FIRST
+  - name: manager-waived-fees
+    title: Cancellation fees written off
+    entity: Booking
+    help: Every waiver is money the studio chose not to take, and the reason is free text because the judgement is human. Read together they show whether the cutoff rule is being applied or quietly ignored.
+    sql: SELECT m.full_name AS member, o.name AS class, s.starts_at, b.waiver_reason FROM bus_booking b JOIN bus_member m ON m.id = b.member_id JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE b.deleted_at IS NULL AND b.fee_waived AND b.cancelled_at > now() - interval '90 days' ORDER BY b.cancelled_at DESC
+rules:
+  - name: bookingGate
+    title: Booking Eligibility
+    entity: Booking
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: place requested"
+        shape: stadium
+      - id: B
+        label: Pack covers the credit cost?
+        shape: diamond
+      - id: R1
+        label: "Refuse: insufficient credits"
+        shape: rect
+      - id: C
+        label: Session still scheduled and not full?
+        shape: diamond
+      - id: R2
+        label: "Refuse: session unavailable"
+        shape: rect
+      - id: P
+        label: Hold the place
+        shape: round
+      - id: E
+        label: End
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: R1
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: R2
+        label: No
+      - from: C
+        to: P
+        label: Yes
+      - from: R1
+        to: E
+      - from: R2
+        to: E
+      - from: P
+        to: E
+    actions:
+      - name: requirePackOrDropIn
+        type: validation-error
+        when: class_pack_id == null and status == "held"
+        props:
+          message: A place needs either an active class pack or a drop-in payment recorded at the desk.
+      - name: requireWaiverReason
+        type: validation-error
+        when: fee_waived == true and waiver_reason == null
+        props:
+          message: A waived forfeit needs a reason — it appears on the monthly exceptions report.
+      - name: stampBookingHeld
+        type: transform
+        when: "true"
+        props:
+          field: status
+          value: held
+  - name: cancellationCutoff
+    title: Cancellation Cutoff
+    entity: Booking
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: cancellation requested"
+        shape: stadium
+      - id: B
+        label: More than 12 hours before start?
+        shape: diamond
+      - id: C
+        label: Return the credit
+        shape: rect
+      - id: D
+        label: Forfeit the credit
+        shape: rect
+      - id: E
+        label: End
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: C
+        to: E
+      - from: D
+        to: E
+    actions:
+      - name: promoteFromWaitlist
+        type: trigger-workflow
+        when: status == "cancelled"
+        props:
+          workflow: WaitlistPromotion
+      - name: forfeitLateCancellation
+        type: transform
+        when: status == "forfeited"
+        props:
+          field: fee_waived
+          value: "false"
+stateMachines:
+  - name: SessionLifecycle
+    title: Session Lifecycle
+    entity: ClassSession
+    states: [scheduled, running, cancelled, completed]
+    initial: scheduled
+    final: [completed, cancelled]
+    transitions:
+      - from: scheduled
+        to: running
+        trigger: start
+      - from: scheduled
+        to: cancelled
+        trigger: cancel
+      - from: running
+        to: completed
+        trigger: complete
+  - name: BookingLifecycle
+    title: Booking Lifecycle
+    entity: Booking
+    states: [held, attended, cancelled, forfeited, no_show]
+    initial: held
+    final: [attended, cancelled, forfeited, no_show]
+    transitions:
+      - from: held
+        to: attended
+        trigger: attend
+      - from: held
+        to: cancelled
+        trigger: cancel
+      - from: held
+        to: forfeited
+        trigger: forfeit
+      - from: held
+        to: no_show
+        trigger: mark_no_show
+      - from: forfeited
+        to: cancelled
+        trigger: waive
+sagas:
+  - name: WaitlistPromotion
+    title: Waitlist Promotion
+    entity: WaitlistEntry
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Mark the entry promoted
+        properties:
+          field: status
+          value: promoted
+      - id: C
+        type: CreateEntity
+        label: Create the booking
+        properties:
+          entity: Booking
+          as: promotedBookingId
+          fields: '{"class_session_id":"class_session_id","member_id":"member_id","status":"held"}'
+hookDiagrams:
+  - name: BookingHooks
+    title: Booking Hooks
+    entity: Booking
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate Request]
+          B --> C[beforeCreate: drawCredit]
+          C --> D[Process Booking]
+          D --> E[afterCreate: sendConfirmation]
+          E --> F[afterUpdate: returnCreditOnCancel]
+          F --> G[Response]

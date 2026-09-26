@@ -1,0 +1,1110 @@
+eml: "1.0"
+name: Drug Discovery Core
+version: 1.0.0
+enums:
+  - name: CompoundRegistrationStatus
+    values: [draft, pending_review, approved, rejected, withdrawn]
+  - name: CompoundClass
+    values: [small_molecule, biologic, peptide, nucleotide, natural_product]
+  - name: CompoundAliasType
+    values: [iupac, common_name, tradename, cas_number, cas_name, inchi]
+  - name: ExperimentStatus
+    values: [draft, submitted, in_review, approved, in_progress, completed, cancelled, on_hold]
+  - name: ExperimentFormType
+    values: [protocol, result, amendment, deviation_note]
+  - name: SampleStatus
+    values: [available, reserved, consumed, exhausted, disposed]
+  - name: SamplePhysicalState
+    values: [solid, liquid, solution, suspension, lyophilized]
+  - name: ChemicalStatus
+    values: [in_stock, low_stock, ordered, out_of_stock, quarantined, disposed]
+  - name: HazardClass
+    values: [flammable, toxic, corrosive, oxidizer, carcinogen, none]
+  - name: InstrumentType
+    values: [hplc, mass_spectrometer, nmr, microscope, centrifuge, flow_cytometer]
+  - name: CalibrationStatus
+    values: [calibrated, due_soon, overdue, under_maintenance, decommissioned]
+  - name: BookingStatus
+    values: [pending, confirmed, in_use, completed, cancelled]
+  - name: VendorType
+    values: [cro, supplier, testing_lab, logistics, consultant]
+  - name: SlaTier
+    values: [standard, priority, enterprise]
+  - name: VendorRequestStatus
+    values: [draft, submitted, under_review, approved, in_progress, delivered, cancelled]
+  - name: DeviationSeverity
+    values: [minor, major, critical, catastrophic]
+  - name: DeviationStatus
+    values: [open, under_investigation, resolved, closed]
+  - name: CapaStatus
+    values: [open, in_progress, pending_verification, closed, cancelled]
+  - name: CapaRootCauseCategory
+    values: [equipment_failure, process_deviation, human_error, environmental, supplier_issue, unknown]
+  - name: StabilityTestStatus
+    values: [planned, in_progress, completed, aborted]
+  - name: StabilityPullStatus
+    values: [scheduled, completed, missed, cancelled]
+  - name: UserRole
+    values: [lab_manager, researcher, quality_assurance, compliance_officer, technician, administrator]
+categories:
+  - name: Compound Registry
+    description: Compound structures, identifiers and aliases
+    icon: FlaskConical
+    color: "#6366f1"
+    entities: [Compound, CompoundAlias]
+  - name: Experiments
+    description: Experiment planning, execution and captured results
+    icon: Microscope
+    color: "#0ea5e9"
+    entities: [Experiment, ExperimentMetadata, WorkflowEvent]
+  - name: Inventory and Samples
+    description: Physical samples and chemical stock on hand
+    icon: Boxes
+    color: "#14b8a6"
+    entities: [Sample, ChemicalInventory]
+  - name: Instruments
+    description: Laboratory instruments and their bookings
+    icon: Cpu
+    color: "#f59e0b"
+    entities: [Instrument, InstrumentBooking]
+  - name: Quality and Compliance
+    description: Deviations, corrective actions and stability programmes
+    icon: ShieldCheck
+    color: "#ef4444"
+    entities: [DeviationReport, CAPA, StabilityTest, StabilityPull]
+  - name: Suppliers
+    description: Vendors and outsourced work requests
+    icon: Truck
+    color: "#8b5cf6"
+    entities: [Vendor, VendorRequest]
+  - name: People and Teams
+    description: Users, teams and organisational structure
+    icon: Users
+    color: "#64748b"
+    default: true
+    entities: [User, Team]
+entities:
+  - name: Compound
+    icon: flask-conical
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
+      - name: inchi_key
+        type: string
+        optional: true
+      - name: formula
+        type: string
+        optional: true
+      - name: compound_class
+        type: string
+        optional: true
+        enum: CompoundClass
+      - name: registration_status
+        type: string
+        enum: CompoundRegistrationStatus
+      - name: registered_by_id
+        type: string
+        fk: true
+    indexes:
+      - columns: [smiles]
+        unique: true
+  - name: CompoundAlias
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: compound_id
+        type: string
+        fk: true
+      - name: alias_name
+        type: string
+      - name: alias_type
+        type: string
+        enum: CompoundAliasType
+  - name: Experiment
+    icon: microscope
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: title
+        type: string
+      - name: status
+        type: string
+        enum: ExperimentStatus
+      - name: pi_id
+        type: string
+        fk: true
+      - name: lab_manager_id
+        type: string
+        fk: true
+        optional: true
+      - name: therapeutic_area
+        type: string
+        optional: true
+      - name: project_code
+        type: string
+        optional: true
+      - name: schema_version
+        type: string
+      - name: estimated_duration_days
+        type: integer
+        optional: true
+      - name: submitted_at
+        type: datetime
+        optional: true
+      - name: completed_at
+        type: datetime
+        optional: true
+    indexes:
+      - columns: [project_code]
+  - name: ExperimentMetadata
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: experiment_id
+        type: string
+        fk: true
+      - name: form_type
+        type: string
+        enum: ExperimentFormType
+      - name: payload
+        type: json
+      - name: schema_ref
+        type: string
+      - name: schema_version_number
+        type: integer
+  - name: User
+    icon: user
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: role
+        type: string
+        enum: UserRole
+      - name: department
+        type: string
+        optional: true
+      - name: team_id
+        type: string
+        fk: true
+        optional: true
+      - name: is_active
+        type: boolean
+      - name: last_login
+        type: datetime
+        optional: true
+    indexes:
+      - columns: [email]
+        unique: true
+  - name: Team
+    icon: users
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: manager_id
+        type: string
+        fk: true
+        optional: true
+      - name: department
+        type: string
+        optional: true
+  - name: Sample
+    icon: test-tube
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: compound_id
+        type: string
+        fk: true
+        optional: true
+      - name: parent_sample_id
+        type: string
+        fk: true
+        optional: true
+      - name: experiment_id
+        type: string
+        fk: true
+        optional: true
+      - name: volume_ul
+        type: decimal
+        optional: true
+      - name: mass_mg
+        type: decimal
+        optional: true
+      - name: physical_state
+        type: string
+        enum: SamplePhysicalState
+      - name: storage_location
+        type: string
+        optional: true
+      - name: location_barcode
+        type: string
+        unique: true
+        optional: true
+      - name: expiration_date
+        type: date
+        optional: true
+      - name: status
+        type: string
+        enum: SampleStatus
+    indexes:
+      - columns: [location_barcode]
+        unique: true
+  - name: ChemicalInventory
+    icon: package
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: cas_number
+        type: string
+        optional: true
+      - name: name
+        type: string
+      - name: formula
+        type: string
+        optional: true
+      - name: current_mass_g
+        type: decimal
+      - name: current_volume_ml
+        type: decimal
+        optional: true
+      - name: storage_location
+        type: string
+      - name: storage_temperature
+        type: string
+        optional: true
+      - name: expiration_date
+        type: date
+        optional: true
+      - name: hazard_class
+        type: string
+        optional: true
+        enum: HazardClass
+      - name: status
+        type: string
+        enum: ChemicalStatus
+  - name: Instrument
+    icon: settings-2
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: instrument_type
+        type: string
+        enum: InstrumentType
+      - name: calibration_status
+        type: string
+        enum: CalibrationStatus
+      - name: last_calibration_date
+        type: date
+        optional: true
+      - name: next_calibration_date
+        type: date
+        optional: true
+      - name: location
+        type: string
+        optional: true
+      - name: operator_certification_level
+        type: string
+        optional: true
+      - name: is_active
+        type: boolean
+  - name: InstrumentBooking
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: instrument_id
+        type: string
+        fk: true
+      - name: experiment_id
+        type: string
+        fk: true
+      - name: booked_by_id
+        type: string
+        fk: true
+      - name: start_time
+        type: datetime
+      - name: end_time
+        type: datetime
+      - name: status
+        type: string
+        enum: BookingStatus
+      - name: cancellation_reason
+        type: string
+        optional: true
+    indexes:
+      - columns: [instrument_id, start_time]
+  - name: Vendor
+    icon: truck
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: vendor_type
+        type: string
+        enum: VendorType
+      - name: sla_tier
+        type: string
+        optional: true
+        enum: SlaTier
+      - name: api_endpoint
+        type: string
+        optional: true
+      - name: has_portal_access
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: VendorRequest
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: experiment_id
+        type: string
+        fk: true
+      - name: vendor_id
+        type: string
+        fk: true
+      - name: requested_by_id
+        type: string
+        fk: true
+      - name: service_type
+        type: string
+      - name: status
+        type: string
+        enum: VendorRequestStatus
+      - name: budget_code
+        type: string
+        optional: true
+      - name: required_return_date
+        type: date
+        optional: true
+      - name: payload
+        type: json
+        optional: true
+      - name: submitted_at
+        type: datetime
+        optional: true
+      - name: delivered_at
+        type: datetime
+        optional: true
+  - name: WorkflowEvent
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: experiment_id
+        type: string
+        fk: true
+      - name: action
+        type: string
+      - name: old_value
+        type: json
+        optional: true
+      - name: new_value
+        type: json
+      - name: user_id
+        type: string
+        fk: true
+      - name: event_timestamp
+        type: datetime
+      - name: reason
+        type: string
+        optional: true
+      - name: cryptographic_signature
+        type: string
+        optional: true
+      - name: signature_meaning
+        type: string
+        optional: true
+    indexes:
+      - columns: [experiment_id, event_timestamp]
+  - name: DeviationReport
+    icon: alert-triangle
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: experiment_id
+        type: string
+        fk: true
+      - name: reported_by_id
+        type: string
+        fk: true
+      - name: anomaly_timestamp
+        type: datetime
+      - name: anomaly_description
+        type: text
+      - name: corrective_action
+        type: text
+        optional: true
+      - name: root_cause
+        type: text
+        optional: true
+      - name: severity
+        type: string
+        enum: DeviationSeverity
+      - name: status
+        type: string
+        enum: DeviationStatus
+  - name: CAPA
+    icon: clipboard-check
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: deviation_report_id
+        type: string
+        fk: true
+        optional: true
+      - name: title
+        type: string
+      - name: root_cause_category
+        type: string
+        enum: CapaRootCauseCategory
+      - name: remediation_owner_id
+        type: string
+        fk: true
+      - name: required_resolution_date
+        type: date
+      - name: effectiveness_metric
+        type: text
+        optional: true
+      - name: status
+        type: string
+        enum: CapaStatus
+      - name: verified_at
+        type: datetime
+        optional: true
+  - name: StabilityTest
+    icon: thermometer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: compound_id
+        type: string
+        fk: true
+      - name: condition_temperature
+        type: string
+        optional: true
+      - name: condition_humidity
+        type: string
+        optional: true
+      - name: status
+        type: string
+        enum: StabilityTestStatus
+      - name: initiated_at
+        type: datetime
+      - name: expected_end_date
+        type: date
+        optional: true
+  - name: StabilityPull
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: stability_test_id
+        type: string
+        fk: true
+      - name: experiment_id
+        type: string
+        fk: true
+        optional: true
+      - name: scheduled_pull_date
+        type: date
+      - name: actual_pull_date
+        type: date
+        optional: true
+      - name: analytical_readouts
+        type: text
+        optional: true
+      - name: pull_status
+        type: string
+        enum: StabilityPullStatus
+relationships:
+  - from: Compound
+    fromCardinality: exactly-one
+    to: CompoundAlias
+    toCardinality: zero-or-more
+    label: has aliases
+  - from: Compound
+    fromCardinality: exactly-one
+    to: Sample
+    toCardinality: zero-or-more
+    label: has samples
+  - from: Compound
+    fromCardinality: exactly-one
+    to: StabilityTest
+    toCardinality: zero-or-more
+    label: undergoes
+  - from: Team
+    fromCardinality: exactly-one
+    to: User
+    toCardinality: zero-or-more
+    label: has members
+  - from: User
+    fromCardinality: exactly-one
+    to: Experiment
+    toCardinality: zero-or-more
+    label: leads as PI
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: ExperimentMetadata
+    toCardinality: zero-or-more
+    label: has metadata
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: Sample
+    toCardinality: zero-or-more
+    label: uses
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: InstrumentBooking
+    toCardinality: zero-or-more
+    label: books
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: VendorRequest
+    toCardinality: zero-or-more
+    label: requests
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: WorkflowEvent
+    toCardinality: zero-or-more
+    label: tracks
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: DeviationReport
+    toCardinality: zero-or-more
+    label: reports
+  - from: Experiment
+    fromCardinality: exactly-one
+    to: StabilityPull
+    toCardinality: zero-or-more
+    label: includes
+  - from: Instrument
+    fromCardinality: exactly-one
+    to: InstrumentBooking
+    toCardinality: zero-or-more
+    label: is booked
+  - from: Vendor
+    fromCardinality: exactly-one
+    to: VendorRequest
+    toCardinality: zero-or-more
+    label: fulfills
+  - from: DeviationReport
+    fromCardinality: exactly-one
+    to: CAPA
+    toCardinality: zero-or-more
+    label: triggers
+  - from: StabilityTest
+    fromCardinality: exactly-one
+    to: StabilityPull
+    toCardinality: zero-or-more
+    label: has pulls
+hooks:
+  - entity: Compound
+    event: customValidate
+    handler: validateSmilesFormat
+    field: smiles
+  - entity: Compound
+    event: beforeCreate
+    handler: generateInchiKey
+    field: inchi_key
+  - entity: Compound
+    event: beforeCreate
+    handler: computeMolecularWeight
+    field: molecular_weight
+  - entity: Compound
+    event: afterCreate
+    handler: indexForSearch
+  - entity: Compound
+    event: afterCreate
+    handler: notifyRegistrationTeam
+  - entity: Experiment
+    event: beforeUpdate
+    handler: snapshotPreviousState
+  - entity: Experiment
+    event: customValidate
+    handler: enforceGmpFields
+  - entity: Experiment
+    event: afterUpdate
+    handler: emitWorkflowEvent
+  - entity: Experiment
+    event: afterUpdate
+    handler: generateCryptographicSignature
+  - entity: DeviationReport
+    event: beforeCreate
+    handler: timestampAnomaly
+    field: anomaly_timestamp
+  - entity: DeviationReport
+    event: customValidate
+    handler: requireDescription
+    field: anomaly_description
+  - entity: DeviationReport
+    event: afterCreate
+    handler: triggerCapaIfCritical
+  - entity: DeviationReport
+    event: afterCreate
+    handler: notifyQualityTeam
+rbac:
+  - entity: Experiment
+    action: submit
+    roles: [researcher, lab_manager]
+  - entity: Experiment
+    action: approve
+    roles: [quality_assurance, compliance_officer]
+  - entity: Experiment
+    action: cancel
+    roles: [lab_manager, compliance_officer]
+  - entity: CAPA
+    action: verify_effective
+    roles: [quality_assurance, compliance_officer]
+  - entity: CAPA
+    action: cancel
+    roles: [compliance_officer]
+reports:
+  - name: compounds-by-registration-status
+    title: Compounds by registration status
+    entity: Compound
+    chart: bar
+    x: registration_status
+    y: compounds
+    help: Where the register stands — how much of the library is approved rather than still in review.
+    sql: SELECT registration_status, COUNT(*) AS compounds FROM bus_compound WHERE deleted_at IS NULL GROUP BY registration_status ORDER BY compounds DESC
+  - name: open-deviations-by-severity
+    title: Open deviations by severity
+    entity: DeviationReport
+    chart: pie
+    x: severity
+    y: deviations
+    help: What quality assurance is carrying that is not yet closed, worst first.
+    sql: SELECT severity, COUNT(*) AS deviations FROM bus_deviation_report WHERE deleted_at IS NULL AND status IN ('open', 'under_investigation') GROUP BY severity ORDER BY deviations DESC
+  - name: capa-overdue
+    title: CAPAs past their resolution date
+    entity: CAPA
+    help: Corrective actions whose committed date has passed and which are still open — the list a quality review opens on.
+    sql: SELECT c.title, c.root_cause_category, c.required_resolution_date, c.status FROM bus_capa c WHERE c.deleted_at IS NULL AND c.status NOT IN ('closed', 'cancelled') AND c.required_resolution_date < CURRENT_DATE ORDER BY c.required_resolution_date
+  - name: instrument-calibration-due
+    title: Instruments due for calibration
+    entity: Instrument
+    help: Which instruments cannot be booked for regulated work until they are recalibrated.
+    sql: SELECT name, instrument_type, calibration_status, next_calibration_date FROM bus_instrument WHERE deleted_at IS NULL AND is_active AND calibration_status IN ('due_soon', 'overdue') ORDER BY next_calibration_date
+  - name: experiments-by-principal-investigator
+    title: Experiments by principal investigator
+    entity: Experiment
+    chart: bar
+    x: investigator
+    y: experiments
+    help: How the workload sits across the investigators, for the weekly planning meeting.
+    sql: SELECT u.first_name || ' ' || u.last_name AS investigator, COUNT(*) AS experiments FROM bus_experiment e JOIN bus_user u ON u.id = e.pi_id WHERE e.deleted_at IS NULL AND u.deleted_at IS NULL GROUP BY investigator ORDER BY experiments DESC
+  - name: chemical-inventory-at-risk
+    title: Chemicals low, expired or quarantined
+    entity: ChemicalInventory
+    help: What has to be reordered or withdrawn before it stops an experiment.
+    sql: SELECT name, cas_number, storage_location, current_mass_g, status, expiration_date FROM bus_chemical_inventory WHERE deleted_at IS NULL AND (status IN ('low_stock', 'out_of_stock', 'quarantined') OR expiration_date < CURRENT_DATE) ORDER BY expiration_date NULLS LAST
+  - name: stability-pulls-outstanding
+    title: Stability pulls not yet taken
+    entity: StabilityPull
+    help: Scheduled pulls with no actual date recorded — a stability study stalls silently when one is missed.
+    sql: WITH outstanding AS (SELECT p.id, p.scheduled_pull_date, p.pull_status, t.compound_id FROM bus_stability_pull p JOIN bus_stability_test t ON t.id = p.stability_test_id WHERE p.deleted_at IS NULL AND t.deleted_at IS NULL AND p.actual_pull_date IS NULL) SELECT o.scheduled_pull_date, o.pull_status, c.smiles AS compound FROM outstanding o LEFT JOIN bus_compound c ON c.id = o.compound_id ORDER BY o.scheduled_pull_date
+  - name: vendor-requests-by-status
+    title: Vendor requests by status
+    entity: VendorRequest
+    chart: bar
+    x: status
+    y: requests
+    help: How much outsourced work is in flight and how much has landed.
+    sql: SELECT status, COUNT(*) AS requests FROM bus_vendor_request WHERE deleted_at IS NULL GROUP BY status ORDER BY requests DESC
+rules:
+  - name: experimentSubmitGate
+    title: Experiment Submission Gate
+    entity: Experiment
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Submit Requested"
+        shape: stadium
+      - id: B
+        label: Status == draft?
+        shape: diamond
+      - id: X1
+        label: "Reject: Not in Draft"
+        shape: rect
+      - id: C
+        label: Title provided?
+        shape: diamond
+      - id: X2
+        label: "Reject: Title Required"
+        shape: rect
+      - id: D
+        label: PI assigned?
+        shape: diamond
+      - id: X3
+        label: "Reject: PI Required"
+        shape: rect
+      - id: E
+        label: Estimated duration >= 1?
+        shape: diamond
+      - id: X4
+        label: "Reject: Duration Required"
+        shape: rect
+      - id: P
+        label: "Set status: submitted"
+        shape: rect
+      - id: Z
+        label: End
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: X1
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: X2
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: X3
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: E
+        to: X4
+        label: No
+      - from: E
+        to: P
+        label: Yes
+      - from: X1
+        to: Z
+      - from: X2
+        to: Z
+      - from: X3
+        to: Z
+      - from: X4
+        to: Z
+      - from: P
+        to: Z
+  - name: deviationSeverity
+    title: Deviation Severity Routing
+    entity: DeviationReport
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Deviation Reported"
+        shape: stadium
+      - id: B
+        label: GMP-critical experiment?
+        shape: diamond
+      - id: C
+        label: anomaly_description length >= 100?
+        shape: diamond
+      - id: H
+        label: "Set severity: critical"
+        shape: rect
+      - id: M
+        label: "Set severity: major"
+        shape: rect
+      - id: D
+        label: Instrument failure involved?
+        shape: diamond
+      - id: M2
+        label: "Set severity: major"
+        shape: rect
+      - id: L
+        label: "Set severity: minor"
+        shape: rect
+      - id: N
+        label: Notify QA
+        shape: circle
+      - id: K
+        label: Notify Supervisor
+        shape: circle
+      - id: E
+        label: "End: Routed"
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: H
+        label: Yes
+      - from: C
+        to: M
+        label: No
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: M2
+        label: Yes
+      - from: D
+        to: L
+        label: No
+      - from: H
+        to: N
+      - from: M
+        to: N
+      - from: M2
+        to: N
+      - from: L
+        to: K
+      - from: N
+        to: E
+      - from: K
+        to: E
+  - name: bookingConflict
+    title: Instrument Booking Conflict
+    entity: InstrumentBooking
+    event: beforeCreate
+    priority: 5
+    nodes:
+      - id: A
+        label: "Start: Booking Requested"
+        shape: stadium
+      - id: B
+        label: Instrument is_active?
+        shape: diamond
+      - id: X1
+        label: "Reject: Instrument Inactive"
+        shape: rect
+      - id: C
+        label: calibration_status == overdue?
+        shape: diamond
+      - id: X2
+        label: "Reject: Calibration Overdue"
+        shape: rect
+      - id: D
+        label: Timeslot available?
+        shape: diamond
+      - id: X3
+        label: "Reject: Booking Conflict"
+        shape: rect
+      - id: P
+        label: Confirm Booking
+        shape: rect
+      - id: Z
+        label: End
+        shape: stadium
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: X1
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: X2
+        label: Yes
+      - from: C
+        to: D
+        label: No
+      - from: D
+        to: X3
+        label: No
+      - from: D
+        to: P
+        label: Yes
+      - from: X1
+        to: Z
+      - from: X2
+        to: Z
+      - from: X3
+        to: Z
+      - from: P
+        to: Z
+stateMachines:
+  - name: ExperimentLifecycle
+    title: Experiment Lifecycle
+    entity: Experiment
+    states: [draft, submitted, in_review, approved, in_progress, completed, on_hold, cancelled]
+    initial: draft
+    final: [completed, cancelled]
+    transitions:
+      - from: draft
+        to: submitted
+        trigger: submit
+      - from: submitted
+        to: in_review
+        trigger: assign_reviewer
+      - from: submitted
+        to: draft
+        trigger: return_to_draft
+      - from: in_review
+        to: approved
+        trigger: approve
+      - from: in_review
+        to: draft
+        trigger: reject
+      - from: approved
+        to: in_progress
+        trigger: start
+      - from: in_progress
+        to: completed
+        trigger: complete
+      - from: in_progress
+        to: on_hold
+        trigger: pause
+      - from: on_hold
+        to: in_progress
+        trigger: resume
+      - from: in_progress
+        to: cancelled
+        trigger: cancel
+      - from: approved
+        to: cancelled
+        trigger: cancel
+  - name: CapaLifecycle
+    title: CAPA Lifecycle
+    entity: CAPA
+    states: [open, in_progress, pending_verification, closed, cancelled]
+    initial: open
+    final: [closed, cancelled]
+    transitions:
+      - from: open
+        to: in_progress
+        trigger: assign
+      - from: in_progress
+        to: pending_verification
+        trigger: submit_for_review
+      - from: pending_verification
+        to: closed
+        trigger: verify_effective
+      - from: pending_verification
+        to: in_progress
+        trigger: reopen
+      - from: in_progress
+        to: cancelled
+        trigger: cancel
+sagas:
+  - name: CriticalDeviationEscalation
+    title: Critical Deviation Escalation
+    entity: DeviationReport
+    steps:
+      - id: B
+        type: Formula
+        label: Stage base days
+        properties:
+          target: baseDays
+          operation: set
+          value: "3"
+      - id: B2
+        type: Decision
+        label: Classify by severity
+        properties:
+          publish: baseDays
+          decisionTable: "{\"hitPolicy\":\"first\",\"inputs\":[{\"id\":\"i1\",\"name\":\"Severity\",\"field\":\"severity\"}],\"outputs\":[{\"id\":\"o1\",\"name\":\"Base days\",\"field\":\"baseDays\"}],\"rules\":[{\"_id\":\"critical\",\"i1\":\"'critical'\",\"o1\":\"1\"},{\"_id\":\"major\",\"i1\":\"'major'\",\"o1\":\"2\"}]}"
+      - id: C
+        type: Formula
+        label: Compute resolution days
+        properties:
+          target: resolutionDays
+          source: baseDays
+          operation: multiply
+          operand: "7"
+      - id: D
+        type: CreateEntity
+        label: Open a CAPA
+        properties:
+          entity: bus_capa
+          as: newCapaId
+          fields: '{"title":"CAPA for deviation {{id}}","status":"open","root_cause_category":"under-review","deviation_report_id":"{{id}}","remediation_owner_id":"{{reported_by_id}}","required_resolution_date":"2026-12-31"}'
+      - id: E
+        type: UpdateEntity
+        label: Escalate the deviation
+        properties:
+          field: status
+          value: escalated
+hookDiagrams:
+  - name: CompoundRegistration
+    title: Compound Registration
+    entity: Compound
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate SMILES]
+          B --> C[customValidate: validateSmilesFormat]
+          C --> D[beforeCreate: generateInchiKey]
+          D --> E[beforeCreate: computeMolecularWeight]
+          E --> F[Process Compound]
+          F --> G[afterCreate: indexForSearch]
+          G --> H[afterCreate: notifyRegistrationTeam]
+          H --> I[Response]
+
+      %% ---- Section 8: Workflow — experiment audit trail hooks --------------------
+  - name: ExperimentAuditTrail
+    title: Experiment Audit Trail
+    entity: Experiment
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate Request]
+          B --> C[beforeUpdate: snapshotPreviousState]
+          C --> D[customValidate: enforceGmpFields]
+          D --> E[Process Experiment]
+          E --> F[afterUpdate: emitWorkflowEvent]
+          F --> G[afterUpdate: generateCryptographicSignature]
+          G --> H[Response]
+
+      %% ---- Section 9: Workflow — deviation report hooks -------------------------
+  - name: DeviationReportHooks
+    title: Deviation Report Hooks
+    entity: DeviationReport
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate]
+          B --> C[beforeCreate: timestampAnomaly]
+          C --> D[customValidate: requireDescription]
+          D --> E[Process Deviation]
+          E --> F[afterCreate: triggerCapaIfCritical]
+          F --> G[afterCreate: notifyQualityTeam]
+          G --> H[Response]
+
+      ## Critical deviation escalation (saga)
+
+      A deviation that turns out to be critical does not just change status: it has
+      to open a CAPA, put a resolution date on it, and escalate the deviation itself.
+      That is three tables in one process, which is what `kind: saga` is for — and
+      what a `%%hook` cannot express, because a hook fires on one entity.
+
+      ```mermaid
