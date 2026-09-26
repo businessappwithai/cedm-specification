@@ -7,6 +7,11 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { getDatabase, sql } from "@appwithai/core/services";
+import {
+  emlToModelDocument,
+  renderEmlView,
+  serializeModelDocument,
+} from "@appwithai/generator/model-yaml";
 import { generateFlowchart, projectSource, selectModelContext } from "@appwithai/yamltecture";
 import {
   assertCommit,
@@ -23,6 +28,7 @@ import {
   inventory,
   MANIFEST,
   MODEL,
+  MODEL_YAML,
   mergeGenerated,
   outputRoot,
   projectDirectory,
@@ -379,6 +385,27 @@ async function apply(
   return finish(db, dir, operation);
 }
 
+/**
+ * The model's source files, from the Mermaid the designer drew.
+ *
+ * The designer edits Mermaid because Mermaid is what it can draw; what is saved
+ * is the YAML model language. The drawing is read into the model it means,
+ * written as `model/model.eml.yaml`, and the Mermaid view is rendered back from
+ * that document — so the view in the history is always the view *of* the saved
+ * model, and it is what generation writes into the application too.
+ */
+function modelSourceFiles(composed: string): Files {
+  const { document } = emlToModelDocument(composed);
+  const view = renderEmlView(document).text;
+  return {
+    [MODEL_YAML]: encode(serializeModelDocument(document)),
+    [MODEL]: encode(view),
+    // The assistant's projection is taken from the same view, so it too
+    // describes the saved model rather than the drawing it was read from.
+    [AI_PROJECTION]: encode(projectSource(view)),
+  };
+}
+
 async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> {
   // A saved automation remains in its original Mermaid representation as well as the composed input.
   const diagrams = workflows
@@ -387,9 +414,8 @@ async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> 
   const additions = diagrams.filter((code) => !model.includes(code));
   const composed = additions.length ? `${model.trimEnd()}\n\n${additions.join("\n\n")}\n` : model;
   const files: Files = {
-    [AI_PROJECTION]: encode(projectSource(composed)),
     [EDITOR]: encode(model),
-    [MODEL]: encode(composed),
+    ...modelSourceFiles(composed),
     "model/workflows.json": jsonFile(workflows.map(cleanWorkflow)),
   };
   for (const w of workflows) {
@@ -506,8 +532,7 @@ async function archiveVersions(
         dir,
         {
           [EDITOR]: encode(v.mermaid_code),
-          [MODEL]: encode(v.mermaid_code),
-          [AI_PROJECTION]: encode(projectSource(v.mermaid_code)),
+          ...modelSourceFiles(v.mermaid_code),
           "model/historical-version.json": jsonFile({
             id: v.id,
             version: v.version_number,
@@ -729,6 +754,10 @@ export async function restoreProject(
       const historicalModel = decode(snapshot[EDITOR] || snapshot[MODEL]!);
       Object.assign(snapshot, original, await modelFiles(historicalModel, workflows));
     }
+    // A snapshot saved before models were YAML holds only Mermaid. Its YAML is
+    // derived from the Mermaid it saved, so the restored state has a source of
+    // truth to generate from rather than losing the one the head carries.
+    if (!snapshot[MODEL_YAML]) Object.assign(snapshot, modelSourceFiles(decode(snapshot[MODEL]!)));
     // Checkpoint every allowlisted local source before replacing anything.
     await apply(db, dir, projectId, "checkpoint", await inventory(dir), {
       actor,
@@ -776,9 +805,17 @@ export async function prepareGeneration(projectId: string, actor: string, input:
   return locked(projectId, async (_db, dir) => {
     const modelCommit = saved.modelCommit ?? saved.commit;
     const snapshot = await treeFiles(dir, modelCommit, "model");
+    if (!snapshot[MODEL_YAML])
+      throw new RepositoryError(
+        `The saved model ${modelCommit.slice(0, 8)} has no ${MODEL_YAML}; save the model again.`,
+        500
+      );
     return {
       modelCommit,
+      /** The Mermaid view of the saved model. */
       model: decode(snapshot[MODEL]!),
+      /** The saved model itself — what generation reads. */
+      modelYaml: decode(snapshot[MODEL_YAML]),
       directory: dir,
       expectedHead: await head(dir),
       sourceHashes: Object.fromEntries(
@@ -809,7 +846,10 @@ export async function publishGeneration(
           stale: (await repositoryHistory(projectId)).state?.model_commit !== prepared.modelCommit,
         };
     }
-    if (incoming[MODEL] && decode(incoming[MODEL]!) !== prepared.model)
+    if (
+      (incoming[MODEL_YAML] && decode(incoming[MODEL_YAML]) !== prepared.modelYaml) ||
+      (incoming[MODEL] && decode(incoming[MODEL]!) !== prepared.model)
+    )
       throw new RepositoryError(
         "The generator changed the input model during validation. Save the corrected model before publishing.",
         422
@@ -862,6 +902,7 @@ export async function publishGeneration(
     );
     changes[MANIFEST] = jsonFile(nextManifest);
     // Preserve the exact generator input, even if the editor has advanced meanwhile.
+    changes[".appwithai/generated-model.eml.yaml"] = encode(prepared.modelYaml);
     changes[".appwithai/generated-model.eml.mmd"] = encode(prepared.model);
     changes[".appwithai/generated-model.ai.yaml"] = encode(projectSource(prepared.model));
     changes[GENERATION] = jsonFile({

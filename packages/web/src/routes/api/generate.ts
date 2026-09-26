@@ -4,6 +4,9 @@ import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
+/** Where a project keeps its model — the file generation reads. */
+const MODEL_YAML_PATH = "model/model.eml.yaml";
+
 /**
  * Which generator produced an application: a hash of the bundle this process
  * loaded, so two generations can be told apart even at the same version.
@@ -59,7 +62,7 @@ export const Route = createFileRoute("/api/generate")({
               const data = `data: ${JSON.stringify({
                 complete: true,
                 path: outputPath,
-                model: path.join(outputPath, ".appwithai/generated-model.eml.mmd"),
+                model: path.join(outputPath, ".appwithai/generated-model.eml.yaml"),
                 ...result,
               })}\n\n`;
               controller.enqueue(encoder.encode(data));
@@ -82,7 +85,10 @@ export const Route = createFileRoute("/api/generate")({
                 "@/lib/server/project-repository"
               );
               const { projectDb } = await import("@appwithai/core/services");
-              const { generateApplication, parseModel } = await import("@appwithai/generator");
+              const { generateApplication } = await import("@appwithai/generator");
+              const { ModelYamlError, parseModelYaml } = await import(
+                "@appwithai/generator/model-yaml"
+              );
 
               sendLog("info", "Loading project details...");
               const project = await projectDb.findById(projectId);
@@ -129,8 +135,39 @@ export const Route = createFileRoute("/api/generate")({
 
               sendLog("info", `Initializing generator for stack: ${finalStackType}`);
 
-              sendLog("info", "Parsing ERD definition...");
-              const model = parseModel(finalErdCode);
+              /*
+               * The saved YAML is the model; the Mermaid is the drawing of it.
+               * It is validated here exactly as the CLI validates a model file,
+               * so a model the generator would misread is refused with the line
+               * that is wrong rather than generated.
+               */
+              sendLog("info", `Reading the saved model (${MODEL_YAML_PATH})...`);
+              let parsed: ReturnType<typeof parseModelYaml>;
+              try {
+                parsed = parseModelYaml(prepared.modelYaml, {
+                  source: MODEL_YAML_PATH,
+                  warn: (message) => sendLog("warning", message),
+                });
+              } catch (error) {
+                if (error instanceof ModelYamlError) {
+                  for (const diagnostic of error.diagnostics.filter(
+                    (d) => d.severity === "error"
+                  )) {
+                    sendLog(
+                      "error",
+                      `${MODEL_YAML_PATH}:${diagnostic.line}:${diagnostic.column} ${diagnostic.code} ${diagnostic.message}`
+                    );
+                  }
+                }
+                throw error;
+              }
+              for (const diagnostic of parsed.diagnostics.filter((d) => d.severity === "warning")) {
+                sendLog(
+                  "warning",
+                  `${MODEL_YAML_PATH}:${diagnostic.line}:${diagnostic.column} ${diagnostic.code} ${diagnostic.message}`
+                );
+              }
+              const { model, document } = parsed;
               const { entities, relationships } = model;
               sendLog(
                 "success",
@@ -170,7 +207,7 @@ export const Route = createFileRoute("/api/generate")({
                * model declared — and said "Generated successfully" anyway.
                */
               await generateApplication({
-                sources: finalErdCode,
+                document,
                 model,
                 stackOption: finalStackOption,
                 projectName: project.name || `Project ${projectId}`,

@@ -16,7 +16,14 @@ export type Files = Record<string, string | null>; // base64 bytes; null deletes
 export const encode = (text: string) => Buffer.from(text).toString("base64");
 export const decode = (text: string) => Buffer.from(text, "base64").toString("utf8");
 export const digest = (value: string) => createHash("sha256").update(value).digest("hex");
+/**
+ * The model, as the YAML model language — the source of truth. Generation reads
+ * this file and nothing else.
+ */
+export const MODEL_YAML = "model/model.eml.yaml";
+/** The Mermaid view of `MODEL_YAML`, rendered from it on every save. */
 export const MODEL = "model/model.eml.mmd";
+/** The designer's own Mermaid buffer, kept as it was typed. A view, never read for generation. */
 export const EDITOR = "model/editor.eml.mmd";
 export const GENERATION = ".appwithai/generation.json";
 export const MANIFEST = ".appwithai/generated-files.json";

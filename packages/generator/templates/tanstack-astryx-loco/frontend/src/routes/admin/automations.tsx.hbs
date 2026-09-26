@@ -18,13 +18,12 @@ import { AutomationBuilder, type RuleTableSummary } from '@/components/automatio
 import { AutomationHelp } from '@/components/automation/AutomationHelp';
 import { RailSection } from '@/components/automation/RailList';
 import { RuleTableEditor } from '@/components/automation/RuleTableEditor';
+import { type Automation, emptyAutomation, validateAutomation } from '@/lib/automation/model';
 import {
-  type Automation,
-  emptyAutomation,
-  parseAutomation,
-  serializeAutomation,
-  validateAutomation,
-} from '@/lib/automation/model';
+  automationToYaml,
+  readStoredAutomation,
+  type StoredAutomationRow,
+} from '@/lib/automation/yaml';
 import { type DecisionTable, emptyDecisionTable } from '@/lib/workflow/bpmn-model';
 
 export const Route = createFileRoute('/admin/automations')({
@@ -43,14 +42,6 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   '{{this.name}}': [{{#each this.attributes}}'{{this.name}}'{{#unless @last}}, {{/unless}}{{/each}}],
 {{/each}}
 };
-
-/** A row as sys_workflow_definitions returns it. */
-interface StoredAutomation {
-  id: string;
-  name: string;
-  entity_name?: string;
-  mermaid_code?: string;
-}
 
 /** A rule as the endpoint returns it, in either casing. */
 interface RuleRow {
@@ -107,14 +98,22 @@ function AutomationsPage() {
 
         // Parse first, then apply. Everything that touches state goes inside
         // one startTransition below.
-        const autoData =
+        // The endpoint answers with the rows themselves; a paged envelope is
+        // read too, so the screen does not depend on which one it gets.
+        const autoPayload =
           autoRes.status === 'fulfilled'
-            ? (autoRes.value as {
-                items?: StoredAutomation[];
-                data?: StoredAutomation[];
-                total?: number;
-              })
+            ? (autoRes.value as
+                | StoredAutomationRow[]
+                | { items?: StoredAutomationRow[]; total?: number })
             : null;
+        const autoRows: StoredAutomationRow[] = autoPayload
+          ? Array.isArray(autoPayload)
+            ? autoPayload
+            : (autoPayload.items ?? [])
+          : [];
+        if (autoRes.status === 'rejected') {
+          console.error('Failed to load automations:', autoRes.reason);
+        }
 
         const rulePayload =
           ruleRes.status === 'fulfilled'
@@ -125,13 +124,23 @@ function AutomationsPage() {
 
         if (cancelled) return;
 
-        const parsed = (autoData?.items ?? []).map((row) => ({
-          stored: row.id,
-          automation: {
-            ...parseAutomation(row.mermaid_code ?? '', row.entity_name || ENTITIES[0] || 'Record'),
-            name: row.name,
-          },
-        }));
+        // Each row is its YAML document — or, for one saved before automations
+        // were YAML, its mermaid. A row that cannot be read is reported and
+        // left out rather than opened as an empty automation someone could
+        // publish over it.
+        const parsed = autoRows.flatMap((row) => {
+          try {
+            return [
+              {
+                stored: row.id,
+                automation: readStoredAutomation(row, ENTITIES[0] || 'Record'),
+              },
+            ];
+          } catch (error) {
+            console.error(`Automation "${row.name}" (${row.id}) could not be read:`, error);
+            return [];
+          }
+        });
 
         const ruleRows: RuleRow[] = rulePayload
           ? Array.isArray(rulePayload)
@@ -146,8 +155,10 @@ function AutomationsPage() {
         // "received an update before it finished hydrating" warning. Marking it
         // non-urgent lets hydration finish first.
         startTransition(() => {
-          if (autoData) {
-            setAutoTotal(autoData.total ?? (autoData.items ?? []).length);
+          if (autoPayload) {
+            setAutoTotal(
+              (Array.isArray(autoPayload) ? undefined : autoPayload.total) ?? autoRows.length
+            );
             setAutomations(parsed.map((p) => p.automation));
             setStoredIds(Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])));
             const first = parsed[0];
@@ -243,7 +254,7 @@ function AutomationsPage() {
           name: fresh.name,
           entityName: fresh.trigger.entity,
           operation: 'ALL',
-          mermaid: serializeAutomation(fresh),
+          definition: automationToYaml(fresh),
         }
       );
       const id = created?.id ?? created?.item?.id;
@@ -258,15 +269,16 @@ function AutomationsPage() {
     if (!storedId) return;
 
     setSaveState('saving');
+    const published: Automation = { ...automation, status: 'live' };
     try {
       await apiClient.put<unknown>(`/workflow-definitions/${storedId}`, {
-        name: automation.name,
-        entityName: automation.trigger.entity,
-        mermaid: serializeAutomation(automation),
+        name: published.name,
+        entityName: published.trigger.entity,
+        definition: automationToYaml(published),
         isActive: true,
       });
       setSaveState('saved');
-      updateAutomation({ ...automation, status: 'live' });
+      updateAutomation(published);
     } catch (error) {
       console.error('Failed to publish automation:', error);
       setSaveState('error');

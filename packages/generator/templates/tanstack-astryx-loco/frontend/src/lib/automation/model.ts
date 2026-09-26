@@ -10,10 +10,10 @@
  * list is the honest representation and the one the builder can draw as a
  * ladder without inventing layout the author never asked for.
  *
- * Storage is unchanged. `serializeAutomation` writes the same mermaid
- * flowchart with `%%` directives the parser already reads, so automations
- * saved before this builder existed still open, and anything saved here still
- * runs through the existing executor.
+ * Storage is YAML: `lib/automation/yaml.ts` writes this model as its own
+ * document, the way the application's model is written. `serializeAutomation`
+ * is the mermaid *view* of it, and `parseAutomation` is kept to open rows saved
+ * before automations were YAML.
  */
 
 import {

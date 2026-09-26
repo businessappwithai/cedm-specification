@@ -712,6 +712,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/lib/automation/rule-content.ts",
       },
       {
+        src: "src/lib/automation/yaml.ts",
+        dest: "src/lib/automation/yaml.ts",
+      },
+      {
         src: "src/components/automation/AutomationBuilder.tsx",
         dest: "src/components/automation/AutomationBuilder.tsx",
       },
@@ -1102,6 +1106,14 @@ PORT=3001
         context
       );
       await fs.writeFile(path.join(outputDir, "test/components.test.tsx"), componentsTestContent);
+
+      // Automations are stored as YAML; the round trip is what keeps a saved
+      // automation opening as the one that was saved.
+      const automationYamlTest = await this.renderTemplate(
+        "test/automation-yaml.test.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "test/automation-yaml.test.ts"), automationYamlTest);
 
       // Vitest config
       const vitestContent = await this.renderTemplate("vitest.config.ts.hbs", context);

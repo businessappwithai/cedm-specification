@@ -132,6 +132,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "migration/src/m0016_sys_window_icon.rs.hbs",
         "migration/src/m0016_sys_window_icon.rs",
     ),
+    (
+        "migration/src/m0017_workflow_definition_yaml.rs.hbs",
+        "migration/src/m0017_workflow_definition_yaml.rs",
+    ),
     ("src/lib.rs.hbs", "src/lib.rs"),
     ("src/bin/main.rs.hbs", "src/bin/main.rs"),
     ("src/app.rs.hbs", "src/app.rs"),

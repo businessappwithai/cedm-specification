@@ -735,7 +735,7 @@ Things to know before editing it:
   does not depend on the model; an inline `const UP_SQL: &str = r#"..."#`
   (copy `m0003_workflow_support.rs.hbs`) when it needs `{{#each entities}}`,
   because Handlebars renders the `.rs.hbs` and not the `.sql`.
-  **Never renumber or edit m0000–m0016** — they are recorded as applied in
+  **Never renumber or edit m0000–m0017** — they are recorded as applied in
   existing databases, so a change there reaches nobody who already migrated.
 - **A seed a task embeds must always be emitted.** `include_str!` is a
   compile-time macro, so a generator that skips `seed/rules.sql` for a model
@@ -763,6 +763,14 @@ Things to know before editing it:
   serves no assets — every controller returns JSON. The frontend is a separate
   bun/Vite package. Keep it that way: UI changes must never require
   recompiling the Rust binary.
+- **An automation built in the app is stored as YAML.** The automations screen
+  writes each one as its own YAML document (`lib/automation/yaml.ts`,
+  `automation: "1.0"`) into `sys_workflow_definitions.definition_yaml` (m0017),
+  through `POST /api/workflow-definitions` with `kind: "automation"`;
+  `validate_automation_definition` refuses a document of any other shape. Rows
+  saved as mermaid before this still open through `parseAutomation`. The
+  executor runs BPMN only, so `execute` on an automation is a 400, not a 500
+  from decoding a NULL diagram.
 - **Rule evaluation must stay inside `spawn_blocking`.** `zen_engine::Variable`
   is built on `Rc` and is not `Send`; calling `decision.evaluate(..).await`
   directly from a handler makes the future `!Send` and will not compile.
@@ -1324,6 +1332,16 @@ packages/yamltecture/      # EML → deterministic YAML (`.appwithai/model.ai.ya
   `prepareGeneration`/`publishGeneration`. A route that writes `erd_versions`,
   `workflows` or a project file directly produces a state the history does not
   contain, and the next save refuses with "edited outside the application".
+- **The model is saved as YAML.** The designer draws Mermaid; `saveProject`
+  reads the drawing into the model it means and commits it as
+  `model/model.eml.yaml` (`MODEL_YAML`). `model/model.eml.mmd` is rendered
+  *from* that YAML on every save, and so is `.appwithai/model.ai.yaml`;
+  `model/editor.eml.mmd` keeps the designer's buffer as typed. Generation reads
+  only the YAML: `prepareGeneration` returns `modelYaml`, `/api/generate`
+  validates it with `parseModelYaml` and generates from the document, and
+  `publishGeneration` refuses output whose `model/model.eml.yaml` differs from
+  it. A snapshot saved before this has its YAML derived on restore. The gate is
+  `saves the model as YAML and generates from exactly that YAML`.
 - **A draft is not a version.** `mode: "draft"` commits and writes no
   `erd_versions` row; the current model is `project_git_state.model_code`, with
   the current `erd_versions` row only as the fallback for a project saved before

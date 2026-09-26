@@ -28,6 +28,7 @@ mod m0013_workflow_definition_source;
 mod m0014_sys_system;
 mod m0015_sys_report;
 mod m0016_sys_window_icon;
+mod m0017_workflow_definition_yaml;
 
 pub struct Migrator;
 
@@ -52,6 +53,7 @@ impl MigratorTrait for Migrator {
             Box::new(m0014_sys_system::Migration),
             Box::new(m0015_sys_report::Migration),
             Box::new(m0016_sys_window_icon::Migration),
+            Box::new(m0017_workflow_definition_yaml::Migration),
         ]
     }
 }

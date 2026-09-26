@@ -10,7 +10,16 @@ import {
   runMigrations,
   sql,
 } from "../../../../../core/src/services/database.service";
-import { decode, git, head, MODEL, projectDirectory, readFile } from "../project-git";
+import {
+  decode,
+  digest,
+  git,
+  head,
+  MODEL,
+  MODEL_YAML,
+  projectDirectory,
+  readFile,
+} from "../project-git";
 import {
   AI_PROJECTION,
   changeWorkflow,
@@ -126,6 +135,31 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
     await expect(
       saveProject(id, "owner", { model: "different", requestId: "named-one" })
     ).rejects.toThrow("different content");
+  });
+
+  it("saves the model as YAML and generates from exactly that YAML", async () => {
+    const { emlToModelDocument, readModelYaml, renderEmlView, serializeModelDocument } =
+      await import("@appwithai/generator/model-yaml");
+    const id = await project();
+    const drawn =
+      "erDiagram\n  Item ||--o{ ItemLine : has\n  Item {\n    uuid id PK\n    string name\n  }\n" +
+      "  ItemLine {\n    uuid id PK\n    uuid item_id FK\n    int quantity\n  }\n" +
+      "%%entity ItemLine parent: Item\n";
+    await saveProject(id, "owner", { model: drawn });
+    const dir = await projectDirectory(id);
+
+    const yaml = decode((await readFile(dir, MODEL_YAML))!);
+    const expected = serializeModelDocument(emlToModelDocument(drawn).document);
+    expect(yaml).toBe(expected);
+    const read = readModelYaml(yaml);
+    expect(read.ok).toBe(true);
+    expect(read.document?.entities.find((e) => e.name === "ItemLine")?.parent).toBe("Item");
+    // The Mermaid in the history is the view of the saved YAML, not the drawing.
+    expect(decode((await readFile(dir, MODEL))!)).toBe(renderEmlView(read.document!).text);
+
+    const prepared = await prepareGeneration(id, "owner", {});
+    expect(prepared.modelYaml).toBe(yaml);
+    expect(prepared.model).toBe(renderEmlView(read.document!).text);
   });
 
   it("recovers a committed Git snapshot after database finalization fails", async () => {
@@ -250,7 +284,11 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
       .where("project_id", "=", id)
       .executeTakeFirstOrThrow();
     expect(row.name).toBe("Notify");
-    expect(decode((await readFile(await projectDirectory(id), MODEL))!)).toContain("A --> B");
+    // A flowchart with no directives declares nothing the model carries, so it
+    // is not in the model's view; its own source is committed beside it.
+    const diagram = `model/diagrams/${digest(`wf_${id}`).slice(0, 24)}.mmd`;
+    expect(decode((await readFile(await projectDirectory(id), diagram))!)).toContain("A --> B");
+    expect(decode((await readFile(await projectDirectory(id), MODEL_YAML))!)).toContain("Item");
   });
 
   it("publishes generation, preserves local code, marks stale inputs and restores matching input", async () => {
