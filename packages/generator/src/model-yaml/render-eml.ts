@@ -17,10 +17,8 @@
  *   one, where they would read as part of that section's diagram.
  * - Rules come before workflows, and sagas last: a saga's block runs to the next
  *   `%%workflow` line, so anything drawn after it would be read as its nodes.
- * - A saga states its effective trigger and operation on its `%%workflow`
- *   line, where the checker reads them, and again as `%%meta` when they differ
- *   from the default, which is where the saga compiler reads them. EML keeps
- *   the two apart; the view says both so neither reader is guessing.
+ * - A saga states its trigger and operation on its `%%workflow` line, the
+ *   language's own spelling, so no reader has to fall back on a default.
  * - A state machine's lines are interleaved so its states first appear in the
  *   order the document lists them — which is the order EML compiles states in.
  */
@@ -367,14 +365,9 @@ export function renderEmlView(document: ModelDocument): RenderedView {
       saga.title ?? saga.name,
       "workflow",
       `%%workflow ${saga.name} entity: ${saga.entity} kind: saga trigger: ${
-        saga.trigger ?? "rule"
-      } operation: ${saga.operation ?? "ALL"}`
+        saga.trigger ?? "automatic"
+      } operation: ${saga.operation ?? "CREATE"}`
     );
-    if (saga.operation !== undefined) {
-      view.add(`%%meta operation: ${saga.operation}`, [...path, "operation"]);
-    }
-    if (saga.trigger !== undefined)
-      view.add(`%%meta trigger: ${saga.trigger}`, [...path, "trigger"]);
     if (saga.description !== undefined) {
       view.add(`%%meta description: ${saga.description}`, [...path, "description"]);
     }

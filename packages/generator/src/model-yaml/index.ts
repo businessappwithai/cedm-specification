@@ -14,7 +14,6 @@
  */
 
 import { Document, isScalar, visit } from "yaml";
-import { extractWorkflowSections } from "../eml";
 import { type CompileOptions, compileModelRecords, type ParsedModel } from "../model/compile";
 import { readEmlModel, type UncarriedLine, uncarriedDirectiveLines } from "../model/read-eml";
 import { type ConversionIssue, documentToRecords, recordsToDocument } from "./convert";
@@ -137,51 +136,44 @@ export function emlToModelDocument(source: string): EmlConversion {
   for (const message of warnings) {
     issues.push({ construct: "directive", message, kind: "dropped" });
   }
-  issues.push(...sagaDirectiveIssues(source, document));
+  issues.push(...sagaDirectiveIssues(source));
   return { document, issues, uncarried: uncarriedDirectiveLines(source) };
 }
 
 /**
- * Sagas whose `%%workflow` line says one thing and whose compiled form another.
+ * Sagas that state a trigger or operation twice, differently.
  *
- * EML documents a saga's trigger and operation on its `%%workflow` line, and
- * that is where the checker and the composer read them — but the saga compiler
- * reads only `%%meta trigger:` / `%%meta operation:`. A saga declared
- * `trigger: automatic operation: UPDATE` on its directive alone therefore
- * compiles as rule-triggered on every write, and runs only if some rule names
- * it. The converted document states what compiles, because that is the
- * application the EML generates; this says where that differs from what the
- * author wrote, so the difference is a decision rather than an accident.
+ * The language puts both on the `%%workflow` line; older models wrote them as
+ * `%%meta` lines in the section. Both are read and the directive wins, so a
+ * model saying `trigger: automatic` on one and `%%meta trigger: rule` on the
+ * other runs automatically — which is worth saying, because one of the two
+ * lines is not what the author believes.
  */
-function sagaDirectiveIssues(source: string, document: ModelDocument): ConversionIssue[] {
+function sagaDirectiveIssues(source: string): ConversionIssue[] {
   const issues: ConversionIssue[] = [];
-  const sagas = new Map((document.sagas ?? []).map((saga) => [saga.name, saga]));
+  const lines = source.split(/\r?\n/);
+  lines.forEach((raw, index) => {
+    const header = raw.trim().match(/^%%workflow\s+(\S+)\s+(.*)$/);
+    if (!header || !/\bkind:\s*saga\b/i.test(header[2] ?? "")) return;
+    const name = header[1]!;
+    const onLine = (key: string) => header[2]?.match(new RegExp(`\\b${key}:\\s*(\\S+)`))?.[1];
 
-  for (const section of extractWorkflowSections(source)) {
-    if (section.kind !== "saga") continue;
-    const saga = sagas.get(section.name);
-    if (!saga) continue;
-
-    const compiledTrigger = saga.trigger ?? "rule";
-    const compiledOperation = saga.operation ?? "ALL";
-    const differences: string[] = [];
-    if (section.trigger && section.trigger !== compiledTrigger) {
-      differences.push(`trigger: ${section.trigger} (compiles as ${compiledTrigger})`);
+    for (let next = index + 1; next < lines.length; next++) {
+      const line = lines[next]!.trim();
+      if (/^%%workflow\s/.test(line)) break;
+      const meta = line.match(/^%%meta\s+(trigger|operation)\s*:\s*(\S+)/);
+      if (!meta) continue;
+      const declared = onLine(meta[1]!);
+      if (declared !== undefined && declared.toLowerCase() !== meta[2]!.toLowerCase()) {
+        issues.push({
+          construct: `%%workflow ${name}`,
+          message:
+            `declares ${meta[1]}: ${declared} on its %%workflow line and ${meta[2]} in a %%meta ` +
+            "line. The %%workflow line wins; the document states that value.",
+          kind: "resolved",
+        });
+      }
     }
-    if (section.operation && section.operation !== compiledOperation) {
-      differences.push(`operation: ${section.operation} (compiles as ${compiledOperation})`);
-    }
-    if (!differences.length) continue;
-
-    issues.push({
-      construct: `%%workflow ${section.name}`,
-      message:
-        `the %%workflow line declares ${differences.join(" and ")}. The saga compiler reads ` +
-        "only %%meta trigger:/operation:, so EML generates the compiled values and the document " +
-        "states those. Set them in the YAML to get what the directive says.",
-      kind: "resolved",
-    });
-  }
-
+  });
   return issues;
 }

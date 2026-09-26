@@ -484,11 +484,11 @@
         "title": { "$ref": "#/$defs/line" },
         "entity": { "$ref": "#/$defs/identifier" },
         "operation": {
-          "description": "Which write runs the saga. Defaults to ALL.",
+          "description": "Which write runs the saga. Defaults to CREATE. EML accepts aliases (INSERT, EDIT, REMOVE, *) and reads them as these four.",
           "enum": ["CREATE", "UPDATE", "DELETE", "ALL"]
         },
         "trigger": {
-          "description": "`rule` runs it only when a rule's trigger-workflow action names it (the default); `automatic` runs it on every matching write.",
+          "description": "`automatic` (the default) runs it on every matching write; `rule` runs it only when a rule's trigger-workflow action names it.",
           "enum": ["rule", "automatic"]
         },
         "description": { "$ref": "#/$defs/line" },

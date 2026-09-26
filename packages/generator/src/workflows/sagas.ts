@@ -83,9 +83,9 @@ export interface SagaWorkflow {
   name: string;
   /** ERD entity the workflow is bound to. */
   entity: string;
-  /** `ALL` unless a `%%meta operation:` narrows it. */
+  /** The write that runs it: `CREATE` (the default), `UPDATE`, `DELETE` or `ALL`. */
   operation: string;
-  /** What starts the run — `rule` by default. */
+  /** What starts the run: `automatic` (the default) or `rule`. */
   trigger: string;
   description?: string;
   steps: SagaStep[];
@@ -172,6 +172,8 @@ function parseEdgeOrder(lines: string[]): string[] {
 interface SagaBlock {
   name: string;
   entity: string;
+  /** Attributes on the `%%workflow` line: `entity`, `kind`, `trigger`, `operation`. */
+  attrs: Record<string, string>;
   meta: Record<string, string>;
   labels: Map<string, string>;
   /** Node ids in the order the flowchart's edges first reach them. */
@@ -223,6 +225,7 @@ function sagaBlocks(source: string): SagaBlock[] {
     blocks.push({
       name: header[1]!,
       entity: attrs["entity"] ?? "",
+      attrs,
       meta,
       labels,
       order: parseEdgeOrder(block),
@@ -231,6 +234,57 @@ function sagaBlocks(source: string): SagaBlock[] {
   }
 
   return blocks;
+}
+
+/**
+ * A saga's trigger or operation as the model states it.
+ *
+ * The language puts both on the `%%workflow` line
+ * (`kind: saga trigger: automatic operation: UPDATE`), which is where the
+ * checker and the composer read them. Older models wrote them as `%%meta`
+ * lines inside the section, and those are still read — but the directive, the
+ * documented form, wins. The generators used to read only `%%meta`, so a saga
+ * declared the documented way compiled as something its author never wrote.
+ */
+function declaredSetting(block: SagaBlock, key: "trigger" | "operation"): string | undefined {
+  return block.attrs[key] ?? block.meta[key];
+}
+
+const OPERATION_ALIASES: Record<string, string> = {
+  create: "CREATE",
+  insert: "CREATE",
+  add: "CREATE",
+  update: "UPDATE",
+  edit: "UPDATE",
+  write: "UPDATE",
+  modify: "UPDATE",
+  delete: "DELETE",
+  remove: "DELETE",
+  destroy: "DELETE",
+  all: "ALL",
+  any: "ALL",
+  "*": "ALL",
+};
+
+/**
+ * The write a saga runs on, in the vocabulary the runtime matches against
+ * (`CREATE`, `UPDATE`, `DELETE`, `ALL`). An alias — `INSERT`, `edit`, `*` —
+ * is the same operation spelled another way, exactly as `%%rbac` reads it; a
+ * value that is none of them is kept, upper-cased, for the checker to report.
+ * The language's default is `CREATE`.
+ */
+export function sagaOperation(declared: string | undefined): string {
+  if (declared === undefined || declared.trim() === "") return "CREATE";
+  return OPERATION_ALIASES[declared.trim().toLowerCase()] ?? declared.trim().toUpperCase();
+}
+
+/**
+ * What starts a saga: `automatic` (every matching write — the language's
+ * default) or `rule` (only a rule's `trigger-workflow` action).
+ */
+export function sagaTrigger(declared: string | undefined): string {
+  if (declared === undefined || declared.trim() === "") return "automatic";
+  return declared.trim().toLowerCase();
 }
 
 /** "no node in the flowchart" — the one check only a drawn saga can fail. */
@@ -277,11 +331,13 @@ export function readSagaDirectives(source: string): {
       if (diagnostic) diagnostics.push(diagnostic);
     }
 
+    const operation = declaredSetting(block, "operation");
+    const trigger = declaredSetting(block, "trigger");
     declarations.push({
       name: block.name,
       entity: block.entity,
-      ...(block.meta["operation"] !== undefined ? { operation: block.meta["operation"] } : {}),
-      ...(block.meta["trigger"] !== undefined ? { trigger: block.meta["trigger"] } : {}),
+      ...(operation !== undefined ? { operation } : {}),
+      ...(trigger !== undefined ? { trigger } : {}),
       ...(block.meta["description"] !== undefined
         ? { description: block.meta["description"] }
         : {}),
@@ -335,8 +391,8 @@ export function parseSagas(source: string): SagaParseResult {
     workflows.push({
       name,
       entity,
-      operation: (meta["operation"] ?? "ALL").toUpperCase(),
-      trigger: meta["trigger"] ?? "rule",
+      operation: sagaOperation(declaredSetting(block, "operation")),
+      trigger: sagaTrigger(declaredSetting(block, "trigger")),
       description: meta["description"],
       steps,
     });
@@ -398,6 +454,8 @@ function acceptSagaSteps(
  *
  * The same checks `parseSagas` makes, except that steps run in the order they
  * are listed: a YAML saga states its order outright rather than drawing it.
+ * The trigger and operation are normalised by `sagaTrigger` / `sagaOperation`,
+ * so both syntaxes share one vocabulary and one pair of defaults.
  */
 export function compileSagaDeclarations(declarations: SagaDeclaration[]): SagaParseResult {
   const workflows: SagaWorkflow[] = [];
@@ -420,8 +478,8 @@ export function compileSagaDeclarations(declarations: SagaDeclaration[]): SagaPa
     workflows.push({
       name,
       entity,
-      operation: (declaration.operation ?? "ALL").toUpperCase(),
-      trigger: declaration.trigger ?? "rule",
+      operation: sagaOperation(declaration.operation),
+      trigger: sagaTrigger(declaration.trigger),
       description: declaration.description,
       steps,
     });

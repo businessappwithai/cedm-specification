@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   compileModelDocument,
+  emlToModelDocument,
   type ModelDocument,
   ModelYamlError,
   parseModelYaml,
@@ -343,7 +344,7 @@ describe("the canonical text", () => {
     expect(once.startsWith('eml: "1.0"\nname: Orders\n')).toBe(true);
   });
 
-  it("omits what is the default: a title equal to the name, a TD direction, a rule-triggered saga", () => {
+  it("omits what is the default: a title equal to the name, a TD direction, an automatic CREATE saga", () => {
     const document: ModelDocument = {
       eml: "1.0",
       entities: [{ name: "A", attributes: [{ name: "id", type: "uuid", pk: true }] }],
@@ -358,7 +359,7 @@ describe("the canonical text", () => {
           edges: [],
         },
       ],
-      sagas: [{ name: "run", entity: "A", trigger: "rule", operation: "ALL", steps: [] }],
+      sagas: [{ name: "run", entity: "A", trigger: "automatic", operation: "CREATE", steps: [] }],
     };
     const text = serializeModelDocument(document);
     expect(text).not.toMatch(/title:|direction:|trigger:|operation:/);
@@ -403,5 +404,50 @@ describe("the Mermaid view", () => {
     expect(view.lineMap[entityLine]).toEqual(["entities", 1]);
     const hookLine = lines.findIndex((line) => line.startsWith("%%hook "));
     expect(view.lineMap[hookLine]).toEqual(["hooks", 0]);
+  });
+});
+
+describe("a saga's trigger and operation", () => {
+  const eml = (header: string, meta = "") => `erDiagram
+  Deal {
+    uuid id PK
+    string status
+  }
+%%workflow Handoff entity: Deal kind: saga${header}
+${meta}flowchart TD
+    A[Mark] --> B[Done]
+%%step A UpdateEntity field: status value: handed_off
+`;
+  const saga = (source: string) => {
+    const { document } = emlToModelDocument(source);
+    return compileModelDocument(document).sagas[0]!;
+  };
+
+  it("is read from the %%workflow line, where the language documents it", () => {
+    expect(saga(eml(" trigger: rule operation: update"))).toMatchObject({
+      trigger: "rule",
+      operation: "UPDATE",
+    });
+  });
+
+  it("falls back to %%meta lines, which older models used, and the directive wins over them", () => {
+    expect(saga(eml("", "%%meta trigger: rule\n%%meta operation: DELETE\n"))).toMatchObject({
+      trigger: "rule",
+      operation: "DELETE",
+    });
+    const conflicting = eml(" trigger: automatic", "%%meta trigger: rule\n");
+    expect(saga(conflicting).trigger).toBe("automatic");
+    expect(emlToModelDocument(conflicting).issues).toContainEqual(
+      expect.objectContaining({ construct: "%%workflow Handoff", kind: "resolved" })
+    );
+  });
+
+  it("defaults to what the language documents: automatic, on CREATE", () => {
+    expect(saga(eml(""))).toMatchObject({ trigger: "automatic", operation: "CREATE" });
+  });
+
+  it("reads an operation alias as the operation the runtime matches", () => {
+    expect(saga(eml(" operation: INSERT")).operation).toBe("CREATE");
+    expect(saga(eml(" operation: *")).operation).toBe("ALL");
   });
 });

@@ -15,12 +15,10 @@ const ROOT = path.resolve(__dirname, "../../../../..");
 
 const PAIRS: Array<[string, string]> = [
   ["examples/drug-discovery.eml.mmd", "examples/drug-discovery.eml.yaml"],
-  ...["crm", "dance-studio", "ecommerce", "helpdesk", "minimal"].map(
-    (name): [string, string] => [
-      `language/examples/${name}.eml.mmd`,
-      `language/yaml/examples/${name}.eml.yaml`,
-    ]
-  ),
+  ...["crm", "dance-studio", "ecommerce", "helpdesk", "minimal"].map((name): [string, string] => [
+    `language/examples/${name}.eml.mmd`,
+    `language/yaml/examples/${name}.eml.yaml`,
+  ]),
 ];
 
 describe.each(PAIRS)("%s ↔ %s", (eml, yaml) => {

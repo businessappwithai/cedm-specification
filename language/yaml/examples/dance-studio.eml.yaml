@@ -661,6 +661,7 @@ sagas:
   - name: WaitlistPromotion
     title: Waitlist Promotion
     entity: WaitlistEntry
+    trigger: rule
     steps:
       - id: B
         type: UpdateEntity

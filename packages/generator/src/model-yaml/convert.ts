@@ -41,6 +41,7 @@ import {
   type SagaDocument,
   type StateMachineDocument,
 } from "./document";
+import { sagaOperation, sagaTrigger } from "../workflows/sagas";
 
 /* -------------------------------------------------------------------------- */
 /*  Document → records                                                         */
@@ -320,13 +321,14 @@ function stateMachineDocumentOf(machine: StateMachineDeclaration): StateMachineD
 }
 
 function sagaDocumentOf(saga: SagaDeclaration): SagaDocument {
-  const operation = saga.operation?.toUpperCase();
+  const operation = sagaOperation(saga.operation);
+  const trigger = sagaTrigger(saga.trigger);
   return {
     name: saga.name,
     ...(saga.title !== undefined && saga.title !== saga.name ? { title: saga.title } : {}),
     entity: saga.entity,
-    ...(operation !== undefined && operation !== "ALL" ? { operation } : {}),
-    ...(saga.trigger !== undefined && saga.trigger !== "rule" ? { trigger: saga.trigger } : {}),
+    ...(operation !== "CREATE" ? { operation } : {}),
+    ...(trigger !== "automatic" ? { trigger } : {}),
     ...(saga.description !== undefined ? { description: saga.description } : {}),
     steps: saga.steps.map((step) => ({
       id: step.id,

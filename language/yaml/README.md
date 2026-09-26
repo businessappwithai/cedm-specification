@@ -230,12 +230,16 @@ caller: a move the machine does not draw is refused. A `trigger` is what an
 
 ### `sagas`
 
-**`name`**, `title`, **`entity`**, `operation` (`CREATE` `UPDATE` `DELETE`
-`ALL`, default `ALL`), `trigger` (`rule` — the default — runs it only when a
-rule's `trigger-workflow` action names it; `automatic` runs it on every
-matching write), `description`, **`steps`**, in execution order. A step is
+**`name`**, `title`, **`entity`**, `operation` (`CREATE` — the default —
+`UPDATE`, `DELETE`, `ALL`), `trigger` (`automatic` — the default — runs it on
+every matching write; `rule` runs it only when a rule's `trigger-workflow`
+action names it), `description`, **`steps`**, in execution order. A step is
 `{ id, type, label?, properties? }`, with `type` a step node from the language
 definition (`Formula`, `Decision`, `CreateEntity`, `UpdateEntity`, …).
+The generated Loco backend currently starts a saga only through a rule's
+`trigger-workflow` action or `/api/workflow/{id}/execute`; `trigger: automatic`
+is recorded on the definition (`sys_workflow_definitions.trigger_type`) and not
+yet acted on by that backend.
 A `%%workflow … kind: saga` section with `%%step` directives.
 
 ### `hookDiagrams`
@@ -277,8 +281,8 @@ The codes and messages are the checker's own, so they read in EML's terms
 
 `serializeModelDocument` writes one canonical text for a model: keys in the
 order above, lists of plain values on one line, nothing stated twice (a title
-equal to the name, a `TD` direction, a saga's default trigger and operation,
-`when`-less actions and `false` flags are all omitted). Saving a model twice
+equal to the name, a `TD` direction, a saga's default trigger (`automatic`)
+and operation (`CREATE`), and `false` flags are all omitted). Saving a model twice
 gives the same bytes, so a Git diff between two saves is exactly the change.
 
 ## Tools
@@ -317,12 +321,7 @@ Everything that compiles is carried. `convert` reports the rest:
 - **Declarations that name nothing** — a `%%field` help line for a column the
   entity does not declare — and **repeats**, resolved the way the compiler
   resolves them (the first `%%enum` of a name, the last `help:`).
-- **Sagas whose `%%workflow` line says something the compiler ignores.** EML
-  documents `trigger:` and `operation:` on the `%%workflow` line, and the
-  checker and composer read them there, but the saga compiler reads only
-  `%%meta trigger:` / `%%meta operation:`. A saga declared
-  `trigger: automatic operation: UPDATE` on its directive alone compiles as
-  rule-triggered on every write and runs only if a rule names it — crm's
-  `ClosedWonHandoff` and `RenewalPlaybook` are two. The YAML states what
-  compiles, because that is the application the EML generates; `convert`
-  names each such saga so the author can decide.
+- **Sagas that state a trigger or operation twice, differently.** EML
+  documents both on the `%%workflow` line; older models wrote `%%meta
+  trigger:` / `%%meta operation:` inside the section. Both are read, the
+  `%%workflow` line wins, and a disagreement between the two is reported.

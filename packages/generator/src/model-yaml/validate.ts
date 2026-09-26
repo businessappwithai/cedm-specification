@@ -233,7 +233,6 @@ export function readModelYaml(
     if (options.check !== false) {
       for (const issue of checkView(view.text)) {
         const path = issue.line ? (view.lineMap[issue.line - 1] ?? []) : [];
-        if (issue.code === "EML005" && isSagaMetaLine(path)) continue;
         diagnostics.push({
           severity: issue.severity,
           code: issue.code,
@@ -271,15 +270,6 @@ export function readModelYaml(
     diagnostics,
     ok: !diagnostics.some((diagnostic) => diagnostic.severity === "error"),
   };
-}
-
-/**
- * A saga's `%%meta trigger:` / `%%meta operation:` line in the view. The saga
- * compiler reads those keys and the checker does not know them (EML005), so a
- * warning about one is about how EML spells a saga, not about the model.
- */
-function isSagaMetaLine(path: DocumentPath): boolean {
-  return path[0] === "sagas" && (path[2] === "trigger" || path[2] === "operation");
 }
 
 /**

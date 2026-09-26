@@ -2697,6 +2697,7 @@ sagas:
   - name: LeadConversion
     title: Lead Conversion
     entity: Lead
+    trigger: rule
     steps:
       - id: B
         type: Decision
@@ -2741,6 +2742,7 @@ sagas:
   - name: QuoteApprovalEscalation
     title: Quote Approval Escalation
     entity: Quote
+    trigger: rule
     steps:
       - id: B
         type: Decision
@@ -2779,6 +2781,7 @@ sagas:
   - name: CriticalCaseEscalation
     title: Critical Case Escalation
     entity: SupportCase
+    trigger: rule
     steps:
       - id: B
         type: Decision
@@ -2824,6 +2827,7 @@ sagas:
   - name: ClosedWonHandoff
     title: Closed Won Handoff
     entity: Opportunity
+    operation: UPDATE
     steps:
       - id: B
         type: Decision
@@ -2869,6 +2873,7 @@ sagas:
   - name: RenewalPlaybook
     title: Renewal Playbook
     entity: Contract
+    operation: UPDATE
     steps:
       - id: B
         type: Decision

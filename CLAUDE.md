@@ -1140,12 +1140,15 @@ bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-
   from `ParsedModel`; `generateApplication` takes a YAML `document` or EML
   `sources`. A generated project ships `model/model.eml.yaml` and
   `model/model.eml.mmd`.
-- **Known EML defect, deliberately not fixed yet:** a saga's `trigger:` /
-  `operation:` on its `%%workflow` line is ignored by both generators, which
-  read only `%%meta trigger:` / `%%meta operation:`. crm's `ClosedWonHandoff`
-  and `RenewalPlaybook` therefore compile as rule-triggered and never run.
-  YAML follows the compiler; `convert` reports each affected saga. The fix
-  changes both generators' output and is Phase 6.
+- **A saga's trigger and operation are read from its `%%workflow` line**, the
+  documented form, with `%%meta trigger:` / `%%meta operation:` as the
+  fallback older models use; defaults are `automatic` / `CREATE`, and
+  operation aliases (`INSERT`, `edit`, `*`) normalise as `%%rbac`'s do
+  (`sagaOperation` / `sagaTrigger`, `saga_operation` / `saga_trigger`). Both
+  generators used to read only `%%meta`, so crm's `ClosedWonHandoff` compiled
+  as rule-triggered on every write. The seed now writes `trigger_type`.
+  **The Loco backend does not yet run `automatic` sagas**: a workflow starts
+  only from a rule's `trigger-workflow` action or `/api/workflow/{id}/execute`.
 
 ## EML — AppWithAI Modeling Language (`language/`)
 

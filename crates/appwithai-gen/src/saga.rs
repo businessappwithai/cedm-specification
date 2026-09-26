@@ -33,9 +33,9 @@ pub struct SagaWorkflow {
     /// ERD entity the workflow is bound to. Rewritten to the physical table
     /// name before the seed is built.
     pub entity: String,
-    /// `ALL` unless a `%%meta operation:` narrows it.
+    /// The write that runs it: `CREATE` (the default), `UPDATE`, `DELETE` or `ALL`.
     pub operation: String,
-    /// What starts the run — `rule` by default.
+    /// What starts the run: `automatic` (the default) or `rule`.
     pub trigger: String,
     pub description: Option<String>,
     pub steps: Vec<SagaStep>,
@@ -403,6 +403,8 @@ fn leading_identifier(part: &str) -> Option<String> {
 struct SagaBlock {
     name: String,
     entity: String,
+    /// Attributes on the `%%workflow` line: `entity`, `kind`, `trigger`, `operation`.
+    attrs: Vec<(String, String)>,
     meta: BTreeMap<String, String>,
     labels: HashMap<String, String>,
     /// Node ids in the order the flowchart's edges first reach them.
@@ -478,6 +480,7 @@ fn saga_blocks(source: &str) -> Vec<SagaBlock> {
         blocks.push(SagaBlock {
             name,
             entity,
+            attrs: attributes,
             meta,
             order: parse_edge_order(block),
             labels,
@@ -486,6 +489,41 @@ fn saga_blocks(source: &str) -> Vec<SagaBlock> {
     }
 
     blocks
+}
+
+/// A saga's trigger or operation as the model states it: the `%%workflow`
+/// line — the language's documented form — and failing that a `%%meta` line
+/// inside the section, which older models used.
+fn declared_setting(block: &SagaBlock, key: &str) -> Option<String> {
+    block
+        .attrs
+        .iter()
+        .find(|(name, _)| name == key)
+        .map(|(_, value)| value.clone())
+        .or_else(|| block.meta.get(key).cloned())
+}
+
+/// The write a saga runs on, in the runtime's vocabulary. Aliases are read as
+/// `%%rbac` reads them; anything else is kept, upper-cased. Default `CREATE`.
+pub fn saga_operation(declared: Option<&str>) -> String {
+    let Some(value) = declared.map(str::trim).filter(|value| !value.is_empty()) else {
+        return "CREATE".to_string();
+    };
+    match value.to_ascii_lowercase().as_str() {
+        "create" | "insert" | "add" => "CREATE".to_string(),
+        "update" | "edit" | "write" | "modify" => "UPDATE".to_string(),
+        "delete" | "remove" | "destroy" => "DELETE".to_string(),
+        "all" | "any" | "*" => "ALL".to_string(),
+        _ => value.to_uppercase(),
+    }
+}
+
+/// What starts a saga: `automatic` (the default) or `rule`.
+pub fn saga_trigger(declared: Option<&str>) -> String {
+    match declared.map(str::trim).filter(|value| !value.is_empty()) {
+        Some(value) => value.to_lowercase(),
+        None => "automatic".to_string(),
+    }
 }
 
 /// "no node in the flowchart" — the one check only a drawn saga can fail.
@@ -609,16 +647,8 @@ pub fn parse_sagas(source: &str, lang: &Language) -> SagaParseResult {
         result.workflows.push(SagaWorkflow {
             name,
             entity: block.entity.clone(),
-            operation: block
-                .meta
-                .get("operation")
-                .map(|value| value.to_uppercase())
-                .unwrap_or_else(|| "ALL".to_string()),
-            trigger: block
-                .meta
-                .get("trigger")
-                .cloned()
-                .unwrap_or_else(|| "rule".to_string()),
+            operation: saga_operation(declared_setting(&block, "operation").as_deref()),
+            trigger: saga_trigger(declared_setting(&block, "trigger").as_deref()),
             description: block.meta.get("description").cloned(),
             steps,
         });
@@ -663,8 +693,8 @@ pub fn read_saga_directives(source: &str) -> (Vec<SagaDeclaration>, Vec<SagaDiag
         declarations.push(SagaDeclaration {
             name: block.name.clone(),
             entity: block.entity.clone(),
-            operation: block.meta.get("operation").cloned(),
-            trigger: block.meta.get("trigger").cloned(),
+            operation: declared_setting(&block, "operation"),
+            trigger: declared_setting(&block, "trigger"),
             description: block.meta.get("description").cloned(),
             steps,
         });
@@ -714,15 +744,8 @@ pub fn compile_saga_declarations(
         result.workflows.push(SagaWorkflow {
             name,
             entity: declaration.entity.clone(),
-            operation: declaration
-                .operation
-                .as_deref()
-                .map(str::to_uppercase)
-                .unwrap_or_else(|| "ALL".to_string()),
-            trigger: declaration
-                .trigger
-                .clone()
-                .unwrap_or_else(|| "rule".to_string()),
+            operation: saga_operation(declaration.operation.as_deref()),
+            trigger: saga_trigger(declaration.trigger.as_deref()),
             description: declaration.description.clone(),
             steps,
         });
@@ -1004,12 +1027,13 @@ pub fn build_workflow_seed_sql(sagas: &[SagaWorkflow], project_name: &str) -> St
 
             format!(
                 "INSERT INTO sys_workflow_definitions\n  \
-                 (name, entity_name, operation, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)\n\
+                 (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)\n\
                  VALUES ({name}, {entity}, {operation},\n        \
-                 {bpmn}, {description}, TRUE, TRUE, NOW(), NOW())\n\
+                 {trigger}, {bpmn}, {description}, TRUE, TRUE, NOW(), NOW())\n\
                  ON CONFLICT (name) DO UPDATE SET\n  \
                  entity_name      = EXCLUDED.entity_name,\n  \
                  operation        = EXCLUDED.operation,\n  \
+                 trigger_type     = EXCLUDED.trigger_type,\n  \
                  bpmn_xml         = EXCLUDED.bpmn_xml,\n  \
                  description      = EXCLUDED.description,\n  \
                  is_model_managed = TRUE,\n  \
@@ -1017,6 +1041,7 @@ pub fn build_workflow_seed_sql(sagas: &[SagaWorkflow], project_name: &str) -> St
                 name = sql_string(&workflow.name),
                 entity = sql_string(&workflow.entity),
                 operation = sql_string(&workflow.operation),
+                trigger = sql_string(&workflow.trigger),
                 bpmn = sql_string(&bpmn),
             )
         })
@@ -1256,5 +1281,36 @@ flowchart TD
         assert!(sql.contains("ON CONFLICT (name) DO UPDATE SET"));
         assert!(sql.contains("'DeviationEscalation'"));
         assert!(sql.contains("is_model_managed = TRUE"));
+    }
+
+    fn saga_with(header: &str, meta: &str) -> SagaWorkflow {
+        let source = format!(
+            "%%workflow Handoff entity: Deal kind: saga{header}\n{meta}flowchart TD\n    \
+             A[Mark] --> B[Done]\n%%step A UpdateEntity field: status value: handed_off\n"
+        );
+        parse_sagas(&source, &lang()).workflows.remove(0)
+    }
+
+    #[test]
+    fn trigger_and_operation_are_read_from_the_workflow_line_first() {
+        let saga = saga_with(
+            " trigger: rule operation: update",
+            "%%meta trigger: automatic\n",
+        );
+        assert_eq!(saga.trigger, "rule");
+        assert_eq!(saga.operation, "UPDATE");
+    }
+
+    #[test]
+    fn a_saga_that_says_nothing_runs_automatically_on_create() {
+        let saga = saga_with("", "");
+        assert_eq!(saga.trigger, "automatic");
+        assert_eq!(saga.operation, "CREATE");
+    }
+
+    #[test]
+    fn an_operation_alias_is_the_operation_the_runtime_matches() {
+        assert_eq!(saga_with(" operation: INSERT", "").operation, "CREATE");
+        assert_eq!(saga_with(" operation: *", "").operation, "ALL");
     }
 }
