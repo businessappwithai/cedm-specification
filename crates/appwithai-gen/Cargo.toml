@@ -1,0 +1,31 @@
+[package]
+name = "appwithai-gen"
+version = "5.2.0"
+edition = "2021"
+publish = false
+description = "Generate full-stack Loco.rs applications from EML / Mermaid ERD models"
+
+# `appwithai` is the command every doc names; the crate keeps the longer name so
+# it cannot collide with the generated app's own `<name>-cli` binary.
+[[bin]]
+name = "appwithai"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive", "wrap_help"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# The same Handlebars dialect the TypeScript generator used, so the 198 `.hbs`
+# templates render unchanged rather than being rewritten into Tera.
+handlebars = "6"
+anyhow = "1"
+regex = "1"
+walkdir = "2"
+# Deterministic dictionary ids: the seed is idempotent because every row's
+# primary key is a UUIDv5 over a stable name, not a fresh v4 on each run.
+uuid = { version = "1", features = ["v5", "v4", "serde"] }
+chrono = "0.4"
+which = "7"
+
+[dev-dependencies]
+tempfile = "3"

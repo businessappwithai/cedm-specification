@@ -1,0 +1,546 @@
+/**
+ * Business rules authored in EML.
+ *
+ * A `%%rule` section is a decision flowchart. These compile it to a GoRules JDM
+ * decision graph — the same representation the generated application's rules
+ * engine evaluates and its admin editor edits — so a rule drawn in the design
+ * phase is the rule that runs.
+ *
+ * The flowchart parser and JDM converter live here rather than in the web app
+ * because the generator is what consumes them; the web app re-exports these.
+ */
+
+export * from "./flowchart-parser";
+export * from "./jdm-converter";
+
+import type { EmlRuleSection } from "../eml";
+import { parseMermaidFlowchart } from "./flowchart-parser";
+import { convertToJdm, type JdmGraph } from "./jdm-converter";
+
+/** A rule compiled from EML, ready to seed into `sys_rule_definitions`. */
+export interface CompiledRule {
+  /** Directive name, used as the seeded rule's identity. */
+  name: string;
+  /** Table the rule is bound to, e.g. `bus_sample`. */
+  tableName: string;
+  entity: string;
+  /** Lifecycle event from the directive, e.g. `beforeCreate`. */
+  event: string;
+  /** CRUD operation the rules engine keys on: CREATE / UPDATE / DELETE / ALL. */
+  operation: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  priority: number;
+  /** The JDM decision graph, serialised. */
+  jdmContent: string;
+}
+
+/** Map a lifecycle event onto the operation the rules engine evaluates against. */
+export function eventToOperation(event: string): CompiledRule["operation"] {
+  const normalized = event.toLowerCase();
+  if (normalized.includes("create")) return "CREATE";
+  if (normalized.includes("update")) return "UPDATE";
+  if (normalized.includes("delete")) return "DELETE";
+  return "ALL";
+}
+
+/** `Sample` → `bus_sample`, matching the ERD's table naming. */
+function toTableName(entity: string): string {
+  const snake = entity
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+    .toLowerCase();
+  return snake.startsWith("bus_") || snake.startsWith("sys_") ? snake : `bus_${snake}`;
+}
+
+/**
+ * Compile the `%%rule` sections of a model into seedable JDM.
+ *
+ * A section whose flowchart cannot be parsed is skipped with a warning rather
+ * than failing the build: one malformed rule should not stop an application
+ * from being generated, and the checker already reports the syntax problem.
+ */
+/** A side-effecting action a rule emits, declared by a `%%action` directive. */
+export interface CompiledRuleAction {
+  name: string;
+  type: string;
+  /** Zen expression over the record; `true` fires on every write. */
+  when: string;
+  props: Record<string, string>;
+}
+
+/** `%%action <name> <type> when: <expr> <key>: <value> ...` */
+const ACTION_DIRECTIVE = /^%%action\s+([A-Za-z_][\w-]*)\s+([A-Za-z][\w-]*)\s*(.*)$/;
+
+/** `key:` starts a new property; the value runs to the next one. */
+function parseActionProps(rest: string): Record<string, string> {
+  const props: Record<string, string> = {};
+  const trimmed = rest.trim();
+  if (!trimmed) return props;
+  for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    const at = chunk.indexOf(":");
+    if (at <= 0) continue;
+    const key = chunk.slice(0, at).trim();
+    if (key) props[key] = chunk.slice(at + 1).trim();
+  }
+  return props;
+}
+
+export function parseRuleActions(flowchart: string): CompiledRuleAction[] {
+  const actions: CompiledRuleAction[] = [];
+  for (const rawLine of (flowchart ?? "").split("\n")) {
+    const line = rawLine.trim();
+    if (!line.startsWith("%%action")) continue;
+    const match = line.match(ACTION_DIRECTIVE);
+    if (!match) continue;
+    const [, name, type, rest] = match as unknown as [string, string, string, string];
+    const props = parseActionProps(rest ?? "");
+    const { when, ...others } = props;
+    actions.push({ name, type, when: when?.trim() || "true", props: others });
+  }
+  return actions;
+}
+
+/** Quote a value for a zen decision-table output cell. */
+function zenLiteral(value: string): string {
+  return `'${value.replace(/'/g, "\\'")}'`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Decision tables authored in the editor                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The directive the application's decision-table editor writes.
+ *
+ * The editor emits a placeholder `Start --> End` flowchart and hangs the real
+ * table off this comment so the model still parses as Mermaid. Without the
+ * branch below, `parseMermaidFlowchart` saw only those two nodes and the rule
+ * compiled to an input wired straight to an output — a rule that runs and
+ * decides nothing.
+ */
+const DECISION_TABLE_DIRECTIVE = "%%decision-table ";
+
+interface EditorDecisionTable {
+  hitPolicy?: "first" | "collect";
+  inputs?: Array<{ id: string; name?: string; field?: string }>;
+  outputs?: Array<{ id: string; name?: string; field?: string }>;
+  rules?: Array<Record<string, string>>;
+}
+
+export function parseDecisionTableDirective(flowchart: string): EditorDecisionTable | null {
+  const line = (flowchart ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(DECISION_TABLE_DIRECTIVE));
+  if (!line) return null;
+  try {
+    const parsed = JSON.parse(line.slice(DECISION_TABLE_DIRECTIVE.length)) as EditorDecisionTable;
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/** A cell that zen should read as a value rather than an identifier reference. */
+function isBareLiteral(value: string): boolean {
+  return (
+    value === "true" ||
+    value === "false" ||
+    value === "null" ||
+    (value !== "" && !Number.isNaN(Number(value)))
+  );
+}
+
+function isQuoted(value: string): boolean {
+  return (
+    value.length >= 2 &&
+    (value.startsWith("'") || value.startsWith('"')) &&
+    value.endsWith(value[0] as string)
+  );
+}
+
+/**
+ * The editor stores what the user typed; zen evaluates expressions.
+ *
+ * An output of `validation-error` is a subtraction of two identifiers to zen,
+ * and an input of `hot` is a reference to an undefined variable. Both have to
+ * be quoted. Numbers, booleans and already-quoted cells are left alone.
+ */
+function zenCell(raw: string | undefined): string {
+  const value = (raw ?? "").trim();
+  if (value === "") return "";
+  if (isQuoted(value) || isBareLiteral(value)) return value;
+  return zenLiteral(value);
+}
+
+/**
+ * Input cells may carry a leading comparison, matching the editor's own
+ * evaluator. `>= 70` stays a unary comparison; a bare `hot` becomes `'hot'`;
+ * an explicit `= hot` drops the operator, because zen reads a bare value as
+ * equality and `= 'hot'` is not valid unary syntax.
+ */
+function zenInputCell(raw: string | undefined): string {
+  const value = (raw ?? "").trim();
+  if (value === "") return "";
+  const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
+  if (!match) return zenCell(value);
+  const [, operator, operand] = match as unknown as [string, string, string];
+  const cell = zenCell(operand);
+  if (!cell) return "";
+  return operator === "=" ? cell : `${operator} ${cell}`;
+}
+
+/**
+ * Compile the editor's table into the one JDM shape the rules engine reads.
+ *
+ * Every declared column is written into every row: zen-engine yields no result
+ * at all for a row with a missing cell, so an omitted column would silently
+ * disable the whole rule.
+ */
+export function buildEditorDecisionTable(ruleName: string, table: EditorDecisionTable): JdmGraph {
+  const inputs = (table.inputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
+  const outputs = (table.outputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
+
+  const rows = (table.rules ?? []).map((row, index) => {
+    const compiled: Record<string, string> = { _id: row._id || `${ruleName}-${index + 1}` };
+    for (const column of inputs) compiled[column.id] = zenInputCell(row[column.id]);
+    for (const column of outputs) compiled[column.id] = zenCell(row[column.id]);
+    return compiled;
+  });
+
+  const tableId = `${ruleName}-table`;
+  return {
+    nodes: [
+      { id: "input", name: "Input", type: "inputNode" },
+      {
+        id: tableId,
+        name: ruleName,
+        type: "decisionTableNode",
+        content: {
+          hitPolicy: table.hitPolicy === "collect" ? ("collect" as const) : ("first" as const),
+          inputs: inputs.map((column) => ({
+            id: column.id,
+            name: column.name ?? column.id,
+            field: column.field ?? "",
+          })),
+          outputs: outputs.map((column) => ({
+            id: column.id,
+            name: column.name ?? column.id,
+            field: column.field ?? "",
+          })),
+          rules: rows,
+        },
+      },
+      { id: "output", name: "Output", type: "outputNode" },
+    ],
+    edges: [
+      { id: "edge-1", sourceId: "input", targetId: tableId },
+      { id: "edge-2", sourceId: tableId, targetId: "output" },
+    ],
+  };
+}
+
+/**
+ * EML's action names, in the vocabulary the generated runtime reads.
+ *
+ * The two are not the same list and never were. EML spells a refusal
+ * `validation-error`; the Loco backend's `promotion.rs` looks for `prevent`,
+ * and everything else — `trigger-workflow`, `cascade-update`, `create-record`
+ * — it already spells the runtime's way. So a compiled `validation-error` row
+ * matched, was handed to `run_action`, fell through to the `other` arm, and was
+ * logged as an unknown action: a rule written to refuse a write let every write
+ * through, and said so only in a `tracing::warn!` nobody reads.
+ *
+ * `prevent` is checked before any side effect runs, so the translation is what
+ * makes a `%%action ... validation-error` a refusal rather than a comment.
+ */
+const RUNTIME_ACTION: Record<string, string> = {
+  "validation-error": "prevent",
+};
+
+/**
+ * A transform's target, as the runtime wants it.
+ *
+ * EML writes `field:` and `value:` as two separate properties; the runtime
+ * reads one `transformData` object of column → value, which is the shape
+ * `JdmViolation` already deserialises and `to_action_config` already forwards.
+ * Emitting neither left every transform with an empty config, so the action
+ * arrived with nothing to write.
+ */
+function transformDataCell(action: CompiledRuleAction): string {
+  const field = (action.props.field ?? "").trim();
+  if (action.type !== "transform" || !field) return zenLiteral("");
+  return zenLiteral(JSON.stringify({ [field]: action.props.value ?? "" }));
+}
+
+/**
+ * A GoRules decision table, one row per `%%action`.
+ *
+ * The node-graph form a rules flowchart compiles to carries no outputs, so the
+ * rules engine finds no actions in it and a model-declared rule can decide but
+ * never act. A decision table is the shape the engine reads `action`,
+ * `message`, `ruleId` and `workflowName` from, so a section that declares
+ * actions is compiled as one.
+ *
+ * `hitPolicy: "collect"` because several rows may match one write — a rule that
+ * escalates *and* stamps a field is ordinary.
+ */
+export function buildActionDecisionTable(
+  ruleName: string,
+  actions: CompiledRuleAction[]
+): JdmGraph {
+  // Every declared output column has to appear in every row, blank when the
+  // action does not use it. zen-engine yields *no result at all* for a row with
+  // a missing cell — not a row with an empty field — so an omitted column made
+  // the whole rule silently evaluate to nothing.
+  // The output columns are the fields `JdmViolation` deserialises, in the
+  // generated backend's `services/rules_engine.rs` — `cascade-update` and
+  // `create-record` need structured payloads and there was no column to carry
+  // them, so both could be declared and would arrive empty.
+  //
+  // The `action` cell is written in the *runtime's* vocabulary rather than
+  // EML's; see RUNTIME_ACTION.
+  const cells = [
+    (action: CompiledRuleAction) => zenLiteral(RUNTIME_ACTION[action.type] ?? action.type),
+    (action: CompiledRuleAction) =>
+      zenLiteral(action.props.message ?? `${ruleName}: ${action.name}`),
+    () => zenLiteral(ruleName),
+    (action: CompiledRuleAction) => zenLiteral(action.props.workflow ?? ""),
+    (action: CompiledRuleAction) => zenLiteral(action.props.targetEntity ?? ""),
+    (action: CompiledRuleAction) => zenLiteral(action.props.linkField ?? ""),
+    // JSON objects, written as a string. `as_object()` in the engine tolerates
+    // either, and a string is what fits in a decision-table cell.
+    (action: CompiledRuleAction) => zenLiteral(action.props.updateData ?? ""),
+    (action: CompiledRuleAction) => zenLiteral(action.props.createData ?? ""),
+    transformDataCell,
+  ];
+
+  const rows = actions.map((action) => {
+    const row: Record<string, string> = {
+      _id: `${ruleName}-${action.name}`,
+      i1: action.when,
+    };
+    cells.forEach((cell, index) => {
+      row[`o${index + 1}`] = cell(action);
+    });
+    return row;
+  });
+
+  return {
+    nodes: [
+      { id: "input", name: "Input", type: "inputNode" },
+      {
+        id: `${ruleName}-table`,
+        name: ruleName,
+        type: "decisionTableNode",
+        content: {
+          hitPolicy: "collect" as const,
+          inputs: [{ id: "i1", name: "Record", field: "" }],
+          outputs: [
+            { id: "o1", name: "Action", field: "action" },
+            { id: "o2", name: "Message", field: "message" },
+            { id: "o3", name: "Rule ID", field: "ruleId" },
+            { id: "o4", name: "Workflow Name", field: "workflowName" },
+            { id: "o5", name: "Target Entity", field: "targetEntity" },
+            { id: "o6", name: "Link Field", field: "linkField" },
+            { id: "o7", name: "Update Data", field: "updateData" },
+            { id: "o8", name: "Create Data", field: "createData" },
+            { id: "o9", name: "Transform Data", field: "transformData" },
+          ],
+          rules: rows,
+        },
+      },
+      { id: "output", name: "Output", type: "outputNode" },
+    ],
+    edges: [
+      { id: "edge-1", sourceId: "input", targetId: `${ruleName}-table` },
+      { id: "edge-2", sourceId: `${ruleName}-table`, targetId: "output" },
+    ],
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Reading an edited table back into %%action                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The reverse of `RUNTIME_ACTION`: what the table editor shows, in EML's words.
+ *
+ * A table compiled from `%%action` carries the runtime's `prevent`; the model
+ * it came from says `validation-error`. Writing the round trip back is how the
+ * enhance page can edit a rule's actions without changing its meaning.
+ */
+const EML_ACTION: Record<string, string> = {
+  prevent: "validation-error",
+};
+
+/** Cells the editor shows are zen literals: `'prevent'`. Read the text back. */
+function unquoteCell(value: string | undefined): string {
+  const text = (value ?? "").trim();
+  if (
+    text.length >= 2 &&
+    (text.startsWith("'") || text.startsWith('"')) &&
+    text.endsWith(text[0] as string)
+  ) {
+    return text.slice(1, -1).replace(/\\'/g, "'");
+  }
+  return text;
+}
+
+/** The cell a row carries for the output column with this field. */
+function outputCell(
+  table: EditorDecisionTable,
+  row: Record<string, string>,
+  field: string
+): string {
+  const column = (table.outputs ?? []).find(
+    (candidate) => (candidate.field ?? "").trim() === field
+  );
+  return column ? unquoteCell(row[column.id]) : "";
+}
+
+/** `%%action` names are identifiers; the row's `_id` is the name to keep stable. */
+function actionNameFromId(ruleName: string, id: string | undefined, index: number): string {
+  const raw = (id ?? "").trim();
+  // `buildActionDecisionTable` prefixes every row id with the rule name.
+  const prefix = `${ruleName}-`;
+  const withoutRule = raw.startsWith(prefix) ? raw.slice(prefix.length) : raw;
+  const cleaned = withoutRule.replace(/[^A-Za-z0-9_-]/g, "_");
+  return /^[A-Za-z_]/.test(cleaned) && cleaned ? cleaned : `action${index + 1}`;
+}
+
+/**
+ * The inverse of `buildActionDecisionTable`.
+ *
+ * The enhance page shows a model's `%%action` directives as the decision table
+ * the generated application's rule editor uses. An edit made there has to land
+ * back in the model as the directives the checker and compiler already read, so
+ * each row is walked back to one `%%action` line: the input columns join into
+ * `when:`, and the output cells become the action's properties.
+ *
+ * The runtime vocabulary is translated back to EML's — `prevent` is written
+ * `validation-error` — so the round trip is the identity on an unedited model.
+ */
+export function serializeRuleActions(ruleName: string, table: EditorDecisionTable): string[] {
+  return (table.rules ?? [])
+    .map((row, index) => {
+      const runtimeType = outputCell(table, row, "action");
+      const type = EML_ACTION[runtimeType] ?? runtimeType;
+      if (!type) return null;
+
+      const whens = (table.inputs ?? [])
+        .map((column) => unquoteCell(row[column.id]))
+        .filter(Boolean);
+      const when = whens.length ? whens.join(" and ") : "true";
+
+      const name = actionNameFromId(ruleName, row._id, index);
+      // `buildActionDecisionTable` invents a message for every row that has
+      // none (`<rule>: <action>`). It is not part of the model, so reading it
+      // back would add a property the author never wrote.
+      const messageCell = outputCell(table, row, "message");
+      const message = messageCell === `${ruleName}: ${name}` ? "" : messageCell;
+      const workflow = outputCell(table, row, "workflowName");
+      const field = outputCell(table, row, "field");
+      const value = outputCell(table, row, "value");
+      const targetEntity = outputCell(table, row, "targetEntity");
+      const linkField = outputCell(table, row, "linkField");
+
+      // Emitted in the order the model's own directives use, so re-saving an
+      // untouched rule is a byte-for-byte no-op rather than a reordering.
+      const props: Array<[string, string]> = [];
+      if (workflow) props.push(["workflow", workflow]);
+      if (message) props.push(["message", message]);
+      if (field) props.push(["field", field]);
+      if (value) props.push(["value", value]);
+      if (targetEntity) props.push(["targetEntity", targetEntity]);
+      if (linkField) props.push(["linkField", linkField]);
+
+      // A compiled transform carries its payload in `transformData`; a table the
+      // author typed may carry only that, so read the target back out of it.
+      if (type === "transform" && !field) {
+        const payload = outputCell(table, row, "transformData");
+        if (payload) {
+          try {
+            const pair = Object.entries(JSON.parse(payload) as Record<string, unknown>)[0];
+            if (pair) props.push(["field", pair[0]], ["value", String(pair[1])]);
+          } catch {
+            // Not JSON; leave the row without a target rather than guess one.
+          }
+        }
+      }
+
+      return [
+        `%%action ${name} ${type} when: ${when}`,
+        ...props.map(([key, val]) => `${key}: ${val}`),
+      ].join(" ");
+    })
+    .filter((line): line is string => line !== null);
+}
+
+/**
+ * Replace a rule body's `%%action` lines, leaving its flowchart untouched.
+ *
+ * The flowchart is the rule's visual; the compiler reads the actions when a
+ * rule declares them. So editing the table must not rewrite the diagram the
+ * author drew.
+ */
+export function replaceRuleActions(body: string, actionLines: string[]): string {
+  const kept = (body ?? "").split("\n").filter((line) => !line.trim().startsWith("%%action"));
+  while (kept.length && !(kept[kept.length - 1] ?? "").trim()) kept.pop();
+  return [...kept, ...actionLines].join("\n");
+}
+
+export function compileRules(
+  sections: EmlRuleSection[],
+  onWarn: (message: string) => void = () => {}
+): CompiledRule[] {
+  const compiled: CompiledRule[] = [];
+
+  for (const section of sections) {
+    if (!section.entity) {
+      onWarn(`Rule "${section.name}" declares no entity; skipping.`);
+      continue;
+    }
+
+    try {
+      // A table authored in the editor carries its own directive and only a
+      // placeholder flowchart, so it has to be read before the AST — compiling
+      // the placeholder yields a rule that decides nothing.
+      const editorTable = parseDecisionTableDirective(section.flowchart);
+
+      const ast = parseMermaidFlowchart(section.flowchart);
+      if (!editorTable && !ast.nodes.size) {
+        onWarn(`Rule "${section.name}" has no nodes; skipping.`);
+        continue;
+      }
+
+      // A section that declares actions compiles to a decision table: that is
+      // the only JDM shape the rules engine reads actions out of.
+      const actions = parseRuleActions(section.flowchart);
+      let jdm: JdmGraph;
+      if (editorTable) {
+        jdm = buildEditorDecisionTable(section.name, editorTable);
+      } else if (actions.length) {
+        jdm = buildActionDecisionTable(section.name, actions);
+      } else {
+        jdm = convertToJdm(ast);
+      }
+      compiled.push({
+        name: section.name,
+        entity: section.entity,
+        tableName: toTableName(section.entity),
+        event: section.event,
+        operation: eventToOperation(section.event),
+        priority: section.priority ?? 100,
+        jdmContent: JSON.stringify(jdm),
+      });
+    } catch (error) {
+      onWarn(
+        `Rule "${section.name}" could not be compiled: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  return compiled;
+}

@@ -1,0 +1,731 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CEDL - CEDM Enterprise Definition Language",
+  "description": "YAML schema for complete enterprise application definitions",
+  "type": "object",
+  "required": ["version", "metadata", "domain"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "CEDL specification version (e.g., 1.0)"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique model identifier (kebab-case)"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "required": ["entities"],
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Category"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Entity"
+          }
+        },
+        "enums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Enum"
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Relationship"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Rule"
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Workflow"
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Permission"
+          }
+        }
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Hook"
+      }
+    },
+    "reports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Report"
+      }
+    },
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "database": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["postgresql"]
+            },
+            "migrations": {
+              "type": "object",
+              "properties": {
+                "auto": {
+                  "type": "boolean",
+                  "default": true
+                }
+              }
+            }
+          }
+        },
+        "api": {
+          "type": "object",
+          "properties": {
+            "documentation": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "tools": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["redoc", "scalar"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "features": {
+          "type": "object",
+          "properties": {
+            "auditLog": {
+              "type": "boolean",
+              "default": true
+            },
+            "encryption": {
+              "type": "boolean",
+              "default": false
+            },
+            "softDelete": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Category": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "Entity": {
+      "type": "object",
+      "required": ["id", "name", "attributes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        },
+        "isAuditEnabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent entity ID for hierarchical relationships"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attributes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          }
+        }
+      }
+    },
+    "Attribute": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "uuid",
+            "string",
+            "integer",
+            "decimal",
+            "boolean",
+            "date",
+            "datetime",
+            "time",
+            "json",
+            "array",
+            "enum",
+            "reference"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "default": false
+        },
+        "isUnique": {
+          "type": "boolean",
+          "default": false
+        },
+        "isIdentifier": {
+          "type": "boolean",
+          "default": false
+        },
+        "isEncrypted": {
+          "type": "boolean",
+          "default": false
+        },
+        "isReadonly": {
+          "type": "boolean",
+          "default": false
+        },
+        "isIndexed": {
+          "type": "boolean",
+          "default": false
+        },
+        "isForeignKey": {
+          "type": "boolean",
+          "default": false
+        },
+        "defaultValue": {},
+        "length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "precision": {
+          "type": "integer"
+        },
+        "scale": {
+          "type": "integer"
+        },
+        "enumRef": {
+          "type": "string"
+        },
+        "referenceEntity": {
+          "type": "string",
+          "description": "Target entity for foreign key references"
+        },
+        "help": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer"
+        }
+      }
+    },
+    "Enum": {
+      "type": "object",
+      "required": ["id", "name", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["value"],
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "order": {
+                "type": "integer"
+              },
+              "isDefault": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "Relationship": {
+      "type": "object",
+      "required": ["source", "target", "cardinality"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source entity ID"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target entity ID"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": ["one-to-one", "one-to-many", "many-to-one", "many-to-many"]
+        },
+        "foreignKey": {
+          "type": "string",
+          "description": "Attribute name on source entity that holds foreign key"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "required": ["id", "name", "trigger", "conditions", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string",
+          "description": "Entity this rule applies to (optional, applies to all if omitted)"
+        },
+        "trigger": {
+          "type": "string",
+          "enum": ["on-create", "on-update", "on-delete", "scheduled", "webhook"]
+        },
+        "conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/Action"
+          }
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "required": ["field", "operator"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Entity.attribute path"
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "not-equals",
+            "less-than",
+            "greater-than",
+            "less-than-equals",
+            "greater-than-equals",
+            "in",
+            "not-in",
+            "contains",
+            "not-contains",
+            "regex",
+            "starts-with",
+            "ends-with",
+            "between"
+          ]
+        },
+        "value": {},
+        "caseSensitive": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Action": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "notify",
+            "transform",
+            "transition",
+            "webhook",
+            "trigger-workflow",
+            "create-record",
+            "email"
+          ]
+        },
+        "target": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "order": {
+          "type": "integer"
+        }
+      }
+    },
+    "Workflow": {
+      "type": "object",
+      "required": ["id", "name", "entity", "startEvent", "states", "transitions"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true
+        },
+        "startEvent": {
+          "type": "string"
+        },
+        "endEvents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "states": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["normal", "initial", "final"]
+              },
+              "help": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "string",
+                "description": "Rule reference for transition guard"
+              },
+              "order": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "isMasterRole": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Permission": {
+      "type": "object",
+      "required": ["role", "operations"],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["read", "create", "update", "delete"]
+          }
+        },
+        "isExclude": {
+          "type": "boolean",
+          "default": false
+        },
+        "conditions": {
+          "type": "object"
+        }
+      }
+    },
+    "Hook": {
+      "type": "object",
+      "required": ["entity", "event", "handler"],
+      "additionalProperties": false,
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string",
+          "enum": [
+            "beforeCreate",
+            "afterCreate",
+            "beforeUpdate",
+            "afterUpdate",
+            "beforeDelete",
+            "afterDelete",
+            "customValidate"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "handler": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["validation", "transform", "business_logic", "integration"]
+        },
+        "async": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Report": {
+      "type": "object",
+      "required": ["id", "name", "entity", "query"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string",
+          "description": "SELECT or WITH statement (max 5000 rows)"
+        },
+        "maxRows": {
+          "type": "integer",
+          "default": 5000,
+          "maximum": 5000
+        },
+        "cacheTTL": {
+          "type": "integer",
+          "description": "Cache time-to-live in seconds"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,587 @@
+{
+  "specVersion": "1.0.0",
+  "description": "The log specification \u2014 the single source of truth for what this repository logs, at what level, on which channel, and with which fields. A call site names an event id; the level, the channel, the message and the required fields come from here, so changing what is logged is a change to this file rather than a sweep through the code. Every channel here is the modelling tool's own. The generated application logs through Loco's `tracing` subscriber and does not read this file: it is a Rust crate, and a JSON catalogue it would have to parse at startup to say the same things `tracing` already says is a translation layer, not a shared contract.",
+  "levels": {
+    "fatal": 60,
+    "error": 50,
+    "warn": 40,
+    "info": 30,
+    "debug": 20,
+    "trace": 10
+  },
+  "environments": {
+    "production": {
+      "level": "info",
+      "pretty": false
+    },
+    "staging": {
+      "level": "info",
+      "pretty": false
+    },
+    "development": {
+      "level": "debug",
+      "pretty": true
+    },
+    "test": {
+      "level": "silent",
+      "pretty": false
+    }
+  },
+  "transport": {
+    "destination": "stdout",
+    "rationale": "The application writes structured JSON to stdout and nothing else \u2014 no files, no rotation, no network. Whatever runs the process (Docker, Kubernetes, systemd, a log shipper) is what collects and ships it. A process that manages its own log files has to be configured twice, fills a disk nobody is watching, and blocks the event loop doing it.",
+    "asyncOnProduction": true
+  },
+  "redact": {
+    "censor": "[redacted]",
+    "paths": [
+      "password",
+      "passwordHash",
+      "password_hash",
+      "currentPassword",
+      "newPassword",
+      "token",
+      "accessToken",
+      "refreshToken",
+      "sessionToken",
+      "apiKey",
+      "api_key",
+      "secret",
+      "clientSecret",
+      "privateKey",
+      "authorization",
+      "cookie",
+      "setCookie",
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "res.headers['set-cookie']",
+      "body.password",
+      "body.token",
+      "*.password",
+      "*.token",
+      "*.secret"
+    ],
+    "rationale": "Redaction is declared once, here, rather than remembered at each call site. A credential reaches stdout exactly once before it is in a log aggregator forever, so the default is to censor by key name anywhere in the object rather than to trust every caller to strip it."
+  },
+  "channels": [
+    {
+      "name": "db",
+      "description": "Database connection lifecycle and schema migrations. Individual successful queries are not events; a failure is.",
+      "level": "info",
+      "surfaces": [
+        "generator"
+      ]
+    },
+    {
+      "name": "pipeline",
+      "description": "The code-generation pipeline: check the model, compile its directives, emit the application.",
+      "level": "info",
+      "surfaces": [
+        "generator"
+      ]
+    },
+    {
+      "name": "auth",
+      "description": "Authentication outcomes for the modelling tool: sign-in, registration, refusal, rate limiting.",
+      "level": "info",
+      "surfaces": [
+        "generator"
+      ]
+    },
+    {
+      "name": "ai",
+      "description": "Calls to the local model. A prompt and a completion are business data and are never logged.",
+      "level": "debug",
+      "surfaces": [
+        "generator"
+      ]
+    },
+    {
+      "name": "app",
+      "description": "Process lifecycle: an unhandled error reaching the top of the process, and shutdown on a signal.",
+      "level": "info",
+      "surfaces": [
+        "generator"
+      ]
+    },
+    {
+      "name": "entity",
+      "description": "Business reads and writes in a generated application: promotion, the audit trail, and a value the row decoder could not read.",
+      "level": "debug",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "rules",
+      "description": "Business-rule evaluation and the actions a matched rule performed.",
+      "level": "warn",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "workflow",
+      "description": "Saga and state-machine execution, step by step.",
+      "level": "debug",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "jobs",
+      "description": "Background workers: what was queued, and what could not be delivered.",
+      "level": "info",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "dictionary",
+      "description": "The Application Dictionary at run time: cache invalidation, and a column it describes that the database does not have.",
+      "level": "debug",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "request",
+      "description": "One line per HTTP request the generated application answered, and the errors that reached the top of a handler.",
+      "level": "info",
+      "surfaces": [
+        "generated"
+      ]
+    },
+    {
+      "name": "assistant",
+      "description": "The generated application's natural-language query add-on.",
+      "level": "warn",
+      "surfaces": [
+        "generated"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "db.pool.opened",
+      "channel": "db",
+      "level": "info",
+      "message": "Database connection pool opened",
+      "fields": [
+        "host",
+        "database",
+        "max"
+      ]
+    },
+    {
+      "id": "db.pool.closed",
+      "channel": "db",
+      "level": "info",
+      "message": "Database connection pool closed",
+      "fields": []
+    },
+    {
+      "id": "db.migrations.completed",
+      "channel": "db",
+      "level": "info",
+      "message": "Schema migrations applied",
+      "fields": [
+        "durationMs"
+      ]
+    },
+    {
+      "id": "db.migrations.failed",
+      "channel": "db",
+      "level": "error",
+      "message": "Schema migrations did not complete",
+      "fields": [
+        "reason"
+      ]
+    },
+    {
+      "id": "pipeline.generation.started",
+      "channel": "pipeline",
+      "level": "info",
+      "message": "Generation started",
+      "fields": [
+        "project",
+        "stack",
+        "entities"
+      ]
+    },
+    {
+      "id": "pipeline.generation.completed",
+      "channel": "pipeline",
+      "level": "info",
+      "message": "Generation completed",
+      "fields": [
+        "project",
+        "files",
+        "durationMs"
+      ]
+    },
+    {
+      "id": "pipeline.generation.failed",
+      "channel": "pipeline",
+      "level": "error",
+      "message": "Generation did not complete",
+      "fields": [
+        "project",
+        "reason"
+      ]
+    },
+    {
+      "id": "pipeline.model.rejected",
+      "channel": "pipeline",
+      "level": "warn",
+      "message": "The model did not pass the checker, so nothing was generated",
+      "fields": [
+        "project",
+        "errors"
+      ]
+    },
+    {
+      "id": "auth.signin.succeeded",
+      "channel": "auth",
+      "level": "info",
+      "message": "Sign-in succeeded",
+      "fields": [
+        "userId"
+      ]
+    },
+    {
+      "id": "auth.signin.refused",
+      "channel": "auth",
+      "level": "warn",
+      "message": "Sign-in refused",
+      "fields": [
+        "reason"
+      ]
+    },
+    {
+      "id": "auth.registration.accepted",
+      "channel": "auth",
+      "level": "info",
+      "message": "Registration accepted and awaiting approval",
+      "fields": [
+        "userId"
+      ]
+    },
+    {
+      "id": "auth.request.failed",
+      "channel": "auth",
+      "level": "error",
+      "message": "An authentication request failed before it could be answered",
+      "fields": [
+        "route",
+        "reason"
+      ]
+    },
+    {
+      "id": "ai.model.requested",
+      "channel": "ai",
+      "level": "debug",
+      "message": "Model call issued",
+      "fields": [
+        "model",
+        "operation"
+      ]
+    },
+    {
+      "id": "ai.model.failed",
+      "channel": "ai",
+      "level": "error",
+      "message": "Model call failed",
+      "fields": [
+        "model",
+        "operation",
+        "reason"
+      ]
+    },
+    {
+      "id": "app.shutdown",
+      "channel": "app",
+      "level": "info",
+      "message": "Application shutting down",
+      "fields": [
+        "signal",
+        "uptimeMs"
+      ]
+    },
+    {
+      "id": "app.uncaught",
+      "channel": "app",
+      "level": "fatal",
+      "message": "Unhandled error reached the top of the process",
+      "fields": [
+        "err"
+      ]
+    },
+    {
+      "id": "entity.audit.unavailable",
+      "channel": "entity",
+      "level": "error",
+      "message": "The audit service is not initialised, so this write was not recorded",
+      "fields": []
+    },
+    {
+      "id": "entity.promotion.unavailable",
+      "channel": "entity",
+      "level": "error",
+      "message": "The promotion service is not initialised, so the row keeps its draft status",
+      "fields": []
+    },
+    {
+      "id": "entity.promotion.failed",
+      "channel": "entity",
+      "level": "error",
+      "message": "Promotion failed; the row was left as a draft",
+      "fields": [
+        "table",
+        "error"
+      ]
+    },
+    {
+      "id": "entity.draft.discard_failed",
+      "channel": "entity",
+      "level": "error",
+      "message": "A rejected draft could not be discarded and is still in the table",
+      "fields": [
+        "id",
+        "error"
+      ]
+    },
+    {
+      "id": "entity.column.undecodable",
+      "channel": "entity",
+      "level": "warn",
+      "message": "A column's value could not be decoded and was served as null",
+      "fields": [
+        "column",
+        "error"
+      ]
+    },
+    {
+      "id": "entity.delete.no_match",
+      "channel": "entity",
+      "level": "debug",
+      "message": "A delete step matched no row",
+      "fields": [
+        "entity",
+        "id"
+      ]
+    },
+    {
+      "id": "rules.jdm.invalid",
+      "channel": "rules",
+      "level": "error",
+      "message": "A stored decision graph is not valid JDM and was skipped",
+      "fields": [
+        "entity",
+        "error"
+      ]
+    },
+    {
+      "id": "rules.evaluation.failed",
+      "channel": "rules",
+      "level": "error",
+      "message": "Rule evaluation failed; the write was allowed to stand",
+      "fields": [
+        "entity",
+        "error"
+      ]
+    },
+    {
+      "id": "rules.action.failed",
+      "channel": "rules",
+      "level": "error",
+      "message": "A rule action failed; the write stands",
+      "fields": [
+        "action",
+        "error"
+      ]
+    },
+    {
+      "id": "rules.action.unknown",
+      "channel": "rules",
+      "level": "warn",
+      "message": "A matched rule named an action this runtime does not implement",
+      "fields": [
+        "action"
+      ]
+    },
+    {
+      "id": "rules.target.unknown",
+      "channel": "rules",
+      "level": "warn",
+      "message": "A rule action named a table or column the dictionary does not describe",
+      "fields": [
+        "table",
+        "column"
+      ]
+    },
+    {
+      "id": "rules.workflow.incomplete",
+      "channel": "rules",
+      "level": "warn",
+      "message": "A rule-triggered workflow did not complete; the run is recorded as failed",
+      "fields": [
+        "workflow",
+        "error"
+      ]
+    },
+    {
+      "id": "workflow.node.executing",
+      "channel": "workflow",
+      "level": "debug",
+      "message": "Executing a workflow node",
+      "fields": [
+        "node",
+        "name"
+      ]
+    },
+    {
+      "id": "workflow.node.unknown",
+      "channel": "workflow",
+      "level": "warn",
+      "message": "A workflow node names a type this runtime does not implement; skipped",
+      "fields": [
+        "node"
+      ]
+    },
+    {
+      "id": "workflow.decision.published",
+      "channel": "workflow",
+      "level": "debug",
+      "message": "A decision step published variables to the run context",
+      "fields": [
+        "published"
+      ]
+    },
+    {
+      "id": "jobs.queued",
+      "channel": "jobs",
+      "level": "info",
+      "message": "A background job was accepted",
+      "fields": [
+        "worker",
+        "entity"
+      ]
+    },
+    {
+      "id": "jobs.mailer.absent",
+      "channel": "jobs",
+      "level": "warn",
+      "message": "No mailer is configured, so the message was not sent",
+      "fields": [
+        "to"
+      ]
+    },
+    {
+      "id": "dictionary.cache.invalidated",
+      "channel": "dictionary",
+      "level": "debug",
+      "message": "Cached metadata was dropped after a dictionary write",
+      "fields": [
+        "table",
+        "cache"
+      ]
+    },
+    {
+      "id": "dictionary.column.absent",
+      "channel": "dictionary",
+      "level": "warn",
+      "message": "The dictionary names an ordering column the table does not have; ordered by primary key instead",
+      "fields": [
+        "table",
+        "column"
+      ]
+    },
+    {
+      "id": "dictionary.config.unreadable",
+      "channel": "dictionary",
+      "level": "warn",
+      "message": "sys_system could not be read; configuration resolved from the settings block alone",
+      "fields": [
+        "error"
+      ]
+    },
+    {
+      "id": "request.completed",
+      "channel": "request",
+      "level": "info",
+      "message": "Request completed",
+      "fields": [
+        "method",
+        "path",
+        "status",
+        "durationMs",
+        "requestId"
+      ]
+    },
+    {
+      "id": "request.refused",
+      "channel": "request",
+      "level": "warn",
+      "message": "Request refused",
+      "fields": [
+        "method",
+        "path",
+        "status",
+        "durationMs",
+        "requestId"
+      ]
+    },
+    {
+      "id": "request.failed",
+      "channel": "request",
+      "level": "error",
+      "message": "Request failed",
+      "fields": [
+        "method",
+        "path",
+        "status",
+        "durationMs",
+        "requestId"
+      ]
+    },
+    {
+      "id": "request.unhandled",
+      "channel": "request",
+      "level": "error",
+      "message": "An error reached the top of a request handler",
+      "fields": [
+        "error"
+      ]
+    },
+    {
+      "id": "assistant.plan.unparseable",
+      "channel": "assistant",
+      "level": "warn",
+      "message": "The model returned a query plan that could not be parsed",
+      "fields": [
+        "error"
+      ]
+    },
+    {
+      "id": "entity.audit.write_failed",
+      "channel": "entity",
+      "level": "error",
+      "message": "An audit entry could not be written; the operation it records was NOT rolled back",
+      "fields": [
+        "entity",
+        "error"
+      ]
+    },
+    {
+      "id": "jobs.upstream.unreachable",
+      "channel": "jobs",
+      "level": "error",
+      "message": "An upstream service this application proxies to could not be reached",
+      "fields": [
+        "upstream",
+        "error"
+      ]
+    }
+  ]
+}
