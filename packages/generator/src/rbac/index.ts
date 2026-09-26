@@ -34,6 +34,8 @@
 /** The CRUD operations an `%%rbac` directive may restrict. */
 export const RBAC_OPERATIONS = ["create", "read", "update", "delete"] as const;
 
+import type { RbacDeclaration } from "../model/records";
+
 export type RbacOperation = (typeof RBAC_OPERATIONS)[number];
 
 /**
@@ -163,6 +165,49 @@ export function compileRbac(
   stateMachines: RbacStateMachine[] = [],
   onWarn: (message: string) => void = () => {}
 ): CompiledRbac {
+  return compileRbacDeclarations(
+    readRbacDirectives(source, onWarn),
+    knownEntities,
+    stateMachines,
+    onWarn
+  );
+}
+
+/**
+ * Read every `%%rbac` line into a declaration, uncompiled.
+ *
+ * Only the line's shape is checked here. Whether its entity exists, whether it
+ * names any role and whether its target is an operation or a transition are the
+ * compiler's questions, asked the same way of a model written in either syntax.
+ */
+export function readRbacDirectives(
+  source: string,
+  onWarn: (message: string) => void = () => {}
+): RbacDeclaration[] {
+  const declarations: RbacDeclaration[] = [];
+  for (const rawLine of (source ?? "").split("\n")) {
+    const line = rawLine.trim();
+    if (!line.startsWith("%%rbac")) continue;
+
+    const match = line.match(DIRECTIVE);
+    if (!match) {
+      onWarn(`Skipping malformed %%rbac directive: ${line}`);
+      continue;
+    }
+
+    const [, roleExpr, entity, target] = match as unknown as [string, string, string, string];
+    declarations.push({ roles: parseRoleExpression(roleExpr), entity, target });
+  }
+  return declarations;
+}
+
+/** Compile `%%rbac` declarations into operation and transition rules. */
+export function compileRbacDeclarations(
+  declarations: RbacDeclaration[],
+  knownEntities: string[] = [],
+  stateMachines: RbacStateMachine[] = [],
+  onWarn: (message: string) => void = () => {}
+): CompiledRbac {
   const known = new Set(knownEntities);
 
   /** `entity:operation` → role set. */
@@ -195,24 +240,15 @@ export function compileRbac(
     return found;
   };
 
-  for (const rawLine of (source ?? "").split("\n")) {
-    const line = rawLine.trim();
-    if (!line.startsWith("%%rbac")) continue;
-
-    const match = line.match(DIRECTIVE);
-    if (!match) {
-      onWarn(`Skipping malformed %%rbac directive: ${line}`);
-      continue;
-    }
-
-    const [, roleExpr, entity, rawTarget] = match as unknown as [string, string, string, string];
+  for (const declaration of declarations) {
+    const { entity, target: rawTarget } = declaration;
 
     if (known.size && !known.has(entity)) {
       onWarn(`%%rbac targets unknown entity "${entity}" — skipped.`);
       continue;
     }
 
-    const roles = parseRoleExpression(roleExpr);
+    const roles = declaration.roles.filter(Boolean);
     if (roles.length === 0) {
       // A directive with no role names would compile to a rule nobody can
       // satisfy, locking the target for everyone including its author.

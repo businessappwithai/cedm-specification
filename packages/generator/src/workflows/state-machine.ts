@@ -18,6 +18,7 @@
  */
 
 import { extractWorkflowSections } from "../eml";
+import type { StateMachineDeclaration, StateTransitionDeclaration } from "../model/records";
 
 export interface WorkflowState {
   name: string;
@@ -63,26 +64,36 @@ function toTableName(entity: string): string {
   return snake.startsWith("bus_") || snake.startsWith("sys_") ? snake : `bus_${snake}`;
 }
 
-/** Read the state machines a document declares. */
+/**
+ * Compile every `%%workflow … kind: state` section in a model.
+ *
+ * A section naming an entity the model does not declare is skipped with a
+ * warning: a machine bound to no table has nothing to govern.
+ */
 export function compileWorkflows(
   source: string,
   knownEntities: string[] = [],
   onWarn: (message: string) => void = () => {}
 ): CompiledWorkflow[] {
-  const known = new Set(knownEntities);
-  const compiled: CompiledWorkflow[] = [];
+  return compileStateMachineDeclarations(readStateMachines(source), knownEntities, onWarn);
+}
+
+/**
+ * Read every `kind: state` section into a declaration, uncompiled.
+ *
+ * States are listed in the order they first appear on a transition line, which
+ * is the order the diagram has always compiled to. `[*] --> x` names the
+ * starting state (the last such line wins) and `x --> [*]` a terminal one.
+ */
+export function readStateMachines(source: string): StateMachineDeclaration[] {
+  const declarations: StateMachineDeclaration[] = [];
 
   for (const section of extractWorkflowSections(source ?? "")) {
     if (section.kind !== "state") continue;
 
-    if (known.size && !known.has(section.entity)) {
-      onWarn(`Workflow "${section.name}" targets unknown entity "${section.entity}" — skipped.`);
-      continue;
-    }
-
-    const states = new Map<string, WorkflowState>();
-    const transitions: WorkflowTransition[] = [];
-    const terminal: string[] = [];
+    const states: string[] = [];
+    const transitions: StateTransitionDeclaration[] = [];
+    const final: string[] = [];
     let initial: string | undefined;
 
     for (const rawLine of (section.diagram ?? "").split("\n")) {
@@ -100,40 +111,68 @@ export function compileWorkflows(
       ];
 
       for (const name of [from, to]) {
-        if (name !== START_MARKER && !states.has(name)) states.set(name, { name });
+        if (name !== START_MARKER && !states.includes(name)) states.push(name);
       }
 
-      // `[*] --> draft` names the starting state, and `won --> [*]` a terminal
-      // one. Neither is a move a caller can make, so neither becomes an edge:
-      // recording `[*]` as a from-state would let a request set any record
-      // straight back to its initial status.
       if (from === START_MARKER) {
         initial = to;
         continue;
       }
       if (to === START_MARKER) {
-        terminal.push(from);
+        final.push(from);
         continue;
       }
-      transitions.push({ from, to, trigger: trigger?.trim() });
+      const cleaned = trigger?.trim();
+      transitions.push({ from, to, ...(cleaned !== undefined ? { trigger: cleaned } : {}) });
     }
 
-    if (!states.size) {
-      onWarn(`Workflow "${section.name}" declares no states — skipped.`);
+    declarations.push({
+      name: section.name,
+      ...(section.title ? { title: section.title } : {}),
+      entity: section.entity,
+      states,
+      ...(initial !== undefined ? { initial } : {}),
+      final,
+      transitions,
+    });
+  }
+
+  return declarations;
+}
+
+/** Compile state machine declarations read from either syntax. */
+export function compileStateMachineDeclarations(
+  declarations: StateMachineDeclaration[],
+  knownEntities: string[] = [],
+  onWarn: (message: string) => void = () => {}
+): CompiledWorkflow[] {
+  const known = new Set(knownEntities);
+  const compiled: CompiledWorkflow[] = [];
+
+  for (const declaration of declarations) {
+    if (known.size && !known.has(declaration.entity)) {
+      onWarn(
+        `Workflow "${declaration.name}" targets unknown entity "${declaration.entity}" — skipped.`
+      );
       continue;
     }
-    if (!initial) {
-      onWarn(`Workflow "${section.name}" has no starting state — records will not be stamped.`);
+
+    if (!declaration.states.length) {
+      onWarn(`Workflow "${declaration.name}" declares no states — skipped.`);
+      continue;
+    }
+    if (!declaration.initial) {
+      onWarn(`Workflow "${declaration.name}" has no starting state — records will not be stamped.`);
     }
 
     compiled.push({
-      name: section.name,
-      entity: section.entity,
-      tableName: toTableName(section.entity),
-      states: [...states.values()],
-      transitions,
-      initial,
-      terminal,
+      name: declaration.name,
+      entity: declaration.entity,
+      tableName: toTableName(declaration.entity),
+      states: declaration.states.map((name) => ({ name })),
+      transitions: declaration.transitions.map(({ from, to, trigger }) => ({ from, to, trigger })),
+      initial: declaration.initial,
+      terminal: [...declaration.final],
     });
   }
 

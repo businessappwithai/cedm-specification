@@ -34,6 +34,8 @@ export const HOOK_TYPES = [
   "customValidate",
 ] as const;
 
+import type { HookDeclaration } from "../model/records";
+
 export type HookType = (typeof HOOK_TYPES)[number];
 
 const HOOK_TYPE_SET: ReadonlySet<string> = new Set(HOOK_TYPES);
@@ -172,11 +174,20 @@ export function compileHooks(
   knownEntities: string[] = [],
   onWarn: (message: string) => void = () => {}
 ): CompiledHook[] {
-  const known = new Set(knownEntities);
-  const hooks: CompiledHook[] = [];
-  const seen = new Set<string>();
-  const perEntity = new Map<string, number>();
+  return compileHookDeclarations(readHookDirectives(source, onWarn), knownEntities, onWarn);
+}
 
+/**
+ * Read every `%%hook` line into a declaration, uncompiled.
+ *
+ * Only the line's shape is checked here; whether the event is a hook event and
+ * whether the entity exists are the compiler's questions.
+ */
+export function readHookDirectives(
+  source: string,
+  onWarn: (message: string) => void = () => {}
+): HookDeclaration[] {
+  const declarations: HookDeclaration[] = [];
   for (const rawLine of (source ?? "").split("\n")) {
     const line = rawLine.trim();
     if (!DIRECTIVE_LINE.test(line)) continue;
@@ -187,13 +198,32 @@ export function compileHooks(
       continue;
     }
 
-    const [, type, handler, entity, bracket] = match as unknown as [
+    const [, event, handler, entity, bracket] = match as unknown as [
       string,
       string,
       string,
       string,
       string | undefined,
     ];
+    const field = parseFields(bracket);
+    declarations.push({ event, handler, entity, ...(field ? { field } : {}) });
+  }
+  return declarations;
+}
+
+/** Compile hook declarations into the handlers the generated backend dispatches to. */
+export function compileHookDeclarations(
+  declarations: HookDeclaration[],
+  knownEntities: string[] = [],
+  onWarn: (message: string) => void = () => {}
+): CompiledHook[] {
+  const known = new Set(knownEntities);
+  const hooks: CompiledHook[] = [];
+  const seen = new Set<string>();
+  const perEntity = new Map<string, number>();
+
+  for (const declaration of declarations) {
+    const { event: type, handler, entity } = declaration;
 
     if (!HOOK_TYPE_SET.has(type)) {
       onWarn(`Hook "${handler}" on ${entity} uses unknown event "${type}" — skipped.`);
@@ -220,7 +250,7 @@ export function compileHooks(
       entity,
       type: type as HookType,
       handler,
-      field: parseFields(bracket),
+      field: declaration.field,
       order,
     });
   }

@@ -25,6 +25,8 @@
  * A directive may span several lines by ending each continued line with `\`.
  */
 
+import type { CategoryDeclaration } from "../model/records";
+
 /** A category declared in the model. */
 export interface EntityCategory {
   name: string;
@@ -90,15 +92,13 @@ function parseFields(body: string): Map<string, string> {
 }
 
 /**
- * Extract every `%%category` directive from an ERD / EML document.
+ * Read every `%%category` directive from an ERD / EML document, uncompiled.
  *
- * Returns categories in declaration order. Duplicate names are merged — the
- * later declaration's fields win and its entity list is appended — so a model
- * split across files does not silently lose assignments.
+ * One declaration per directive, in document order. A directive without a
+ * `name` is not a declaration: there is nothing to render it as.
  */
-export function parseCategories(source: string): EntityCategory[] {
-  const byCode = new Map<string, EntityCategory>();
-  let order = 0;
+export function readCategoryDirectives(source: string): CategoryDeclaration[] {
+  const declarations: CategoryDeclaration[] = [];
 
   for (const line of unfold(source)) {
     const match = line.match(/^%%\s*category\b\s*(.*)$/i);
@@ -111,27 +111,54 @@ export function parseCategories(source: string): EntityCategory[] {
     const name = fields.get("name")?.trim();
     if (!name) continue; // a category without a name cannot be rendered
 
-    const code = fields.get("code")?.trim() || slugifyCategory(name);
-    if (!code) continue;
-
+    const code = fields.get("code")?.trim();
+    const seq = Number(fields.get("seq"));
     const entities = (fields.get("entities") ?? "")
       .split(",")
       .map((entity) => entity.trim())
       .filter(Boolean);
 
-    const seqRaw = Number(fields.get("seq"));
+    declarations.push({
+      name,
+      ...(code ? { code } : {}),
+      ...(fields.get("description") ? { description: fields.get("description") } : {}),
+      ...(fields.get("icon") ? { icon: fields.get("icon") } : {}),
+      ...(fields.get("color") ? { color: fields.get("color") } : {}),
+      ...(Number.isFinite(seq) ? { seq } : {}),
+      isDefault: /^(true|yes|1)$/i.test(fields.get("default") ?? ""),
+      entities,
+    });
+  }
+
+  return declarations;
+}
+
+/**
+ * Compile category declarations into categories.
+ *
+ * Returns categories in declaration order. Declarations sharing a code are
+ * merged — the later declaration's fields win and its entity list is appended —
+ * so a model split across files does not silently lose assignments.
+ */
+export function compileCategoryDeclarations(declarations: CategoryDeclaration[]): EntityCategory[] {
+  const byCode = new Map<string, EntityCategory>();
+  let order = 0;
+
+  for (const declaration of declarations) {
+    const code = declaration.code || slugifyCategory(declaration.name);
+    if (!code) continue;
+
     const existing = byCode.get(code);
 
     const category: EntityCategory = {
-      name,
+      name: declaration.name,
       code,
-      description: fields.get("description") || existing?.description,
-      icon: fields.get("icon") || existing?.icon,
-      color: fields.get("color") || existing?.color,
-      seqNo: Number.isFinite(seqRaw) ? seqRaw : (existing?.seqNo ?? order),
-      isDefault:
-        /^(true|yes|1)$/i.test(fields.get("default") ?? "") || existing?.isDefault || false,
-      entities: [...new Set([...(existing?.entities ?? []), ...entities])],
+      description: declaration.description || existing?.description,
+      icon: declaration.icon || existing?.icon,
+      color: declaration.color || existing?.color,
+      seqNo: declaration.seq ?? existing?.seqNo ?? order,
+      isDefault: declaration.isDefault || existing?.isDefault || false,
+      entities: [...new Set([...(existing?.entities ?? []), ...declaration.entities])],
     };
 
     if (!existing) order += 1;
@@ -149,6 +176,11 @@ export function parseCategories(source: string): EntityCategory[] {
   return categories;
 }
 
+/** Extract and compile every `%%category` directive from an ERD / EML document. */
+export function parseCategories(source: string): EntityCategory[] {
+  return compileCategoryDeclarations(readCategoryDirectives(source));
+}
+
 /**
  * Categories to seed for a model, guaranteeing the dictionary is never empty.
  *
@@ -157,7 +189,15 @@ export function parseCategories(source: string): EntityCategory[] {
  * of the box, and an administrator can split entities up from there.
  */
 export function resolveCategories(source: string, entityNames: string[]): EntityCategory[] {
-  const declared = parseCategories(source);
+  return resolveCategoryDeclarations(readCategoryDirectives(source), entityNames);
+}
+
+/** `resolveCategories` over declarations already read, from either syntax. */
+export function resolveCategoryDeclarations(
+  declarations: CategoryDeclaration[],
+  entityNames: string[]
+): EntityCategory[] {
+  const declared = compileCategoryDeclarations(declarations);
 
   if (declared.length === 0) {
     return [

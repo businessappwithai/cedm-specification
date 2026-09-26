@@ -26,6 +26,8 @@
  */
 
 /** The chart types `%%report chart:` may name. Mirrors `appwithai-language.json`. */
+import type { ReportDeclaration } from "../model/records";
+
 export const REPORT_CHART_TYPES = ["bar", "line", "pie", "area"] as const;
 
 export type ReportChartType = (typeof REPORT_CHART_TYPES)[number];
@@ -110,6 +112,16 @@ function hasStatementBreak(sql: string): boolean {
  * published models rather than against a fixture written to match this code.
  */
 export function parseReportDirective(line: string): CompiledReport | { error: string } {
+  const declaration = readReportDeclaration(line);
+  return "error" in declaration ? declaration : validateReportDeclaration(declaration);
+}
+
+/**
+ * Read one `%%report` line into a declaration, checking only its shape: that it
+ * is the directive, and that it has a name and a `sql:` clause. What the query
+ * may do is `validateReportDeclaration`'s question.
+ */
+export function readReportDeclaration(line: string): ReportDeclaration | { error: string } {
   // Anchored, and a run of `%%` is allowed for the same reason `hooks/index.ts`
   // allows it: older generated flowcharts emitted `%%%%`. A `%%` line that
   // merely mentions a report in prose is prose — see CLAUDE.md, "Every
@@ -137,78 +149,139 @@ export function parseReportDirective(line: string): CompiledReport | { error: st
     return found?.[1]?.trim() || undefined;
   };
 
+  const declaration: ReportDeclaration = { name, sql };
+  for (const key of KEYS) {
+    const value = read(key);
+    if (value !== undefined) declaration[key] = value;
+  }
+  return declaration;
+}
+
+/**
+ * Hold a report declaration to its shape: a single read, and a chart only with
+ * both of its axes. The same checks for a report written in either syntax.
+ */
+export function validateReportDeclaration(
+  declaration: ReportDeclaration
+): CompiledReport | { error: string } {
+  const { name, sql } = declaration;
+
   if (!READ_ONLY.test(sql)) return { error: `sql: is not a SELECT or WITH query` };
   if (hasStatementBreak(sql)) return { error: `sql: contains more than one statement` };
 
-  const chartRaw = read("chart");
+  const chartRaw = declaration.chart;
   if (chartRaw && !CHART_TYPE_SET.has(chartRaw)) {
     return { error: `has unknown chart type "${chartRaw}"` };
   }
   const chart = chartRaw as ReportChartType | undefined;
-  const x = read("x");
-  const y = read("y");
-  // A chart with one axis renders nothing and reports no error, which is worse
-  // than not being a chart. Dropping the chart keeps the report — the table is
-  // still the answer to the question — and says what was dropped.
+  const x = declaration.x;
+  const y = declaration.y;
   if (chart && (!x || !y)) {
     return { error: `declares chart: ${chart} but not both x: and y:` };
   }
 
   return {
     name,
-    title: read("title") ?? name.replace(/[_-]+/g, " "),
-    entity: read("entity"),
+    title: declaration.title ?? name.replace(/[_-]+/g, " "),
+    entity: declaration.entity,
     chart,
     x,
     y,
-    help: read("help"),
+    help: declaration.help,
     sql,
   };
 }
 
 /**
- * Compile every `%%report` in the document.
- *
- * `entityNames` is what an `entity:` key is resolved against: a report naming an
- * entity the model does not declare is kept, but loses the grouping, because
- * the query is still a valid question about the database even when the label on
- * it is wrong. Everything dropped is reported through `warn` — silence is what
- * this whole module exists to fix.
+ * Compile every `%%report` line in a model into the reports the generated
+ * application ships with. A line that is not a single read is refused here,
+ * before it can reach a seed file.
  */
 export function compileReports(
   source: string,
   entityNames: string[],
   warn: (message: string) => void = () => {}
 ): CompiledReport[] {
-  const known = new Set(entityNames);
-  const byName = new Map<string, CompiledReport>();
+  const accumulator = reportAccumulator(entityNames, warn);
 
   for (const line of source.split("\n")) {
     if (!/^\s*%%+report\b/i.test(line)) continue;
 
-    const parsed = parseReportDirective(line);
-    if ("error" in parsed) {
-      warn(`%%report ${parsed.error} — skipped: ${line.trim().slice(0, 120)}`);
+    const declaration = readReportDeclaration(line);
+    if ("error" in declaration) {
+      warn(`%%report ${declaration.error} — skipped: ${line.trim().slice(0, 120)}`);
       continue;
     }
-
-    // The checker reports a duplicate name as EML292. Reaching here with one
-    // means the model was not checked, and two rows under one key would make
-    // whichever the seed wrote last the only one anybody could open.
-    if (byName.has(parsed.name)) {
-      warn(`%%report "${parsed.name}" is declared more than once — keeping the first`);
-      continue;
-    }
-
-    if (parsed.entity && !known.has(parsed.entity)) {
-      warn(
-        `%%report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`
-      );
-      parsed.entity = undefined;
-    }
-
-    byName.set(parsed.name, parsed);
+    accumulator.add(declaration, line.trim().slice(0, 120));
   }
 
-  return [...byName.values()];
+  return accumulator.reports();
+}
+
+/** Every `%%report` line in a model, read but not validated — the reports it declares. */
+export function readReportDirectives(
+  source: string,
+  warn: (message: string) => void = () => {}
+): ReportDeclaration[] {
+  const declarations: ReportDeclaration[] = [];
+  for (const line of source.split("\n")) {
+    if (!/^\s*%%+report\b/i.test(line)) continue;
+    const declaration = readReportDeclaration(line);
+    if ("error" in declaration) {
+      warn(`%%report ${declaration.error} — skipped: ${line.trim().slice(0, 120)}`);
+      continue;
+    }
+    declarations.push(declaration);
+  }
+  return declarations;
+}
+
+/** Compile report declarations read from either syntax. */
+export function compileReportDeclarations(
+  declarations: ReportDeclaration[],
+  entityNames: string[],
+  warn: (message: string) => void = () => {}
+): CompiledReport[] {
+  const accumulator = reportAccumulator(entityNames, warn);
+  for (const declaration of declarations) accumulator.add(declaration, `report ${declaration.name}`);
+  return accumulator.reports();
+}
+
+/**
+ * The per-report checks, applied in declaration order: validate, refuse a
+ * duplicate name, and ungroup a report naming an entity the model lacks.
+ */
+function reportAccumulator(entityNames: string[], warn: (message: string) => void) {
+  const known = new Set(entityNames);
+  const byName = new Map<string, CompiledReport>();
+
+  return {
+    add(declaration: ReportDeclaration, context: string): void {
+      const parsed = validateReportDeclaration(declaration);
+      if ("error" in parsed) {
+        warn(`%%report ${parsed.error} — skipped: ${context}`);
+        return;
+      }
+
+      // The checker reports a duplicate name as EML292. Reaching here with one
+      // means the model was not checked, and two rows under one key would make
+      // whichever the seed wrote last the only one anybody could open.
+      if (byName.has(parsed.name)) {
+        warn(`%%report "${parsed.name}" is declared more than once — keeping the first`);
+        return;
+      }
+
+      if (parsed.entity && !known.has(parsed.entity)) {
+        warn(
+          `%%report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`
+        );
+        parsed.entity = undefined;
+      }
+
+      byName.set(parsed.name, parsed);
+    },
+    reports(): CompiledReport[] {
+      return [...byName.values()];
+    },
+  };
 }

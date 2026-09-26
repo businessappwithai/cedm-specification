@@ -17,6 +17,7 @@
  * belongs.
  */
 
+import type { SagaDeclaration, SagaStepDeclaration } from "../model/records";
 import { getStepNode } from "../parsers/language-maps";
 
 /** Whether the language declares a saga step type by this name. */
@@ -207,37 +208,20 @@ export function parseSagas(source: string): SagaParseResult {
     const labels = parseNodeLabels(block);
     const order = parseEdgeOrder(block);
 
-    const byNode = new Map<string, SagaStep>();
+    const rawSteps: SagaStepDeclaration[] = [];
     for (const line of block) {
       const match = STEP_RE.exec(line.trim());
       if (!match) continue;
-
       const [, nodeId, nodeType, rest] = match as unknown as [string, string, string, string];
-      if (!isStepNodeType(nodeType)) {
-        diagnostics.push({
-          workflow: name,
-          nodeId,
-          message: `unknown step type "${nodeType}"`,
-        });
-        continue;
-      }
-      if (byNode.has(nodeId)) {
-        diagnostics.push({
-          workflow: name,
-          nodeId,
-          message: `node "${nodeId}" already has a step; the second is ignored`,
-        });
-        continue;
-      }
+      rawSteps.push({
+        id: nodeId,
+        type: nodeType,
+        label: labels.get(nodeId) ?? nodeId,
+        properties: parseStepProperties(rest ?? ""),
+      });
+    }
 
-      const properties = parseStepProperties(rest ?? "");
-      for (const missing of missingStepProps(nodeType, properties)) {
-        diagnostics.push({
-          workflow: name,
-          nodeId,
-          message: `${nodeType} is missing ${missing}`,
-        });
-      }
+    const byNode = acceptSagaSteps(name, rawSteps, diagnostics, (nodeId) => {
       if (!order.includes(nodeId) && !labels.has(nodeId)) {
         diagnostics.push({
           workflow: name,
@@ -245,17 +229,8 @@ export function parseSagas(source: string): SagaParseResult {
           message: `no node "${nodeId}" in the flowchart — the step will never run`,
         });
       }
+    });
 
-      byNode.set(nodeId, {
-        nodeId,
-        nodeType,
-        label: labels.get(nodeId) ?? nodeId,
-        properties,
-      });
-    }
-
-    // Flowchart order first; any step whose node is missing from the edges
-    // still runs, after the ones that are placed.
     const steps: SagaStep[] = [];
     for (const nodeId of order) {
       const step = byNode.get(nodeId);
@@ -279,6 +254,91 @@ export function parseSagas(source: string): SagaParseResult {
       operation: (meta["operation"] ?? "ALL").toUpperCase(),
       trigger: meta["trigger"] ?? "rule",
       description: meta["description"],
+      steps,
+    });
+  }
+
+  return { workflows, diagnostics };
+}
+
+/**
+ * The steps of a saga that can run, keyed by node, in declaration order.
+ *
+ * A step of an unknown type is dropped, and so is a second step on a node that
+ * already has one; a step missing a property its type requires is kept and
+ * reported, because the checker (EML241–EML249) is what refuses it. `afterEach`
+ * runs once per accepted step, after its own checks, so a syntax can add the
+ * checks only it can make.
+ */
+function acceptSagaSteps(
+  workflow: string,
+  declared: SagaStepDeclaration[],
+  diagnostics: SagaDiagnostic[],
+  afterEach: (nodeId: string) => void = () => {}
+): Map<string, SagaStep> {
+  const byNode = new Map<string, SagaStep>();
+
+  for (const step of declared) {
+    const { id: nodeId, type: nodeType } = step;
+    if (!isStepNodeType(nodeType)) {
+      diagnostics.push({ workflow, nodeId, message: `unknown step type "${nodeType}"` });
+      continue;
+    }
+    if (byNode.has(nodeId)) {
+      diagnostics.push({
+        workflow,
+        nodeId,
+        message: `node "${nodeId}" already has a step; the second is ignored`,
+      });
+      continue;
+    }
+
+    for (const missing of missingStepProps(nodeType, step.properties)) {
+      diagnostics.push({ workflow, nodeId, message: `${nodeType} is missing ${missing}` });
+    }
+    afterEach(nodeId);
+
+    byNode.set(nodeId, {
+      nodeId,
+      nodeType,
+      label: step.label ?? nodeId,
+      properties: { ...step.properties },
+    });
+  }
+
+  return byNode;
+}
+
+/**
+ * Compile saga declarations read from the YAML model language.
+ *
+ * The same checks `parseSagas` makes, except that steps run in the order they
+ * are listed: a YAML saga states its order outright rather than drawing it.
+ */
+export function compileSagaDeclarations(declarations: SagaDeclaration[]): SagaParseResult {
+  const workflows: SagaWorkflow[] = [];
+  const diagnostics: SagaDiagnostic[] = [];
+
+  for (const declaration of declarations) {
+    const { name, entity } = declaration;
+    if (!entity) {
+      diagnostics.push({ workflow: name, message: "saga declares no entity" });
+    }
+
+    const steps = [...acceptSagaSteps(name, declaration.steps, diagnostics).values()];
+    if (steps.length === 0) {
+      diagnostics.push({
+        workflow: name,
+        message: "saga has no %%step directives, so it compiles to an empty process",
+      });
+    }
+
+    workflows.push({
+      name,
+      entity,
+      operation: (declaration.operation ?? "ALL").toUpperCase(),
+      trigger: declaration.trigger ?? "rule",
+      description: declaration.description,
       steps,
     });
   }

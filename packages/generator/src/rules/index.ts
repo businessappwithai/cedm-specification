@@ -14,7 +14,8 @@ export * from "./flowchart-parser";
 export * from "./jdm-converter";
 
 import type { EmlRuleSection } from "../eml";
-import { parseMermaidFlowchart } from "./flowchart-parser";
+import type { RuleDeclaration } from "../model/records";
+import { type FlowAST, parseMermaidFlowchart } from "./flowchart-parser";
 import { convertToJdm, type JdmGraph } from "./jdm-converter";
 
 /** A rule compiled from EML, ready to seed into `sys_rule_definitions`. */
@@ -489,15 +490,74 @@ export function replaceRuleActions(body: string, actionLines: string[]): string 
   return [...kept, ...actionLines].join("\n");
 }
 
+/**
+ * Compile a model's `%%rule` sections into JDM decision graphs.
+ *
+ * The checker has already reported any syntax problem, so a section that will
+ * not compile is warned about and skipped rather than fatal: one malformed rule
+ * should not stop an application from being generated.
+ */
 export function compileRules(
   sections: EmlRuleSection[],
   onWarn: (message: string) => void = () => {}
 ): CompiledRule[] {
+  return compileRuleDeclarations(sections.map(readRuleSection), onWarn);
+}
+
+/** The flowchart direction a section's diagram opens with, e.g. `TD`. */
+function flowchartDirection(flowchart: string): string | undefined {
+  for (const raw of flowchart.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("%%")) continue;
+    return line.match(/^(?:flowchart|graph)\s+([A-Za-z]{2})\b/)?.[1];
+  }
+  return undefined;
+}
+
+/**
+ * Read one `%%rule` section into a declaration: its binding, the decision
+ * flowchart as nodes and edges, its `%%action` lines and any editor-authored
+ * `%%decision-table`. Nothing is compiled here.
+ */
+export function readRuleSection(section: EmlRuleSection): RuleDeclaration {
+  const ast = parseMermaidFlowchart(section.flowchart);
+  const decisionTable = parseDecisionTableDirective(section.flowchart);
+  const direction = flowchartDirection(section.flowchart);
+
+  return {
+    name: section.name,
+    ...(section.title ? { title: section.title } : {}),
+    entity: section.entity,
+    event: section.event,
+    ...(section.priority !== undefined ? { priority: section.priority } : {}),
+    ...(direction ? { direction } : {}),
+    nodes: [...ast.nodes.values()].map(({ id, label, shape }) => ({ id, label, shape })),
+    edges: ast.edges.map(({ source, target, label }) => ({
+      source,
+      target,
+      ...(label !== undefined ? { label } : {}),
+    })),
+    actions: parseRuleActions(section.flowchart),
+    ...(decisionTable ? { decisionTable } : {}),
+  };
+}
+
+/**
+ * Compile rule declarations read from either syntax.
+ *
+ * What a rule compiles *from* follows one precedence: an editor-authored
+ * decision table, then its actions, then the flowchart itself. A rule with none
+ * of those — no table and no nodes — compiles to nothing and is skipped.
+ */
+export function compileRuleDeclarations(
+  declarations: RuleDeclaration[],
+  onWarn: (message: string) => void = () => {}
+): CompiledRule[] {
   const compiled: CompiledRule[] = [];
 
-  for (const section of sections) {
-    if (!section.entity) {
-      onWarn(`Rule "${section.name}" declares no entity; skipping.`);
+  for (const declaration of declarations) {
+    if (!declaration.entity) {
+      onWarn(`Rule "${declaration.name}" declares no entity; skipping.`);
       continue;
     }
 
@@ -505,37 +565,38 @@ export function compileRules(
       // A table authored in the editor carries its own directive and only a
       // placeholder flowchart, so it has to be read before the AST — compiling
       // the placeholder yields a rule that decides nothing.
-      const editorTable = parseDecisionTableDirective(section.flowchart);
-
-      const ast = parseMermaidFlowchart(section.flowchart);
-      if (!editorTable && !ast.nodes.size) {
-        onWarn(`Rule "${section.name}" has no nodes; skipping.`);
+      const editorTable = declaration.decisionTable ?? null;
+      if (!editorTable && !declaration.nodes.length) {
+        onWarn(`Rule "${declaration.name}" has no nodes; skipping.`);
         continue;
       }
 
-      // A section that declares actions compiles to a decision table: that is
-      // the only JDM shape the rules engine reads actions out of.
-      const actions = parseRuleActions(section.flowchart);
+      // A rule that declares actions compiles to a decision table: that is the
+      // only JDM shape the rules engine reads actions out of.
       let jdm: JdmGraph;
       if (editorTable) {
-        jdm = buildEditorDecisionTable(section.name, editorTable);
-      } else if (actions.length) {
-        jdm = buildActionDecisionTable(section.name, actions);
+        jdm = buildEditorDecisionTable(declaration.name, editorTable);
+      } else if (declaration.actions.length) {
+        jdm = buildActionDecisionTable(declaration.name, declaration.actions);
       } else {
+        const ast: FlowAST = {
+          nodes: new Map(declaration.nodes.map((node) => [node.id, { ...node }])),
+          edges: declaration.edges.map((edge) => ({ ...edge })),
+        };
         jdm = convertToJdm(ast);
       }
       compiled.push({
-        name: section.name,
-        entity: section.entity,
-        tableName: toTableName(section.entity),
-        event: section.event,
-        operation: eventToOperation(section.event),
-        priority: section.priority ?? 100,
+        name: declaration.name,
+        entity: declaration.entity,
+        tableName: toTableName(declaration.entity),
+        event: declaration.event,
+        operation: eventToOperation(declaration.event),
+        priority: declaration.priority ?? 100,
         jdmContent: JSON.stringify(jdm),
       });
     } catch (error) {
       onWarn(
-        `Rule "${section.name}" could not be compiled: ${
+        `Rule "${declaration.name}" could not be compiled: ${
           error instanceof Error ? error.message : String(error)
         }`
       );
