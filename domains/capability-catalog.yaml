@@ -38,6 +38,10 @@ catalog:
       name: Transportation Management
       entities: [Shipment, Vehicle, Location]
       processes: [route-planning, dispatch, tracking, delivery, freight-settlement]
+    - id: manufacturing-management
+      name: Manufacturing Management
+      entities: [Product, BillOfMaterial, BOMComponent, Routing, Operation, WorkCenter, ManufacturingWorkOrder, MaterialIssue, ProductionReceipt, Lot, SerialNumber, InventoryMovement, QualityInspection]
+      processes: [production-planning, order-release, material-issue, operation-execution, in-process-quality, production-receipt, genealogy, variance, completion]
     - id: asset-management
       name: Asset Management
       entities: [Asset, Location, Organization]
