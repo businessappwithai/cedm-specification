@@ -58,7 +58,7 @@ todo:
       entities: [BillOfMaterial, BOMComponent, Routing, WorkCenter, ManufacturingWorkOrder, Operation, MaterialIssue, ProductionReceipt, Scrap]
       canonicalEquivalents: {ProductionOrder: ManufacturingWorkOrder}
       status: in-progress
-      notes: Routing, WorkCenter, Operation, MaterialIssue and ProductionReceipt are implemented and connected to the canonical ManufacturingWorkOrder and InventoryMovement; dedicated Scrap transaction and deeper execution/quality reconciliation remain pending.
+      notes: Routing, WorkCenter, Operation, MaterialIssue and ProductionReceipt are implemented and connected to the canonical ManufacturingWorkOrder and InventoryMovement; Scrap is now implemented with lot/serial, quality and inventory reconciliation; deeper operation-execution evidence and full validation remain pending.
     - id: maintenance-eam
       name: Maintenance / EAM
       entities: [Asset, Equipment, MaintenancePlan, MaintenanceWorkOrder, Failure, QualityInspection, Meter, SparePart]
@@ -197,7 +197,6 @@ todo:
   discoveredGaps:
     - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
     - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
-    - {domain: manufacturing, missing: [Scrap], priority: critical}
     - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
     - {domain: treasury-banking, missing: [CashPosition], priority: high}
     - {domain: budgeting-planning, missing: [Budget], priority: high}
