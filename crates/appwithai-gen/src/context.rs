@@ -98,12 +98,12 @@ pub struct BackendContext {
     /// nothing.
     #[serde(rename = "compiledWorkflows")]
     pub compiled_workflows: Vec<ContextWorkflow>,
-    /// The names the model's `%%report` directives declared, in order, for
+    /// The names of the model's `reports`, in order, for
     /// `tests/requests/reports.rs` to assert against. The query is deliberately
     /// not carried here: the seed is the only place it belongs, and a second
     /// copy compiled into the test binary would drift from the row being run.
     pub reports: Vec<ContextReport>,
-    /// The roles the model's `%%rbac` named, one account per role, and how many
+    /// The roles the model's access rules named, one account per role, and how many
     /// entities each may read.
     ///
     /// Read by `src/tasks/seed_access.rs.hbs`, which cannot take them from
@@ -127,7 +127,7 @@ pub struct ContextRule {
     pub priority: i64,
 }
 
-/// One `%%report`, as the templates see it — its name and nothing else.
+/// One report, as the templates see it — its name and nothing else.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextReport {
@@ -168,13 +168,13 @@ pub struct ContextOptions<'a> {
     pub frontend_port: u16,
     pub cors_origin: &'a str,
     pub database: DatabaseTarget,
-    /// `%%rbac`, compiled. `CompiledRbac::default()` for a model declaring none.
+    /// The model's access rules, compiled. `CompiledRbac::default()` for a model declaring none.
     pub rbac: &'a CompiledRbac,
-    /// `%%rule`, compiled. Empty for a model declaring none.
+    /// The model's `rules`, compiled. Empty for a model declaring none.
     pub rules: &'a [CompiledRule],
-    /// `%%workflow ... kind: state`, compiled. Empty for a model declaring none.
+    /// The model's `stateMachines`, compiled. Empty for a model declaring none.
     pub workflows: &'a [CompiledWorkflow],
-    /// `%%report`, compiled. Empty for a model declaring none.
+    /// The model's `reports`, compiled. Empty for a model declaring none.
     pub reports: &'a [CompiledReport],
 }
 
@@ -316,13 +316,21 @@ fn squash(name: &str, separator: char) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn context() -> BackendContext {
-        let model = parse_erd(
-            "erDiagram\n  Compound {\n    string id PK\n    string smiles UK\n  }\n",
-            &Language::load(),
+        let model = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+"#,
         );
         BackendContext::build(
             &model,

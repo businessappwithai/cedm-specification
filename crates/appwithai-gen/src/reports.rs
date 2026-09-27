@@ -1,4 +1,4 @@
-//! `%%report` → `seed/reports.sql`, the questions a generated application ships with.
+//! The model's `reports` → `seed/reports.sql`, the questions a generated application ships with.
 //!
 //! The TypeScript originals are `packages/generator/src/reports/index.ts` (the
 //! directive reader) and
@@ -20,16 +20,10 @@ use uuid::Uuid;
 
 use crate::dictionary::{insert, now, text, Sql, NAMESPACE};
 
-/// The chart types `%%report chart:` may name. Mirrors `appwithai-language.json`.
+/// The chart types a report's `chart` may name. Mirrors `appwithai-language.json`.
 pub const REPORT_CHART_TYPES: &[&str] = &["bar", "line", "pie", "area"];
 
-/// The keys `%%report` understands, in the order a value scan has to stop at.
-///
-/// `sql:` is deliberately absent: it is split off the line first, because SQL
-/// contains both spaces and colons and a key/value scan would shred it.
-const KEYS: &[&str] = &["title", "entity", "chart", "x", "y", "help"];
-
-/// One `%%report`, as the generated application will store it.
+/// One report, as the generated application will store it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompiledReport {
     /// Stable identifier — unique across the model, and the row's key.
@@ -116,49 +110,6 @@ fn strip_trailing_semicolon(sql: &str) -> &str {
     trimmed.strip_suffix(';').unwrap_or(trimmed).trim_end()
 }
 
-/// Read one `%%report` line.
-///
-/// `Err` carries the reason, which the caller turns into a warning naming the
-/// line — silence is what this whole module exists to fix.
-#[cfg(test)]
-pub fn parse_report_directive(line: &str) -> Result<CompiledReport, String> {
-    validate_report_declaration(read_report_declaration(line)?)
-}
-
-/// Read one `%%report` line into a declaration, checking only its shape: that
-/// it is the directive and has a name and a `sql:` clause.
-pub fn read_report_declaration(line: &str) -> Result<ReportDeclaration, String> {
-    let trimmed = line.trim();
-    // Anchored, and a run of `%%` is allowed for the same reason `hooks.rs`
-    // allows it: older generated flowcharts emitted `%%%%`. A `%%` line that
-    // merely mentions a report in prose is prose.
-    let rest = match strip_directive(trimmed) {
-        Some(rest) if !rest.trim().is_empty() => rest.trim().to_string(),
-        _ => return Err("not a %%report directive".to_string()),
-    };
-
-    let (head, sql) = match split_sql(&rest) {
-        Some(split) => split,
-        None => return Err("has no sql: clause".to_string()),
-    };
-
-    let (name, keys) = match split_name(&head) {
-        Some(split) => split,
-        None => return Err("has no name".to_string()),
-    };
-
-    Ok(ReportDeclaration {
-        title: read_key(&keys, "title"),
-        entity: read_key(&keys, "entity"),
-        chart: read_key(&keys, "chart"),
-        x: read_key(&keys, "x"),
-        y: read_key(&keys, "y"),
-        help: read_key(&keys, "help"),
-        name,
-        sql,
-    })
-}
-
 /// Hold a report to its shape — a single read, and a chart only with both of
 /// its axes — whichever syntax it was written in.
 pub fn validate_report_declaration(
@@ -207,106 +158,6 @@ pub fn validate_report_declaration(
     })
 }
 
-/// `%%report` / `%%%%report`, case-insensitively, followed by whitespace.
-fn strip_directive(line: &str) -> Option<&str> {
-    let after_percent = line.trim_start_matches('%');
-    if line.len() - after_percent.len() < 2 {
-        return None;
-    }
-    let lowered = after_percent.to_ascii_lowercase();
-    if !lowered.starts_with("report") {
-        return None;
-    }
-    let rest = &after_percent["report".len()..];
-    if !rest.starts_with(char::is_whitespace) {
-        return None;
-    }
-    Some(rest)
-}
-
-/// Split the head from `sql:` — the last such key, case-insensitively.
-///
-/// Non-greedy in the TypeScript, so the *first* `sql:` wins there; matched here
-/// by scanning forward for the earliest occurrence on a word boundary.
-fn split_sql(rest: &str) -> Option<(String, String)> {
-    let lowered = rest.to_ascii_lowercase();
-    let bytes = lowered.as_bytes();
-    let mut from = 0;
-    while let Some(found) = lowered[from..].find("sql:") {
-        let at = from + found;
-        let preceded_by_word =
-            at > 0 && (bytes[at - 1].is_ascii_alphanumeric() || bytes[at - 1] == b'_');
-        if !preceded_by_word {
-            let head = rest[..at].to_string();
-            let sql = rest[at + "sql:".len()..].trim().to_string();
-            if sql.is_empty() {
-                return None;
-            }
-            return Some((head, sql));
-        }
-        from = at + 1;
-    }
-    None
-}
-
-/// The leading identifier, and whatever keys follow it.
-fn split_name(head: &str) -> Option<(String, String)> {
-    let start = head.trim_start();
-    let mut chars = start.char_indices();
-    let first = chars.next()?.1;
-    if !first.is_ascii_alphabetic() && first != '_' {
-        return None;
-    }
-    let end = start
-        .char_indices()
-        .find(|(_, ch)| !(ch.is_ascii_alphanumeric() || *ch == '_' || *ch == '-'))
-        .map_or(start.len(), |(index, _)| index);
-    Some((start[..end].to_string(), start[end..].to_string()))
-}
-
-/// Each value runs to the next key or the end of the head.
-///
-/// `help:` is a sentence and may contain any of the other words, so a value
-/// stops only at a real key — one preceded by whitespace and followed by a
-/// colon, scanned over the whole key set rather than one key at a time.
-fn read_key(keys: &str, key: &str) -> Option<String> {
-    let lowered = keys.to_ascii_lowercase();
-    let needle = format!("{key}:");
-    let bytes = lowered.as_bytes();
-    let mut from = 0;
-    let start = loop {
-        let found = from + lowered[from..].find(&needle)?;
-        let preceded_ok = found == 0 || bytes[found - 1].is_ascii_whitespace();
-        if preceded_ok {
-            break found + needle.len();
-        }
-        from = found + 1;
-    };
-
-    let tail = &keys[start..];
-    let tail_lower = &lowered[start..];
-    let mut end = tail.len();
-    for other in KEYS {
-        let other_needle = format!("{other}:");
-        let mut scan = 0;
-        while let Some(found) = tail_lower[scan..].find(&other_needle) {
-            let at = scan + found;
-            let preceded_ok = at > 0 && tail_lower.as_bytes()[at - 1].is_ascii_whitespace();
-            if preceded_ok && at < end {
-                end = at;
-                break;
-            }
-            scan = at + 1;
-        }
-    }
-    let value = tail[..end].trim();
-    if value.is_empty() {
-        None
-    } else {
-        Some(value.to_string())
-    }
-}
-
 /// A name with its separators opened out — the fallback title.
 fn spaced(name: &str) -> String {
     let mut out = String::with_capacity(name.len());
@@ -323,55 +174,6 @@ fn spaced(name: &str) -> String {
         }
     }
     out
-}
-
-/// Compile every `%%report` in the document.
-///
-/// `entity_names` is what an `entity:` key is resolved against: a report naming
-/// an entity the model does not declare is kept, but loses the grouping,
-/// because the query is still a valid question about the database even when the
-/// label on it is wrong.
-#[cfg(test)]
-pub fn compile_reports<F: FnMut(String)>(
-    source: &str,
-    entity_names: &[String],
-    mut warn: F,
-) -> Vec<CompiledReport> {
-    let mut accumulator = ReportAccumulator::new(entity_names);
-
-    for line in source.lines() {
-        if strip_directive(line.trim()).is_none() {
-            continue;
-        }
-        let shown: String = line.trim().chars().take(120).collect();
-        match read_report_declaration(line) {
-            Ok(declaration) => accumulator.add(declaration, &shown, &mut warn),
-            Err(reason) => warn(format!("%%report {reason} — skipped: {shown}")),
-        }
-    }
-
-    accumulator.reports
-}
-
-/// Every `%%report` line in a model, read but not validated.
-pub fn read_report_directives<F: FnMut(String)>(
-    source: &str,
-    mut warn: F,
-) -> Vec<ReportDeclaration> {
-    let mut declarations = Vec::new();
-    for line in source.lines() {
-        if strip_directive(line.trim()).is_none() {
-            continue;
-        }
-        match read_report_declaration(line) {
-            Ok(declaration) => declarations.push(declaration),
-            Err(reason) => {
-                let shown: String = line.trim().chars().take(120).collect();
-                warn(format!("%%report {reason} — skipped: {shown}"));
-            }
-        }
-    }
-    declarations
 }
 
 /// Compile report declarations read from either syntax.
@@ -414,7 +216,7 @@ impl<'a> ReportAccumulator<'a> {
         let mut report = match validate_report_declaration(declaration) {
             Ok(report) => report,
             Err(reason) => {
-                warn(format!("%%report {reason} — skipped: {context}"));
+                warn(format!("report {reason} — skipped: {context}"));
                 return;
             }
         };
@@ -424,7 +226,7 @@ impl<'a> ReportAccumulator<'a> {
         // make whichever the seed wrote last the only one anybody could open.
         if self.seen.contains(&report.name) {
             warn(format!(
-                "%%report \"{}\" is declared more than once — keeping the first",
+                "report \"{}\" is declared more than once — keeping the first",
                 report.name
             ));
             return;
@@ -433,7 +235,7 @@ impl<'a> ReportAccumulator<'a> {
         if let Some(entity) = report.entity.as_deref() {
             if !self.known.contains(entity) {
                 warn(format!(
-                    "%%report \"{}\" names entity \"{entity}\", which the model does not declare — ungrouped",
+                    "report \"{}\" names entity \"{entity}\", which the model does not declare — ungrouped",
                     report.name
                 ));
                 report.entity = None;
@@ -488,10 +290,7 @@ pub fn build_reports_seed_sql(options: &ReportsSeedOptions) -> String {
     out.push(String::new());
 
     if reports.is_empty() {
-        out.push(
-            "-- This model declares no reports, so there is nothing to seed."
-                .to_string(),
-        );
+        out.push("-- This model declares no reports, so there is nothing to seed.".to_string());
         out.push(
             "-- The file is still emitted: src/tasks/seed_reports.rs embeds it with".to_string(),
         );
@@ -550,35 +349,43 @@ fn opt(value: Option<&str>) -> Sql {
 mod tests {
     use super::*;
 
-    const LINE: &str = "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC";
+    fn report(name: &str, sql: &str) -> ReportDeclaration {
+        ReportDeclaration {
+            name: name.to_string(),
+            sql: sql.to_string(),
+            ..ReportDeclaration::default()
+        }
+    }
 
-    #[test]
-    fn reads_every_key_off_the_specifications_own_example() {
-        let report = parse_report_directive(LINE).expect("the spec's example parses");
-        assert_eq!(report.name, "pipeline-by-owner");
-        assert_eq!(report.title, "Pipeline by owner");
-        assert_eq!(report.entity.as_deref(), Some("Opportunity"));
-        assert_eq!(report.chart.as_deref(), Some("bar"));
-        assert_eq!(report.x.as_deref(), Some("owner"));
-        assert_eq!(report.y.as_deref(), Some("total"));
-        assert_eq!(
-            report.help.as_deref(),
-            Some("What each rep is carrying, for the weekly review.")
-        );
-        assert!(report.sql.starts_with("SELECT u.first_name"));
-        assert!(report.sql.ends_with("ORDER BY total DESC"));
+    /// The specification's own example.
+    fn pipeline_by_owner() -> ReportDeclaration {
+        ReportDeclaration {
+            title: Some("Pipeline by owner".to_string()),
+            entity: Some("Opportunity".to_string()),
+            chart: Some("bar".to_string()),
+            x: Some("owner".to_string()),
+            y: Some("total".to_string()),
+            help: Some("What each rep is carrying, for the weekly review.".to_string()),
+            ..report(
+                "pipeline-by-owner",
+                "SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o \
+                 JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 \
+                 ORDER BY total DESC",
+            )
+        }
     }
 
     #[test]
-    fn a_help_sentence_containing_a_key_word_is_not_cut_short() {
-        // "chart" and "entity" appear inside the sentence. A value stops only
-        // at a real key — one preceded by whitespace and followed by a colon.
-        let line = "%%report r1 help: The chart the entity team asks for sql: SELECT 1";
-        let report = parse_report_directive(line).expect("parses");
-        assert_eq!(
-            report.help.as_deref(),
-            Some("The chart the entity team asks for")
-        );
+    fn keeps_every_key_of_the_specifications_own_example() {
+        let compiled = validate_report_declaration(pipeline_by_owner()).expect("valid");
+        assert_eq!(compiled.name, "pipeline-by-owner");
+        assert_eq!(compiled.title, "Pipeline by owner");
+        assert_eq!(compiled.entity.as_deref(), Some("Opportunity"));
+        assert_eq!(compiled.chart.as_deref(), Some("bar"));
+        assert_eq!(compiled.x.as_deref(), Some("owner"));
+        assert_eq!(compiled.y.as_deref(), Some("total"));
+        assert!(compiled.sql.starts_with("SELECT u.first_name"));
+        assert!(compiled.sql.ends_with("ORDER BY total DESC"));
     }
 
     #[test]
@@ -588,48 +395,50 @@ mod tests {
             "UPDATE bus_account SET name = 'x'",
             "INSERT INTO bus_account (id) VALUES (1)",
             "selection_of(1)",
+            "SELECT 1; DROP TABLE bus_account",
         ] {
-            let line = format!("%%report r1 sql: {sql}");
             assert!(
-                parse_report_directive(&line).is_err(),
+                validate_report_declaration(report("r1", sql)).is_err(),
                 "{sql} should be refused"
             );
         }
     }
 
     #[test]
-    fn a_second_statement_behind_a_select_is_refused() {
-        let line = "%%report r1 sql: SELECT 1; DROP TABLE bus_account";
-        assert!(parse_report_directive(line).is_err());
-    }
-
-    #[test]
     fn a_semicolon_inside_a_literal_is_an_ordinary_character() {
-        let line = "%%report r1 sql: SELECT ';' AS sep FROM bus_account;";
-        let report = parse_report_directive(line).expect("one statement");
-        assert!(report.sql.contains("';'"));
+        let compiled =
+            validate_report_declaration(report("r1", "SELECT ';' AS sep FROM bus_account;"))
+                .expect("one statement");
+        assert!(compiled.sql.contains("';'"));
     }
 
     #[test]
-    fn a_chart_missing_an_axis_is_refused_rather_than_rendered_blank() {
-        let line = "%%report r1 chart: bar x: owner sql: SELECT 1";
-        assert!(parse_report_directive(line).is_err());
-        let unknown = "%%report r1 chart: donut x: a y: b sql: SELECT 1";
-        assert!(parse_report_directive(unknown).is_err());
-    }
-
-    #[test]
-    fn prose_mentioning_the_directive_is_not_compiled() {
-        let source = "%% a %%report directive names a question\n%%reporting is not this\n";
-        let reports = compile_reports(source, &[], |_| {});
-        assert!(reports.is_empty());
+    fn a_chart_missing_an_axis_or_of_an_unknown_kind_is_refused() {
+        let one_axis = ReportDeclaration {
+            chart: Some("bar".to_string()),
+            x: Some("owner".to_string()),
+            ..report("r1", "SELECT 1")
+        };
+        assert!(validate_report_declaration(one_axis).is_err());
+        let donut = ReportDeclaration {
+            chart: Some("donut".to_string()),
+            x: Some("a".to_string()),
+            y: Some("b".to_string()),
+            ..report("r1", "SELECT 1")
+        };
+        assert!(validate_report_declaration(donut).is_err());
     }
 
     #[test]
     fn an_unknown_entity_loses_the_grouping_but_keeps_the_report() {
-        let source = "%%report r1 entity: Ghost sql: SELECT 1";
+        let declared = ReportDeclaration {
+            entity: Some("Ghost".to_string()),
+            ..report("r1", "SELECT 1")
+        };
         let mut warnings = Vec::new();
-        let reports = compile_reports(source, &["Account".to_string()], |m| warnings.push(m));
+        let reports = compile_report_declarations(&[declared], &["Account".to_string()], |m| {
+            warnings.push(m)
+        });
         assert_eq!(reports.len(), 1);
         assert_eq!(reports[0].entity, None);
         assert_eq!(warnings.len(), 1);
@@ -637,10 +446,16 @@ mod tests {
 
     #[test]
     fn a_duplicate_name_keeps_the_first_and_says_so() {
-        let source =
-            "%%report r1 title: First sql: SELECT 1\n%%report r1 title: Second sql: SELECT 2";
+        let first = ReportDeclaration {
+            title: Some("First".to_string()),
+            ..report("r1", "SELECT 1")
+        };
+        let second = ReportDeclaration {
+            title: Some("Second".to_string()),
+            ..report("r1", "SELECT 2")
+        };
         let mut warnings = Vec::new();
-        let reports = compile_reports(source, &[], |m| warnings.push(m));
+        let reports = compile_report_declarations(&[first, second], &[], |m| warnings.push(m));
         assert_eq!(reports.len(), 1);
         assert_eq!(reports[0].title, "First");
         assert_eq!(warnings.len(), 1);
@@ -648,16 +463,21 @@ mod tests {
 
     #[test]
     fn a_name_with_no_title_is_opened_out_into_one() {
-        let report = parse_report_directive("%%report open_deals_by_stage sql: SELECT 1").unwrap();
-        assert_eq!(report.title, "open deals by stage");
+        let compiled =
+            validate_report_declaration(report("open_deals_by_stage", "SELECT 1")).unwrap();
+        assert_eq!(compiled.title, "open deals by stage");
     }
 
-    fn seeded() -> String {
-        let reports = compile_reports(LINE, &["Opportunity".to_string()], |_| {});
+    fn seeded(project_name: &str) -> String {
+        let reports = compile_report_declarations(
+            &[pipeline_by_owner()],
+            &["Opportunity".to_string()],
+            |_| {},
+        );
         let mut tables = HashMap::new();
         tables.insert("Opportunity".to_string(), "bus_opportunity".to_string());
         build_reports_seed_sql(&ReportsSeedOptions {
-            project_name: "acme",
+            project_name,
             reports: &reports,
             table_for_entity: &tables,
         })
@@ -665,8 +485,7 @@ mod tests {
 
     #[test]
     fn the_seed_resolves_the_entity_to_its_table() {
-        let sql = seeded();
-        assert!(sql.contains("'Opportunity', 'bus_opportunity'"));
+        assert!(seeded("acme").contains("'Opportunity', 'bus_opportunity'"));
     }
 
     #[test]
@@ -685,7 +504,7 @@ mod tests {
 
     #[test]
     fn every_statement_is_re_runnable() {
-        let sql = seeded();
+        let sql = seeded("acme");
         let inserts = sql.matches("INSERT INTO sys_report").count();
         assert_eq!(inserts, 1);
         let guarded = sql
@@ -697,20 +516,14 @@ mod tests {
 
     #[test]
     fn the_ids_are_stable_across_runs_and_scoped_to_the_project() {
-        assert_eq!(seeded(), seeded());
-        let reports = compile_reports(LINE, &[], |_| {});
-        let other = build_reports_seed_sql(&ReportsSeedOptions {
-            project_name: "other",
-            reports: &reports,
-            table_for_entity: &HashMap::new(),
-        });
-        assert_ne!(seeded(), other);
+        assert_eq!(seeded("acme"), seeded("acme"));
+        assert_ne!(seeded("acme"), seeded("other"));
     }
 
     #[test]
     fn a_quote_in_the_query_does_not_escape_the_literal() {
-        let reports = compile_reports(
-            "%%report r1 sql: SELECT 1 WHERE name = 'O''Brien'",
+        let reports = compile_report_declarations(
+            &[report("r1", "SELECT 1 WHERE name = 'O''Brien'")],
             &[],
             |_| {},
         );

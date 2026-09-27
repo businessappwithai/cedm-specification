@@ -1,4 +1,4 @@
-//! `%%workflow ... kind: state` — the Rust half of the state-machine compiler.
+//! The model's `stateMachines` — the Rust half of the state-machine compiler.
 //!
 //! A port of `packages/generator/src/workflows/state-machine.ts` and
 //! `generators/tanstack-astryx-loco/transitions-seed.ts`.
@@ -13,14 +13,13 @@
 //! sharing a directive: a saga is a sequence of steps to *run*, a state machine
 //! is a set of moves to *permit*.
 
-use crate::records::{StateMachineDeclaration, StateTransitionDeclaration};
+use crate::records::StateMachineDeclaration;
 use std::collections::HashMap;
 
 use uuid::Uuid;
 
 use crate::dictionary::{insert, now, text, Sql, NAMESPACE};
 use crate::rbac::{RbacStateEdge, RbacStateMachine};
-use crate::rules::extract_workflow_sections;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkflowState {
@@ -49,7 +48,7 @@ pub struct CompiledWorkflow {
 }
 
 impl CompiledWorkflow {
-    /// The shape `compile_rbac` reads, so a `%%rbac` directive naming a
+    /// The shape the access-rule compiler reads, so a rule naming a
     /// transition can resolve which edges it covers.
     pub fn as_state_machine(&self) -> RbacStateMachine {
         RbacStateMachine {
@@ -65,53 +64,6 @@ impl CompiledWorkflow {
                 .collect(),
         }
     }
-}
-
-const START_MARKER: &str = "[*]";
-
-/// `from --> to : trigger`, with `[*]` legal at either end.
-///
-/// Mermaid's own state syntax, so the diagram renders in any Mermaid viewer and
-/// the generator reads the same thing a reader sees. Hand-parsed rather than
-/// pulling in a regex crate; the accepted shape is identical to the TypeScript
-/// `^(\[\*\]|[A-Za-z_]\w*)\s*-->\s*(\[\*\]|[A-Za-z_]\w*)\s*(?::\s*(.+))?$`.
-fn parse_transition(line: &str) -> Option<(String, String, Option<String>)> {
-    let (from, rest) = take_state(line)?;
-    let rest = rest.trim_start();
-    let rest = rest.strip_prefix("-->")?;
-    let rest = rest.trim_start();
-    let (to, rest) = take_state(rest)?;
-
-    let rest = rest.trim_start();
-    let trigger = if rest.is_empty() {
-        None
-    } else {
-        // Anything after the state that is not a `: label` fails the anchored
-        // TypeScript pattern, so the line is not a transition at all.
-        let label = rest.strip_prefix(':')?.trim();
-        if label.is_empty() {
-            return None;
-        }
-        Some(label.to_string())
-    };
-
-    Some((from, to, trigger))
-}
-
-/// `[*]` or an identifier, from the front of `value`.
-fn take_state(value: &str) -> Option<(String, &str)> {
-    if let Some(rest) = value.strip_prefix(START_MARKER) {
-        return Some((START_MARKER.to_string(), rest));
-    }
-    let first = value.chars().next()?;
-    if !(first.is_ascii_alphabetic() || first == '_') {
-        return None;
-    }
-    let end = value
-        .char_indices()
-        .find(|(_, c)| !(c.is_ascii_alphanumeric() || *c == '_'))
-        .map_or(value.len(), |(index, _)| index);
-    Some((value[..end].to_string(), &value[end..]))
 }
 
 /// `Deal` → `bus_deal`, matching the ERD's table naming.
@@ -136,76 +88,6 @@ fn to_table_name(entity: &str) -> String {
     } else {
         format!("bus_{snake}")
     }
-}
-
-/// Read the state machines a document declares.
-#[cfg(test)]
-pub fn compile_workflows(
-    source: &str,
-    known_entities: &[String],
-    on_warn: impl FnMut(String),
-) -> Vec<CompiledWorkflow> {
-    compile_state_machine_declarations(&read_state_machines(source), known_entities, on_warn)
-}
-
-/// Read every `kind: state` section into a declaration, uncompiled. States are
-/// listed in the order they first appear on a transition line; `[*] --> x`
-/// names the starting state (the last such line wins) and `x --> [*]` a
-/// terminal one.
-pub fn read_state_machines(source: &str) -> Vec<StateMachineDeclaration> {
-    let mut declarations = Vec::new();
-
-    for section in extract_workflow_sections(source) {
-        if section.kind != "state" {
-            continue;
-        }
-
-        let mut states: Vec<String> = Vec::new();
-        let mut transitions: Vec<StateTransitionDeclaration> = Vec::new();
-        let mut terminal: Vec<String> = Vec::new();
-        let mut initial: Option<String> = None;
-
-        for raw_line in section.diagram.lines() {
-            let line = raw_line.trim();
-            if line.is_empty() || line.starts_with("%%") {
-                continue;
-            }
-            let Some((from, to, trigger)) = parse_transition(line) else {
-                continue;
-            };
-
-            for name in [&from, &to] {
-                if name != START_MARKER && !states.contains(name) {
-                    states.push(name.clone());
-                }
-            }
-
-            // `[*] --> draft` names the starting state and `won --> [*]` a
-            // terminal one. Neither is a move a caller can make, so neither
-            // becomes an edge: recording `[*]` as a from-state would let a
-            // request set any record straight back to its initial status.
-            if from == START_MARKER {
-                initial = Some(to);
-                continue;
-            }
-            if to == START_MARKER {
-                terminal.push(from);
-                continue;
-            }
-            transitions.push(StateTransitionDeclaration { from, to, trigger });
-        }
-
-        declarations.push(StateMachineDeclaration {
-            name: section.name,
-            entity: section.entity,
-            states,
-            initial,
-            r#final: terminal,
-            transitions,
-        });
-    }
-
-    declarations
 }
 
 /// Compile state machine declarations read from either syntax.
@@ -392,7 +274,7 @@ pub fn build_transitions_seed_sql(options: &TransitionsSeedOptions<'_>) -> Strin
                 ("status_field", text(status_field)),
                 ("from_state", text(transition.from.clone())),
                 ("to_state", text(transition.to.clone())),
-                // The event name is what a `%%rbac` transition rule matches on
+                // The event name is what an access rule on a transition matches on
                 // and what a UI puts on the button. An unlabelled edge keeps
                 // NULL rather than inventing a name nothing else would agree
                 // with.
@@ -416,45 +298,47 @@ pub fn build_transitions_seed_sql(options: &TransitionsSeedOptions<'_>) -> Strin
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::records::{RbacDeclaration, StateTransitionDeclaration};
 
-    const DIAGRAM: &str = "\
-%%workflow DealLifecycle entity: Deal kind: state
-stateDiagram-v2
-    [*] --> qualification
-    qualification --> proposal : qualify
-    proposal --> won : close_won
-    won --> [*]
-";
+    fn deal_lifecycle() -> StateMachineDeclaration {
+        let edge = |from: &str, to: &str, trigger: &str| StateTransitionDeclaration {
+            from: from.to_string(),
+            to: to.to_string(),
+            trigger: Some(trigger.to_string()),
+        };
+        StateMachineDeclaration {
+            name: "DealLifecycle".to_string(),
+            entity: "Deal".to_string(),
+            states: vec!["qualification".into(), "proposal".into(), "won".into()],
+            initial: Some("qualification".to_string()),
+            r#final: vec!["won".to_string()],
+            transitions: vec![
+                edge("qualification", "proposal", "qualify"),
+                edge("proposal", "won", "close_won"),
+            ],
+        }
+    }
 
     #[test]
-    fn a_state_diagram_becomes_states_edges_and_endpoints() {
-        let compiled = compile_workflows(DIAGRAM, &[], |_| {});
+    fn a_state_machine_becomes_states_edges_and_endpoints() {
+        let compiled = compile_state_machine_declarations(&[deal_lifecycle()], &[], |_| {});
         assert_eq!(compiled.len(), 1);
         let machine = &compiled[0];
         assert_eq!(machine.table_name, "bus_deal");
         assert_eq!(machine.initial.as_deref(), Some("qualification"));
         assert_eq!(machine.terminal, vec!["won".to_string()]);
-        // `[*] --> qualification` and `won --> [*]` are endpoints, not moves.
         assert_eq!(machine.transitions.len(), 2);
         assert_eq!(machine.transitions[0].trigger.as_deref(), Some("qualify"));
     }
 
     #[test]
-    fn a_start_marker_never_becomes_an_edge() {
-        let compiled = compile_workflows(DIAGRAM, &[], |_| {});
-        assert!(
-            compiled[0]
-                .transitions
-                .iter()
-                .all(|t| t.from != "[*]" && t.to != "[*]"),
-            "an edge from [*] would let any request reset a record to its initial status"
-        );
-    }
-
-    #[test]
     fn an_unknown_entity_is_skipped_with_a_warning() {
         let mut warnings = Vec::new();
-        let compiled = compile_workflows(DIAGRAM, &["Company".to_string()], |m| warnings.push(m));
+        let compiled = compile_state_machine_declarations(
+            &[deal_lifecycle()],
+            &["Company".to_string()],
+            |m| warnings.push(m),
+        );
         assert!(compiled.is_empty());
         assert_eq!(warnings.len(), 1);
         assert!(warnings[0].contains("Deal"));
@@ -472,14 +356,18 @@ stateDiagram-v2
     }
 
     #[test]
-    fn the_machine_resolves_a_transition_named_by_an_rbac_directive() {
-        let compiled = compile_workflows(DIAGRAM, &[], |_| {});
+    fn the_machine_resolves_a_transition_named_by_an_access_rule() {
+        let compiled = compile_state_machine_declarations(&[deal_lifecycle()], &[], |_| {});
         let machines: Vec<RbacStateMachine> = compiled
             .iter()
             .map(CompiledWorkflow::as_state_machine)
             .collect();
-        let rbac = crate::rbac::compile_rbac(
-            "%%rbac role:manager on Deal.close_won",
+        let rbac = crate::rbac::compile_rbac_declarations(
+            &[RbacDeclaration {
+                roles: vec!["manager".to_string()],
+                entity: "Deal".to_string(),
+                target: "close_won".to_string(),
+            }],
             &[],
             &machines,
             |_| {},

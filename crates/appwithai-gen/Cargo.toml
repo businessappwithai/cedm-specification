@@ -19,7 +19,6 @@ serde_json = "1"
 # templates render unchanged rather than being rewritten into Tera.
 handlebars = "6"
 anyhow = "1"
-regex = "1"
 walkdir = "2"
 # Deterministic dictionary ids: the seed is idempotent because every row's
 # primary key is a UUIDv5 over a stable name, not a fresh v4 on each run.

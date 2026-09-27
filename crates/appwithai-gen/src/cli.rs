@@ -12,7 +12,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 #[command(
     name = "appwithai",
     version,
-    about = "Generate full-stack applications from EML / Mermaid ERD diagrams",
+    about = "Generate full-stack applications from a model (*.eml.yaml)",
     propagate_version = true
 )]
 pub struct Cli {
@@ -22,7 +22,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Generate a full-stack application from a Mermaid ERD or EML file
+    /// Generate a full-stack application from a model
     Generate(Box<GenerateArgs>),
     /// Print a summary of a model without generating anything
     Info(InfoArgs),
@@ -80,18 +80,9 @@ impl Theme {
 #[derive(Debug, Args)]
 pub struct GenerateArgs {
     // ── Input sources ─────────────────────────────────────────────────────
-    /// Input Mermaid ERD / EML file (single-file mode)
+    /// The model (*.eml.yaml)
     #[arg(short, long)]
-    pub input: Option<PathBuf>,
-    /// System entities file (sys_ tables, multi-file mode)
-    #[arg(long)]
-    pub sys_file: Option<PathBuf>,
-    /// Business entities file (bus_ tables, multi-file mode)
-    #[arg(long)]
-    pub bus_file: Option<PathBuf>,
-    /// Reference entities file (REF_ tables, multi-file mode)
-    #[arg(long)]
-    pub ref_file: Option<PathBuf>,
+    pub input: PathBuf,
 
     // ── Output ────────────────────────────────────────────────────────────
     /// Output directory
@@ -178,24 +169,6 @@ pub struct GenerateArgs {
 }
 
 impl GenerateArgs {
-    /// Every model file this run reads, in precedence order.
-    pub fn model_files(&self) -> Vec<PathBuf> {
-        [
-            self.input.as_ref(),
-            self.sys_file.as_ref(),
-            self.bus_file.as_ref(),
-            self.ref_file.as_ref(),
-        ]
-        .into_iter()
-        .flatten()
-        .cloned()
-        .collect()
-    }
-
-    pub fn is_multi_file(&self) -> bool {
-        self.sys_file.is_some() || self.bus_file.is_some() || self.ref_file.is_some()
-    }
-
     pub fn resolved_frontend_port(&self) -> u16 {
         self.frontend_port.unwrap_or(self.port + 1)
     }
@@ -246,7 +219,7 @@ mod tests {
             "appwithai",
             "generate",
             "-i",
-            "model.mmd",
+            "model.eml.yaml",
             "-o",
             "generated-projects/drug-discovery",
         ]);
@@ -264,7 +237,7 @@ mod tests {
             "appwithai",
             "generate",
             "-i",
-            "m.mmd",
+            "m.eml.yaml",
             "-o",
             "out",
             "--theme",

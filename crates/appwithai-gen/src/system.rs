@@ -78,7 +78,7 @@ pub const SETTING_COUNT: usize = SETTINGS.len();
 
 pub struct SystemSeedOptions<'a> {
     pub project_name: &'a str,
-    /// `%%meta description:`, or the CLI's description when the model has none.
+    /// The model's `description`, or the CLI's description when the model has none.
     pub project_description: &'a str,
     /// Value written to every `created_by` / `updated_by`.
     pub created_by: &'a str,

@@ -105,7 +105,6 @@ dependencies = [
  "clap",
  "handlebars",
  "jsonschema",
- "regex",
  "serde",
  "serde_json",
  "serde_yaml",

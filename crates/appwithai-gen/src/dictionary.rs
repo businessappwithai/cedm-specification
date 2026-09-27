@@ -24,7 +24,7 @@ use crate::bus::BusEntity;
 use crate::dictionary_help::build_dictionary_help;
 use crate::model::ModelEnum;
 
-/// Category declared by a `%%category` directive, resolved to physical tables.
+/// A category the model declares, resolved to physical tables.
 #[derive(Debug, Clone)]
 pub struct CategorySeed {
     pub name: String,
@@ -42,7 +42,7 @@ pub struct DictionarySeedOptions<'a> {
     pub project_name: &'a str,
     pub entities: &'a [BusEntity],
     pub categories: &'a [CategorySeed],
-    /// `%%enum` declarations a `%%field` binds a column to, with their ids.
+    /// Enums a column's `enum` key binds it to, with their ids.
     ///
     /// Without these the seed still stamps `sys_column.sys_reference_id` with
     /// the enum's id — `attribute_reference_id` reads it before anything else —
@@ -206,7 +206,7 @@ const REF_LISTS: &[(i64, &str, &str)] = &[
 /// admin section; `description` carries the frontend route.
 /// The dictionary's own screens, and what each one looks like.
 ///
-/// The icon is a lucide **id** — the same spelling `%%entity … icon:` writes and
+/// The icon is a lucide **id** — the same spelling an entity's `icon` holds and
 /// the same one `sys_table.icon` holds. The dashboard used to carry a map from
 /// window name to an icon and a route in the frontend instead, which meant a
 /// window this list added and that map did not know about was dropped from the
@@ -324,7 +324,7 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
             ],
         ));
     }
-    // One list reference per `%%enum` the model binds to a column. Ids run from
+    // One list reference per enum the model binds to a column. Ids run from
     // 1000 up, allocated by the parser, so they are stable for a given set of
     // enum names and the seed stays idempotent across regenerations.
     for model_enum in model_enums {
@@ -487,7 +487,7 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         let table_id = id("table", &[&entity.table_name]);
         let tab_id = id("tab", &[&entity.table_name]);
 
-        // A line item gets no window of its own. `%%entity InvoiceLine parent:
+        // A line item gets no window of its own. `InvoiceLine` with `parent:
         // Invoice` says the child has no life away from its parent, and the
         // dictionary is where that stops being a comment and starts being the
         // application: no window means no card on the dashboard and nothing to
@@ -629,10 +629,10 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                     ("sys_table_id", text(table_id.clone())),
                     ("column_name", text(attr.column_name.clone())),
                     ("name", text(attr.display_name.clone())),
-                    // `%%field <Entity>.<column> help:`, as the author wrote it.
+                    // The column's `help`, as the author wrote it.
                     //
                     // The parser has hung this on the attribute since
-                    // `%%field help:` was read, and the seed dropped it: the
+                    // the column's `help` was read, and the seed dropped it: the
                     // column existed in the DDL and was never written, so the
                     // Application Dictionary's own column screen showed nothing
                     // for every column of every entity, in a model that may
@@ -921,20 +921,24 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
 mod tests {
     use super::*;
     use crate::bus::{declared_entity_names, entity_to_bus_entity};
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn entities() -> Vec<BusEntity> {
-        let parsed = parse_erd(
-            r#"
-erDiagram
-    Compound {
-        string id PK
-        string smiles UK
-        decimal molecular_weight OPTIONAL
-    }
+        let parsed = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
 "#,
-            &Language::load(),
         )
         .entities;
         let declared = declared_entity_names(&parsed);
@@ -1005,21 +1009,28 @@ erDiagram
 
     #[test]
     fn a_line_item_has_no_window_and_its_tab_hangs_off_the_parent() {
-        let model = parse_erd(
-            r#"
-erDiagram
-    Invoice {
-        string id PK
-        string name
-    }
-    InvoiceLine {
-        string id PK
-        string invoice_id FK
-        string description
-    }
-%%entity InvoiceLine parent: Invoice
+        let model = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+  - name: InvoiceLine
+    parent: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: invoice_id
+        type: string
+        fk: true
+      - name: description
+        type: string
 "#,
-            &Language::load(),
         );
         let declared = declared_entity_names(&model.entities);
         let entities: Vec<BusEntity> = model

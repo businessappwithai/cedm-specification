@@ -325,7 +325,7 @@ pub struct Emitted {
 ///
 /// Entity names are translated to physical `bus_*` table names here, because
 /// `sys_table` is matched on `table_name`. The match is case-insensitive: a
-/// model may write `Compound` in the ERD block and `compound` in a `%%category`
+/// model may write `Compound` as the entity and `compound` in a category's
 /// directive.
 pub fn write_dictionary_seed(
     output_dir: &Path,
@@ -382,7 +382,7 @@ pub fn write_workflow_seed(
     write_file(&output_dir.join("seed/workflows.sql"), &sql)
 }
 
-/// Write `seed/rules.sql` — the decision graphs `%%rule` compiled to.
+/// Write `seed/rules.sql` — the decision graphs the model's `rules` compile to.
 ///
 /// Always written, for the same reason every other seed is: `seed_rules.rs`
 /// embeds it with `include_str!`, resolved at compile time.
@@ -475,7 +475,7 @@ pub fn write_business_seed(
     write_file(&output_dir.join("seed/business.sql"), &sql)
 }
 
-/// Write `seed/reports.sql` — the questions the model's `%%report` declared.
+/// Write `seed/reports.sql` — the questions the model's `reports` declared.
 ///
 /// Always written, for the same reason every other seed is:
 /// `src/tasks/seed_reports.rs` embeds it with `include_str!`, resolved at
@@ -511,9 +511,9 @@ pub fn write_system_seed(
     write_file(&output_dir.join("seed/system.sql"), &sql)
 }
 
-/// Write `seed/access.sql` — the roles and restrictions `%%rbac` declared.
+/// Write `seed/access.sql` — the roles and restrictions the model's access rules declared.
 ///
-/// Always written, even for a model with no `%%rbac`, and that is not
+/// Always written, even for a model with no access rules, and that is not
 /// tidiness: `src/tasks/seed_access.rs` embeds it with `include_str!`, which is
 /// resolved at compile time. A generator that skipped the file would produce a
 /// backend that does not compile, and the parity gate could not see it — both
@@ -534,7 +534,7 @@ pub fn write_access_seed(
     write_file(&output_dir.join("seed/access.sql"), &sql)
 }
 
-/// `src/hooks/` — the lifecycle handlers the model's `%%hook` directives declare.
+/// `src/hooks/` — the lifecycle handlers the model's `hooks` declare.
 ///
 /// Two kinds of file, and the difference is the point:
 ///
@@ -544,7 +544,7 @@ pub fn write_access_seed(
 /// - `mod.rs` and `handlers/mod.rs` are pure wiring and are rewritten every
 ///   run, so a newly declared hook is always picked up.
 ///
-/// Both wiring files are written even for a model with no `%%hook`: `lib.rs`
+/// Both wiring files are written even for a model with no hooks: `lib.rs`
 /// declares `pub mod hooks;` and the bus controller calls the dispatchers
 /// unconditionally, so a missing module is a crate that does not compile — the
 /// same trap as a conditionally emitted seed behind an `include_str!`.
@@ -836,19 +836,30 @@ pub fn format_sources(output_dir: &Path, quiet: bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::category::resolve_categories;
+    use crate::category::{resolve_category_declarations, Category};
     use crate::context::ContextOptions;
     use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::model::{compile_erd, Model};
+    use crate::yaml_model::test_records;
 
-    fn drug_discovery_context() -> BackendContext {
+    /// The model this generator is validated against, compiled.
+    fn drug_discovery() -> (Model, Vec<Category>) {
         let source = std::fs::read_to_string(
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/drug-discovery.eml.mmd"),
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/drug-discovery.eml.yaml"),
         )
         .expect("the model this generator is validated against");
-        let model = parse_erd(&source, &Language::load());
+        let records = test_records(&source);
+        let model = compile_erd(
+            &records.erd,
+            &Language::load().expect("language definition"),
+        );
         let names: Vec<String> = model.entities.iter().map(|e| e.name.clone()).collect();
-        let categories = resolve_categories(&source, &names);
+        let categories = resolve_category_declarations(&records.categories, &names);
+        (model, categories)
+    }
+
+    fn drug_discovery_context() -> BackendContext {
+        let (model, categories) = drug_discovery();
         BackendContext::build(
             &model,
             &categories,
@@ -1000,13 +1011,7 @@ mod tests {
         use crate::context::{ContextOptions, DatabaseTarget};
 
         let render = |target: DatabaseTarget| {
-            let source = std::fs::read_to_string(
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples/drug-discovery.eml.mmd"),
-            )
-            .unwrap();
-            let model = parse_erd(&source, &Language::load());
-            let names: Vec<String> = model.entities.iter().map(|e| e.name.clone()).collect();
-            let categories = resolve_categories(&source, &names);
+            let (model, categories) = drug_discovery();
             let context = BackendContext::build(
                 &model,
                 &categories,

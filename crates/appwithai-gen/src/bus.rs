@@ -75,7 +75,7 @@ pub struct BusAttribute {
     /// `entity_to_bus_entity` and carried here for every template that needs it.
     #[serde(rename = "isIdentifier")]
     pub is_identifier: bool,
-    /// `%%field <Entity>.<column> help:`, as the author wrote it.
+    /// The column's `help`, as the author wrote it.
     ///
     /// The only text in a generated application that carries *domain*
     /// knowledge rather than schema, and the reason `sys_column.description`
@@ -99,20 +99,20 @@ pub struct BusEntity {
     #[serde(rename = "primaryKey")]
     pub primary_key: String,
     pub timestamps: bool,
-    /// Declared `%%index` entries merged with the conventional single-column
+    /// The entity's declared `indexes` merged with the conventional single-column
     /// ones, so the DDL emits each index once.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indexes: Option<Vec<EntityIndex>>,
     /// The entity whose window holds this one's tab — itself, or its `parent:`.
     #[serde(rename = "windowOwner")]
     pub window_owner: String,
-    /// The entity this one is a line item of, from `%%entity <E> parent: <P>`.
+    /// The entity this one is a line item of, from its `parent`.
     #[serde(rename = "parentEntity", skip_serializing_if = "Option::is_none")]
     pub parent_entity: Option<String>,
     /// The child's foreign key back to `parentEntity`.
     #[serde(rename = "parentLinkColumn", skip_serializing_if = "Option::is_none")]
     pub parent_link_column: Option<String>,
-    /// The model's `%%entity … icon:`, carried through to `sys_table.icon`.
+    /// The entity's `icon`, carried through to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
 }
@@ -188,7 +188,7 @@ pub fn entity_to_bus_entity(entity: &Entity, declared: &HashMap<String, String>)
         timestamps: entity.timestamps,
         indexes: Some(merge_indexes(entity)),
         // Whose window this entity's records are reached through: itself, unless
-        // `%%entity <E> parent: <P>` made it a line item, in which case the
+        // its `parent` made it a line item, in which case the
         // parent's — a child has no window of its own.
         icon: entity.icon.clone(),
         window_owner: entity
@@ -311,7 +311,7 @@ fn merge_indexes(entity: &Entity) -> Vec<EntityIndex> {
         // already writes `UNIQUE` on the column and `PRIMARY KEY` on the key,
         // and Postgres backs each with an index of its own — so adding one more
         // meant two unique indexes on every unique column and a spare on every
-        // primary key. An explicit `%%index ... unique` still emits: it is in
+        // primary key. An explicit unique index still emits: it is in
         // `merged` before this loop.
         if attribute.name != "name" {
             continue;
@@ -415,7 +415,7 @@ pub fn attribute_reference_id(attr: &Attribute, entity_primary_key: &str) -> u16
     if attr.is_foreign_key && is_foreign_key_column_name(&attr.name) {
         return reference_type::TABLE_DIRECT;
     }
-    // A column bound to a `%%enum` points at that enum's own list reference. The
+    // A column bound to an enum points at that enum's own list reference. The
     // generated forms render any reference at or above 1000 as a dropdown fed by
     // /sys/ref-list, so this is what stops a modelled status being a text box
     // the user can type anything into — including values the state machine
@@ -446,7 +446,7 @@ pub fn attribute_reference_id(attr: &Attribute, entity_primary_key: &str) -> u16
 /// Failing an alias, the column's name — for the model that wrote
 /// `string email` rather than `email email`.
 ///
-/// `%%field` aliases are the deliberate way to say a column holds an address,
+/// Semantic type aliases are the deliberate way to say a column holds an address,
 /// and most models do not use them: `string email`, `string contact_phone` and
 /// `string website` are what an author actually writes, and each rendered as a
 /// plain text box with no keyboard hint and no validation.
@@ -545,7 +545,7 @@ pub fn foreign_key_target_table(
 /// `<entity>_id` is the convention. A bare `_by` column is accepted too: it names
 /// a person by the role they played (`reported_by`, `approved_by`) and resolves
 /// to the user entity. Without this it falls through to the declared scalar type
-/// and renders as the raw UUID with no lookup — what the EML checker reports as
+/// and renders as the raw UUID with no lookup — what the checker reports as
 /// EML114.
 ///
 /// A person-role *name* is accepted for the same reason, and it is not
@@ -643,27 +643,39 @@ fn title_word(word: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn model() -> crate::model::Model {
-        parse_erd(
-            r#"
-erDiagram
-    Compound {
-        string id PK
-        string smiles UK
-        decimal molecular_weight OPTIONAL
-        string registered_by_id FK
-        text notes
-        boolean is_active
-        datetime registered_at
-        json metadata
-        integer batch_count
-        date expires_on
-    }
+        test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
+      - name: registered_by_id
+        type: string
+        fk: true
+      - name: notes
+        type: text
+      - name: is_active
+        type: boolean
+      - name: registered_at
+        type: datetime
+      - name: metadata
+        type: json
+      - name: batch_count
+        type: integer
+      - name: expires_on
+        type: date
 "#,
-            &Language::load(),
         )
     }
 

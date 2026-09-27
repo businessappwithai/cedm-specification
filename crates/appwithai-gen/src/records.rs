@@ -1,15 +1,15 @@
 //! Model records — what a model *says*, before anything is compiled from it.
 //!
-//! A port of `packages/generator/src/model/records.ts`. A model is written in
-//! EML (Mermaid plus `%%` directives) or in the YAML model language; both are
-//! read into these records, and only these records are compiled. Each compiler
-//! therefore exists once, and the two syntaxes cannot come to mean different
-//! things — the same argument the TypeScript generator rests on, made again
-//! here so the Rust generator can take a YAML model as its source.
+//! A port of `packages/generator/src/model/records.ts`. A model is a YAML
+//! document; `yaml_model.rs` reads it into these records, and only these
+//! records are compiled. The TypeScript generator reads the same document into
+//! the same records, and `bun run parity` holds the two to identical output.
 
 use std::collections::BTreeMap;
 
-/// One column declaration: `type name MODIFIER…`, tokens as written.
+/// One column declaration. The flags are the attribute's `pk`, `fk`, `unique`
+/// and `optional` keys, as the tokens `PK`, `FK`, `UK` and `OPTIONAL`, and a
+/// comment as one quoted token — the form both compilers resolve.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AttributeDeclaration {
     /// The type token with any length suffix: `string(255)`, `email`.
@@ -28,9 +28,11 @@ pub struct EntityDeclaration {
 pub struct RelationshipDeclaration {
     pub source: String,
     pub target: String,
-    /// The Mermaid operator, e.g. `||--o{`. Only the eight the language
-    /// defines compile.
-    pub operator: String,
+    /// Cardinality at the source (`from`) end: `exactly-one`, `zero-or-one`,
+    /// `zero-or-more` or `one-or-more`.
+    pub source_end: String,
+    /// Cardinality at the target (`to`) end.
+    pub target_end: String,
     pub label: Option<String>,
 }
 
@@ -104,8 +106,8 @@ pub struct ReportDeclaration {
 pub struct RuleNode {
     pub id: String,
     pub label: String,
-    /// `stadium`, `diamond`, `rect`, `circle` or `round`.
-    pub shape: String,
+    /// `start`, `end`, `decision`, `expression` or `function`.
+    pub node_type: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -125,7 +127,7 @@ pub struct RuleAction {
 }
 
 /// A business rule bound to a lifecycle event, compiled from its decision
-/// table, else its actions, else its flowchart.
+/// table, else its actions, else its decision graph.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RuleDeclaration {
     pub name: String,
@@ -188,18 +190,4 @@ pub struct ModelRecords {
     pub rules: Vec<RuleDeclaration>,
     pub state_machines: Vec<StateMachineDeclaration>,
     pub sagas: Vec<SagaDeclaration>,
-}
-
-/// Mermaid's glyph pair for a relationship end, by side.
-pub fn relationship_glyph(end: &str, left: bool) -> Option<&'static str> {
-    Some(match (end, left) {
-        ("exactly-one", _) => "||",
-        ("zero-or-one", true) => "|o",
-        ("zero-or-one", false) => "o|",
-        ("zero-or-more", true) => "}o",
-        ("zero-or-more", false) => "o{",
-        ("one-or-more", true) => "}|",
-        ("one-or-more", false) => "|{",
-        _ => return None,
-    })
 }

@@ -1,4 +1,4 @@
-//! `%%rbac` directives — the Rust half of the RBAC compiler.
+//! The model's access rules (`rbac`) — the Rust half of the RBAC compiler.
 //!
 //! A byte-for-byte port of `packages/generator/src/rbac/{index,roles}.ts` and
 //! `generators/tanstack-astryx-loco/access-seed.ts`. Three things live here:
@@ -10,7 +10,7 @@
 //!
 //! ## It restricts; it does not grant
 //!
-//! An `(entity, operation)` pair carrying no `%%rbac` directive is
+//! An `(entity, operation)` pair carrying no access rule is
 //! unrestricted — anyone the session guard admits may perform it. One or more
 //! directives turn that pair into a closed list. Denying by default would lock
 //! every user out of every existing model on the next regeneration, and a model
@@ -22,7 +22,7 @@
 //! `sys_access` is a *grant* table whose rows feed
 //! `sys_refresh_dictionary_scope()`: a table with no rows there is visible to
 //! every role, and the first row narrows it to that role alone. Seeding
-//! `%%rbac role:admin on Order.delete` into it would hide the Order window from
+//! a rule closing `Order` `delete` to `admin` into it would hide the Order window from
 //! everybody but admin — a restriction on deleting silently becoming a
 //! restriction on looking. Operation rules therefore live in
 //! `sys_operation_access`.
@@ -37,7 +37,7 @@ use uuid::Uuid;
 use crate::bus::BusEntity;
 use crate::dictionary::{insert, now, role_ref, text, Sql, NAMESPACE};
 
-/// The CRUD operations an `%%rbac` directive may restrict.
+/// The CRUD operations an access rule may restrict.
 pub const RBAC_OPERATIONS: [&str; 4] = ["create", "read", "update", "delete"];
 
 /// One state change a transition rule covers: `from` → `to` on the status column.
@@ -70,7 +70,7 @@ pub struct CompiledRbacTransition {
     pub roles: Vec<String>,
 }
 
-/// Everything `%%rbac` compiles to.
+/// Everything the access rules compile to.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CompiledRbac {
     pub operations: Vec<CompiledRbacRule>,
@@ -107,29 +107,6 @@ fn operation_alias(raw: &str) -> Option<&'static str> {
     })
 }
 
-/// Read the role names out of a role expression.
-///
-/// `role:admin`, `role:sales|manager` and `role:sales|role:manager` are all
-/// accepted — the second is what the spec's example writes and the third is
-/// what someone repeating the prefix naturally produces. A bare `admin` is
-/// taken as a role name too, because rejecting it would fail a directive whose
-/// meaning is unambiguous.
-pub fn parse_role_expression(expression: &str) -> Vec<String> {
-    expression
-        .split('|')
-        .map(|part| {
-            let trimmed = part.trim();
-            let stripped = if trimmed.len() >= 5 && trimmed[..5].eq_ignore_ascii_case("role:") {
-                &trimmed[5..]
-            } else {
-                trimmed
-            };
-            stripped.trim().to_string()
-        })
-        .filter(|name| !name.is_empty())
-        .collect()
-}
-
 /// `Order` → `bus_order`. Mirrors the ERD parser's table naming.
 fn bus_table_name(entity: &str) -> String {
     let chars: Vec<char> = entity.chars().collect();
@@ -159,94 +136,7 @@ fn bus_table_name(entity: &str) -> String {
     }
 }
 
-/// A directive line, split into its three parts.
-///
-/// The TypeScript side matches `^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$`.
-/// Hand-parsed here rather than pulling in a regex crate for one pattern, and
-/// the acceptance set is deliberately identical — including the trailing
-/// anchor, so a directive with anything after the target is malformed in both.
-fn parse_directive(line: &str) -> Option<(String, String, String)> {
-    let rest = line.strip_prefix("%%rbac")?;
-    if !rest.starts_with(char::is_whitespace) {
-        return None;
-    }
-    let mut parts = rest.split_whitespace();
-    let role_expr = parts.next()?;
-    if !parts.next()?.eq("on") {
-        return None;
-    }
-    let target = parts.next()?;
-    if parts.next().is_some() {
-        return None;
-    }
-
-    let (entity, operation) = target.split_once('.')?;
-    let is_ident = |value: &str, allow_star: bool| {
-        let mut chars = value.chars();
-        let Some(first) = chars.next() else {
-            return false;
-        };
-        let first_ok = first.is_ascii_alphabetic() || first == '_' || (allow_star && first == '*');
-        // `*` is a whole token on its own: `\w*` after `[A-Za-z_*]` still
-        // requires everything that follows to be a word character, and `**`
-        // would fail there too.
-        first_ok && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
-    };
-    if !is_ident(entity, false) || !is_ident(operation, true) {
-        return None;
-    }
-    Some((
-        role_expr.to_string(),
-        entity.to_string(),
-        operation.to_string(),
-    ))
-}
-
-/// Compile every `%%rbac` directive in a document.
-///
-/// Directives naming the same target are merged rather than overriding one
-/// another: two lines each naming a role mean either role may perform it, which
-/// is the reading that matches `|` inside a single directive.
-///
-/// An operation name that is not CRUD is looked up among `state_machines` as a
-/// transition event on that entity. One that matches neither is skipped with a
-/// warning naming both possibilities, because at that point the model has said
-/// something the generator genuinely cannot act on.
-#[cfg(test)]
-pub fn compile_rbac(
-    source: &str,
-    known_entities: &[String],
-    state_machines: &[RbacStateMachine],
-    mut on_warn: impl FnMut(String),
-) -> CompiledRbac {
-    let declarations = read_rbac_directives(source, &mut on_warn);
-    compile_rbac_declarations(&declarations, known_entities, state_machines, on_warn)
-}
-
-/// Read every `%%rbac` line into a declaration, uncompiled. Only the line's
-/// shape is checked here; the entity, the roles and whether the target is an
-/// operation or a transition are the compiler's questions.
-pub fn read_rbac_directives(source: &str, mut on_warn: impl FnMut(String)) -> Vec<RbacDeclaration> {
-    let mut declarations = Vec::new();
-    for raw_line in source.lines() {
-        let line = raw_line.trim();
-        if !line.starts_with("%%rbac") {
-            continue;
-        }
-        let Some((role_expr, entity, target)) = parse_directive(line) else {
-            on_warn(format!("Skipping malformed %%rbac directive: {line}"));
-            continue;
-        };
-        declarations.push(RbacDeclaration {
-            roles: parse_role_expression(&role_expr),
-            entity,
-            target,
-        });
-    }
-    declarations
-}
-
-/// Compile `%%rbac` declarations read from either syntax.
+/// Compile the model's access rules.
 pub fn compile_rbac_declarations(
     declarations: &[RbacDeclaration],
     known_entities: &[String],
@@ -295,7 +185,7 @@ pub fn compile_rbac_declarations(
 
         if !known.is_empty() && !known.contains(entity.as_str()) {
             on_warn(format!(
-                "%%rbac targets unknown entity \"{entity}\" — skipped."
+                "access rule on unknown entity \"{entity}\" — skipped."
             ));
             continue;
         }
@@ -310,7 +200,7 @@ pub fn compile_rbac_declarations(
             // A directive with no role names would compile to a rule nobody can
             // satisfy, locking the target for everyone including its author.
             on_warn(format!(
-                "%%rbac on {entity}.{raw_target} names no role — skipped."
+                "access rule on {entity}.{raw_target} names no role — skipped."
             ));
             continue;
         }
@@ -336,7 +226,7 @@ pub fn compile_rbac_declarations(
         let edges = edges_for(&entity, &raw_target);
         if edges.is_empty() {
             on_warn(format!(
-                "%%rbac on {entity}.{raw_target} names neither a CRUD operation ({}, *) nor a transition in {entity}'s state machine — skipped.",
+                "access rule on {entity}.{raw_target} names neither a CRUD operation ({}, *) nor a transition in {entity}'s state machine — skipped.",
                 RBAC_OPERATIONS.join(", ")
             ));
             continue;
@@ -475,7 +365,7 @@ pub struct DerivedUser {
     pub is_admin: bool,
 }
 
-/// Turn compiled `%%rbac` into the roles, users and visibility both generators
+/// Turn compiled access rules into the roles, users and visibility both generators
 /// seed. Pure, and deliberately so.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -725,7 +615,8 @@ pub fn build_access_seed_sql(options: &AccessSeedOptions<'_>) -> String {
     if rbac.operations.is_empty() && rbac.transitions.is_empty() {
         out.push("--".to_string());
         out.push(
-            "-- This model declares no access rules, so every operation stays open to any".to_string(),
+            "-- This model declares no access rules, so every operation stays open to any"
+                .to_string(),
         );
         out.push(
             "-- authenticated caller. The file is still emitted: `seed_access.rs`".to_string(),
@@ -786,11 +677,11 @@ pub fn build_access_seed_sql(options: &AccessSeedOptions<'_>) -> String {
      * demonstration accounts were in exactly that state: signing in as the
      * Researcher gave an empty dashboard, `windows: []` from
      * `/api/me/permissions`, and 403 on every entity — including reads, and
-     * including the transitions its own `%%rbac` directive granted it.
+     * including the transitions its own access rules granted it.
      *
      * So each declared role is granted the same windows the built-in `User`
      * role gets, and the two tables below are what narrow it. That is what the
-     * directive's additive rule means: `%%rbac role:x on Order.delete` closes
+     * rules' additive semantics mean: a rule granting `Order` `delete` to x closes
      * deleting to everyone but x, and says nothing about looking at an Order.
      */
     if !declared_roles.is_empty() && !entities.is_empty() {
@@ -941,14 +832,23 @@ pub fn kebab(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::records::RbacDeclaration;
 
-    fn compile(source: &str) -> CompiledRbac {
-        compile_rbac(source, &[], &[], |_| {})
+    fn rule(roles: &[&str], entity: &str, target: &str) -> RbacDeclaration {
+        RbacDeclaration {
+            roles: roles.iter().map(|role| role.to_string()).collect(),
+            entity: entity.to_string(),
+            target: target.to_string(),
+        }
+    }
+
+    fn compile(rules: &[RbacDeclaration]) -> CompiledRbac {
+        compile_rbac_declarations(rules, &[], &[], |_| {})
     }
 
     #[test]
     fn a_star_target_expands_to_every_operation() {
-        let compiled = compile("%%rbac role:admin on Order.*");
+        let compiled = compile(&[rule(&["admin"], "Order", "*")]);
         assert_eq!(compiled.operations.len(), 4);
         let ops: Vec<&str> = compiled
             .operations
@@ -963,33 +863,20 @@ mod tests {
     }
 
     #[test]
-    fn two_directives_on_one_target_merge_rather_than_override() {
-        let compiled = compile(
-            "%%rbac role:sales on Deal.read\n\
-             %%rbac role:manager on Deal.read",
-        );
+    fn two_rules_on_one_target_merge_rather_than_override() {
+        let compiled = compile(&[
+            rule(&["sales"], "Deal", "read"),
+            rule(&["manager"], "Deal", "read"),
+        ]);
         assert_eq!(compiled.operations.len(), 1);
         assert_eq!(compiled.operations[0].roles, vec!["manager", "sales"]);
     }
 
     #[test]
-    fn a_pipe_expression_accepts_both_spellings() {
-        assert_eq!(
-            parse_role_expression("role:sales|manager"),
-            vec!["sales".to_string(), "manager".to_string()]
-        );
-        assert_eq!(
-            parse_role_expression("role:sales|role:manager"),
-            vec!["sales".to_string(), "manager".to_string()]
-        );
-        assert_eq!(parse_role_expression("admin"), vec!["admin".to_string()]);
-    }
-
-    #[test]
     fn an_unknown_entity_is_skipped_with_a_warning() {
         let mut warnings = Vec::new();
-        let compiled = compile_rbac(
-            "%%rbac role:admin on Ghost.read",
+        let compiled = compile_rbac_declarations(
+            &[rule(&["admin"], "Ghost", "read")],
             &["Order".to_string()],
             &[],
             |message| warnings.push(message),
@@ -1016,8 +903,8 @@ mod tests {
                 },
             ],
         }];
-        let compiled = compile_rbac(
-            "%%rbac role:manager on Deal.close_won",
+        let compiled = compile_rbac_declarations(
+            &[rule(&["manager"], "Deal", "close_won")],
             &[],
             &machines,
             |_| {},
@@ -1030,7 +917,7 @@ mod tests {
     }
 
     #[test]
-    fn table_names_follow_the_erd_parser() {
+    fn table_names_follow_the_erd_compiler() {
         assert_eq!(bus_table_name("Order"), "bus_order");
         assert_eq!(bus_table_name("DealLineItem"), "bus_deal_line_item");
         assert_eq!(bus_table_name("bus_already"), "bus_already");
@@ -1038,7 +925,7 @@ mod tests {
 
     #[test]
     fn derived_roles_keep_the_two_built_ins_and_add_the_declared_ones() {
-        let compiled = compile("%%rbac role:sales_manager on Deal.read");
+        let compiled = compile(&[rule(&["sales_manager"], "Deal", "read")]);
         let access = derive_access(
             &compiled,
             &DeriveAccessOptions {
@@ -1071,7 +958,7 @@ mod tests {
 
     #[test]
     fn a_model_naming_administrator_does_not_get_a_second_role() {
-        let compiled = compile("%%rbac role:administrator on Deal.delete");
+        let compiled = compile(&[rule(&["administrator"], "Deal", "delete")]);
         let access = derive_access(
             &compiled,
             &DeriveAccessOptions {
@@ -1085,7 +972,7 @@ mod tests {
     }
 
     #[test]
-    fn a_model_with_no_directives_emits_only_the_header() {
+    fn a_model_with_no_access_rules_emits_only_the_header() {
         let sql = build_access_seed_sql(&AccessSeedOptions {
             project_name: "crm",
             rbac: &CompiledRbac::default(),
@@ -1095,16 +982,5 @@ mod tests {
         });
         assert!(!sql.contains("INSERT INTO"));
         assert!(sql.contains("declares no access rules"));
-    }
-
-    #[test]
-    fn a_malformed_directive_is_reported_not_silently_dropped() {
-        let mut warnings = Vec::new();
-        let compiled = compile_rbac("%%rbac role:admin Order.read", &[], &[], |m| {
-            warnings.push(m)
-        });
-        assert!(compiled.operations.is_empty());
-        assert_eq!(warnings.len(), 1);
-        assert!(warnings[0].contains("malformed"));
     }
 }

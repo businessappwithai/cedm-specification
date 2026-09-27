@@ -1,15 +1,14 @@
 //! The YAML model language, read into model records.
 //!
-//! A port of `packages/generator/src/model-yaml/{validate,convert}.ts` as far as
-//! generation needs it: the document is checked against
+//! A port of `packages/generator/src/model-yaml/{validate,to-records}.ts` as far
+//! as generation needs it: the document is checked against
 //! `language/yaml/eml.schema.json` — the definition of the language, embedded
 //! at build time so the binary carries the schema it was built against — and
-//! then read into the same records the EML readers produce. From there the
-//! compilers cannot tell which syntax a model was written in.
+//! then read into the model records every compiler works on.
 //!
-//! The checker's semantic rules and the view-fidelity layer live in the
-//! TypeScript validator (`appwithai validate`); this reader refuses what the
-//! schema refuses, which is everything the compilers could not act on.
+//! The checker's semantic rules live in the TypeScript validator
+//! (`appwithai validate`); this reader refuses what the schema refuses, which is
+//! everything the compilers could not act on.
 
 use std::collections::BTreeMap;
 
@@ -17,16 +16,16 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::Deserialize;
 
 use crate::records::{
-    relationship_glyph, AttributeDeclaration, CategoryDeclaration, EntityDeclaration, ErdRecords,
-    HookDeclaration, IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration,
-    ReportDeclaration, RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration,
-    SagaStepDeclaration, StateMachineDeclaration, StateTransitionDeclaration,
+    AttributeDeclaration, CategoryDeclaration, EntityDeclaration, ErdRecords, HookDeclaration,
+    IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration, ReportDeclaration,
+    RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration, SagaStepDeclaration,
+    StateMachineDeclaration, StateTransitionDeclaration,
 };
 
 /// `language/yaml/eml.schema.json`, as this binary was built with it.
 const SCHEMA: &str = include_str!("../../../language/yaml/eml.schema.json");
 
-/// Whether a path names a YAML model rather than an EML one.
+/// Whether a path names a model (`*.eml.yaml`, `*.yaml`, `*.yml`).
 pub fn is_model_yaml_path(path: &std::path::Path) -> bool {
     path.extension()
         .and_then(|extension| extension.to_str())
@@ -70,10 +69,33 @@ struct Document {
     state_machines: Vec<StateMachineDocument>,
     #[serde(default)]
     sagas: Vec<SagaDocument>,
-    /// Drawings only; nothing compiles them.
-    #[serde(default, rename = "hookDiagrams")]
+    /// The order an entity's hooks run in, drawn. Validated by the schema and
+    /// held to the hooks it names by the checker; nothing compiles it.
+    #[serde(default, rename = "hookFlows")]
     #[allow(dead_code)]
-    hook_diagrams: Vec<serde_yaml::Value>,
+    hook_flows: Vec<HookFlowDocument>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+#[allow(dead_code)]
+struct HookFlowDocument {
+    name: String,
+    title: Option<String>,
+    entity: String,
+    direction: Option<String>,
+    nodes: Vec<HookFlowNodeDocument>,
+    edges: Vec<RuleEdgeDocument>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+#[allow(dead_code)]
+struct HookFlowNodeDocument {
+    id: String,
+    label: Option<String>,
+    event: Option<String>,
+    handler: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -240,7 +262,8 @@ struct RuleDocument {
 struct RuleNodeDocument {
     id: String,
     label: String,
-    shape: String,
+    #[serde(rename = "type")]
+    node_type: String,
 }
 
 #[derive(Deserialize)]
@@ -430,14 +453,11 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
     }
 
     for relationship in document.relationships {
-        let left = relationship_glyph(&relationship.from_cardinality, true)
-            .ok_or_else(|| anyhow!("unknown cardinality {}", relationship.from_cardinality))?;
-        let right = relationship_glyph(&relationship.to_cardinality, false)
-            .ok_or_else(|| anyhow!("unknown cardinality {}", relationship.to_cardinality))?;
         erd.relationships.push(RelationshipDeclaration {
             source: relationship.from,
             target: relationship.to,
-            operator: format!("{left}--{right}"),
+            source_end: relationship.from_cardinality,
+            target_end: relationship.to_cardinality,
             label: relationship.label,
         });
     }
@@ -480,7 +500,7 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
                 .map(|node| RuleNode {
                     id: node.id,
                     label: node.label,
-                    shape: node.shape,
+                    node_type: node.node_type,
                 })
                 .collect(),
             edges: rule
@@ -585,83 +605,77 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
     })
 }
 
+/// Read a model a test writes inline, refusing one the schema refuses.
+#[cfg(test)]
+pub fn test_records(text: &str) -> ModelRecords {
+    read_model_yaml(text).unwrap_or_else(|error| panic!("fixture is not a model: {error:#}"))
+}
+
+/// A test model's entities, relationships and enums, compiled.
+#[cfg(test)]
+pub fn test_model(text: &str) -> crate::model::Model {
+    let lang = crate::language::Language::load().expect("language definition");
+    crate::model::compile_erd(&test_records(text).erd, &lang)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::language::Language;
-    use crate::model_source::read_eml_model;
 
-    /// `<EML model>`, `<its YAML>` — the corpus the parity script also runs.
-    const PAIRS: [(&str, &str); 6] = [
-        (
-            "examples/drug-discovery.eml.mmd",
-            "examples/drug-discovery.eml.yaml",
-        ),
-        (
-            "language/examples/crm.eml.mmd",
-            "language/yaml/examples/crm.eml.yaml",
-        ),
-        (
-            "language/examples/dance-studio.eml.mmd",
-            "language/yaml/examples/dance-studio.eml.yaml",
-        ),
-        (
-            "language/examples/ecommerce.eml.mmd",
-            "language/yaml/examples/ecommerce.eml.yaml",
-        ),
-        (
-            "language/examples/helpdesk.eml.mmd",
-            "language/yaml/examples/helpdesk.eml.yaml",
-        ),
-        (
-            "language/examples/minimal.eml.mmd",
-            "language/yaml/examples/minimal.eml.yaml",
-        ),
+    /// The corpus the parity script also runs.
+    const CORPUS: [&str; 6] = [
+        "examples/drug-discovery.eml.yaml",
+        "language/yaml/examples/crm.eml.yaml",
+        "language/yaml/examples/dance-studio.eml.yaml",
+        "language/yaml/examples/ecommerce.eml.yaml",
+        "language/yaml/examples/helpdesk.eml.yaml",
+        "language/yaml/examples/minimal.eml.yaml",
     ];
 
     fn repo_file(relative: &str) -> String {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        std::fs::read_to_string(root.join(relative)).expect(relative)
+        std::fs::read_to_string(root.join(relative)).unwrap_or_else(|_| panic!("{relative}"))
     }
 
-    /// Everything the compilers produce from a model, as JSON for comparison.
-    fn compiled(records: &ModelRecords, lang: &Language) -> serde_json::Value {
-        let model = crate::model::compile_erd(&records.erd, lang);
-        let names: Vec<String> = model.entities.iter().map(|e| e.name.clone()).collect();
-        let workflows = crate::workflows::compile_state_machine_declarations(
-            &records.state_machines,
-            &names,
-            |_| {},
-        );
-        let machines: Vec<crate::rbac::RbacStateMachine> = workflows
-            .iter()
-            .map(crate::workflows::CompiledWorkflow::as_state_machine)
-            .collect();
-        let sagas = crate::saga::compile_saga_declarations(&records.sagas, lang);
-        serde_json::json!({
-            "entities": model.entities,
-            "relationships": model.relationships,
-            "enums": model.enums,
-            "categories": crate::category::resolve_category_declarations(&records.categories, &names),
-            "workflows": format!("{workflows:?}"),
-            "rbac": format!("{:?}", crate::rbac::compile_rbac_declarations(&records.rbac, &names, &machines, |_| {})),
-            "rules": format!("{:?}", crate::rules::compile_rule_declarations(&records.rules, |_| {})),
-            "reports": format!("{:?}", crate::reports::compile_report_declarations(&records.reports, &names, |_| {})),
-            "hooks": format!("{:?}", crate::hooks::compile_hook_declarations(&records.hooks, &names, |_| {})),
-            "sagas": format!("{:?}", sagas.workflows),
-        })
-    }
-
+    /// Every construct of every corpus model reaches its compiler and compiles
+    /// without a warning. A compiler that warns on a curated model is either a
+    /// model the corpus no longer means or a compiler that no longer reads what
+    /// the reader hands it — and both would otherwise pass parity, because the
+    /// two generators would agree on the same loss.
     #[test]
-    fn every_yaml_example_compiles_to_what_its_eml_compiles_to() {
-        let lang = Language::load();
-        for (eml, yaml) in PAIRS {
-            let from_eml = read_eml_model(&repo_file(eml), &lang, |_| {});
-            let from_yaml = read_model_yaml(&repo_file(yaml)).expect(yaml);
+    fn every_corpus_model_compiles_without_a_warning() {
+        let lang = Language::load().expect("language definition");
+        for file in CORPUS {
+            let records = read_model_yaml(&repo_file(file)).expect(file);
+            let mut warnings: Vec<String> = Vec::new();
+            let model = crate::model::compile_erd(&records.erd, &lang);
+            assert!(!model.entities.is_empty(), "{file} compiled to no entities");
+            let names: Vec<String> = model.entities.iter().map(|e| e.name.clone()).collect();
+            let workflows = crate::workflows::compile_state_machine_declarations(
+                &records.state_machines,
+                &names,
+                |m| warnings.push(m),
+            );
+            let machines: Vec<crate::rbac::RbacStateMachine> = workflows
+                .iter()
+                .map(crate::workflows::CompiledWorkflow::as_state_machine)
+                .collect();
+            crate::rbac::compile_rbac_declarations(&records.rbac, &names, &machines, |m| {
+                warnings.push(m)
+            });
+            crate::rules::compile_rule_declarations(&records.rules, |m| warnings.push(m));
+            crate::reports::compile_report_declarations(&records.reports, &names, |m| {
+                warnings.push(m)
+            });
+            crate::hooks::compile_hook_declarations(&records.hooks, &names, |m| warnings.push(m));
+            let sagas = crate::saga::compile_saga_declarations(&records.sagas, &lang);
+            warnings.extend(sagas.diagnostics.iter().map(|d| d.message.clone()));
+            assert!(warnings.is_empty(), "{file}: {warnings:#?}");
             assert_eq!(
-                compiled(&from_yaml, &lang),
-                compiled(&from_eml, &lang),
-                "{yaml} and {eml} compile differently"
+                sagas.workflows.len(),
+                records.sagas.len(),
+                "{file}: a saga was dropped"
             );
         }
     }

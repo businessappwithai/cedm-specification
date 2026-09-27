@@ -1,9 +1,9 @@
-//! `appwithai` — generate a full-stack Loco.rs application from an EML model.
+//! `appwithai` — generate a full-stack Loco.rs application from a model.
 //!
 //! The pipeline, in order:
 //!
-//!   1. read the model files and parse the ERD, its `%%category` directives and
-//!      its `kind: saga` workflows;
+//!   1. read the model (`*.eml.yaml`), hold it to the language's schema, and
+//!      read it into model records, which every compiler below works on;
 //!   2. scaffold the backend with `loco new`, then prune what this
 //!      architecture replaces;
 //!   3. overlay the Handlebars templates, which write everything that carries
@@ -24,7 +24,6 @@ mod hooks;
 mod language;
 mod logging;
 mod model;
-mod model_source;
 mod naming;
 mod rbac;
 mod records;
@@ -89,10 +88,25 @@ fn list_stacks() {
     println!("  neutral  butter  chocolate  matcha  stone  gothic  y2k");
 }
 
+/// Read a model file into records, refusing a path that is not a model.
+fn read_model(path: &Path) -> Result<records::ModelRecords> {
+    if !yaml_model::is_model_yaml_path(path) {
+        bail!(
+            "\"{}\" is not a model. A model is a YAML document (*.eml.yaml); see language/yaml/README.md.",
+            path.display()
+        );
+    }
+    if !path.exists() {
+        bail!("model file not found: {}", path.display());
+    }
+    let text =
+        std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+    yaml_model::read_model_yaml(&text).with_context(|| format!("reading {}", path.display()))
+}
+
 fn info(input: &Path) -> Result<()> {
-    let lang = Language::load();
-    let records =
-        model_source::read_model_files(std::slice::from_ref(&input.to_path_buf()), &lang, |_| {})?;
+    let lang = Language::load()?;
+    let records = read_model(input)?;
     let parsed = model::compile_erd(&records.erd, &lang);
     let names: Vec<String> = parsed.entities.iter().map(|e| e.name.clone()).collect();
     let categories = category::resolve_category_declarations(&records.categories, &names);
@@ -142,39 +156,15 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         println!("═══════════════════════════════════════════\n");
     }
 
-    // ── Input validation ────────────────────────────────────────────────
-    if args.is_multi_file() && args.input.is_some() {
-        bail!("Cannot combine --input with --sys-file / --bus-file / --ref-file. Use one or the other.");
-    }
-    if !args.is_multi_file() && args.input.is_none() {
-        bail!("Specify --input <file> or at least one of --sys-file / --bus-file / --ref-file.");
-    }
-
-    let model_files = args.model_files();
-    for path in &model_files {
-        if !path.exists() {
-            bail!("model file not found: {}", path.display());
-        }
-    }
-
-    // ── Parse ───────────────────────────────────────────────────────────
-    let lang = Language::load();
-    let records = model_source::read_model_files(&model_files, &lang, |message| {
-        if !args.quiet {
-            println!("  ⚠️  {message}");
-        }
-    })?;
+    // ── Read ────────────────────────────────────────────────────────────
+    let lang = Language::load()?;
+    let records = read_model(&args.input)?;
     let parsed = model::compile_erd(&records.erd, &lang);
 
     if parsed.entities.is_empty() {
         bail!(
-            "no entities found in {}.\n  \
-             An EML model needs an `erDiagram` section with at least one entity block.",
-            model_files
-                .iter()
-                .map(|p| p.display().to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
+            "no entities found in {}. A model declares at least one entity.",
+            args.input.display()
         );
     }
 
@@ -247,7 +237,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     std::fs::create_dir_all(&output_dir)
         .with_context(|| format!("creating {}", output_dir.display()))?;
 
-    // `%%rbac` restrictions. Compiled before the backend context is built,
+    // Access rules. Compiled before the backend context is built,
     // because both the context (the demonstration accounts) and `seed/access.sql`
     // (the rules) read them, and deriving twice from two readings is how the
     // accounts and the rules would come to disagree about which roles exist.
@@ -266,9 +256,9 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         }
     };
 
-    // `%%workflow ... kind: state` draws which moves a record may make.
-    // Compiled before `%%rbac` because a directive may name a *transition*
-    // rather than a CRUD operation — `%%rbac role:manager on Deal.close_won` —
+    // The model's `stateMachines` say which moves a record may make.
+    // Compiled before the access rules because a rule may name a *transition*
+    // rather than a CRUD operation — `manager` may `close_won` a `Deal` —
     // and only the machines can say which edges that covers.
     let compiled_workflows =
         workflows::compile_state_machine_declarations(&records.state_machines, &entity_names, warn);
@@ -280,7 +270,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     let compiled_rbac =
         rbac::compile_rbac_declarations(&records.rbac, &entity_names, &state_machines, warn);
 
-    // `%%rule` sections are decision flowcharts. Compiled here rather than in
+    // The model's `rules` are decision graphs. Compiled here rather than in
     // the emission layer so a malformed one is reported once, at the point the
     // model is read, rather than per output file.
     let compiled_rules = rules::compile_rule_declarations(&records.rules, |message| {
@@ -289,7 +279,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         }
     });
 
-    // `%%report` names an analytical question and carries the SQL that answers
+    // A report names an analytical question and carries the SQL that answers
     // it. Compiled here, with the rules, so a malformed directive is reported
     // once at the point the model is read — and so the refusal of anything that
     // is not a single read happens before a query can reach a seed file.
@@ -363,7 +353,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if compiled_rules.is_empty() {
-                    "  ✓ Wrote seed/rules.sql (no %%rule declared)".to_string()
+                    "  ✓ Wrote seed/rules.sql (no rules declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/rules.sql ({} rule(s))",
@@ -417,7 +407,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if rules + edges == 0 {
-                    "  ✓ Wrote seed/access.sql (no %%rbac declared)".to_string()
+                    "  ✓ Wrote seed/access.sql (no access rules declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/access.sql ({rules} operation rule(s), {edges} transition rule(s))"
@@ -469,7 +459,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if compiled_reports.is_empty() {
-                    "  ✓ Wrote seed/reports.sql (no %%report declared)".to_string()
+                    "  ✓ Wrote seed/reports.sql (no reports declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/reports.sql ({} report(s))",
@@ -496,7 +486,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             );
         }
 
-        // The model's `%%hook` directives. Compiled here rather than beside the
+        // The model's `hooks`. Compiled here rather than beside the
         // other compilers above because nothing else reads them: they become
         // Rust source under `src/hooks/`, not a seed row.
         let compiled_hooks = hooks::compile_hook_declarations(&records.hooks, &entity_names, warn);
@@ -505,7 +495,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if compiled_hooks.is_empty() {
-                    "  ✓ Wrote src/hooks/ (no %%hook declared)".to_string()
+                    "  ✓ Wrote src/hooks/ (no hooks declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote src/hooks/ ({} handler(s) across {hook_entities} entity(ies))",
@@ -625,7 +615,7 @@ fn compile_sagas(
         for step in &workflow.steps {
             if !EXECUTABLE_STEP_TYPES.contains(&step.node_type.as_str()) {
                 eprintln!(
-                    "  ⚠️  saga {}.{}: \"{}\" steps are declared by EML but the Loco backend has \
+                    "  ⚠️  saga {}.{}: \"{}\" steps are declared by the model but the Loco backend has \
                      no executor for them — this step will be skipped at run time.",
                     workflow.name, step.node_id, step.node_type
                 );

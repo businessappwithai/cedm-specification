@@ -5,7 +5,7 @@
 //! and the two must agree byte for byte; `bun run parity` is what says they do.
 //!
 //! The design note lives in that file. In short: nothing here is invented — a
-//! `%%enum` column takes a declared value, a status column backing a state
+//! enum-bound column takes a declared value, a status column backing a state
 //! machine takes the machine's initial state, and a foreign key takes the id of
 //! a row inserted above it. Referential integrity is left switched on and the
 //! entities are ordered so that it holds, which is the only thing separating
@@ -50,7 +50,7 @@ pub struct BusinessSeedOptions<'a> {
     pub relationships: &'a [Relationship],
     /// State machines, for the initial state of a status column.
     pub workflows: &'a [CompiledWorkflow],
-    /// `%%enum` declarations with their ids.
+    /// Enum declarations with their ids.
     pub model_enums: &'a [ModelEnum],
     /// Rows per entity.
     pub rows_per_entity: usize,
@@ -496,30 +496,50 @@ fn snake(entity_name: &str) -> String {
 mod tests {
     use super::*;
     use crate::bus::entity_to_bus_entity;
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
-    const MODEL: &str = r"erDiagram
-    Customer ||--o{ Order : places
-    Customer {
-        string id PK
-        string name
-        string email
-        string status
-    }
-    Order {
-        string id PK
-        string customer_id FK
-        decimal total
-        string status
-        datetime shipped_at OPTIONAL
-    }
-%%enum OrderStatus: draft, submitted, shipped
-%%field Order.status enum: OrderStatus
-";
+    const MODEL: &str = r#"eml: "1.0"
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+  - name: Order
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: total
+        type: decimal
+      - name: status
+        type: string
+        enum: OrderStatus
+      - name: shipped_at
+        type: datetime
+        optional: true
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Order
+    toCardinality: zero-or-more
+    label: places
+"#;
 
     fn seed(workflows: &[CompiledWorkflow]) -> String {
-        let parsed = parse_erd(MODEL, &Language::load());
+        let parsed = test_model(MODEL);
         let declared = crate::bus::declared_entity_names(&parsed.entities);
         let entities: Vec<BusEntity> = parsed
             .entities
