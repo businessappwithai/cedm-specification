@@ -22,6 +22,11 @@ entity:
   - {name: actualDate, type: date, required: false}
   - {name: trackingReference, type: string, required: false, maxLength: 200}
   relationships:
+  - name: lines
+    target: ShipmentLine
+    cardinality: 1..*
+    ownership: aggregate
+    help: {summary: Product-level quantities executed by the shipment., businessMeaning: Provides line-level logistics traceability to orders and inventory events., usage: Packing, dispatch, delivery, fulfillment, receiving, and audit., cardinalityMeaning: An executable shipment contains at least one line., workflowRole: Line quantities reconcile transport execution with source demand and attributable InventoryMovement.}
   - name: origin
     target: Location
     cardinality: 0..1
