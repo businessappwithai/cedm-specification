@@ -1,0 +1,36 @@
+entity:
+  name: SupplierQuotation
+  namespace: cedm.domain
+  kind: sourcing_response_transaction
+  description: A Supplier's governed commercial response to a RequestForQuotation, recording offered price, validity, delivery, and award state without itself creating a PurchaseOrder commitment.
+  identity: {key: supplierQuotationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: supplierQuotationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the supplier response., businessMeaning: Identifies one offer independently of supplier document number and RFQ., usage: Comparison, negotiation, award, and audit., relationshipContext: Root identity for the offer., workflowRole: Preserves supplier response evidence., requiredMeaning: Required.}}
+  - {name: quotationNumber, type: string, required: true, maxLength: 120, help: {summary: Supplier or sourcing reference for the offer., businessMeaning: Human-facing identifier of the commercial response., usage: Communication, comparison, order conversion, and audit., relationshipContext: Scoped with supplier where supplier numbering is not globally unique., requiredMeaning: Required.}}
+  - {name: submittedAt, type: datetime, required: true, help: {summary: Time the supplier response was received or submitted., businessMeaning: Establishes offer chronology and deadline compliance., usage: Sourcing governance and audit., relationshipContext: Distinct from RFQ issue and purchase-order dates., requiredMeaning: Required.}}
+  - {name: validUntil, type: date, required: false, help: {summary: Last date on which the commercial offer remains valid., businessMeaning: Defines the supplier's price/terms validity window., usage: Award eligibility and purchase-order conversion., relationshipContext: Expiry does not rewrite historical offer evidence., optionalMeaning: Optional if no explicit expiry applies.}}
+  - {name: totalAmount, type: Money, required: false, help: {summary: Total offered commercial amount., businessMeaning: Summarizes the supplier offer for comparison., usage: Sourcing analysis, approvals, and order conversion., relationshipContext: Must reconcile with detailed offer basis when line detail is modeled., optionalMeaning: Optional while offer pricing is incomplete.}}
+  - name: status
+    type: enum
+    required: true
+    default: RECEIVED
+    values: [RECEIVED, UNDER_REVIEW, ACCEPTED, REJECTED, EXPIRED, WITHDRAWN]
+    help: {summary: Evaluation state of the supplier offer., businessMeaning: Controls whether the response is pending, selected, rejected, expired, or withdrawn., usage: Comparison and award workflow., relationshipContext: ACCEPTED authorizes downstream conversion but PurchaseOrder remains the commitment., valueSemantics: {RECEIVED: Offer captured., UNDER_REVIEW: Being evaluated., ACCEPTED: Selected through governed award., REJECTED: Not selected., EXPIRED: Validity elapsed., WITHDRAWN: Supplier withdrew the offer.}, requiredMeaning: Required.}
+  relationships:
+  - {name: requestForQuotation, target: RequestForQuotation, cardinality: '1', ownership: reference, help: {summary: RFQ answered by this offer., businessMeaning: Supplies the governed solicitation and demand context., usage: Comparison and audit., cardinalityMeaning: Every sourcing response belongs to exactly one RFQ., workflowRole: Defines requirements and eligible sourcing context.}}
+  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier making the offer., businessMeaning: Identifies the commercial counterparty candidate., usage: Qualification, comparison, award, and performance analysis., cardinalityMeaning: Exactly one supplier owns the response., workflowRole: Must be eligible under sourcing policy.}}
+  - {name: purchaseOrders, target: PurchaseOrder, cardinality: 0..*, ownership: reference, help: {summary: Procurement commitments created from the accepted offer., businessMeaning: Preserves offer-to-order traceability., usage: Price/term verification and audit., cardinalityMeaning: An accepted offer may create zero or multiple orders., workflowRole: PurchaseOrder executes the commitment after required approvals.}}
+  invariants:
+  - {id: SUPPLIER-QUOTATION-001, rule: The supplier must be eligible for the referenced RequestForQuotation unless an authorized exception is recorded.}
+  - {id: SUPPLIER-QUOTATION-002, rule: ACCEPTED requires a governed award decision and a non-expired offer unless an authorized exception applies.}
+  - {id: SUPPLIER-QUOTATION-003, rule: Acceptance does not itself create inventory, accounts-payable, or purchase commitment effects.}
+  - {id: SUPPLIER-QUOTATION-004, rule: PurchaseOrder commercial terms derived from the offer must remain traceable to this response or an authorized negotiated amendment.}
+  - {id: SUPPLIER-QUOTATION-005, rule: Submitted and evaluated sourcing evidence is retained; corrections use controlled amendment or replacement semantics.}
+  help:
+    summary: Preserves a supplier's commercial response to governed sourcing.
+    businessMeaning: SupplierQuotation is evidence of an offer; RequestForQuotation is the solicitation; PurchaseOrder is the later commitment.
+    usage: Sourcing, bid comparison, negotiation, supplier selection, procurement compliance, and audit.
+    relationshipContext: Connects Supplier and RFQ to resulting PurchaseOrders without conflating offer and commitment.
+    lifecycle: Received → under review → accepted/rejected/expired/withdrawn.
+    changePropagation: Supplier qualification, RFQ changes, and validity changes revalidate open evaluation; accepted historical offers remain immutable evidence.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-QUOTATION}
