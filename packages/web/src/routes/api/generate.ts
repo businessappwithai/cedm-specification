@@ -27,13 +27,13 @@ export const Route = createFileRoute("/api/generate")({
     handlers: {
       POST: async ({ request }) => {
         const body = await request.json();
-        const { projectId, stackType, stackOption, erdCode } = body;
+        const { projectId, stackType, stackOption, model: modelText } = body;
 
         console.log("Generate API received:", {
           projectId: projectId ? "SET" : "MISSING",
           stackType: stackType ? stackType : "MISSING",
           stackOption: stackOption ? stackOption : "MISSING",
-          erdCode: erdCode ? `SET (${erdCode.length} chars)` : "MISSING",
+          model: modelText ? `SET (${modelText.length} chars)` : "the saved model",
         });
 
         /*
@@ -105,15 +105,12 @@ export const Route = createFileRoute("/api/generate")({
                * produced it (`.appwithai/generation.json` records the commit).
                */
               const prepared = await prepareGeneration(projectId, access.user.id, {
-                model: erdCode || project.erdCode,
+                model: modelText || project.modelYaml,
                 requestId: body.requestId ? `${body.requestId}-model` : undefined,
                 expectedCommit: body.expectedCommit,
               });
-              const finalErdCode = prepared.model;
-              if (!finalErdCode) {
-                sendError("No ERD code found. Please create an ERD diagram first.");
-                controller.close();
-                return;
+              for (const warning of prepared.warnings) {
+                sendLog("warning", `${warning.source}: ${warning.message}`);
               }
 
               const requestedStack =
@@ -136,8 +133,8 @@ export const Route = createFileRoute("/api/generate")({
               sendLog("info", `Initializing generator for stack: ${finalStackType}`);
 
               /*
-               * The saved YAML is the model; the Mermaid is the drawing of it.
-               * It is validated here exactly as the CLI validates a model file,
+               * The saved model, with what the project's automations add. It is
+               * validated here exactly as the CLI validates a model file,
                * so a model the generator would misread is refused with the line
                * that is wrong rather than generated.
                */

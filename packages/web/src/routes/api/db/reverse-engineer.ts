@@ -1,5 +1,5 @@
 /**
- * Read an existing database and describe it as an ERD.
+ * Read an existing database and describe it as a model document.
  *
  * The second way into the product: a team with a database already has a model,
  * it is just written in DDL. The reading itself lives in
@@ -50,10 +50,12 @@ export const Route = createFileRoute("/api/db/reverse-engineer")({
           const { introspectDatabase } = await import("@appwithai/core/services");
           const result = await introspectDatabase({ connectionString });
 
+          const { serializeModelDocument } = await import("@appwithai/generator/model-yaml");
           return json({
-            mermaidCode: result.eml,
+            model: serializeModelDocument(result.document),
             tableCount: result.tableCount,
             relationshipCount: result.relationshipCount,
+            skipped: result.skipped,
           });
         } catch (error) {
           const message =

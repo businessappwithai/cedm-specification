@@ -15,7 +15,6 @@ import {
   digest,
   git,
   head,
-  MODEL,
   MODEL_YAML,
   projectDirectory,
   readFile,
@@ -41,7 +40,18 @@ const suite = enabled ? describe : describe.skip;
 let root: string;
 const schema = `git_test_${randomUUID().replaceAll("-", "")}`;
 let admin: pg.Client;
-const model = "erDiagram\n  Item {\n    uuid id PK\n  }\n";
+/** A model document; `edited(n)` is the same model with one more column. */
+const model = [
+  'eml: "1.0"',
+  "name: Inventory",
+  "entities:",
+  "  - name: Item",
+  "    attributes:",
+  "      - { name: id, type: uuid, pk: true }",
+  "      - { name: name, type: string }",
+  "",
+].join("\n");
+const edited = (n: number) => `${model.trimEnd()}\n      - { name: extra_${n}, type: int }\n`;
 let counter = 0;
 async function project() {
   const id = `git_test_${++counter}`;
@@ -130,36 +140,66 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
     ).toHaveLength(1);
     expect(saved.commit).toBe(draft.commit);
     await expect(
-      saveProject(id, "owner", { model: model + "%%edit\n", expectedCommit: null })
+      saveProject(id, "owner", { model: edited(1), expectedCommit: null })
     ).rejects.toThrow("changed");
     await expect(
-      saveProject(id, "owner", { model: "different", requestId: "named-one" })
+      saveProject(id, "owner", { model: edited(2), requestId: "named-one" })
     ).rejects.toThrow("different content");
   });
 
   it("saves the model as YAML and generates from exactly that YAML", async () => {
-    const { emlToModelDocument, readModelYaml, renderEmlView, serializeModelDocument } =
-      await import("@appwithai/generator/model-yaml");
+    const { readModelYaml } = await import("@appwithai/generator/model-yaml");
     const id = await project();
-    const drawn =
-      "erDiagram\n  Item ||--o{ ItemLine : has\n  Item {\n    uuid id PK\n    string name\n  }\n" +
-      "  ItemLine {\n    uuid id PK\n    uuid item_id FK\n    int quantity\n  }\n" +
-      "%%entity ItemLine parent: Item\n";
-    await saveProject(id, "owner", { model: drawn });
+    // Written the way an author writes it — comments, flow lists, spacing —
+    // none of which the canonical form keeps.
+    const written = [
+      "# Line items live under their item.",
+      'eml: "1.0"',
+      "name: Inventory",
+      "entities:",
+      "  - name: Item",
+      "    attributes:",
+      "      - { name: id, type: uuid, pk: true }",
+      "      - { name: name, type: string }",
+      "  - name: ItemLine",
+      "    parent: Item",
+      "    attributes:",
+      "      - { name: id, type: uuid, pk: true }",
+      "      - { name: item_id, type: uuid, fk: true }",
+      "      - { name: quantity, type: int }",
+      "relationships:",
+      "  - { from: Item, fromCardinality: exactly-one, to: ItemLine, toCardinality: zero-or-more, label: has }",
+      "",
+    ].join("\n");
+    expect(readModelYaml(written).ok).toBe(true);
+    await saveProject(id, "owner", { model: written });
     const dir = await projectDirectory(id);
 
-    const yaml = decode((await readFile(dir, MODEL_YAML))!);
-    const expected = serializeModelDocument(emlToModelDocument(drawn).document);
-    expect(yaml).toBe(expected);
-    const read = readModelYaml(yaml);
-    expect(read.ok).toBe(true);
-    expect(read.document?.entities.find((e) => e.name === "ItemLine")?.parent).toBe("Item");
-    // The Mermaid in the history is the view of the saved YAML, not the drawing.
-    expect(decode((await readFile(dir, MODEL))!)).toBe(renderEmlView(read.document!).text);
+    // The author's text is kept byte for byte; the canonical form is beside it.
+    expect(decode((await readFile(dir, MODEL_YAML))!)).toBe(written);
+    const projection = decode((await readFile(dir, AI_PROJECTION))!);
+    expect(projection).not.toContain("# Line items");
+    expect(readModelYaml(projection).document?.entities.find((e) => e.name === "ItemLine")?.parent).toBe(
+      "Item"
+    );
+    await expect(fs.access(path.join(dir, "model/model.eml.mmd"))).rejects.toThrow();
 
     const prepared = await prepareGeneration(id, "owner", {});
-    expect(prepared.modelYaml).toBe(yaml);
-    expect(prepared.model).toBe(renderEmlView(read.document!).text);
+    expect(prepared.modelYaml).toBe(written);
+    expect(prepared.warnings).toEqual([]);
+  });
+
+  it("refuses a draft that is not a model document, and a version the checker rejects", async () => {
+    const id = await project();
+    await expect(saveProject(id, "owner", { model: "entities: [unclosed" })).rejects.toThrow(
+      "not a valid model document"
+    );
+    // A relationship to an entity nobody declared reads, but does not check.
+    const dangling = `${model}relationships:\n  - { from: Item, fromCardinality: exactly-one, to: Ghost, toCardinality: zero-or-more, label: haunts }\n`;
+    await expect(saveProject(id, "owner", { model: dangling, mode: "draft" })).resolves.toBeTruthy();
+    await expect(saveProject(id, "owner", { model: dangling, mode: "version" })).rejects.toThrow(
+      "must pass the model checker"
+    );
   });
 
   it("recovers a committed Git snapshot after database finalization fails", async () => {
@@ -175,7 +215,7 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
         `CREATE TRIGGER fail_finalize BEFORE UPDATE ON project_git_operations FOR EACH ROW EXECUTE FUNCTION ${schema}.fail_git_finalize()`
       )
       .execute(getDatabase());
-    const input = { model: model + "%%changed\n", mode: "version" as const, requestId: "recovery" };
+    const input = { model: edited(3), mode: "version" as const, requestId: "recovery" };
     await expect(saveProject(id, "owner", input)).rejects.toThrow("injected failure");
     const dir = await projectDirectory(id);
     const committed = await head(dir);
@@ -220,7 +260,7 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
         id: `old_${id}`,
         project_id: id,
         version_number: 1,
-        mermaid_code: model,
+        model_yaml: model,
         is_current: true,
         description: "Legacy",
         created_at: new Date().toISOString(),
@@ -238,19 +278,19 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
       })
       .execute();
     await importProject(id, "owner");
-    const edited = await saveProject(id, "owner", { model: model + "%%newer\n" });
+    const newer = await saveProject(id, "owner", { model: edited(4) });
     const restored = await restoreProject(id, "owner", {
       versionId: `old_${id}`,
       scope: "model",
       requestId: "restore-one",
     });
-    expect(restored.commit).not.toBe(edited.commit);
+    expect(restored.commit).not.toBe(newer.commit);
     expect((await repositoryHistory(id)).state?.model_code).toBe(model);
     expect(
       await git(await projectDirectory(id), [
         "merge-base",
         "--is-ancestor",
-        edited.commit,
+        newer.commit,
         restored.commit,
       ])
     ).toBe("");
@@ -267,13 +307,17 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
     ).rejects.toThrow("Version not found");
   });
 
-  it("snapshots workflow source and restores its database projection", async () => {
+  it("snapshots an automation's YAML document and restores its database projection", async () => {
+    const { automationFromYaml, automationToYaml } = await import("../../automation/yaml");
+    const { emptyAutomation } = await import("../../automation/model");
     const id = await project();
     await saveProject(id, "owner", { model });
+    const definition = automationToYaml({ ...emptyAutomation("Item"), name: "Notify" });
     await changeWorkflow(id, "owner", `wf_${id}`, {
       name: "Notify",
       service_name: "Item",
-      mermaid_code: "flowchart TD\n A --> B\n",
+      workflow_type: "automation",
+      definition_yaml: definition,
     });
     const version = await saveProject(id, "owner", { mode: "version" });
     await changeWorkflow(id, "owner", `wf_${id}`, { name: "Changed" });
@@ -284,11 +328,13 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
       .where("project_id", "=", id)
       .executeTakeFirstOrThrow();
     expect(row.name).toBe("Notify");
-    // A flowchart with no directives declares nothing the model carries, so it
-    // is not in the model's view; its own source is committed beside it.
-    const diagram = `model/diagrams/${digest(`wf_${id}`).slice(0, 24)}.mmd`;
-    expect(decode((await readFile(await projectDirectory(id), diagram))!)).toContain("A --> B");
-    expect(decode((await readFile(await projectDirectory(id), MODEL_YAML))!)).toContain("Item");
+    expect(row.definition_yaml).toBe(definition);
+    // The automation's own document is committed beside the model, and reads.
+    const file = `model/automations/${digest(`wf_${id}`).slice(0, 24)}.yaml`;
+    const committed = decode((await readFile(await projectDirectory(id), file))!);
+    expect(committed).toBe(definition);
+    expect(automationFromYaml(committed).trigger.entity).toBe("Item");
+    expect(decode((await readFile(await projectDirectory(id), MODEL_YAML))!)).toBe(model);
   });
 
   it("publishes generation, preserves local code, marks stale inputs and restores matching input", async () => {
@@ -324,7 +370,7 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
     const unchanged = await saveProject(id, "owner", { model });
     expect(unchanged.modelCommit).toBe(prepared.modelCommit);
     const next = await prepareGeneration(id, "owner", { model });
-    await saveProject(id, "owner", { model: model + "%%new draft\n" });
+    await saveProject(id, "owner", { model: edited(5) });
     const second = await publishGeneration(
       id,
       "owner",

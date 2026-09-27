@@ -22,10 +22,10 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/")({
         const service = await import("@/lib/server/project-repository");
         try {
           const body = await request.json();
-          if (typeof body.mermaidCode !== "string")
-            return Response.json({ error: "Mermaid code is required" }, { status: 400 });
+          if (typeof body.model !== "string")
+            return Response.json({ error: "The model (YAML text) is required" }, { status: 400 });
           const result = await service.saveProject(params.id, access.user.id, {
-            model: body.mermaidCode,
+            model: body.model,
             mode: body.mode === "draft" ? "draft" : "version",
             description: body.description,
             requestId: body.requestId,
@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/")({
           // rebuilt here rather than on the next question. It cannot fail the
           // save — see `lib/model-context.ts`.
           const { reindexProjectModel } = await import("@/lib/model-context");
-          const indexed = await reindexProjectModel(params.id, body.mermaidCode);
+          const indexed = await reindexProjectModel(params.id, body.model);
 
           return Response.json(
             { ...result, version: result.version ?? null, indexed },

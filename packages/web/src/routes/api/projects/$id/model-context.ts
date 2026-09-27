@@ -82,24 +82,39 @@ export const Route = createFileRoute("/api/projects/$id/model-context")({
             ? undefined
             : await db
                 .selectFrom("erd_versions")
-                .select(["mermaid_code"])
+                .select(["model_yaml"])
                 .where("project_id", "=", params.id as string)
                 .where("is_current", "=", true)
                 .executeTakeFirst();
-          const source = saved?.model_code ?? version?.mermaid_code;
-          if (!source) return json({ summary: null, modelled: false });
+          const source = saved?.model_code ?? version?.model_yaml;
+          if (!source?.trim()) return json({ summary: null, modelled: false });
 
-          const { parseModel } = await import("@appwithai/generator/pipeline");
+          const { compileModelDocument, readModelYaml } = await import(
+            "@appwithai/generator/model-yaml"
+          );
           const { summariseModel } = await import("@appwithai/generator/graph");
+          const read = readModelYaml(source, { check: false });
+          if (!read.document) {
+            // Saved, but not a model the summary can be taken from — say where.
+            const first = read.diagnostics[0];
+            return json({
+              summary: null,
+              modelled: true,
+              error: first ? `line ${first.line}: ${first.message}` : "not a model document",
+            });
+          }
           return json({
-            summary: summariseModel(parseModel(source), project?.name ?? "This project"),
+            summary: summariseModel(
+              compileModelDocument(read.document),
+              project?.name ?? "This project"
+            ),
             modelled: true,
           });
         }
 
-        // The saved model's YAML projection (`.appwithai/model.ai.yaml`), cut
-        // down to the entities `?term=` names, plus the diff that produced the
-        // commit. Read from the project's local Git history, so it needs no
+        // The saved model in canonical form (`.appwithai/model.ai.yaml`), cut
+        // down to the entities `?term=` names and what concerns them, plus the
+        // diff that produced the commit. Read from the project's local Git history, so it needs no
         // graph and answers from exactly what was last saved. It is project
         // data for a model to read, never instructions to it.
         if (question === "yaml") {
@@ -207,7 +222,7 @@ export const Route = createFileRoute("/api/projects/$id/model-context")({
 
         const body = (await request.json().catch(() => ({}))) as { source?: string };
         if (!body.source || typeof body.source !== "string") {
-          return json({ error: "A `source` (the EML document) is required" }, 400);
+          return json({ error: "A `source` (the model's YAML) is required" }, 400);
         }
 
         // The same path a model save takes, so an explicit re-index and an

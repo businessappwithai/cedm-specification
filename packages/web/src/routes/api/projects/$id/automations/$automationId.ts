@@ -1,9 +1,9 @@
 /**
  * One automation: read it, save it, remove it.
  *
- * The body carries mermaid rather than the builder's object model, so the
- * stored artifact stays the thing the generator reads and this endpoint never
- * becomes a second source of truth for what an automation is.
+ * The body carries the automation's YAML document rather than the builder's
+ * object model, so what is stored is the one document every reader reads and
+ * this endpoint never becomes a second source of truth for what one is.
  *
  * Every verb calls `requireProjectAccess` before it looks the automation up.
  * Checking that the row belongs to `params.id` is not a permission check: it
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
               id: row.id,
               name: row.name,
               serviceName: row.service_name,
-              mermaid: row.mermaid_code,
+              definition: row.definition_yaml,
               description: row.description ?? undefined,
               status: row.status ?? "draft",
               updatedAt: row.updated_at ?? undefined,
@@ -61,10 +61,15 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
           const body = (await request.json()) as {
             name?: string;
             entity?: string;
-            mermaid?: string;
+            definition?: string;
             description?: string;
             status?: string;
           };
+
+          const { readDefinition } = await import("@/lib/automation/definition");
+          const definition =
+            body.definition === undefined ? undefined : await readDefinition(body.definition);
+          if (definition instanceof Response) return definition;
 
           const { workflowDb } = await import("@appwithai/core/services");
           const existing = await workflowDb.findById(params.automationId);
@@ -76,7 +81,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
           const updated = await changeWorkflow(params.id, access.user.id, params.automationId, {
             ...(body.name !== undefined ? { name: body.name } : {}),
             ...(body.entity !== undefined ? { service_name: body.entity } : {}),
-            ...(body.mermaid !== undefined ? { mermaid_code: body.mermaid } : {}),
+            ...(definition !== undefined ? { definition_yaml: definition } : {}),
             ...(body.description !== undefined ? { description: body.description } : {}),
             ...(body.status !== undefined ? { status: body.status } : {}),
           });

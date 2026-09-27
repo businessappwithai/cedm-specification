@@ -74,7 +74,6 @@
     "@mastra/libsql": "^1.18.0",
     "@mastra/loggers": "^1.2.0",
     "@mastra/memory": "^1.24.0",
-    "@mermaid-js/parser": "^1.2.0",
     "@tanstack/start": "^1.120.20",
     "autoprefixer": "^10.5.0",
     "critters": "^0.0.25",

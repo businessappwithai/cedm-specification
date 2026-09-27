@@ -631,8 +631,9 @@ export function validateAutomation(automation: Automation): Problem[] {
     problems.push({ target: "trigger", message: "Pick the record type this watches." });
   }
 
-  // A hook workflow is its rungs. It has no conditions, loops or steps to
-  // check, so validate the handlers and stop.
+  // A hook workflow starts from one or more lifecycle rungs. It has no single
+  // `trigger.event`, so validate the handlers, then fall through to check any
+  // conditions and steps the author added after them.
   if (automation.kind === "hook") {
     if (automation.hooks.length === 0) {
       problems.push({ target: "hooks", message: "Add at least one lifecycle step." });
@@ -654,7 +655,6 @@ export function validateAutomation(automation: Automation): Problem[] {
       }
       seen.add(key);
     }
-    return problems;
   }
 
   for (const c of automation.conditions) {
@@ -668,7 +668,9 @@ export function validateAutomation(automation: Automation): Problem[] {
     }
   }
 
-  if (automation.steps.length === 0) {
+  // A hook's rungs are what it does, so an empty step list is not a problem
+  // there the way it is for an automation — but steps it does carry are checked.
+  if (automation.kind !== "hook" && automation.steps.length === 0) {
     problems.push({ target: "steps", message: "Add at least one thing for this to do." });
   }
 

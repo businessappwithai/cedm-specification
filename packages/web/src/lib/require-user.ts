@@ -3,12 +3,12 @@
  *
  * `requireProjectAccess` answers the project-scoped question — owner, member,
  * or neither. It has no answer for a route that lists across projects, such as
- * the diagram library with no `projectId`, and such a route must still refuse a
+ * the model library with no `projectId`, and such a route must still refuse a
  * caller with no session. The shape mirrors `requireProjectAccess` deliberately,
  * so a handler guards itself the same way whichever question it is asking:
  *
  * ```ts
- * const caller = await requireUser(request, "mermaid-library");
+ * const caller = await requireUser(request, "model-library");
  * if (caller.response) return caller.response;
  * ```
  *

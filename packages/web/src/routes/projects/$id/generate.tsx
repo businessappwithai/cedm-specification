@@ -125,7 +125,7 @@ function GeneratePage() {
     try {
       addLog("info", "Starting generation process...");
       addLog("info", `Selected stack: ${selectedStack}`);
-      addLog("info", "Reading ERD definition...");
+      addLog("info", "Generating from the saved model (model/model.eml.yaml)...");
 
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -135,7 +135,6 @@ function GeneratePage() {
           stackType: selectedStack,
           database: selectedDatabase,
           port: selectedPort,
-          erdCode: localProject.erdCode,
         }),
       });
 

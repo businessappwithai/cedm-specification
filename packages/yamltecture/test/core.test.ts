@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { test } from "vitest";
 import { canonicalizeArchitecture, ensureLinkId } from "../src/core/model";
 import { validateArchitecture } from "../src/core/validate";
-import { generateFlowchart } from "../src/mermaid/flowchart";
 import { executeQuery } from "../src/query/execute";
 
 const graph = canonicalizeArchitecture({
@@ -45,12 +44,6 @@ test("query supports nested attributes and hierarchy", () => {
   assert.deepEqual(descendant.nodes.map((n) => n.id).sort(), ["customer", "order"]);
 });
 
-test("flowchart output is deterministic", () => {
-  const a = generateFlowchart(graph, { nodeLabel: "name" });
-  const b = generateFlowchart(graph, { nodeLabel: "name" });
-  assert.equal(a, b);
-  assert.match(a, /customer -->\|one-to-many\| order/);
-});
 
 test("invalid parent cycles are rejected", () => {
   const result = validateArchitecture({

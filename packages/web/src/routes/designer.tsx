@@ -1,366 +1,161 @@
+/**
+ * A model editor outside any project.
+ *
+ * The same editor as a project's design step — YAML on one side, diagrams drawn
+ * from it on the other, every finding of the generator's own reader at its
+ * line — for reading a model, trying one out, or checking a file before it is
+ * imported. Nothing here is saved on the server: a model becomes part of a
+ * project by starting a project with it (Projects → Import).
+ */
+
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  Database,
-  Download,
-  Play,
-  Save,
-  Sparkles,
-  Upload,
-} from "lucide-react";
-import type React from "react";
-import { useCallback, useState } from "react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Download, FileCode2, Loader2, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { type ModelReadState, ModelViewer } from "@/components/model/ModelViewer";
 
 export const Route = createFileRoute("/designer")({
   component: DesignerPage,
 });
 
-const SAMPLE_ERD = `erDiagram
-    User {
-        int id PK
-        string email UK
-        string name
-        timestamp created_at
-    }
-    
-    Post {
-        int id PK
-        int user_id FK
-        string title
-        text content
-        timestamp created_at
-    }
-    
-    User ||--o{ Post : "creates"
-`;
+interface ExampleModel {
+  id: string;
+  name: string;
+  label: string;
+  entities: number;
+}
 
-interface ValidationError {
-  line: number;
-  message: string;
-  type: "error" | "warning";
+const DRAFT_KEY = "appwithai:designer-draft";
+
+function readDraft(): string {
+  try {
+    return localStorage.getItem(DRAFT_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 function DesignerPage() {
-  const [erdCode, setErdCode] = useState(SAMPLE_ERD);
-  const [activeTab, setActiveTab] = useState<"editor" | "preview" | "generate">("editor");
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
-  const [isValidating, setIsValidating] = useState(false);
+  const [model, setModel] = useState("");
+  const [read, setRead] = useState<ModelReadState>({ diagnostics: [], ok: false });
+  const [examples, setExamples] = useState<ExampleModel[]>([]);
+  const [loadingExample, setLoadingExample] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
-  const validateERD = useCallback(() => {
-    setIsValidating(true);
-    const errors: ValidationError[] = [];
-
-    const lines = erdCode.split("\n");
-
-    if (!erdCode.includes("erDiagram")) {
-      errors.push({
-        line: 1,
-        message: "Missing erDiagram declaration",
-        type: "error",
-      });
+  // The unsaved text survives a reload in this browser, and nowhere else.
+  useEffect(() => setModel(readDraft()), []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_KEY, model);
+    } catch {
+      // Storage refused (private window, quota): the editor still works.
     }
+  }, [model]);
 
-    const entityPattern = /^\s*(\w+)\s*\{/;
-    const entities: string[] = [];
-
-    lines.forEach((line, index) => {
-      const match = line.match(entityPattern);
-      if (match && match[1]) {
-        entities.push(match[1]);
-      }
-
-      const openBraces = (line.match(/\{/g) || []).length;
-      const closeBraces = (line.match(/\}/g) || []).length;
-      if (openBraces > closeBraces) {
-        const remainingLines = lines.slice(index + 1);
-        const hasClosing = remainingLines.some((l) => l.includes("}"));
-        if (!hasClosing) {
-          errors.push({
-            line: index + 1,
-            message: "Unclosed entity definition",
-            type: "error",
-          });
-        }
-      }
-    });
-
-    if (entities.length === 0) {
-      errors.push({
-        line: 1,
-        message: "No entities defined",
-        type: "warning",
-      });
-    }
-
-    const relationshipPattern = /\|\|--|o\{|}\|--|\{o/;
-    const hasRelationships = lines.some((line) => relationshipPattern.test(line));
-
-    if (entities.length > 1 && !hasRelationships) {
-      errors.push({
-        line: 1,
-        message: "Multiple entities but no relationships defined",
-        type: "warning",
-      });
-    }
-
-    setValidationErrors(errors);
-    setIsValidating(false);
-
-    if (errors.length === 0) {
-      alert("✅ ERD is valid!");
-    }
-  }, [erdCode]);
-
-  const handleSave = useCallback(() => {
-    localStorage.setItem("appwithai-design", erdCode);
-    alert("Design saved locally!");
-  }, [erdCode]);
-
-  const handleDownload = useCallback(() => {
-    const blob = new Blob([erdCode], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "schema.erd";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [erdCode]);
-
-  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      setErdCode(content);
-    };
-    reader.readAsText(file);
+  useEffect(() => {
+    fetch("/api/models/examples")
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? `The bundled models could not be listed (${res.status})`);
+        setExamples(data.models ?? []);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : String(err)));
   }, []);
+
+  const openExample = async (id: string) => {
+    if (model.trim() && !confirm("Replace the model in the editor?")) return;
+    setLoadingExample(id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/models/examples?id=${encodeURIComponent(id)}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? `The model could not be read (${res.status})`);
+      setModel(data.model);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoadingExample(null);
+    }
+  };
+
+  const download = () => {
+    const name = (read.document?.name ?? "model").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "model";
+    const url = URL.createObjectURL(new Blob([model], { type: "application/yaml" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${name}.eml.yaml`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const errors = read.diagnostics.filter((d) => d.severity === "error").length;
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <header className="flex h-14 items-center justify-between border-b bg-card px-4">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      <header className="flex items-center gap-3 border-b border-border bg-card px-5 py-3">
+        <Link to="/dashboard" className="rounded-md p-1.5 hover:bg-muted" aria-label="Back to the dashboard">
+          <ArrowLeft className="h-4 w-4" />
+        </Link>
+        <FileCode2 className="h-5 w-5 text-primary" />
+        <h1 className="font-semibold">Model editor</h1>
+        {model.trim() && (
+          <span className={`flex items-center gap-1.5 text-xs ${errors ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>
+            {errors ? <AlertCircle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            {errors ? `${errors} error${errors === 1 ? "" : "s"}` : "Ready to generate"}
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          <select
+            value=""
+            onChange={(e) => e.target.value && void openExample(e.target.value)}
+            disabled={!examples.length || loadingExample !== null}
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+            aria-label="Open a bundled model"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            <option value="">{loadingExample ? "Opening…" : "Open a bundled model…"}</option>
+            {examples.map((example) => (
+              <option key={example.id} value={example.id}>
+                {example.label} ({example.entities} entities)
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={() => fileInput.current?.click()} className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm">
+            <Upload className="h-4 w-4" /> Open file
+          </button>
+          <button type="button" onClick={download} disabled={!model.trim()} className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50">
+            <Download className="h-4 w-4" /> Download
+          </button>
+          <Link to="/projects" className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground">
+            Start a project
           </Link>
-          <div className="h-4 w-px bg-border" />
-          <h1 className="text-lg font-semibold">
-            <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-              ERD Designer
-            </span>
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() =>
-              alert(
-                "AI Assistant coming soon! CopilotKit integration requires ESM package configuration."
-              )
-            }
-            className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors bg-secondary hover:bg-secondary/80 opacity-50 cursor-not-allowed"
-            title="AI Assistant - Coming Soon"
-          >
-            <Sparkles className="h-4 w-4" />
-            AI Assistant
-          </button>
-
-          <button
-            onClick={validateERD}
-            disabled={isValidating}
-            className="flex items-center gap-2 rounded-md bg-secondary px-3 py-1.5 text-sm hover:bg-secondary/80 disabled:opacity-50"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            Validate ERD
-          </button>
-
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 rounded-md bg-secondary px-3 py-1.5 text-sm hover:bg-secondary/80"
-          >
-            <Save className="h-4 w-4" />
-            Save
-          </button>
-
-          <label className="flex cursor-pointer items-center gap-2 rounded-md bg-secondary px-3 py-1.5 text-sm hover:bg-secondary/80">
-            <Upload className="h-4 w-4" />
-            Import
-            <input type="file" accept=".erd,.mmd,.txt" onChange={handleUpload} className="hidden" />
-          </label>
-
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 rounded-md bg-secondary px-3 py-1.5 text-sm hover:bg-secondary/80"
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </button>
-
-          <button
-            onClick={() => setActiveTab("generate")}
-            className="flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90"
-          >
-            <Play className="h-4 w-4" />
-            Generate Code
-          </button>
         </div>
       </header>
 
-      <div className="flex border-b bg-card">
-        {[
-          { id: "editor" as const, label: "ERD Editor", icon: Database },
-          { id: "preview" as const, label: "Preview", icon: Play },
-          { id: "generate" as const, label: "Code Generation", icon: Download },
-        ].map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-2 border-b-2 px-4 py-2 text-sm transition-colors ${
-              activeTab === id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </button>
-        ))}
-      </div>
+      {error && (
+        <p role="alert" className="flex items-center gap-2 border-b border-destructive/30 bg-destructive/5 px-5 py-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+        </p>
+      )}
 
-      <main className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-hidden">
-          {activeTab === "editor" && (
-            <div className="flex h-full flex-col">
-              {validationErrors.length > 0 && (
-                <div className="border-b bg-muted/30 p-2">
-                  <div className="space-y-1">
-                    {validationErrors.map((error, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-start gap-2 rounded px-2 py-1 text-sm ${
-                          error.type === "error"
-                            ? "bg-destructive/10 text-destructive"
-                            : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500"
-                        }`}
-                      >
-                        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                        <span>
-                          Line {error.line}: {error.message}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+      {loadingExample && (
+        <p className="flex items-center gap-2 px-5 py-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Opening the model…
+        </p>
+      )}
 
-              <div className="flex-1 p-4">
-                <div className="h-full rounded-lg border bg-card">
-                  <div className="border-b bg-muted/30 px-4 py-2">
-                    <h3 className="text-sm font-medium">Mermaid ERD Syntax</h3>
-                  </div>
-                  <textarea
-                    value={erdCode}
-                    onChange={(e) => {
-                      setErdCode(e.target.value);
-                      setValidationErrors([]);
-                    }}
-                    className="h-[calc(100%-3rem)] w-full resize-none bg-transparent p-4 font-mono text-sm focus:outline-none"
-                    placeholder="Enter your ERD code here..."
-                    spellCheck={false}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+      <ModelViewer value={model} onChange={setModel} onRead={setRead} className="m-4 flex-1" />
 
-          {activeTab === "preview" && (
-            <div className="flex h-full items-center justify-center p-4">
-              <div className="rounded-lg border bg-card p-8 text-center">
-                <Database className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                <h3 className="mb-2 text-lg font-semibold">ERD Preview</h3>
-                <p className="text-sm text-muted-foreground">
-                  Visual diagram preview will be rendered here
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  (Mermaid rendering coming soon)
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "generate" && (
-            <div className="h-full overflow-auto p-4">
-              <div className="space-y-4">
-                <div className="rounded-lg border bg-card">
-                  <div className="border-b bg-muted/30 px-4 py-2">
-                    <h3 className="text-sm font-medium">Knex.js Migration</h3>
-                  </div>
-                  <pre className="overflow-auto p-4 text-sm">
-                    <code className="text-muted-foreground">
-                      {`// Code generation will be implemented here
-// Based on your ERD schema above
-
-export async function up(knex) {
-  // Create tables
-}
-
-export async function down(knex) {
-  // Drop tables
-}`}
-                    </code>
-                  </pre>
-                </div>
-
-                <div className="rounded-lg border bg-card">
-                  <div className="border-b bg-muted/30 px-4 py-2">
-                    <h3 className="text-sm font-medium">SQL DDL</h3>
-                  </div>
-                  <pre className="overflow-auto p-4 text-sm">
-                    <code className="text-muted-foreground">
-                      {`-- SQL DDL generation will be implemented here
--- Based on your ERD schema above
-
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR(255) UNIQUE,
-  name VARCHAR(255),
-  created_at TIMESTAMP
-);`}
-                    </code>
-                  </pre>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      <footer className="flex h-8 items-center justify-between border-t bg-card px-4 text-xs text-muted-foreground">
-        <span>AppWithAI v5.1 - Visual Designer</span>
-        <div className="flex items-center gap-4">
-          <span>{erdCode.split("\n").length} lines</span>
-          {validationErrors.length > 0 && (
-            <span
-              className={
-                validationErrors.some((e) => e.type === "error")
-                  ? "text-destructive"
-                  : "text-yellow-600"
-              }
-            >
-              {validationErrors.filter((e) => e.type === "error").length} errors,{" "}
-              {validationErrors.filter((e) => e.type === "warning").length} warnings
-            </span>
-          )}
-        </div>
-      </footer>
+      <input
+        ref={fileInput}
+        type="file"
+        accept=".yaml,.yml,application/yaml,text/yaml"
+        className="hidden"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file && (!model.trim() || confirm("Replace the model in the editor?"))) setModel(await file.text());
+        }}
+      />
     </div>
   );
 }

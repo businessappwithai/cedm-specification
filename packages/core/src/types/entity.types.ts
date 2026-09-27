@@ -3,7 +3,7 @@ export interface EntityAttribute {
   type: "string" | "integer" | "decimal" | "boolean" | "date" | "datetime" | "text" | "json";
   required: boolean;
   /**
-   * Help text for the column, written as `%%field <Entity>.<column> help: ...`.
+   * Help text for the column, written as the attribute's `help` in the model.
    *
    * It becomes `sys_column.description`, which the generated form renders under
    * the control and the Application Dictionary shows beside the column — the
@@ -25,7 +25,7 @@ export interface EntityAttribute {
   minLength?: number;
   pattern?: string;
   isForeignKey?: boolean;
-  /** Name of the `%%enum` this column is bound to, via `%%field E.c enum: N`. */
+  /** Name of the enum this column is bound to, by the attribute's `enum` key. */
   enumRef?: string;
   /** The enum's values, in declaration order. */
   enumValues?: string[];
@@ -38,7 +38,7 @@ export interface EntityAttribute {
   enumReferenceId?: number;
 }
 
-/** A `%%enum Name: a, b, c` declaration, with the reference id it was given. */
+/** An enum the model declares, with the reference id it was given. */
 export interface EntityEnum {
   name: string;
   values: string[];
@@ -47,7 +47,7 @@ export interface EntityEnum {
 }
 
 /**
- * An index the model asked for explicitly, via `%%index Entity(a, b) [unique]`.
+ * An index the model asked for explicitly, in the entity's `indexes`.
  *
  * Separate from the single-column indexes derived from `UK` and from a column
  * called `name`: those are conventions the generator applies, this is a request
@@ -66,10 +66,10 @@ export interface Entity {
   attributes: EntityAttribute[];
   primaryKey: string;
   timestamps: boolean;
-  /** Explicit `%%index` declarations bound to this entity. */
+  /** The entity's explicit `indexes`. */
   indexes?: EntityIndex[];
   /**
-   * The entity this one is a line item of, from `%%entity <E> parent: <P>`.
+   * The entity this one is a line item of, from its `parent`.
    *
    * A child is not a thing you navigate to. It has no window of its own and no
    * card on the dashboard; it appears as a tab inside its parent's window,
@@ -80,7 +80,7 @@ export interface Entity {
   /** The child's foreign key back to `parentEntity`, resolved at parse time. */
   parentLinkColumn?: string;
   /**
-   * The icon this entity is drawn with, from `%%entity <E> icon: <name>`.
+   * The icon this entity is drawn with, from its `icon`.
    *
    * A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and
    * snake_case all resolve to the same icon, so `LayoutGrid`, `layout-grid` and
@@ -118,7 +118,7 @@ export const EntityAttributeSchema = z.object({
   name: z.string(),
   type: z.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
   required: z.boolean(),
-  /** Help text for the column, from `%%field <E>.<c> help:`. */
+  /** Help text for the column, from the attribute's `help`. */
   description: z.string().optional(),
   /** The alias the modeller wrote, when it decides the reference type. */
   semanticType: z.enum(["email", "url", "phone", "password", "color"]).optional(),

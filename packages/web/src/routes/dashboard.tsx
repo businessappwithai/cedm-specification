@@ -23,7 +23,7 @@ const features = [
     icon: Database,
     href: "/designer",
     color: "from-blue-500 to-cyan-500",
-    features: ["Mermaid ERD Syntax", "AI-Powered Suggestions", "Real-time Preview"],
+    features: ["YAML Model Language", "Diagrams Drawn From the Model", "Line-Accurate Findings"],
   },
   {
     title: "Natural Language Design",

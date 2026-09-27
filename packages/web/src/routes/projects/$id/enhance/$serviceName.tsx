@@ -1,9 +1,4 @@
-import {
-  buildActionDecisionTable,
-  parseRuleActions,
-  replaceRuleActions,
-  serializeRuleActions,
-} from "@appwithai/generator/rules";
+import { readModelYaml } from "@appwithai/generator/model-yaml";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
@@ -23,8 +18,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { stringify } from "yaml";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
-import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
+import { RuleEditor } from "@/components/model/RuleEditor";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import {
   type Automation,
@@ -33,23 +29,11 @@ import {
   emptyAutomation,
   type HookEvent,
   type Loop,
-  parseAutomation,
-  serializeAutomation,
 } from "@/lib/automation/model";
-import { asDecisionTable } from "@/lib/automation/rule-content";
-import {
-  type DecisionRow,
-  type DecisionTable,
-  emptyDecisionTable,
-  parseTableFromFlowchart,
-  tableToEmlFlowchart,
-} from "@/lib/eml/decision-table";
+import { type EditableRule, readRules, slugifyRuleName, writeRules } from "@/lib/model/rules";
 import { requestContext } from "@/lib/request-context";
-import {
-  generateFlowchartFromHooks,
-  type ParsedHookDefinition,
-  validateHookDefinition,
-} from "@/lib/workflow/hook-parser";
+import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
+import { validateHookDefinition } from "@/types/workflow";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
@@ -113,7 +97,6 @@ interface HookWorkflow {
   id: string;
   serviceName: string;
   hooks: HookDefinition[];
-  flowchartCode: string;
   isDraft: boolean;
   lastModified: string;
   description?: string;
@@ -347,53 +330,6 @@ function automationForHook(hook: HookDefinition, index: number): Automation {
   };
 }
 
-/** Cells the compiler wrote as zen literals, read back for the editor. */
-function unquoteZenCell(value: string): string {
-  const text = (value ?? "").trim();
-  if (
-    text.length >= 2 &&
-    (text.startsWith("'") || text.startsWith('"')) &&
-    text.endsWith(text[0] as string)
-  ) {
-    return text.slice(1, -1).replace(/\\'/g, "'");
-  }
-  return text;
-}
-
-/** The runtime's `prevent` is EML's `validation-error` — the word an author wrote. */
-const RUNTIME_TO_EML_ACTION: Record<string, string> = { prevent: "validation-error" };
-
-/**
- * The compiled action table, presented the way the editor expects it.
- *
- * `buildActionDecisionTable` quotes every cell (`'prevent'`, `''`) and spells
- * actions in the runtime's vocabulary, which left the action dropdown showing
- * nothing selected and the grid full of nine quoted columns. Read the cells
- * back as plain text, translate `prevent`, and drop the columns no row uses —
- * a two-action rule opens as Action and Message, not nine wide columns.
- */
-function normalizeActionTable(table: DecisionTable): DecisionTable {
-  const rules = table.rules.map((row) => {
-    const next: DecisionRow = { _id: row._id };
-    for (const column of [...table.inputs, ...table.outputs]) {
-      const raw = unquoteZenCell(row[column.id] ?? "");
-      const value = column.field === "action" ? (RUNTIME_TO_EML_ACTION[raw] ?? raw) : raw;
-      next[column.id] = value;
-    }
-    return next;
-  });
-
-  // `ruleId` repeats the rule's own name on every row — it lives on the
-  // directive, not per row. Other columns are kept only while some row uses
-  // them, so the table reads as what the rule actually does.
-  const outputs = table.outputs.filter(
-    (column) =>
-      column.field !== "ruleId" && rules.some((row) => (row[column.id] ?? "").trim() !== "")
-  );
-
-  return { ...table, rules, outputs };
-}
-
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
@@ -412,13 +348,11 @@ function ServiceWorkflowPage() {
     id: `workflow-${Date.now()}`,
     serviceName,
     hooks: [],
-    flowchartCode: getDefaultFlowchart(serviceName),
     isDraft: true,
     lastModified: new Date().toISOString(),
   });
 
   const [selectedHooks, setSelectedHooks] = useState<HookDefinition[]>([]);
-  const [flowchartCode, setFlowchartCode] = useState(getDefaultFlowchart(serviceName));
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<WorkflowState>("draft");
   const [isValidating, setIsValidating] = useState(false);
@@ -435,6 +369,7 @@ function ServiceWorkflowPage() {
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
+  const [rulesError, setRulesError] = useState("");
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
@@ -442,18 +377,6 @@ function ServiceWorkflowPage() {
 
   const draftSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isDirtyRef = useRef(false);
-
-  /**
-   * The automation the builder edits.
-   *
-   * The route's source of truth is still the mermaid in `flowchartCode`, so
-   * the ladder reads from it and writes back to it. That keeps the raw editor
-   * beside it honest — both panes show the same document.
-   */
-  const automation = useMemo(
-    () => parseAutomation(flowchartCode, serviceName),
-    [flowchartCode, serviceName]
-  );
 
   /**
    * The Trigger.dev workflow tab edits one hook's own workflow.
@@ -482,10 +405,6 @@ function ServiceWorkflowPage() {
         : hook
     );
     setSelectedHooks(updated);
-    // The diagram names each handler, so keep it in step when that changes.
-    if (edited && edited.handler !== selectedHookDefinition?.name) {
-      updateFlowchartWithHooks(updated);
-    }
     setWorkflowState("draft");
     setValidationErrors([]);
   };
@@ -496,34 +415,31 @@ function ServiceWorkflowPage() {
     }
   }, [selectedHooks.length, selectedHookIndex]);
 
+  /** The saved model's entities and their columns, for the pickers. */
   const entities = useMemo(() => {
-    if (!project?.erdCode) return [];
-    const lines = project.erdCode.split("\n");
-    const entityList: Array<{ name: string; attributes: string[] }> = [];
-    let currentEntity: { name: string; attributes: string[] } | null = null;
+    const model = project?.modelYaml ?? "";
+    if (!model.trim()) return [];
+    const document = readModelYaml(model, { check: false }).document;
+    return (document?.entities ?? []).map((entity) => ({
+      name: entity.name,
+      attributes: entity.attributes.map((attribute) => attribute.name),
+    }));
+  }, [project?.modelYaml]);
 
-    lines.forEach((line) => {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("%%")) return;
-      const entityMatch = trimmed.match(/^(\w+)\s*\{/);
-      if (entityMatch?.[1] && !trimmed.startsWith("erDiagram")) {
-        currentEntity = {
-          name: entityMatch[1],
-          attributes: [],
-        };
-      } else if (trimmed === "}" && currentEntity) {
-        entityList.push({ ...currentEntity });
-        currentEntity = null;
-      } else if (currentEntity && trimmed && !trimmed.match(/^\{/)) {
-        // ERD columns read `type name [PK|FK|OPTIONAL]`; the rule editor needs
-        // the field name, not the whole column line.
-        const attribute = trimmed.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
-        if (attribute?.[1]) currentEntity.attributes.push(attribute[1]);
-      }
-    });
-
-    return entityList;
-  }, [project?.erdCode]);
+  /** What these hooks add to the model's `hooks` section when the project is generated. */
+  const modelHooks = useMemo(
+    () =>
+      stringify(
+        {
+          hooks: selectedHooks
+            .filter((hook) => hook.enabled !== false)
+            .sort((a, b) => a.order - b.order)
+            .map((hook) => ({ entity: hook.entity, event: hook.type, handler: hook.name })),
+        },
+        { lineWidth: 0 }
+      ),
+    [selectedHooks]
+  );
 
   /**
    * The Business Rules tab reads the same project model the Logic step edits.
@@ -537,65 +453,25 @@ function ServiceWorkflowPage() {
 
     async function loadRules() {
       try {
-        const response = await fetch(`/api/projects/${projectId}/eml`);
-        if (!response.ok) throw new Error(`Could not load the model (${response.status})`);
-        const data = (await response.json()) as {
-          rules?: Array<{
-            name: string;
-            entity: string;
-            event: string;
-            priority?: number;
-            title?: string;
-            flowchart: string;
-          }>;
+        const response = await fetch(`/api/projects/${projectId}/model`);
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          document?: { rules?: Parameters<typeof readRules>[0] } | null;
+          diagnostics?: Array<{ severity: string; line: number; message: string }>;
         };
+        if (!response.ok) throw new Error(data.error ?? `Could not load the model (${response.status})`);
         if (cancelled) return;
-
-        setRules(
-          (data.rules ?? []).map((rule) => {
-            const directiveTable = parseTableFromFlowchart(rule.flowchart);
-            const actions = parseRuleActions(rule.flowchart);
-
-            let table: DecisionTable;
-            let sourceKind: "actions" | "decision-table" | "flowchart";
-            if (directiveTable) {
-              // A table this editor wrote round-trips through `%%decision-table`.
-              table = directiveTable;
-              sourceKind = "decision-table";
-            } else if (actions.length) {
-              // Show the same decision table the generated application's rule
-              // editor edits, compiled from the `%%action` directives, with the
-              // compiler's quoting and runtime vocabulary read back for editing.
-              table = normalizeActionTable(
-                asDecisionTable(buildActionDecisionTable(rule.name, actions))
-              );
-              sourceKind = "actions";
-            } else {
-              // A rule that is only a flowchart. A hand-authored one opens
-              // read-only; a convertible one is shown as the table it describes.
-              table = emptyDecisionTable();
-              sourceKind = "flowchart";
-            }
-
-            return {
-              key: crypto.randomUUID(),
-              name: rule.name,
-              entity: rule.entity,
-              event: rule.event,
-              priority: rule.priority,
-              title: rule.title,
-              table,
-              sourceKind,
-              sourceRuleName: rule.name,
-              // The original body is kept for "Show EML" and, for an actions
-              // rule, to preserve the flowchart when the actions are rewritten.
-              ...(sourceKind === "decision-table" ? {} : { sourceFlowchart: rule.flowchart }),
-            };
-          })
-        );
+        if (!data.document) {
+          const first = data.diagnostics?.find((d) => d.severity === "error");
+          throw new Error(
+            `The saved model does not read${first ? ` (line ${first.line}: ${first.message})` : ""}; fix it on the design step.`
+          );
+        }
+        setRules(readRules(data.document.rules, emptyDecisionTable));
+        setRulesError("");
         setRulesLoaded(true);
       } catch (error) {
-        if (!cancelled) console.error("Error loading rules:", error);
+        if (!cancelled) setRulesError(error instanceof Error ? error.message : String(error));
       } finally {
         if (!cancelled) setRulesLoading(false);
       }
@@ -621,13 +497,11 @@ function ServiceWorkflowPage() {
               id: data.workflow.id,
               serviceName: data.workflow.service_name,
               hooks: data.workflow.hook_definitions || [],
-              flowchartCode: data.workflow.flowchart_code || flowchartCode,
               isDraft: data.workflow.is_draft,
               lastModified: data.workflow.updated_at,
             };
 
             setWorkflow(loadedWorkflow);
-            setFlowchartCode(data.workflow.flowchart_code || flowchartCode);
             setSelectedHooks(data.workflow.hook_definitions || []);
 
             if (!data.workflow.is_draft) {
@@ -651,7 +525,6 @@ function ServiceWorkflowPage() {
     const draftKey = `draft-workflow-${projectId}-${serviceName}`;
     const draftData = {
       hooks: selectedHooks,
-      flowchartCode,
       savedAt: new Date().toISOString(),
     };
 
@@ -672,7 +545,7 @@ function ServiceWorkflowPage() {
     } finally {
       setTimeout(() => setIsAutoSaving(false), 500);
     }
-  }, [selectedHooks, flowchartCode, projectId, serviceName]);
+  }, [selectedHooks, projectId, serviceName]);
 
   useEffect(() => {
     draftSaveTimerRef.current = setInterval(() => {
@@ -688,7 +561,7 @@ function ServiceWorkflowPage() {
 
   useEffect(() => {
     isDirtyRef.current = true;
-  }, [selectedHooks, flowchartCode]);
+  }, [selectedHooks]);
 
   useEffect(() => {
     const draftKey = `draft-workflow-${projectId}-${serviceName}`;
@@ -698,9 +571,6 @@ function ServiceWorkflowPage() {
         const draftData = JSON.parse(savedDraft);
         if (draftData.hooks && draftData.hooks.length > 0) {
           setSelectedHooks(draftData.hooks);
-          if (draftData.flowchartCode) {
-            setFlowchartCode(draftData.flowchartCode);
-          }
           if (draftData.savedAt) {
             setLastSaved(new Date(draftData.savedAt));
           }
@@ -742,11 +612,12 @@ function ServiceWorkflowPage() {
       ...current,
       {
         key: crypto.randomUUID(),
-        name: `rule${current.length + 1}`,
+        name: slugifyRuleName(`${entities[0]?.name ?? "new"} rule ${current.length + 1}`),
         entity: entities[0]?.name ?? "",
         event: "beforeCreate",
         priority: 100,
         table: emptyDecisionTable(),
+        kind: "table",
       },
     ]);
     setSelectedRuleIndex(rules.length);
@@ -762,38 +633,26 @@ function ServiceWorkflowPage() {
   const saveRules = async () => {
     setIsSavingRules(true);
     try {
-      const response = await fetch(`/api/projects/${projectId}/eml`, {
+      const names = rules.map((rule) => rule.name);
+      const repeated = names.filter((name, index) => names.indexOf(name) !== index);
+      if (repeated.length)
+        throw new Error(`Rule names must be unique; used more than once: ${[...new Set(repeated)].join(", ")}`);
+      // Replaces the model's `rules` section and nothing else, as a draft.
+      const response = await fetch(`/api/projects/${projectId}/model`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rules: rules.map((rule) => {
-            // An actions rule is stored as `%%action` directives; writing the
-            // table back as one keeps its flowchart and its meaning. Everything
-            // else is already a document the composer reads.
-            const flowchart =
-              rule.sourceKind === "actions"
-                ? replaceRuleActions(
-                    rule.sourceFlowchart ?? "",
-                    serializeRuleActions(rule.sourceRuleName ?? rule.name, rule.table)
-                  )
-                : (rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table));
-            return {
-              name: slugifyRuleName(rule.title ?? rule.name),
-              entity: rule.entity,
-              event: rule.event,
-              priority: rule.priority,
-              title: rule.title,
-              flowchart,
-            };
-          }),
+          sections: { rules: writeRules(rules) },
+          description: `Update business rules from ${serviceName}`,
         }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? `Save failed (${response.status})`);
       setRulesSavedAt(new Date().toLocaleTimeString());
+      setRulesError("");
+      await loadProject(projectId);
     } catch (error) {
-      console.error("Save rules error:", error);
-      alert(`Failed to save rules: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setRulesError(`Rules not saved: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsSavingRules(false);
     }
@@ -812,7 +671,6 @@ function ServiceWorkflowPage() {
     };
 
     setSelectedHooks([...selectedHooks, newHook]);
-    updateFlowchartWithHooks([...selectedHooks, newHook]);
     setWorkflowState("draft");
     setValidationErrors([]);
   };
@@ -839,7 +697,6 @@ function ServiceWorkflowPage() {
   const handleRemoveHook = (hookIndex: number) => {
     const updatedHooks = selectedHooks.filter((_, idx) => idx !== hookIndex);
     setSelectedHooks(updatedHooks);
-    updateFlowchartWithHooks(updatedHooks);
     setWorkflowState("draft");
     setValidationErrors([]);
   };
@@ -857,23 +714,6 @@ function ServiceWorkflowPage() {
     setValidationErrors([]);
   };
 
-  const updateFlowchartWithHooks = (hooks: HookDefinition[]) => {
-    const entityName = serviceName.replace("Service", "");
-
-    const parsedHooks: ParsedHookDefinition[] = hooks.map((hook) => ({
-      type: hook.type,
-      name: hook.name,
-      entity: hook.entity,
-      order: hook.order,
-      rawComment: `%%hook ${hook.type} ${hook.name} on ${hook.entity}`,
-    }));
-
-    const flowchart = generateFlowchartFromHooks(entityName, parsedHooks);
-
-    setFlowchartCode(flowchart);
-    setWorkflow({ ...workflow, flowchartCode: flowchart, hooks });
-  };
-
   const handleValidate = () => {
     setIsValidating(true);
     setValidationErrors([]);
@@ -886,8 +726,6 @@ function ServiceWorkflowPage() {
         type: hook.type,
         name: hook.name,
         entity: hook.entity,
-        rawComment: "",
-        order: hook.order,
       })) {
         errors.push(`${label}: ${problem}`);
       }
@@ -911,7 +749,6 @@ function ServiceWorkflowPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hooks: selectedHooks,
-          flowchartCode,
           description: `${serviceName} hooks workflow`,
           isDraft: false,
           requestId: crypto.randomUUID(),
@@ -923,7 +760,6 @@ function ServiceWorkflowPage() {
       if (data.success) {
         const updatedWorkflow: HookWorkflow = {
           ...workflow,
-          flowchartCode,
           hooks: selectedHooks,
           isDraft: false,
           lastModified: new Date().toISOString(),
@@ -960,7 +796,6 @@ function ServiceWorkflowPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hooks: selectedHooks,
-          flowchartCode,
         }),
       });
 
@@ -1430,32 +1265,35 @@ function ServiceWorkflowPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                       <FileCode className="w-4 h-4" />
-                      Flowchart Code
+                      Added to the model
                     </h3>
                   </div>
-                  <textarea
-                    value={flowchartCode}
-                    onChange={(e) => setFlowchartCode(e.target.value)}
-                    className="w-full h-full p-4 bg-muted border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    spellCheck={false}
-                    placeholder="Enter Mermaid flowchart syntax here..."
-                  />
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    When the project is generated, these hooks join the model&apos;s{" "}
+                    <code>hooks</code> section; the generated backend calls each handler around
+                    the operation it names. A hook the model already declares is not added twice.
+                  </p>
+                  <pre className="w-full h-full overflow-auto p-4 bg-muted border border-border rounded-xl text-sm font-mono text-foreground">
+                    {selectedHooks.length ? modelHooks : "# No hooks yet — add one from the list."}
+                  </pre>
                 </div>
               </div>
             </>
           ) : activeTab === "workflows" ? (
-            <AutomationBuilder
-              key={hookAutomation ? `hook-${selectedHookIndex}` : "automation"}
-              automation={hookAutomation ?? automation}
-              onChange={
-                hookAutomation
-                  ? handleHookAutomationChange
-                  : (next) => setFlowchartCode(serializeAutomation(next))
-              }
-              entities={entities.map((e) => e.name)}
-              entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
-              lockHook={Boolean(hookAutomation)}
-            />
+            hookAutomation ? (
+              <AutomationBuilder
+                key={`hook-${selectedHookIndex}`}
+                automation={hookAutomation}
+                onChange={handleHookAutomationChange}
+                entities={entities.map((e) => e.name)}
+                entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
+                lockHook
+              />
+            ) : (
+              <div className="flex flex-1 items-center justify-center p-10 text-sm text-muted-foreground">
+                Add a hook on the Hooks tab to build its workflow.
+              </div>
+            )
           ) : (
             <>
               <div className="w-72 shrink-0 border-r border-border flex flex-col bg-card">
@@ -1522,16 +1360,19 @@ function ServiceWorkflowPage() {
 
               <div className="flex-1 overflow-y-auto bg-muted">
                 <div className="p-6">
+                  {rulesError && (
+                    <p role="alert" className="mb-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      {rulesError}
+                    </p>
+                  )}
                   {activeRule ? (
                     <>
                       <RuleEditor
                         key={activeRule.key}
                         rule={activeRule}
                         entities={entities}
-                        projectId={projectId}
                         onChange={patchRule}
-                        onError={(message) => setValidationErrors(message ? [message] : [])}
-                        autoConvertFlowchart
                       />
                       <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
                         <button
@@ -1677,18 +1518,6 @@ function ServiceWorkflowPage() {
       )}
     </div>
   );
-}
-
-function getDefaultFlowchart(serviceName: string): string {
-  const entityName = serviceName.replace("Service", "");
-  return `flowchart TD
-    A[Client Request] --> B[Validate Request]
-    B --> C[Process ${entityName}]
-    C --> D[Response]
-    D --> E[Return to Client]
-
-    style A fill:#e1f5fe
-    style E fill:#c8e6c9`;
 }
 
 function getTimeSince(date: Date): string {

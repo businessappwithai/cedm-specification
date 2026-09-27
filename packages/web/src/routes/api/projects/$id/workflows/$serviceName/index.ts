@@ -10,11 +10,8 @@ export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/"
         const service = await import("@/lib/server/project-repository");
         try {
           const body = await request.json();
-          if (!Array.isArray(body.hooks) || typeof body.flowchartCode !== "string")
-            return Response.json(
-              { error: "Hooks and flowchart source are required" },
-              { status: 400 }
-            );
+          if (!Array.isArray(body.hooks))
+            return Response.json({ error: "The service's hooks are required" }, { status: 400 });
           const { hookWorkflowDb } = await import("@appwithai/core/services");
           const existing = await hookWorkflowDb.getByService(params.id, params.serviceName);
           const workflow = await service.changeWorkflow(
@@ -26,8 +23,6 @@ export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/"
               service_name: params.serviceName,
               workflow_type: "hooks",
               hook_definitions: JSON.stringify(body.hooks),
-              flowchart_code: body.flowchartCode,
-              mermaid_code: body.flowchartCode,
               is_draft: body.isDraft !== false,
             },
             body.requestId

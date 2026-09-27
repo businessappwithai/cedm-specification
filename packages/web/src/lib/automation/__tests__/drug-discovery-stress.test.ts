@@ -2,8 +2,8 @@
  * Volume QA over the drug-discovery model.
  *
  * Builds 200 automations and 200 rule tables against the seventeen entities in
- * `examples/drug-discovery.eml.mmd` and pushes each one through the whole
- * model: validate, serialise, reopen, re-serialise.
+ * `examples/drug-discovery.eml.yaml` and pushes each one through the whole
+ * model: validate, write its document, reopen it, write it again.
  *
  * The point is not that 200 is a magic number — it is that the shapes are
  * generated rather than hand-picked, so combinations nobody thought to write a
@@ -21,15 +21,16 @@ import {
   emptyAutomation,
   newCondition,
   newStep,
-  parseAutomation,
   STEP_TYPES,
   type StepType,
-  serializeAutomation,
   TRIGGER_EVENTS,
   validateAutomation,
   valuesAvailableAt,
 } from "../model";
 import { asDecisionTable, isDecisionTable } from "../rule-content";
+import { automationFromYaml, automationToYaml } from "../yaml";
+
+const reopen = (a: Automation) => automationFromYaml(automationToYaml(a));
 
 /* -------------------------------------------------------------------------- */
 /*  The drug-discovery model                                                   */
@@ -184,10 +185,10 @@ describe("200 automations over the drug-discovery model", () => {
     expect(used.size).toBe(ENTITIES.length);
   });
 
-  it("serialises and reopens every one without losing a step", () => {
+  it("stores and reopens every one without losing a step", () => {
     const damaged: string[] = [];
     for (const a of automations) {
-      const reopened = parseAutomation(serializeAutomation(a), a.trigger.entity);
+      const reopened = reopen(a);
       if (reopened.steps.length !== a.steps.length) {
         damaged.push(`${a.name}: ${a.steps.length} steps in, ${reopened.steps.length} out`);
       }
@@ -198,7 +199,7 @@ describe("200 automations over the drug-discovery model", () => {
   it("keeps step order and type through a round-trip", () => {
     const wrong: string[] = [];
     for (const a of automations) {
-      const reopened = parseAutomation(serializeAutomation(a), a.trigger.entity);
+      const reopened = reopen(a);
       const before = a.steps.map((s) => s.type).join(",");
       const after = reopened.steps.map((s) => s.type).join(",");
       if (before !== after) wrong.push(`${a.name}: ${before} -> ${after}`);
@@ -209,7 +210,7 @@ describe("200 automations over the drug-discovery model", () => {
   it("keeps the trigger and every check", () => {
     const wrong: string[] = [];
     for (const a of automations) {
-      const reopened = parseAutomation(serializeAutomation(a), a.trigger.entity);
+      const reopened = reopen(a);
       if (reopened.trigger.entity !== a.trigger.entity) {
         wrong.push(`${a.name}: entity ${a.trigger.entity} -> ${reopened.trigger.entity}`);
       }
@@ -228,18 +229,18 @@ describe("200 automations over the drug-discovery model", () => {
   it("is stable — a second round-trip changes nothing", () => {
     const unstable: string[] = [];
     for (const a of automations) {
-      const once = serializeAutomation(a);
-      const twice = serializeAutomation(parseAutomation(once, a.trigger.entity));
+      const once = automationToYaml(a);
+      const twice = automationToYaml(automationFromYaml(once));
       if (once !== twice) unstable.push(a.name);
     }
     expect(unstable).toEqual([]);
   });
 
-  it("emits renderable mermaid for every one", () => {
+  it("writes a versioned document for every one", () => {
     for (const a of automations) {
-      const source = serializeAutomation(a);
-      expect(source.startsWith("flowchart TD")).toBe(true);
-      expect(source).toContain("--> done");
+      const text = automationToYaml(a);
+      expect(text.startsWith('automation: "1.0"\n')).toBe(true);
+      expect(text).toContain(`entity: ${a.trigger.entity}`);
     }
   });
 

@@ -1,9 +1,10 @@
 /**
  * The models that ship with the application.
  *
- * Starting a project should not require having a `.mmd` to hand. These are the
- * bundled examples — the same files in `examples/` and `language/examples/` —
- * offered as a starting point, with uploading your own still the other option.
+ * Starting a project should not require having a model to hand. These are the
+ * bundled examples — the `*.eml.yaml` files in `examples/` and
+ * `language/yaml/examples/` — offered as a starting point, with uploading your
+ * own still the other option.
  *
  * In a container the interesting directory is usually a mount: point
  * `EXAMPLE_MODELS_DIR` at it (colon-separated for several) and whatever is
@@ -16,6 +17,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { parse } from "yaml";
 
 /**
  * Directories searched, in order. Missing ones are skipped, not an error.
@@ -52,7 +54,7 @@ function searchPaths(): string[] {
     "/models",
     ...ancestors.flatMap((base) => [
       path.join(base, "examples"),
-      path.join(base, "language", "examples"),
+      path.join(base, "language", "yaml", "examples"),
     ]),
   ];
 }
@@ -77,15 +79,14 @@ function labelFor(name: string): string {
 }
 
 /**
- * Entities in an ERD section, counted cheaply.
- *
- * Parsing the document properly would be more accurate and much slower for a
- * list that exists to help someone choose. A block opener at the start of an
- * indented line is close enough, and a wrong count here costs nothing.
+ * How many entities a model declares: the length of its `entities` list.
+ * A file that is not a model document is not offered at all.
  */
-function countEntities(source: string): number {
-  const matches = source.match(/^\s{2,}[A-Za-z_][\w]*\s*\{/gm);
-  return matches ? matches.length : 0;
+function countEntities(source: string): number | undefined {
+  const document: unknown = parse(source);
+  if (typeof document !== "object" || document === null) return undefined;
+  const { eml, entities } = document as { eml?: unknown; entities?: unknown };
+  return eml !== undefined && Array.isArray(entities) ? entities.length : undefined;
 }
 
 async function collect(): Promise<{ models: ExampleModel[]; byId: Map<string, string> }> {
@@ -101,7 +102,7 @@ async function collect(): Promise<{ models: ExampleModel[]; byId: Map<string, st
     }
 
     for (const entry of entries.sort()) {
-      if (!entry.endsWith(".mmd")) continue;
+      if (!entry.endsWith(".eml.yaml")) continue;
       // The same example can appear in more than one search path; first wins,
       // which is why configured directories are searched before the built-ins.
       if (byId.has(entry)) continue;
@@ -111,18 +112,21 @@ async function collect(): Promise<{ models: ExampleModel[]; byId: Map<string, st
         const stat = await fs.stat(full);
         if (!stat.isFile()) continue;
         const source = await fs.readFile(full, "utf8");
-        const name = entry.replace(/\.(eml|erd)?\.?mmd$/i, "");
+        const entities = countEntities(source);
+        if (entities === undefined) continue;
+        const name = entry.replace(/(\.erd)?\.eml\.yaml$/i, "");
 
         byId.set(entry, full);
         models.push({
           id: entry,
           name,
           label: labelFor(name),
-          entities: countEntities(source),
+          entities,
           bytes: stat.size,
         });
       } catch {
-        // An unreadable file is not worth failing the whole list over.
+        // An unreadable file, or one that is not YAML, is not worth failing
+        // the whole list over; it is simply not offered.
       }
     }
   }
@@ -154,9 +158,9 @@ export const Route = createFileRoute("/api/models/examples")({
           const file = byId.get(id);
           if (!file) return json({ error: `No bundled model named "${id}"` }, 404);
 
-          const eml = await fs.readFile(file, "utf8");
+          const content = await fs.readFile(file, "utf8");
           const model = models.find((candidate) => candidate.id === id);
-          return json({ id, name: model?.name ?? id, label: model?.label, eml });
+          return json({ id, name: model?.name ?? id, label: model?.label, model: content });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown error";
           return json({ error: `Could not read the bundled models: ${message}` }, 500);

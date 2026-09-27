@@ -36,7 +36,8 @@ const PROJECT_SCOPED = path.join(API, "projects", "$id");
 const BY_BODY_OR_QUERY = [
   "generate.ts",
   "deploy.ts",
-  path.join("mermaid", "index.ts"),
+  path.join("model-library", "index.ts"),
+  path.join("model-library", "$filename.ts"),
   // These two reach a database the project points at — one reads its whole
   // schema, the other executes DDL against it — and both shipped with no
   // authentication at all.

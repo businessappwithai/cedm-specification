@@ -92,7 +92,7 @@ export async function requireProjectAccess(
  * The ids of every project this caller owns or is a member of.
  *
  * `requireProjectAccess` answers "may I touch this project". A route that lists
- * across projects — the diagram library's `GET /api/mermaid` with no
+ * across projects — the model library's `GET /api/model-library` with no
  * `projectId` — has no single project to ask about, and serving the whole
  * library for the client to filter is how that endpoint came to hand every
  * project's diagrams to anybody. This is the other half.

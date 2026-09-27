@@ -1,11 +1,11 @@
 /**
  * Automations for a project.
  *
- * Stored in the existing `workflows` table as mermaid, because that is what the
- * generator already reads. The builder is a new way to write the same artifact,
- * not a new artifact — so an automation saved here is picked up by code
- * generation with no further translation, and one written before the builder
- * existed opens in it.
+ * Stored in the `workflows` table, each as its own YAML document — the
+ * `automation: "1.0"` document the generated application stores too, read and
+ * written by the same `lib/automation/yaml.ts`. A saga or hook automation adds
+ * to what the project generates from: its declarations are composed into the
+ * model at generation (`lib/model/compose.ts`).
  *
  * Both verbs call `requireProjectAccess`. An automation names entities, columns
  * and the conditions under which a project's data changes; listing them is
@@ -21,46 +21,18 @@ const json = (body: unknown, status = 200) =>
   });
 
 /**
- * The entity names and columns the builder's pickers offer.
- *
- * Parsed from the project's current ERD here rather than fetched separately,
- * because the builder needs them on the same first paint as the automations —
- * an entity picker with nothing in it cannot even show the trigger a saved
- * automation already has.
- *
- * Deliberately a small reader over the `Entity { type name }` blocks rather
- * than the full generator parser: this needs names and columns, and pulling the
- * whole generator into a request path to get them would cost far more than it
- * returns.
+ * The entity names and columns the builder's pickers offer, from the project's
+ * model document — the same reader everything else uses, so a picker never
+ * offers an entity the model does not declare.
  */
-function entitiesFromErd(mermaid: string): { name: string; attributes: { name: string }[] }[] {
-  const entities: { name: string; attributes: { name: string }[] }[] = [];
-  let current: { name: string; attributes: { name: string }[] } | null = null;
-
-  for (const raw of mermaid.split("\n")) {
-    const line = raw.trim();
-    if (!line || line.startsWith("%%")) continue;
-
-    const open = line.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\{$/);
-    if (open?.[1] && open[1] !== "erDiagram") {
-      current = { name: open[1], attributes: [] };
-      entities.push(current);
-      continue;
-    }
-
-    if (line === "}") {
-      current = null;
-      continue;
-    }
-
-    if (current) {
-      // `type name`, optionally followed by PK/FK and a "comment".
-      const attr = line.match(/^[A-Za-z_][A-Za-z0-9_[\]]*\s+([A-Za-z_][A-Za-z0-9_]*)/);
-      if (attr?.[1]) current.attributes.push({ name: attr[1] });
-    }
-  }
-
-  return entities;
+async function entitiesOf(model: string): Promise<{ name: string; attributes: { name: string }[] }[]> {
+  if (!model.trim()) return [];
+  const { readModelYaml } = await import("@appwithai/generator/model-yaml");
+  const document = readModelYaml(model, { check: false }).document;
+  return (document?.entities ?? []).map((entity) => ({
+    name: entity.name,
+    attributes: entity.attributes.map((attribute) => ({ name: attribute.name })),
+  }));
 }
 
 export const Route = createFileRoute("/api/projects/$id/automations/")({
@@ -89,7 +61,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
             id: row.id,
             name: row.name,
             serviceName: row.service_name,
-            mermaid: row.mermaid_code,
+            definition: row.definition_yaml,
             description: row.description ?? undefined,
             updatedAt: row.updated_at ?? row.created_at ?? undefined,
           }));
@@ -97,7 +69,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
           // The current ERD, so the builder's pickers have something in them.
           const { projectDb } = await import("@appwithai/core/services");
           const project = await projectDb.findById(params.id);
-          const entities = project?.erdCode ? entitiesFromErd(project.erdCode) : [];
+          const entities = await entitiesOf(project?.modelYaml ?? "");
 
           return json({
             automations,
@@ -122,13 +94,14 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
           const body = (await request.json()) as {
             name?: string;
             entity?: string;
-            mermaid?: string;
+            definition?: string;
             description?: string;
           };
 
-          if (!body.name?.trim() || !body.mermaid?.trim()) {
-            return json({ error: "An automation needs a name and its mermaid source." }, 400);
-          }
+          if (!body.name?.trim()) return json({ error: "An automation needs a name." }, 400);
+          const { readDefinition } = await import("@/lib/automation/definition");
+          const definition = await readDefinition(body.definition);
+          if (definition instanceof Response) return definition;
 
           const { changeWorkflow } = await import("@/lib/server/project-repository");
           const created = await changeWorkflow(
@@ -139,7 +112,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
               name: body.name,
               service_name: body.entity ?? "",
               workflow_type: "automation",
-              mermaid_code: body.mermaid,
+              definition_yaml: definition,
               description: body.description ?? "",
             },
             request.headers.get("Idempotency-Key") ?? undefined

@@ -35,12 +35,12 @@ export const Route = createFileRoute("/api/projects/$id/workflows/")({
           const { changeWorkflow } = await import("@/lib/server/project-repository");
           const id = params.id as string;
           const body = await request.json();
-          const { name, serviceName, mermaidCode, description, extensionPoints } = body;
+          const { name, serviceName, definition, description, extensionPoints } = body;
 
-          if (!name || !serviceName || !mermaidCode) {
+          if (!name || !serviceName || typeof definition !== "string") {
             return new Response(
               JSON.stringify({
-                error: "Name, serviceName, and mermaidCode are required",
+                error: "name, serviceName and definition (the automation's YAML document) are required",
               }),
               {
                 status: 400,
@@ -48,11 +48,26 @@ export const Route = createFileRoute("/api/projects/$id/workflows/")({
               }
             );
           }
+          // Stored only once it reads as an automation document: a row that
+          // cannot be opened is worse than a refused request.
+          const { AutomationDocumentError, automationFromYaml } = await import(
+            "@/lib/automation/yaml"
+          );
+          try {
+            automationFromYaml(definition);
+          } catch (error) {
+            if (!(error instanceof AutomationDocumentError)) throw error;
+            return new Response(JSON.stringify({ error: error.message }), {
+              status: 422,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
 
           const workflow = await changeWorkflow(id, access.user.id, `wf_${crypto.randomUUID()}`, {
             name,
             service_name: serviceName,
-            mermaid_code: mermaidCode,
+            workflow_type: "automation",
+            definition_yaml: definition,
             description,
             extension_points: extensionPoints,
           });
