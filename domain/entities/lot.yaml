@@ -1,0 +1,35 @@
+entity:
+  name: Lot
+  namespace: cedm.domain
+  kind: inventory_traceability_master
+  description: A governed batch or lot identity grouping a quantity of one Product with common production, receipt, quality, expiry, or provenance characteristics for inventory traceability.
+  identity: {key: lotId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the lot., businessMeaning: Identifies the traceability group independently of printed lot number., usage: Inventory, quality, recall, manufacturing, receiving, shipping, and audit., relationshipContext: Groups quantities of one Product across locations and movements., requiredMeaning: Required.}}
+  - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: Business-facing lot or batch identifier., businessMeaning: Traceability code used operationally and externally., usage: Receiving, labels, picking, quality, recall, and certificates., relationshipContext: Uniqueness is governed with Product and organizational policy., requiredMeaning: Required.}}
+  - {name: manufacturedAt, type: datetime, required: false, help: {summary: Time the lot was manufactured or produced., businessMeaning: Anchors production age and provenance., usage: Shelf-life, quality, genealogy, and recall., relationshipContext: Distinct from receipt date., optionalMeaning: Optional when unknown or not applicable.}}
+  - {name: expiresAt, type: datetime, required: false, help: {summary: Expiry or use-by time for the lot., businessMeaning: Controls eligibility where shelf life applies., usage: FEFO allocation, quarantine, disposal, and compliance., relationshipContext: Does not itself post inventory movement., optionalMeaning: Optional for non-expiring products.}}
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
+    help: {summary: Governed usability state of the lot., businessMeaning: Controls allocation and operational eligibility while preserving stock history., usage: Quality release, warehouse allocation, production, recall, and disposition., relationshipContext: Status restrictions affect availability but do not rewrite movement history., valueSemantics: {ACTIVE: Operationally recognized., HOLD: Temporarily restricted., QUARANTINED: Segregated pending decision., RELEASED: Approved for governed use., EXPIRED: Past governed shelf life., REJECTED: Not approved for intended use., CONSUMED: Quantity fully consumed under tracked processes., CLOSED: Traceability lifecycle closed.}, requiredMeaning: Required.}
+  relationships:
+  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product represented by this lot., businessMeaning: Defines item identity for all lot quantities., usage: Inventory and quality validation., cardinalityMeaning: Exactly one Product., workflowRole: Movements and balances must use the same product.}}
+  - {name: inventoryBalances, target: InventoryBalance, cardinality: 0..*, ownership: reference, help: {summary: Current stock projections segmented by this lot., businessMeaning: Shows where lot quantity is currently held., usage: Availability, allocation, recall, and reconciliation., cardinalityMeaning: A lot may exist across many locations., workflowRole: Derived from lot-attributed inventory events.}}
+  - {name: inventoryMovements, target: InventoryMovement, cardinality: 0..*, ownership: reference, help: {summary: Inventory events carrying this lot identity., businessMeaning: Historical ledger for lot quantity movement., usage: Genealogy, recall, reconciliation, and audit., cardinalityMeaning: Many events may affect a lot., workflowRole: Authoritative physical quantity history.}}
+  invariants:
+  - {id: LOT-001, rule: lotNumber must be unique for Product within the applicable traceability namespace.}
+  - {id: LOT-002, rule: expiresAt must not precede manufacturedAt when both are known.}
+  - {id: LOT-003, rule: HOLD, QUARANTINED, EXPIRED, or REJECTED lots must not enter unrestricted allocation without an authorized release or exception.}
+  - {id: LOT-004, rule: Lot identity and provenance referenced by posted inventory or quality evidence are immutable; correction uses controlled genealogy or compensating records.}
+  - {id: LOT-005, rule: Lot quantity across balances must reconcile to posted lot-attributed InventoryMovement events.}
+  help:
+    summary: Batch-level inventory identity for end-to-end genealogy and recall.
+    businessMeaning: Product identifies what an item is; Lot identifies which production or receipt batch a quantity belongs to.
+    usage: Inventory, WMS, manufacturing, quality, procurement, sales fulfillment, expiry management, recall, and regulatory traceability.
+    relationshipContext: Lot follows Product quantities through InventoryMovement and InventoryBalance and may later connect to receipt, production, shipment, inspection, and certificate evidence.
+    lifecycle: Created/received → active or quarantined → released/held → consumed/expired/rejected → closed.
+    changePropagation: Status, expiry, or quality changes immediately revalidate availability, reservations, picking, shipment, production consumption, and disposition without altering historical movements.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LOT}
