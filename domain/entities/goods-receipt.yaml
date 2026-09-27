@@ -75,3 +75,7 @@ entity:
     lifecycle: Draft → Received → Inspection Pending → Accepted/Partially Accepted/Rejected → controlled correction if required. Posted evidence remains historical.
     propagation: Header status changes drive allowed downstream workflow; line changes recalculate header totals/state. Supplier returns consume eligible accepted quantities and create separate inventory/financial consequences rather than modifying receipt history. All downstream posting is idempotent and traceable to receipt lines.
     example: "A receipt records 96 units: 94 accepted and 2 rejected. Later, 10 of the 94 accepted units are returned to the supplier. The receipt remains 96 received and 94 accepted; SupplierReturnLine references the receipt evidence, an attributable InventoryMovement reduces stock by 10, and SupplierCreditNote records the payable reduction."
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-GOODS-RECEIPT
