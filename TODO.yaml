@@ -35,7 +35,7 @@ todo:
       name: Procurement
       entities: [Supplier, PurchaseRequisition, RequestForQuotation, SupplierQuotation, PurchaseOrder, GoodsReceipt, SupplierReturn, SupplierClaim]
       status: in-progress
-      notes: Header-level requisition-to-RFQ-to-supplier-quotation-to-purchase-order chain has been added. Gap scan confirms RequestForQuotationLine and SupplierQuotationLine are still missing and are next in the sourcing work queue.
+      notes: Header-level requisition-to-RFQ-to-supplier-quotation-to-purchase-order chain has been added. Line-level sourcing is now implemented through RequestForQuotationLine and SupplierQuotationLine with reciprocal demand and PurchaseOrderLine traceability; remaining procurement depth and validation are still pending.
     - id: product-pim
       name: Product / PIM
       entities: [Product, ProductVariant, ProductCategory, Brand, ProductAttribute, BillOfMaterial, UnitOfMeasure, Packaging, ProductLifecycle]
@@ -192,11 +192,9 @@ todo:
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
 
   discoveredGaps:
-    - {domain: procurement, missing: [RequestForQuotationLine, SupplierQuotationLine], priority: critical}
     - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
     - {domain: inventory, missing: [Lot, SerialNumber], priority: critical}
     - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
-    - {domain: logistics-scm, missing: [ShipmentLine], priority: critical}
     - {domain: manufacturing, missing: [Routing, ProductionOrder], priority: critical}
     - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
     - {domain: treasury-banking, missing: [CashPosition], priority: high}
