@@ -94,6 +94,7 @@ registry:
     - Location
     - Lot
     - MaintenancePlan
+    - MaterialIssue
     - MaintenanceWorkOrder
     - ManufacturingWorkOrder
     - MediaContent
@@ -121,6 +122,7 @@ registry:
     - Product
     - ProductCategory
     - ProductionRecord
+    - ProductionReceipt
     - ProfessionalEngagement
     - Project
     - ProjectTask
@@ -144,6 +146,7 @@ registry:
     - RequestForQuotation
     - RequestForQuotationLine
     - RetailSale
+    - Routing
     - RetailSaleLine
     - ReturnDisposition
     - Risk
@@ -192,6 +195,7 @@ registry:
     - Vehicle
     - VehicleModel
     - Warehouse
+    - WorkCenter
     - Workflow
     - Yard
     - YardBay
