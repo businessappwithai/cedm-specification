@@ -141,6 +141,7 @@ registry:
     - ResearchProject
     - ResourceAssignment
     - RequestForQuotation
+    - RequestForQuotationLine
     - RetailSale
     - RetailSaleLine
     - ReturnDisposition
@@ -155,10 +156,12 @@ registry:
     - SecurityIncident
     - ServiceRequest
     - Shipment
+    - ShipmentLine
     - ShoppingCart
     - ShoppingCartLine
     - Store
     - SupplierQuotation
+    - SupplierQuotationLine
     - Supplier
     - SupplierClaim
     - SupplierClaimResolution
