@@ -8,9 +8,9 @@
  * 2. **Schema** — the document is what `language/yaml/eml.schema.json` says a
  *    model is. The schema is the definition of the language, and it is the
  *    schema itself that is checked here, not a second description of it.
- * 3. **Model** — the language checker, the same ~130 rules that gate EML
- *    generation, run over the document's Mermaid view. Every view line knows
- *    the document path it was drawn from, so each finding lands on the YAML.
+ * 3. **Model** — the language checker (`language/yaml/checker.ts`): the rules
+ *    that relate one part of a model to another, which a schema cannot state.
+ *    Each finding names the document path it is about, so it lands on the YAML.
  * 4. **View** — the view reads back to the same document. Where it does not,
  *    the model is still exactly what the YAML says; the drawing is what differs,
  *    and the author is told which construct EML cannot draw faithfully.
@@ -19,8 +19,8 @@
 import Ajv2020, { type ErrorObject } from "ajv/dist/2020";
 import { isNode, LineCounter, parseDocument } from "yaml";
 import languageDefinition from "../../../../language/appwithai-language.json";
-import { checkSource } from "../../../../language/checker";
 import { type LanguageDefinition, setLanguageDefinition } from "../../../../language/index";
+import { checkModelDocument } from "../../../../language/yaml/checker";
 import schema from "../../../../language/yaml/eml.schema.json";
 import { readEmlModel } from "../model/read-eml";
 import { documentToRecords, recordsToDocument } from "./convert";
@@ -227,24 +227,23 @@ export function readModelYaml(
 
   const document = value as ModelDocument;
 
-  if (options.check !== false || options.checkView !== false) {
-    const view = renderEmlView(document);
-
-    if (options.check !== false) {
-      for (const issue of checkView(view.text)) {
-        const path = issue.line ? (view.lineMap[issue.line - 1] ?? []) : [];
-        diagnostics.push({
-          severity: issue.severity,
-          code: issue.code,
-          message: issue.message,
-          path,
-          ...locate(path),
-          ...(issue.hint ? { hint: issue.hint } : {}),
-        });
-      }
+  if (options.check !== false) {
+    installLanguageDefinition();
+    for (const issue of checkModelDocument(document)) {
+      diagnostics.push({
+        severity: issue.severity,
+        code: issue.code,
+        message: issue.message,
+        path: issue.path,
+        ...locate(issue.path),
+        ...(issue.hint ? { hint: issue.hint } : {}),
+      });
     }
+  }
 
-    if (options.checkView !== false) {
+  if (options.checkView !== false) {
+    const view = renderEmlView(document);
+    {
       const expected = drawableForm(canonicalDocument(document));
       const drawn = recordsToDocument(readEmlModel(view.text)).document;
       for (const key of DOCUMENT_KEY_ORDER) {
@@ -333,17 +332,13 @@ function viewDiagnostic(path: DocumentPath, at: { line: number; column: number }
 let definitionInstalled = false;
 
 /**
- * The language checker over a view.
- *
- * The definition is handed to the checker from the JSON bundled with this
- * module rather than read from beside `language/index.ts`, which does not
+ * Hand the checker the language definition bundled with this module rather
+ * than letting it read the file beside `language/index.ts`, which does not
  * exist once the CLI is bundled into `dist/` — the same arrangement the
- * browser build of the checker uses.
+ * browser build uses.
  */
-function checkView(text: string) {
-  if (!definitionInstalled) {
-    setLanguageDefinition(languageDefinition as unknown as LanguageDefinition);
-    definitionInstalled = true;
-  }
-  return checkSource(text).issues;
+function installLanguageDefinition(): void {
+  if (definitionInstalled) return;
+  setLanguageDefinition(languageDefinition as unknown as LanguageDefinition);
+  definitionInstalled = true;
 }

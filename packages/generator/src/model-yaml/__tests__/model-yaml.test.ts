@@ -181,7 +181,7 @@ relationships:
       expect.objectContaining({ code: "EML147", path: ["entities", 1, "parent"], line: 8 })
     );
     expect(result.diagnostics).toContainEqual(
-      expect.objectContaining({ code: "EML121", path: ["relationships", 0], line: 11 })
+      expect.objectContaining({ code: "EML121", path: ["relationships", 0, "to"], line: 11 })
     );
   });
 
