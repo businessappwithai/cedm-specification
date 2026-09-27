@@ -154,6 +154,7 @@ registry:
     - Role
     - SalesOrder
     - SalesOrderLine
+    - Scrap
     - Sample
     - SamplingPlan
     - SamplingRule
