@@ -69,6 +69,11 @@ entity:
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
+  - name: lot
+    target: Lot
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Lot segment represented by this balance when lot-controlled., businessMeaning: Separates stock state by batch for quality, expiry, and recall., usage: Allocation, FEFO, recall, and reconciliation., cardinalityMeaning: Optional for non-lot-controlled products., workflowRole: Balance must reconcile to lot-attributed movements.}
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
