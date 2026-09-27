@@ -1,0 +1,192 @@
+# CEDM Completion Backlog
+todo:
+  version: 1.0.0
+  status: active
+  objective: Complete a broad Common Enterprise Domain Model with deep entity semantics and cross-domain workflow integrity.
+  completionCriteria:
+    - Every required entity is represented by a canonical entity specification or an explicitly documented canonical equivalent.
+    - Every entity and every field has detailed help covering meaning, usage, required or optional semantics, and relationship/workflow context where applicable.
+    - Enumerations define governed value semantics.
+    - Relationships define target, cardinality, ownership and business/workflow meaning.
+    - Reciprocal relationships and all workflow-affected entities are reconciled whenever a model changes.
+    - Lifecycle states, invariants, correction semantics, idempotency and historical immutability are defined where applicable.
+    - Physical, commercial, financial and accounting effects are represented as separate auditable business events where appropriate.
+    - Entity registry, domain catalog and capability catalog are synchronized.
+    - No dangling entity targets, obsolete duplicate concepts or unexplained isolated transaction chains remain.
+    - Available repository validators and CI checks are executed and their actual results recorded; absence of CI is never treated as a pass.
+  executionPolicy:
+    approval: All remaining backlog items are pre-approved for implementation, integration, repair, validation and cleanup.
+    sequence: Work domain-by-domain while immediately propagating every cross-domain dependency.
+    doneDefinition: An item is complete only after its entity definitions, reciprocal dependencies, catalogs/registry and available validation have been reconciled.
+  domains:
+    - id: party-organization
+      name: Party & Organization
+      entities: [Party, Person, Organization, BusinessUnit, Department, Team, Role, Address, ContactPoint, PartyRelationship]
+      status: pending-verification
+    - id: customer-crm
+      name: Customer / CRM
+      entities: [Customer, Prospect, Lead, Opportunity, Account, Contact, Activity, Campaign, Quote, Contract]
+      status: pending-verification
+    - id: sales
+      name: Sales
+      entities: [SalesOrder, SalesOrderLine, Pricing, Discount, Promotion, Fulfillment, CustomerReturn]
+      status: pending-verification
+    - id: procurement
+      name: Procurement
+      entities: [Supplier, PurchaseRequisition, RequestForQuotation, SupplierQuotation, PurchaseOrder, GoodsReceipt, SupplierReturn, SupplierClaim]
+      status: in-progress
+      notes: Header-level requisition-to-RFQ-to-supplier-quotation-to-purchase-order chain has been added; line-level sourcing and remaining completeness checks are pending.
+    - id: product-pim
+      name: Product / PIM
+      entities: [Product, ProductVariant, ProductCategory, Brand, ProductAttribute, BillOfMaterial, UnitOfMeasure, Packaging, ProductLifecycle]
+      status: pending-verification
+    - id: inventory
+      name: Inventory
+      entities: [InventoryItem, InventoryBalance, Lot, SerialNumber, InventoryReservation, InventoryMovement, InventoryTransfer, InventoryAdjustment, InventoryCount]
+      status: pending-verification
+    - id: warehouse-wms
+      name: Warehouse / WMS
+      entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
+      status: pending-verification
+    - id: logistics-scm
+      name: Logistics / SCM
+      entities: [Shipment, ShipmentLine, Carrier, Route, Load, Consignment, FreightCharge, Delivery, TrackingEvent]
+      status: pending-verification
+    - id: manufacturing
+      name: Manufacturing
+      entities: [BillOfMaterial, BOMComponent, Routing, WorkCenter, ProductionOrder, Operation, MaterialIssue, ProductionReceipt, Scrap]
+      status: pending-verification
+    - id: maintenance-eam
+      name: Maintenance / EAM
+      entities: [Asset, Equipment, MaintenancePlan, MaintenanceWorkOrder, Failure, QualityInspection, Meter, SparePart]
+      status: pending-verification
+    - id: quality
+      name: Quality
+      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
+      status: in-progress
+      notes: Core quality and sampling chain is established; broader laboratory, calibration, hold/deviation and specification coverage remains to be assessed and completed.
+    - id: finance-accounting
+      name: Finance / Accounting
+      entities: [Ledger, Account, JournalEntry, JournalEntryLine, FiscalPeriod, Invoice, InvoiceLine, Payment, PaymentAllocation, TaxRule]
+      status: pending-verification
+    - id: treasury-banking
+      name: Treasury / Banking
+      entities: [BankAccount, BankTransaction, CashPosition, PaymentInstruction, BankReconciliation, ForeignExchangeTransaction]
+      status: pending-verification
+    - id: budgeting-planning
+      name: Budgeting / Planning
+      entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
+      status: pending-verification
+    - id: projects
+      name: Projects
+      entities: [Project, ProjectPhase, Milestone, ProjectTask, ResourceAssignment, Timesheet, ProjectCost]
+      status: pending-verification
+    - id: hr-hcm
+      name: HR / HCM
+      entities: [Employee, Employment, Position, Job, Department, Compensation, LeaveRequest, Attendance, Payroll]
+      status: pending-verification
+    - id: service-management
+      name: Service Management
+      entities: [ServiceRequest, ServiceCase, Ticket, ServiceLevelAgreement, ServiceOrder, ServiceContract, Entitlement]
+      status: pending-verification
+    - id: contracts
+      name: Contracts
+      entities: [Contract, ContractLine, ContractClause, ContractObligation, ContractAmendment, ContractRenewal, ContractTermination]
+      status: pending-verification
+    - id: document-management
+      name: Document Management
+      entities: [Document, DocumentVersion, Attachment, DocumentClassification, Approval, Signature]
+      status: pending-verification
+    - id: workflow-bpm
+      name: Workflow / BPM
+      entities: [ProcessDefinition, ProcessInstance, Task, Approval, Assignment, Escalation]
+      status: pending-verification
+    - id: security-iam
+      name: Security / IAM
+      entities: [User, Role, Permission, Policy, AccessGrant, OrganizationMembership]
+      status: pending-verification
+    - id: governance-audit
+      name: Governance / Audit
+      entities: [AuditEvent, AuditCase, Control, Policy, Finding, Risk, ComplianceRequirement]
+      status: pending-verification
+    - id: risk
+      name: Risk
+      entities: [Risk, RiskAssessment, Control, RiskTreatment, Incident, LossEvent]
+      status: pending-verification
+    - id: legal
+      name: Legal
+      entities: [LegalEntity, LegalMatter, LegalCase, Agreement, Obligation, Filing]
+      status: pending-verification
+    - id: tax
+      name: Tax
+      entities: [TaxCode, TaxRate, TaxJurisdiction, TaxRegistration, TaxTransaction]
+      status: pending-verification
+    - id: fixed-assets
+      name: Fixed Assets
+      entities: [FixedAsset, AssetClass, AssetAcquisition, AssetDepreciation, AssetTransfer, AssetDisposal]
+      status: pending-verification
+    - id: subscription-billing
+      name: Subscription / Billing
+      entities: [Subscription, SubscriptionPlan, UsageRecord, BillingCycle, Charge, Credit, Renewal]
+      status: pending-verification
+    - id: healthcare
+      name: Healthcare
+      entities: [HealthcarePatient, HealthcareProvider, Practitioner, HealthcareEncounter, Appointment, Diagnosis, Procedure, Medication, InsuranceClaim]
+      status: pending-verification
+    - id: education
+      name: Education
+      entities: [EducationStudent, Guardian, EducationCourse, Class, Enrollment, Attendance, Assessment, Grade, Fee]
+      status: pending-verification
+    - id: insurance
+      name: Insurance
+      entities: [InsurancePolicy, Coverage, InsuredParty, Premium, InsuranceClaim, ClaimLine, Underwriting, Settlement]
+      status: pending-verification
+    - id: banking-financial-services
+      name: Banking / Financial Services
+      entities: [Account, Customer, Deposit, BankLoan, Facility, BankTransaction, Interest, Collateral]
+      status: pending-verification
+    - id: research-life-sciences
+      name: Research / Life Sciences
+      entities: [Compound, Sample, Experiment, Protocol, Study, Assay, Observation, Result]
+      status: pending-verification
+    - id: transportation-fleet
+      name: Transportation / Fleet
+      entities: [Vehicle, Driver, Trip, Route, Stop, FuelTransaction, MaintenanceWorkOrder]
+      status: pending-verification
+    - id: container-port-yard
+      name: Container / Port / Yard
+      entities: [Container, Yard, YardSlot, GateEvent, Vessel, Voyage, Berth, ContainerMovement]
+      status: pending-verification
+    - id: real-estate
+      name: Real Estate
+      entities: [Property, Building, PropertyUnit, Lease, Tenant, RentCharge, MaintenanceRequest]
+      status: pending-verification
+    - id: hospitality
+      name: Hospitality
+      entities: [Property, HotelRoom, HotelReservation, Guest, Stay, RatePlan, Folio]
+      status: pending-verification
+    - id: retail-pos
+      name: Retail / POS
+      entities: [Store, Register, Basket, RetailSale, RetailSaleLine, Tender, Promotion, CustomerReturn]
+      status: pending-verification
+    - id: ecommerce
+      name: E-commerce
+      entities: [ShoppingCart, Checkout, SalesOrder, Fulfillment, Shipment, MarketplaceListing]
+      status: pending-verification
+    - id: master-reference
+      name: Master / Reference Data
+      entities: [Currency, Country, Language, UnitOfMeasure, Calendar, ExchangeRate, Classification]
+      status: pending-verification
+    - id: integration-event
+      name: Integration / Event Model
+      entities: [IntegrationEndpoint, Message, BusinessEvent, Subscription, DeliveryAttempt]
+      status: pending-verification
+  crossDomainChains:
+    - [Lead, Opportunity, Quotation, SalesOrder, Shipment, Invoice, Payment, JournalEntry]
+    - [PurchaseRequisition, RequestForQuotation, SupplierQuotation, PurchaseOrder, GoodsReceipt, QualityInspection, Invoice, Payment, JournalEntry]
+    - [Product, BillOfMaterial, ProductionOrder, MaterialIssue, Operation, QualityInspection, ProductionReceipt, InventoryBalance]
+    - [Employee, Position, Employment, Timesheet, Payroll, Payment, JournalEntry]
+    - [CustomerReturn, CustomerReturnLine, QualityInspection, ReturnDisposition, InventoryMovement, CreditNote]
+    - [SupplierReturn, SupplierReturnLine, QualityInspection, ReturnDisposition, InventoryMovement, SupplierCreditNote]
+    - [Risk, RiskAssessment, Control, Finding, RiskTreatment, AuditEvent]
+    - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
