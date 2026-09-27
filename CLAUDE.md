@@ -117,6 +117,7 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run test:playwright` | Playwright E2E tests |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
+| `bun run convert:stored-models` | One-time: convert a Mermaid-era installation's stored models, automations and project histories to YAML (`--dry-run` first) |
 | `bun run clean` | Remove all `node_modules` and `dist` directories |
 
 **Run a single Vitest test file:**
@@ -1349,6 +1350,18 @@ packages/web/src/lib/server/
 packages/yamltecture/      # EML → deterministic YAML (`.appwithai/model.ai.yaml`), + model context
 ```
 
+- **An installation from before YAML is converted once, by an operator.**
+  `runMigrations` refuses a database that still has `erd_versions.mermaid_code`,
+  `workflows.mermaid_code` or `workflows.flowchart_code`, naming
+  `bun run convert:stored-models`. That command
+  (`packages/web/src/lib/server/stored-models/`) plans everything before writing
+  anything — versions, current models, automations, each project's history, the
+  legacy `.mermaid-library` — converts in one transaction plus one commit per
+  history, and keeps every original in `stored_model_conversions`. What does not
+  convert blocks it until the operator passes `--archive-unconvertible`; an
+  interrupted save blocks it until `--abandon-pending`. It reads Mermaid through
+  the readers of 18f5792 vendored under `legacy/` with the language definition
+  embedded — the only Mermaid reader left, and nothing else may import it.
 - **Persist through the repository service, never around it.** `saveProject`,
   `restoreProject`, `changeWorkflow`, `saveDiagram`, `saveProjectFiles`,
   `prepareGeneration`/`publishGeneration`. A route that writes `erd_versions`,

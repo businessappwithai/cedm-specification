@@ -42,6 +42,7 @@
     "format:check": "biome format .",
     "setup:gstack": "git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup",
     "seed:admin": "bun scripts/seed-admin.ts",
+    "convert:stored-models": "bun run build:core && bun run build:generator && bun scripts/convert-stored-models.ts",
     "test:e2e:generated": "bun --filter @appwithai/generator test:e2e"
   },
   "devDependencies": {

@@ -427,7 +427,12 @@ function modelSourceFiles(model: string): Files {
 /** Where a saved automation's own document lives in the history. */
 const automationPath = (id: string) => `model/automations/${digest(String(id)).slice(0, 24)}.yaml`;
 
-async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> {
+/**
+ * Every file the model and its workflows are kept as. Exported for the one-time
+ * stored-model conversion, which writes the same layout rather than a second
+ * statement of it.
+ */
+export async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> {
   const files: Files = {
     ...modelSourceFiles(model),
     "model/workflows.json": jsonFile(workflows.map(cleanWorkflow)),

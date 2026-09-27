@@ -5,7 +5,7 @@
  * listed in `project_members`. That rule has to hold for every route that
  * touches a project, not just the ones that happen to remember it: a model is
  * a company's data design, and reading someone else's by guessing an id is the
- * same disclosure whether it arrives as JSON, as an `.mmd` download, or as the
+ * same disclosure whether it arrives as JSON, as a `.eml.yaml` download, or as the
  * parsed sections an editor loads.
  *
  * The check lives here rather than in each route so there is one implementation
