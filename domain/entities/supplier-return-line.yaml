@@ -103,6 +103,16 @@ entity:
       summary: Supplier invoice lines financially associated with the returned goods.
       businessMeaning: Identifies claims that may require a supplier credit.
       workflowRole: Supplies original transaction-value and tax evidence for financial adjustment.
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled operational disposition decisions covering this supplier-return quantity.
+      businessMeaning: Records explicit return-to-supplier, reject, exception, or other governed handling decisions at quantity level.
+      usage: Partial disposition, supplier quality, warehouse execution, inventory reconciliation, and audit.
+      cardinalityMeaning: A supplier return line may have multiple dispositions when quantities are split or corrected through controlled evidence.
+      workflowRole: Disposition authorizes physical handling but InventoryMovement remains the authoritative stock consequence.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
