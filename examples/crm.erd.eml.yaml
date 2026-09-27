@@ -1,0 +1,533 @@
+eml: "1.0"
+entities:
+  - name: Company
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: industry
+        type: string
+        optional: true
+      - name: website
+        type: string
+        optional: true
+      - name: phone
+        type: string
+        optional: true
+      - name: email
+        type: string
+        optional: true
+      - name: employee_count
+        type: integer
+        optional: true
+      - name: annual_revenue
+        type: decimal
+        optional: true
+      - name: status
+        type: string
+      - name: owner_id
+        type: string
+        fk: true
+  - name: Contact
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: company_id
+        type: string
+        fk: true
+        optional: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+        optional: true
+      - name: mobile
+        type: string
+        optional: true
+      - name: job_title
+        type: string
+        optional: true
+      - name: department
+        type: string
+        optional: true
+      - name: status
+        type: string
+      - name: lead_source
+        type: string
+        optional: true
+      - name: owner_id
+        type: string
+        fk: true
+  - name: Deal
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: company_id
+        type: string
+        fk: true
+        optional: true
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+      - name: name
+        type: string
+      - name: amount
+        type: decimal
+        optional: true
+      - name: currency
+        type: string
+      - name: stage
+        type: string
+      - name: probability
+        type: integer
+        optional: true
+      - name: expected_close_date
+        type: date
+        optional: true
+      - name: actual_close_date
+        type: date
+        optional: true
+      - name: status
+        type: string
+      - name: description
+        type: text
+        optional: true
+      - name: owner_id
+        type: string
+        fk: true
+  - name: DealStage
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: pipeline_id
+        type: string
+        fk: true
+      - name: name
+        type: string
+      - name: sort_order
+        type: integer
+      - name: default_probability
+        type: integer
+      - name: is_won
+        type: boolean
+      - name: is_lost
+        type: boolean
+  - name: Pipeline
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: is_default
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: Activity
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+      - name: company_id
+        type: string
+        fk: true
+        optional: true
+      - name: deal_id
+        type: string
+        fk: true
+        optional: true
+      - name: activity_type
+        type: string
+      - name: subject
+        type: string
+      - name: description
+        type: text
+        optional: true
+      - name: scheduled_at
+        type: datetime
+        optional: true
+      - name: completed_at
+        type: datetime
+        optional: true
+      - name: duration_minutes
+        type: integer
+        optional: true
+      - name: status
+        type: string
+      - name: owner_id
+        type: string
+        fk: true
+  - name: Note
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+      - name: company_id
+        type: string
+        fk: true
+        optional: true
+      - name: deal_id
+        type: string
+        fk: true
+        optional: true
+      - name: content
+        type: text
+      - name: is_pinned
+        type: boolean
+      - name: author_id
+        type: string
+        fk: true
+  - name: Task
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+      - name: company_id
+        type: string
+        fk: true
+        optional: true
+      - name: deal_id
+        type: string
+        fk: true
+        optional: true
+      - name: title
+        type: string
+      - name: description
+        type: text
+        optional: true
+      - name: priority
+        type: string
+      - name: status
+        type: string
+      - name: due_date
+        type: date
+        optional: true
+      - name: completed_at
+        type: datetime
+        optional: true
+      - name: assigned_to
+        type: string
+        fk: true
+      - name: created_by
+        type: string
+        fk: true
+  - name: EmailMessage
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+      - name: deal_id
+        type: string
+        fk: true
+        optional: true
+      - name: thread_id
+        type: string
+        optional: true
+      - name: subject
+        type: string
+      - name: body_text
+        type: text
+        optional: true
+      - name: body_html
+        type: text
+        optional: true
+      - name: direction
+        type: string
+      - name: sent_at
+        type: datetime
+        optional: true
+      - name: received_at
+        type: datetime
+        optional: true
+      - name: opened_at
+        type: datetime
+        optional: true
+      - name: open_count
+        type: integer
+  - name: EmailTemplate
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: subject
+        type: string
+      - name: body_html
+        type: text
+      - name: body_text
+        type: text
+        optional: true
+      - name: category
+        type: string
+        optional: true
+      - name: is_active
+        type: boolean
+  - name: Product
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: sku
+        type: string
+        unique: true
+      - name: description
+        type: text
+        optional: true
+      - name: unit_price
+        type: decimal
+      - name: currency
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Quote
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: deal_id
+        type: string
+        fk: true
+      - name: quote_number
+        type: string
+        unique: true
+      - name: status
+        type: string
+      - name: valid_until
+        type: date
+        optional: true
+      - name: subtotal
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: total_amount
+        type: decimal
+      - name: terms
+        type: text
+        optional: true
+      - name: notes
+        type: text
+        optional: true
+  - name: QuoteItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: quote_id
+        type: string
+        fk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: description
+        type: string
+        optional: true
+      - name: quantity
+        type: integer
+      - name: unit_price
+        type: decimal
+      - name: discount_percent
+        type: decimal
+      - name: total_price
+        type: decimal
+  - name: User
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: role
+        type: string
+      - name: team_id
+        type: string
+        fk: true
+        optional: true
+      - name: is_active
+        type: boolean
+      - name: last_login
+        type: datetime
+        optional: true
+  - name: Team
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: manager_id
+        type: string
+        fk: true
+        optional: true
+relationships:
+  - from: Company
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: employs
+  - from: Company
+    fromCardinality: exactly-one
+    to: Deal
+    toCardinality: zero-or-more
+    label: has
+  - from: Company
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: logged_for
+  - from: Company
+    fromCardinality: exactly-one
+    to: Note
+    toCardinality: zero-or-more
+    label: has
+  - from: Company
+    fromCardinality: exactly-one
+    to: Task
+    toCardinality: zero-or-more
+    label: has
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Deal
+    toCardinality: zero-or-more
+    label: associated_with
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: logged_for
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Note
+    toCardinality: zero-or-more
+    label: has
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Task
+    toCardinality: zero-or-more
+    label: has
+  - from: Contact
+    fromCardinality: exactly-one
+    to: EmailMessage
+    toCardinality: zero-or-more
+    label: receives
+  - from: Deal
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: logged_for
+  - from: Deal
+    fromCardinality: exactly-one
+    to: Note
+    toCardinality: zero-or-more
+    label: has
+  - from: Deal
+    fromCardinality: exactly-one
+    to: Task
+    toCardinality: zero-or-more
+    label: has
+  - from: Deal
+    fromCardinality: exactly-one
+    to: Quote
+    toCardinality: zero-or-more
+    label: has
+  - from: Deal
+    fromCardinality: exactly-one
+    to: EmailMessage
+    toCardinality: zero-or-more
+    label: related_to
+  - from: Deal
+    fromCardinality: zero-or-more
+    to: DealStage
+    toCardinality: exactly-one
+    label: in_stage
+  - from: Pipeline
+    fromCardinality: exactly-one
+    to: DealStage
+    toCardinality: zero-or-more
+    label: has
+  - from: Quote
+    fromCardinality: exactly-one
+    to: QuoteItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Product
+    fromCardinality: exactly-one
+    to: QuoteItem
+    toCardinality: zero-or-more
+    label: quoted_in
+  - from: User
+    fromCardinality: exactly-one
+    to: Company
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Deal
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Task
+    toCardinality: zero-or-more
+    label: assigned
+  - from: User
+    fromCardinality: exactly-one
+    to: Note
+    toCardinality: zero-or-more
+    label: authors
+  - from: Team
+    fromCardinality: exactly-one
+    to: User
+    toCardinality: zero-or-more
+    label: contains
+  - from: Team
+    fromCardinality: exactly-one
+    to: User
+    toCardinality: exactly-one
+    label: managed_by

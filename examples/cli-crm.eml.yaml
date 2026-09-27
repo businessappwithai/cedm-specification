@@ -1,0 +1,672 @@
+eml: "1.0"
+name: Simple CRM
+version: 1.0.0
+enums:
+  - name: OpportunityStage
+    values: [prospecting, qualification, proposal, negotiation, closed_won, closed_lost]
+  - name: ActivityType
+    values: [call, email, meeting, task, note]
+entities:
+  - name: Account
+    prefix: bus
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+  - name: Contact
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: account_id
+        type: string
+        fk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+    indexes:
+      - columns: [email]
+        unique: true
+  - name: Opportunity
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: account_id
+        type: string
+        fk: true
+      - name: name
+        type: string
+      - name: amount
+        type: decimal
+      - name: stage
+        type: string
+        enum: OpportunityStage
+      - name: close_date
+        type: datetime
+    indexes:
+      - columns: [account_id, stage]
+  - name: Activity
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contact_id
+        type: string
+        fk: true
+      - name: opportunity_id
+        type: string
+        fk: true
+      - name: type
+        type: string
+        enum: ActivityType
+      - name: description
+        type: string
+      - name: activity_date
+        type: datetime
+    indexes:
+      - columns: [contact_id, activity_date]
+relationships:
+  - from: Account
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: employs
+  - from: Account
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: has
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: logged_for
+  - from: Opportunity
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: tracked_on
+hooks:
+  - entity: Contact
+    event: beforeCreate
+    handler: normalizeEmail
+    fields: [email]
+  - entity: Contact
+    event: customValidate
+    handler: ensureUniqueEmail
+    fields: [email]
+  - entity: Contact
+    event: afterCreate
+    handler: notifyAccountOwner
+  - entity: Contact
+    event: afterUpdate
+    handler: syncContactData
+  - entity: Activity
+    event: beforeCreate
+    handler: validateActivityDate
+    fields: [activity_date]
+  - entity: Activity
+    event: afterCreate
+    handler: updateOpportunityLastActivity
+  - entity: Activity
+    event: afterCreate
+    handler: logActivityAudit
+rbac:
+  - entity: Opportunity
+    action: update
+    roles: [sales, manager]
+  - entity: Opportunity
+    action: close_won
+    roles: [manager]
+triggers:
+  - entity: Opportunity
+    source: cron:0 9 * * 1
+    handler: nudgeStaleOpportunities
+rules:
+  - name: accountValidation
+    title: Account Validation
+    entity: Account
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: S
+        label: "Start: Account Create"
+        shape: stadium
+      - id: Q1
+        label: name == null?
+        shape: diamond
+      - id: E1
+        label: "Prevent: Name is required"
+        shape: rect
+      - id: Q2
+        label: email == null?
+        shape: diamond
+      - id: E2
+        label: "Prevent: Email is required"
+        shape: rect
+      - id: Q3
+        label: email format invalid?
+        shape: diamond
+      - id: E3
+        label: "Prevent: Email must be a valid email address"
+        shape: rect
+      - id: Q4
+        label: phone == null?
+        shape: diamond
+      - id: E4
+        label: "Prevent: Phone is required"
+        shape: rect
+      - id: P
+        label: Pass Validation
+        shape: round
+      - id: END
+        label: "End: Validated"
+        shape: stadium
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: E1
+        label: Yes
+      - from: Q1
+        to: Q2
+        label: No
+      - from: Q2
+        to: E2
+        label: Yes
+      - from: Q2
+        to: Q3
+        label: No
+      - from: Q3
+        to: E3
+        label: Yes
+      - from: Q3
+        to: Q4
+        label: No
+      - from: Q4
+        to: E4
+        label: Yes
+      - from: Q4
+        to: P
+        label: No
+      - from: E1
+        to: END
+      - from: E2
+        to: END
+      - from: E3
+        to: END
+      - from: E4
+        to: END
+      - from: P
+        to: END
+  - name: contactValidation
+    title: Contact Validation
+    entity: Contact
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: S
+        label: "Start: Contact Create"
+        shape: stadium
+      - id: Q1
+        label: first_name == null?
+        shape: diamond
+      - id: E1
+        label: "Prevent: First name is required"
+        shape: rect
+      - id: Q2
+        label: last_name == null?
+        shape: diamond
+      - id: E2
+        label: "Prevent: Last name is required"
+        shape: rect
+      - id: Q3
+        label: email == null?
+        shape: diamond
+      - id: E3
+        label: "Prevent: Email is required"
+        shape: rect
+      - id: Q4
+        label: email format invalid?
+        shape: diamond
+      - id: E4
+        label: "Prevent: Email must be a valid email address"
+        shape: rect
+      - id: Q5
+        label: phone == null?
+        shape: diamond
+      - id: E5
+        label: "Prevent: Phone is required"
+        shape: rect
+      - id: Q6
+        label: account_id == null?
+        shape: diamond
+      - id: E6
+        label: "Prevent: Account is required"
+        shape: rect
+      - id: P
+        label: Pass Validation
+        shape: round
+      - id: END
+        label: "End: Validated"
+        shape: stadium
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: E1
+        label: Yes
+      - from: Q1
+        to: Q2
+        label: No
+      - from: Q2
+        to: E2
+        label: Yes
+      - from: Q2
+        to: Q3
+        label: No
+      - from: Q3
+        to: E3
+        label: Yes
+      - from: Q3
+        to: Q4
+        label: No
+      - from: Q4
+        to: E4
+        label: Yes
+      - from: Q4
+        to: Q5
+        label: No
+      - from: Q5
+        to: E5
+        label: Yes
+      - from: Q5
+        to: Q6
+        label: No
+      - from: Q6
+        to: E6
+        label: Yes
+      - from: Q6
+        to: P
+        label: No
+      - from: E1
+        to: END
+      - from: E2
+        to: END
+      - from: E3
+        to: END
+      - from: E4
+        to: END
+      - from: E5
+        to: END
+      - from: E6
+        to: END
+      - from: P
+        to: END
+  - name: opportunityValidation
+    title: Opportunity Validation
+    entity: Opportunity
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: S
+        label: "Start: Opportunity Create"
+        shape: stadium
+      - id: Q1
+        label: name == null?
+        shape: diamond
+      - id: E1
+        label: "Prevent: Name is required"
+        shape: rect
+      - id: Q2
+        label: amount == null?
+        shape: diamond
+      - id: E2
+        label: "Prevent: Amount is required"
+        shape: rect
+      - id: Q3
+        label: amount <= 0?
+        shape: diamond
+      - id: E3
+        label: "Prevent: Amount must be greater than zero"
+        shape: rect
+      - id: Q4
+        label: stage == null?
+        shape: diamond
+      - id: E4
+        label: "Prevent: Stage is required"
+        shape: rect
+      - id: Q5
+        label: stage not in valid enum?
+        shape: diamond
+      - id: E5
+        label: "Prevent: Stage must be a valid pipeline stage"
+        shape: rect
+      - id: Q6
+        label: account_id == null?
+        shape: diamond
+      - id: E6
+        label: "Prevent: Account is required"
+        shape: rect
+      - id: Q7
+        label: close_date == null?
+        shape: diamond
+      - id: E7
+        label: "Prevent: Close date is required"
+        shape: rect
+      - id: P
+        label: Pass Validation
+        shape: round
+      - id: END
+        label: "End: Validated"
+        shape: stadium
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: E1
+        label: Yes
+      - from: Q1
+        to: Q2
+        label: No
+      - from: Q2
+        to: E2
+        label: Yes
+      - from: Q2
+        to: Q3
+        label: No
+      - from: Q3
+        to: E3
+        label: Yes
+      - from: Q3
+        to: Q4
+        label: No
+      - from: Q4
+        to: E4
+        label: Yes
+      - from: Q4
+        to: Q5
+        label: No
+      - from: Q5
+        to: E5
+        label: Yes
+      - from: Q5
+        to: Q6
+        label: No
+      - from: Q6
+        to: E6
+        label: Yes
+      - from: Q6
+        to: Q7
+        label: No
+      - from: Q7
+        to: E7
+        label: Yes
+      - from: Q7
+        to: P
+        label: No
+      - from: E1
+        to: END
+      - from: E2
+        to: END
+      - from: E3
+        to: END
+      - from: E4
+        to: END
+      - from: E5
+        to: END
+      - from: E6
+        to: END
+      - from: E7
+        to: END
+      - from: P
+        to: END
+  - name: opportunityScoring
+    title: Opportunity Probability Scoring
+    entity: Opportunity
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: S
+        label: "Start: Opportunity Updated"
+        shape: stadium
+      - id: Q1
+        label: stage == closed_won?
+        shape: diamond
+      - id: W
+        label: Set Probability 100%
+        shape: rect
+      - id: Q2
+        label: stage == closed_lost?
+        shape: diamond
+      - id: L
+        label: Set Probability 0%
+        shape: rect
+      - id: Q3
+        label: stage == negotiation?
+        shape: diamond
+      - id: H
+        label: Set Probability 70%
+        shape: rect
+      - id: Q4
+        label: stage == proposal?
+        shape: diamond
+      - id: M
+        label: Set Probability 50%
+        shape: rect
+      - id: D
+        label: Set Probability 20%
+        shape: rect
+      - id: C
+        label: Recompute Forecast
+        shape: circle
+      - id: E
+        label: "End: Scored"
+        shape: stadium
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: W
+        label: Yes
+      - from: Q1
+        to: Q2
+        label: No
+      - from: Q2
+        to: L
+        label: Yes
+      - from: Q2
+        to: Q3
+        label: No
+      - from: Q3
+        to: H
+        label: Yes
+      - from: Q3
+        to: Q4
+        label: No
+      - from: Q4
+        to: M
+        label: Yes
+      - from: Q4
+        to: D
+        label: No
+      - from: W
+        to: C
+      - from: L
+        to: C
+      - from: H
+        to: C
+      - from: M
+        to: C
+      - from: D
+        to: C
+      - from: C
+        to: E
+  - name: activityValidation
+    title: Activity Validation
+    entity: Activity
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: S
+        label: "Start: Activity Create"
+        shape: stadium
+      - id: Q1
+        label: type == null?
+        shape: diamond
+      - id: E1
+        label: "Prevent: Type is required"
+        shape: rect
+      - id: Q2
+        label: type not in valid enum?
+        shape: diamond
+      - id: E2
+        label: "Prevent: Type must be one of: call, email, meeting, task, note"
+        shape: rect
+      - id: Q3
+        label: description == null?
+        shape: diamond
+      - id: E3
+        label: "Prevent: Description is required"
+        shape: rect
+      - id: Q4
+        label: contact_id == null?
+        shape: diamond
+      - id: E4
+        label: "Prevent: Contact is required"
+        shape: rect
+      - id: Q5
+        label: opportunity_id == null?
+        shape: diamond
+      - id: E5
+        label: "Prevent: Opportunity is required"
+        shape: rect
+      - id: Q6
+        label: activity_date == null?
+        shape: diamond
+      - id: E6
+        label: "Prevent: Activity date is required"
+        shape: rect
+      - id: P
+        label: Pass Validation
+        shape: round
+      - id: END
+        label: "End: Validated"
+        shape: stadium
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: E1
+        label: Yes
+      - from: Q1
+        to: Q2
+        label: No
+      - from: Q2
+        to: E2
+        label: Yes
+      - from: Q2
+        to: Q3
+        label: No
+      - from: Q3
+        to: E3
+        label: Yes
+      - from: Q3
+        to: Q4
+        label: No
+      - from: Q4
+        to: E4
+        label: Yes
+      - from: Q4
+        to: Q5
+        label: No
+      - from: Q5
+        to: E5
+        label: Yes
+      - from: Q5
+        to: Q6
+        label: No
+      - from: Q6
+        to: E6
+        label: Yes
+      - from: Q6
+        to: P
+        label: No
+      - from: E1
+        to: END
+      - from: E2
+        to: END
+      - from: E3
+        to: END
+      - from: E4
+        to: END
+      - from: E5
+        to: END
+      - from: E6
+        to: END
+      - from: P
+        to: END
+stateMachines:
+  - name: OpportunityLifecycle
+    title: Opportunity Lifecycle
+    entity: Opportunity
+    states: [prospecting, qualification, proposal, negotiation, closed_won, closed_lost]
+    initial: prospecting
+    final: [closed_won, closed_lost]
+    transitions:
+      - from: prospecting
+        to: qualification
+        trigger: qualify
+      - from: qualification
+        to: proposal
+        trigger: send_proposal
+      - from: proposal
+        to: negotiation
+        trigger: negotiate
+      - from: negotiation
+        to: closed_won
+        trigger: close_won
+      - from: negotiation
+        to: closed_lost
+        trigger: close_lost
+hookDiagrams:
+  - name: ContactHooks
+    title: Contact Hooks
+    entity: Contact
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate Request]
+          B --> C[beforeCreate: normalizeEmail]
+          C --> D[customValidate: ensureUniqueEmail]
+          D --> E[Process Contact]
+          E --> F[afterCreate: notifyAccountOwner]
+          F --> G[afterUpdate: syncContactData]
+          G --> H[Response]
+
+      %% ---- Section 9: Workflow — Activity lifecycle hooks ----------------------
+  - name: ActivityHooks
+    title: Activity Hooks
+    entity: Activity
+    diagram: |-
+      flowchart TD
+          A[Client Request] --> B[Validate Request]
+          B --> C[beforeCreate: validateActivityDate]
+          C --> D[Process Activity]
+          D --> E[afterCreate: updateOpportunityLastActivity]
+          E --> F[afterCreate: logActivityAudit]
+          F --> G[Response]

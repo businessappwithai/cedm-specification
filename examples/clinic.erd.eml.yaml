@@ -1,0 +1,126 @@
+eml: "1.0"
+entities:
+  - name: Patient
+    attributes:
+      - name: patient_id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: birth_date
+        type: date
+      - name: gender
+        type: string
+      - name: national_id
+        type: string
+        unique: true
+      - name: prov_health_number
+        type: string
+        unique: true
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+      - name: residence_country
+        type: string
+      - name: created_at
+        type: datetime
+  - name: Practitioner
+    attributes:
+      - name: practitioner_id
+        type: string
+        pk: true
+      - name: npi_number
+        type: string
+        unique: true
+      - name: billing_number
+        type: string
+        unique: true
+      - name: license_number
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: specialty
+        type: string
+  - name: Appointment
+    attributes:
+      - name: appointment_id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: practitioner_id
+        type: string
+        fk: true
+      - name: scheduled_start
+        type: datetime
+      - name: scheduled_end
+        type: datetime
+      - name: current_state
+        type: string
+  - name: Encounter
+    attributes:
+      - name: encounter_id
+        type: string
+        pk: true
+      - name: appointment_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: practitioner_id
+        type: string
+        fk: true
+      - name: subjective_notes
+        type: text
+        optional: true
+      - name: objective_notes
+        type: text
+        optional: true
+      - name: assessment
+        type: string
+      - name: plan_notes
+        type: text
+      - name: cryptographic_sig
+        type: string
+  - name: Claim
+    attributes:
+      - name: claim_id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: payer_type
+        type: string
+      - name: icd_code
+        type: string
+      - name: procedure_code
+        type: string
+      - name: total_charge
+        type: decimal
+      - name: claim_state
+        type: string
+relationships:
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: books
+  - from: Practitioner
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: schedules
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: has

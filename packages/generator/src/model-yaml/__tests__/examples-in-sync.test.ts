@@ -13,8 +13,37 @@ import { emlToModelDocument, readModelYaml, serializeModelDocument } from "../in
 
 const ROOT = path.resolve(__dirname, "../../../../..");
 
+/**
+ * Every model in the repository with its YAML beside it (`x.mmd` / `x.eml.mmd`
+ * → `x.eml.yaml`), plus the language's own examples, whose YAML lives under
+ * `language/yaml/examples/`. Three `.mmd` files have none, and on purpose:
+ * `examples/clinic.mmd` and `examples/gemini-crm.mmd` are not EML models (a
+ * prose design note and a styled flowchart with no diagram type — they
+ * declare nothing a generator compiles), and `tests/test-data/hospital-erd/
+ * hospital.erd.mmd` fails the language checker in either syntax (98 × EML113:
+ * lookup tables keyed by `code`, which the generator re-keys by an added `id`).
+ */
+const BESIDE = [
+  "examples/cli-crm.eml.mmd",
+  "examples/clinic.erd.mmd",
+  "examples/crm.erd.mmd",
+  "examples/drug-discovery.eml.mmd",
+  "examples/ecommerce.erd.mmd",
+  "examples/gemini-crm-erd.mmd",
+  "examples/simple.erd.mmd",
+  "html/models/crm.eml.mmd",
+  "html/models/drug-discovery.eml.mmd",
+  "html/models/investment-planning-wealth-management-system.eml.mmd",
+  "packages/generator/examples/crm.erd.mmd",
+  "packages/yamltecture/test/fixtures/field-service.eml.mmd",
+  "school-management.mmd",
+  "simple-crm.mmd",
+  "test-patient.mmd",
+  "test-simple-erd.mmd",
+];
+
 const PAIRS: Array<[string, string]> = [
-  ["examples/drug-discovery.eml.mmd", "examples/drug-discovery.eml.yaml"],
+  ...BESIDE.map((eml): [string, string] => [eml, eml.replace(/(\.eml)?\.mmd$/, ".eml.yaml")]),
   ...["crm", "dance-studio", "ecommerce", "helpdesk", "minimal"].map((name): [string, string] => [
     `language/examples/${name}.eml.mmd`,
     `language/yaml/examples/${name}.eml.yaml`,

@@ -1,0 +1,444 @@
+eml: "1.0"
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: password_hash
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: phone
+        type: string
+        optional: true
+      - name: status
+        type: string
+      - name: last_login
+        type: datetime
+        optional: true
+      - name: is_verified
+        type: boolean
+  - name: Address
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: street_line_1
+        type: string
+      - name: street_line_2
+        type: string
+        optional: true
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: postal_code
+        type: string
+      - name: country
+        type: string
+      - name: address_type
+        type: string
+      - name: is_default
+        type: boolean
+  - name: Category
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: parent_id
+        type: string
+        fk: true
+        optional: true
+      - name: name
+        type: string
+      - name: slug
+        type: string
+        unique: true
+      - name: description
+        type: text
+        optional: true
+      - name: image_url
+        type: string
+        optional: true
+      - name: sort_order
+        type: integer
+      - name: is_active
+        type: boolean
+  - name: Product
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: category_id
+        type: string
+        fk: true
+      - name: sku
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: slug
+        type: string
+        unique: true
+      - name: description
+        type: text
+        optional: true
+      - name: short_description
+        type: text
+        optional: true
+      - name: price
+        type: decimal
+      - name: compare_at_price
+        type: decimal
+        optional: true
+      - name: cost
+        type: decimal
+        optional: true
+      - name: status
+        type: string
+      - name: is_featured
+        type: boolean
+      - name: is_taxable
+        type: boolean
+      - name: weight
+        type: decimal
+        optional: true
+  - name: ProductImage
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: url
+        type: string
+      - name: alt_text
+        type: string
+        optional: true
+      - name: sort_order
+        type: integer
+      - name: is_primary
+        type: boolean
+  - name: ProductVariant
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: sku
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: price
+        type: decimal
+        optional: true
+      - name: stock_quantity
+        type: integer
+      - name: options
+        type: json
+  - name: Inventory
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: variant_id
+        type: string
+        fk: true
+        optional: true
+      - name: warehouse_id
+        type: string
+        fk: true
+      - name: quantity
+        type: integer
+      - name: reserved_quantity
+        type: integer
+      - name: reorder_point
+        type: integer
+      - name: last_counted_at
+        type: datetime
+        optional: true
+  - name: Warehouse
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: address
+        type: string
+      - name: city
+        type: string
+      - name: country
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Order
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: order_number
+        type: string
+        unique: true
+      - name: status
+        type: string
+      - name: subtotal
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: shipping_amount
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: total_amount
+        type: decimal
+      - name: currency
+        type: string
+      - name: payment_status
+        type: string
+      - name: fulfillment_status
+        type: string
+      - name: notes
+        type: text
+        optional: true
+      - name: placed_at
+        type: datetime
+      - name: shipped_at
+        type: datetime
+        optional: true
+      - name: delivered_at
+        type: datetime
+        optional: true
+  - name: OrderItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_id
+        type: string
+        fk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: variant_id
+        type: string
+        fk: true
+        optional: true
+      - name: sku
+        type: string
+      - name: name
+        type: string
+      - name: quantity
+        type: integer
+      - name: unit_price
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: total_price
+        type: decimal
+  - name: ShippingAddress
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_id
+        type: string
+        fk: true
+      - name: recipient_name
+        type: string
+      - name: street_line_1
+        type: string
+      - name: street_line_2
+        type: string
+        optional: true
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: postal_code
+        type: string
+      - name: country
+        type: string
+      - name: phone
+        type: string
+        optional: true
+  - name: Payment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_id
+        type: string
+        fk: true
+      - name: transaction_id
+        type: string
+        unique: true
+      - name: payment_method
+        type: string
+      - name: status
+        type: string
+      - name: amount
+        type: decimal
+      - name: currency
+        type: string
+      - name: gateway_response
+        type: json
+        optional: true
+      - name: processed_at
+        type: datetime
+        optional: true
+  - name: Review
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: rating
+        type: integer
+      - name: title
+        type: string
+        optional: true
+      - name: content
+        type: text
+        optional: true
+      - name: is_verified
+        type: boolean
+      - name: is_approved
+        type: boolean
+  - name: Coupon
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: discount_type
+        type: string
+      - name: discount_value
+        type: decimal
+      - name: minimum_order_amount
+        type: decimal
+        optional: true
+      - name: usage_limit
+        type: integer
+        optional: true
+      - name: usage_count
+        type: integer
+      - name: valid_from
+        type: datetime
+      - name: valid_until
+        type: datetime
+        optional: true
+      - name: is_active
+        type: boolean
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: has
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Order
+    toCardinality: zero-or-more
+    label: places
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Review
+    toCardinality: zero-or-more
+    label: writes
+  - from: Category
+    fromCardinality: exactly-one
+    to: Category
+    toCardinality: zero-or-more
+    label: parent_of
+  - from: Category
+    fromCardinality: exactly-one
+    to: Product
+    toCardinality: zero-or-more
+    label: contains
+  - from: Product
+    fromCardinality: exactly-one
+    to: ProductImage
+    toCardinality: zero-or-more
+    label: has
+  - from: Product
+    fromCardinality: exactly-one
+    to: ProductVariant
+    toCardinality: zero-or-more
+    label: has
+  - from: Product
+    fromCardinality: exactly-one
+    to: Inventory
+    toCardinality: zero-or-more
+    label: tracked_in
+  - from: Product
+    fromCardinality: exactly-one
+    to: OrderItem
+    toCardinality: zero-or-more
+    label: ordered_as
+  - from: Product
+    fromCardinality: exactly-one
+    to: Review
+    toCardinality: zero-or-more
+    label: receives
+  - from: ProductVariant
+    fromCardinality: exactly-one
+    to: Inventory
+    toCardinality: zero-or-more
+    label: tracked_in
+  - from: ProductVariant
+    fromCardinality: exactly-one
+    to: OrderItem
+    toCardinality: zero-or-more
+    label: ordered_as
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: Inventory
+    toCardinality: zero-or-more
+    label: stores
+  - from: Order
+    fromCardinality: exactly-one
+    to: OrderItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Order
+    fromCardinality: exactly-one
+    to: ShippingAddress
+    toCardinality: exactly-one
+    label: shipped_to
+  - from: Order
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: paid_by

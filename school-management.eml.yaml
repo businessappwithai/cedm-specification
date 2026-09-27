@@ -1,0 +1,242 @@
+eml: "1.0"
+entities:
+  - name: Student
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+      - name: date_of_birth
+        type: date
+      - name: gender
+        type: string
+      - name: address
+        type: string
+      - name: enrollment_number
+        type: string
+        unique: true
+      - name: enrollment_date
+        type: date
+      - name: status
+        type: string
+  - name: Teacher
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+      - name: subject_specialization
+        type: string
+      - name: hire_date
+        type: date
+      - name: status
+        type: string
+  - name: Class
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: grade_level
+        type: string
+      - name: section
+        type: string
+      - name: academic_year
+        type: string
+      - name: room_number
+        type: string
+      - name: capacity
+        type: int
+  - name: Subject
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: description
+        type: string
+      - name: credit_hours
+        type: int
+      - name: grade_level
+        type: string
+  - name: Enrollment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: student_id
+        type: string
+        fk: true
+      - name: class_id
+        type: string
+        fk: true
+      - name: enrolled_at
+        type: date
+      - name: status
+        type: string
+  - name: ClassSubject
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: class_id
+        type: string
+        fk: true
+      - name: subject_id
+        type: string
+        fk: true
+      - name: teacher_id
+        type: string
+        fk: true
+  - name: Attendance
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: student_id
+        type: string
+        fk: true
+      - name: class_id
+        type: string
+        fk: true
+      - name: attendance_date
+        type: date
+      - name: status
+        type: string
+      - name: notes
+        type: string
+  - name: Grade
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: student_id
+        type: string
+        fk: true
+      - name: subject_id
+        type: string
+        fk: true
+      - name: class_id
+        type: string
+        fk: true
+      - name: term
+        type: string
+      - name: marks_obtained
+        type: decimal
+      - name: total_marks
+        type: decimal
+      - name: grade_letter
+        type: string
+      - name: assessment_date
+        type: date
+  - name: Parent
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+      - name: relationship
+        type: string
+      - name: address
+        type: string
+  - name: StudentParent
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: student_id
+        type: string
+        fk: true
+      - name: parent_id
+        type: string
+        fk: true
+relationships:
+  - from: Student
+    fromCardinality: exactly-one
+    to: Enrollment
+    toCardinality: zero-or-more
+    label: enrolls_in
+  - from: Class
+    fromCardinality: exactly-one
+    to: Enrollment
+    toCardinality: zero-or-more
+    label: has
+  - from: Class
+    fromCardinality: exactly-one
+    to: ClassSubject
+    toCardinality: zero-or-more
+    label: teaches
+  - from: Subject
+    fromCardinality: exactly-one
+    to: ClassSubject
+    toCardinality: zero-or-more
+    label: taught_in
+  - from: Teacher
+    fromCardinality: exactly-one
+    to: ClassSubject
+    toCardinality: zero-or-more
+    label: teaches
+  - from: Student
+    fromCardinality: exactly-one
+    to: Attendance
+    toCardinality: zero-or-more
+    label: has
+  - from: Class
+    fromCardinality: exactly-one
+    to: Attendance
+    toCardinality: zero-or-more
+    label: records
+  - from: Student
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: receives
+  - from: Subject
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: assessed_in
+  - from: Class
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: from
+  - from: Student
+    fromCardinality: exactly-one
+    to: StudentParent
+    toCardinality: zero-or-more
+    label: has
+  - from: Parent
+    fromCardinality: exactly-one
+    to: StudentParent
+    toCardinality: zero-or-more
+    label: belongs_to
