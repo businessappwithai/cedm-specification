@@ -21,6 +21,8 @@
     "type-check": "tsc --noEmit",
     "type-check:language": "tsc -p tsconfig.language.json",
     "parity": "./scripts/parity-check.sh",
+    "build:wasm": "cargo build -p appwithai-gen --release --target wasm32-wasip1",
+    "wasm": "node --no-warnings scripts/appwithai-wasm.mjs",
     "build:language-tools": "bun scripts/build-language-tools.ts",
     "test:language-tools": "bun scripts/build-language-tools.ts --check",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",

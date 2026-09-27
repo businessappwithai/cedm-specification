@@ -23,6 +23,11 @@
 # The last is the Rust half of what `model-yaml/__tests__/` proves for the
 # TypeScript generator.
 #
+# A fourth comparison covers the CLI-WASM target: the Rust generator compiled to
+# `wasm32-wasip1` and hosted by `scripts/appwithai-wasm.mjs` must emit, from the
+# YAML, exactly the backend the native binary emits. That is what makes the
+# WebAssembly build the same generator rather than a second one.
+#
 # Run over EVERY model in PARITY_MODELS, not just the first. Parity on a model that
 # declares no `%%rbac` says nothing about the code that compiles `%%rbac`, so a
 # feature landing without a corpus line exercising it is a feature this script
@@ -62,6 +67,9 @@ bun --filter @appwithai/generator build >/dev/null
 echo "==> Building the Rust generator"
 cargo build -q -p appwithai-gen
 
+echo "==> Building the Rust generator for wasm32-wasip1"
+cargo build -q -p appwithai-gen --release --target wasm32-wasip1
+
 generate_ts() {
   INIT_CWD="$PWD" bun --filter @appwithai/generator generate -- \
     --stack tanstack-astryx-loco -i "$1" -o "$2" -n parity \
@@ -70,6 +78,11 @@ generate_ts() {
 
 generate_rs() {
   cargo run -q -p appwithai-gen -- generate \
+    -i "$1" -o "$2" -n parity --skip-cli-scaffold --force >/dev/null
+}
+
+generate_wasm() {
+  node --no-warnings scripts/appwithai-wasm.mjs generate \
     -i "$1" -o "$2" -n parity --skip-cli-scaffold --force >/dev/null
 }
 
@@ -111,10 +124,12 @@ for pair in "${PARITY_MODELS[@]}"; do
   generate_rs "$eml" "$OUT_DIR/$slug-rs-eml"
   generate_ts "$yaml" "$OUT_DIR/$slug-ts-yaml"
   generate_rs "$yaml" "$OUT_DIR/$slug-rs-yaml"
+  generate_wasm "$yaml" "$OUT_DIR/$slug-wasm-yaml"
 
   compare "TypeScript and Rust agree on the EML" "$OUT_DIR/$slug-ts-eml" "$OUT_DIR/$slug-rs-eml"
   compare "TypeScript and Rust agree on the YAML" "$OUT_DIR/$slug-ts-yaml" "$OUT_DIR/$slug-rs-yaml"
   compare "the Rust generator reads the YAML as it reads the EML" "$OUT_DIR/$slug-rs-yaml" "$OUT_DIR/$slug-rs-eml"
+  compare "the WebAssembly build emits what the native build emits" "$OUT_DIR/$slug-wasm-yaml" "$OUT_DIR/$slug-rs-yaml"
 done
 
 echo

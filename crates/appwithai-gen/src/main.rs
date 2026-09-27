@@ -46,9 +46,28 @@ use cli::{Cli, Command, GenerateArgs};
 use language::Language;
 
 fn main() {
+    #[cfg(target_os = "wasi")]
+    adopt_host_working_directory();
     if let Err(error) = run() {
         eprintln!("\n❌ {error:#}");
         std::process::exit(1);
+    }
+}
+
+/// Under WASI a process starts in `/`, whatever directory it was run from, so a
+/// relative `--input` would name a file at the root of the host. The runner
+/// (`scripts/appwithai-wasm.ts`) passes the host's working directory as `PWD`
+/// and preopens the filesystem; adopting it makes relative paths mean what they
+/// mean to the native CLI.
+#[cfg(target_os = "wasi")]
+fn adopt_host_working_directory() {
+    if let Some(pwd) = std::env::var_os("PWD") {
+        if let Err(error) = std::env::set_current_dir(&pwd) {
+            eprintln!(
+                "warning: cannot enter {}: {error}",
+                std::path::Path::new(&pwd).display()
+            );
+        }
     }
 }
 

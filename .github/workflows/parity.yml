@@ -30,6 +30,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+          targets: wasm32-wasip1
 
       - uses: Swatinem/rust-cache@v2
 
@@ -48,6 +49,7 @@ jobs:
         run: |
           cargo fmt --check -p appwithai-gen
           cargo clippy -p appwithai-gen --all-targets -- -D warnings
+          cargo clippy -p appwithai-gen --target wasm32-wasip1 -- -D warnings
           cargo test -p appwithai-gen
 
       # The gate. Every corpus model, both generators, byte-for-byte.
