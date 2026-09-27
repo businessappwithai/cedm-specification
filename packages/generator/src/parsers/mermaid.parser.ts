@@ -25,12 +25,16 @@ import type { Entity, EntityAttribute, EntityEnum, Relationship } from "@appwith
 import { snakeCase } from "@appwithai/core/utils";
 import {
   type AttributeDeclaration,
+  type EntityOption,
+  type EntityOptionKey,
   type EnumDeclaration,
   type ErdRecords,
   endFromLeftGlyph,
   endFromRightGlyph,
   type FieldEnumBinding,
   type FieldHelp,
+  type FieldOption,
+  type FieldOptionKey,
   type IndexDeclaration,
   type RelationshipDeclaration,
   relationshipOperator,
@@ -439,6 +443,8 @@ export function emptyErdRecords(): ErdRecords {
     entityHelp: [],
     entityIcons: [],
     entityParents: [],
+    entityOptions: [],
+    fieldOptions: [],
   };
 }
 
@@ -550,6 +556,36 @@ export class MermaidParser {
     if (entityParent) records.entityParents.push(entityParent);
     const entityIcon = this.parseEntityIconDirective(line);
     if (entityIcon) records.entityIcons.push(entityIcon);
+    const entityOption = this.parseEntityOptionDirective(line);
+    if (entityOption) records.entityOptions.push(entityOption);
+    const fieldOption = this.parseFieldOptionDirective(line);
+    if (fieldOption) records.fieldOptions.push(fieldOption);
+  }
+
+  /**
+   * `%%entity Ticket audited: true` and the other keys the language validates
+   * but no generator compiles yet (`label`, `prefix`, `softDelete`). Read so
+   * that converting a model to YAML keeps them.
+   */
+  private parseEntityOptionDirective(line: string): EntityOption | null {
+    const match = line.match(
+      /^%%entity\s+([A-Za-z_]\w*)\s+(label|prefix|softDelete|audited)\s*:\s*(.+)$/
+    );
+    if (!match?.[1] || !match[2] || !match[3]) return null;
+    const value = match[3].trim();
+    return value ? { entity: match[1], key: match[2] as EntityOptionKey, value } : null;
+  }
+
+  /** `%%field Product.price min: 0` — `ui`, `default`, `min`, `max`, `format`, kept as written. */
+  private parseFieldOptionDirective(line: string): FieldOption | null {
+    const match = line.match(
+      /^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+(ui|default|min|max|format)\s*:\s*(.+)$/
+    );
+    if (!match?.[1] || !match[2] || !match[3] || !match[4]) return null;
+    const value = match[4].trim();
+    return value
+      ? { entity: match[1], column: match[2], key: match[3] as FieldOptionKey, value }
+      : null;
   }
 
   /**

@@ -61,7 +61,7 @@ hooks:
   - entity: Post
     event: beforeCreate
     handler: generateSlug
-    field: slug
+    fields: [slug]
   - entity: Post
     event: afterUpdate
     handler: reindexSearch

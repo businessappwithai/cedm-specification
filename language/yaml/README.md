@@ -141,6 +141,10 @@ Keys are listed in canonical order. *Required* keys are in bold.
 | `help` | What one record is. Shown on the window. | `%%entity <E> help:` |
 | `icon` | A lucide id, e.g. `flask-conical`. The generated app pins lucide 0.312 — check the id exists there. | `%%entity <E> icon:` |
 | `parent` | Makes this entity a line item: no window of its own, a tab inside the parent's, linked on its foreign key to the parent. | `%%entity <E> parent:` |
+| `label` | The name the screens show. *Carried; not compiled by the application generators yet.* | `%%entity <E> label:` |
+| `prefix` | `bus` or `sys`. *Carried; not compiled yet.* | `%%entity <E> prefix:` |
+| `softDelete` | `true` to delete by setting `deleted_at`. *Carried; not compiled yet.* | `%%entity <E> softDelete:` |
+| `audited` | `true` to keep an audit trail. *Carried; the `eml` CLI's generators read it.* | `%%entity <E> audited:` |
 | **`attributes`** | Columns, in order. An `id` key is added when no attribute is the key. | the block's lines |
 | `indexes` | `{ columns: [...], unique?: true }` | `%%index <E>(a, b) unique` |
 
@@ -153,6 +157,8 @@ Each attribute:
 | `pk` / `fk` / `unique` / `optional` | Primary key, foreign key, unique, nullable. Attributes are required unless optional or the key. A lookup's target table is derived from the column name (see `foreignKeys` in the language definition), so `fk` columns follow the `<entity>_id` convention. | `PK` `FK` `UK` `OPTIONAL` |
 | `enum` | Binds the column to a declared enum; it renders as a dropdown. Only bound enums reach the dictionary. | `%%field <E>.<c> enum:` |
 | `help` | Guidance under the form control. | `%%field <E>.<c> help:` |
+| `ui`, `default`, `format` | The control, the starting value and the display/check format, as written. *Carried; not compiled yet.* | `%%field <E>.<c> ui:` … |
+| `min`, `max` | Bounds — a number when written as a plain number, text otherwise. *Carried; not compiled yet.* | `%%field <E>.<c> min:` |
 | `comment` | The Mermaid attribute comment; diagram only. | `"…"` |
 
 ### `relationships`
@@ -184,13 +190,15 @@ A model with no categories gets one "General" category holding every entity.
 
 ### `hooks`
 
-`{ entity, event, handler, field? }`. `event` is one of `beforeCreate`,
+`{ entity, event, handler, fields? }`. `event` is one of `beforeCreate`,
 `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, `afterDelete`,
 `beforeRead`, `afterRead`, `beforeQuery`, `afterQuery`, `beforeList`,
 `afterList`, `customValidate`. One handler name serves one event per entity. The
 generated `src/hooks/handlers/<entity>.rs` is written once and never
 overwritten, so implementations survive regeneration.
-`%%hook <event> <handler> on <Entity>[field: <column>]`.
+`fields` lists the columns a field-level hook concerns, in order; the generated
+handler is scoped to the first.
+`%%hook <event> <handler> on <Entity>[field: <a>, field: <b>]`.
 
 ### `rbac`
 
@@ -198,6 +206,13 @@ overwritten, so implementations survive regeneration.
 `delete` (or an alias: `insert`, `view`, `edit`, `remove`, …), `*` for all four,
 or the `trigger` of a transition in the entity's state machine. A target with no
 rule stays open. `%%rbac role:a|role:b on Entity.action`.
+
+### `triggers`
+
+`{ entity, source, handler }`: an external event or schedule that calls
+`handler` on `entity`. `source` is `cron:<5 or 6 fields>`, `webhook:<name>` or
+`message:<topic>`. The application generators compile nothing from it yet; the
+`eml` CLI's generators do. `%%trigger <source> -> <handler> on <Entity>`.
 
 ### `reports`
 
@@ -292,7 +307,16 @@ appwithai convert model.eml.mmd                 # → model.eml.yaml
 appwithai validate model.eml.yaml [--strict]
 appwithai view model.eml.yaml [-o - | -o model.eml.mmd]
 appwithai generate -i model.eml.yaml -o out -n my-app
+
+bun run eml validate -i model.eml.yaml          # the zero-dependency `eml` CLI
+bun run build:wasm && bun run wasm -- generate -i model.eml.yaml -o out -n my-app
 ```
+
+The `eml` CLI reads a YAML model with the same four validation layers and hands
+its generators the view; `eml-cli-equivalence.test.ts` holds it to reading every
+corpus model's YAML exactly as it reads the EML. `bun run wasm` runs the Rust
+generator compiled to `wasm32-wasip1` (the CLI-WASM target); the parity gate
+holds its output byte-identical to the native build's.
 
 `convert` writes the YAML only if it compiles to exactly what the EML compiles
 to, and lists what it does not carry. A generated project ships
@@ -315,9 +339,10 @@ import {
 Everything that compiles is carried. `convert` reports the rest:
 
 - **`%%` comments.** Use `#` comments in the YAML.
-- **`%%trigger` and `%%guard`.** Reserved by EML and compiled by nothing yet;
-  they are listed with their line numbers so they can be re-expressed when the
-  language gains them.
+- **`%%guard role:… on <Entity>.<op>`.** The spelling `%%rbac` replaced. It is
+  listed with its line number; rewrite it as `%%rbac`, which says the same thing
+  and which every tool reads. (`%%guard <field> <op> <value>`, the automation
+  condition, lives in automations, not in a model.)
 - **Declarations that name nothing** — a `%%field` help line for a column the
   entity does not declare — and **repeats**, resolved the way the compiler
   resolves them (the first `%%enum` of a name, the last `help:`).

@@ -151,15 +151,17 @@ const DIRECTIVE = /^%%+hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[
 /** Cheap pre-filter, held to the same anchor as DIRECTIVE. */
 const DIRECTIVE_LINE = /^%%+hook\b/;
 
-function parseFields(bracket: string | undefined): string | undefined {
-  if (!bracket) return undefined;
+/** Every column a `[field: a, field: b]` bracket names, in order. */
+function parseFields(bracket: string | undefined): string[] {
+  if (!bracket) return [];
   const inner = bracket.slice(1, -1).trim();
-  if (!inner) return undefined;
+  if (!inner) return [];
+  const fields: string[] = [];
   for (const part of inner.split(",")) {
     const match = part.trim().match(/^(?:field:\s*)?(\w+)$/);
-    if (match?.[1]) return match[1];
+    if (match?.[1]) fields.push(match[1]);
   }
-  return undefined;
+  return fields;
 }
 
 /**
@@ -205,8 +207,8 @@ export function readHookDirectives(
       string,
       string | undefined,
     ];
-    const field = parseFields(bracket);
-    declarations.push({ event, handler, entity, ...(field ? { field } : {}) });
+    const fields = parseFields(bracket);
+    declarations.push({ event, handler, entity, ...(fields.length ? { fields } : {}) });
   }
   return declarations;
 }
@@ -250,7 +252,7 @@ export function compileHookDeclarations(
       entity,
       type: type as HookType,
       handler,
-      field: declaration.field,
+      field: declaration.fields?.[0],
       order,
     });
   }

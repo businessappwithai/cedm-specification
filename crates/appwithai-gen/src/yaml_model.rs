@@ -56,6 +56,12 @@ struct Document {
     hooks: Vec<HookDocument>,
     #[serde(default)]
     rbac: Vec<RbacDocument>,
+    /// External events and schedules. Read and held to their shape, but the
+    /// application generators compile nothing from them yet; the `eml` CLI's
+    /// generators do.
+    #[serde(default)]
+    #[allow(dead_code)]
+    triggers: Vec<TriggerDocument>,
     #[serde(default)]
     reports: Vec<ReportDocument>,
     #[serde(default)]
@@ -99,6 +105,17 @@ struct EntityDocument {
     help: Option<String>,
     icon: Option<String>,
     parent: Option<String>,
+    /// `label`, `prefix`, `softDelete`, `audited`: validated by the schema and
+    /// carried by the language, compiled by neither application generator yet.
+    #[allow(dead_code)]
+    label: Option<String>,
+    #[allow(dead_code)]
+    prefix: Option<String>,
+    #[serde(rename = "softDelete")]
+    #[allow(dead_code)]
+    soft_delete: Option<bool>,
+    #[allow(dead_code)]
+    audited: Option<bool>,
     attributes: Vec<AttributeDocument>,
     #[serde(default)]
     indexes: Vec<IndexDocument>,
@@ -123,6 +140,19 @@ struct AttributeDocument {
     #[serde(rename = "enum")]
     enum_name: Option<String>,
     help: Option<String>,
+    /// `ui`, `default`, `min`, `max`, `format`: validated and carried, not
+    /// compiled by either application generator yet. `min`/`max` are a number
+    /// or text, so they are held as whatever YAML value was written.
+    #[allow(dead_code)]
+    ui: Option<String>,
+    #[allow(dead_code)]
+    default: Option<String>,
+    #[allow(dead_code)]
+    min: Option<serde_yaml::Value>,
+    #[allow(dead_code)]
+    max: Option<serde_yaml::Value>,
+    #[allow(dead_code)]
+    format: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -151,7 +181,9 @@ struct HookDocument {
     entity: String,
     event: String,
     handler: String,
-    field: Option<String>,
+    /// Every column the hook is scoped to; the compiled handler takes the first.
+    #[serde(default)]
+    fields: Vec<String>,
 }
 
 #[derive(Deserialize)]
@@ -160,6 +192,15 @@ struct RbacDocument {
     entity: String,
     action: String,
     roles: Vec<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+#[allow(dead_code)]
+struct TriggerDocument {
+    entity: String,
+    source: String,
+    handler: String,
 }
 
 #[derive(Deserialize)]
@@ -502,7 +543,7 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
                 event: hook.event,
                 handler: hook.handler,
                 entity: hook.entity,
-                field: hook.field,
+                field: hook.fields.into_iter().next(),
             })
             .collect(),
         reports: document

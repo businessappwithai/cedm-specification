@@ -71,6 +71,34 @@ export interface FieldHelp {
 }
 
 /**
+ * `%%entity` keys the language validates and carries but no application
+ * generator compiles yet. They are kept rather than dropped, so a model's
+ * YAML states everything its EML stated — the `eml` CLI's generators read
+ * `audited`, and a conversion that lost it lost a behaviour.
+ */
+export const ENTITY_OPTION_KEYS = ["label", "prefix", "softDelete", "audited"] as const;
+export type EntityOptionKey = (typeof ENTITY_OPTION_KEYS)[number];
+
+/** `%%field` keys carried on the same terms as `ENTITY_OPTION_KEYS`. */
+export const FIELD_OPTION_KEYS = ["ui", "default", "min", "max", "format"] as const;
+export type FieldOptionKey = (typeof FIELD_OPTION_KEYS)[number];
+
+/** `%%entity <E> <key>: <value>` for a key in `ENTITY_OPTION_KEYS`, value as written. */
+export interface EntityOption {
+  entity: string;
+  key: EntityOptionKey;
+  value: string;
+}
+
+/** `%%field <E>.<column> <key>: <value>` for a key in `FIELD_OPTION_KEYS`, value as written. */
+export interface FieldOption {
+  entity: string;
+  column: string;
+  key: FieldOptionKey;
+  value: string;
+}
+
+/**
  * Everything the ERD layer of a model declares.
  *
  * Entity-level annotations are lists in declaration order, not maps: the
@@ -89,6 +117,8 @@ export interface ErdRecords {
   entityHelp: Array<{ entity: string; help: string }>;
   entityIcons: Array<{ entity: string; icon: string }>;
   entityParents: Array<{ entity: string; parent: string }>;
+  entityOptions: EntityOption[];
+  fieldOptions: FieldOption[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -124,12 +154,32 @@ export interface RbacDeclaration {
   target: string;
 }
 
+/**
+ * One `%%trigger` declaration: an external event or a schedule that calls
+ * `handler` on `entity`.
+ *
+ * `source` is `cron:<expression>`, `webhook:<name>`, `message:<topic>` or
+ * another form the checker's EML230 accepts. The two application generators
+ * compile nothing from it yet; the `eml` CLI's generators do, which is why the
+ * YAML language carries it rather than letting a conversion drop it.
+ */
+export interface TriggerDeclaration {
+  source: string;
+  handler: string;
+  entity: string;
+}
+
 /** One `%%hook` declaration. `event` is checked against the hook vocabulary by the compiler. */
 export interface HookDeclaration {
   event: string;
   handler: string;
   entity: string;
-  field?: string;
+  /**
+   * The columns the hook is scoped to, in the order written:
+   * `on Order[field: status, field: total]`. The compiled handler is scoped to
+   * the first; every one is carried, so the model states what its author did.
+   */
+  fields?: string[];
 }
 
 /** One `%%report` declaration, before the read-only and chart checks. */
@@ -271,6 +321,7 @@ export interface ModelRecords {
   erd: ErdRecords;
   categories: CategoryDeclaration[];
   rbac: RbacDeclaration[];
+  triggers: TriggerDeclaration[];
   hooks: HookDeclaration[];
   reports: ReportDeclaration[];
   rules: RuleDeclaration[];

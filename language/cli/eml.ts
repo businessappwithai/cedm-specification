@@ -11,9 +11,14 @@
 
 import { run } from "./src/cli.ts";
 
+// Set the exit code rather than calling `process.exit`: exiting at once
+// discards whatever stdout has not yet drained, which cut `--json` output off
+// at the pipe's buffer (64 KB) whenever it was piped.
 run(process.argv.slice(2))
-  .then((code) => process.exit(code))
+  .then((code) => {
+    process.exitCode = code;
+  })
   .catch((err) => {
     console.error(err);
-    process.exit(1);
+    process.exitCode = 1;
   });

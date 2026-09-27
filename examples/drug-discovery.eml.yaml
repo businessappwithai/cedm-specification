@@ -130,6 +130,7 @@ entities:
         enum: CompoundAliasType
   - name: Experiment
     icon: microscope
+    audited: true
     attributes:
       - name: id
         type: string
@@ -416,6 +417,7 @@ entities:
         type: datetime
         optional: true
   - name: WorkflowEvent
+    audited: true
     attributes:
       - name: id
         type: string
@@ -448,6 +450,7 @@ entities:
       - columns: [experiment_id, event_timestamp]
   - name: DeviationReport
     icon: alert-triangle
+    audited: true
     attributes:
       - name: id
         type: string
@@ -476,6 +479,7 @@ entities:
         enum: DeviationStatus
   - name: CAPA
     icon: clipboard-check
+    audited: true
     attributes:
       - name: id
         type: string
@@ -634,15 +638,15 @@ hooks:
   - entity: Compound
     event: customValidate
     handler: validateSmilesFormat
-    field: smiles
+    fields: [smiles]
   - entity: Compound
     event: beforeCreate
     handler: generateInchiKey
-    field: inchi_key
+    fields: [inchi_key]
   - entity: Compound
     event: beforeCreate
     handler: computeMolecularWeight
-    field: molecular_weight
+    fields: [molecular_weight]
   - entity: Compound
     event: afterCreate
     handler: indexForSearch
@@ -664,11 +668,11 @@ hooks:
   - entity: DeviationReport
     event: beforeCreate
     handler: timestampAnomaly
-    field: anomaly_timestamp
+    fields: [anomaly_timestamp]
   - entity: DeviationReport
     event: customValidate
     handler: requireDescription
-    field: anomaly_description
+    fields: [anomaly_description]
   - entity: DeviationReport
     event: afterCreate
     handler: triggerCapaIfCritical
@@ -691,6 +695,13 @@ rbac:
   - entity: CAPA
     action: cancel
     roles: [compliance_officer]
+triggers:
+  - entity: Experiment
+    source: webhook:lims
+    handler: syncExperimentStatus
+  - entity: CAPA
+    source: cron:0 8 * * *
+    handler: escalateOverdueCapa
 reports:
   - name: compounds-by-registration-status
     title: Compounds by registration status

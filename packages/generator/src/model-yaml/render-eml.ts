@@ -23,7 +23,12 @@
  *   order the document lists them — which is the order EML compiles states in.
  */
 
-import { RELATIONSHIP_GLYPHS, type RuleNodeShape } from "../model/records";
+import {
+  ENTITY_OPTION_KEYS,
+  FIELD_OPTION_KEYS,
+  RELATIONSHIP_GLYPHS,
+  type RuleNodeShape,
+} from "../model/records";
 import type {
   AttributeDocument,
   EntityDocument,
@@ -96,6 +101,11 @@ function writeAnnotations(view: ViewWriter, document: ModelDocument): void {
     if (entity.parent !== undefined) {
       view.add(`%%entity ${entity.name} parent: ${entity.parent}`, [...path, "parent"]);
     }
+    for (const key of ENTITY_OPTION_KEYS) {
+      if (entity[key] !== undefined) {
+        view.add(`%%entity ${entity.name} ${key}: ${entity[key]}`, [...path, key]);
+      }
+    }
     entity.attributes.forEach((attribute, position) => {
       const at: DocumentPath = [...path, "attributes", position];
       if (attribute.enum !== undefined) {
@@ -109,6 +119,14 @@ function writeAnnotations(view: ViewWriter, document: ModelDocument): void {
           ...at,
           "help",
         ]);
+      }
+      for (const key of FIELD_OPTION_KEYS) {
+        if (attribute[key] !== undefined) {
+          view.add(`%%field ${entity.name}.${attribute.name} ${key}: ${attribute[key]}`, [
+            ...at,
+            key,
+          ]);
+        }
       }
     });
     (entity.indexes ?? []).forEach((index, position) => {
@@ -253,7 +271,9 @@ export function renderEmlView(document: ModelDocument): RenderedView {
   if (document.hooks?.length) {
     view.blank();
     document.hooks.forEach((hook, index) => {
-      const field = hook.field !== undefined ? `[field: ${hook.field}]` : "";
+      const field = hook.fields?.length
+        ? `[${hook.fields.map((name) => `field: ${name}`).join(", ")}]`
+        : "";
       view.add(`%%hook ${hook.event} ${hook.handler} on ${hook.entity}${field}`, ["hooks", index]);
     });
   }
@@ -263,6 +283,16 @@ export function renderEmlView(document: ModelDocument): RenderedView {
     document.rbac.forEach((rule, index) => {
       const roles = rule.roles.map((role) => `role:${role}`).join("|");
       view.add(`%%rbac ${roles} on ${rule.entity}.${rule.action}`, ["rbac", index]);
+    });
+  }
+
+  if (document.triggers?.length) {
+    view.blank();
+    document.triggers.forEach((trigger, index) => {
+      view.add(
+        `%%trigger ${trigger.source} -> ${trigger.handler} on ${trigger.entity}`,
+        ["triggers", index]
+      );
     });
   }
 

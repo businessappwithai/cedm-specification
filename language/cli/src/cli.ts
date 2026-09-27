@@ -1,5 +1,6 @@
 /**
- * EML CLI — parse, validate, and generate applications from .mmd EML models.
+ * EML CLI — parse, validate, and generate applications from a model: the YAML
+ * model language (`.eml.yaml`, the source of truth) or its EML view (`.mmd`).
  *
  * Zero runtime dependencies; runs under Bun or Node (via a bundle). Entrypoint
  * logic lives here; `eml.ts` is the thin executable shim.
@@ -17,6 +18,7 @@ import { generateTanStack } from "./generate/tanstack.ts";
 import type { Diagnostic, EmlModel } from "./model.ts";
 import { parseEml } from "./parser.ts";
 import { validateModel } from "./validator.ts";
+import { isYamlModelPath, readYamlModel } from "./yaml-input.ts";
 
 const STACKS = ["node-rest", "tanstack-nestjs"] as const;
 const STACK_ALIASES: Record<string, (typeof STACKS)[number]> = {
@@ -145,7 +147,7 @@ function parseArgs(argv: string[]): Flags {
 }
 
 // --- Help text --------------------------------------------------------------
-const HELP = `${c.bold("eml")} — build applications from an EML (.mmd) model
+const HELP = `${c.bold("eml")} — build applications from a model: YAML (.eml.yaml, the source of truth) or EML (.mmd)
 
 ${c.bold("USAGE")}
   eml <command> [options]
@@ -157,7 +159,7 @@ ${c.bold("COMMANDS")}
   help       Show this help
 
 ${c.bold("OPTIONS")}
-  -i, --input <file>        Input .mmd EML file (or first positional arg)
+  -i, --input <file>        Model file: .eml.yaml (YAML) or .mmd (EML); or first positional arg
   -o, --output <dir>        Output directory for the generated app
   -n, --name <name>         Application name (default: derived from the model)
       --stack <stack>       Target stack: node-rest (default) | tanstack-nestjs
@@ -173,19 +175,57 @@ ${c.bold("OPTIONS")}
   -v, --version             Show version
 
 ${c.bold("EXAMPLES")}
+  eml validate -i model.eml.yaml
+  eml generate -i model.eml.yaml -o ./out -n my-app
   eml validate -i model.mmd
-  eml generate -i model.mmd -o ./out -n my-app
   eml generate -i model.mmd -o ./out --docker
   eml generate -i model.mmd -o ./out --stack tanstack-nestjs
   eml generate -i model.mmd -o ./out --github me/my-app --public
 `;
 
 // --- Commands ---------------------------------------------------------------
-function readInput(f: Flags): { file: string; source: string } {
-  const file = f.input ?? f._[1]; // allow `eml generate model.mmd`
+
+/**
+ * Write machine-readable output and wait until it has been handed to the OS.
+ *
+ * `console.log` under Bun does not wait for a pipe to drain, so a `--json`
+ * document larger than the pipe's buffer came out cut short whenever the
+ * reader was slower than the writer — invalid JSON, intermittently, which is
+ * the worst way for a machine-readable format to fail.
+ */
+function writeJson(value: unknown): Promise<void> {
+  return new Promise((resolve, reject) => {
+    process.stdout.write(`${JSON.stringify(value, null, 2)}\n`, (error) =>
+      error ? reject(error) : resolve()
+    );
+  });
+}
+interface Input {
+  file: string;
+  /** EML text: the file itself, or the view of a YAML model. */
+  source: string;
+  /** Set for a YAML model: what its reader found, at YAML lines. */
+  yaml?: { diagnostics: Diagnostic[]; ok: boolean };
+}
+
+async function readInput(f: Flags): Promise<Input> {
+  const file = f.input ?? f._[1]; // allow `eml generate model.eml.yaml`
   if (!file) throw new CliError("No input file. Use -i <file> or pass it as an argument.");
   if (!existsSync(file)) throw new CliError(`Input file not found: ${file}`);
-  return { file, source: readFileSync(file, "utf8") };
+  const text = readFileSync(file, "utf8");
+  if (!isYamlModelPath(file)) return { file, source: text };
+
+  const read = await readYamlModel(text);
+  return { file, source: read.view, yaml: { diagnostics: read.diagnostics, ok: read.ok } };
+}
+
+/** A YAML model that did not validate cannot be read further. */
+function requireValidYaml(input: Input): void {
+  if (!input.yaml || input.yaml.ok) return;
+  console.log(c.bold(`\n${input.file}`));
+  printDiagnostics(input.yaml.diagnostics);
+  const errors = input.yaml.diagnostics.filter((d) => d.severity === "error").length;
+  throw new CliError(`${input.file} has ${errors} error(s); \`eml validate\` lists them.`);
 }
 
 function printDiagnostics(diags: Diagnostic[]): void {
@@ -217,19 +257,37 @@ function summarize(model: EmlModel): Record<string, unknown> {
   };
 }
 
-function cmdValidate(f: Flags): number {
-  const { file, source } = readInput(f);
+async function cmdValidate(f: Flags): Promise<number> {
+  const input = await readInput(f);
+  const { file, source } = input;
+
+  // A YAML model is validated by the language's own reader — YAML, schema,
+  // the full checker and view fidelity — and reported at its YAML lines. The
+  // CLI's own validator is a subset of that checker and reads the view, whose
+  // line numbers mean nothing to someone editing the YAML.
+  if (input.yaml) {
+    const { diagnostics, ok } = input.yaml;
+    const errors = diagnostics.filter((d) => d.severity === "error").length;
+    if (f.json) {
+      const summary = ok ? summarize(parseEml(source)) : undefined;
+      await writeJson({ file, syntax: "yaml", ok, summary, diagnostics });
+      return ok ? 0 : 1;
+    }
+    console.log(c.bold(`\nValidating ${file}`) + c.dim("  [YAML model]"));
+    if (diagnostics.length) printDiagnostics(diagnostics);
+    else console.log(c.green("  no issues"));
+    const warnings = diagnostics.filter((d) => d.severity === "warning").length;
+    console.log(
+      `\n${errors ? c.red(`${errors} error(s)`) : c.green("0 errors")}, ${warnings} warning(s)`
+    );
+    return ok ? 0 : 1;
+  }
+
   const model = parseEml(source);
   const result = validateModel(model, { autofix: f.autofix });
 
   if (f.json) {
-    console.log(
-      JSON.stringify(
-        { file, summary: summarize(model), result, diagnostics: model.diagnostics },
-        null,
-        2
-      )
-    );
+    await writeJson({ file, summary: summarize(model), result, diagnostics: model.diagnostics });
     return result.ok ? 0 : 1;
   }
 
@@ -246,14 +304,16 @@ function cmdValidate(f: Flags): number {
   return result.ok ? 0 : 1;
 }
 
-function cmdInfo(f: Flags): number {
-  const { file, source } = readInput(f);
+async function cmdInfo(f: Flags): Promise<number> {
+  const input = await readInput(f);
+  requireValidYaml(input);
+  const { file, source } = input;
   const model = parseEml(source);
   validateModel(model, { autofix: f.autofix });
   const summary = summarize(model);
 
   if (f.json) {
-    console.log(JSON.stringify({ file, summary, model }, null, 2));
+    await writeJson({ file, summary, model });
     return 0;
   }
 
@@ -286,7 +346,9 @@ function cmdInfo(f: Flags): number {
 }
 
 async function cmdGenerate(f: Flags): Promise<number> {
-  const { file, source } = readInput(f);
+  const input = await readInput(f);
+  requireValidYaml(input);
+  const { file, source } = input;
   const outDir = f.output;
   if (!outDir) throw new CliError("No output directory. Use -o <dir>.");
   const stack = STACK_ALIASES[f.stack];
@@ -418,9 +480,9 @@ export async function run(argv: string[]): Promise<number> {
   try {
     switch (command) {
       case "validate":
-        return cmdValidate(flags);
+        return await cmdValidate(flags);
       case "info":
-        return cmdInfo(flags);
+        return await cmdInfo(flags);
       case "generate":
         return await cmdGenerate(flags);
       default:

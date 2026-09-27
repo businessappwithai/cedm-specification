@@ -195,8 +195,8 @@ stateDiagram-v2
     closed_won    --> [*]
     closed_lost   --> [*]
 
-    %%guard role:sales|manager on Opportunity.update
-    %%guard role:manager on Opportunity.close_won
+    %%rbac role:sales|role:manager on Opportunity.update
+    %%rbac role:manager on Opportunity.close_won
     %%trigger cron:0 9 * * 1 -> nudgeStaleOpportunities on Opportunity
 
 %% ---- Section 8: Workflow — Contact lifecycle hooks -----------------------

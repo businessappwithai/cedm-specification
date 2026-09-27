@@ -50,6 +50,7 @@ entities:
         help: Whether the agent is still taking work. Cleared when someone leaves the team or goes on extended absence; their closed tickets stay attributed to them, but they should not appear in the assignment list.
   - name: Ticket
     help: "One customer problem, from the moment it arrives to the moment it is closed. A ticket is the unit of work the whole helpdesk is organised around: it carries the customer's account of the problem, who is answering it, how urgent it is, and where it has reached in its lifecycle. It is audited, because who changed a ticket and when is the first question asked whenever a response target is missed."
+    audited: true
     attributes:
       - name: id
         type: string
@@ -134,6 +135,10 @@ rbac:
   - entity: Ticket
     action: update
     roles: [agent, admin]
+triggers:
+  - entity: Ticket
+    source: cron:0 * * * *
+    handler: escalateStale
 rules:
   - name: prioritize
     title: Ticket Prioritization

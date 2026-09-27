@@ -53,6 +53,11 @@
       "type": "array",
       "items": { "$ref": "#/$defs/rbac" }
     },
+    "triggers": {
+      "description": "External events and schedules that call a handler on an entity. EML: `%%trigger <source> -> <handler> on <Entity>`.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/trigger" }
+    },
     "reports": {
       "description": "Analytical questions shipped with the application. EML: `%%report`. The query must be a single SELECT or WITH.",
       "type": "array",
@@ -164,6 +169,22 @@
           "description": "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent. EML: `%%entity <E> parent:`.",
           "$ref": "#/$defs/identifier"
         },
+        "label": {
+          "description": "The name the screens show for the entity. EML: `%%entity <E> label:`. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "prefix": {
+          "description": "Table prefix. EML: `%%entity <E> prefix:`. Validated and carried; not yet compiled by the application generators.",
+          "enum": ["bus", "sys"]
+        },
+        "softDelete": {
+          "description": "Delete by setting `deleted_at` rather than removing the row. EML: `%%entity <E> softDelete:`. Validated and carried; not yet compiled by the application generators.",
+          "type": "boolean"
+        },
+        "audited": {
+          "description": "Keep an audit trail of changes. EML: `%%entity <E> audited:`. Validated and carried; not yet compiled by the application generators — the `eml` CLI's generators read it.",
+          "type": "boolean"
+        },
         "attributes": {
           "description": "Columns in declaration order. An `id` key is added when no attribute is the key.",
           "type": "array",
@@ -205,6 +226,26 @@
         },
         "help": {
           "description": "Guidance shown under the form control. EML: `%%field <E>.<c> help:`.",
+          "$ref": "#/$defs/line"
+        },
+        "ui": {
+          "description": "The control to draw the column with. EML: `%%field <E>.<c> ui:`. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "default": {
+          "description": "The value a new record starts with, as written. EML: `%%field <E>.<c> default:`. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "min": {
+          "description": "Lowest accepted value. EML: `%%field <E>.<c> min:`. A plain number is written as one; anything else as text. Validated and carried; not yet compiled by the application generators.",
+          "oneOf": [{ "type": "number" }, { "$ref": "#/$defs/line" }]
+        },
+        "max": {
+          "description": "Highest accepted value. EML: `%%field <E>.<c> max:`. A plain number is written as one; anything else as text. Validated and carried; not yet compiled by the application generators.",
+          "oneOf": [{ "type": "number" }, { "$ref": "#/$defs/line" }]
+        },
+        "format": {
+          "description": "How the value is shown or checked, e.g. `email`. EML: `%%field <E>.<c> format:`. Validated and carried; not yet compiled by the application generators.",
           "$ref": "#/$defs/line"
         }
       }
@@ -277,11 +318,26 @@
           "description": "The function name in the entity's handler module. One name serves one event.",
           "$ref": "#/$defs/identifier"
         },
-        "field": {
-          "description": "The column a field-level hook concerns.",
-          "type": "string",
-          "pattern": "^\\w+$"
+        "fields": {
+          "description": "The columns a field-level hook concerns, in order. EML: `on <Entity>[field: a, field: b]`. The generated handler is scoped to the first.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^\\w+$" }
         }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "source", "handler"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "source": {
+          "description": "Where the call comes from: `cron:<5 or 6 field expression>`, `webhook:<name>` or `message:<topic>` — the forms the checker's EML230 accepts.",
+          "type": "string",
+          "pattern": "^(?:cron|webhook|message):\\S(?:[^\\n\\r]*\\S)?$"
+        },
+        "handler": { "$ref": "#/$defs/identifier" }
       }
     },
     "rbac": {

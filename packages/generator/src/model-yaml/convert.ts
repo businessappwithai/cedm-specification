@@ -31,6 +31,12 @@ import type {
   StateMachineDeclaration,
 } from "../model/records";
 import {
+  ENTITY_OPTION_KEYS,
+  type EntityOptionKey,
+  FIELD_OPTION_KEYS,
+  type FieldOptionKey,
+} from "../model/records";
+import {
   type AttributeDocument,
   type CategoryDocument,
   EML_YAML_VERSION,
@@ -53,6 +59,10 @@ function modifiersOf(attribute: AttributeDocument): string[] {
   if (attribute.fk) modifiers.push("FK");
   if (attribute.unique) modifiers.push("UK");
   if (attribute.optional) modifiers.push("OPTIONAL");
+  // The quoted comment is part of the declaration as EML writes it
+  // (`string status "Active, Inactive"`). Dropping it here lost it from every
+  // document that went through `canonicalDocument` — i.e. every save.
+  if (attribute.comment !== undefined) modifiers.push(`"${attribute.comment}"`);
   return modifiers;
 }
 
@@ -70,6 +80,8 @@ function erdOf(document: ModelDocument): ErdRecords {
     entityHelp: [],
     entityIcons: [],
     entityParents: [],
+    entityOptions: [],
+    fieldOptions: [],
   };
 
   for (const entity of document.entities) {
@@ -88,6 +100,12 @@ function erdOf(document: ModelDocument): ErdRecords {
     if (entity.parent !== undefined) {
       erd.entityParents.push({ entity: entity.name, parent: entity.parent });
     }
+    for (const key of ENTITY_OPTION_KEYS) {
+      const value = entity[key];
+      if (value !== undefined) {
+        erd.entityOptions.push({ entity: entity.name, key, value: String(value) });
+      }
+    }
     for (const attribute of entity.attributes) {
       if (attribute.enum !== undefined) {
         erd.enumBindings.push({
@@ -95,6 +113,17 @@ function erdOf(document: ModelDocument): ErdRecords {
           column: attribute.name,
           enumName: attribute.enum,
         });
+      }
+      for (const key of FIELD_OPTION_KEYS) {
+        const value = attribute[key];
+        if (value !== undefined) {
+          erd.fieldOptions.push({
+            entity: entity.name,
+            column: attribute.name,
+            key,
+            value: String(value),
+          });
+        }
       }
       if (attribute.help !== undefined) {
         erd.fieldHelp.push({ entity: entity.name, column: attribute.name, help: attribute.help });
@@ -201,12 +230,17 @@ export function documentToRecords(document: ModelDocument): ModelRecords {
         target: rule.action,
       })
     ),
+    triggers: (document.triggers ?? []).map((trigger) => ({
+      source: trigger.source,
+      handler: trigger.handler,
+      entity: trigger.entity,
+    })),
     hooks: (document.hooks ?? []).map(
       (hook): HookDeclaration => ({
         event: hook.event,
         handler: hook.handler,
         entity: hook.entity,
-        ...(hook.field !== undefined ? { field: hook.field } : {}),
+        ...(hook.fields?.length ? { fields: [...hook.fields] } : {}),
       })
     ),
     reports: (document.reports ?? []).map((report): ReportDeclaration => ({ ...report })),
@@ -398,6 +432,38 @@ function entitiesOf(erd: ErdRecords, issues: ConversionIssue[]): EntityDocument[
   annotate("icon", erd.entityIcons);
   annotate("parent", erd.entityParents);
 
+  for (const option of erd.entityOptions) {
+    const target = entity(option.entity);
+    const construct = `%%entity ${option.entity} ${option.key}`;
+    if (!target) {
+      drop(construct, `names an entity the model does not declare`);
+      continue;
+    }
+    const value = entityOptionValue(option.key, option.value);
+    if (value === undefined) {
+      drop(construct, `"${option.value}" is not a value this key takes`);
+      continue;
+    }
+    if (target[option.key] !== undefined && target[option.key] !== value) {
+      resolve(construct, `declared more than once; the last declaration takes effect`);
+    }
+    Object.assign(target, { [option.key]: value });
+  }
+
+  for (const option of erd.fieldOptions) {
+    const target = attribute(option.entity, option.column);
+    const construct = `%%field ${option.entity}.${option.column} ${option.key}`;
+    if (!target) {
+      drop(construct, `names a column the model does not declare`);
+      continue;
+    }
+    const value = fieldOptionValue(option.key, option.value);
+    if (target[option.key] !== undefined && target[option.key] !== value) {
+      resolve(construct, `declared more than once; the last declaration takes effect`);
+    }
+    Object.assign(target, { [option.key]: value });
+  }
+
   for (const help of erd.fieldHelp as FieldHelp[]) {
     const target = attribute(help.entity, help.column);
     const construct = `%%field ${help.entity}.${help.column} help`;
@@ -446,9 +512,44 @@ function entitiesOf(erd: ErdRecords, issues: ConversionIssue[]): EntityDocument[
     ...(document.help !== undefined ? { help: document.help } : {}),
     ...(document.icon !== undefined ? { icon: document.icon } : {}),
     ...(document.parent !== undefined ? { parent: document.parent } : {}),
+    ...(document.label !== undefined ? { label: document.label } : {}),
+    ...(document.prefix !== undefined ? { prefix: document.prefix } : {}),
+    ...(document.softDelete !== undefined ? { softDelete: document.softDelete } : {}),
+    ...(document.audited !== undefined ? { audited: document.audited } : {}),
     attributes: document.attributes.map(orderedAttribute),
     ...(document.indexes?.length ? { indexes: document.indexes } : {}),
   }));
+}
+
+/**
+ * An `%%entity` option as the document types it: `audited` and `softDelete`
+ * are booleans, `prefix` is `bus` or `sys`, `label` is text. Undefined when
+ * the written value is not one the key takes — the checker reports that line,
+ * and the conversion reports it dropped rather than carrying a value the
+ * schema would refuse.
+ */
+function entityOptionValue(key: EntityOptionKey, value: string): string | boolean | undefined {
+  switch (key) {
+    case "audited":
+    case "softDelete":
+      return value === "true" ? true : value === "false" ? false : undefined;
+    case "prefix":
+      return value === "bus" || value === "sys" ? value : undefined;
+    case "label":
+      return value;
+  }
+}
+
+/**
+ * A `%%field` option as the document types it. `min` and `max` become numbers
+ * when the text is one written the way a number prints, so `min: 0` reads as
+ * `min: 0` and still renders back as the same line; anything else stays text.
+ */
+function fieldOptionValue(key: FieldOptionKey, value: string): string | number {
+  if ((key === "min" || key === "max") && value !== "" && String(Number(value)) === value) {
+    return Number(value);
+  }
+  return value;
 }
 
 /** An attribute with its keys in canonical order. */
@@ -462,6 +563,11 @@ function orderedAttribute(attribute: AttributeDocument): AttributeDocument {
     ...(attribute.optional ? { optional: true } : {}),
     ...(attribute.enum !== undefined ? { enum: attribute.enum } : {}),
     ...(attribute.help !== undefined ? { help: attribute.help } : {}),
+    ...(attribute.ui !== undefined ? { ui: attribute.ui } : {}),
+    ...(attribute.default !== undefined ? { default: attribute.default } : {}),
+    ...(attribute.min !== undefined ? { min: attribute.min } : {}),
+    ...(attribute.max !== undefined ? { max: attribute.max } : {}),
+    ...(attribute.format !== undefined ? { format: attribute.format } : {}),
     ...(attribute.comment !== undefined ? { comment: attribute.comment } : {}),
   };
 }
@@ -547,7 +653,7 @@ export function recordsToDocument(records: ModelRecords): {
             entity: hook.entity,
             event: hook.event,
             handler: hook.handler,
-            ...(hook.field !== undefined ? { field: hook.field } : {}),
+            ...(hook.fields?.length ? { fields: [...hook.fields] } : {}),
           })),
         }
       : {}),
@@ -557,6 +663,15 @@ export function recordsToDocument(records: ModelRecords): {
             entity: rule.entity,
             action: rule.target,
             roles: rule.roles.filter(Boolean),
+          })),
+        }
+      : {}),
+    ...(records.triggers.length
+      ? {
+          triggers: records.triggers.map((trigger) => ({
+            entity: trigger.entity,
+            source: trigger.source,
+            handler: trigger.handler,
           })),
         }
       : {}),

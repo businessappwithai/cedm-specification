@@ -82,6 +82,7 @@ entities:
         help: The category this one sits under, empty for a top-level branch. This is what makes the navigation a tree rather than a flat list; a category pointing at its own descendant would make it a loop, so it is checked before it is saved.
   - name: Order
     help: One purchase, from the basket a shopper is still filling to a delivered or refunded transaction. The order carries the money — subtotal, discount, shipping and total — and its status is the single answer to "where is this". It is audited, because the question after any billing dispute is who changed what and when.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -219,6 +220,13 @@ rbac:
   - entity: Order
     action: refund
     roles: [admin]
+triggers:
+  - entity: Order
+    source: webhook:payment
+    handler: markPaid
+  - entity: Order
+    source: webhook:carrier
+    handler: markShipped
 rules:
   - name: pricing
     title: Order Pricing

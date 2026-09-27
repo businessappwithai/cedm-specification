@@ -17,7 +17,12 @@ import { readReportDirectives } from "../reports";
 import { readRuleSection } from "../rules";
 import { readSagaDirectives } from "../workflows/sagas";
 import { readStateMachines } from "../workflows/state-machine";
-import type { HookDiagramDeclaration, ModelRecords, SagaDeclaration } from "./records";
+import type {
+  HookDiagramDeclaration,
+  ModelRecords,
+  SagaDeclaration,
+  TriggerDeclaration,
+} from "./records";
 
 const SECTION_LEAD = /^%%(?:rule|workflow)\s/;
 
@@ -64,11 +69,12 @@ export function modelDescription(source: string): string | undefined {
 
 /**
  * Lines a directive reader consumed, so the ones that remain can be reported.
- * Every compiled directive is here; `%%trigger` and `%%guard` are reserved by
- * the language but compiled by nothing yet, so they are deliberately absent.
+ * Every directive the records carry is here. `%%guard` is absent: its
+ * automation form lives in automations, and its `role:… on <Entity>.<op>`
+ * form was superseded by `%%rbac`, so nothing reads it from a model.
  */
 const COMPILED_DIRECTIVE =
-  /^%%+(?:meta|hook|rbac|report|category|enum|index|entity|field|rule|workflow|step|action|decision-table)\b/;
+  /^%%+(?:meta|hook|rbac|trigger|report|category|enum|index|entity|field|rule|workflow|step|action|decision-table)\b/;
 
 /** A line of an EML document the records do not carry, and why. */
 export interface UncarriedLine {
@@ -78,8 +84,8 @@ export interface UncarriedLine {
 }
 
 /**
- * `%%` lines the records do not carry: reserved directives nothing compiles
- * (`%%trigger`, `%%guard`) and plain comments. Banner rules are decoration and
+ * `%%` lines the records do not carry: the reserved `%%guard` and plain
+ * comments. Banner rules are decoration and
  * a `\`-continued `%%category` line is part of its directive, so neither is
  * reported.
  */
@@ -96,7 +102,7 @@ export function uncarriedDirectiveLines(source: string): UncarriedLine[] {
     if (COMPILED_DIRECTIVE.test(line)) return;
     if (/^%%\s*=+\s*$/.test(line) || /^%%\s*-*\s*$/.test(line)) return;
 
-    const reserved = /^%%(?:trigger|guard)\b/.test(line);
+    const reserved = /^%%guard\b/.test(line);
     found.push({
       line: index + 1,
       text: line,
@@ -151,6 +157,23 @@ function readSagaDeclarations(source: string, warn: (message: string) => void): 
   });
 }
 
+/**
+ * `%%trigger <source> -> <handler> on <Entity>` — every one, wherever it is
+ * written. The source may contain spaces (a cron expression), so it runs to the
+ * arrow. A line that does not have this shape is left for the checker, whose
+ * EML230–EML233 say what is wrong with it.
+ */
+export function readTriggerDirectives(source: string): TriggerDeclaration[] {
+  const triggers: TriggerDeclaration[] = [];
+  for (const raw of source.replace(/\r\n/g, "\n").split("\n")) {
+    const match = raw.trim().match(/^%%trigger\s+(.+?)\s*->\s*(\w+)\s+on\s+(\w+)\s*$/);
+    if (match) {
+      triggers.push({ source: match[1]!.trim(), handler: match[2]!, entity: match[3]! });
+    }
+  }
+  return triggers;
+}
+
 /** Read everything an EML document declares. Nothing is compiled. */
 export function readEmlModel(
   source: string,
@@ -168,6 +191,7 @@ export function readEmlModel(
     erd: new MermaidParser().read(source),
     categories: readCategoryDirectives(source),
     rbac: readRbacDirectives(source, warn),
+    triggers: readTriggerDirectives(source),
     hooks: readHookDirectives(source, warn),
     reports: readReportDirectives(source, warn),
     rules: extractRuleSections(source).map(readRuleSection),

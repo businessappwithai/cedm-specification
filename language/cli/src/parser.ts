@@ -320,6 +320,11 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
       }
       return;
     }
+    // `%%rbac` is the access form; `%%guard role:… on <Entity>.<op>` is the
+    // spelling it replaced. Both say which roles may perform an operation, so
+    // both become a guard — reading only the superseded one left every current
+    // model with no access rules at all in the generated app.
+    case "rbac":
     case "guard": {
       const m = rest.match(/^(\S+)\s+on\s+(\w+)\.(\w+)/);
       if (m) {

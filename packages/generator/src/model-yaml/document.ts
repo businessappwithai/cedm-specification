@@ -21,6 +21,12 @@ export interface AttributeDocument {
   comment?: string;
   enum?: string;
   help?: string;
+  /** Validated and carried; no application generator compiles these yet. */
+  ui?: string;
+  default?: string;
+  min?: number | string;
+  max?: number | string;
+  format?: string;
 }
 
 export interface IndexDocument {
@@ -33,6 +39,11 @@ export interface EntityDocument {
   help?: string;
   icon?: string;
   parent?: string;
+  /** Validated and carried; no application generator compiles these yet. */
+  label?: string;
+  prefix?: "bus" | "sys";
+  softDelete?: boolean;
+  audited?: boolean;
   attributes: AttributeDocument[];
   indexes?: IndexDocument[];
 }
@@ -65,7 +76,8 @@ export interface HookDocument {
   entity: string;
   event: string;
   handler: string;
-  field?: string;
+  /** Columns the hook is scoped to. EML: `on <Entity>[field: a, field: b]`. */
+  fields?: string[];
 }
 
 export interface RbacDocument {
@@ -123,6 +135,13 @@ export interface SagaDocument {
   }>;
 }
 
+/** A `%%trigger`: an external event or schedule that calls a handler on an entity. */
+export interface TriggerDocument {
+  entity: string;
+  source: string;
+  handler: string;
+}
+
 export interface HookDiagramDocument {
   name: string;
   title?: string;
@@ -141,6 +160,7 @@ export interface ModelDocument {
   relationships?: RelationshipDocument[];
   hooks?: HookDocument[];
   rbac?: RbacDocument[];
+  triggers?: TriggerDocument[];
   reports?: ReportDocument[];
   rules?: RuleDocument[];
   stateMachines?: StateMachineDocument[];
@@ -164,6 +184,7 @@ export const DOCUMENT_KEY_ORDER: readonly (keyof ModelDocument)[] = [
   "relationships",
   "hooks",
   "rbac",
+  "triggers",
   "reports",
   "rules",
   "stateMachines",

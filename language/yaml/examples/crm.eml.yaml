@@ -198,6 +198,8 @@ entities:
         help: Clear this to stop new accounts being assigned here without disturbing the ones already in it.
   - name: Account
     help: A company you sell to or support. Almost everything else in this application hangs off an account.
+    prefix: bus
+    audited: true
     attributes:
       - name: id
         type: string
@@ -260,6 +262,8 @@ entities:
         type: integer
         optional: true
         help: A 0-100 read on how well this relationship is going. Maintained by the account team.
+        min: 0
+        max: 100
       - name: territory_id
         type: string
         fk: true
@@ -347,6 +351,7 @@ entities:
       - columns: [account_id, status]
   - name: Lead
     help: An unqualified enquiry that has not been connected to an account yet. A lead is either converted into an account, a contact and an opportunity, or disqualified.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -397,6 +402,8 @@ entities:
         type: integer
         optional: true
         help: A 0-100 fit score the scoring rule calculates from title, size and source. Do not type into it.
+        min: 0
+        max: 100
       - name: campaign_id
         type: string
         fk: true
@@ -505,6 +512,7 @@ entities:
       - columns: [campaign_id, member_status]
   - name: Opportunity
     help: A deal in progress against an account, with an amount, a stage and a close date. The pipeline is the sum of these.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -530,6 +538,7 @@ entities:
         type: text
         optional: true
         help: The detail — what they need, what you proposed, what is still open.
+        ui: textarea
       - name: amount
         type: decimal
         optional: true
@@ -545,6 +554,8 @@ entities:
         type: integer
         optional: true
         help: The 0-100 chance of winning. The forecasting rule derives it from the stage.
+        min: 0
+        max: 100
       - name: forecast_category
         type: string
         optional: true
@@ -613,6 +624,7 @@ entities:
         help: Anything about this line the product name does not say.
   - name: Product
     help: Something you sell, with a list price. Products are what line items point at.
+    label: Product Catalogue
     attributes:
       - name: id
         type: string
@@ -635,6 +647,7 @@ entities:
       - name: list_price
         type: decimal
         help: The published price before any discount.
+        min: 0
       - name: unit_cost
         type: decimal
         optional: true
@@ -651,6 +664,7 @@ entities:
         unique: true
   - name: Quote
     help: A priced, versioned offer to an account for one opportunity. A quote is what gets approved and sent.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -689,6 +703,8 @@ entities:
         type: decimal
         optional: true
         help: A discount across the whole quote. Past the approval threshold it needs a manager.
+        min: 0
+        max: 100
       - name: discount_amount
         type: decimal
         optional: true
@@ -755,6 +771,7 @@ entities:
         help: Where this line sits on the printed quote.
   - name: Contract
     help: The signed commitment that follows an accepted quote — a term, an annual value and a renewal date.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -794,6 +811,7 @@ entities:
       - name: auto_renew
         type: boolean
         help: Set when the term rolls over unless someone cancels it.
+        default: "false"
       - name: renewal_notice_days
         type: integer
         optional: true
@@ -817,6 +835,7 @@ entities:
       - columns: [account_id, end_date]
   - name: SupportCase
     help: A customer problem, from the moment it arrives to the moment it is resolved, measured against an SLA.
+    audited: true
     attributes:
       - name: id
         type: string
@@ -847,6 +866,7 @@ entities:
         type: text
         optional: true
         help: What happened, what they expected, and what they have already tried.
+        ui: textarea
       - name: case_type
         type: string
         enum: CaseType
@@ -890,6 +910,8 @@ entities:
         type: integer
         optional: true
         help: What the customer scored the handling, 1 to 5, after it closed.
+        min: 1
+        max: 5
       - name: escalated_by_id
         type: string
         fk: true
@@ -931,6 +953,7 @@ entities:
         help: Clear this to retire a policy without disturbing the cases already measured against it.
   - name: Activity
     help: A call, a meeting, an email or a task, attached to whatever it was about. The history of a relationship is its activities.
+    softDelete: true
     attributes:
       - name: id
         type: string
@@ -1203,122 +1226,122 @@ hooks:
   - entity: Account
     event: beforeCreate
     handler: normalizeAccountName
-    field: name
+    fields: [name]
   - entity: Account
     event: beforeCreate
     handler: assignAccountNumber
-    field: account_number
+    fields: [account_number]
   - entity: Account
     event: customValidate
     handler: ensureAccountNumberUnique
-    field: account_number
+    fields: [account_number]
   - entity: Account
     event: afterCreate
     handler: seedAccountTeam
   - entity: Account
     event: beforeList
     handler: scopeToTerritory
-    field: territory_id
+    fields: [territory_id]
   - entity: Account
     event: afterList
     handler: attachHealthScore
-    field: health_score
+    fields: [health_score]
   - entity: Account
     event: beforeDelete
     handler: blockDeleteWithOpenBusiness
   - entity: Contact
     event: beforeCreate
     handler: normalizeEmail
-    field: email
+    fields: [email]
   - entity: Contact
     event: customValidate
     handler: ensureUniqueEmail
-    field: email
+    fields: [email]
   - entity: Contact
     event: afterCreate
     handler: enqueueWelcomeSequence
   - entity: Contact
     event: afterUpdate
     handler: syncToMarketingPlatform
-    field: email_opt_out
+    fields: [email_opt_out]
   - entity: Contact
     event: beforeRead
     handler: enforceFieldLevelSecurity
   - entity: Contact
     event: afterRead
     handler: maskPersonalData
-    field: phone
+    fields: [phone, mobile]
   - entity: Contact
     event: afterDelete
     handler: purgeMarketingConsent
   - entity: Lead
     event: beforeCreate
     handler: stampLeadSource
-    field: lead_source
+    fields: [lead_source]
   - entity: Lead
     event: customValidate
     handler: requireContactChannel
-    field: email
+    fields: [email, phone]
   - entity: Lead
     event: afterCreate
     handler: notifyOwnerOfNewLead
   - entity: Lead
     event: beforeQuery
     handler: scopeToOwnedLeads
-    field: owner_id
+    fields: [owner_id]
   - entity: Lead
     event: afterQuery
     handler: annotateDuplicateLeads
-    field: email
+    fields: [email]
   - entity: Opportunity
     event: beforeUpdate
     handler: snapshotStageChange
-    field: stage
+    fields: [stage]
   - entity: Opportunity
     event: customValidate
     handler: requireLossReasonOnLoss
-    field: loss_reason
+    fields: [loss_reason]
   - entity: Opportunity
     event: afterCreate
     handler: notifySellingTeam
   - entity: Opportunity
     event: afterUpdate
     handler: recalculateAccountPipeline
-    field: amount
+    fields: [amount]
   - entity: Quote
     event: beforeCreate
     handler: generateQuoteNumber
-    field: quote_number
+    fields: [quote_number]
   - entity: Quote
     event: beforeUpdate
     handler: recalculateQuoteTotals
-    field: grand_total
+    fields: [grand_total]
   - entity: Quote
     event: customValidate
     handler: enforceDiscountCeiling
-    field: discount_percent
+    fields: [discount_percent]
   - entity: Quote
     event: afterUpdate
     handler: regenerateQuoteDocument
   - entity: SupportCase
     event: beforeCreate
     handler: assignCaseNumber
-    field: case_number
+    fields: [case_number]
   - entity: SupportCase
     event: beforeCreate
     handler: stampSlaTargets
-    field: first_response_due_at
+    fields: [first_response_due_at, resolution_due_at]
   - entity: SupportCase
     event: beforeUpdate
     handler: captureFirstResponse
-    field: first_response_at
+    fields: [first_response_at]
   - entity: SupportCase
     event: afterCreate
     handler: acknowledgeCustomer
   - entity: SupportCase
     event: afterUpdate
     handler: recomputeSlaBreach
-    field: is_sla_breached
+    fields: [is_sla_breached]
   - entity: SupportCase
     event: beforeDelete
     handler: blockDeleteOfOpenCase
@@ -1328,18 +1351,18 @@ hooks:
   - entity: Contract
     event: beforeCreate
     handler: generateContractNumber
-    field: contract_number
+    fields: [contract_number]
   - entity: Contract
     event: customValidate
     handler: ensureTermMatchesDates
-    field: start_date
+    fields: [start_date, end_date, term_months]
   - entity: Contract
     event: afterCreate
     handler: notifyFinanceOfNewContract
   - entity: Contract
     event: afterUpdate
     handler: scheduleRenewalReminders
-    field: renewal_notice_days
+    fields: [renewal_notice_days]
 rbac:
   - entity: Account
     action: read
@@ -1437,6 +1460,31 @@ rbac:
   - entity: Contract
     action: terminate
     roles: [administrator]
+triggers:
+  - entity: Lead
+    source: webhook:marketing
+    handler: ingestInboundLead
+  - entity: Lead
+    source: cron:0 7 * * 1
+    handler: recycleStaleLeads
+  - entity: Opportunity
+    source: cron:0 7 * * *
+    handler: nudgeStalledOpportunities
+  - entity: Quote
+    source: cron:0 6 * * *
+    handler: expireStaleQuotes
+  - entity: SupportCase
+    source: cron:*/15 * * * *
+    handler: checkSlaBreaches
+  - entity: SupportCase
+    source: webhook:helpdesk
+    handler: ingestInboundCase
+  - entity: Contract
+    source: cron:0 8 * * *
+    handler: openRenewalWindows
+  - entity: Contract
+    source: message:billing.invoice.paid
+    handler: markContractActive
 reports:
   - name: rep-stalled-deals
     title: Deals with no activity in 14 days
