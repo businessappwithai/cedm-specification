@@ -94,8 +94,8 @@ entity:
       usage: Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios.
       cardinalityMeaning: Zero means global/context-independent; one means explicitly scoped to one organization.
       workflowRole: Determines which organization can use the role for applicable transactions and policies.
-  - name: specializedRole
-    target: Customer|Supplier
+  - name: customerRole
+    target: Customer
     cardinality: 0..1
     ownership: reference
     help:
@@ -103,6 +103,15 @@ entity:
       usage: Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification.
       cardinalityMeaning: At most one specialization is represented by this relationship in the current core model.
       workflowRole: Allows specialized workflows to extend the role without duplicating Party identity.
+  - name: supplierRole
+    target: Supplier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Links the generic PartyRole to the specialized Supplier role record when applicable.
+      usage: Provides direct navigation from role assignment to specialized supplier commercial data.
+      cardinalityMeaning: Optional because not every PartyRole represents a supplier.
+      workflowRole: Connects supplier-role eligibility to governed procurement and supplier-management workflows.
   invariants:
   - id: ROLE-001
     rule: validTo must not be earlier than validFrom when both are supplied.
