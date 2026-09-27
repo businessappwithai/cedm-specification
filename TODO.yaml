@@ -44,11 +44,12 @@ todo:
       name: Inventory
       entities: [InventoryItem, InventoryBalance, Lot, SerialNumber, InventoryReservation, InventoryMovement, InventoryTransfer, InventoryAdjustment, InventoryCount]
       status: in-progress
-      notes: Canonical Lot and SerialNumber traceability masters are implemented and propagated through Product, InventoryMovement and lot-segmented InventoryBalance; transfer, adjustment and count transaction coverage remains pending.
+      notes: Canonical Lot and SerialNumber traceability plus InventoryTransfer, InventoryCount and InventoryAdjustment are implemented. Stock-changing controls reconcile through InventoryMovement; remaining inventory work is verification and cross-domain hardening.
     - id: warehouse-wms
       name: Warehouse / WMS
       entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
-      status: pending-verification
+      status: in-progress
+      notes: WarehouseZone and HandlingUnit are implemented and propagated through Warehouse and InventoryLocation. Putaway, Picking, Packing, Wave and Dock execution entities remain pending.
     - id: logistics-scm
       name: Logistics / SCM
       entities: [Shipment, ShipmentLine, Carrier, Route, Load, Consignment, FreightCharge, Delivery, TrackingEvent]
@@ -196,7 +197,6 @@ todo:
 
   discoveredGaps:
     - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
-    - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
     - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
     - {domain: treasury-banking, missing: [CashPosition], priority: high}
     - {domain: budgeting-planning, missing: [Budget], priority: high}
