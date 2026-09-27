@@ -69,6 +69,7 @@ registry:
     - FoodBatch
     - GoodsReceipt
     - GoodsReceiptLine
+    - HandlingUnit
     - GovernmentCase
     - HealthcareEncounter
     - HealthcareOrder
@@ -82,9 +83,12 @@ registry:
     - InsuranceClaim
     - InsurancePolicy
     - InventoryBalance
+    - InventoryAdjustment
+    - InventoryCount
     - InventoryLocation
     - InventoryMovement
     - InventoryReservation
+    - InventoryTransfer
     - Invoice
     - InvoiceLine
     - JournalEntry
@@ -196,6 +200,7 @@ registry:
     - Vehicle
     - VehicleModel
     - Warehouse
+    - WarehouseZone
     - WorkCenter
     - Workflow
     - Yard
