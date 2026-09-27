@@ -76,3 +76,7 @@ entity:
     lifecycle: Draft → recorded → inspected/dispositioned → accepted/rejected/partially accepted → inventory posted → historical evidence. Corrections use compensating events.
     idempotency: Receipt posting and supplier-return consumption must use stable line/disposition identities so retries cannot duplicate inventory or returned quantity.
     example: A PO orders 100 units. Receipt accepts 94 and rejects 2. Later 10 accepted units are returned. SupplierReturnLine references this receipt line for 10; inventory is reduced by an attributable movement and the original acceptedQuantity remains 94.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-GOODS-RECEIPT-LINE
