@@ -99,7 +99,16 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Individually serialized units carried by this movement., businessMeaning: Preserves unit-level custody and location history., usage: Scanning, shipment, service, return, recall, and audit., cardinalityMeaning: Zero or more serials depending on serialization policy., workflowRole: Serial count/quantity must reconcile with movement quantity under product policy.}
-  invariants:
+  - name: materialIssue
+    target: MaterialIssue
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing material-consumption transaction causing this stock event., businessMeaning: Explains production reason for component issue., usage: Genealogy, costing, and reconciliation., cardinalityMeaning: Optional outside manufacturing consumption., workflowRole: Product, quantity, lot and serial evidence must reconcile.}
+  - name: productionReceipt
+    target: ProductionReceipt
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing output transaction causing this stock receipt., businessMeaning: Explains production reason for finished/semi-finished stock increase., usage: Genealogy, costing, quality, and reconciliation., cardinalityMeaning: Optional outside manufacturing output., workflowRole: Product, quantity, lot and serial evidence must reconcile.}
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.}
   - {id: INVENTORY-MOVEMENT-003, rule: RECEIPT requires targetLocation when inventory is location-managed.}
