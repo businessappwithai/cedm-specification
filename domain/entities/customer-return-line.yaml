@@ -178,5 +178,5 @@ entity:
     workflowContext: Return authorization → returned quantity → receipt → inspection → disposition → restock/quarantine/repair/scrap → credit eligibility → CreditNoteLine → CreditNote posting. Each consequence is posted through its authoritative workflow.
     lifecycle: Pending → inspected → dispositioned → posted/completed, with controlled correction if necessary.
     changePropagation: Changes to source fulfillment, invoice, product, UOM or policy revalidate open return lines. Posted physical or financial effects are corrected through compensating events.
-    example: Five units returned: three restocked, one quarantined and one scrapped. Only three generate unrestricted positive inventory movement. An approved USD 590 credit becomes a CreditNoteLine and is posted through CreditNote without changing the original InvoiceLine.
+    example: "Five units returned: three restocked, one quarantined and one scrapped. Only three generate unrestricted positive inventory movement. An approved USD 590 credit becomes a CreditNoteLine and is posted through CreditNote without changing the original InvoiceLine."
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN-LINE}
