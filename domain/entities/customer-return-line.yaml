@@ -140,6 +140,16 @@ entity:
       businessMeaning: Provides historical monetary, pricing and tax evidence for the returned quantity.
       usage: Supports credit calculation, audit and reconciliation.
       workflowRole: Supplies source financial evidence to CreditNoteLine.
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled disposition decisions covering all or part of this returned quantity.
+      businessMeaning: Records explicit restock, quarantine, repair, scrap, reject, accept, or other governed operational outcomes for the line.
+      usage: Partial disposition, quality traceability, inventory execution, reconciliation, and audit.
+      cardinalityMeaning: A return line may have multiple dispositions when its quantity is split across operational outcomes.
+      workflowRole: Disposition quantities must reconcile to the line and authorize, but never replace, resulting InventoryMovement evidence.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
