@@ -35,7 +35,7 @@ todo:
       name: Procurement
       entities: [Supplier, PurchaseRequisition, RequestForQuotation, SupplierQuotation, PurchaseOrder, GoodsReceipt, SupplierReturn, SupplierClaim]
       status: in-progress
-      notes: Header-level requisition-to-RFQ-to-supplier-quotation-to-purchase-order chain has been added; line-level sourcing and remaining completeness checks are pending.
+      notes: Header-level requisition-to-RFQ-to-supplier-quotation-to-purchase-order chain has been added. Gap scan confirms RequestForQuotationLine and SupplierQuotationLine are still missing and are next in the sourcing work queue.
     - id: product-pim
       name: Product / PIM
       entities: [Product, ProductVariant, ProductCategory, Brand, ProductAttribute, BillOfMaterial, UnitOfMeasure, Packaging, ProductLifecycle]
@@ -190,3 +190,17 @@ todo:
     - [SupplierReturn, SupplierReturnLine, QualityInspection, ReturnDisposition, InventoryMovement, SupplierCreditNote]
     - [Risk, RiskAssessment, Control, Finding, RiskTreatment, AuditEvent]
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
+
+  discoveredGaps:
+    - {domain: procurement, missing: [RequestForQuotationLine, SupplierQuotationLine], priority: critical}
+    - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
+    - {domain: inventory, missing: [Lot, SerialNumber], priority: critical}
+    - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
+    - {domain: logistics-scm, missing: [ShipmentLine], priority: critical}
+    - {domain: manufacturing, missing: [Routing, ProductionOrder], priority: critical}
+    - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
+    - {domain: treasury-banking, missing: [CashPosition], priority: high}
+    - {domain: budgeting-planning, missing: [Budget], priority: high}
+    - {domain: projects, missing: [ProjectPhase], priority: medium}
+    - {domain: hr-hcm, missing: [Job], priority: high}
+    - {domain: service-management, missing: [ServiceLevelAgreement], priority: high}
