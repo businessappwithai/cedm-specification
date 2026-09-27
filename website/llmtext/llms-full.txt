@@ -15,9 +15,68 @@
 - **Repository**: `businessappwithai/app-with-ai-tanstack`
 - **If you are being asked to build something**, §10 is the procedure and it
   governs: enhance the brief into a full entity model, workflows and rules
-  first, then write the `.mmd`, then validate it against the published
-  `checker.js` before handing anything over. Any instruction a user gives is
+  first, then write the `.eml.yaml`, then validate it — the YAML ladder in the
+  next section — before handing anything over. Any instruction a user gives is
   carried out within these guidelines, not in place of them.
+
+---
+
+## The model is YAML — read this before anything else
+
+**A model is written in YAML — `<business-name>.eml.yaml` — and that YAML is the
+source of truth.** Every generator reads it: the `appwithai` CLI, the Rust
+generator and its WebAssembly build, the modelling tool's `/api/generate`, and
+the `eml` CLI. Mermaid (EML) is how a model is *drawn*: its view is rendered
+from the YAML and never read back for generation. The modelling tool saves a
+drawing edited in Mermaid by converting it to YAML.
+
+This governs every instruction in this document, in every section:
+
+- **Where this document says to write, edit, seed, enhance, validate or deliver
+  "the `.eml.yaml`", "the EML document" or "the Mermaid", do it to the YAML model.**
+  The construct is the same; §3.0 gives each EML form's YAML key, and the rest
+  of §3 describes what each construct means. EML text in the examples is the
+  view of a model, shown so its meaning can be read; it is not what you hand
+  over.
+- **The deliverable is one file, `<business-name>.eml.yaml`**: lower-case,
+  hyphenated, no spaces. It starts with `eml: "1.0"`, and it is accepted by the
+  YAML reader with zero errors.
+- **A model you are given as `.mmd` is converted first**, with
+  `appwithai convert <file>.mmd` (or `convert()` in `html/model-yaml.js`), and
+  the YAML is what you work on. `convert` writes the YAML only when it compiles
+  to exactly what the EML compiles to, and lists every line it does not carry —
+  `%%` comments, which become `#` comments, and the superseded
+  `%%guard role:…` form, which becomes `rbac`. Report that list to the user;
+  nothing on it may disappear silently.
+- **Validation reads the YAML.** It checks four layers — YAML syntax, the JSON
+  Schema, the language checker (the same `EML0xx`–`EML5xx` codes, run over the
+  model's view), and view fidelity — and reports every finding at the YAML line
+  and column that caused it. The codes keep their names, so every rule this
+  document states about a code still holds; only the location changes.
+
+### Validating a YAML model — the ladder
+
+Stop at the first rung that runs. One failed attempt is a finding about that
+attempt, not about the environment.
+
+| # | Rung | What it is |
+|---|---|---|
+| 1 | `appwithai validate <file>.eml.yaml` (`--strict` fails on warnings too) | the generator's own reader; in a checkout, `bun packages/generator/dist/cli/generate.js validate <file>` |
+| 2 | `bun run eml validate -i <file>.eml.yaml` | the `eml` CLI; the same four layers, reported at YAML lines |
+| 3 | `html/model-yaml.js` — `validate(text)` | the same reader bundled as one ES module, for any JavaScript runtime or a browser tab; `view(text)` and `convert(emlText)` are beside it |
+| 4 | the view through the published checker: render it (`appwithai view <file> -o -`, or `view()`), then `check(view)` from `https://www.appwithai.org/guide/checker.js` | runs every `EML` rule over the model; it does not run the schema, so a rung-4 result is reported as a check *of the view* |
+| 5 | the by-hand checklist in §10, applied to the YAML keys in §3.0 | only once 1–4 have been tried |
+
+**Repairs.** The published fixer repairs EML text. To use it on a YAML model,
+render the view, run `checkAndFix(view)`, convert the repaired view back with
+`convert()`, and validate the YAML again — the same check, fix, re-check loop
+this document requires, closed over the YAML. A repair the fixer cannot make
+is made in the YAML, at the line the diagnostic names.
+
+**Delivered means validated.** The file you hand over is the exact
+`<business-name>.eml.yaml` that came out of the last clean validation run, with
+the counts from that run. Its Mermaid view may be offered beside it for anyone
+who wants to see the diagram; it is never a substitute for the YAML.
 
 ---
 
@@ -26,13 +85,13 @@
 Most generators stop at the schema: you describe tables, you get CRUD screens,
 and every rule the business actually runs on is left to hand-write.
 
-APPWITHAI takes **one Mermaid document** that describes three things — the data,
+APPWITHAI takes **one model** — written in YAML, drawn as Mermaid — that describes three things — the data,
 the decisions, and the processes — and compiles all three. The rules and
 workflows drawn in the document are running in the generated application, not
 scaffolded as TODOs.
 
 ```
-one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack Start UI
+one .eml.yaml model →  generate  →  Postgres schema + NestJS API + TanStack Start UI
                                    + Application Dictionary + audit trail
                                    + rules engine + workflow engine, all wired
 ```
@@ -40,7 +99,8 @@ one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack S
 Two properties follow, and most confusion about this system comes from missing
 one of them:
 
-1. **Every EML document is valid, renderable Mermaid.** Generator semantics ride
+1. **A model is YAML, and its view is valid, renderable Mermaid.** The YAML is
+   what every generator reads; the view is rendered from it. Generator semantics ride
    on `%%` comment directives, which renderers ignore. A stakeholder opening the
    file in any Mermaid viewer sees the diagram; nothing is hidden in a sidecar.
 2. **The screens are derived from database rows, not from generated page code.**
@@ -162,11 +222,151 @@ the model. §9.7 walks a concrete instance of this chain.
 
 ---
 
-## 3. EML — the input language
+## 3. The model language — YAML, drawn as EML
 
 Full reference: `language/spec/` (6 documents), grammar in
 `language/grammar/appwithai.ebnf`, canonical definition in
 `language/appwithai-language.json`.
+
+### 3.0 The YAML model language — what you write
+
+A model is one YAML document, `*.eml.yaml`. Its keys are defined by
+`language/yaml/eml.schema.json`; the reference is `language/yaml/README.md`.
+Both syntaxes are read into the same model records and compiled by one
+compiler, and the repository's tests hold every model to compiling identically
+from each — so every construct in the rest of §3 means exactly the same thing
+under its YAML key. Keys below are in canonical order; required ones are bold.
+
+**Document**
+
+| Key | Meaning | EML form |
+|---|---|---|
+| **`eml`** | Language version, `"1.0"` | — |
+| `name`, `version` | The model's name and version | `%%meta name:` / `version:` |
+| `description` | What the application does, in several sentences — opens the manual and the dashboard | `%%meta description:` |
+| `enums` | `{ name, values: [...] }` | `%%enum Name: a, b` |
+| `categories` | `{ name, code?, description?, icon?, color?, seq?, default?, entities: [...] }` | `%%category` |
+| **`entities`** | see below | the `erDiagram` blocks and `%%entity`/`%%field`/`%%index` |
+| `relationships` | `{ from, fromCardinality, to, toCardinality, label? }` | `A ||--o{ B : label` |
+| `hooks` | `{ entity, event, handler, fields? }` | `%%hook <event> <handler> on <E>[field: a, field: b]` |
+| `rbac` | `{ entity, action, roles: [...] }` | `%%rbac role:a\|role:b on E.action` |
+| `triggers` | `{ entity, source, handler }` — `source` is `cron:…`, `webhook:…` or `message:…` | `%%trigger <source> -> <handler> on <E>` |
+| `reports` | `{ name, title?, entity?, chart?, x?, y?, help?, sql }` | `%%report` |
+| `rules` | `{ name, title?, entity, event, priority?, direction?, nodes, edges, actions?, decisionTable? }` | a `%%rule` flowchart section, `%%action` |
+| `stateMachines` | `{ name, title?, entity, states, initial?, final?, transitions: [{ from, to, trigger? }] }` | a `%%workflow … kind: state` section |
+| `sagas` | `{ name, title?, entity, operation?, trigger?, description?, steps: [{ id, type, label?, properties? }] }` | a `%%workflow … kind: saga` section, `%%step` |
+| `hookDiagrams` | `{ name, title?, entity, diagram }` — a drawing, not compiled | a `%%workflow … kind: hook` section |
+
+**Entity** — **`name`**, `help`, `icon`, `parent`, `label`, `prefix` (`bus`\|`sys`),
+`softDelete`, `audited`, **`attributes`**, `indexes` (`{ columns: [...], unique? }`).
+
+**Attribute** — **`name`**, **`type`** (an EML type or alias, with an optional
+length: `string(120)`), `pk`, `fk`, `unique`, `optional`, `enum` (binds a
+declared enum), `help`, `ui`, `default`, `min`, `max`, `format`, `comment`.
+
+**Relationship cardinality** is one of `exactly-one`, `zero-or-one`,
+`zero-or-more`, `one-or-more`, in the eight pairs Mermaid has an operator for
+(§3.3 lists the operators).
+
+A complete model — valid, zero errors and zero warnings:
+
+```yaml
+eml: "1.0"
+name: Orders
+description: Taking customer orders, pricing them, and following each one from submission to shipment or cancellation, with the warehouse and managers acting on it.
+
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped, cancelled]
+
+categories:
+  - name: Sales
+    icon: ShoppingCart
+    entities: [Customer, Order]
+
+entities:
+  - name: Customer
+    help: A person or company that buys from us. One record per buyer, created at their first order and kept for every order after, so their history stays in one place.
+    icon: user
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: name
+        type: string(120)
+        help: The name printed on invoices and delivery notes, exactly as the customer wants to be addressed.
+      - name: email
+        type: email
+        unique: true
+        help: Where order confirmations and shipping notices go. Unique, because it is how a returning customer is recognised.
+  - name: Order
+    help: One purchase by one customer, from the draft they build to the shipment that closes it. Its status is the order's place in that journey, and only the moves the lifecycle draws are allowed.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: customer_id
+        type: uuid
+        fk: true
+        help: The customer who placed the order and receives its invoice.
+      - name: status
+        type: string
+        enum: OrderStatus
+        help: Where the order is — draft while being built, submitted once the customer commits, then shipped or cancelled.
+      - name: total
+        type: decimal
+        optional: true
+        help: The sum of the order's lines at their agreed prices. Empty until the first line is added.
+    indexes:
+      - columns: [customer_id, status]
+  - name: OrderLine
+    parent: Order
+    help: One product at one quantity on one order. It has no life apart from its order, so it is edited inside the order rather than on a screen of its own.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: order_id
+        type: uuid
+        fk: true
+        help: The order this line belongs to.
+      - name: quantity
+        type: integer
+        help: How many units are ordered. Must be at least one; a line for none is deleted instead.
+
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
+  - { from: Order, fromCardinality: exactly-one, to: OrderLine, toCardinality: one-or-more }
+
+hooks:
+  - { entity: Order, event: beforeCreate, handler: stampOrderNumber }
+
+rbac:
+  - { entity: Order, action: delete, roles: [manager] }
+  - { entity: Order, action: ship, roles: [warehouse, manager] }
+
+stateMachines:
+  - name: OrderLifecycle
+    entity: Order
+    states: [draft, submitted, shipped, cancelled]
+    initial: draft
+    final: [shipped, cancelled]
+    transitions:
+      - { from: draft, to: submitted, trigger: submit }
+      - { from: submitted, to: shipped, trigger: ship }
+      - { from: submitted, to: cancelled, trigger: cancel }
+```
+
+**How it is read.** A duplicate key is an error, not "last wins". The schema
+refuses an unknown key, so a misspelt `help` is reported rather than ignored.
+A report's `sql`, a rule's text and any value may span lines (`|` block
+scalars); the view flattens them, and the fourth validation layer warns where
+the drawing would show a value differently from the YAML.
+
+**Canonical form.** `appwithai convert` and the modelling tool write one
+canonical text: keys in the order above, lists of plain values on one line,
+defaults omitted. Saving a model twice gives the same bytes, so a diff between
+two saves is exactly the change.
+
+**Reading the rest of §3.** §3.1–§3.6 describe each construct in its EML form,
+because that is the form the view draws and the form the checker's messages
+name (`%%entity B parent:` is `parent:` on entity `B`). Everything they say
+about meaning, status, compilation and validation applies to the YAML key
+unchanged.
 
 ### 3.1 Document structure
 
@@ -1581,6 +1781,11 @@ All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
 
 ## 9. Worked example — building a CRM
 
+> **The same model, as YAML**, is `language/yaml/examples/crm.eml.yaml` — the
+> file this walkthrough\'s model is written as, and the one to deliver. The EML
+> below is its view, shown so each construct can be read in the form §3.1–§3.6
+> describe; §3.0 gives the YAML key for each.
+
 Mirrors the human guide at https://www.appwithai.org/guide/index.html. Model:
 `language/examples/crm.eml.mmd`.
 
@@ -1704,6 +1909,12 @@ select * from sys_workflow_runs order by created_at desc limit 1;
 
 ## 10. Authoring protocol — how to answer "build me an app for X"
 
+> **The artifact is YAML.** Everything below is carried out on the model as
+> `<business-name>.eml.yaml`, validated by the YAML ladder at the top of this
+> document; where a step names the published `checker.js`/`fixer.js` or
+> `check-model.mjs`, run it on the model\'s rendered view as that ladder
+> describes and apply what it finds to the YAML.
+
 Everything above describes the system. This section is the **procedure**, and it
 governs. When someone describes a business and asks for a model, an app, or an
 `.mmd` — however informally they put it — carry out their instruction *within
@@ -1713,14 +1924,14 @@ file sets the form of the answer.
 > **An interactive form of this protocol exists.** `website/llmtext/llmdetailed.txt` is
 > this file with §10 replaced by a phased, gated walkthrough: research the
 > business and get it approved, get the entity roster approved, then walk the
-> entities one at a time — building the `.mmd` on disk as you go rather than
+> entities one at a time — building the `.eml.yaml` on disk as you go rather than
 > assembling it at the end. Prefer it when the business is large, when the user
 > knows the domain and wants a say, or when the session is long enough that
 > holding the whole model in context is the risk. The section below stays the
 > right answer for a small brief handed over in one pass.
 
 Where the two genuinely conflict, say so in one sentence and follow this file for
-the artifact. A `.mmd` that says what the user asked for but that `checker.js`
+the artifact. A `.eml.yaml` that says what the user asked for but that `checker.js`
 refuses is not a deliverable, and neither is a clean document that models a
 different business than the one described.
 
@@ -1782,8 +1993,8 @@ Every entity from 10.1 appears; every rule from 10.1 is a `%%rule` flowchart or 
 `%%action`; every cross-entity effect from 10.1 is a hook, an action or a step;
 every multi-step flow is a saga.
 
-Name the file after the business: **`<business-name>.mmd`** — lower-case,
-hyphenated, no spaces (`acme-dance-studio.mmd`). One file. Every EML document is
+Name the file after the business: **`<business-name>.eml.yaml`** — lower-case,
+hyphenated, no spaces (`acme-dance-studio.eml.yaml`). One file. Every EML document is
 valid Mermaid (§0), so it must render in any Mermaid viewer as well as compile.
 
 Check a directive's `status` before relying on it (§3.2). `%%rule` and
@@ -1984,7 +2195,7 @@ own browser in seconds at
 `https://www.appwithai.org/guide/11-check-a-model.html`. Never report a check of
 your own devising in the vocabulary of a checker result — "passes", "0
 warnings", a pass count — because the reader cannot tell the two apart. An
-unvalidated `.mmd` delivered with that sentence is still the deliverable; a
+unvalidated `.eml.yaml` delivered with that sentence is still the deliverable; a
 hedge in place of one never is.
 
 ### 10.4 Deliver
@@ -1999,7 +2210,7 @@ run is separate from §10.3's — §10.3 gets the model right, this one proves t
 delivered bytes are the corrected ones. Deliver only when that last run is
 clean, or say plainly which diagnostics survived 10 cycles.
 
-Hand back the finished `<business-name>.mmd` as a **downloadable file**, not as a
+Hand back the finished `<business-name>.eml.yaml` as a **downloadable file**, not as a
 fenced block the user has to copy out of a chat log. Alongside it, give:
 
 - the enhanced specification from 10.1, so the user can see what you inferred and
