@@ -124,16 +124,15 @@ function AutomationsPage() {
 
         if (cancelled) return;
 
-        // Each row is its YAML document — or, for one saved before automations
-        // were YAML, its mermaid. A row that cannot be read is reported and
-        // left out rather than opened as an empty automation someone could
+        // Each row is its YAML document. A row that cannot be read is reported
+        // and left out rather than opened as an empty automation someone could
         // publish over it.
         const parsed = autoRows.flatMap((row) => {
           try {
             return [
               {
                 stored: row.id,
-                automation: readStoredAutomation(row, ENTITIES[0] || 'Record'),
+                automation: readStoredAutomation(row),
               },
             ];
           } catch (error) {

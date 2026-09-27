@@ -8,7 +8,7 @@
 //! `DynamicRepo` exists (docs/MIGRATION-LOCO-ASTRYX.md §6.3).
 //!
 //! What this *is* is the convenience layer decision D9 asked for: typed field
-//! access for code that is hand-written Rust anyway — `%%hook` handlers in
+//! access for code that is hand-written Rust anyway — hook handlers in
 //! `src/hooks/handlers/`, and workflow tasks that need to query a related table.
 //! Inside those, `order.total_amount` beats
 //! `row["total_amount"].as_str().and_then(|s| s.parse().ok()).unwrap_or_default()`

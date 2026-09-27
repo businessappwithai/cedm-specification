@@ -1,10 +1,10 @@
-//! The questions the model declared with `%%report`, over HTTP.
+//! The questions the model declared in `reports`, over HTTP.
 //!
 //! These assert against **what the model declared**, not against the rows the
 //! same generator wrote. Reading `sys_report` back and checking it against
 //! itself only proves the application is self-consistent, and passes just as
 //! happily when the compiler dropped a directive on the floor — which is
-//! exactly the failure `%%report` had before it was compiled at all.
+//! exactly the failure reports had before they were compiled at all.
 //!
 //! The read-only assertions are the important ones. `sql_text` is the single
 //! column in this application where text authored in a document becomes a
@@ -19,7 +19,7 @@ use serial_test::serial;
 
 use crate::support::{self, bearer, rows};
 
-/// The names this model's `%%report` directives declared, in order.
+/// The names of this model's `reports`, in order.
 const DECLARED: &[&str] = &[
 {{#each reports}}
     "{{name}}",
@@ -45,7 +45,7 @@ async fn every_report_the_model_declared_is_installed() {
         for name in DECLARED {
             assert!(
                 installed.iter().any(|found| found == name),
-                "%%report {name} was declared but is not in sys_report — the \
+                "report {name} was declared but is not in sys_report — the \
                  compiler or the seed dropped it"
             );
         }

@@ -1,15 +1,12 @@
 /**
  * Automations, stored as YAML.
  *
- * The application's model is written in YAML and its mermaid is only a view, so
- * an automation built here is stored the same way: as the YAML document of the
- * automation's own model — a trigger, conditions, loops, ordered steps — in
+ * The application's model is written in YAML, so an automation built here is
+ * stored the same way: as the YAML document of the automation's own model — a
+ * trigger, conditions, loops, ordered steps — in
  * `sys_workflow_definitions.definition_yaml`. The backend checks the document's
- * shape before it stores it.
- *
- * Rows saved before this carry mermaid with `%%` directives in `mermaid_code`.
- * They are still read, through `parseAutomation`, and the next save writes them
- * back as YAML.
+ * shape before it stores it. Every automation is stored this way: migration
+ * m0017 converted the rows an earlier release had written otherwise.
  */
 
 import { parse, stringify } from "yaml";
@@ -26,7 +23,6 @@ import {
   type Loop,
   loopsOf,
   newId,
-  parseAutomation,
   type SagaOperation,
   type SagaTrigger,
   STEP_TYPES,
@@ -264,16 +260,16 @@ export interface StoredAutomationRow {
   name: string;
   entity_name?: string;
   definition_yaml?: string | null;
-  mermaid_code?: string | null;
 }
 
 /**
- * The automation a stored row holds: its YAML document, or — for a row saved
- * before automations were YAML — its mermaid, read as it always was.
+ * The automation a stored row holds, named as the row names it. A row with no
+ * document is refused by name rather than opened empty: saving an empty one
+ * would overwrite whatever the row was meant to hold.
  */
-export function readStoredAutomation(row: StoredAutomationRow, fallbackEntity: string): Automation {
-  const automation = row.definition_yaml
-    ? automationFromYaml(row.definition_yaml)
-    : parseAutomation(row.mermaid_code ?? "", row.entity_name || fallbackEntity);
-  return { ...automation, name: row.name };
+export function readStoredAutomation(row: StoredAutomationRow): Automation {
+  if (!row.definition_yaml) {
+    throw new AutomationDocumentError(`for "${row.name}" is missing`);
+  }
+  return { ...automationFromYaml(row.definition_yaml), name: row.name };
 }

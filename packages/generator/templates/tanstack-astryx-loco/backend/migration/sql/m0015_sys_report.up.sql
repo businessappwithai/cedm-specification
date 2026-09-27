@@ -1,4 +1,4 @@
--- `sys_report` — the questions the model declared with `%%report`.
+-- `sys_report` — the questions the model declared in `reports`.
 --
 -- Not to be confused with `sys_report_designs` (m0011), which holds one
 -- printable document layout per entity: the thing the Print button renders for

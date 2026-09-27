@@ -1,4 +1,4 @@
-//! What `%%rbac` compiles to, enforced on the request.
+//! What the model's access rules compile to, enforced on the request.
 //!
 //! Generated: {{now}}
 //! Project: {{project.name}}
@@ -7,7 +7,7 @@
 //! holds a master role and therefore bypasses every role rule — so to them a
 //! restricted operation and an open one look identical. These tests build their
 //! own non-master caller, and they set up the rules themselves rather than
-//! reading the ones the model happened to declare: a model with no `%%rbac`
+//! reading the ones the model happened to declare: a model with no access rules
 //! would otherwise leave the whole enforcement path untested, and that is the
 //! model most projects start from.
 //!
@@ -27,7 +27,7 @@ use crate::support::{self, bearer, entities::ENTITIES, factory::create_with_pare
 /// The role the probe account holds. Spelled with a space here and matched
 /// against `sales_manager`-style directive spellings by the guard's own
 /// normalisation, which is the thing worth testing: `sys_role.name` is
-/// title-cased for display and a `%%rbac` directive writes the model's spelling.
+/// title-cased for display and an access rule writes the model's spelling.
 const PROBE_ROLE: &str = "Rbac Probe Role";
 
 /// A role nobody holds, used to close an operation.
@@ -37,7 +37,7 @@ const OTHER_ROLE: &str = "rbac_other_role";
 /// `sys_access` grant on `table_name`'s window.
 ///
 /// The grant matters: without it the dictionary's own gate refuses the request
-/// before any `%%rbac` rule is consulted, and a test built on that would pass
+/// before any access rule is consulted, and a test built on that would pass
 /// with the rules doing nothing at all.
 async fn granted_probe(
     request: &TestServer,
@@ -217,7 +217,7 @@ async fn an_operation_rule_admits_only_the_roles_it_names() {
 
         // 1. No rules at all: the pair is unrestricted, and the dictionary's
         //    grant is the only thing that had to pass. This is what keeps
-        //    `%%rbac` additive — a model declaring none behaves as it always did.
+        //    the access rules additive — a model declaring none behaves as it always did.
         let unrestricted = read(token.clone()).await;
 
         // 2. A rule naming a role the probe does not hold closes the operation.
@@ -243,7 +243,7 @@ async fn an_operation_rule_admits_only_the_roles_it_names() {
 
         assert_eq!(
             unrestricted, 200,
-            "a table with no rule rows refused a granted caller — `%%rbac` is denying by default"
+            "a table with no rule rows refused a granted caller — the access rules are denying by default"
         );
         assert_eq!(
             closed, 403,
@@ -594,7 +594,7 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
 /// or held back from the dashboard and served by the API.
 ///
 /// Line items are the one deliberate difference and are excluded here. A child
-/// declared with `%%entity <Child> parent: <Parent>` has no window of its own
+/// declared with `parent: <Parent>` has no window of its own
 /// and is reached by opening a parent record, so it is not a place to navigate
 /// to — but its rows are readable, and `/api/bus/*` serves them.
 #[tokio::test]

@@ -4,9 +4,9 @@
  *
  * The automations screen writes each automation as its own YAML document and
  * reads it back when the screen opens. What is checked here is that the two
- * agree: an automation saved and reopened is the automation that was saved,
- * rows saved before automations were YAML still open, and a document that is
- * not an automation is refused by name rather than opened as an empty one.
+ * agree: an automation saved and reopened is the automation that was saved, a
+ * document migration m0017 converted opens like any other, and a document that
+ * is not an automation is refused by name rather than opened as an empty one.
  *
  * The entity is this application's own, from the model it was generated from.
  */
@@ -20,7 +20,6 @@ import {
   newHook,
   newLoop,
   newStep,
-  serializeAutomation,
 } from '../src/lib/automation/model';
 import {
   AUTOMATION_DOCUMENT_VERSION,
@@ -92,25 +91,36 @@ describe('automation YAML storage', () => {
     expect(reopened.sagaOperation).toBe('UPDATE');
   });
 
-  it('opens a row saved as mermaid before automations were YAML', () => {
+  it('opens a stored row under the name the row carries', () => {
     const saved = fullAutomation();
-    const row = { id: 'stored', name: saved.name, entity_name: ENTITY, mermaid_code: serializeAutomation(saved) };
-    const reopened = readStoredAutomation(row, ENTITY);
-    expect(reopened.name).toBe(saved.name);
-    expect(reopened.trigger).toEqual(saved.trigger);
+    const row = { id: 'stored', name: 'Renamed in the list', definition_yaml: automationToYaml(saved) };
+    const reopened = readStoredAutomation(row);
+    expect(reopened.name).toBe('Renamed in the list');
     expect(reopened.steps.map((s) => s.type)).toEqual(saved.steps.map((s) => s.type));
   });
 
-  it('prefers the YAML document when a row carries both', () => {
-    const current = fullAutomation();
-    const stale = { ...emptyAutomation(ENTITY), name: current.name };
-    const row = {
-      id: 'stored',
-      name: current.name,
-      definition_yaml: automationToYaml(current),
-      mermaid_code: serializeAutomation(stale),
-    };
-    expect(readStoredAutomation(row, ENTITY).steps).toHaveLength(current.steps.length);
+  it('refuses a stored row that carries no document', () => {
+    expect(() => readStoredAutomation({ id: 'stored', name: 'Empty', definition_yaml: null })).toThrow(
+      AutomationDocumentError
+    );
+  });
+
+  it('opens a document written as JSON, as migration m0017 writes the rows it converts', () => {
+    const converted = JSON.stringify({
+      automation: AUTOMATION_DOCUMENT_VERSION,
+      name: 'Converted',
+      kind: 'automation',
+      trigger: { entity: ENTITY, event: 'created' },
+      conditions: [{ id: 'cond_1', field: FIELD, operator: 'isNotEmpty', value: '' }],
+      loops: [],
+      steps: [{ id: 'step_1', type: 'UpdateEntity', resultName: '', props: { field: FIELD, value: 'x' } }],
+      hooks: [],
+      status: 'draft',
+    });
+    const reopened = automationFromYaml(converted);
+    expect(reopened.trigger).toEqual({ entity: ENTITY, event: 'created' });
+    expect(reopened.conditions[0]?.operator).toBe('isNotEmpty');
+    expect(reopened.steps[0]?.props).toEqual({ field: FIELD, value: 'x' });
   });
 
   it.each([

@@ -48,6 +48,20 @@ const MERMAID: Array<{ what: string; pattern: RegExp }> = [
   { what: "the word mermaid", pattern: /mermaid/i },
 ];
 
+/**
+ * The only files allowed to name Mermaid: the migrations that carry the
+ * schema's history. m0013 created `sys_workflow_definitions.mermaid_code`, and
+ * databases that applied it hold automations in that column; m0017 converts
+ * each one to a YAML document and drops the column. Editing m0013 would reach
+ * nobody who already migrated, and m0017 cannot convert a column it may not
+ * name — so the history is exempt, and every other file is held to none.
+ */
+const SCHEMA_HISTORY = [
+  /^backend\/migration\/sql\/m0013_workflow_definition_source\.(up|down)\.sql$/,
+  /^backend\/migration\/sql\/m0017_workflow_definition_yaml\.(up|down|finish)\.sql$/,
+  /^backend\/migration\/src\/m0017_workflow_definition_yaml\.rs$/,
+];
+
 async function files(root: string, directory = root): Promise<string[]> {
   const found: string[] = [];
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
@@ -114,6 +128,7 @@ describe("a YAML model as the generation source", () => {
         fs.readFile(path.join(second, file), "utf-8"),
       ]);
       if (withoutTimestamps(left) !== withoutTimestamps(right)) differing.push(file);
+      if (SCHEMA_HISTORY.some((allowed) => allowed.test(file))) continue;
       for (const { what, pattern } of MERMAID) {
         const match = left.match(pattern);
         if (match) mermaid.push(`${file}: ${what} (${JSON.stringify(match[0].trim())})`);

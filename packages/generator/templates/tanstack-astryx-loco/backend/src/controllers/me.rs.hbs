@@ -143,7 +143,7 @@ pub async fn permissions(
 /// one `services/authz.rs` already documents: hiding a window used to hide only
 /// the menu entry. The menu and the API now answer from the same rows.
 ///
-/// **Line items are not places to navigate to.** `%%entity <Child> parent:
+/// **Line items are not places to navigate to.** An entity with `parent:
 /// <Parent>` gives the child no window of its own and puts its tab inside the
 /// parent's at `tab_level` 1, so it is reached by opening a parent record. The
 /// `NOT EXISTS` below reads that off `sys_tab` rather than re-deriving it, so

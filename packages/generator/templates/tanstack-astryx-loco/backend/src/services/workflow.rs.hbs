@@ -300,7 +300,7 @@ fn attribute(element: &quick_xml::events::BytesStart<'_>, key: &str) -> Option<S
 /// Wrap a bare decision table in the input → table → output graph the engine
 /// evaluates.
 ///
-/// A `%%step ... decisionTable: {...}` carries the table itself — hit policy,
+/// A Decision step's `decisionTable` carries the table itself — hit policy,
 /// inputs, outputs, rules — because that is the interesting part and making
 /// every author write the three-node plumbing around it is noise. A document
 /// that already *is* a full graph (it has `nodes`) is passed through, so a
@@ -394,7 +394,7 @@ impl WorkflowExecutor {
     /// Two ways to name the table, and the choice is not stylistic:
     ///
     /// * `rule: <name>` reads a rule already in `sys_rule_definitions` — the
-    ///   one the model declared with `%%rule`. Use it when the same table
+    ///   one the model declared in `rules`. Use it when the same table
     ///   already governs the entity, so the process does not fork a second copy
     ///   that then drifts from it.
     /// * `decisionTable: <json>` carries the table inline, for logic only this

@@ -72,7 +72,7 @@ pub async fn list(
         authz::Operation::Read,
     )
     .await?;
-    // The model's `%%hook` directives. `beforeQuery` may rewrite the query
+    // The model's `hooks`. `beforeQuery` may rewrite the query
     // parameters — tenant scoping is the motivating case — so it runs before
     // they are read into `opts` and `filters`; `beforeList` only observes them.
     hooks::before_query(&meta.table_name, &mut params).await?;
@@ -181,7 +181,7 @@ pub async fn create(
     .await?;
     let mut body = as_object(payload)?;
 
-    // The model's `%%hook` directives. Validation sees exactly what the caller
+    // The model's `hooks`. Validation sees exactly what the caller
     // sent and `beforeCreate` may then rewrite it: validating after the
     // transform would be validating something nobody submitted.
     hooks::custom_validate(&meta.table_name, &body).await?;
@@ -264,7 +264,7 @@ pub async fn update(
     // A status column is not an ordinary column. Before the write, check that
     // the move the body asks for is one the model's state machine draws, and
     // that this caller may make it. Both are no-ops for a table with no
-    // machine, which is every table until a `%%workflow ... kind: state`
+    // machine, which is every table until a state machine
     // section names one.
     authz::require_transition(
         ctx.db.get_postgres_connection_pool(),

@@ -32,7 +32,7 @@ export interface FieldMeta {
   isForeignKey: boolean;
   maxLength?: number;
   /**
-   * The `%%enum` this column is bound to, when `%%field … enum:` binds one.
+   * The enum this column is bound to, when its `enum` key binds one.
    *
    * Matches a `ModelEnum.referenceId` in `model.ts`, which is where the values
    * themselves live — one copy, so the vocabulary a payload is built from and
@@ -51,7 +51,7 @@ export interface EntityMeta {
   displayName: string;
   primaryKey: string;
   /**
-   * The entity this one is a line item of, when `%%entity … parent:` says so.
+   * The entity this one is a line item of, when its `parent` says so.
    *
    * Carried from the model rather than read back from the dictionary the same
    * generator wrote — a suite that asks the application what it did and then

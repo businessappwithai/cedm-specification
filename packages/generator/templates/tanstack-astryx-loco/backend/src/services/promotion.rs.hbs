@@ -81,7 +81,7 @@ pub const STATUS_REJECTED: &str = "rejected";
 ///
 /// Two action names mean "do not accept this record", and they come from
 /// different places: `prevent` is what the rules *editor* writes, and
-/// `validation-error` is what a model's `%%action` compiles to. The language
+/// `validation-error` is what a model's rule action compiles to. The language
 /// definition is explicit that the second one rejects the write and returns
 /// its message to the caller, but only the first was ever checked here — so a
 /// modelled validation was compiled into `seed/rules.sql`, matched at run time,
@@ -278,7 +278,7 @@ impl PromotionService {
     /// Run the workflow a rule names, and record what it did.
     ///
     /// This used to insert a `sys_workflow_runs` row marked `completed` and
-    /// stop. The trace was real and the work was not: a `%%rule` whose action
+    /// stop. The trace was real and the work was not: a rule whose action
     /// is `trigger-workflow` produced a run log saying a chain of
     /// `CreateEntity`/`UpdateEntity`/`Formula` steps had succeeded while none
     /// of them had executed. That is worse than doing nothing, because the
@@ -397,7 +397,7 @@ impl PromotionService {
     /// than inventing one.
     /// Rewrite columns on the row that fired the rule.
     ///
-    /// `%%action <name> transform field: <column> value: <value>` is one of the
+    /// A `transform` action with `field` and `value` is one of the
     /// three action types EML ships, and it was the one with nowhere to land:
     /// the compiler emitted no payload column for it and `run_action` had no
     /// arm, so a declared transform was logged as an unknown action and the
@@ -530,7 +530,7 @@ mod tests {
         assert_eq!(json["message"], "Credit limit exceeded");
     }
 
-    /// `%%action <name> transform field: <column> value: <value>` compiles to a
+    /// A `transform` action with `field` and `value` compiles to a
     /// `transformData` object, and this is what the runtime does with it.
     ///
     /// Before this the compiler emitted no payload column and `run_action` had
@@ -582,7 +582,7 @@ mod tests {
     }
 
     /// Both authoring routes have to reach the same verdict. `prevent` is the
-    /// editor's word for it; `validation-error` is what a model's `%%action`
+    /// editor's word for it; `validation-error` is what a model's rule action
     /// compiles to, and the language definition says it rejects the write.
     /// Recognising only the first let a modelled validation match and be
     /// discarded, with the record written and reported `final`.

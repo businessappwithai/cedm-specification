@@ -3,8 +3,8 @@
  *
  * `entities.ts` describes the *shape* the suites have to build payloads for.
  * This file is the other half: the values a column is allowed to hold and the
- * states a record is allowed to move between, taken straight from the `%%enum`
- * and `%%workflow … kind: state` directives in the source model.
+ * states a record is allowed to move between, taken straight from the enums
+ * and state machines of the source model.
  *
  * The distinction matters. A suite that reads the running application's
  * dictionary and then asserts against that same dictionary proves only that
@@ -18,7 +18,7 @@
  */
 
 export interface ModelEnum {
-  /** Name as the `%%enum` directive spells it. */
+  /** Name as the model spells it. */
   name: string;
   /** sys_reference_id the generator allocated — 1000 and up. */
   referenceId: number;

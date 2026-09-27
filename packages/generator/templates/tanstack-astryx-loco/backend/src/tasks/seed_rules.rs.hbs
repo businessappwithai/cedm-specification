@@ -1,6 +1,6 @@
-//! `cargo loco task seed_rules` — install the model's `%%rule` decision graphs.
+//! `cargo loco task seed_rules` — install the model's rules as decision graphs.
 //!
-//! A `%%rule` section is a decision flowchart. The generator compiles it to a
+//! A rule is a decision graph, actions or a decision table. The generator compiles it to a
 //! GoRules JDM document and writes it to `seed/rules.sql`; this applies it to
 //! `sys_rule_definitions`, which is the table `bus::load_entity_jdms` reads on
 //! every business write.
@@ -14,7 +14,7 @@
 //! setting `appwithai.rules_overwrite` is `'on'`, which this task does not set.
 //! Re-running is therefore safe against a database an administrator has been
 //! editing. `POST /api/rules/migrate` sets it and applies the same file, which
-//! is how a changed flowchart reaches a database that already has the old one.
+//! is how a changed rule reaches a database that already has the old one.
 
 use loco_rs::prelude::*;
 use loco_rs::task::Vars;
@@ -34,7 +34,7 @@ impl Task for SeedRules {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "seed_rules".to_string(),
-            detail: "Install the business rules declared by %%rule".to_string(),
+            detail: "Install the business rules the model declares".to_string(),
         }
     }
 
