@@ -84,6 +84,11 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Supplier return line authorizing this inventory movement when stock is being returned to a supplier., businessMeaning: Identifies the exact reverse-procurement quantity and source receipt evidence that justifies the stock reduction., usage: Supports supplier-return execution, duplicate prevention, audit and reconciliation., cardinalityMeaning: At most one SupplierReturnLine is the direct business source of a movement., workflowRole: Requires return-to-supplier movement to remain attributable to approved return quantity and prevents unexplained stock reductions.}
+  - name: shipmentLine
+    target: ShipmentLine
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Shipment line associated with this inventory event when logistics execution applies., businessMeaning: Preserves line-level transport-to-stock provenance., usage: Dispatch, transfer, receipt reconciliation, claims, and audit., cardinalityMeaning: Optional for inventory events unrelated to shipment execution., workflowRole: Product, quantity, UOM and direction must reconcile with shipment execution and source transaction.}
   invariants:
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.}
