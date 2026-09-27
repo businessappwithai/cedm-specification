@@ -4,6 +4,17 @@
 for describing an application's data model, business rules, and business
 workflows as one artifact.
 
+## Two syntaxes, one model
+
+A model is written as **YAML** (`*.eml.yaml`) — the source of truth, read by
+every generator — and drawn as **EML**, the Mermaid form this specification
+describes. Both are read into the same model records and compiled by one
+compiler, so a construct means the same thing whichever syntax states it;
+[`../yaml/README.md`](../yaml/README.md) lists each construct's YAML key beside
+its EML form, and the repository's tests hold every example to compiling
+identically from both. Where this specification says "an EML document", read
+"a model, as its Mermaid view shows it".
+
 ## Design goals
 
 1. **One language, three concerns.** Structure (ERD), decision logic (rules),

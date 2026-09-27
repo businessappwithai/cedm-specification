@@ -1148,6 +1148,21 @@ bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-
   from `ParsedModel`; `generateApplication` takes a YAML `document` or EML
   `sources`. A generated project ships `model/model.eml.yaml` and
   `model/model.eml.mmd`.
+- **Every tool reads YAML.** The `eml` CLI (`language/cli/src/yaml-input.ts`)
+  validates a `.eml.yaml` with the four layers and hands its commands the view;
+  `eml-cli-equivalence.test.ts` holds it to reading every corpus model's YAML
+  exactly as the EML. `html/model-yaml.js` is the language in a browser
+  (`bun run build:language-tools`; `bun run check:language-bundle` compares it
+  with the CLI in headless Chromium). `bun run wasm` runs the Rust generator
+  built for `wasm32-wasip1` (`bun run build:wasm`), hosted on Node's WASI
+  because Bun's traps; parity holds it byte-identical to the native build.
+- **Nothing EML states is dropped.** `triggers`, the `%%entity`
+  `label`/`prefix`/`softDelete`/`audited` keys, the `%%field`
+  `ui`/`default`/`min`/`max`/`format` keys, every column of a hook's
+  `[field: a, field: b]` (`fields`) and attribute comments are all carried,
+  though the application generators compile only some of them. Adding an EML
+  construct means adding its YAML key the same day, or the equivalence tests
+  fail.
 - **A saga's trigger and operation are read from its `%%workflow` line**, the
   documented form, with `%%meta trigger:` / `%%meta operation:` as the
   fallback older models use; defaults are `automatic` / `CREATE`, and
@@ -1174,8 +1189,15 @@ carries the standing skip list of sibling areas that never apply here (the NestJ
 templates, `html/`, the published viewers, the reporting pack). Append to it when
 a round's pull request merges.
 
-**`language/` and `website/llmtext/` are byte-identical to
-`app-with-ai-tanstack@main` and must stay that way.** They are the shared
+**In this repository `language/` and `website/llmtext/` are no longer held
+byte-identical to the sibling:** the YAML model language (`language/yaml/`), the
+`eml` CLI's YAML input, the browser bundle entry `language/browser/model-yaml.entry.ts`
+and the YAML-first documentation are this repository's own. Carrying a sibling
+change into them is now a merge, not a copy. What follows describes the
+arrangement as it stood when they were a shared contract.
+
+**`language/` and `website/llmtext/` were byte-identical to
+`app-with-ai-tanstack@main`.** They are the shared
 contract between the two repos, so nothing in them is edited here — `diff -rq`
 against the sibling is the check, and it compares *paths* as well as bytes:
 `llmtext/` sat at the root until the sibling moved it under `website/`, and the

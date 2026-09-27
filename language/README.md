@@ -1,9 +1,32 @@
 # APPWITHAI Modeling Language (EML)
 
-**EML** is a single, standalone, Mermaid-based language for describing an
-application's **Entity Relationship Diagram (ERD)**, its **business rules**, and
-its **business workflows** — all in one artifact that the APPWITHAI generator
-reads to produce full-stack applications.
+A model describes an application's **Entity Relationship Diagram (ERD)**, its
+**business rules** and its **business workflows** in one artifact, and the
+APPWITHAI generators read it to produce full-stack applications.
+
+**In this repository a model is written in YAML (`*.eml.yaml`), and that YAML is
+the source of truth.** Every generator — the TypeScript CLI, the Rust
+generator and its WebAssembly build, the modelling tool's `/api/generate`, and
+the `eml` CLI — reads the YAML. Mermaid is how a model is *drawn*: its view is
+rendered from the YAML, and a drawing edited in Mermaid is converted back to
+YAML when it is saved. The YAML language is specified in
+[`yaml/README.md`](yaml/README.md) and defined by its JSON Schema,
+[`yaml/eml.schema.json`](yaml/eml.schema.json); every construct described in
+this folder in its Mermaid form has a YAML key, listed there beside it.
+
+| | YAML — the source | Mermaid — the view |
+|---|---|---|
+| File | `model.eml.yaml` | `model.eml.mmd` |
+| Written by | the author, or the modelling tool on save | rendered from the YAML (`appwithai view`) |
+| Validated by | YAML → JSON Schema → the checker → view fidelity, at YAML lines | the checker |
+| Read by generators | yes | only to convert (`appwithai convert`) |
+| Examples | [`yaml/examples/`](yaml/examples/) | [`examples/`](examples/) |
+| In a browser | `html/model-yaml.js` | `html/checker.js`, `html/fixer.js` |
+
+The rest of this document describes **EML**, the Mermaid form: the diagram
+syntax the view uses and the directives that carry meaning inside it.
+**EML** is a single, standalone, Mermaid-based language for the same three
+concerns, and every EML document is also a way to write the same model.
 
 Every EML document is **valid, renderable Mermaid**. EML is a *semantic superset*:
 it assigns generator meaning to standard Mermaid diagrams (`erDiagram`,
@@ -52,6 +75,11 @@ isHookType("beforeCreate");   // true
 ```
 language/
 ├── README.md                     # This entry point
+├── yaml/                         # ⭐ The YAML model language — the source of truth
+│   ├── README.md                 #   reference: every key, its EML form, validation, tools
+│   ├── eml.schema.json           #   the JSON Schema that defines it
+│   └── examples/                 #   the corpus models, as YAML
+├── browser/                      # Browser entries: checker, fixer, model-yaml
 ├── appwithai-language.json       # ⭐ Canonical, machine-readable definition (the language)
 ├── index.ts                      # Typed loader/accessor for the generator app
 ├── composer.ts                   # Writes a complete EML document (composeEml, mergeSections)
@@ -67,7 +95,7 @@ language/
 │   ├── 03-workflows.md           # Workflow (hooks + state) reference
 │   ├── 04-types-and-modifiers.md # Type vocabulary, modifiers, cardinalities
 │   └── 05-directives.md          # Reserved %% directive reference
-├── cli/                          # The `eml` CLI — parse, validate, generate apps
+├── cli/                          # The `eml` CLI — reads .eml.yaml or .mmd; validate, info, generate
 │   ├── README.md
 │   ├── eml.ts                    # Executable entrypoint (run with Bun)
 │   ├── src/                      # parser, validator, model, generators

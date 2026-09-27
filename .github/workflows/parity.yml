@@ -55,3 +55,13 @@ jobs:
       # The gate. Every corpus model, both generators, byte-for-byte.
       - name: Backend parity
         run: bun run parity
+
+      # The browser bundles are checked in; they must be built from this source,
+      # and the YAML one must read every model exactly as the CLI does.
+      - name: Language bundles are current
+        run: bun run build:language-tools --check
+
+      - name: YAML language bundle in a real browser
+        run: |
+          bunx playwright install --with-deps chromium
+          bun run check:language-bundle

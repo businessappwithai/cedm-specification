@@ -47,9 +47,7 @@ function corpus(): string[] {
 /** Order-free, position-free form of what the CLI's parser saw. */
 function normalise(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value
-      .map(normalise)
-      .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    return value.map(normalise).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
   }
   if (value && typeof value === "object") {
     return Object.fromEntries(
@@ -63,10 +61,11 @@ function normalise(value: unknown): unknown {
 
 function cliModel(source: string) {
   const model = parseEml(source);
-  const { trigger: _trigger, operation: _operation, ...meta } = model.meta as Record<
-    string,
-    unknown
-  >;
+  const {
+    trigger: _trigger,
+    operation: _operation,
+    ...meta
+  } = model.meta as Record<string, unknown>;
   return normalise({ ...model, meta });
 }
 

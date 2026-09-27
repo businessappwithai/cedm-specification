@@ -15,7 +15,7 @@ var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 // node-stub:node:fs
 var missing = () => {
   throw new Error("no filesystem in the browser");
-}, existsSync = () => false, readFileSync;
+}, readFileSync;
 var init_node_fs = __esm(() => {
   readFileSync = missing;
 });
@@ -31,47 +31,15 @@ var fileURLToPath = (url) => String(url).replace(/^file:\/\//, "");
 var init_node_url = () => {};
 
 // language/index.ts
-function languageDefinitionPath() {
-  if (resolvedPath !== null)
-    return resolvedPath;
-  resolvedPath = resolveLanguageDefinitionPath();
-  return resolvedPath;
-}
-function resolveLanguageDefinitionPath() {
-  const envPath = process.env.APPWITHAI_LANGUAGE_FILE ?? process.env.ERDWITHAI_LANGUAGE_FILE;
-  if (envPath && existsSync(envPath))
-    return envPath;
-  const starts = [];
-  try {
-    starts.push(node_path_default.dirname(fileURLToPath(import.meta.url)));
-  } catch {}
-  starts.push(process.cwd());
-  for (const start of starts) {
-    const sibling = node_path_default.join(start, "appwithai-language.json");
-    if (existsSync(sibling))
-      return sibling;
-    let dir = start;
-    for (let i = 0;i < 12; i++) {
-      const candidate = node_path_default.join(dir, "language", "appwithai-language.json");
-      if (existsSync(candidate))
-        return candidate;
-      const parent = node_path_default.dirname(dir);
-      if (parent === dir)
-        break;
-      dir = parent;
-    }
-  }
-  return node_path_default.join(starts[0] ?? process.cwd(), "appwithai-language.json");
+function setLanguageDefinition(definition) {
+  cached = definition;
 }
 function loadLanguageDefinition(force = false) {
   if (cached && !force)
     return cached;
-  const raw = readFileSync(languageDefinitionPath(), "utf-8");
+  const raw = readFileSync(LANGUAGE_DEFINITION_PATH, "utf-8");
   cached = JSON.parse(raw);
   return cached;
-}
-function setLanguageDefinition(definition) {
-  cached = definition;
 }
 function normalizeType(rawType) {
   const def = loadLanguageDefinition();
@@ -90,66 +58,17 @@ function isHookType(value) {
   return hookTypes().includes(value);
 }
 function stepNodeTypes() {
-  return Object.keys(loadLanguageDefinition().workflowConstructs.stepNodes.types);
+  return loadLanguageDefinition().workflowConstructs.stepNodes.types;
 }
-function isStepNodeType(value) {
-  return Object.hasOwn(loadLanguageDefinition().workflowConstructs.stepNodes.types, value);
-}
-function stepNodeSpec(type) {
-  return loadLanguageDefinition().workflowConstructs.stepNodes.types[type] ?? null;
-}
-function missingStepProps(type, props) {
-  const spec = stepNodeSpec(type);
-  if (!spec)
-    return [`unknown step type "${type}"`];
-  const has = (key) => (props[key] ?? "").trim().length > 0;
-  const missing2 = spec.required.filter((key) => !has(key));
-  for (const group of spec.oneOf ?? []) {
-    if (!group.some(has))
-      missing2.push(group.join(" or "));
-  }
-  return missing2;
-}
-function terminalStepKeys() {
-  const declared = loadLanguageDefinition().workflowConstructs.stepNodes.terminalKeys?.keys;
-  return declared?.length ? [...declared] : ["fields", "data", "body", "prompt"];
-}
-function parseStepProperties(rest) {
-  const terminal = new Set(terminalStepKeys());
-  const properties = {};
-  let remainder = rest.trim();
-  while (remainder.length > 0) {
-    const match = /^([A-Za-z][\w-]*)\s*:\s*/.exec(remainder);
-    if (!match)
-      break;
-    const key = match[1];
-    const afterKey = remainder.slice(match[0].length);
-    if (terminal.has(key)) {
-      properties[key] = afterKey.trim();
-      break;
-    }
-    const next = /\s+[A-Za-z][\w-]*\s*:/.exec(afterKey);
-    properties[key] = (next ? afterKey.slice(0, next.index) : afterKey).trim();
-    remainder = next ? afterKey.slice(next.index).trim() : "";
-  }
-  return properties;
-}
-function parseStepLine(line) {
-  const match = STEP_LINE.exec(line.trim());
-  if (!match)
-    return null;
-  return {
-    nodeId: match[1],
-    nodeType: match[2],
-    properties: parseStepProperties(match[3] ?? "")
-  };
-}
-var resolvedPath = null, cached = null, STEP_LINE;
+var LANGUAGE_DEFINITION_PATH, cached = null;
 var init_language = __esm(() => {
   init_node_fs();
   init_node_path();
   init_node_url();
-  STEP_LINE = /^%%step\s+(\S+)\s+(\S+)\s*(.*)$/;
+  LANGUAGE_DEFINITION_PATH = (() => {
+    const here = node_path_default.dirname(fileURLToPath(import.meta.url));
+    return node_path_default.join(here, "appwithai-language.json");
+  })();
 });
 // language/appwithai-language.json
 var appwithai_language_default = {
@@ -157,19 +76,13 @@ var appwithai_language_default = {
   $id: "https://appwithai.dev/language/appwithai-language.json",
   language: {
     id: "appwithai-eml",
-    name: "AppWithAI Modeling Language",
+    name: "APPWITHAI Modeling Language",
     abbreviation: "EML",
-    version: "1.0.0",
+    version: "1.2.0",
     basedOn: "mermaid",
     mermaidCompatibility: "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
-    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the AppWithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
-    fileExtensions: [
-      ".eml.mmd",
-      ".erd.mmd",
-      ".flow.mmd",
-      ".rules.mmd",
-      ".mmd"
-    ],
+    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the APPWITHAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
+    fileExtensions: [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
     encoding: "utf-8",
     caseSensitivity: {
       entityNames: "significant (PascalCase recommended)",
@@ -351,16 +264,7 @@ var appwithai_language_default = {
   },
   types: {
     description: "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
-    canonical: [
-      "string",
-      "text",
-      "integer",
-      "decimal",
-      "boolean",
-      "date",
-      "datetime",
-      "json"
-    ],
+    canonical: ["string", "text", "integer", "decimal", "boolean", "date", "datetime", "json"],
     map: {
       string: "string",
       varchar: "string",
@@ -420,33 +324,23 @@ var appwithai_language_default = {
       },
       FK: {
         meaning: "Foreign key",
-        effects: [
-          "marks the column as a reference; relationship inference / navigation"
-        ]
+        effects: ["marks the column as a reference; relationship inference / navigation"]
       },
       UK: {
         meaning: "Unique key",
-        effects: [
-          "unique = true"
-        ]
+        effects: ["unique = true"]
       },
       UNIQUE: {
         meaning: "Alias of UK",
-        effects: [
-          "unique = true"
-        ]
+        effects: ["unique = true"]
       },
       OPTIONAL: {
         meaning: "Nullable / not required",
-        effects: [
-          "required = false"
-        ]
+        effects: ["required = false"]
       },
       NULL: {
         meaning: "Alias of OPTIONAL",
-        effects: [
-          "required = false"
-        ]
+        effects: ["required = false"]
       }
     },
     defaults: {
@@ -458,21 +352,16 @@ var appwithai_language_default = {
     description: "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone — there is no explicit target syntax on the attribute — so the name has to carry the reference.",
     suffix: "_id",
     resolution: [
-      "1. A person-role name (see personRoleColumns) resolves to the user entity.",
-      "2. A leading qualifier prefix (see qualifierPrefixes) is stripped, because it names the role the reference plays rather than a different entity.",
-      "3. Otherwise <entity>_id resolves to bus_<entity>.",
-      "4. A column that resolves to nothing is stored as a plain string: no lookup, no display name, the raw id renders in grids and forms."
+      "1. A person-role name (see personRoleColumns) resolves to the model's person entity (User if it exists, then Staff, then Employee).",
+      "2. Otherwise <entity>_id resolves to bus_<entity>.",
+      "3. A column that resolves to nothing is stored as a plain string: no lookup, no display name, the raw id renders in grids and forms."
     ],
     personRoleColumns: {
-      description: "Columns naming a person by the role they played rather than by entity. All resolve to the model's user entity (bus_user).",
-      suffixes: [
-        "_by",
-        "_by_id"
-      ],
+      description: "Columns naming a person by the role they played rather than by entity. All resolve to the model's person entity (User > Staff > Employee, whichever exists first).",
+      suffixes: ["_by", "_by_id"],
       names: [
         "assigned_to",
         "author_id",
-        "created_by_user",
         "lab_manager_id",
         "manager_id",
         "owner_id",
@@ -482,25 +371,198 @@ var appwithai_language_default = {
         "user_id"
       ],
       examples: [
-        "reported_by_id -> bus_user",
-        "registered_by_id -> bus_user",
-        "pi_id -> bus_user (a principal investigator is a user, not a bus_pi table)"
+        "reported_by_id -> bus_user (or bus_staff when the model has no User entity)",
+        "registered_by_id -> bus_user (or bus_staff / bus_employee)",
+        "pi_id -> bus_user (a principal investigator is a person, not a bus_pi table)"
       ]
     },
-    qualifierPrefixes: {
-      description: "Prefixes that qualify the role a reference plays without changing the entity it points at. Stripped before rule 3. Without this, a hierarchical self-reference derives a table that does not exist: parent_sample_id would resolve to bus_parent_sample, the picker would have nothing to show, and the field would fall back to rendering a raw id.",
-      prefixes: [
-        "parent_"
+    checkerCodes: {
+      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to the person entity.",
+      EML119: "A column named like a reference (_id/_by, resolving to a declared entity) that carries no FK modifier. Both conditions are required for TABLE_DIRECT, and a column that fails either is recorded as a plain String."
+    }
+  },
+  applicationDictionary: {
+    description: "The generated application is metadata-driven: it does not hard-code forms. Every table, column, tab, field and lookup is a row in the Application Dictionary (sys_table, sys_column, sys_field, sys_tab, sys_window, sys_category, sys_reference, sys_ref_list), and the running interface reads those rows, which is why a field can be added to a live application without a deployment. Nothing in EML writes dictionary rows: they are derived, one way, from the ERD. There is no %%dictionary directive, and a model that wants a lookup or a dropdown gets one by declaring the column so that the derivation produces it.",
+    derivedBy: "packages/core/src/types/bus-entity.types.ts (attributeReferenceId, isForeignKeyColumnName, attributeToBusAttribute)",
+    consumedBy: [
+      "packages/generator/src/generators/wasm/model-bundle.ts (referenceIdFor)",
+      "packages/generator/src/generators/dictionary (sys_table, sys_column, sys_field seeds)",
+      "packages/web (the runtime that renders a control per sys_reference_id)"
+    ],
+    referenceTypes: {
+      description: "sys_reference_id decides the control the user gets. Ids below 1000 are the standard references below; a %%enum creates its own List reference at 1000 or above, with one sys_ref_list row per value.",
+      standard: {
+        "10": "String - plain text box",
+        "11": "Integer",
+        "12": "Amount - decimal, right aligned",
+        "13": "ID - the record key, read-only",
+        "14": "Text - memo box",
+        "15": "Date",
+        "16": "DateTime",
+        "17": "List - dropdown fed by sys_ref_list",
+        "18": "Table - lookup with an explicit validation rule",
+        "19": "Table Direct - lookup on the table the column name resolves to",
+        "20": "Yes-No - switch",
+        "21": "Location",
+        "22": "Locator",
+        "23": "Account",
+        "24": "URL",
+        "25": "Image",
+        "26": "File",
+        "27": "Color",
+        "28": "JSON",
+        "29": "Password - masked",
+        "30": "Email",
+        "31": "Phone"
+      }
+    },
+    derivation: [
+      "1. The entity's primary key, or a column named `id`, gets ID (13).",
+      "2. A column that is BOTH marked FK and named _id/_by (see foreignKeys.resolution) gets TABLE_DIRECT (19) - the lookup on the parent table.",
+      "3. A column bound by `%%field <Entity>.<column> enum: <Enum>` gets that enum's List reference (>= 1000).",
+      "4. Otherwise the semantic aliases decide: email/phone/url/password/color map to their own references (30, 31, 24, 29, 27).",
+      "5. Otherwise the canonical type decides: text -> Text, boolean -> Yes-No, decimal/money -> Amount, date -> Date, datetime -> DateTime, json -> JSON, integer -> Integer, everything else -> String."
+    ],
+    silentDowngrades: {
+      description: "Two authoring mistakes leave a column at String (10) with a document that is otherwise correct. Both were invisible before EML119 and EML146: the model parses, the relationship line can be present, and the generated application comes back with raw ids in text boxes.",
+      unmarkedReference: "`string vendor_id` and `string vendor_id FK` parse into the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
+      unboundLifecycleColumn: "A %%enum does nothing to a column on its own. Without the %%field binding, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
+    },
+    displayValue: {
+      description: "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both stacks.",
+      derivation: [
+        "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
+        "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
+        "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
+        "4. Otherwise, if the entity declares two or more FK columns ending _id/_by, it is a join entity: its first two references are the identifiers, each resolved through the parent's own label. CampaignMember reads as `Spring Promo - Omar Kowalski`.",
+        "5. Otherwise the first declared string/text column that is neither the key nor a reference.",
+        "6. Otherwise the key, so a lookup still lists something."
       ],
-      examples: [
-        "parent_sample_id -> bus_sample (a Sample's parent is a Sample)",
-        "parent_category_id -> bus_category"
+      joinEntities: {
+        description: "An entity whose identity is the pair of records it joins - CampaignMember, OrderLine, QuoteLineItem - has no name to give it, and step 5 would pick whatever text column came first: member_status, so every campaign member read `invited`. Two or more references and no name of its own is the shape.",
+        depth: "One level only. A parent that is itself a join entity labels itself by its key rather than recursing, because a label assembled from four grandparents is not a name anybody reads.",
+        pairOnly: "The first two references in declared order, never more. An entity with three parents labels itself from the first two, which is the only say the modeller has in it - so declare the two that name the record first.",
+        separator: "Two names of one record join with a space (`Omar Kowalski`); two records join with an em dash (`Spring Promo - Omar Kowalski`). Sharing one separator turns a person into `Omar - Kowalski`.",
+        sqlNote: "A generated key is UUID and a reference to it is VARCHAR(255), because the model declares `string campaign_id FK`. Postgres coerces a text parameter to uuid but refuses to compare the two columns, so the resolving subquery casts both sides."
+      },
+      primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
+      modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first. A join entity is the exception and needs nothing: it names itself from its parents."
+    },
+    managedColumns: {
+      description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
+      names: [
+        "id",
+        "version",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_at",
+        "deleted_by"
       ],
-      note: "Stripping is unconditional, so a model that genuinely declares a ParentSample entity and a parent_sample_id column pointing at it resolves to bus_sample instead. EML119 catches the resulting dangling reference."
+      declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
+      checkerCodes: {
+        EML103: "A column the generator manages, declared in the model - the declaration is ignored."
+      }
+    },
+    alsoDerived: [
+      "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
+      "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
+      "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
+      "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+      "%%entity <Child> parent: <Parent> makes the child a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
+      "%%entity <Name> icon: becomes sys_table.icon — the entity's dashboard card, its window heading and its navigation entry all draw it. It is a lucide name, and an administrator may override it afterwards in Table and Column, including by uploading an image; the same column holds both. %%category carries an icon the same way, for its heading.",
+      "The remaining %%entity keys (label, prefix, softDelete, audited) are validated but not yet compiled."
+    ],
+    helpText: {
+      description: "The only explanation a generated application has. `%%entity <Name> help:` becomes sys_table.description and opens that entity's section of manual.html; `%%field <Entity>.<column> help:` becomes sys_column.description, the hint under the control, and the column's row in the manual. There is no second source — no hand-written tooltip, no README beside the form, no designer to ask — so a model that skips it produces an application whose manual is a table of dashes.",
+      required: "On every entity and every column, without exception, including the ones that feel self-evident. The primary key is the one thing that needs none: it is a generated uuid, read-only on every form, and the only sentence anyone could write about it restates its name.",
+      mustBeDomainKnowledge: "Help is where the *business* lands in the model, not where the schema is paraphrased. `Household id for HouseholdMember.` is the column name in a sentence and leaves the reader exactly where they started; `The family this membership is in — listed inside the household's own screen, since a membership away from its household is not something anybody looks up.` is what the field is for. The distinction is not style: help is compiled, so the difference between the two reaches every form, every dictionary row and every page of the manual.",
+      whatToSay: [
+        "An entity: what this record is for in the business, when one comes into existence, what distinguishes it from the entities it sounds like, and what it must not be confused with.",
+        "A column: why the value matters, what is expected in it, what reads it downstream, and what goes wrong when it is wrong.",
+        "A reference column: what the reference is *for* — `the ward this bed stands in`, not `the ward id`.",
+        "An enum-bound column: what each value means to the business, because the dictionary lists the values and nothing else says what choosing one does.",
+        "A lifecycle column: which moves are possible from which state, since the state machine enforces a topology the form cannot show."
+      ],
+      whenToWriteIt: "While the model is being written, and nowhere else. The moment a model is authored is the only moment anybody knows the answers, and no later pass adds them — which is why this is the most-skipped part of a model and the most expensive to skip.",
+      checkerCodes: {
+        EML151: "warning — help that restates its own subject: `Unique identifier for X`, the column name in prose (`Status for Client`), or a template sentence (`Address is a business record in the wealth-management platform`). Deliberately narrow: real help that happens to be short is not a restatement and does not fire.",
+        EML152: "warning — an entity with no `%%entity ... help:` at all.",
+        EML153: "warning — the columns of one entity with no `%%field ... help:`, reported once per entity and naming them. One diagnostic per column would bury every other finding on a model that skipped help entirely, which is the common case."
+      }
+    },
+    masterDetail: {
+      description: "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
+      directive: "%%entity <Child> parent: <Parent>",
+      effects: [
+        "The child gets no sys_window and no dashboard card: it is not somewhere the user navigates to.",
+        "The child's sys_tab is created under the parent's window at tab_level 1, sequenced after the master tab.",
+        "sys_tab.link_column_id is set to the child's own foreign key back to the parent, and that column is marked sys_column.is_parent.",
+        "Opening a parent record lists its children beneath the form, filtered to that record."
+      ],
+      linkColumn: "The child's existing foreign key to the parent - <parent_snake>_id when present, else the first FK column whose name begins with the parent's snake_case name. Never declared twice: the relationship is already in the ERD.",
+      identifyingAChild: [
+        "Would a list of these records, away from their owner, be useful to anyone? If not, it is a child.",
+        "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
+        "Would deleting the owner make the row meaningless? If so, it is a child.",
+        "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
+      ],
+      whyItMustBeDeclared: "Nothing derives it, and the default is not an error. A model that never writes the directive produces an application in which every line item carries its own dashboard card and its own screen, and no parent record shows its own lines — an invoice whose lines cannot be read from it, beside a card listing every line ever written. EML149 exists to name the candidates, because a silent default is the one thing a checker can still be useful about.",
+      leaveItOutOfCategory: "A %%category is the dashboard's grouping, and a child has no card, so naming a child in one asks for a card the dictionary will not create. Reported as EML150.",
+      detection: {
+        description: "EML149 is an info rather than an error, because whether a list of these records away from their owner is useful to anyone is a question about the business and not about the document. The checker names the candidate parent and the foreign key the tab would link on; the author answers it either way.",
+        shapes: [
+          "The entity's name begins with a declared entity's name and it carries a foreign key to that entity — InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team, FinancialPlanAssumption/FinancialPlan. The longest match wins, so a name that begins with two declared entities belongs to the longer one.",
+          "The entity's name ends in a line-item noun (Line, LineItem, Item, Detail, Entry, Row, singular or plural) and one of its foreign keys resolves to a declared entity — RecommendationItem under InvestmentRecommendation."
+        ],
+        quietOn: "An entity that merely references another. Most foreign keys are references, and neither shape fires on one."
+      }
     },
     checkerCodes: {
-      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to bus_user.",
-      EML119: "FK column resolves to a table the model does not define. Not auto-fixable: either the referenced entity is missing from the model, or the column is named after something that is not an entity."
+      EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
+      EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
+      EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
+      EML147: "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
+      EML148: "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
+      EML149: "info — an entity shaped like a line item that declares no parent:. Names the candidate parent and the column a tab would link on. Never an error: identifyingAChild's three questions are about the business, not the document.",
+      EML150: "warning — an entity declared parent: is also named in a %%category. The category asks for a dashboard card the directive has taken away.",
+      EML151: "warning — entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
+      EML152: "warning — an entity with no help text at all.",
+      EML153: "warning — columns with no help text, reported once per entity.",
+      EML154: "warning — a %%category with no `name:` key. category.parser.ts requires one and skips the line without it, so the whole grouping is silently lost and its entities fall into the default General category.",
+      EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
+    },
+    reportDesigns: {
+      description: "Generated applications include a document report subsystem backed by the AnkaReport library. One default AnkaReport layout is seeded per entity into sys_report_designs at generation time. Administrators can customise any layout at Admin → Report Designs. Users get a Print button on a record's detail view (visible only when a design exists for that table), and can export the rendered report to PDF.",
+      table: "sys_report_designs",
+      columns: {
+        id: "UUID primary key",
+        table_name: "Entity table name; UNIQUE — one design per table",
+        name: 'Human-readable design name (e.g. "Contact Default Report")',
+        layout: "JSONB AnkaReport ILayout object — headerSection, contentSection, footerSection"
+      },
+      defaultLayout: {
+        description: "Generated by packages/generator/templates/common/seeds/report-designs.ts.hbs. Fields in the layout are every non-audit, non-PK column: not id, created_at, updated_at, deleted_at, version.",
+        structure: {
+          headerSection: 'height 56; entity displayName + " Report" in 20pt bold #0f4c75',
+          contentSection: 'binding: "records"; one label+value row per field, 24pt high with 4px gap',
+          footerSection: 'height 28; "Generated by APPWITHAI" in 9pt #9ca3af centered'
+        }
+      },
+      adminRoutes: [
+        "GET /admin/reports — lists all entity tables with Designed/New badge",
+        "GET /admin/reports/:tableName — opens AnkaReport designer pre-loaded with the existing layout"
+      ],
+      backendEndpoints: [
+        "GET /sys/report-designs — list all designs",
+        "GET /sys/report-designs/:tableName — get design by table",
+        "POST /sys/report-designs — create (admin only)",
+        "PUT /sys/report-designs/:tableName — upsert (admin only)",
+        "DELETE /sys/report-designs/:tableName — delete (admin only)"
+      ],
+      printButton: "Appears in the record toolbar (ADToolbar hasPrintReport prop) only when a design exists for the current entity. Clicking opens ReportPrintModal which renders the report via AnkaReport.render() and offers PDF export.",
+      authoringNote: "No EML directive controls report designs. The default layout is always seeded automatically from the entity's columns. Customisation is done through the running Admin UI, not through the model."
     }
   },
   cardinalities: {
@@ -558,7 +620,7 @@ var appwithai_language_default = {
     ]
   },
   hooks: {
-    description: "Lifecycle event points a workflow hook may bind to. Handlers run in the generated BaseService around CRUD operations (globalHookExecutor).",
+    description: "Lifecycle event points a workflow hook may bind to. Each %%hook directive generates a handler function in the generated backend (src/modules/hooks/handlers/<Entity>.ts), registered against the event and run by the bus service around the matching CRUD operation.",
     types: [
       {
         type: "beforeCreate",
@@ -642,10 +704,7 @@ var appwithai_language_default = {
     directive: {
       pattern: "%%hook <type> <handlerName> on <Entity>[<params>]",
       regex: "%%hook\\s+(\\w+)\\s+(\\w+)\\s+on\\s+(\\w+)(\\[(?:field:\\s*\\w+(?:\\s*,\\s*field:\\s*\\w+)*)?\\])?",
-      paramForms: [
-        "[field: slug]",
-        "[field: slug, field: title]"
-      ]
+      paramForms: ["[field: slug]", "[field: slug, field: title]"]
     }
   },
   ruleNodes: {
@@ -689,58 +748,32 @@ var appwithai_language_default = {
       }
     ],
     actions: {
-      description: "Side-effecting actions a rule may emit, carried out by the generated backend's promotion service after the decision runs. A %%action directive inside a rules section declares one: the `when` expression becomes the decision-table row's condition and the remaining keys become its outputs. Without this a model-declared rule could only decide, never act. The vocabulary below is exactly what `promotion.rs` dispatches on — an action outside it is logged as unknown and ignored at run time, which is why EML281 rejects it at the model.",
+      description: "Side-effecting actions a rule may emit, evaluated by the rules engine after the decision runs. A %%action directive inside a rules section declares one: the `when` expression becomes the decision-table row's condition, and the remaining keys become its outputs. Without this a model-declared rule could only decide, never act — the action vocabulary existed solely in the app's decision-table editor.",
       directive: "%%action <name> <actionType> when: <expr> <key>: <value> ...",
-      whenForm: 'A zen expression over the record being written, e.g. `severity == "critical"`. `true` fires on every write. It is parsed before the action\'s own keys, so quote a value that contains a `key:` sequence.',
+      whenForm: 'A zen expression over the record being written, e.g. `severity == "critical"`. `true` fires on every write. It is the last key parsed before the action\'s own keys, so quote values containing a `key:` sequence.',
       types: [
         {
-          name: "prevent",
-          purpose: "Reject the write. The message is returned to the caller and the draft row is discarded, so nothing is persisted.",
-          required: [
-            "message"
-          ],
-          optional: [],
-          example: '%%action requireCause prevent when: status == "closed" and root_cause == null message: A closed deviation needs a root cause'
-        },
-        {
           name: "trigger-workflow",
-          purpose: "Run a workflow definition by name and record the run in sys_workflow_runs. This is what gates a `kind: saga` workflow declared with `trigger: rule` on a condition.",
-          required: [
-            "workflow"
-          ],
-          optional: [
-            "message"
-          ],
+          purpose: "Run a workflow definition by name. This is what gates a `kind: saga` workflow declared with `trigger: rule` on a condition.",
+          required: ["workflow"],
+          optional: ["message"],
           example: '%%action escalate trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation'
         },
         {
-          name: "cascade-update",
-          purpose: "Write updateData onto every row of targetEntity whose linkField holds this record's id.",
-          required: [
-            "targetEntity",
-            "linkField",
-            "updateData"
-          ],
-          optional: [
-            "message"
-          ],
-          example: '%%action closeLines cascade-update when: status == "cancelled" targetEntity: bus_deal_line_item linkField: deal_id updateData: {"status":"cancelled"}'
+          name: "validation-error",
+          purpose: "Reject the write. The message is returned to the caller.",
+          required: ["message"],
+          optional: [],
+          example: '%%action requireCause validation-error when: status == "closed" and root_cause == null message: A closed deviation needs a root cause'
         },
         {
-          name: "create-record",
-          purpose: "Create one row in targetEntity from createData.",
-          required: [
-            "targetEntity",
-            "createData"
-          ],
-          optional: [
-            "linkField",
-            "message"
-          ],
-          example: '%%action openCapa create-record when: severity == "critical" targetEntity: bus_capa createData: {"title":"Follow-up","status":"open"}'
+          name: "transform",
+          purpose: "Overwrite a field on the record being written.",
+          required: ["field", "value"],
+          optional: ["message"],
+          example: "%%action stampSeverity transform when: true field: severity value: major"
         }
-      ],
-      note: "Payload keys (updateData, createData) are JSON objects written inline. They reach the engine as a decision-table cell, which is a string, and `as_object()` parses either form."
+      ]
     }
   },
   workflowConstructs: {
@@ -756,7 +789,9 @@ var appwithai_language_default = {
       start: "[*] --> FirstState",
       end: "LastState --> [*]",
       transition: "StateA --> StateB : eventName",
-      mappingHint: "States are treated as a status enum for the bound entity; transitions define the allowed status changes."
+      mappingHint: "States are treated as a status enum for the bound entity; transitions define the allowed status changes.",
+      enforcement: "The edges are enforced, not merely documented. Every transition a diagram draws is compiled into sys_workflow_transitions, and the generated EntityAccessGuard refuses a write that moves a record to a state with no matching edge from the state it is in — answering 403 and leaving the record where it was. This holds for every caller, the master role included: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist, and allowing it would put the record in a state every rule and workflow downstream was written without. Who may cross an edge that does exist is the separate question %%rbac answers, from sys_transition_access, and that one the master role does bypass. Keep the two apart: enforcing topology only where a role rule happens to cover it leaves every unguarded edge open.",
+      readingTheEdges: "GET /api/workflows/transitions returns the stored edges, optionally narrowed by ?table= and ?from=. A screen offering a status change asks this rather than offering every state and letting the save be refused. A table with no state diagram has no rows and nothing is enforced for it."
     },
     workflowKinds: {
       hook: {
@@ -767,144 +802,127 @@ var appwithai_language_default = {
       },
       state: {
         form: "%%workflow <name> entity: <Entity> kind: state",
-        description: "A stateDiagram-v2 whose states map to a status enum for the bound entity. Transitions define allowed status changes; %%guard directives add RBAC checks; %%trigger directives declare external event sources. Fully parsed by the shipped hook-parser.",
+        description: "A stateDiagram-v2 whose states map to a status enum for the bound entity. Transitions define the allowed status changes and are enforced as the entity's topology — see stateForm.enforcement. %%rbac directives naming a transition event add the role check on top of that; %%trigger directives declare external event sources. Fully parsed by the shipped hook-parser.",
         diagram: "stateDiagram-v2",
         shipped: true
       },
       saga: {
-        form: "%%workflow <name> entity: <PrimaryEntity> kind: saga",
-        description: "A flowchart representing a multi-entity, multi-step process. Node order comes from the flowchart's edges; each node's behaviour is bound by a %%step directive naming its node id. The visual flow renders in any Mermaid viewer, and the %%step directives are what the generator compiles into an executable BPMN process.",
+        form: "%%workflow <name> entity: <Entity> kind: saga [trigger: automatic|rule] [operation: CREATE|UPDATE|DELETE|ALL]",
+        description: "A flowchart whose nodes are executable steps. Each node is bound to a step by a %%step directive naming the node id and its step type; the flowchart edges give the running order. Compiles to BPMN service tasks seeded into sys_workflow_definitions and run by the generated workflow executor. This is how a multi-entity, multi-step process — create a row here, update one there, delete a third, passing values between the steps — is expressed in the model rather than drawn by hand in the app.",
         diagram: "flowchart",
         shipped: true,
-        compensatingPattern: "Pair each forward step with a compensating hook (afterDelete or customValidate) to enable rollback on failure.",
-        example: "%%workflow CheckoutSaga entity: Order kind: saga",
-        stepBinding: "%%step <nodeId> <NodeType> <key>: <value> ...",
-        ordering: "Derived from the flowchart's sequence edges, not from the order the %%step lines appear in. A node with no %%step is a pure annotation (start/end terminals, comments) and emits no task."
+        trigger: {
+          automatic: "Runs on every write to the bound entity that matches the workflow's operation. The default.",
+          rule: "Runs only when a business rule emits a trigger-workflow action naming it, so the rule's condition decides. Use this whenever the workflow should not fire on every write."
+        },
+        ordering: "Steps run in flowchart edge order, walking forward from every node with no incoming edge. A node with a %%step but no edges still runs, after the wired ones, in document order — the canvas implies a step runs even when the connection was left implicit.",
+        example: "%%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule operation: CREATE",
+        operation: "Which write runs the workflow. Defaults to CREATE. Only consulted for trigger: automatic — a rule-triggered workflow is resolved by name, so the rule decides."
       }
     },
     stepNodes: {
-      description: "Service-task types a saga step may declare. This list is the single contract three implementations must agree on: the EML %%step directive, the Workflow Designer's node palette, and the backend's BPMN executor. A type marked `shipped: false` is declared so a diagram round-trips through the designer, but the executor refuses it and fails the run — skipping it completed the saga and reported success for business outcomes that never happened. EML437 reports one at validation time.",
-      propertyEncoding: "Compiled into BPMN as extensionElements > appwithai:properties > appwithai:property[@name,@value], which is what the designer reads and the executor parses.",
-      terminalKeys: {
-        description: 'Property keys whose value runs to the end of the %%step line, and which must therefore be written last. A JSON object contains `": "`, so the key/value scanner would otherwise cut `{"title":"CAPA"}` in half and the step would carry a fragment that does not parse.',
-        keys: [
-          "fields",
-          "data",
-          "body",
-          "prompt",
-          "decisionTable"
-        ]
-      },
-      types: {
-        UpdateEntity: {
-          purpose: "Set one field on a record.",
-          required: [
-            "field"
-          ],
-          oneOf: [
-            [
-              "value",
-              "source"
-            ]
-          ],
-          optional: [
-            "entity",
-            "targetSource",
-            "targetField"
-          ],
-          notes: "Without `entity` the step updates the record that started the run. With `entity` it updates another table, and `targetSource` names the context key holding that row's id (`targetField` defaults to `id`).",
-          example: "%%step E UpdateEntity field: status value: escalated"
+      description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with appwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
+      directive: "%%step <nodeId> <stepType> <key>: <value> ...",
+      propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
+      variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      loopMembership: "`in: <loopId>` joins a step to a %%loop declared in the same section. It is read off every step type alike, before the type is consulted at all, so it belongs to no single contract below and is deliberately absent from their `optional` lists. A reader validating step properties must treat it as known for every type — see automations.loops and the %%loop directive.",
+      types: [
+        {
+          name: "UpdateEntity",
+          purpose: "Write one column on the triggering record, or on rows of a related entity.",
+          required: ["field"],
+          oneOf: [["source", "value"]],
+          optional: ["entity", "targetField", "targetSource"],
+          rowTargeting: "Defaults to the record that triggered the workflow. To reach another entity, set `entity` plus either `targetSource` (a context key holding the row id) or `targetField` (a foreign key column matched against the triggering row). Targeting another entity by `id` with no `targetSource` is refused rather than guessed.",
+          example: "%%step D UpdateEntity entity: Capa targetSource: newCapaId field: effectiveness_metric source: resolutionDays"
         },
-        CreateEntity: {
-          purpose: "Insert a record.",
-          required: [
-            "entity",
-            "fields"
+        {
+          name: "CreateEntity",
+          purpose: "Insert a row, optionally publishing its id for later steps.",
+          required: ["entity", "fields"],
+          optional: ["as"],
+          notes: [
+            "`fields` is a JSON object of column -> context key or literal. A string that names a context key is substituted; anything else is written as-is.",
+            "`as` names the variable the new row's id is published under. It defaults to the table name without its bus_ prefix plus `Id`. Without it a workflow can insert a row and then never reach it again."
           ],
-          optional: [
-            "as"
-          ],
-          notes: "`fields` is a JSON object and must be the last key on the line — see grammar.terminalKeys. `as` binds the new row's id to a context key so later steps can reach it.",
-          example: '%%step D CreateEntity entity: Capa as: newCapaId fields: {"title":"CAPA"}'
+          example: '%%step C CreateEntity entity: Capa as: newCapaId fields: {"title":"capaTitle","status":"open"}'
         },
-        DeleteEntity: {
-          purpose: "Remove a record.",
-          required: [
-            "entity"
-          ],
-          optional: [
-            "targetSource",
-            "targetField",
-            "hard"
-          ],
-          notes: "Soft delete by default, matching every other delete path in the stack; `hard: true` removes the row. `targetSource` names the context key holding the id, defaulting to the record that started the run.",
-          example: "%%step F DeleteEntity entity: Capa targetSource: newCapaId"
-        },
-        Decision: {
-          purpose: "Evaluate a GoRules decision table and publish the matching row's output columns as variables the following steps read. This is what lets a saga branch: every other step type does a thing, this one works out which thing.",
+        {
+          name: "DeleteEntity",
+          purpose: "Delete the triggering record or rows of a related entity.",
           required: [],
-          oneOf: [
-            [
-              "rule",
-              "decisionTable"
-            ]
+          optional: ["entity", "targetField", "targetSource", "hard"],
+          notes: [
+            "Soft by default: stamps deleted_at, so the audit trail still points at a row that exists. `hard: true` removes it.",
+            "Row targeting matches UpdateEntity exactly, including the refusal to touch another entity by `id` with no targetSource."
           ],
-          optional: [
-            "publish"
-          ],
-          notes: '`rule` names a rule declared elsewhere in the model, for when the same table already governs the entity and the process should not fork a second copy that then drifts from it. `decisionTable` carries the table itself as JSON — { hitPolicy, inputs, outputs, rules } — for logic only this process cares about; the executor wraps it in the input → table → output graph, so a step never carries that plumbing. Outputs become variables under their `field` name, and `publish` narrows that to a comma-separated allow-list. A table that matches no row publishes nothing: that is how "leave it alone" is expressed, not an error, and later steps reading a variable it would have set skip themselves.',
-          example: "%%step B Decision rule: leadRouting publish: priority, slaDays"
+          example: "%%step F DeleteEntity entity: Capa targetSource: supersededCapaId"
         },
-        Formula: {
-          purpose: "Compute a value into the run's variables.",
-          required: [
-            "target",
-            "operation"
+        {
+          name: "Decision",
+          purpose: "Evaluate a GoRules decision table and publish the matching row's output columns as variables the following steps read.",
+          required: [],
+          oneOf: [["decisionTable", "rule"]],
+          optional: ["publish"],
+          notes: [
+            "`decisionTable` is the table itself as JSON — { hitPolicy, inputs, outputs, rules } — for logic only this process cares about. The generator wraps it in the input -> table -> output graph the engine evaluates, so a step never carries that plumbing.",
+            "`rule` names a rule declared elsewhere in the model, for when the same table already governs the entity and the process should not fork a second copy of it.",
+            "Outputs become variables under their `field` name. `publish` narrows that to a comma-separated allow-list when a table emits more than the process needs.",
+            "A table that matches no row publishes nothing. That is how 'leave it alone' is expressed, not an error — later steps that read a variable it would have set skip themselves.",
+            "Every row must set every output column: the engine silently discards a row that leaves one unset, and one such row stops the whole table matching."
           ],
-          optional: [
-            "source",
-            "operand",
-            "value"
-          ],
-          operations: [
-            "set",
-            "add",
-            "subtract",
-            "multiply",
-            "divide"
-          ],
-          notes: "`set` takes a literal `value` and needs no `source`. The arithmetic operations read `source` from the context and apply `operand`. Division by zero yields 0.",
-          example: "%%step C Formula target: resolutionDays source: baseDays operation: multiply operand: 7"
+          example: "%%step B Decision rule: ClassifySeverity publish: priority, slaDays"
         },
-        REST: {
+        {
+          name: "Formula",
+          purpose: "Publish a value into the workflow context for later steps.",
+          required: ["target", "operation"],
+          operations: {
+            multiply: "target = Number(source) * Number(operand)",
+            divide: "target = Number(source) / Number(operand)",
+            add: "target = Number(source) + Number(operand)",
+            subtract: "target = Number(source) - Number(operand)",
+            set: "target = value, stored unchanged. The only way to pass text — a status, a title — to a later step.",
+            copy: "target = context[source], carried across unchanged."
+          },
+          perOperation: {
+            multiply: {
+              required: ["source", "operand"]
+            },
+            divide: {
+              required: ["source", "operand"]
+            },
+            add: {
+              required: ["source", "operand"]
+            },
+            subtract: {
+              required: ["source", "operand"]
+            },
+            set: {
+              required: ["value"]
+            },
+            copy: {
+              required: ["source"]
+            }
+          },
+          example: "%%step B Formula target: resolutionDays source: baseDays operation: multiply operand: 7"
+        },
+        {
+          name: "REST",
           purpose: "Call an external HTTP endpoint.",
-          required: [
-            "url"
-          ],
-          optional: [
-            "method",
-            "body",
-            "as"
-          ],
-          example: "%%step G REST url: https://example.test/notify method: POST"
+          required: ["url"],
+          optional: ["method", "bodyTemplate"],
+          notes: ["`bodyTemplate` interpolates {{key}} from the workflow context."],
+          example: "%%step E REST url: https://hooks.example.com/notify method: POST"
         },
-        Agent: {
-          purpose: "Invoke an AI agent.",
-          required: [
-            "agent"
-          ],
-          optional: [
-            "prompt",
-            "as"
-          ],
+        {
+          name: "Agent",
+          purpose: "Invoke an AI agent. Placeholder pending Mastra integration — the executor logs and skips.",
+          required: ["agentId"],
           shipped: false,
-          notes: "Declared so a diagram round-trips through the designer. Not executed: the backend fails the run on reaching it, and EML437 reports it at validation. Implementing it would make every generated app depend on a reachable model endpoint at run time, which is a deliberate architectural choice rather than an oversight."
+          example: "%%step G Agent agentId: deviation-triage-v1"
         }
-      },
-      interpolation: "Any property value may contain {{key}} placeholders resolved from the run context: the triggering record's columns, plus anything a Formula or an `as` binding has written."
-    },
-    checkerCodes: {
-      EML437: "Step type is declared by the language but marked `shipped: false`, so the generated backend refuses it and the run fails. Not auto-fixable: remove the step or implement the type."
+      ]
     }
   },
   automations: {
@@ -1051,31 +1069,21 @@ var appwithai_language_default = {
         {
           type: "Decision",
           purpose: "Evaluate a rule table and publish its outputs.",
-          properties: [
-            "ruleTable",
-            "inputs"
-          ],
+          properties: ["ruleTable", "inputs"],
           example: `%%step s1 type: Decision as: tier
 %%step s1 ruleTable: Assay tier`
         },
         {
           type: "CreateEntity",
           purpose: "Create a record on another entity.",
-          properties: [
-            "entity",
-            "values"
-          ],
+          properties: ["entity", "values"],
           example: `%%step s2 type: CreateEntity as: newId
 %%step s2 entity: ChemicalInventory`
         },
         {
           type: "UpdateEntity",
           purpose: "Write a field, by default on the triggering record.",
-          properties: [
-            "entity",
-            "field",
-            "value"
-          ],
+          properties: ["entity", "field", "value"],
           example: `%%step s3 type: UpdateEntity
 %%step s3 field: status
 %%step s3 value: {{tier}}`
@@ -1083,21 +1091,14 @@ var appwithai_language_default = {
         {
           type: "DeleteEntity",
           purpose: "Remove a record.",
-          properties: [
-            "entity",
-            "target"
-          ],
+          properties: ["entity", "target"],
           example: `%%step s4 type: DeleteEntity
 %%step s4 entity: Vendor`
         },
         {
           type: "Formula",
           purpose: "Compute a value from two operands and publish it.",
-          properties: [
-            "operation",
-            "left",
-            "right"
-          ],
+          properties: ["operation", "left", "right"],
           example: `%%step s5 type: Formula as: total
 %%step s5 operation: add
 %%step s5 left: {{order.subtotal}}
@@ -1106,11 +1107,7 @@ var appwithai_language_default = {
         {
           type: "REST",
           purpose: "Call an external service.",
-          properties: [
-            "method",
-            "url",
-            "body"
-          ],
+          properties: ["method", "url", "body"],
           example: `%%step s6 type: REST
 %%step s6 method: POST
 %%step s6 url: https://lims.example.com/hook`
@@ -1156,17 +1153,23 @@ var appwithai_language_default = {
     }
   },
   directives: {
-    description: "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. %%hook and %%step are parsed by the shipped toolchain; the remainder are the EML extension surface, documented here as the authoritative language contract.",
+    description: "Reserved %% directive comments. All are renderer-safe (ignored by Mermaid) and interpreted by the generator. %%hook, %%step, %%action, %%workflow and %%guard are parsed by the shipped compilers; the remainder are the EML extension surface, documented here as the authoritative language contract.",
     reserved: [
       {
         keyword: "%%meta",
         form: "%%meta <key>: <value>",
-        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description, stack.",
+        status: "compiled",
+        consumedBy: [
+          "language/composer.ts (section classification and round-trip)",
+          "packages/generator/src/eml (section extraction via composer)"
+        ],
+        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description (application summary seeded into sys_system.APP_DESCRIPTION and the generated manual), stack.",
         examples: [
           "%%meta name: CRM Core",
           "%%meta kind: rules",
           "%%meta entity: Order",
-          "%%meta version: 1.0.0"
+          "%%meta version: 1.0.0",
+          "%%meta description: This application manages customer relationships, sales pipelines, and support tickets for mid-market B2B companies."
         ]
       },
       {
@@ -1185,22 +1188,22 @@ var appwithai_language_default = {
       },
       {
         keyword: "%%step",
-        form: "%%step <nodeId> <NodeType> <key>: <value> [<key>: <value> ...]",
-        purpose: "Bind a saga flowchart node to an executable service task. `nodeId` is the id used in the flowchart, which is what ties the drawing to its behaviour and where the step's position in the sequence comes from.",
-        appliesTo: "A section declared %%workflow ... kind: saga",
+        form: "%%step <nodeId> <stepType> <key>: <value> ...   |   %%step <nodeId> type: <stepType> [as: <name>]",
+        status: "compiled",
+        consumedBy: ["packages/generator/src/workflows/steps.ts"],
+        purpose: "Bind a flowchart node in a `kind: saga` workflow to an executable step. `nodeId` is the node's id in the flowchart; `stepType` is one of workflowConstructs.stepNodes.types. Compiles to a bpmn:serviceTask (SHIPPED, parsed by packages/generator/src/workflows/index.ts).",
         examples: [
           "%%step B Formula target: baseDays operation: set value: 3",
-          '%%step D CreateEntity entity: Capa as: newCapaId fields: {"title":"CAPA","status":"open"}',
-          "%%step F DeleteEntity entity: Capa targetSource: newCapaId"
+          '%%step C CreateEntity entity: Capa as: newCapaId fields: {"title":"capaTitle","status":"open"}',
+          "%%step D UpdateEntity field: status value: escalated",
+          "%%step F DeleteEntity entity: Capa targetSource: supersededCapaId"
         ]
       },
       {
         keyword: "%%action",
         form: "%%action <name> <actionType> when: <expr> <key>: <value> ...",
         status: "compiled",
-        consumedBy: [
-          "packages/generator/src/rules/index.ts"
-        ],
+        consumedBy: ["packages/generator/src/rules/index.ts"],
         purpose: "Declare a side-effecting rule action inside a `%%rule` section. A section carrying %%action directives compiles to a GoRules decision table — one row per directive — instead of a node graph, which is the shape the rules engine reads actions from (SHIPPED, parsed by packages/generator/src/rules/index.ts).",
         examples: [
           '%%action escalate trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation',
@@ -1210,19 +1213,32 @@ var appwithai_language_default = {
       {
         keyword: "%%entity",
         form: "%%entity <Name> <key>: <value>",
-        purpose: "Attach entity-level metadata not expressible in the ERD block: table prefix (bus/sys), soft delete, label, icon, audited.",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/parsers/mermaid.parser.ts (help:/description:, icon: and parent: are compiled; prefix:, softDelete:, label: and audited: are validated only)",
+          "language/checker.ts (EML160, EML161, EML162)"
+        ],
+        purpose: "Attach entity-level metadata not expressible in the ERD block: the sentence that explains the entity to whoever opens its screen, the icon that represents it, the parent it is a line item of, plus table prefix (bus/sys), soft delete, label, audited.",
         examples: [
+          "%%entity Account help: A company you sell to. One account holds many contacts and every deal you run with them.",
+          "%%entity Patient icon: stethoscope",
           "%%entity Order audited: true",
           "%%entity Account prefix: bus",
           "%%entity Session softDelete: false"
-        ]
+        ],
+        iconNaming: "`icon:` is a lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_table.icon, which is what the entity's dashboard card, its window heading and the navigation all draw. An administrator can override it afterwards in Table and Column, including by uploading an image - the same column holds both. In the browser (--standalone) stack the value is carried into model.json and served by /model, but that interface draws a text glyph and does not render it."
       },
       {
         keyword: "%%field",
         form: "%%field <Entity>.<attr> <key>: <value>",
-        purpose: "Extended field metadata: ui control, default value, enum reference, min/max, help text, format.",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
+        ],
+        purpose: "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
         examples: [
           "%%field Order.status enum: OrderStatus",
+          "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
           "%%field Product.price min: 0",
           "%%field User.email unique: true"
         ]
@@ -1230,18 +1246,18 @@ var appwithai_language_default = {
       {
         keyword: "%%enum",
         form: "%%enum <Name>: <value1>, <value2>, ...",
+        status: "compiled",
+        consumedBy: ["packages/generator/src/parsers/mermaid.parser.ts"],
         purpose: "Declare a named enumeration reusable by fields and by state workflows.",
-        examples: [
-          "%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"
-        ]
+        examples: ["%%enum OrderStatus: draft, submitted, approved, shipped, cancelled"]
       },
       {
         keyword: "%%category",
         form: "%%category name: <Name>; code: <id>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
+        dashboardScope: "A category block appears on the dashboard only when the reader may read at least one entity in it: the entity list is filtered by `%%rbac ... .read` and line items are excluded, because a child is reached through its parent. The Application Dictionary block beside the categories is the admin windows the reader is granted through sys_access, so it differs by role too.",
+        iconNaming: "A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_category.icon and drawn beside the category heading on the dashboard.",
         status: "compiled",
-        consumedBy: [
-          "packages/generator/src/parsers/category.parser.ts"
-        ],
+        consumedBy: ["packages/generator/src/parsers/category.parser.ts"],
         purpose: 'Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Only `name` is required; the rest are `;`-separated and may appear in any order. `code` is a stable short identifier, slugified from `name` when omitted — it is the dictionary row\'s key, so setting it explicitly keeps that key stable across a rename. A directive may span several lines by ending each continued line with `\\`. A model that declares none gets a single "General" default holding every entity.',
         examples: [
           "%%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias",
@@ -1251,32 +1267,28 @@ var appwithai_language_default = {
       {
         keyword: "%%index",
         form: "%%index <Entity>(<attr>[, <attr>...]) [unique]",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/parsers/mermaid.parser.ts -> entity.indexes -> templates/common/migrations/bus-tables.migration.ts.hbs"
+        ],
         purpose: "Declare a database index over one or more attributes.",
-        examples: [
-          "%%index Contact(email) unique",
-          "%%index Order(company_id, status)"
-        ]
+        examples: ["%%index Contact(email) unique", "%%index Order(company_id, status)"]
       },
       {
         keyword: "%%rule",
         form: "%%rule <name> on <Entity> event: <lifecycle> priority: <n>",
+        status: "validated",
+        consumedBy: ["language/checker.ts (rule/workflow cross-reference)"],
         purpose: "Bind a business-rule decision flow (a rules section) to an entity and lifecycle event.",
-        examples: [
-          "%%rule pricing on Order event: beforeCreate priority: 10"
-        ]
+        examples: ["%%rule pricing on Order event: beforeCreate priority: 10"]
       },
       {
         keyword: "%%guard",
         form: "%%guard <field> <operator> <jsonValue>",
         status: "compiled",
-        consumedBy: [
-          "packages/web/src/lib/automation/model.ts"
-        ],
+        consumedBy: ["packages/web/src/lib/automation/model.ts"],
         purpose: `Automation condition — a check that must pass for an automation's steps to run (SHIPPED, parsed by automation/model.ts, and the form all stored automations use). This keyword once also meant an RBAC role restriction; that sense is now %%rbac. A reader encountering the old RBAC shape here skips it rather than reading it as a condition on a field called "role:admin".`,
-        examples: [
-          '%%guard status eq "open"',
-          "%%guard order.total gt 1000"
-        ]
+        examples: ['%%guard status eq "open"', "%%guard order.total gt 1000"]
       },
       {
         keyword: "%%loop",
@@ -1287,10 +1299,7 @@ var appwithai_language_default = {
           "packages/web/src/lib/automation/model.ts"
         ],
         purpose: "Declare a repeat-while-a-rule-holds loop inside an automation (SHIPPED, parsed by automation/model.ts and the generator's saga compiler). Steps join it with `%%step <nodeId> in: <loopId>` and repeat in order for as long as the check passes, ending the first time it fails. The check is re-read before every pass, so a step inside the loop is what ends it. Bounded by the `max:` the author must declare; loops do not nest. See automations.loops.",
-        examples: [
-          '%%loop L1 while: status eq "pending" max: 20',
-          "%%step s2 in: L1"
-        ]
+        examples: ['%%loop L1 while: status eq "pending" max: 20', "%%step s2 in: L1"]
       },
       {
         keyword: "%%rbac",
@@ -1300,7 +1309,8 @@ var appwithai_language_default = {
           "packages/generator/src/rbac/index.ts (compiles both forms)",
           "packages/generator/src/rbac/roles.ts (derives the roles, one seeded account each, and per-entity visibility)",
           "seeded into sys_operation_access / sys_transition_access",
-          "enforced by services/authz.rs in the generated backend, on /api/bus/*"
+          "enforced by the generated EntityAccessGuard on /bus CRUD",
+          "app-and-report-with-ai-tanstack: common/build/reporting-pack.ts -> one reporting role per declared role, scoped to the tables that role may read"
         ],
         purpose: "Restrict a CRUD operation or a state transition to named roles. It restricts rather than grants: a target no directive mentions is open to any authenticated caller, so a model declaring no %%rbac generates what it always did. A target with one or more directives requires the union of the roles they name. A master role bypasses. That bypass is over access — who may do a thing — and not over the shape of the model: a state machine's topology is enforced for the master role too, because an edge the diagram never drew is a move that does not exist rather than a permission anyone is missing (see workflowConstructs.stateForm.enforcement). Role names are matched case-insensitively, because seeded roles are title-cased (Manager) and directives are written lower-case (role:manager) - an exact match would make such a rule unsatisfiable, locking out exactly the people it was written to admit. Spelled %%guard until that keyword was needed unambiguously for automation conditions.",
         examples: [
@@ -1315,12 +1325,15 @@ var appwithai_language_default = {
           transitions: "A name that is not a CRUD operation is resolved against the entity's stateDiagram-v2 transitions. There is no named-transition endpoint in a generated application - moving a record along an edge is a status update - so the rule is stored as the (from_state, to_state) pair it covers and the guard recognises the move by the states the write crosses. Both ends are kept because one event can sit on several edges and two events can reach the same state. This directive decides *who* may cross an edge; whether the edge exists at all is decided by the state diagram itself and enforced separately, so an edge no %%rbac names is open to any authenticated caller but an edge the diagram omits is refused to everyone.",
           notSysAccess: "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
           functionalRoles: "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity on at least one `%%rbac ... .read` directive, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
-          seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see."
+          seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see.",
+          reportingRoles: "Deployed beside the Enterprise Reporting platform (app-and-report-with-ai-tanstack, ./start.sh), the same directive also shapes that platform's roles: one reporting role per declared role, permitted to read exactly the bus_ tables the role's `read` rules admit. It is a mirror, not a shared system. The two products have separate databases, separate user tables and separate sign-in screens, and a role name means different things on each side: in the application it decides what a user may do to a record, in the reporting platform which tables their queries may read. The accounts differ deliberately - sales.manager@<app>.example.com against sales.manager@<app>.reports.example.com - so neither is mistaken for the other, and the front door at / lists both pairs. Only `read` rules narrow a reporting role; create, update and delete restrictions mean nothing to a reader who cannot write through that product at all."
         }
       },
       {
         keyword: "%%trigger",
         form: "%%trigger <source> -> <handler> on <Entity>",
+        status: "validated",
+        consumedBy: ["language/checker.ts (EML230-EML233)"],
         purpose: "Declare an event/schedule source that starts a workflow (webhook, cron, message).",
         examples: [
           "%%trigger cron:0 0 * * * -> expireQuotes on Quote",
@@ -1329,13 +1342,48 @@ var appwithai_language_default = {
       },
       {
         keyword: "%%workflow",
-        form: "%%workflow <name> entity: <Entity> kind: <hook|state|saga>",
-        purpose: "Name and classify a workflow section and bind it to an entity.",
+        form: "%%workflow <name> entity: <Entity> kind: <hook|state|saga>   |   %%workflow name: <name>",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/workflows/index.ts (saga + state forms)",
+          "packages/web/src/lib/automation/model.ts (automation form)"
+        ],
+        purpose: "Name and classify a workflow section. The positional form binds the entity itself. The `name:` form is what the automation builder writes (SHIPPED): it carries only the name and takes its entity binding from the accompanying %%hook line.",
         examples: [
-          "%%workflow OrderFulfillment entity: Order kind: state"
+          "%%workflow OrderFulfillment entity: Order kind: state",
+          "%%workflow name: Escalate critical deviations"
         ]
+      },
+      {
+        keyword: "%%report",
+        form: "%%report <name> title: <Title> [entity: <Entity>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/reports/index.ts -> sys_report (NestJS) and model.json reports (browser)",
+          "language/cli/src/parser.ts -> model.reports",
+          "language/checker.ts (shape only: EML290-EML296)"
+        ],
+        purpose: "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per %%enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. This directive is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
+        examples: [
+          "%%report unassigned-jobs title: Jobs with no engineer help: The dispatcher's first question every morning. sql: SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL AND status = 'scheduled' AND deleted_at IS NULL ORDER BY scheduled_for",
+          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
+        ],
+        notes: {
+          sqlIsLast: "`sql:` takes the rest of the line, because a query contains spaces and colons and would otherwise be shredded by the key scan. Every other key is read from the head, ahead of it.",
+          readOnly: "A report may only read, and this is refused three times: by the checker at authoring time (EML293), by the compiler before the query can reach a seed file or model.json, and by each runtime before it executes - because sys_report is an ordinary table and model.json an ordinary file, so neither reader trusts what it is handed. A single trailing semicolon is allowed; a second statement behind it is not. Anything that writes belongs in a rule or a hook.",
+          foreignKeysAreUuid: "A foreign key and a primary key are both UUID, in both stacks, so a join is written plainly: ON c.account_id = p.id. Do not cast. `::text` was needed while the browser stack typed a foreign key as VARCHAR; it does not any more, and PostgreSQL has no implicit cast back, so a cast that is no longer needed is now the thing that breaks the query.",
+          chartNeedsAxes: "`chart:` without both `x:` and `y:` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
+          namesAreKeys: "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
+          againstWhichSchema: "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
+          whereItIsCompiled: "Compiled twice, by two readers, and neither replaces the other. Here, packages/generator/src/reports/index.ts puts each report into the generated application itself: a sys_report row served at /sys/reports and shown under Admin > Analysis in the NestJS stack, and a model.json entry served at /api/reports and shown under Reports in the browser application. Separately, businessappwithai/app-and-report-with-ai-tanstack compiles the same directive with common/build/reporting-pack.ts into a saved query, a report definition and, where chart: is set, a chart, seeded into the Enterprise Reporting platform ahead of the derived baseline. That platform is composed beside a deployed application by docker-compose; it is not in the browser application and not in the downloadable zip."
+        }
       }
-    ]
+    ],
+    statusVocabulary: {
+      compiled: "A shipped compiler reads this directive and it changes the generated application. `consumedBy` names the file that reads it.",
+      validated: "No compiler reads it, but `language/checker.ts` enforces its syntax and cross-references, so a malformed one fails validation rather than being silently ignored.",
+      reserved: "Documented and renderer-safe, with no reader. Writing one is legal and inert; the keyword is held so a later meaning cannot collide with a plain comment."
+    }
   },
   grammar: {
     notation: "EBNF-like; see language/grammar/appwithai.ebnf for the full grammar.",
@@ -1344,47 +1392,112 @@ var appwithai_language_default = {
     entityBlock: "entityBlock ::= IDENT '{' NEWLINE attribute* '}' NEWLINE",
     attribute: "attribute ::= TYPE ['(' NUMBER ')'] IDENT modifier* [ STRING ] NEWLINE",
     relationship: "relationship ::= IDENT cardinality IDENT [ ':' STRING ] NEWLINE",
-    ruleSection: "ruleSection ::= ('flowchart'|'graph') direction NEWLINE ( node | edge | comment )*",
+    ruleSection: "ruleSection ::= ('flowchart'|'graph') direction NEWLINE ( node | edge | actionDirective | comment )*",
     workflowSection: "workflowSection ::= (('flowchart'|'graph') direction | 'stateDiagram-v2') NEWLINE ( node | edge | transition | hookDirective | stepDirective | comment )*",
-    stepDirective: "stepDirective ::= '%%step' WS IDENT WS nodeType ( WS key ':' WS value )* [ WS terminalKey ':' WS REST_OF_LINE ] NEWLINE",
-    terminalKeys: "A value that may itself contain ': ' — `fields`, `data`, `body`, `prompt` — is read verbatim to the end of the line, so a JSON object needs no quoting or escaping. Such a key must therefore be written last. The same rule the %%category directive already uses for its tail."
+    stepDirective: "stepDirective ::= '%%step' WS IDENT WS stepType ( WS IDENT ':' WS value )* NEWLINE",
+    actionDirective: "actionDirective ::= '%%action' WS IDENT WS actionType WS 'when:' WS expr ( WS IDENT ':' WS value )* NEWLINE"
   },
   generatorContract: {
     description: "How each section feeds the generator pipeline.",
     pipeline: [
-      "1. ERD section -> MermaidParser -> Entity[] + Relationship[] -> migrations, DTOs, services, controllers, forms, tables.",
-      "2. Rules section -> mermaid-flowchart-parser -> convertToJdm -> GoRules JDM graph -> decision service.",
-      "3. Workflow section -> hook-parser -> HookDefinition[] -> generated BaseService lifecycle wiring; state form -> status enum + transition guards."
+      "1. ERD section -> MermaidParser -> Entity[] + Relationship[] -> migrations, DTOs, services, controllers, forms, tables. The same pass reads %%index into entity.indexes and %%enum / %%field enum: into bound enums.",
+      "2. %%category directives -> category.parser -> resolveCategories -> Application Dictionary groups on the generated dashboard. A model declaring none gets a single 'General' category holding every entity.",
+      "3. Rules section -> flowchart-parser -> jdm-converter -> GoRules JDM graph -> seeded into sys_rule_definitions and evaluated by the rules engine.",
+      "4. Rules section carrying %%action directives -> compileRules -> a GoRules decision table whose rows carry action/message/ruleId/workflowName outputs, instead of a node graph. This is how a model-declared rule reaches a model-declared saga: the rule's `when` expression decides, and its trigger-workflow action names the workflow.",
+      "5. Workflow section, hook form -> compileHooks -> per-entity handler modules under src/modules/hooks/handlers plus a registry the bus service calls around every CRUD operation.",
+      "6. Workflow section, state form -> compileWorkflows -> BPMN seeded into sys_workflow_definitions; the trigger-workflow rules resolve it by name and the run puts a new record into the state machine's starting state. The same pass writes every edge the diagram draws into sys_workflow_transitions, which EntityAccessGuard reads to refuse a status write the model never allowed for, and which GET /api/workflows/transitions exposes so a screen can offer only the moves that exist.",
+      "7. Workflow section, saga form -> compileSagaWorkflows -> one bpmn:serviceTask per %%step, ordered by the flowchart edges, seeded into sys_workflow_definitions with source 'model'. A definition declared in the model is owned by the model: the generated Workflow Designer shows it read-only, and regeneration rewrites it. Definitions authored in the app carry source 'designer' and are never touched by regeneration.",
+      "8. The whole document -> language/rag.ts -> retrieval chunks (one per entity, rule, workflow and spec section) -> the pgvector model_context index the assistant searches.",
+      "9. %%rbac directives -> compileRbac -> per-operation rules in sys_operation_access and per-transition rules in sys_transition_access, enforced by EntityAccessGuard on the generated /bus CRUD routes. Restrictive, not granting: a target no directive names stays open.",
+      "10. ERD section -> nestjs-backend.generator -> one default AnkaReport layout per entity seeded into sys_report_designs. The layout renders every non-audit, non-PK field as a two-column (label | value) report. Administrators can customise layouts at Admin → Report Designs. Records get a Print button on their detail view if a design exists for their table.",
+      "11. %%enum and %%workflow kind: state -> the generated test suite's harness/model.ts, which carries the declared values and edges into the suites as data. This is the one consumer that reads the model rather than the dictionary compiled from it, and the distinction is the point: a suite that asserts a running application against the dictionary the same generator wrote proves only that the application is self-consistent, and passes just as happily when a value or an edge was dropped on the way. Asserting against the model's own word is what makes a dropped %%enum value or a missing state-machine edge fail a test rather than ship. Read by suite 02c (references) and suite 06b (state machines)."
     ],
     referenceFiles: {
+      pipeline: "packages/generator/src/pipeline/generate-application.ts",
       erdParser: "packages/generator/src/parsers/mermaid.parser.ts",
+      categoryParser: "packages/generator/src/parsers/category.parser.ts",
+      flowchartParser: "packages/generator/src/rules/flowchart-parser.ts",
+      jdmConverter: "packages/generator/src/rules/jdm-converter.ts",
+      ruleCompiler: "packages/generator/src/rules/index.ts",
+      hookCompiler: "packages/generator/src/hooks/index.ts",
+      workflowCompiler: "packages/generator/src/workflows/index.ts",
+      stepCompiler: "packages/generator/src/workflows/steps.ts",
+      composer: "language/composer.ts",
+      chunker: "language/rag.ts",
+      checker: "language/checker.ts",
+      orchestrator: "packages/generator/src/generators/orchestrator.ts",
+      rbacCompiler: "packages/generator/src/rbac/index.ts",
+      testHarnessModel: "packages/generator/templates/tanstack-start-nestjs/tests/harness/model.ts.hbs"
+    },
+    authoringSurface: {
+      description: "The web app keeps its own parsers for the editors, which run in the browser and cannot import the generator. They read the same syntax, but they do not decide what is generated - when the two disagree, the generator's copy is the language and the web copy is the bug.",
       flowchartParser: "packages/web/src/lib/mermaid-flowchart-parser.ts",
       jdmConverter: "packages/web/src/lib/jdm-converter.ts",
       hookParser: "packages/web/src/lib/workflow/hook-parser.ts",
-      orchestrator: "packages/generator/src/generators/orchestrator.ts"
+      automationModel: "packages/web/src/lib/automation/model.ts",
+      ruleFlow: "packages/web/src/lib/eml/rule-flow.ts",
+      workflowFlow: "packages/web/src/lib/eml/workflow-flow.ts"
     }
   },
   conformance: {
     levels: {
-      core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, relationship cardinalities (all 8 operators). Fully parsed by the shipped ERD parser (mermaid.parser.ts). Directives inside an erDiagram block (%%field, %%enum, %%index, %%entity) are silently skipped by the ERD parser — they are reserved for future use.",
-      rules: "flowchart decision flows convertible to JDM via shape semantics. Fully parsed by the shipped flowchart parser + JDM converter.",
-      "workflow-hooks": "%%hook directives (all 13 hook types) and stateDiagram-v2 state transitions. Fully parsed by the shipped hook-parser (hook-parser.ts). kind: hook and kind: state are shipped; kind: saga visual diagram renders but compensating-transaction orchestration is extended.",
-      extended: "%%meta, %%entity, %%field, %%enum, %%index, %%rule, %%guard, %%trigger, %%workflow directives beyond what the shipped parsers consume. Reserved and documented; renderer-safe; adopted incrementally by the generator."
+      core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
+      rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
+      workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
+      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. It has a second consumer: packages/generator/src/manual/index.ts renders manual.html from the same parsed model, where this text is the entire 'what it is for' column — a field with no help prints a dash there. Write help on every entity and every column, and write domain knowledge rather than the name again: EML151, EML152 and EML153 report the three ways a model fails to. See applicationDictionary.helpText. Fully compiled.",
+      validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
+      reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
+      access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
     },
     validationRules: [
       "Every entity name must match ^[a-zA-Z][a-zA-Z0-9_]*$ and be unique within the document.",
       "Every relationship endpoint should reference a declared entity.",
       "A hook directive's entity should reference a declared entity; its type must be one of the 13 hook types.",
       "A rules flow must have at least one input (stadium/start) and one output (stadium/end).",
-      "Enum references in %%field must resolve to a declared %%enum."
-    ]
+      "Enum references in %%field must resolve to a declared %%enum.",
+      "A %%step's nodeId must name a node that exists in the flowchart it annotates.",
+      "A %%step's stepType must be one of workflowConstructs.stepNodes.types.",
+      "A %%loop's loopId must be referenced by at least one %%step in: directive, and loops do not nest.",
+      "At most one %%category in a document may declare default: true.",
+      "A trigger-workflow action must name a workflow the document declares, or a workflow that already exists in the target application.",
+      "A %%rbac operation must be a CRUD operation (create/read/update/delete/*) or a transition event declared in the entity's state machine."
+    ],
+    note: "Levels describe what the shipped generator does, not an aspiration. A directive's own `status` field in `directives.reserved` is authoritative for that directive; these levels group them. When a compiler is added for a reserved directive, its status and this list move together."
+  },
+  diagnostics: {
+    description: "The checker (language/checker.ts) validates a document against this definition and writes a machine-readable <file>.mmd.error beside it. The fixer (language/fixer.ts) reads that file, applies the auto-fixable corrections to the source, and re-runs the checker.",
+    severities: {
+      error: "The document is wrong and the generator would produce something incorrect or nothing at all. Exit code 1.",
+      warning: "Legal, but almost certainly not what the author meant - a dropped modifier, a state with no enum. Exit code 1 only under --strict.",
+      info: "An observation worth reading once; never fails a run."
+    },
+    codeRanges: {
+      "EML001-EML099": "Document level: metadata, emptiness, section structure.",
+      "EML100-EML119": "Entities and attributes.",
+      "EML120-EML129": "Relationships.",
+      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category — including the line-item pair EML149 and EML150.",
+      "EML200-EML299": "Hooks, guards, triggers, workflows and rules as declared by directives.",
+      "EML300-EML399": "Business-rule flowcharts.",
+      "EML400-EML449": "Workflow sections: hook, state and saga.",
+      "EML500-EML599": "Cross-section consistency."
+    },
+    autoFixable: {
+      EML001: "Missing %%meta name - inserts one derived from the first entity.",
+      EML103: "Column is added by the generator anyway - deletes the declared line.",
+      EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
+      EML114: "Foreign key not ending in _id - appends the suffix.",
+      EML117: "Entity has no primary key - prepends `string id PK`.",
+      EML287: "Rule condition names a camelCase identifier - rewrites it as the snake_case column.",
+      EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
+      EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`."
+    },
+    note: "language/checker.ts AUTO_FIXABLE_CODES and the fixer's dispatch table must list the same codes; a code in one and not the other is either a fix that never runs or a promise the fixer cannot keep."
   }
 };
 
 // language/checker.ts
 init_node_fs();
 init_node_path();
-init_language();
 
 // language/cli/src/parser.ts
 init_language();
@@ -1398,6 +1511,7 @@ function emptyModel() {
     enums: [],
     indexes: [],
     rules: [],
+    reports: [],
     workflows: [],
     hooks: [],
     guards: [],
@@ -1438,6 +1552,7 @@ var SECTION_OPENERS = /^(erDiagram|flowchart|graph|stateDiagram-v2|stateDiagram)
 function parseEml(source) {
   const model = emptyModel();
   fieldEnumRefs.length = 0;
+  fieldHelp.length = 0;
   const diags = model.diagnostics;
   const normalized = source.replace(/\r\n/g, `
 `);
@@ -1499,6 +1614,7 @@ function parseEml(source) {
   return model;
 }
 var fieldEnumRefs = [];
+var fieldHelp = [];
 function parseDirective(line, n, model) {
   const body = line.replace(/^%%/, "").trim();
   const { head: keyword, rest } = splitHead(body);
@@ -1522,6 +1638,8 @@ function parseDirective(line, n, model) {
     case "hook": {
       const m = rest.match(/^(\w+)\s+(\w+)\s+on\s+(\w+)\s*(\[[^\]]*\])?/);
       if (!m) {
+        if (/^\w+\s+on\s+\w+\s*$/.test(rest))
+          return;
         model.diagnostics.push({
           severity: "error",
           code: "EML201",
@@ -1558,7 +1676,59 @@ function parseDirective(line, n, model) {
         const [entity, attr, key, value] = caps(m, 4);
         if (key === "enum")
           fieldEnumRefs.push({ entity, attr, enumName: value.trim() });
+        else if (key === "help" || key === "description")
+          fieldHelp.push({ entity, attr, text: value.trim() });
       }
+      return;
+    }
+    case "report": {
+      const split = rest.match(/^(.*?)\bsql:\s*(.+)$/s);
+      if (!split) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML290",
+          message: `%%report has no sql: clause: "${line}"`,
+          line: n
+        });
+        return;
+      }
+      const [head, sql] = caps(split, 2);
+      const nameMatch = head.match(/^([A-Za-z_][\w-]*)\s*/);
+      if (!nameMatch) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML291",
+          message: `%%report has no name: "${line}"`,
+          line: n
+        });
+        return;
+      }
+      const [name] = caps(nameMatch, 1);
+      const keys = head.slice(nameMatch[0].length);
+      const read = (key) => {
+        const m2 = keys.match(new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:title|entity|chart|x|y|help):|$)`, "s"));
+        return m2?.[1]?.trim() || undefined;
+      };
+      const chartRaw = read("chart");
+      const chart = chartRaw === "bar" || chartRaw === "line" || chartRaw === "pie" || chartRaw === "area" ? chartRaw : undefined;
+      if (chartRaw && !chart) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML296",
+          message: `%%report "${name}" has unknown chart type "${chartRaw}".`,
+          line: n
+        });
+      }
+      model.reports.push({
+        name,
+        title: read("title") ?? name.replace(/[_-]+/g, " "),
+        entity: read("entity"),
+        chart,
+        x: read("x"),
+        y: read("y"),
+        help: read("help"),
+        sql: sql.trim()
+      });
       return;
     }
     case "enum": {
@@ -1609,6 +1779,7 @@ function parseDirective(line, n, model) {
       }
       return;
     }
+    case "rbac":
     case "guard": {
       const m = rest.match(/^(\S+)\s+on\s+(\w+)\.(\w+)/);
       if (m) {
@@ -1658,6 +1829,8 @@ function applyEntityMeta(model, name, key, value) {
     e.prefix = value;
   else if (key === "label")
     e.label = value;
+  else if (key === "help" || key === "description")
+    e.help = value;
 }
 function parseErdSection(section, model, diags) {
   let currentEntity = null;
@@ -1947,24 +2120,22 @@ function applyFieldEnumRefs(model) {
       attr.enumRef = ref.enumName;
   }
   fieldEnumRefs.length = 0;
+  for (const h of fieldHelp) {
+    const entity = model.entities.find((e) => e.name === h.entity);
+    const attr = entity?.attributes.find((a) => a.name === h.attr);
+    if (attr)
+      attr.description = h.text;
+  }
+  fieldHelp.length = 0;
 }
 
 // language/checker.ts
-function parseDirectiveProps(rest) {
-  const props = {};
-  const trimmed = rest.trim();
-  if (!trimmed)
-    return props;
-  for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
-    const at = chunk.indexOf(":");
-    if (at <= 0)
-      continue;
-    const key = chunk.slice(0, at).trim();
-    if (key)
-      props[key] = chunk.slice(at + 1).trim();
-  }
-  return props;
+init_language();
+var useColor = typeof process !== "undefined" && !process.env?.NO_COLOR && Boolean(process.stdout?.isTTY) && !hasFlag("--no-color");
+function hasFlag(name) {
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
 }
+
 class SourceIndex {
   lines;
   constructor(source) {
@@ -1994,6 +2165,60 @@ class SourceIndex {
     return results;
   }
 }
+var LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
+var MANAGED_COLUMN_NAMES = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by"
+]);
+var AUTOMATION_WORKFLOW = /^%%workflow\s+name:\s*\S/;
+var AUTO_TYPE_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+type:\s*([A-Za-z]\w*)\s*(.*)$/;
+var AUTO_PROP_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*):\s*(.*)$/;
+function sagaPropsFromAutomation(type, props) {
+  const out = { ...props };
+  const ref = (value) => value?.trim().match(/^\{\{\s*([^}]+?)\s*\}\}$/)?.[1] ?? null;
+  const move = (from, to) => {
+    const value = out[from];
+    if (value !== undefined && out[to] === undefined)
+      out[to] = value;
+    delete out[from];
+  };
+  if (type === "Decision") {
+    move("ruleTable", "rule");
+    move("table", "decisionTable");
+    delete out.inputs;
+  } else if (type === "CreateEntity") {
+    move("values", "fields");
+  } else if (type === "UpdateEntity" || type === "DeleteEntity") {
+    const target = ref(out.target);
+    if (target) {
+      out.targetSource = out.targetSource ?? target;
+      delete out.target;
+    } else
+      move("target", "targetField");
+    const value = ref(out.value);
+    if (value) {
+      out.source = out.source ?? value;
+      delete out.value;
+    }
+  } else if (type === "Formula") {
+    move("as", "target");
+    const left = ref(out.left);
+    if (left)
+      out.source = out.source ?? left;
+    else if (out.left !== undefined)
+      out.value = out.value ?? out.left;
+    delete out.left;
+    move("right", "operand");
+  } else if (type === "REST") {
+    move("body", "bodyTemplate");
+  }
+  return out;
+}
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -2008,10 +2233,11 @@ var PERSON_ROLE_COLUMN_NAMES = new Set([
 function isPersonRoleColumn(columnName) {
   return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMN_NAMES.has(columnName);
 }
-var QUALIFIER_PREFIXES = ["parent_"];
-function stripQualifierPrefix(columnName) {
-  const prefix = QUALIFIER_PREFIXES.find((p) => columnName.startsWith(p));
-  return prefix ? columnName.slice(prefix.length) : columnName;
+function escapeRe(literal) {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function isForeignKeyColumnName(columnName) {
+  return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
 
 class CheckEngine {
@@ -2022,18 +2248,18 @@ class CheckEngine {
   validHookTypes;
   validCardinalities;
   validModifiers = new Set(["PK", "FK", "UK", "UNIQUE", "OPTIONAL", "NULL"]);
-  validEntityKeys = new Set(["audited", "softDelete", "prefix", "label", "icon"]);
-  validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
-  validMetaKeys = new Set([
-    "name",
-    "kind",
-    "version",
-    "entity",
-    "stack",
+  validEntityKeys = new Set([
+    "audited",
+    "softDelete",
+    "prefix",
+    "label",
+    "icon",
+    "help",
     "description",
-    "operation",
-    "trigger"
+    "parent"
   ]);
+  validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
+  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
   validTriggerSources = /^(cron:|webhook:|message:)/;
   validRoleExpr = /^role:[A-Za-z][A-Za-z0-9_]*(\|(?:role:)?[A-Za-z][A-Za-z0-9_]*)*$/;
@@ -2073,12 +2299,19 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkCategoryDirectives();
+    this.checkLineItems();
+    this.checkHelpText();
     this.checkHooks();
+    this.checkAutomationTriggers();
     this.checkGuards();
+    this.checkRbac();
     this.checkTriggers();
     this.checkWorkflowDirectives();
-    this.checkRuleDirectives();
+    this.checkStepDirectives();
     this.checkActionDirectives();
+    this.checkReportDirectives();
+    this.checkRuleDirectives();
     this.checkRules();
     this.checkWorkflows();
     this.checkCrossDocument();
@@ -2093,12 +2326,19 @@ class CheckEngine {
   }
   fkToEntityName(fkAttr) {
     if (isPersonRoleColumn(fkAttr))
-      return "User";
-    fkAttr = stripQualifierPrefix(fkAttr);
-    if (isPersonRoleColumn(fkAttr))
-      return "User";
+      return this.personEntity();
     const base = fkAttr.slice(0, -3);
     return base.replace(/(^|_)([a-z])/g, (_, _sep, ch) => ch.toUpperCase());
+  }
+  personEntity() {
+    const names = new Set(this.model.entities.map((e) => e.name));
+    if (names.has("User"))
+      return "User";
+    if (names.has("Staff"))
+      return "Staff";
+    if (names.has("Employee"))
+      return "Employee";
+    return "User";
   }
   checkDocument() {
     const { meta } = this.model;
@@ -2172,10 +2412,15 @@ class CheckEngine {
     }
   }
   checkAttributes(entity, entityLine) {
+    const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map;
+    const lastLineByName = new Map;
     let pkCount = 0;
     for (const attr of entity.attributes) {
-      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      const searchFrom = lastLineByName.has(attr.name) ? lastLineByName.get(attr.name) + 1 : entityLine;
+      const attrLine = this.src.findLine(new RegExp(`\\b${attr.name}\\b`), searchFrom) ?? this.src.findLine(new RegExp(`\\b${attr.name}\\b`), entityLine);
+      if (attrLine !== undefined)
+        lastLineByName.set(attr.name, attrLine);
       if (!this.identRe.test(attr.name)) {
         this.error("EML110", `Invalid attribute name "${entity.name}.${attr.name}": must match ^[A-Za-z][A-Za-z0-9_]*$.`, {
           line: attrLine,
@@ -2205,36 +2450,27 @@ class CheckEngine {
           });
         }
       }
-      if (attrLine !== undefined) {
-        const rawModifiers = this.src.getLine(attrLine).trim().replace(/"[^"]*"\s*$/, "");
-        for (const token of rawModifiers.split(/\s+/).slice(2)) {
-          const upper = token.toUpperCase();
-          if (!upper || this.validModifiers.has(upper))
-            continue;
-          this.warn("EML118", `Unknown modifier "${token}" on "${entity.name}.${attr.name}" — it will be ignored.`, {
-            line: attrLine,
-            hint: `Known modifiers: ${[...this.validModifiers].join(", ")}. Use a quoted string for a description.`,
-            context: rawModifiers
-          });
-        }
-      }
-      if (attr.isForeignKey && !attr.name.endsWith("_id") && !isPersonRoleColumn(attr.name)) {
+      if (attr.isForeignKey && !attr.name.endsWith("_id")) {
+        const isPersonRole = attr.name.endsWith("_by");
         this.warn("EML114", `Foreign key "${entity.name}.${attr.name}" does not end with "_id".`, {
           line: attrLine,
-          hint: `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`
+          hint: isPersonRole ? `Rename to "${attr.name}_id" — a _by column names a person by role, so it resolves to the user entity. Run  bun language/fixer.ts  to apply this automatically.` : `Convention: rename to "${attr.name}_id" so the generator can derive the referenced table. Run  bun language/fixer.ts  to apply this automatically.`
         });
       }
-      if (attr.isForeignKey && attr.name.endsWith("_id") && attr.name !== "id" && !isPersonRoleColumn(attr.name)) {
+      if (!attr.isForeignKey && !attr.isPrimaryKey && isForeignKeyColumnName(attr.name)) {
         const target = this.fkToEntityName(attr.name);
-        const known = this.model.entities.some((e) => e.name.toLowerCase() === target.toLowerCase());
-        if (!known) {
-          const stripped = stripQualifierPrefix(attr.name);
-          const qualified = stripped !== attr.name;
-          this.warn("EML119", `Foreign key "${entity.name}.${attr.name}" resolves to "${target}", which this model does not define.`, {
+        if (declaredEntityNames.has(target) && attr.name !== entity.primaryKey) {
+          this.warn("EML119", `Column "${entity.name}.${attr.name}" looks like a reference to "${target}" but is not marked FK.`, {
             line: attrLine,
-            hint: qualified ? `The "${attr.name.slice(0, attr.name.length - stripped.length)}" prefix is already stripped before resolving, so this looks for "${target}". Define that entity, or rename the column after one that exists.` : `Define a "${target}" entity, or rename the column after the entity it points at. Left as is, the field renders a raw UUID with no lookup.`
+            hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
           });
         }
+      }
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`
+        });
       }
       const def = this.def;
       const rawBase = attr.rawType?.replace(/\(\d+\)/, "").toLowerCase();
@@ -2250,6 +2486,19 @@ class CheckEngine {
           this.error("EML116", `Primary key "${entity.name}.${attr.name}" is marked OPTIONAL.`, {
             line: attrLine,
             hint: "Remove OPTIONAL from the PK attribute — primary keys are always required."
+          });
+        }
+      }
+      if (attrLine !== undefined) {
+        const raw = this.src.getLine(attrLine).trim().replace(/"[^"]*"\s*$/, "");
+        for (const token of raw.split(/\s+/).slice(2)) {
+          const upper = token.toUpperCase();
+          if (!upper || this.validModifiers.has(upper))
+            continue;
+          this.warn("EML118", `Unknown modifier "${token}" on "${entity.name}.${attr.name}" — it will be ignored.`, {
+            line: attrLine,
+            hint: `Known modifiers: ${[...this.validModifiers].join(", ")}. Use a quoted string for a description.`,
+            context: raw
           });
         }
       }
@@ -2412,6 +2661,25 @@ class CheckEngine {
         });
       }
     }
+    const boundFields = new Set(this.src.findAll(/^\s*%%field\s+\w+\.\w+\s+enum\s*:/).map(({ text }) => {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
+      return m ? `${m[1]}.${m[2]}` : "";
+    }).filter(Boolean));
+    const entitiesWithMachines = new Set(this.model.workflows.filter((w) => w.kind === "state" && w.entity).map((w) => w.entity));
+    for (const entity of this.model.entities) {
+      for (const attr of entity.attributes) {
+        if (!LIFECYCLE_COLUMN_NAMES.has(attr.name))
+          continue;
+        if (attr.name !== "status" && !entitiesWithMachines.has(entity.name))
+          continue;
+        if (boundFields.has(`${entity.name}.${attr.name}`))
+          continue;
+        this.warn("EML146", `Column "${entity.name}.${attr.name}" has no %%field enum binding.`, {
+          line: this.src.findLine(new RegExp(`^\\s+\\w+\\s+${attr.name}\\b`)),
+          hint: `Declare  %%enum ${entity.name}Status: ...  and bind it with  %%field ${entity.name}.${attr.name} enum: ${entity.name}Status. Unbound, the Application Dictionary records free text and the form accepts values the state machine cannot act on.`
+        });
+      }
+    }
   }
   checkIndexDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
@@ -2470,6 +2738,196 @@ class CheckEngine {
           hint: `Known keys: ${[...this.validEntityKeys].join(", ")}.`
         });
       }
+      if (key === "parent") {
+        const parentName = (m[3] ?? "").trim();
+        const parent = this.model.entities.find((candidate) => candidate.name === parentName);
+        const child = this.model.entities.find((candidate) => candidate.name === entityName);
+        if (!parent) {
+          this.error("EML147", `%%entity ${entityName} parent: "${parentName}" is not declared.`, {
+            line: lineNo,
+            hint: `Declare "${parentName}" in the erDiagram section, or name the entity that owns ${entityName}.`
+          });
+        } else if (parentName === entityName) {
+          this.error("EML147", `%%entity ${entityName} cannot be its own parent.`, {
+            line: lineNo,
+            hint: "A line item belongs to a different entity. Remove the directive if it has no owner."
+          });
+        } else if (child) {
+          const link = this.linkColumnTo(child, parentName);
+          if (!link) {
+            this.error("EML148", `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`, {
+              line: lineNo,
+              hint: `Add \`string ${this.entityToFkName(parentName)} FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
+            });
+          }
+        }
+      }
+    }
+  }
+  declaredParents() {
+    const parents = new Map;
+    for (const { text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+parent\s*:\s*(\S+)\s*$/);
+      if (m?.[1] && m[2])
+        parents.set(m[1], m[2]);
+    }
+    return parents;
+  }
+  categorisedEntities() {
+    const named = new Map;
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const m = text.match(/entities\s*:\s*([^;]*)/);
+      if (!m?.[1])
+        continue;
+      for (const raw of m[1].split(",")) {
+        const name = raw.trim();
+        if (name && !named.has(name))
+          named.set(name, lineNo);
+      }
+    }
+    return named;
+  }
+  linkColumnTo(entity, parentName) {
+    const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+    return entity.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+  }
+  checkCategoryDirectives() {
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const body = text.trim().replace(/^%%\s*category\b\s*/i, "");
+      if (!body)
+        continue;
+      const keys = body.split(";").map((segment) => segment.trim()).filter(Boolean).map((segment) => segment.slice(0, segment.indexOf(":")).trim().toLowerCase());
+      if (!keys.includes("name")) {
+        const shorthand = body.match(/^([^:;]+):\s*(.+)$/);
+        this.warn("EML154", "%%category has no `name:` key, so nothing is declared.", {
+          line: lineNo,
+          hint: shorthand ? `Write it as \`%%category name: ${shorthand[1]?.trim()}; entities: ${shorthand[2]?.trim()}\`. Without \`name:\` the parser skips the line and every entity in it falls into the default General category.` : "Syntax: %%category name: <Name>; description: …; icon: …; entities: <A>, <B>. `name` is the only required key, and a directive without it is dropped."
+        });
+      }
+    }
+  }
+  checkLineItems() {
+    const parents = this.declaredParents();
+    const categorised = this.categorisedEntities();
+    const declared = new Map(this.model.entities.map((e) => [e.name, e]));
+    for (const [child, parent] of parents) {
+      const line = categorised.get(child);
+      if (line === undefined || !declared.has(child))
+        continue;
+      this.warn("EML150", `"${child}" is a line item of "${parent}" but is named in a %%category.`, {
+        line,
+        hint: `A category lists what the dashboard shows, and a child has no card — it is reached by opening a ${parent}. Remove "${child}" from the entities: list.`
+      });
+    }
+    const LINE_ITEM_NOUNS = /(Line|LineItem|Item|Detail|Entry|Row)s?$/;
+    for (const entity of this.model.entities) {
+      if (parents.has(entity.name))
+        continue;
+      let candidate;
+      for (const other of declared.keys()) {
+        if (other === entity.name || other.length < 3)
+          continue;
+        if (!entity.name.startsWith(other) || entity.name.length <= other.length)
+          continue;
+        if (!this.linkColumnTo(entity, other))
+          continue;
+        if (!candidate || other.length > candidate.length)
+          candidate = other;
+      }
+      if (!candidate && LINE_ITEM_NOUNS.test(entity.name)) {
+        for (const attribute of entity.attributes) {
+          if (!attribute.isForeignKey || attribute.isPrimaryKey)
+            continue;
+          if (!isForeignKeyColumnName(attribute.name))
+            continue;
+          if (isPersonRoleColumn(attribute.name))
+            continue;
+          const target = this.fkToEntityName(attribute.name);
+          const match = [...declared.keys()].find((name) => name !== entity.name && (name === target || name.endsWith(target)));
+          if (match && this.linkColumnTo(entity, match)) {
+            candidate = match;
+            break;
+          }
+        }
+      }
+      if (!candidate)
+        continue;
+      const link = this.linkColumnTo(entity, candidate);
+      this.info("EML149", `"${entity.name}" looks like a line item of "${candidate}" but declares no parent.`, {
+        line: this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`)),
+        hint: `If a list of every ${entity.name} away from its ${candidate} is not a screen anyone opens, ` + `declare \`%%entity ${entity.name} parent: ${candidate}\` — the dictionary then drops its dashboard ` + `card and gives it a tab inside the ${candidate} window, linked on ${link?.name}. ` + `If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).`
+      });
+    }
+  }
+  nameAsWords(name) {
+    return name.replace(/[_.]+/g, " ").trim().toLowerCase();
+  }
+  restatedHelp(subject, text) {
+    const [entity = "", column = ""] = subject.split(".");
+    const body = text.trim().replace(/\.+$/, "").trim().toLowerCase();
+    const own = this.nameAsWords(column || entity);
+    const of = entity.toLowerCase();
+    if (/^unique identifier( for \w+)?$/.test(body))
+      return "restates the key";
+    if (new RegExp(`^(the )?${escapeRe(own)}( for ${escapeRe(of)})?$`).test(body)) {
+      return "is the name again, in prose";
+    }
+    if (new RegExp(`^${escapeRe(of)} is an? [\\w -]*(record|entity|table|object)\\b`).test(body)) {
+      return "is a template sentence, not a description";
+    }
+    return;
+  }
+  checkHelpText() {
+    const entityHelp = new Map;
+    const fieldHelp2 = new Map;
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+(?:help|description)\s*:\s*(.+)$/);
+      if (m?.[1] && m[2])
+        entityHelp.set(m[1], { text: m[2], line: lineNo });
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+([\w.]+)\s+help\s*:\s*(.+)$/);
+      if (m?.[1] && m[2])
+        fieldHelp2.set(m[1], { text: m[2], line: lineNo });
+    }
+    for (const entity of this.model.entities) {
+      const entityLine = this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`));
+      const help = entityHelp.get(entity.name);
+      if (!help) {
+        this.warn("EML152", `Entity "${entity.name}" has no %%entity help:.`, {
+          line: entityLine,
+          hint: `Add \`%%entity ${entity.name} help: …\` — what this record is for in the business, when one is created, and what distinguishes it from the entities it sounds like. It becomes sys_table.description and opens the entity's section of the manual.`
+        });
+      } else {
+        const why = this.restatedHelp(entity.name, help.text);
+        if (why) {
+          this.warn("EML151", `%%entity ${entity.name} help: ${why}.`, {
+            line: help.line,
+            hint: `"${help.text.trim().slice(0, 60)}" tells a reader nothing the entity name did not. Say what the business does with these records — the domain knowledge behind the name is the whole reason this line exists.`
+          });
+        }
+      }
+      const undocumented = entity.attributes.filter((attribute) => !MANAGED_COLUMN_NAMES.has(attribute.name.toLowerCase())).filter((attribute) => !attribute.isPrimaryKey).filter((attribute) => !fieldHelp2.has(`${entity.name}.${attribute.name}`)).map((attribute) => attribute.name);
+      if (undocumented.length > 0) {
+        const shown = undocumented.slice(0, 6).join(", ");
+        const rest = undocumented.length > 6 ? `, and ${undocumented.length - 6} more` : "";
+        this.warn("EML153", `${entity.name} has ${undocumented.length} column${undocumented.length === 1 ? "" : "s"} with no %%field help:.`, {
+          line: entityLine,
+          hint: `Add \`%%field ${entity.name}.<column> help: …\` for ${shown}${rest}. Each becomes sys_column.description — the hint under the control and the column's row in the manual — and a column without one prints a dash.`
+        });
+      }
+      for (const attribute of entity.attributes) {
+        const field = fieldHelp2.get(`${entity.name}.${attribute.name}`);
+        if (!field)
+          continue;
+        const why = this.restatedHelp(`${entity.name}.${attribute.name}`, field.text);
+        if (why) {
+          this.warn("EML151", `%%field ${entity.name}.${attribute.name} help: ${why}.`, {
+            line: field.line,
+            hint: `"${field.text.trim().slice(0, 60)}" repeats the column name. Say why the value matters, what is expected in it, and what happens downstream — a reference column should say what the reference is *for*, not that it is one.`
+          });
+        }
+      }
     }
   }
   checkHooks() {
@@ -2521,14 +2979,131 @@ class CheckEngine {
       }
     }
   }
+  checkRbac() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const crudOps = new Set([
+      "create",
+      "insert",
+      "add",
+      "read",
+      "view",
+      "select",
+      "list",
+      "update",
+      "edit",
+      "write",
+      "modify",
+      "delete",
+      "remove",
+      "destroy",
+      "*",
+      "all",
+      "any"
+    ]);
+    const eventsFor = (entity) => {
+      const events = new Set;
+      for (const wf of this.model.workflows) {
+        if (wf.entity !== entity || wf.kind !== "state")
+          continue;
+        for (const t of wf.transitions) {
+          if (t.event)
+            events.add(t.event.trim().toLowerCase().replace(/[\s-]+/g, "_"));
+        }
+      }
+      return events;
+    };
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%rbac\b/)) {
+      const m = text.trim().match(/^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/);
+      if (!m) {
+        this.error("EML210", `Invalid %%rbac syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%rbac <roleExpr> on <Entity>.<op>   e.g.  %%rbac role:admin on Order.delete",
+          context: text.trim()
+        });
+        continue;
+      }
+      const [roleExpr, entity, target] = caps(m, 3);
+      const roles = roleExpr.split("|").map((part) => part.trim().replace(/^role:/i, "").trim()).filter(Boolean);
+      if (roles.length === 0) {
+        this.error("EML211", `%%rbac on ${entity}.${target} names no role.`, {
+          line: lineNo,
+          hint: "A rule with no roles can never be satisfied, so it locks the operation for everyone."
+        });
+        continue;
+      }
+      if (!this.validRoleExpr.test(roleExpr) && !/^[A-Za-z][\w|:]*$/.test(roleExpr)) {
+        this.warn("EML212", `%%rbac role expression "${roleExpr}" may be malformed.`, {
+          line: lineNo,
+          hint: "Format: role:<name> or role:<a>|<b> or role:<a>|role:<b>"
+        });
+      }
+      if (!entityNames.has(entity)) {
+        this.error("EML213", `%%rbac references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section, or check the spelling.`
+        });
+        continue;
+      }
+      const lower = target.toLowerCase();
+      if (crudOps.has(lower))
+        continue;
+      const events = eventsFor(entity);
+      if (events.has(lower))
+        continue;
+      this.error("EML214", `%%rbac on ${entity}.${target} names neither a CRUD operation nor a transition of ${entity}.`, {
+        line: lineNo,
+        hint: events.size ? `Use one of create, read, update, delete, * — or a transition of ${entity}: ${[...events].join(", ")}.` : `Use one of create, read, update, delete, * — ${entity} declares no state machine to take a transition from.`
+      });
+    }
+  }
+  checkReportDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const seen = new Map;
+    for (const report of this.model.reports) {
+      const lineNo = this.src.findLine(new RegExp(`%%report\\s+${report.name}\\b`));
+      const previous = seen.get(report.name);
+      if (previous !== undefined) {
+        this.error("EML292", `%%report "${report.name}" is declared more than once.`, {
+          line: lineNo,
+          hint: "Report names are keys. Give the second one its own name."
+        });
+      }
+      seen.set(report.name, lineNo ?? 0);
+      if (!/^\s*(select|with)\b/i.test(report.sql)) {
+        this.error("EML293", `%%report "${report.name}" does not begin with SELECT or WITH.`, {
+          line: lineNo,
+          hint: "A report reads. Anything that writes belongs in a rule or a hook, not in a report the platform will run on a schedule."
+        });
+      }
+      if (report.chart && (!report.x || !report.y)) {
+        this.error("EML294", `%%report "${report.name}" declares chart: ${report.chart} but not both x: and y:.`, {
+          line: lineNo,
+          hint: "A chart needs the two result columns it draws: x: <column> y: <column>. Drop chart: to keep it as a table."
+        });
+      }
+      if (report.entity && !entityNames.has(report.entity)) {
+        this.warn("EML295", `%%report "${report.name}" names entity "${report.entity}", which this model does not declare.`, {
+          line: lineNo,
+          hint: "entity: is used to group the report with its entity. Correct the name, or drop the key if the report spans several."
+        });
+      }
+    }
+  }
   checkGuards() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     for (const guard of this.model.guards) {
       const guardLine = this.src.findLine(new RegExp(`%%guard.+on\\s+${guard.entity}\\.${guard.op}`));
       const guardText = guardLine ? this.src.getLine(guardLine).trim() : "";
+      if (/^%%guard\s+role\s*:/.test(guardText)) {
+        this.warn("EML223", `%%guard on "${guard.entity}.${guard.op}" is written as an access rule, which %%guard no longer means.`, {
+          line: guardLine,
+          hint: `Rewrite it as  %%rbac ${guardText.replace(/^%%guard\s+/, "")}. As a %%guard it is skipped, so the operation is open to any authenticated caller.`
+        });
+        continue;
+      }
       const roleExprMatch = guardText.match(/^%%guard\s+(\S+)\s+on/);
-      const roleExpr = roleExprMatch ? caps(roleExprMatch, 1)[0] : "";
-      if (roleExprMatch && !this.validRoleExpr.test(roleExpr)) {
+      const roleExpr = roleExprMatch ? caps(roleExprMatch, 2)[0] : "";
+      if (roleExpr && !this.validRoleExpr.test(roleExpr)) {
         this.warn("EML220", `%%guard role expression "${roleExpr}" may be malformed.`, {
           line: guardLine,
           hint: "Format: role:<name> or role:<name>|role:<name>  (e.g. role:admin|role:manager)"
@@ -2546,19 +3121,6 @@ class CheckEngine {
           hint: "Add at least one role, e.g. %%guard role:admin on Entity.op"
         });
       }
-    }
-    this.checkGuardDeprecation();
-  }
-  checkGuardDeprecation() {
-    for (const { lineNo, text } of this.src.findAll(/^\s*%%guard\b/)) {
-      const trimmed = text.trim();
-      if (!/\brole:/.test(trimmed))
-        continue;
-      this.warn("EML223", `%%guard with a role is the retired spelling; use %%rbac.`, {
-        line: lineNo,
-        hint: `Rewrite as: ${trimmed.replace(/^%%guard\b/, "%%rbac")}  —  run  bun language/fixer.ts  to apply this automatically.`,
-        context: trimmed
-      });
     }
   }
   checkTriggers() {
@@ -2595,15 +3157,38 @@ class CheckEngine {
       }
     }
   }
+  checkAutomationTriggers() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%hook\b/)) {
+      const m = text.trim().match(/^%%hook\s+(\w+)\s+on\s+(\w+)\s*$/);
+      if (!m)
+        continue;
+      const [event, entity] = caps(m, 2);
+      if (!this.validHookTypes.has(event)) {
+        this.error("EML205", `Automation trigger uses unknown event "${event}".`, {
+          line: lineNo,
+          hint: `Valid events: ${[...this.validHookTypes].join(", ")}.`
+        });
+      }
+      if (!entityNames.has(entity)) {
+        this.warn("EML206", `Automation trigger references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section.`
+        });
+      }
+    }
+  }
   checkWorkflowDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const workflowLines = this.src.findAll(/^%%workflow\b/);
     for (const { lineNo, text } of workflowLines) {
+      if (AUTOMATION_WORKFLOW.test(text.trim()))
+        continue;
       const m = text.trim().match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (!m) {
         this.error("EML240", `Invalid %%workflow syntax: "${text.trim()}"`, {
           line: lineNo,
-          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>"
+          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>, or %%workflow name: <name> for an automation"
         });
         continue;
       }
@@ -2621,6 +3206,429 @@ class CheckEngine {
         });
       }
     }
+  }
+  checkActionDirectives() {
+    const actionTypes = new Map((this.def.ruleNodes.actions?.types ?? []).map((action) => [action.name, action]));
+    const workflowNames = new Set(this.model.workflows.map((wf) => wf.name));
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%action\b/)) {
+      const match = text.trim().match(/^%%action\s+([A-Za-z_][\w-]*)\s+([A-Za-z][\w-]*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML280", `Invalid %%action syntax: "${text.trim()}"`, {
+          line: lineNo,
+          hint: "Syntax: %%action <name> <actionType> when: <expr> <key>: <value> ..."
+        });
+        continue;
+      }
+      const [, name, typeName, rest] = match;
+      const contract = actionTypes.get(typeName);
+      if (!contract) {
+        this.error("EML281", `%%action "${name}" has unknown type "${typeName}".`, {
+          line: lineNo,
+          hint: `Valid action types: ${[...actionTypes.keys()].join(", ")}.`
+        });
+        continue;
+      }
+      const props = this.parseStepProps(rest ?? "");
+      const has = (key) => (props[key] ?? "").trim().length > 0;
+      if (!has("when")) {
+        this.warn("EML282", `%%action "${name}" has no "when" — it fires on every write.`, {
+          line: lineNo,
+          hint: 'Add a condition, e.g. when: severity == "critical". Use when: true to say "always" on purpose.'
+        });
+      }
+      const missing2 = contract.required.filter((key) => !has(key));
+      if (missing2.length > 0) {
+        this.error("EML283", `%%action "${name}" (${typeName}) is missing: ${missing2.join(", ")}.`, {
+          line: lineNo,
+          hint: `${typeName} requires ${contract.required.join(", ")}.`
+        });
+      }
+      const workflow = props.workflow?.trim();
+      if (typeName === "trigger-workflow" && workflow && !workflowNames.has(workflow)) {
+        this.warn("EML284", `%%action "${name}" triggers workflow "${workflow}", which this document does not declare.`, {
+          line: lineNo,
+          hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`
+        });
+      }
+      const condition = props.when?.trim();
+      if (condition) {
+        const camel = [
+          ...new Set((condition.match(/\b[a-z][A-Za-z0-9]*\b/g) ?? []).filter((identifier) => /[a-z][A-Z]/.test(identifier)))
+        ];
+        if (camel.length > 0) {
+          const snake = (identifier) => identifier.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const tested = camel.map((c) => `"${c}"`).join(", ");
+          const meant = camel.map(snake).join(", ");
+          this.error("EML287", `%%action "${name}" tests ${tested}, which no column is named.`, {
+            line: lineNo,
+            hint: `A rule reads the record being written, and every column is snake_case. ` + `Write ${meant}. A camelCase name is undefined at evaluation: the rule ` + `never fires, or — against == null — fires on every write and the entity ` + `cannot be created.`
+          });
+        }
+      }
+      const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
+      for (const key of Object.keys(props)) {
+        if (!known.has(key)) {
+          this.warn("EML285", `%%action "${name}" has unknown property "${key}".`, {
+            line: lineNo,
+            hint: `${typeName} understands: ${[...known].sort().join(", ")}.`
+          });
+        }
+      }
+    }
+    const triggered = new Set(this.src.findAll(/^\s*%%action\b/).map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1]).filter((name) => !!name));
+    for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
+      const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
+      if (!m || !/\btrigger:\s*rule\b/.test(text))
+        continue;
+      if (triggered.has(m[1]))
+        continue;
+      this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
+        line: lineNo,
+        hint: `Add %%action <name> trigger-workflow when: <condition> workflow: ${m[1]} to a %%rule section, or change it to trigger: automatic.`
+      });
+    }
+  }
+  checkStepDirectives() {
+    const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
+    const entitySpellings = this.entitySpellings();
+    const ruleNames = new Set([
+      ...this.model.rules.map((rule) => rule.name),
+      ...this.src.findAll(/^%%rule\b/).map(({ text }) => text.match(/^%%rule\s+(\w+)/)?.[1]).filter((name) => !!name)
+    ]);
+    for (const section of this.sagaSections()) {
+      const published = new Set;
+      const trigger = this.model.entities.find((candidate) => candidate.name.toLowerCase() === section.entity.toLowerCase());
+      for (const attribute of trigger?.attributes ?? [])
+        published.add(attribute.name);
+      const bound = new Set;
+      for (const { lineNo, nodeId, typeName, props, automation } of this.stepEntries(section.steps)) {
+        const contract = stepTypes.get(typeName);
+        if (!contract) {
+          this.error("EML261", `%%step on node ${nodeId} has unknown type "${typeName}".`, {
+            line: lineNo,
+            hint: `Valid step types: ${[...stepTypes.keys()].join(", ")}.`
+          });
+          continue;
+        }
+        if (!automation && bound.has(nodeId)) {
+          this.error("EML270", `Node "${nodeId}" has more than one %%step.`, {
+            line: lineNo,
+            hint: "Only the first binding runs. Give the second step its own node."
+          });
+          continue;
+        }
+        bound.add(nodeId);
+        if (!section.nodeIds.has(nodeId)) {
+          this.warn("EML263", `%%step binds node "${nodeId}", which is not in the flowchart.`, {
+            line: lineNo,
+            hint: `Add a node "${nodeId}" to the flowchart, or bind the step to an existing one.`
+          });
+        }
+        const has = (key) => (props[key] ?? "").trim().length > 0;
+        const missing2 = [];
+        for (const key of contract.required ?? []) {
+          if (!has(key))
+            missing2.push(key);
+        }
+        for (const group of contract.oneOf ?? []) {
+          if (!group.some((key) => has(key)))
+            missing2.push(`one of ${group.join(" / ")}`);
+        }
+        if (typeName === "Formula" && has("operation")) {
+          const extra = contract.perOperation?.[props.operation.trim()]?.required ?? [];
+          for (const key of extra) {
+            if (!has(key))
+              missing2.push(key);
+          }
+        }
+        if (missing2.length > 0) {
+          this.error("EML262", `%%step ${nodeId} (${typeName}) is missing: ${missing2.join(", ")}.`, {
+            line: lineNo,
+            hint: `${typeName} requires ${(contract.required ?? []).join(", ") || "no fixed properties"}. See spec/03-workflows.md.`
+          });
+        }
+        const known = new Set([
+          ...contract.required ?? [],
+          ...contract.optional ?? [],
+          ...(contract.oneOf ?? []).flat(),
+          ...typeName === "Formula" ? ["source", "operand", "value"] : [],
+          "in",
+          ...automation ? ["as"] : []
+        ]);
+        for (const key of Object.keys(props)) {
+          if (!known.has(key)) {
+            this.warn("EML268", `%%step ${nodeId} (${typeName}) has unknown property "${key}".`, {
+              line: lineNo,
+              hint: `${typeName} understands: ${[...known].sort().join(", ")}.`
+            });
+          }
+        }
+        const entityProp = props.entity?.trim();
+        if (entityProp && !entitySpellings.has(entityProp.toLowerCase())) {
+          this.warn("EML266", `%%step ${nodeId} targets entity "${entityProp}", which the model does not declare.`, {
+            line: lineNo,
+            hint: "Use the entity name from the erDiagram, or its bus_ table name."
+          });
+        }
+        if (typeName === "CreateEntity" && has("fields")) {
+          try {
+            const parsed = JSON.parse(props.fields);
+            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+              throw new Error("not an object");
+            }
+            if (Object.keys(parsed).length === 0) {
+              this.error("EML267", `%%step ${nodeId} (CreateEntity) sets no fields.`, {
+                line: lineNo,
+                hint: 'Give at least one column, e.g. fields: {"status":"open"}.'
+              });
+            }
+          } catch {
+            this.error("EML267", `%%step ${nodeId} (CreateEntity) has an invalid "fields" map.`, {
+              line: lineNo,
+              hint: '`fields` must be a JSON object and the last key on the line, e.g. fields: {"status":"open"}.'
+            });
+          }
+        }
+        if (typeName === "Decision" && has("decisionTable")) {
+          try {
+            const table = JSON.parse(props.decisionTable);
+            if (!table || typeof table !== "object" || Array.isArray(table)) {
+              throw new Error("not an object");
+            }
+            if (!Array.isArray(table.rules) || table.rules.length === 0) {
+              this.error("EML271", `%%step ${nodeId} (Decision) has a table with no rows.`, {
+                line: lineNo,
+                hint: "A table with no rows matches nothing and publishes nothing. Add a row, or drop the step."
+              });
+            } else if (Array.isArray(table.outputs)) {
+              const columns = table.outputs.map((output) => output?.id).filter((id) => Boolean(id));
+              const incomplete = table.rules.filter((row) => columns.some((column) => row?.[column] === undefined));
+              if (incomplete.length > 0) {
+                this.error("EML272", `%%step ${nodeId} (Decision) has ${incomplete.length} row(s) that do not set every output column.`, {
+                  line: lineNo,
+                  hint: `Give every row a value for each of ${columns.join(", ")} — use "''" for the ones it deliberately leaves blank. The engine discards an incomplete row silently.`
+                });
+              }
+            }
+          } catch {
+            this.error("EML271", `%%step ${nodeId} (Decision) has an invalid "decisionTable".`, {
+              line: lineNo,
+              hint: '`decisionTable` must be a JSON object and the last key on the line, e.g. decisionTable: {"hitPolicy":"collect","inputs":[…],"outputs":[…],"rules":[…]}.'
+            });
+          }
+        }
+        if (typeName === "Decision" && has("rule") && !ruleNames.has(props.rule.trim())) {
+          this.warn("EML273", `%%step ${nodeId} (Decision) names rule "${props.rule.trim()}", which the model does not declare.`, {
+            line: lineNo,
+            hint: "Declare it in a `kind: rules` flowchart, or author the table inline with decisionTable. A rule seeded outside the model still resolves at runtime."
+          });
+        }
+        if ((typeName === "UpdateEntity" || typeName === "DeleteEntity") && entityProp && !has("targetSource") && (props.targetField ?? "id").trim() === "id") {
+          this.error("EML265", `%%step ${nodeId} (${typeName}) targets "${entityProp}" without saying which row.`, {
+            line: lineNo,
+            hint: "Set targetSource to a context key holding the row id, or targetField to a foreign key column. The executor refuses this rather than guessing a row."
+          });
+        }
+        const reference = props.targetSource?.trim();
+        if (reference && !published.has(reference)) {
+          this.warn("EML264", `%%step ${nodeId} reads "${reference}", which no earlier step publishes.`, {
+            line: lineNo,
+            hint: `Publish it with \`as: ${reference}\` on a CreateEntity step or \`target: ${reference}\` on a Formula step — unless it is a column of the triggering record.`
+          });
+        }
+        for (const name of this.stepPublishes(typeName, props, entityProp))
+          published.add(name);
+      }
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%step\b/)) {
+      if (this.sagaStepLines.has(lineNo))
+        continue;
+      this.warn("EML269", `%%step is only read inside a saga or automation workflow: "${text.trim()}"`, {
+        line: lineNo,
+        hint: "Move it into a %%workflow ... kind: saga or %%workflow name: ... section, or delete it."
+      });
+    }
+  }
+  sagaStepLines = new Set;
+  stepEntries(steps) {
+    const order = [];
+    const auto = new Map;
+    const entryFor = (nodeId, lineNo, text) => {
+      const existing = auto.get(nodeId);
+      if (existing)
+        return existing;
+      const created = {
+        lineNo,
+        text,
+        nodeId,
+        typeName: "",
+        props: {},
+        automation: true
+      };
+      auto.set(nodeId, created);
+      order.push(created);
+      return created;
+    };
+    for (const { lineNo, text } of steps) {
+      const line = text.trim();
+      const typeLine = line.match(AUTO_TYPE_DIRECTIVE);
+      if (typeLine) {
+        const [, nodeId2 = "", typeName2 = "", rest2 = ""] = typeLine;
+        const entry = entryFor(nodeId2, lineNo, text);
+        entry.typeName = typeName2;
+        entry.lineNo = lineNo;
+        entry.text = text;
+        Object.assign(entry.props, this.parseStepProps(rest2));
+        continue;
+      }
+      const propLine = line.match(AUTO_PROP_DIRECTIVE);
+      if (propLine && propLine[2] !== "type") {
+        const [, nodeId2 = "", key = "", value = ""] = propLine;
+        entryFor(nodeId2, lineNo, text).props[key] = value.trim();
+        continue;
+      }
+      const match = line.match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML260", `Invalid %%step syntax: "${line}"`, {
+          line: lineNo,
+          hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ..., or %%step <nodeId> type: <StepType> for an automation"
+        });
+        continue;
+      }
+      const [, nodeId = "", typeName = "", rest = ""] = match;
+      order.push({
+        lineNo,
+        text,
+        nodeId,
+        typeName,
+        props: this.parseStepProps(rest),
+        automation: false
+      });
+    }
+    for (const entry of order) {
+      if (!entry.automation)
+        continue;
+      if (!entry.typeName) {
+        this.error("EML274", `%%step node "${entry.nodeId}" has no "type:" line.`, {
+          line: entry.lineNo,
+          hint: `Add %%step ${entry.nodeId} type: <StepType>. Without it the step compiles as a Formula.`
+        });
+        continue;
+      }
+      entry.props = sagaPropsFromAutomation(entry.typeName, entry.props);
+    }
+    return order.filter((entry) => entry.typeName);
+  }
+  sagaSections() {
+    const sections = [];
+    let current = null;
+    const nodeRef = /([A-Za-z_]\w*)\s*(?:\(\[[^\]]*\]\)|\(\([^)]*\)\)|\[[^\]]*\]|\{[^}]*\}|\([^)]*\))?/g;
+    const edge = /(?:-->|---|-\.->|==>)/;
+    const all = this.src.findAll(/.*/);
+    for (const { lineNo, text } of all) {
+      const trimmed = text.trim();
+      const automation = trimmed.match(/^%%workflow\s+name:\s*(.+?)\s*$/);
+      if (automation) {
+        if (current)
+          sections.push(current);
+        current = { name: automation[1], entity: "", nodeIds: new Set, steps: [] };
+        continue;
+      }
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
+      if (workflow) {
+        if (current)
+          sections.push(current);
+        current = workflow[3] === "saga" ? { name: workflow[1], entity: workflow[2], nodeIds: new Set, steps: [] } : null;
+        continue;
+      }
+      if (trimmed.startsWith("%%rule ")) {
+        if (current)
+          sections.push(current);
+        current = null;
+        continue;
+      }
+      if (!current)
+        continue;
+      const trigger = trimmed.match(/^%%hook\s+\w+\s+on\s+(\w+)\s*$/);
+      if (trigger && !current.entity) {
+        current.entity = trigger[1];
+        continue;
+      }
+      if (trimmed.startsWith("%%step")) {
+        current.steps.push({ lineNo, text });
+        this.sagaStepLines.add(lineNo);
+        continue;
+      }
+      if (!trimmed || trimmed.startsWith("%%"))
+        continue;
+      if (edge.test(trimmed) || /[[({]/.test(trimmed)) {
+        nodeRef.lastIndex = 0;
+        let m;
+        while ((m = nodeRef.exec(trimmed)) !== null) {
+          if (m[0].trim())
+            current.nodeIds.add(m[1]);
+          if (m.index === nodeRef.lastIndex)
+            nodeRef.lastIndex++;
+        }
+      }
+    }
+    if (current)
+      sections.push(current);
+    return sections;
+  }
+  entitySpellings() {
+    const spellings = new Set;
+    for (const entity of this.model.entities) {
+      const snake = entity.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/-/g, "_").toLowerCase();
+      const bare = snake.replace(/^bus_/, "");
+      spellings.add(entity.name.toLowerCase());
+      spellings.add(snake);
+      spellings.add(bare);
+      spellings.add(`bus_${bare}`);
+    }
+    return spellings;
+  }
+  stepPublishes(typeName, props, entityProp) {
+    if (typeName === "CreateEntity") {
+      const explicit = props.as?.trim();
+      if (explicit)
+        return [explicit];
+      return entityProp ? [`${entityProp.replace(/^bus_/, "")}Id`] : [];
+    }
+    if (typeName === "Formula") {
+      const target = props.target?.trim();
+      return target ? [target] : [];
+    }
+    if (typeName === "Decision") {
+      const allowed = (props.publish ?? "").split(",").map((name) => name.trim()).filter(Boolean);
+      if (allowed.length > 0)
+        return allowed;
+      const inline = props.decisionTable?.trim();
+      if (!inline)
+        return [];
+      try {
+        const table = JSON.parse(inline);
+        return (table.outputs ?? []).map((output) => output?.field?.trim()).filter((field) => Boolean(field));
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+  parseStepProps(rest) {
+    const props = {};
+    const trimmed = rest.trim();
+    if (!trimmed)
+      return props;
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
+      const at = chunk.indexOf(":");
+      if (at <= 0)
+        continue;
+      const key = chunk.slice(0, at).trim();
+      if (key)
+        props[key] = chunk.slice(at + 1).trim();
+    }
+    return props;
   }
   checkRuleDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
@@ -2647,69 +3655,6 @@ class CheckEngine {
           hint: `Valid event values: ${[...this.validHookTypes].join(", ")}.`
         });
       }
-    }
-  }
-  checkActionDirectives() {
-    const actionTypes = new Map((this.def.ruleNodes.actions?.types ?? []).map((action) => [action.name, action]));
-    const workflowNames = new Set(this.model.workflows.map((wf) => wf.name));
-    for (const { lineNo, text } of this.src.findAll(/^\s*%%action\b/)) {
-      const match = text.trim().match(/^%%action\s+([A-Za-z_][\w-]*)\s+([A-Za-z][\w-]*)\s*(.*)$/);
-      if (!match) {
-        this.error("EML280", `Invalid %%action syntax: "${text.trim()}"`, {
-          line: lineNo,
-          hint: "Syntax: %%action <name> <actionType> when: <expr> <key>: <value> ..."
-        });
-        continue;
-      }
-      const [name, typeName, rest] = caps(match, 3);
-      const contract = actionTypes.get(typeName);
-      if (!contract) {
-        this.error("EML281", `%%action "${name}" has unknown type "${typeName}".`, {
-          line: lineNo,
-          hint: `Valid action types: ${[...actionTypes.keys()].join(", ")}.`
-        });
-        continue;
-      }
-      const props = parseDirectiveProps(rest ?? "");
-      const has = (key) => (props[key] ?? "").trim().length > 0;
-      if (!has("when")) {
-        this.warn("EML282", `%%action "${name}" has no "when" — it fires on every write.`, {
-          line: lineNo,
-          hint: 'Add a condition, e.g. when: severity == "critical". Use when: true to say "always" on purpose.'
-        });
-      }
-      const missing2 = contract.required.filter((key) => !has(key));
-      if (missing2.length > 0) {
-        this.error("EML283", `%%action "${name}" (${typeName}) is missing: ${missing2.join(", ")}.`, { line: lineNo, hint: `${typeName} requires ${contract.required.join(", ")}.` });
-      }
-      const workflow = props.workflow?.trim();
-      if (typeName === "trigger-workflow" && workflow && !workflowNames.has(workflow)) {
-        this.warn("EML284", `%%action "${name}" triggers workflow "${workflow}", which this document does not declare.`, {
-          line: lineNo,
-          hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`
-        });
-      }
-      const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
-      for (const key of Object.keys(props)) {
-        if (!known.has(key)) {
-          this.warn("EML285", `%%action "${name}" has unknown property "${key}".`, {
-            line: lineNo,
-            hint: `${typeName} understands: ${[...known].sort().join(", ")}.`
-          });
-        }
-      }
-    }
-    const triggered = new Set(this.src.findAll(/^\s*%%action\b/).map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1]).filter((name) => !!name));
-    for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
-      const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
-      if (!m?.[1] || !/\btrigger:\s*rule\b/.test(text))
-        continue;
-      if (triggered.has(m[1]))
-        continue;
-      this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
-        line: lineNo,
-        hint: `Add %%action <name> trigger-workflow when: <condition> workflow: ${m[1]} to a %%rule section, or change it to trigger: automatic.`
-      });
     }
   }
   checkRules() {
@@ -2795,7 +3740,6 @@ class CheckEngine {
   }
   checkWorkflows() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
-    const enumNames = new Set(this.model.enums.map((e) => e.name));
     for (const wf of this.model.workflows) {
       if (wf.entity && !entityNames.has(wf.entity)) {
         this.warn("EML400", `Workflow "${wf.name}" bound to undeclared entity "${wf.entity}".`, {
@@ -2805,7 +3749,7 @@ class CheckEngine {
       if (wf.kind === "hook") {
         this.checkHookWorkflow(wf);
       } else if (wf.kind === "state") {
-        this.checkStateWorkflow(wf, enumNames);
+        this.checkStateWorkflow(wf);
       } else if (wf.kind === "saga") {
         this.checkSagaWorkflow(wf);
       }
@@ -2818,7 +3762,7 @@ class CheckEngine {
       });
     }
   }
-  checkStateWorkflow(wf, _enumNames) {
+  checkStateWorkflow(wf) {
     if (wf.transitions.length === 0) {
       this.warn("EML420", `State workflow "${wf.name}" has no transitions.`, {
         hint: "Add state transitions:  StateA --> StateB : eventName"
@@ -2860,25 +3804,34 @@ class CheckEngine {
         });
       }
     }
-    if (wf.entity) {
+    const namedStates = wf.states.filter((state) => state !== "[*]");
+    if (wf.entity && namedStates.length > 0) {
+      const stateSet = new Set(namedStates);
+      let candidate;
       for (const em of this.model.enums) {
-        const stateSet = new Set(wf.states);
         const enumSet = new Set(em.values);
-        const overlap = [...stateSet].filter((s) => enumSet.has(s));
-        if (overlap.length === wf.states.length && wf.states.length > 0) {
-          const missingInEnum = [...stateSet].filter((s) => !enumSet.has(s));
-          const extraInEnum = [...enumSet].filter((v) => !stateSet.has(v));
-          if (missingInEnum.length > 0) {
-            this.warn("EML426", `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${em.name}".`, {
-              hint: `Add these values to  %%enum ${em.name}: ...`
-            });
-          }
-          if (extraInEnum.length > 0) {
-            this.info("EML427", `Enum "${em.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`, {
-              hint: "These may be future states or unreachable values — remove if not needed."
-            });
-          }
-          break;
+        const overlap = namedStates.filter((state) => enumSet.has(state)).length;
+        if (overlap > 0 && (!candidate || overlap > candidate.overlap)) {
+          candidate = { name: em.name, values: em.values, overlap };
+        }
+      }
+      if (!candidate) {
+        this.warn("EML428", `State workflow "${wf.name}" has no matching %%enum; its states are not a declared vocabulary.`, {
+          hint: `Add  %%enum ${wf.entity}Status: ${namedStates.join(", ")}  and bind it with  %%field ${wf.entity}.status enum: ${wf.entity}Status`
+        });
+      } else {
+        const enumSet = new Set(candidate.values);
+        const missingInEnum = namedStates.filter((state) => !enumSet.has(state));
+        const extraInEnum = candidate.values.filter((value) => !stateSet.has(value));
+        if (missingInEnum.length > 0) {
+          this.warn("EML426", `State workflow "${wf.name}": states [${missingInEnum.join(", ")}] are not in enum "${candidate.name}".`, {
+            hint: `Add these values to  %%enum ${candidate.name}: ...`
+          });
+        }
+        if (extraInEnum.length > 0) {
+          this.info("EML427", `Enum "${candidate.name}" has values [${extraInEnum.join(", ")}] not present as states in workflow "${wf.name}".`, {
+            hint: "These may be future states or unreachable values — remove if not needed."
+          });
         }
       }
     }
@@ -2917,105 +3870,12 @@ class CheckEngine {
     return canReach;
   }
   checkSagaWorkflow(wf) {
-    const steps = this.sagaSteps();
-    if (steps.length === 0) {
-      if (wf.hooks.length === 0) {
-        this.warn("EML430", `Saga workflow "${wf.name}" has no %%step directives.`, {
-          hint: "Bind each node:  %%step <nodeId> <NodeType> <key>: <value>  — the node id is what places the step in the sequence."
-        });
-      }
-      return;
+    const declared = this.sagaSections().find((section) => section.name === wf.name);
+    if (declared && declared.steps.length === 0 && wf.hooks.length === 0) {
+      this.warn("EML430", `Saga workflow "${wf.name}" declares no steps.`, {
+        hint: "Bind its flowchart nodes with %%step directives, e.g. %%step B UpdateEntity field: status value: escalated."
+      });
     }
-    const nodeIds = this.flowchartNodeIds();
-    const seen = new Set;
-    for (const { line, step } of steps) {
-      if (!isStepNodeType(step.nodeType)) {
-        this.error("EML431", `Unknown step type "${step.nodeType}" in %%step.`, {
-          line,
-          hint: `Known types: ${stepNodeTypes().join(", ")}.`
-        });
-        continue;
-      }
-      if (stepNodeSpec(step.nodeType)?.shipped === false) {
-        this.error("EML437", `Step type "${step.nodeType}" is declared by the language but not executed by the generated backend.`, {
-          line,
-          hint: `The run fails when it reaches this step. Remove it, or implement "${step.nodeType}" in the backend's services/workflow.rs.`
-        });
-        continue;
-      }
-      if (nodeIds.size > 0 && !nodeIds.has(step.nodeId)) {
-        this.error("EML432", `%%step references node "${step.nodeId}", which is not in the flowchart.`, {
-          line,
-          hint: "The node id is the binding. Draw the node, or correct the id."
-        });
-      }
-      if (seen.has(step.nodeId)) {
-        this.error("EML433", `Node "${step.nodeId}" already has a %%step; only the first runs.`, {
-          line,
-          hint: "Give the second step its own node in the flowchart."
-        });
-      }
-      seen.add(step.nodeId);
-      for (const missing2 of missingStepProps(step.nodeType, step.properties)) {
-        this.error("EML434", `${step.nodeType} step "${step.nodeId}" is missing ${missing2}.`, {
-          line,
-          hint: stepNodeSpec(step.nodeType)?.example
-        });
-      }
-      if (step.nodeType === "Formula") {
-        const operation = step.properties["operation"] ?? "";
-        const known = stepNodeSpec("Formula")?.operations ?? [];
-        if (operation && !known.includes(operation)) {
-          this.error("EML435", `Unknown Formula operation "${operation}".`, {
-            line,
-            hint: `Known operations: ${known.join(", ")}.`
-          });
-        }
-      }
-      for (const key of ["fields", "data"]) {
-        const raw = step.properties[key];
-        if (raw === undefined)
-          continue;
-        const probe = raw.replace(/\{\{[^}]*\}\}/g, "x");
-        try {
-          JSON.parse(probe);
-        } catch {
-          this.error("EML436", `${step.nodeType} step "${step.nodeId}" has invalid JSON in ${key}.`, {
-            line,
-            hint: `${key} must be a JSON object and must be the last key on the line.`
-          });
-        }
-      }
-    }
-  }
-  sagaSteps() {
-    const found = [];
-    this.src.lines.forEach((text, index) => {
-      const step = parseStepLine(text);
-      if (step)
-        found.push({ line: index + 1, step });
-    });
-    return found;
-  }
-  flowchartNodeIds() {
-    const ids = new Set;
-    const shape = /(^|\s|>)([A-Za-z_]\w*)\s*(\(\[|\[|\{|\(\(|\()/g;
-    for (const text of this.src.lines) {
-      const trimmed = text.trim();
-      if (trimmed.startsWith("%%"))
-        continue;
-      for (const match of trimmed.matchAll(shape))
-        ids.add(match[2]);
-      if (trimmed.includes("--") || trimmed.includes("==")) {
-        const cleaned = trimmed.replace(/\|[^|]*\|/g, " ");
-        for (const part of cleaned.split(/-{2,}>|-{2,}|={2,}>/)) {
-          const id = /^\s*([A-Za-z_]\w*)/.exec(part)?.[1];
-          if (id)
-            ids.add(id);
-        }
-      }
-    }
-    return ids;
   }
   checkCrossDocument() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
@@ -3047,12 +3907,18 @@ class CheckEngine {
         }
       }
     }
+    const declaredNames = new Set(this.model.entities.map((candidate) => candidate.name));
     for (const entity of this.model.entities) {
+      const claimed = new Set(entity.attributes.filter((candidate) => candidate.isForeignKey && candidate.name.endsWith("_id")).map((candidate) => this.fkToEntityName(candidate.name)).filter((name) => declaredNames.has(name)));
+      const spareParents = this.model.relationships.filter((r) => r.target === entity.name && r.source !== entity.name).map((r) => r.source).filter((name) => declaredNames.has(name) && !claimed.has(name));
       for (const attr of entity.attributes) {
         if (attr.isForeignKey && attr.name.endsWith("_id")) {
           const parentEntityName = this.fkToEntityName(attr.name);
           const hasRelationship = this.model.relationships.some((r) => (r.source === entity.name || r.target === entity.name) && (r.source === parentEntityName || r.target === parentEntityName));
-          if (!hasRelationship) {
+          const resolvedByRelationship = !declaredNames.has(parentEntityName) && spareParents.length > 0;
+          if (resolvedByRelationship)
+            spareParents.shift();
+          if (!hasRelationship && !resolvedByRelationship) {
             this.info("EML502", `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`, {
               hint: `Add:  ${parentEntityName} ||--o{ ${entity.name} : "..."  (or reverse for manyToOne).`
             });
@@ -3095,7 +3961,7 @@ class CheckEngine {
     for (const rule of this.model.rules) {
       if (!rule.entity) {
         this.info("EML506", `Rule "${rule.name}" has no entity binding.`, {
-          hint: "Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle."
+          hint: `Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle.`
         });
       }
     }
@@ -3110,14 +3976,19 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML422",
   "EML001",
   "EML114",
-  "EML223"
+  "EML112",
+  "EML103",
+  "EML287"
 ]);
 if (false) {}
 
 // language/fixer.ts
 init_node_fs();
 init_node_path();
-var {spawnSync} = (() => ({}));
+var useColor2 = typeof process !== "undefined" && !process.env?.NO_COLOR && Boolean(process.stdout?.isTTY) && !hasFlag2("--no-color");
+function hasFlag2(name) {
+  return typeof process !== "undefined" && (process.argv?.includes(name) ?? false);
+}
 function applyFixes(source, issues) {
   const lines = source.split(`
 `);
@@ -3141,14 +4012,18 @@ function applyFix(lines, issue) {
       return fixMissingMetaName(lines, issue, base);
     case "EML114":
       return fixForeignKeyNaming(lines, issue, base);
+    case "EML112":
+      return fixDuplicateAttribute(lines, issue, base);
+    case "EML103":
+      return fixManagedColumn(lines, issue, base);
     case "EML117":
       return fixMissingPrimaryKey(lines, issue, base);
     case "EML421":
       return fixMissingInitialTransition(lines, issue, base);
     case "EML422":
       return fixMissingTerminalTransition(lines, issue, base);
-    case "EML223":
-      return fixGuardToRbac(lines, issue, base);
+    case "EML287":
+      return fixCamelCaseRuleCondition(lines, issue, base);
     default:
       base.description = `No auto-fix strategy for ${issue.code}.`;
       return base;
@@ -3182,23 +4057,48 @@ function fixMissingMetaName(lines, _issue, base) {
   base.changes.push({ lineNo: insertAt + 1, before: "", after: newLine, action: "insert" });
   return base;
 }
-function fixGuardToRbac(lines, issue, base) {
+function fixCamelCaseRuleCondition(lines, issue, base) {
   const lineNo = issue.line ? issue.line - 1 : -1;
-  const original = lines[lineNo];
-  if (lineNo < 0 || original === undefined) {
-    base.description = "Could not locate the %%guard line.";
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = "EML287 carries no line to repair.";
     return base;
   }
-  if (!/^\s*%%guard\b/.test(original)) {
-    base.description = `Line ${issue.line} is not a %%guard directive.`;
+  const original = lines[lineNo] ?? "";
+  if (!/^\s*%%action\b/.test(original)) {
+    base.description = `Line ${issue.line} is not a %%action directive.`;
     return base;
   }
-  const rewritten = original.replace(/^(\s*)%%guard\b/, "$1%%rbac");
-  lines[lineNo] = rewritten;
+  const WHEN = /^(.*?\bwhen:\s*)(.*?)(\s+(?:message|field|value|workflow|to|target):\s.*)?$/;
+  const match = original.match(WHEN);
+  if (!match) {
+    base.description = "Could not isolate the when: condition.";
+    return base;
+  }
+  const [, head, condition, tail] = match;
+  const renamed = [];
+  const repaired = condition.replace(/'[^']*'|"[^"]*"|\b[a-z][A-Za-z0-9]*\b/g, (token) => {
+    if (token.startsWith("'") || token.startsWith('"'))
+      return token;
+    if (!/[a-z][A-Z]/.test(token))
+      return token;
+    const snake = token.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+    renamed.push(`${token} → ${snake}`);
+    return snake;
+  });
+  if (renamed.length === 0) {
+    base.description = "No camelCase identifier found in the condition.";
+    return base;
+  }
+  lines[lineNo] = `${head}${repaired}${tail ?? ""}`;
   base.applied = true;
-  base.description = "Rewrote %%guard as %%rbac.";
+  base.description = `Rewrote ${renamed.join(", ")} in the rule condition.`;
   base.changes = [
-    { lineNo: lineNo + 1, before: original, after: rewritten, action: "replace" }
+    {
+      lineNo: issue.line ?? lineNo + 1,
+      before: original,
+      after: lines[lineNo] ?? "",
+      action: "replace"
+    }
   ];
   return base;
 }
@@ -3219,7 +4119,7 @@ function fixForeignKeyNaming(lines, issue, base) {
     return base;
   }
   const before = lines[lineNo];
-  const attrRe = new RegExp(`^(\\s*[A-Za-z][A-Za-z0-9_()]*\\s+)${escapeRe(columnName)}\\b`);
+  const attrRe = new RegExp(`^(\\s*[A-Za-z][A-Za-z0-9_()]*\\s+)${escapeRe2(columnName)}\\b`);
   if (!attrRe.test(before)) {
     base.description = `Line ${lineNo + 1} does not look like the "${columnName}" attribute; left alone.`;
     return base;
@@ -3236,11 +4136,11 @@ function fixForeignKeyNaming(lines, issue, base) {
   base.changes.push({ lineNo: lineNo + 1, before, after, action: "replace" });
   return base;
 }
-function escapeRe(s) {
+function escapeRe2(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 function findAttributeLine(lines, entityName, columnName) {
-  const openRe = new RegExp(`^\\s*${escapeRe(entityName)}\\s*\\{`);
+  const openRe = new RegExp(`^\\s*${escapeRe2(entityName)}\\s*\\{`);
   let inEntity = false;
   for (let i = 0;i < lines.length; i++) {
     const line = lines[i];
@@ -3251,10 +4151,77 @@ function findAttributeLine(lines, entityName, columnName) {
     }
     if (/^\s*\}/.test(line))
       return -1;
-    if (new RegExp(`\\b${escapeRe(columnName)}\\b`).test(line))
+    if (new RegExp(`\\b${escapeRe2(columnName)}\\b`).test(line))
       return i;
   }
   return -1;
+}
+function fixDuplicateAttribute(lines, issue, base) {
+  const match = issue.message.match(/Duplicate attribute "([^".]+)\.([^"]+)"/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match;
+  const duplicateNo = issue.line ? issue.line - 1 : -1;
+  const firstMatch = issue.hint?.match(/First occurrence on line (\d+)/);
+  const firstNo = firstMatch?.[1] ? Number(firstMatch[1]) - 1 : -1;
+  if (duplicateNo < 0 || duplicateNo >= lines.length || firstNo < 0 || firstNo >= lines.length) {
+    base.description = `Could not locate both declarations of "${entityName}.${columnName}".`;
+    return base;
+  }
+  const duplicate = lines[duplicateNo];
+  const first = lines[firstNo];
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe2(columnName)}\\b`);
+  if (!nameRe.test(duplicate) || !nameRe.test(first)) {
+    base.description = `Lines ${firstNo + 1} and ${duplicateNo + 1} do not both declare "${columnName}"; left alone.`;
+    return base;
+  }
+  const modifiersOf = (line) => line.trim().split(/\s+/).slice(2).map((word) => word.toUpperCase());
+  const optional = (line) => modifiersOf(line).some((word) => word === "OPTIONAL" || word === "NULL");
+  let kept = first;
+  if (optional(first) && !optional(duplicate)) {
+    kept = kept.replace(/\s+(OPTIONAL|NULL)\b/gi, "");
+  }
+  for (const modifier of ["UK", "UNIQUE", "FK"]) {
+    if (modifiersOf(duplicate).includes(modifier) && !modifiersOf(kept).includes(modifier)) {
+      kept = `${kept.trimEnd()} ${modifier}`;
+    }
+  }
+  base.changes = [];
+  if (kept !== first) {
+    lines[firstNo] = kept;
+    base.changes.push({ lineNo: firstNo + 1, before: first, after: kept, action: "replace" });
+  }
+  lines.splice(duplicateNo, 1);
+  base.changes.push({ lineNo: duplicateNo + 1, before: duplicate, after: "", action: "delete" });
+  base.applied = true;
+  base.description = kept === first ? `Removed the second declaration of "${entityName}.${columnName}".` : `Removed the second declaration of "${entityName}.${columnName}", keeping its stronger constraints.`;
+  return base;
+}
+function fixManagedColumn(lines, issue, base) {
+  const match = issue.message.match(/Column "([^".]+)\.([^"]+)" is added by the generator/);
+  if (!match) {
+    base.description = "Could not extract entity and column from issue message.";
+    return base;
+  }
+  const [, entityName, columnName] = match;
+  const lineNo = issue.line ? issue.line - 1 : findAttributeLine(lines, entityName, columnName);
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = `Could not locate "${entityName}.${columnName}" in the source.`;
+    return base;
+  }
+  const nameRe = new RegExp(`^\\s*[A-Za-z][A-Za-z0-9_()]*\\s+${escapeRe2(columnName)}\\b`);
+  if (!nameRe.test(lines[lineNo])) {
+    base.description = `Line ${lineNo + 1} does not declare "${columnName}"; left alone.`;
+    return base;
+  }
+  const before = lines[lineNo];
+  lines.splice(lineNo, 1);
+  base.applied = true;
+  base.description = `Removed "${entityName}.${columnName}" — the generator adds it.`;
+  base.changes = [{ lineNo: lineNo + 1, before, after: "", action: "delete" }];
+  return base;
 }
 function fixMissingPrimaryKey(lines, issue, base) {
   const entityMatch = issue.message.match(/Entity "([^"]+)"/);
@@ -3418,8 +4385,17 @@ setLanguageDefinition(appwithai_language_default);
 var LANGUAGE_VERSION = appwithai_language_default.language.version;
 var AUTO_FIXABLE = [...AUTO_FIXABLE_CODES].sort();
 var SEVERITY_ORDER = { error: 0, warning: 1, info: 2 };
-function mark(result) {
-  return [...result.issues].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (a.line ?? 0) - (b.line ?? 0)).map((issue) => ({ ...issue, autoFixable: AUTO_FIXABLE_CODES.has(issue.code) }));
+function mark(result, source) {
+  const lines = source.split(`
+`);
+  return [...result.issues].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (a.line ?? 0) - (b.line ?? 0)).map((issue) => {
+    const text = issue.line && issue.line >= 1 ? lines[issue.line - 1] : undefined;
+    return {
+      ...issue,
+      autoFixable: AUTO_FIXABLE_CODES.has(issue.code),
+      ...text === undefined ? {} : { lineText: text.replace(/\s+$/, "") }
+    };
+  });
 }
 function fix(source, issues) {
   const fixable = issues.filter((issue) => AUTO_FIXABLE_CODES.has(issue.code)).map((issue) => ({ ...issue, autoFixable: true }));
@@ -3440,7 +4416,7 @@ function checkAndFix(source) {
     ok: final.errors === 0,
     counts: { errors: final.errors, warnings: final.warnings, infos: final.infos },
     fixes,
-    remaining: mark(final),
+    remaining: mark(final, finalSource),
     languageVersion: LANGUAGE_VERSION
   };
 }

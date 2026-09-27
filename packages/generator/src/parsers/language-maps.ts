@@ -34,7 +34,7 @@ export type CanonicalType =
 
 export type CardinalityKind = "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
 
-interface LanguageDefinitionShape {
+export interface LanguageDefinitionShape {
   types?: { map?: Record<string, CanonicalType>; default?: CanonicalType };
   cardinalities?: { map?: Array<{ operator: string; kind: CardinalityKind }> };
   workflowConstructs?: {
@@ -209,6 +209,18 @@ export function getCardinalityKind(operator: string): CardinalityKind | null {
   const def = loadDefinition();
   const map = def?.cardinalities?.map?.length ? def.cardinalities.map : FALLBACK_CARDINALITY_MAP;
   return map.find((c) => c.operator === operator)?.kind ?? null;
+}
+
+/**
+ * Supply the language definition directly instead of finding it on disk.
+ *
+ * For a context with no filesystem to search — the browser bundle of the YAML
+ * model language, which inlines the same JSON. Without it the lookup finds
+ * nothing and every map falls back to the built-in vocabulary, which reads a
+ * model differently from the CLI and says nothing about it.
+ */
+export function setLanguageMapsDefinition(definition: LanguageDefinitionShape): void {
+  cachedDefinition = definition;
 }
 
 /** Test-only: reset the in-memory cache. */

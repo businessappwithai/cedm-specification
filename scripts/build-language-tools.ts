@@ -57,6 +57,17 @@ const TOOLS = [
       "//   import { checkAndFix } from './fixer.js';\n" +
       "//   const { source, ok, remaining } = checkAndFix(model);\n",
   },
+  {
+    entry: "language/browser/model-yaml.entry.ts",
+    target: "html/model-yaml.js",
+    global: "EMLYaml",
+    what: "the YAML model language",
+    blurb:
+      "// Validate, view and convert models written in YAML, the source of truth:\n" +
+      "//   import { validate, view, convert } from './model-yaml.js';\n" +
+      "//   const { ok, diagnostics } = validate(yamlText);   // located at YAML lines\n" +
+      "//   const { text } = view(yamlText);                   // the Mermaid drawing\n",
+  },
 ] as const;
 
 /**
@@ -96,8 +107,10 @@ const nodeStubs: Record<string, string> = {
 const stubPlugin: import("bun").BunPlugin = {
   name: "node-builtin-stubs",
   setup(build) {
-    build.onResolve({ filter: /^node:(fs|path|url)$/ }, (args) => ({
-      path: args.path,
+    // Both spellings: the checker imports `node:fs`, the generator's language
+    // maps import `fs`. They resolve to the same stub.
+    build.onResolve({ filter: /^(?:node:)?(fs|path|url)$/ }, (args) => ({
+      path: args.path.startsWith("node:") ? args.path : `node:${args.path}`,
       namespace: "node-stub",
     }));
     build.onLoad({ filter: /.*/, namespace: "node-stub" }, (args) => ({

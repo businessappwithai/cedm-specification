@@ -1,9 +1,17 @@
 # EML CLI (`eml`)
 
-A robust, zero-runtime-dependency TypeScript CLI that reads the
-[APPWITHAI Modeling Language](../README.md) definition, parses an `.mmd` EML
-model (ERD + business rules + workflows), validates it **with self-correction**,
-and **generates a complete, runnable application** from it.
+A robust TypeScript CLI that reads the
+[APPWITHAI Modeling Language](../README.md) definition, reads a model — a
+`.eml.yaml` YAML model, the source of truth, or an `.mmd` EML model (ERD +
+business rules + workflows) — validates it **with self-correction**, and
+**generates a complete, runnable application** from it.
+
+A YAML model is read by the language's own reader and validated with the same
+four layers as `appwithai validate` (YAML, the JSON Schema, the full checker,
+view fidelity), reported at YAML lines; the commands then work on its view.
+That reader is loaded only for a YAML input, so the CLI keeps no runtime
+dependencies for EML. `eml-cli-equivalence.test.ts` holds the CLI to reading
+every corpus model's YAML exactly as it reads the EML.
 
 Runs under **Bun** (source) or Node (bundled). No project install required.
 
@@ -23,7 +31,7 @@ bun language/cli/eml.ts --help
 ## Options
 
 ```
--i, --input <file>        Input .mmd EML file (or first positional arg)
+-i, --input <file>        Model: .eml.yaml (YAML) or .mmd (EML); or first positional arg
 -o, --output <dir>        Output directory for the generated app
 -n, --name <name>         Application name (default: derived from the model)
     --stack <stack>       node-rest (default) | tanstack-nestjs
