@@ -5,11 +5,14 @@ registry:
   specificationVersion: 0.3.0
   status: draft
   entities:
+    - AIEvaluation
     - AIModel
+    - AIPolicy
     - AIPrediction
     - Account
     - Address
     - Aircraft
+    - Allergy
     - Asset
     - AssetDepreciation
     - BOMComponent
@@ -19,6 +22,7 @@ registry:
     - BillOfMaterial
     - BusinessProcess
     - BusinessTransaction
+    - CarePlan
     - ChemicalBatch
     - Compound
     - ConstructionProject
@@ -38,6 +42,7 @@ registry:
     - CustomerReturn
     - CustomerReturnLine
     - CustomsDeclaration
+    - DataQualityAssessment
     - Dataset
     - Diagnosis
     - DiscountRule
@@ -65,6 +70,7 @@ registry:
     - GoodsReceiptLine
     - GovernmentCase
     - HealthcareEncounter
+    - HealthcareOrder
     - HealthcarePatient
     - HealthcareProvider
     - Hotel
@@ -132,10 +138,12 @@ registry:
     - RepairEstimate
     - RepairEstimateLine
     - ResearchProject
+    - ResourceAssignment
     - RetailSale
     - RetailSaleLine
     - ReturnDisposition
     - Risk
+    - RiskTreatment
     - Role
     - SalesOrder
     - SalesOrderLine
@@ -166,6 +174,7 @@ registry:
     - TaxRule
     - TelecomService
     - TelecomSubscription
+    - Timesheet
     - TradeDeclaration
     - Trip
     - TripSegment
