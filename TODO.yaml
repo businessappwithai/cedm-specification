@@ -43,7 +43,8 @@ todo:
     - id: inventory
       name: Inventory
       entities: [InventoryItem, InventoryBalance, Lot, SerialNumber, InventoryReservation, InventoryMovement, InventoryTransfer, InventoryAdjustment, InventoryCount]
-      status: pending-verification
+      status: in-progress
+      notes: Canonical Lot and SerialNumber traceability masters are implemented and propagated through Product, InventoryMovement and lot-segmented InventoryBalance; transfer, adjustment and count transaction coverage remains pending.
     - id: warehouse-wms
       name: Warehouse / WMS
       entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
@@ -193,7 +194,6 @@ todo:
 
   discoveredGaps:
     - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
-    - {domain: inventory, missing: [Lot, SerialNumber], priority: critical}
     - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
     - {domain: manufacturing, missing: [Routing, ProductionOrder], priority: critical}
     - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
