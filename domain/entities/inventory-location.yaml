@@ -45,6 +45,16 @@ entity:
     help:
       summary: Active reservations dependent on the location's available stock.
       workflowRole: Blocking or retiring a location requires controlled handling of outstanding reservations before the location is removed from future allocation.
+  - name: warehouseZone
+    target: WarehouseZone
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Operational warehouse zone containing this inventory location., businessMeaning: Supplies storage/process/control classification., usage: Putaway, picking, quarantine, replenishment and reporting., cardinalityMeaning: Optional for locations outside zoned warehouses., workflowRole: Location eligibility must comply with zone controls.}
+  - name: handlingUnits
+    target: HandlingUnit
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Physical logistics units currently associated with this location., businessMeaning: Supports pallet/carton/tote execution without replacing stock balances., usage: Scanning, putaway, picking and count., cardinalityMeaning: Zero or many handling units., workflowRole: Handling-unit moves must reconcile with underlying inventory execution.}
   invariants:
   - {id: INVENTORY-LOCATION-001, rule: code must be unique within its Warehouse.}
   - {id: INVENTORY-LOCATION-002, rule: capacity must be non-negative when supplied.}
