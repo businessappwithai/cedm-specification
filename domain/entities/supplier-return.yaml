@@ -118,6 +118,16 @@ entity:
       usage: Supports supplier disputes, return authorization, quarantine, reinspection and completion controls.
       cardinalityMeaning: A return may have no inspection, one inspection, or multiple inspections for partial quantities or reinspection.
       workflowRole: Quality results can gate return completion or create controlled exception paths; inspection does not itself change inventory or payable balances.
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled operational disposition decisions associated with this supplier return.
+      businessMeaning: Provides explicit evidence of the approved physical outcome for returned procurement material.
+      usage: Reverse procurement, warehouse execution, quality, inventory reconciliation, supplier claims, and audit.
+      cardinalityMeaning: A supplier return may have zero or many dispositions across lines or partial quantities.
+      workflowRole: Disposition authorization governs physical execution while InventoryMovement and SupplierCreditNote remain separate physical and financial evidence.
   - name: supplierCreditNotes
     target: SupplierCreditNote
     cardinality: 0..*
