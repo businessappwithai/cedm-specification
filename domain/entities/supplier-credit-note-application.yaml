@@ -76,3 +76,7 @@ entity:
     lifecycle: Draft → active → reversed/cancelled. Historical applications are retained.
     changePropagation: Changes to posted SupplierCreditNote or Invoice never rewrite an application; corrections use reversal and replacement applications.
     example: A posted USD 1,000 SupplierCreditNote is applied to a USD 1,000 purchase invoice. The application consumes USD 1,000 of available supplier credit and reduces the payable exposure by USD 1,000. If applied incorrectly, the application is reversed and a new application is created.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-SUPPLIER-CREDIT-NOTE-APPLICATION
