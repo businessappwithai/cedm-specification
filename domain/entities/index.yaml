@@ -92,6 +92,7 @@ registry:
     - Lead
     - Lease
     - Location
+    - Lot
     - MaintenancePlan
     - MaintenanceWorkOrder
     - ManufacturingWorkOrder
@@ -154,6 +155,7 @@ registry:
     - SamplingPlan
     - SamplingRule
     - SecurityIncident
+    - SerialNumber
     - ServiceRequest
     - Shipment
     - ShipmentLine
