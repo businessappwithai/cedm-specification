@@ -24,7 +24,7 @@ catalog:
       processes: [order-capture, order-approval, order-fulfillment, order-cancellation]
     - id: fulfillment
       name: Fulfillment
-      entities: [SalesOrder, Shipment, InventoryMovement, Location]
+      entities: [SalesOrder, Shipment, ShipmentLine, InventoryMovement, Location]
       processes: [pick-pack-ship, delivery, receipt]
     - id: inventory-management
       name: Inventory Management
@@ -64,7 +64,7 @@ catalog:
       processes: [billing, collection, receipt, reconciliation]
     - id: procurement
       name: Procurement
-      entities: [Supplier, PurchaseRequisition, PurchaseRequisitionLine, RequestForQuotation, SupplierQuotation, PurchaseOrder, PurchaseOrderLine]
+      entities: [Supplier, PurchaseRequisition, PurchaseRequisitionLine, RequestForQuotation, RequestForQuotationLine, SupplierQuotation, SupplierQuotationLine, PurchaseOrder, PurchaseOrderLine]
       processes: [requisition, rfq, supplier-quotation, sourcing-award, purchase-order, receiving]
     - id: sales
       name: Sales
