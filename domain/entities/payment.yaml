@@ -108,7 +108,7 @@ entity:
     - {id: PAYMENT-009, rule: Historical Payment amount, currency, date and method remain stable after posting except through authorized correction/reversal.}
     - {id: PAYMENT-010, rule: Payment linked to CreditNote as refund must be DISBURSEMENT and must not be reused as evidence for original customer receipt.}
     - {id: PAYMENT-011, rule: Payment linked to SupplierCreditNote as supplier refund must be RECEIPT to the organization and must not be treated as a SupplierCreditNoteApplication.}
-    - {id: PAYMENT-012, rule: SupplierCreditNote cash settlement and SupplierCreditNoteApplication are mutually distinct effects: one records money received from supplier, the other records non-cash reduction of payable exposure.}
+    - {id: PAYMENT-012, rule: "SupplierCreditNote cash settlement and SupplierCreditNoteApplication are mutually distinct effects: one records money received from supplier, the other records non-cash reduction of payable exposure."}
   help:
     summary: Represents movement or recognition of money while keeping payment execution, claim settlement, bank evidence, accounting recognition, customer refunds and supplier-credit refunds as separate connected facts.
     businessMeaning: Payment is the settlement event. Invoice is the claim. PaymentAllocation applies receipt payments to claims. CreditNote is a customer financial adjustment. SupplierCreditNote is a supplier payable adjustment. A refund or settlement Payment is separate cash evidence.
