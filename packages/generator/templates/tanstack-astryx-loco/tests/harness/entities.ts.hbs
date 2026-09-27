@@ -163,9 +163,19 @@ export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
  */
 const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature/i;
 
-/** The first free-text field, used for search and update assertions. */
+/**
+ * The first free-text field, used for search and update assertions.
+ *
+ * A column the model gives an enum is not free text: it holds one of the
+ * declared values, its dictionary reference is a list rather than a string, and
+ * the backend's `?search=` deliberately does not match against it. Writing a
+ * marker into one and searching for it tests nothing the application promises,
+ * so an entity whose only text columns are enums has no free-text field.
+ */
 export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
-  const textish = scalarFields(entity).filter((f) => f.type === "string" || f.type === "text");
+  const textish = scalarFields(entity).filter(
+    (f) => (f.type === "string" || f.type === "text") && f.enumReferenceId === undefined
+  );
   return (
     textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
     // Every text column is format-constrained — fall back rather than skip the

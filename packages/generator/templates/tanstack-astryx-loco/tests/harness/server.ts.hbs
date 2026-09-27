@@ -111,9 +111,13 @@ export async function startServer(backendDir: string): Promise<ManagedServer | n
     env: {
       ...process.env,
       NODE_ENV: process.env.NODE_ENV ?? "test",
-      // Bulk seeding intentionally exceeds the default 1000 req/min throttle.
-      // The client still backs off on a 429; this just avoids paying for it.
-      THROTTLE_LIMIT: process.env.THROTTLE_LIMIT ?? "1000000",
+      // Bulk seeding drives thousands of writes a minute, far past the 300 a
+      // minute `config/development.yaml` grants one caller. 0 switches the
+      // limiter off, as `config/test.yaml` does for the Rust suites; the
+      // limiter itself is covered by `tests/requests/rate_limit.rs`. The
+      // client still backs off on a 429 if someone sets a budget here.
+      RATE_LIMIT_MAX_PER_MINUTE: process.env.RATE_LIMIT_MAX_PER_MINUTE ?? "0",
+      RATE_LIMIT_AUTH_MAX_PER_MINUTE: process.env.RATE_LIMIT_AUTH_MAX_PER_MINUTE ?? "0",
     },
   });
 

@@ -73,6 +73,13 @@ MODELS=(
 
 mkdir -p "$APPS_DIR" "$CARGO_TARGET_DIR"
 
+# Every stage after generation needs the database; a harness that started
+# without one would record twenty failures that say nothing about the models.
+if ! psql "$PG_URL/postgres" -qtAc "SELECT 1" >/dev/null 2>&1; then
+  echo "error: PostgreSQL is not reachable at $PG_URL" >&2
+  exit 2
+fi
+
 echo "==> Building the generator"
 bun --filter @appwithai/core build >/dev/null
 bun --filter @appwithai/generator build >/dev/null
@@ -165,7 +172,10 @@ for entry in "${MODELS[@]}"; do
   recreate_db "${crate}_development"
   export DATABASE_URL="$PG_URL/${crate}_development"
   if (cd "$out/backend" && cargo loco db migrate && cargo loco db seed) >"$logs/seed.log" 2>&1; then
-    (cd "$out/backend" && exec cargo loco start) >"$logs/server.log" 2>&1 &
+    # The limiter off, as the bun harness does when it starts the server itself:
+    # bulk seeding is thousands of writes a minute from one caller.
+    (cd "$out/backend" && RATE_LIMIT_MAX_PER_MINUTE=0 RATE_LIMIT_AUTH_MAX_PER_MINUTE=0 \
+       exec cargo loco start) >"$logs/server.log" 2>&1 &
     server=$!
     if wait_for_health; then
       if (cd "$out/tests" && bun install >/dev/null 2>&1 && bun run run.ts --no-server) >"$logs/e2e.log" 2>&1; then
