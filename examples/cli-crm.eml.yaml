@@ -1,3 +1,12 @@
+# ============================================================================
+# EML — Simple CRM
+# Reverse-engineered from generated-projects/simple-crm
+# Entities: Account, Contact, Opportunity, Activity
+# Every construct is drawn by the model viewer from this document.
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Simple CRM
 version: 1.0.0
@@ -126,6 +135,82 @@ hooks:
   - entity: Activity
     event: afterCreate
     handler: logActivityAudit
+hookFlows:
+  # ---- Section 8: Workflow — Contact lifecycle hooks -----------------------
+  - name: ContactHooks
+    title: Contact Hooks
+    entity: Contact
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeEmail
+      - id: D
+        event: customValidate
+        handler: ensureUniqueEmail
+      - id: E
+        label: Process Contact
+      - id: F
+        event: afterCreate
+        handler: notifyAccountOwner
+      - id: G
+        event: afterUpdate
+        handler: syncContactData
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 9: Workflow — Activity lifecycle hooks ----------------------
+  - name: ActivityHooks
+    title: Activity Hooks
+    entity: Activity
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: validateActivityDate
+      - id: D
+        label: Process Activity
+      - id: E
+        event: afterCreate
+        handler: updateOpportunityLastActivity
+      - id: F
+        event: afterCreate
+        handler: logActivityAudit
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
 rbac:
   - entity: Opportunity
     action: update
@@ -138,6 +223,7 @@ triggers:
     source: cron:0 9 * * 1
     handler: nudgeStaleOpportunities
 rules:
+  # ---- Section 2: Business rule — Account validation ------------------------
   - name: accountValidation
     title: Account Validation
     entity: Account
@@ -146,37 +232,37 @@ rules:
     nodes:
       - id: S
         label: "Start: Account Create"
-        shape: stadium
+        type: start
       - id: Q1
         label: name == null?
-        shape: diamond
+        type: decision
       - id: E1
         label: "Prevent: Name is required"
-        shape: rect
+        type: expression
       - id: Q2
         label: email == null?
-        shape: diamond
+        type: decision
       - id: E2
         label: "Prevent: Email is required"
-        shape: rect
+        type: expression
       - id: Q3
         label: email format invalid?
-        shape: diamond
+        type: decision
       - id: E3
         label: "Prevent: Email must be a valid email address"
-        shape: rect
+        type: expression
       - id: Q4
         label: phone == null?
-        shape: diamond
+        type: decision
       - id: E4
         label: "Prevent: Phone is required"
-        shape: rect
+        type: expression
       - id: P
         label: Pass Validation
-        shape: round
+        type: expression
       - id: END
         label: "End: Validated"
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -214,6 +300,7 @@ rules:
         to: END
       - from: P
         to: END
+  # ---- Section 3: Business rule — Contact validation ------------------------
   - name: contactValidation
     title: Contact Validation
     entity: Contact
@@ -222,49 +309,49 @@ rules:
     nodes:
       - id: S
         label: "Start: Contact Create"
-        shape: stadium
+        type: start
       - id: Q1
         label: first_name == null?
-        shape: diamond
+        type: decision
       - id: E1
         label: "Prevent: First name is required"
-        shape: rect
+        type: expression
       - id: Q2
         label: last_name == null?
-        shape: diamond
+        type: decision
       - id: E2
         label: "Prevent: Last name is required"
-        shape: rect
+        type: expression
       - id: Q3
         label: email == null?
-        shape: diamond
+        type: decision
       - id: E3
         label: "Prevent: Email is required"
-        shape: rect
+        type: expression
       - id: Q4
         label: email format invalid?
-        shape: diamond
+        type: decision
       - id: E4
         label: "Prevent: Email must be a valid email address"
-        shape: rect
+        type: expression
       - id: Q5
         label: phone == null?
-        shape: diamond
+        type: decision
       - id: E5
         label: "Prevent: Phone is required"
-        shape: rect
+        type: expression
       - id: Q6
         label: account_id == null?
-        shape: diamond
+        type: decision
       - id: E6
         label: "Prevent: Account is required"
-        shape: rect
+        type: expression
       - id: P
         label: Pass Validation
-        shape: round
+        type: expression
       - id: END
         label: "End: Validated"
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -318,6 +405,7 @@ rules:
         to: END
       - from: P
         to: END
+  # ---- Section 4: Business rule — Opportunity validation --------------------
   - name: opportunityValidation
     title: Opportunity Validation
     entity: Opportunity
@@ -326,55 +414,55 @@ rules:
     nodes:
       - id: S
         label: "Start: Opportunity Create"
-        shape: stadium
+        type: start
       - id: Q1
         label: name == null?
-        shape: diamond
+        type: decision
       - id: E1
         label: "Prevent: Name is required"
-        shape: rect
+        type: expression
       - id: Q2
         label: amount == null?
-        shape: diamond
+        type: decision
       - id: E2
         label: "Prevent: Amount is required"
-        shape: rect
+        type: expression
       - id: Q3
         label: amount <= 0?
-        shape: diamond
+        type: decision
       - id: E3
         label: "Prevent: Amount must be greater than zero"
-        shape: rect
+        type: expression
       - id: Q4
         label: stage == null?
-        shape: diamond
+        type: decision
       - id: E4
         label: "Prevent: Stage is required"
-        shape: rect
+        type: expression
       - id: Q5
         label: stage not in valid enum?
-        shape: diamond
+        type: decision
       - id: E5
         label: "Prevent: Stage must be a valid pipeline stage"
-        shape: rect
+        type: expression
       - id: Q6
         label: account_id == null?
-        shape: diamond
+        type: decision
       - id: E6
         label: "Prevent: Account is required"
-        shape: rect
+        type: expression
       - id: Q7
         label: close_date == null?
-        shape: diamond
+        type: decision
       - id: E7
         label: "Prevent: Close date is required"
-        shape: rect
+        type: expression
       - id: P
         label: Pass Validation
-        shape: round
+        type: expression
       - id: END
         label: "End: Validated"
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -436,6 +524,7 @@ rules:
         to: END
       - from: P
         to: END
+  # ---- Section 5: Business rule — Opportunity probability scoring -----------
   - name: opportunityScoring
     title: Opportunity Probability Scoring
     entity: Opportunity
@@ -444,40 +533,40 @@ rules:
     nodes:
       - id: S
         label: "Start: Opportunity Updated"
-        shape: stadium
+        type: start
       - id: Q1
         label: stage == closed_won?
-        shape: diamond
+        type: decision
       - id: W
         label: Set Probability 100%
-        shape: rect
+        type: expression
       - id: Q2
         label: stage == closed_lost?
-        shape: diamond
+        type: decision
       - id: L
         label: Set Probability 0%
-        shape: rect
+        type: expression
       - id: Q3
         label: stage == negotiation?
-        shape: diamond
+        type: decision
       - id: H
         label: Set Probability 70%
-        shape: rect
+        type: expression
       - id: Q4
         label: stage == proposal?
-        shape: diamond
+        type: decision
       - id: M
         label: Set Probability 50%
-        shape: rect
+        type: expression
       - id: D
         label: Set Probability 20%
-        shape: rect
+        type: expression
       - id: C
         label: Recompute Forecast
-        shape: circle
+        type: function
       - id: E
         label: "End: Scored"
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -517,6 +606,7 @@ rules:
         to: C
       - from: C
         to: E
+  # ---- Section 6: Business rule — Activity validation ----------------------
   - name: activityValidation
     title: Activity Validation
     entity: Activity
@@ -525,49 +615,49 @@ rules:
     nodes:
       - id: S
         label: "Start: Activity Create"
-        shape: stadium
+        type: start
       - id: Q1
         label: type == null?
-        shape: diamond
+        type: decision
       - id: E1
         label: "Prevent: Type is required"
-        shape: rect
+        type: expression
       - id: Q2
         label: type not in valid enum?
-        shape: diamond
+        type: decision
       - id: E2
         label: "Prevent: Type must be one of: call, email, meeting, task, note"
-        shape: rect
+        type: expression
       - id: Q3
         label: description == null?
-        shape: diamond
+        type: decision
       - id: E3
         label: "Prevent: Description is required"
-        shape: rect
+        type: expression
       - id: Q4
         label: contact_id == null?
-        shape: diamond
+        type: decision
       - id: E4
         label: "Prevent: Contact is required"
-        shape: rect
+        type: expression
       - id: Q5
         label: opportunity_id == null?
-        shape: diamond
+        type: decision
       - id: E5
         label: "Prevent: Opportunity is required"
-        shape: rect
+        type: expression
       - id: Q6
         label: activity_date == null?
-        shape: diamond
+        type: decision
       - id: E6
         label: "Prevent: Activity date is required"
-        shape: rect
+        type: expression
       - id: P
         label: Pass Validation
-        shape: round
+        type: expression
       - id: END
         label: "End: Validated"
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -622,6 +712,7 @@ rules:
       - from: P
         to: END
 stateMachines:
+  # ---- Section 7: Workflow — Opportunity lifecycle (state machine) ----------
   - name: OpportunityLifecycle
     title: Opportunity Lifecycle
     entity: Opportunity
@@ -644,29 +735,3 @@ stateMachines:
       - from: negotiation
         to: closed_lost
         trigger: close_lost
-hookDiagrams:
-  - name: ContactHooks
-    title: Contact Hooks
-    entity: Contact
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: normalizeEmail]
-          C --> D[customValidate: ensureUniqueEmail]
-          D --> E[Process Contact]
-          E --> F[afterCreate: notifyAccountOwner]
-          F --> G[afterUpdate: syncContactData]
-          G --> H[Response]
-
-      %% ---- Section 9: Workflow — Activity lifecycle hooks ----------------------
-  - name: ActivityHooks
-    title: Activity Hooks
-    entity: Activity
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: validateActivityDate]
-          C --> D[Process Activity]
-          D --> E[afterCreate: updateOpportunityLastActivity]
-          E --> F[afterCreate: logActivityAudit]
-          F --> G[Response]

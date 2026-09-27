@@ -434,7 +434,7 @@ pub fn build_hook_handler_module(entity: &str, hooks: &[CompiledHook]) -> String
     let header = format!(
         "//! Lifecycle handlers for {entity}.\n\
          //!\n\
-         //! Declared by the model's `%%hook` directives and wired up in\n\
+         //! Declared by the model's `hooks` and wired up in\n\
          //! `crate::hooks`. **The bodies are yours.** This file is written\n\
          //! once and then left alone, so regenerating the project will not overwrite\n\
          //! what you put here; a hook added to the model later arrives as a new stub\n\
@@ -513,7 +513,7 @@ pub fn build_hook_handlers_mod(entities: &[String]) -> String {
                   //! Generated wiring — rewritten on every run. The modules it names are not.\n\n";
 
     if entities.is_empty() {
-        return format!("{header}// No `%%hook` directive in this model.\n");
+        return format!("{header}// No hooks are declared in this model.\n");
     }
 
     let mut sorted = entities.to_vec();
@@ -535,7 +535,7 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
     let mut out = String::from(
         "//! The hook registry: which handler runs on which entity, for each event.\n\
          //!\n\
-         //! Generated wiring — rewritten on every run, so a `%%hook` added to the\n\
+         //! Generated wiring — rewritten on every run, so a hook added to the\n\
          //! model is always picked up. The handler bodies in `handlers/` are not\n\
          //! rewritten; see that module's header.\n\
          //!\n\

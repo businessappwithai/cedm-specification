@@ -1,7 +1,68 @@
+# ============================================================================
+# Small-Molecule Drug Discovery Platform
+# Complete model: entities · business rules · workflows
+
+# Every construct below is drawn by the model viewer from this document.
+
+# Scope: a discovery portfolio from target to candidate, and the laboratory
+# that feeds it —
+#   portfolio    Program, Target, CompoundSeries
+#   chemistry    Compound
+#   screening    Assay, AssayRun, AssayResult, AdmetProfile
+#   laboratory   Experiment, Sample, InventoryTransaction,
+#                Instrument, InstrumentBooking
+#   outsourcing  Vendor, VendorRequest
+#   quality      DeviationReport, CAPA
+#   people       User, Team
+
+# Generate:
+#   bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
+#     -o generated-projects/drug-discovery -n drug-discovery
+
+# Check:
+#   bun packages/generator/dist/cli/generate.js validate examples/drug-discovery.eml.yaml
+
+# ---- What this model is about ----------------------------------------------
+# A discovery programme is a bet on a biological target. The bet is tested by
+# making compounds and measuring them, and the measuring is the expensive part,
+# so the shape of the data is: a Program aims at a Target; chemists make
+# Compounds grouped into a CompoundSeries; biologists define an Assay and run
+# it (AssayRun) to produce an AssayResult per compound; and DMPK scientists
+# build an AdmetProfile that decides whether a potent compound is also a drug.
+
+# Potency alone never advanced a molecule. That is why AdmetProfile is a first
+# class entity here rather than a few columns on Compound: solubility,
+# permeability, metabolic stability, hERG liability and protein binding are
+# each measured separately, at different times, by different people, and a
+# compound can die on any one of them.
+
+# ---- How the three layers fit together --------------------------------------
+# Structure is the ERD in Section 1. Everything after it is behaviour, and the
+# file is arranged so behaviour reads in the order it fires:
+
+#   rules (2-4)      declarative decisions — the gate an experiment passes
+#                    before it runs, how a deviation is graded, whether an
+#                    instrument may be booked. Compiled to GoRules decision
+#                    graphs and evaluated around the write.
+#   state (5-7)      the lifecycle a programme, an experiment and a corrective
+#                    action move through, and who may move them.
+#   hooks (8-10)     imperative side effects bound to CRUD lifecycle events.
+#   sagas (11-13)    multi-step, multi-entity processes, one per trigger kind:
+#                    a rule names the first, the second runs on every update,
+#                    the third runs on delete.
+
+# The three sagas are one per trigger kind on purpose. It is the difference
+# between "escalate when the deviation is critical", "write a ledger row every
+# time a sample moves", and "clear the runs before the assay goes".
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Drug Discovery Platform
 version: 2.0.0
 enums:
+  # ---- Enumerations ----------------------------------------------------------
   - name: TherapeuticArea
     values: [oncology, immunology, neuroscience, infectious_disease, cardiovascular, metabolic, respiratory, rare_disease]
   - name: ProgramStage
@@ -63,6 +124,8 @@ enums:
   - name: UserRole
     values: [medicinal_chemist, biologist, dmpk_scientist, computational_chemist, lab_technician, project_manager, quality_assurance, lab_manager, administrator]
 categories:
+  # ---- Entity categories ------------------------------------------------------
+  # Group entities into dashboard sections. One block per category.
   - name: Portfolio
     description: Discovery programmes, the targets they pursue and the chemical series that carry them
     icon: Target
@@ -100,6 +163,7 @@ categories:
     default: true
     entities: [User, Team]
 entities:
+  # ---- Portfolio ----------------------------------------------------------
   - name: Program
     help: A funded attempt to find a medicine for one indication by acting on one biological target. Everything else in this application ultimately hangs off a programme, and a programme that is discontinued takes its series and experiments out of the active portfolio with it.
     attributes:
@@ -113,6 +177,7 @@ entities:
       - name: name
         type: string
         help: The readable name of the programme.
+      # ---- Enumerated columns -------------------------------------------------
       - name: therapeutic_area
         type: string
         enum: TherapeuticArea
@@ -225,6 +290,7 @@ entities:
     indexes:
       - columns: [series_code]
         unique: true
+  # ---- Chemistry ----------------------------------------------------------
   - name: Compound
     help: One registered chemical structure. A compound is registered once and measured many times; its calculated properties are computed on registration from the structure, while everything measured about it lives in AssayResult and AdmetProfile.
     attributes:
@@ -305,6 +371,7 @@ entities:
       - columns: [compound_number]
         unique: true
       - columns: [inchi_key]
+  # ---- Screening ----------------------------------------------------------
   - name: Assay
     help: A defined way of measuring something about a compound. The definition is separate from the running of it because the same assay is run hundreds of times, and a result is only comparable with another when both came from the same assay definition.
     attributes:
@@ -384,6 +451,7 @@ entities:
         type: string
         optional: true
         help: The barcode of the physical plate, which is how the run is matched to the raw instrument file.
+      # ---- Bounded numbers ----------------------------------------------------
       - name: z_prime
         type: decimal
         optional: true
@@ -503,6 +571,7 @@ entities:
         type: string
         fk: true
         help: The DMPK scientist who compiled it.
+  # ---- Laboratory ---------------------------------------------------------
   - name: Experiment
     help: A planned piece of laboratory work, reviewed and approved before it runs. The experiment is what instrument bookings, outsourced requests, samples and deviations all hang from, so it is the record an auditor follows to reconstruct what was done.
     attributes:
@@ -714,6 +783,7 @@ entities:
         type: text
         optional: true
         help: Why the booking was cancelled, where it was.
+  # ---- Quality and suppliers ----------------------------------------------
   - name: Vendor
     help: An external supplier or contract research organisation. Much of discovery chemistry and biology is outsourced, so a vendor's approval status and service tier decide what work may be sent where.
     attributes:
@@ -854,6 +924,9 @@ entities:
         type: text
         optional: true
         help: What is actually going to be done.
+  # ---- Indexes ------------------------------------------------------------
+
+  # ---- People -------------------------------------------------------------
   - name: User
     help: Somebody who works in the laboratory or on the portfolio. The role is what decides which of the entities above they can see at all.
     attributes:
@@ -1118,7 +1191,150 @@ hooks:
   - entity: DeviationReport
     event: afterCreate
     handler: notifyQualityTeam
+hookFlows:
+  # ---- Section 8: Workflow — compound registration hooks ---------------------
+  # Registration is where a structure becomes a record, and it is the only place
+  # the calculated properties are computed. Doing it here rather than on read
+  # means every consumer of the row sees the same numbers.
+  - name: CompoundRegistration
+    title: Compound Registration
+    entity: Compound
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate SMILES
+      - id: C
+        event: customValidate
+        handler: validateSmilesFormat
+      - id: D
+        event: beforeCreate
+        handler: generateInchiKey
+      - id: E
+        event: beforeCreate
+        handler: computeMolecularProperties
+      - id: F
+        event: beforeCreate
+        handler: countLipinskiViolations
+      - id: G
+        label: Process Compound
+      - id: H
+        event: afterCreate
+        handler: indexForStructureSearch
+      - id: I
+        event: afterCreate
+        handler: notifyRegistrationTeam
+      - id: J
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+  # ---- Section 9: Workflow — assay result validation hooks -------------------
+  # The quality gate on a number. A result is checked against the run it came
+  # from before it is stored, because a result from a plate that failed QC is
+  # worse than no result at all — it looks like data.
+  - name: AssayResultValidation
+    title: Assay Result Validation
+    entity: AssayResult
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: customValidate
+        handler: rejectResultsFromFailedRun
+      - id: D
+        event: beforeCreate
+        handler: normaliseUnit
+      - id: E
+        label: Process Result
+      - id: F
+        event: afterCreate
+        handler: recomputeSeriesPotency
+      - id: G
+        event: afterCreate
+        handler: flagPotencyOutliers
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 10: Workflow — deviation report hooks -------------------------
+  - name: DeviationReportHooks
+    title: Deviation Report Hooks
+    entity: DeviationReport
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate
+      - id: C
+        event: beforeCreate
+        handler: timestampAnomaly
+      - id: D
+        event: customValidate
+        handler: requireDescription
+      - id: E
+        label: Process Deviation
+      - id: F
+        event: afterCreate
+        handler: triggerCapaIfCritical
+      - id: G
+        event: afterCreate
+        handler: notifyQualityTeam
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
 rbac:
+  # ---- Who sees what ----------------------------------------------------------
+  # Eight functional roles, and `read` is the only operation that changes what a
+  # role sees. A medicinal chemist lives in the chemistry and screening data and
+  # has no business in the instrument calibration log; a QA officer is the
+  # reverse. Signing in as each of these is the quickest way to see that the
+  # access rules are real.
   - entity: Program
     action: read
     roles: [project_manager, medicinal_chemist, biologist, computational_chemist, dmpk_scientist, lab_manager]
@@ -1211,6 +1427,10 @@ triggers:
     source: cron:0 8 * * *
     handler: escalateOverdueCapa
 rules:
+  # ---- Section 2: Business rule — experiment submission gate -----------------
+  # What an experiment has to have before anybody's time is booked against it.
+  # Every branch here is a refusal a reviewer would otherwise have to make by
+  # hand, and each one names the field that is missing rather than saying no.
   - name: experimentSubmitGate
     title: Experiment Submission Gate
     entity: Experiment
@@ -1219,43 +1439,43 @@ rules:
     nodes:
       - id: A
         label: "Start: Submit Requested"
-        shape: stadium
+        type: start
       - id: B
         label: Status == draft?
-        shape: diamond
+        type: decision
       - id: X1
         label: "Reject: Not in Draft"
-        shape: rect
+        type: expression
       - id: C
         label: Title provided?
-        shape: diamond
+        type: decision
       - id: X2
         label: "Reject: Title Required"
-        shape: rect
+        type: expression
       - id: D
         label: PI assigned?
-        shape: diamond
+        type: decision
       - id: X3
         label: "Reject: PI Required"
-        shape: rect
+        type: expression
       - id: E
         label: Estimated duration >= 1?
-        shape: diamond
+        type: decision
       - id: X4
         label: "Reject: Duration Required"
-        shape: rect
+        type: expression
       - id: F
         label: Programme assigned?
-        shape: diamond
+        type: decision
       - id: X5
         label: "Reject: Programme Required"
-        shape: rect
+        type: expression
       - id: P
         label: "Set status: submitted"
-        shape: rect
+        type: expression
       - id: Z
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1301,6 +1521,10 @@ rules:
         to: Z
       - from: P
         to: Z
+  # ---- Section 3: Business rule — deviation severity routing -----------------
+  # Severity is decided, not chosen. A reporter under pressure grades their own
+  # mistake gently, so the grade is computed from the context — whether the work
+  # was GMP-critical, whether equipment failed, how much was written down.
   - name: deviationSeverity
     title: Deviation Severity Routing
     entity: DeviationReport
@@ -1309,37 +1533,37 @@ rules:
     nodes:
       - id: A
         label: "Start: Deviation Reported"
-        shape: stadium
+        type: start
       - id: B
         label: GMP-critical experiment?
-        shape: diamond
+        type: decision
       - id: C
         label: anomaly_description length >= 100?
-        shape: diamond
+        type: decision
       - id: H
         label: "Set severity: critical"
-        shape: rect
+        type: expression
       - id: M
         label: "Set severity: major"
-        shape: rect
+        type: expression
       - id: D
         label: Instrument failure involved?
-        shape: diamond
+        type: decision
       - id: M2
         label: "Set severity: major"
-        shape: rect
+        type: expression
       - id: L
         label: "Set severity: minor"
-        shape: rect
+        type: expression
       - id: N
         label: Notify QA
-        shape: circle
+        type: function
       - id: K
         label: Notify Supervisor
-        shape: circle
+        type: function
       - id: E
         label: "End: Routed"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1380,6 +1604,14 @@ rules:
         props:
           workflow: CriticalDeviationEscalation
           message: Critical deviation — escalating and opening a CAPA
+  # A critical deviation escalates: the action below names the multi-step
+  # workflow in Section 11, and its `when` is what keeps that workflow from
+  # running on every deviation.
+
+  # ---- Section 4: Business rule — instrument booking conflict check ----------
+  # An overdue calibration is a refusal rather than a warning: data taken on an
+  # uncalibrated instrument cannot be used, so letting the booking through only
+  # wastes the slot and the sample.
   - name: bookingConflict
     title: Instrument Booking Conflict
     entity: InstrumentBooking
@@ -1388,31 +1620,31 @@ rules:
     nodes:
       - id: A
         label: "Start: Booking Requested"
-        shape: stadium
+        type: start
       - id: B
         label: Instrument is_active?
-        shape: diamond
+        type: decision
       - id: X1
         label: "Reject: Instrument Inactive"
-        shape: rect
+        type: expression
       - id: C
         label: calibration_status == overdue?
-        shape: diamond
+        type: decision
       - id: X2
         label: "Reject: Calibration Overdue"
-        shape: rect
+        type: expression
       - id: D
         label: Timeslot available?
-        shape: diamond
+        type: decision
       - id: X3
         label: "Reject: Booking Conflict"
-        shape: rect
+        type: expression
       - id: P
         label: Confirm Booking
-        shape: rect
+        type: expression
       - id: Z
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1443,6 +1675,11 @@ rules:
       - from: P
         to: Z
 stateMachines:
+  # ---- Section 5: Workflow — programme lifecycle (state machine) --------------
+  # A programme advances one stage at a time and can stop at any of them. The
+  # edges that are missing are the point: there is no route from hit
+  # identification straight to candidate selection, because skipping lead
+  # optimization is not a decision anyone is allowed to take by editing a field.
   - name: ProgramLifecycle
     title: Programme Lifecycle
     entity: Program
@@ -1468,6 +1705,7 @@ stateMachines:
       - from: on_hold
         to: discontinued
         trigger: discontinue
+  # ---- Section 6: Workflow — experiment lifecycle (state machine) -------------
   - name: ExperimentLifecycle
     title: Experiment Lifecycle
     entity: Experiment
@@ -1508,6 +1746,7 @@ stateMachines:
       - from: approved
         to: cancelled
         trigger: cancel
+  # ---- Section 7: Workflow — CAPA lifecycle (state machine) ------------------
   - name: CapaLifecycle
     title: CAPA Lifecycle
     entity: CAPA
@@ -1531,6 +1770,19 @@ stateMachines:
         to: cancelled
         trigger: cancel
 sagas:
+  # ---- Section 11: Workflow — critical deviation escalation ------------------
+  # A multi-step process: it decides an SLA from a table, computes from what the
+  # table published, creates a CAPA in another entity, updates the record that
+  # triggered it, and then reaches back into the row it created using the id that
+  # step bound. `trigger: rule` is what makes the severity condition in Section 3
+  # load-bearing — without it the workflow would run on every deviation, critical
+  # or not.
+
+  # Step B is a decision table living inside the process. The base SLA used to be
+  # a literal 3, which meant the number was in the diagram but the reasoning
+  # behind it was nowhere: changing the window for major deviations meant editing
+  # a Formula and hoping the reader inferred why. As a table, the policy is the
+  # artifact, and the two variables it publishes are read by the steps after it.
   - name: CriticalDeviationEscalation
     title: Critical Deviation Escalation
     entity: DeviationReport
@@ -1570,6 +1822,17 @@ sagas:
           targetSource: newCapaId
           field: effectiveness_metric
           source: resolutionDays
+  # ---- Section 12: Workflow — sample disposition on update -------------------
+  # The escalation in Section 11 is rule-triggered: a rule decides whether it
+  # runs at all. This one is the other half of the pairing — it runs on the
+  # lifecycle itself, every time a sample is updated, and carries its own
+  # decision instead of being gated by one.
+
+  # What it writes is an InventoryTransaction, which is the honest destination: a
+  # sample whose status changes has moved, been used up or been quarantined, and
+  # a stock figure nobody can explain is worse than no stock figure. The ledger
+  # row is created first, then the sample is moved, then the row is completed
+  # with where it went — create, update and update-across-entities in one process.
   - name: SampleDisposition
     title: Sample Disposition
     entity: Sample
@@ -1601,6 +1864,16 @@ sagas:
           targetSource: ledgerEntryId
           field: to_location
           source: dispositionLocation
+  # ---- Section 13: Workflow — assay retirement on delete ---------------------
+  # The third trigger. Section 11 runs when a rule names it, Section 12 runs on
+  # every update, and this one runs when a record is deleted.
+
+  # A delete is a hard delete, and the row goes last: this workflow runs inside
+  # the same transaction, before the removal, which is the only order that works.
+  # An Assay owns its runs, so the runs have to be cleared while the assay still
+  # exists — a foreign key does not care that we intended to delete the parent.
+  # If the cascade throws, nothing is deleted and the assay is still there to try
+  # again.
   - name: AssayRetirement
     title: Assay Retirement
     entity: Assay
@@ -1623,63 +1896,3 @@ sagas:
         properties:
           entity: AssayRun
           targetField: assay_id
-hookDiagrams:
-  - name: CompoundRegistration
-    title: Compound Registration
-    entity: Compound
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate SMILES]
-          B --> C[customValidate: validateSmilesFormat]
-          C --> D[beforeCreate: generateInchiKey]
-          D --> E[beforeCreate: computeMolecularProperties]
-          E --> F[beforeCreate: countLipinskiViolations]
-          F --> G[Process Compound]
-          G --> H[afterCreate: indexForStructureSearch]
-          H --> I[afterCreate: notifyRegistrationTeam]
-          I --> J[Response]
-
-      %% ---- Section 9: Workflow — assay result validation hooks -------------------
-      %% The quality gate on a number. A result is checked against the run it came
-      %% from before it is stored, because a result from a plate that failed QC is
-      %% worse than no result at all — it looks like data.
-  - name: AssayResultValidation
-    title: Assay Result Validation
-    entity: AssayResult
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[customValidate: rejectResultsFromFailedRun]
-          C --> D[beforeCreate: normaliseUnit]
-          D --> E[Process Result]
-          E --> F[afterCreate: recomputeSeriesPotency]
-          F --> G[afterCreate: flagPotencyOutliers]
-          G --> H[Response]
-
-      %% ---- Section 10: Workflow — deviation report hooks -------------------------
-  - name: DeviationReportHooks
-    title: Deviation Report Hooks
-    entity: DeviationReport
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate]
-          B --> C[beforeCreate: timestampAnomaly]
-          C --> D[customValidate: requireDescription]
-          D --> E[Process Deviation]
-          E --> F[afterCreate: triggerCapaIfCritical]
-          F --> G[afterCreate: notifyQualityTeam]
-          G --> H[Response]
-
-      %% ---- Section 11: Workflow — critical deviation escalation ------------------
-      %% A multi-step process: it decides an SLA from a table, computes from what the
-      %% table published, creates a CAPA in another entity, updates the record that
-      %% triggered it, and then reaches back into the row it created using the id that
-      %% step bound. `trigger: rule` is what makes the severity condition in Section 3
-      %% load-bearing — without it the workflow would run on every deviation, critical
-      %% or not.
-      %%
-      %% Step B is a decision table living inside the process. The base SLA used to be
-      %% a literal 3, which meant the number was in the diagram but the reasoning
-      %% behind it was nowhere: changing the window for major deviations meant editing
-      %% a Formula and hoping the reader inferred why. As a table, the policy is the
-      %% artifact, and the two variables it publishes are read by the steps after it.

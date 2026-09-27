@@ -1,19 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { sagaOperation, sagaTrigger } from "../../workflows/sagas";
 import {
   compileModelDocument,
-  emlToModelDocument,
   type ModelDocument,
   ModelYamlError,
   parseModelYaml,
   readModelYaml,
-  renderEmlView,
   serializeModelDocument,
 } from "../index";
 
-/**
- * A model written in YAML from the start — not converted from EML — so the
- * language is exercised on its own terms.
- */
+/** A model exercising every section of the language. */
 const ORDERS = `eml: "1.0"
 name: Orders
 description: Taking and fulfilling customer orders.
@@ -90,10 +86,9 @@ sagas:
 `;
 
 describe("reading YAML model text", () => {
-  it("accepts a well-formed model with no errors and no view warnings", () => {
+  it("accepts a well-formed model with no errors", () => {
     const result = readModelYaml(ORDERS);
     expect(result.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
-    expect(result.diagnostics.filter((d) => d.code === "VIEW")).toEqual([]);
     expect(result.ok).toBe(true);
   });
 
@@ -131,7 +126,7 @@ describe("reading YAML model text", () => {
     );
   });
 
-  it("names the valid pairs when a relationship pairs cardinalities Mermaid cannot draw", () => {
+  it("names the valid pairs when a relationship pairs ends the language gives no kind", () => {
     const text = `eml: "1.0"
 entities:
   - { name: A, attributes: [{ name: id, type: uuid, pk: true }] }
@@ -182,22 +177,6 @@ relationships:
     );
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({ code: "EML121", path: ["relationships", 0, "to"], line: 11 })
-    );
-  });
-
-  it("warns when a value cannot be drawn in the Mermaid view, without refusing the model", () => {
-    const text = `eml: "1.0"
-name: Drawn
-entities: [{ name: A, attributes: [{ name: id, type: uuid, pk: true }] }]
-reports:
-  - name: counts
-    help: "Counts by entity: A only"
-    sql: SELECT count(*) FROM bus_a
-`;
-    const result = readModelYaml(text);
-    expect(result.ok).toBe(true);
-    expect(result.diagnostics).toContainEqual(
-      expect.objectContaining({ code: "VIEW", severity: "warning", path: ["reports", 0], line: 5 })
     );
   });
 });
@@ -273,18 +252,6 @@ describe("compiling a YAML model", () => {
     ]);
   });
 
-  it("does not warn about a multi-line query the view can draw on one line", () => {
-    const flattened = readModelYaml(ORDERS).diagnostics.filter((d) => d.code === "VIEW");
-    expect(flattened).toEqual([]);
-    const commented = ORDERS.replace(
-      "GROUP BY status",
-      "-- one row per status\n      GROUP BY status"
-    );
-    expect(readModelYaml(commented).diagnostics).toContainEqual(
-      expect.objectContaining({ code: "VIEW", path: ["reports", 0] })
-    );
-  });
-
   it("keeps a multi-line report query as written", () => {
     expect(model.reports[0]).toMatchObject({ name: "orders_by_status", chart: "bar" });
     expect(model.reports[0]!.sql).toContain("\nGROUP BY status");
@@ -344,7 +311,7 @@ describe("the canonical text", () => {
     expect(once.startsWith('eml: "1.0"\nname: Orders\n')).toBe(true);
   });
 
-  it("omits what is the default: a title equal to the name, a TD direction, an automatic CREATE saga", () => {
+  it("omits what is the default: a title equal to the name, a downward direction, an automatic CREATE saga", () => {
     const document: ModelDocument = {
       eml: "1.0",
       entities: [{ name: "A", attributes: [{ name: "id", type: "uuid", pk: true }] }],
@@ -354,8 +321,8 @@ describe("the canonical text", () => {
           title: "gate",
           entity: "A",
           event: "beforeCreate",
-          direction: "TD",
-          nodes: [{ id: "s", label: "Start", shape: "stadium" }],
+          direction: "down",
+          nodes: [{ id: "s", label: "Start", type: "start" }],
           edges: [],
         },
       ],
@@ -366,8 +333,8 @@ describe("the canonical text", () => {
   });
 });
 
-describe("the Mermaid view", () => {
-  it("draws each state in the order the document lists it, wherever the initial state falls", () => {
+describe("a state machine", () => {
+  it("keeps each state in the order the document lists it, wherever the initial state falls", () => {
     const document: ModelDocument = {
       eml: "1.0",
       entities: [{ name: "Ticket", attributes: [{ name: "id", type: "uuid", pk: true }] }],
@@ -387,67 +354,63 @@ describe("the Mermaid view", () => {
     };
     const compiled = compileModelDocument(document);
     expect(compiled.workflows[0]!.states.map((s) => s.name)).toEqual(["open", "triage", "closed"]);
-
-    const { text } = renderEmlView(document);
-    const body = text.slice(text.indexOf("stateDiagram-v2"));
-    expect(body.indexOf("open --> triage")).toBeLessThan(body.indexOf("[*] --> triage"));
-    expect(readModelYaml(serializeModelDocument(document)).diagnostics).not.toContainEqual(
-      expect.objectContaining({ code: "VIEW" })
-    );
-  });
-
-  it("maps every line it draws to the document path it came from", () => {
-    const { document } = parseModelYaml(ORDERS);
-    const view = renderEmlView(document);
-    const lines = view.text.split("\n");
-    const entityLine = lines.findIndex((line) => line.trim() === "Order {");
-    expect(view.lineMap[entityLine]).toEqual(["entities", 1]);
-    const hookLine = lines.findIndex((line) => line.startsWith("%%hook "));
-    expect(view.lineMap[hookLine]).toEqual(["hooks", 0]);
+    expect(compiled.workflows[0]!.initial).toBe("triage");
   });
 });
 
 describe("a saga's trigger and operation", () => {
-  const eml = (header: string, meta = "") => `erDiagram
-  Deal {
-    uuid id PK
-    string status
-  }
-%%workflow Handoff entity: Deal kind: saga${header}
-${meta}flowchart TD
-    A[Mark] --> B[Done]
-%%step A UpdateEntity field: status value: handed_off
-`;
-  const saga = (source: string) => {
-    const { document } = emlToModelDocument(source);
+  const saga = (fields: {
+    trigger?: "rule" | "automatic";
+    operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  }) => {
+    const document: ModelDocument = {
+      eml: "1.0",
+      entities: [
+        {
+          name: "Deal",
+          attributes: [
+            { name: "id", type: "uuid", pk: true },
+            { name: "status", type: "string" },
+          ],
+        },
+      ],
+      sagas: [
+        {
+          name: "Handoff",
+          entity: "Deal",
+          ...fields,
+          steps: [
+            {
+              id: "A",
+              type: "UpdateEntity",
+              label: "Mark",
+              properties: { field: "status", value: "handed_off" },
+            },
+          ],
+        },
+      ],
+    };
     return compileModelDocument(document).sagas[0]!;
   };
 
-  it("is read from the %%workflow line, where the language documents it", () => {
-    expect(saga(eml(" trigger: rule operation: update"))).toMatchObject({
+  it("is read from the saga's own keys", () => {
+    expect(saga({ trigger: "rule", operation: "UPDATE" })).toMatchObject({
       trigger: "rule",
       operation: "UPDATE",
     });
   });
 
-  it("falls back to %%meta lines, which older models used, and the directive wins over them", () => {
-    expect(saga(eml("", "%%meta trigger: rule\n%%meta operation: DELETE\n"))).toMatchObject({
-      trigger: "rule",
-      operation: "DELETE",
-    });
-    const conflicting = eml(" trigger: automatic", "%%meta trigger: rule\n");
-    expect(saga(conflicting).trigger).toBe("automatic");
-    expect(emlToModelDocument(conflicting).issues).toContainEqual(
-      expect.objectContaining({ construct: "%%workflow Handoff", kind: "resolved" })
-    );
-  });
-
   it("defaults to what the language documents: automatic, on CREATE", () => {
-    expect(saga(eml(""))).toMatchObject({ trigger: "automatic", operation: "CREATE" });
+    expect(saga({})).toMatchObject({ trigger: "automatic", operation: "CREATE" });
   });
 
-  it("reads an operation alias as the operation the runtime matches", () => {
-    expect(saga(eml(" operation: INSERT")).operation).toBe("CREATE");
-    expect(saga(eml(" operation: *")).operation).toBe("ALL");
+  it("normalises an operation alias to the operation the runtime matches", () => {
+    // The schema admits only the canonical spellings; the compiler still folds
+    // the aliases the access rules accept, so a document built in code rather
+    // than read from YAML compiles the same way.
+    expect(sagaOperation("INSERT")).toBe("CREATE");
+    expect(sagaOperation("edit")).toBe("UPDATE");
+    expect(sagaOperation("*")).toBe("ALL");
+    expect(sagaTrigger(undefined)).toBe("automatic");
   });
 });

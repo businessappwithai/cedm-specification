@@ -6,7 +6,8 @@
  * `html/model-yaml.js` is loaded into headless Chromium as a module. Each
  * model is validated there and in this process (by the source modules
  * `appwithai validate` uses); the two must report the same diagnostics — code,
- * severity, line and column — and draw the same Mermaid view. A deliberately
+ * severity, line and column — and the fixer must repair it to the same text. A
+ * deliberately
  * broken document must be refused the same way too, so the comparison is not
  * two engines agreeing that nothing is wrong.
  *
@@ -24,7 +25,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { chromium } from "playwright";
-import { readModelYaml, renderEmlView } from "../packages/generator/src/model-yaml/index";
+import { checkAndFix, readModelYaml } from "../packages/generator/src/model-yaml/index";
 
 const ROOT = path.resolve(import.meta.dir, "..");
 const SKIP = new Set(["node_modules", "dist", ".git", "generated-projects", "target"]);
@@ -67,16 +68,17 @@ const BROKEN = [
 interface Outcome {
   ok: boolean;
   diagnostics: string[];
-  view: string;
+  fixed: string;
 }
 
-function summarise(result: ReturnType<typeof readModelYaml>): Outcome {
+function summarise(text: string): Outcome {
+  const result = readModelYaml(text);
   return {
     ok: result.ok,
     diagnostics: result.diagnostics.map(
       (d) => `${d.severity} ${d.code} ${d.line}:${d.column} ${d.message}`
     ),
-    view: result.document ? renderEmlView(result.document).text : "",
+    fixed: checkAndFix(text).text,
   };
 }
 
@@ -124,7 +126,7 @@ try {
             message: string;
           }>;
         };
-        renderEmlView(document: unknown): { text: string };
+        fix(text: string): { text: string };
       }
       const api = (globalThis as Record<string, unknown>).__modelYaml as BundleApi;
       const result = api.validate(source);
@@ -133,7 +135,7 @@ try {
         diagnostics: result.diagnostics.map(
           (d) => `${d.severity} ${d.code} ${d.line}:${d.column} ${d.message}`
         ),
-        view: result.document ? api.renderEmlView(result.document).text : "",
+        fixed: api.fix(source).text,
       };
     }, text);
 
@@ -146,11 +148,11 @@ try {
   ];
 
   for (const [label, text] of cases) {
-    const expected = summarise(readModelYaml(text));
+    const expected = summarise(text);
     const actual = await inBrowser(text);
     const same =
       actual.ok === expected.ok &&
-      actual.view === expected.view &&
+      actual.fixed === expected.fixed &&
       JSON.stringify(actual.diagnostics) === JSON.stringify(expected.diagnostics);
     const errorCount = expected.diagnostics.filter((d) => d.startsWith("error")).length;
     if (same) {
@@ -167,7 +169,7 @@ try {
     }
   }
 
-  const brokenErrors = summarise(readModelYaml(BROKEN)).diagnostics.filter((d) =>
+  const brokenErrors = summarise(BROKEN).diagnostics.filter((d) =>
     d.startsWith("error")
   );
   if (brokenErrors.length === 0) {

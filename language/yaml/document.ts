@@ -16,7 +16,15 @@ export const EML_YAML_VERSION = "1.0";
 /** How many records may stand at one end of a relationship. */
 export type RelationshipEnd = "exactly-one" | "zero-or-one" | "zero-or-more" | "one-or-more";
 
-export type RuleNodeShape = "stadium" | "diamond" | "rect" | "circle" | "round";
+/**
+ * What a node of a rule's decision graph does: `start` receives the record,
+ * `decision` branches on it, `expression` sets or computes a value, `function`
+ * runs a reusable computation, `end` is the rule's outcome.
+ */
+export type RuleNodeType = "start" | "end" | "decision" | "expression" | "function";
+
+/** Which way a graph is laid out when drawn. Layout only; nothing compiles it. */
+export type FlowDirection = "down" | "up" | "right" | "left";
 
 export interface DecisionTableColumn {
   id: string;
@@ -123,8 +131,8 @@ export interface RuleDocument {
   entity: string;
   event: string;
   priority?: number;
-  direction?: string;
-  nodes: Array<{ id: string; label: string; shape: RuleNodeShape }>;
+  direction?: FlowDirection;
+  nodes: Array<{ id: string; label: string; type: RuleNodeType }>;
   edges: Array<{ from: string; to: string; label?: string }>;
   actions?: Array<{ name: string; type: string; when?: string; props?: Record<string, string> }>;
   decisionTable?: DecisionTable;
@@ -164,11 +172,26 @@ export interface TriggerDocument {
   handler: string;
 }
 
-export interface HookDiagramDocument {
+/**
+ * One step of a hook flow: a hook the entity declares, named by `event` and
+ * `handler`, or a step shown for context — the request, the write, the
+ * response — named by `label`.
+ */
+export interface HookFlowNodeDocument {
+  id: string;
+  label?: string;
+  event?: string;
+  handler?: string;
+}
+
+/** The order an entity's hooks run in around a write, drawn as a graph. */
+export interface HookFlowDocument {
   name: string;
   title?: string;
   entity: string;
-  diagram: string;
+  direction?: FlowDirection;
+  nodes: HookFlowNodeDocument[];
+  edges: Array<{ from: string; to: string; label?: string }>;
 }
 
 export interface ModelDocument {
@@ -181,13 +204,13 @@ export interface ModelDocument {
   entities: EntityDocument[];
   relationships?: RelationshipDocument[];
   hooks?: HookDocument[];
+  hookFlows?: HookFlowDocument[];
   rbac?: RbacDocument[];
   triggers?: TriggerDocument[];
   reports?: ReportDocument[];
   rules?: RuleDocument[];
   stateMachines?: StateMachineDocument[];
   sagas?: SagaDocument[];
-  hookDiagrams?: HookDiagramDocument[];
 }
 
 /** A path into the document: keys and array indexes. */
@@ -208,11 +231,11 @@ export const DOCUMENT_KEY_ORDER: readonly (keyof ModelDocument)[] = [
   "entities",
   "relationships",
   "hooks",
+  "hookFlows",
   "rbac",
   "triggers",
   "reports",
   "rules",
   "stateMachines",
   "sagas",
-  "hookDiagrams",
 ];

@@ -13,22 +13,27 @@
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { generateApplication, parseModel } from "../../index";
+import { readYamlFixture } from "../../model/__tests__/compile-yaml";
+import { generateApplication } from "../../index";
 
 /** A model with no directives at all: no rules, no sagas, no categories. */
-const BARE = `erDiagram
-    Widget {
-        string id PK
-        string name
-    }
+const BARE = `eml: "1.0"
+entities:
+  - name: Widget
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
 `;
 
 describe("what the generated crate references must be emitted", () => {
   it("holds for a model that declares nothing at all", async () => {
     const out = await fs.mkdtemp("/tmp/seed-files-");
     await generateApplication({
-      sources: BARE,
-      model: parseModel(BARE),
+      document: readYamlFixture(BARE),
+      modelText: BARE,
       projectName: "bare",
       outputDir: out,
       skipFrontend: true,

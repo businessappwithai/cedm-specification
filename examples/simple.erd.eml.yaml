@@ -1,5 +1,10 @@
 eml: "1.0"
 entities:
+  # Simple Blog Domain Model
+
+  # A minimal example for testing the generator
+
+  # Use: appwithai generate -i examples/simple.erd.eml.yaml -o ./generated -n blog-app
   - name: User
     attributes:
       - name: id

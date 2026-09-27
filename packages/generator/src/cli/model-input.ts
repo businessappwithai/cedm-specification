@@ -1,10 +1,10 @@
 /**
- * Reading a model file for the CLI, in whichever syntax it is written.
+ * Reading a model file for the CLI.
  *
- * `*.eml.yaml` / `*.yaml` / `*.yml` is the YAML model language; anything else
- * is EML. Every command that takes a model goes through here, so every command
- * takes both — and a YAML model is always validated before anything is
- * generated from it.
+ * A model is a YAML document, `*.eml.yaml`. Every command that takes a model
+ * goes through here, so every command validates it the same way — YAML, the
+ * schema, the language checker — before anything is generated from it, and
+ * reports each finding at the line and column that caused it.
  */
 
 import * as fs from "node:fs/promises";
@@ -17,11 +17,13 @@ import {
   type ModelDocument,
   readModelYaml,
 } from "../model-yaml";
-import { parseModel } from "../pipeline/parse-model";
 
-export type LoadedModel =
-  | { format: "yaml"; path: string; text: string; document: ModelDocument; model: ParsedModel }
-  | { format: "eml"; path: string; text: string; model: ParsedModel };
+export interface LoadedModel {
+  path: string;
+  text: string;
+  document: ModelDocument;
+  model: ParsedModel;
+}
 
 const SYMBOL: Record<ModelDiagnostic["severity"], string> = {
   error: "✖",
@@ -42,14 +44,25 @@ export interface ValidateOptions {
   print?: (line: string) => void;
 }
 
+/** Refuse a path that does not name a model document, before reading it. */
+export function requireModelPath(filePath: string): void {
+  if (!isModelYamlPath(filePath)) {
+    throw new Error(
+      `"${path.basename(filePath)}" is not a model. A model is a YAML document (*.eml.yaml); ` +
+        "see language/yaml/README.md."
+    );
+  }
+}
+
 /**
- * Validate a YAML model file and print what is wrong with it.
+ * Validate a model file and print what is wrong with it.
  * Throws when the model has an error; returns the document otherwise.
  */
 export async function validateModelYamlFile(
   filePath: string,
   options: ValidateOptions = {}
 ): Promise<{ document: ModelDocument; text: string; diagnostics: ModelDiagnostic[] }> {
+  requireModelPath(filePath);
   const print = options.print ?? ((line: string) => console.log(line));
   const text = await fs.readFile(filePath, "utf-8");
   const result = readModelYaml(text);
@@ -70,21 +83,14 @@ export async function validateModelYamlFile(
   return { document: result.document, text, diagnostics: result.diagnostics };
 }
 
-/** Read, validate (YAML) and compile a model file. */
+/** Read, validate and compile a model file. */
 export async function loadModelFile(
   filePath: string,
   options: ValidateOptions = {}
 ): Promise<LoadedModel> {
-  await fs.access(filePath);
-
-  if (isModelYamlPath(filePath)) {
-    const { document, text } = await validateModelYamlFile(filePath, options);
-    const model = compileModelDocument(document, {
-      warn: (message) => console.warn(`  ⚠️  ${message}`),
-    });
-    return { format: "yaml", path: filePath, text, document, model };
-  }
-
-  const text = await fs.readFile(filePath, "utf-8");
-  return { format: "eml", path: filePath, text, model: parseModel(text) };
+  const { document, text } = await validateModelYamlFile(filePath, options);
+  const model = compileModelDocument(document, {
+    warn: (message) => console.warn(`  ⚠️  ${message}`),
+  });
+  return { path: filePath, text, document, model };
 }

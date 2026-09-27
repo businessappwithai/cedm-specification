@@ -1,3 +1,19 @@
+# ============================================================================
+# EML Example — Acme Dance Studio / Class Booking
+
+# A booking business, modelled end to end: nine entities, both state machines
+# a booking business actually has, the cancellation cutoff that decides whether
+# a credit comes back, and the saga that promotes a waitlisted member when a
+# place is released.
+
+# Written as the worked example for the interactive authoring protocol in
+# llmtext/llmdetailed.txt §10, so it holds that section's standard: help text
+# on every entity and every column, one access rule for reading per entity, and every
+# state backed by a declared enum. 0 errors, 0 warnings, clean under
+# --strict.
+# ============================================================================
+
+
 eml: "1.0"
 name: Acme Dance Studio
 version: 1.0.0
@@ -339,6 +355,42 @@ hooks:
   - entity: Booking
     event: afterUpdate
     handler: returnCreditOnCancel
+hookFlows:
+  # ---- Workflow — lifecycle hooks -------------------------------------------
+  - name: BookingHooks
+    title: Booking Hooks
+    entity: Booking
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: drawCredit
+      - id: D
+        label: Process Booking
+      - id: E
+        event: afterCreate
+        handler: sendConfirmation
+      - id: F
+        event: afterUpdate
+        handler: returnCreditOnCancel
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
 rbac:
   - entity: Member
     action: read
@@ -404,6 +456,20 @@ rbac:
     action: create
     roles: [receptionist, manager]
 reports:
+  # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
+
+  # What the derived pack already gives this model without being asked: a
+  # register per entity, a breakdown per enum-bound column, created-per-month,
+  # a lifecycle report over both state machines in the diagram's own order, and
+  # children-per-parent for all 10 relationships. None of that needed anyone who
+  # understands how a studio fills a room.
+
+  # These do. Each of the four roles on the access-rule matrix above is walked through
+  # the four questions — what they open first, what tells them something is wrong
+  # today, what they are asked for weekly, and what rots silently if nobody
+  # looks — so each can do its whole job from what it can see.
+
+  # -- member: their own classes and credits -----------------------------------
   - name: member-upcoming-bookings
     title: Places held for upcoming classes
     entity: Booking
@@ -424,6 +490,7 @@ reports:
     entity: WaitlistEntry
     help: "A member on a waitlist wants one number: how many people are ahead of them. Without it they book a second class they do not need, and then cancel one of the two late."
     sql: SELECT m.full_name AS member, o.name AS class, s.starts_at, w.queue_position FROM bus_waitlist_entry w JOIN bus_member m ON m.id = w.member_id JOIN bus_class_session s ON s.id = w.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE w.deleted_at IS NULL AND s.deleted_at IS NULL AND w.status = 'waiting' AND s.starts_at > now() ORDER BY s.starts_at, w.queue_position
+  # -- receptionist: the desk, today -------------------------------------------
   - name: reception-today-roster
     title: Today's classes and who is coming
     entity: ClassSession
@@ -449,6 +516,7 @@ reports:
     entity: Booking
     help: A no-show costs the studio a seat and usually costs the member a credit. Called the same week it is a courtesy; called a month later it is an argument about a refund.
     sql: SELECT m.full_name AS member, m.phone, o.name AS class, s.starts_at, b.fee_waived FROM bus_booking b JOIN bus_member m ON m.id = b.member_id JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE b.deleted_at IS NULL AND b.status = 'no_show' AND s.starts_at > now() - interval '14 days' ORDER BY s.starts_at DESC
+  # -- instructor: the room they are about to walk into ------------------------
   - name: instructor-upcoming-roster
     title: Each instructor's next classes and headcount
     entity: ClassSession
@@ -467,6 +535,7 @@ reports:
     y: attendance_pct
     help: How many of the people who booked actually came. A consistently low rate is not the instructor's fault, but it is their signal — a class scheduled at the wrong hour, or one people book to keep a habit and skip.
     sql: SELECT i.full_name AS instructor, COUNT(*) FILTER (WHERE b.status = 'attended') AS attended, COUNT(*) AS places, ROUND(100.0 * COUNT(*) FILTER (WHERE b.status = 'attended') / NULLIF(COUNT(*), 0)) AS attendance_pct FROM bus_booking b JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_instructor i ON i.id = s.instructor_id WHERE b.deleted_at IS NULL AND s.deleted_at IS NULL AND s.status = 'completed' AND b.status IN ('attended', 'no_show', 'forfeited') GROUP BY i.id, i.full_name ORDER BY attendance_pct
+  # -- manager: whether the studio is working ----------------------------------
   - name: manager-revenue-by-month
     title: Money taken by month
     entity: Payment
@@ -507,6 +576,7 @@ reports:
     help: Every waiver is money the studio chose not to take, and the reason is free text because the judgement is human. Read together they show whether the cutoff rule is being applied or quietly ignored.
     sql: SELECT m.full_name AS member, o.name AS class, s.starts_at, b.waiver_reason FROM bus_booking b JOIN bus_member m ON m.id = b.member_id JOIN bus_class_session s ON s.id = b.class_session_id JOIN bus_class_offering o ON o.id = s.class_offering_id WHERE b.deleted_at IS NULL AND b.fee_waived AND b.cancelled_at > now() - interval '90 days' ORDER BY b.cancelled_at DESC
 rules:
+  # ---- Business rules — booking eligibility and the cancellation cutoff -------
   - name: bookingGate
     title: Booking Eligibility
     entity: Booking
@@ -515,25 +585,25 @@ rules:
     nodes:
       - id: A
         label: "Start: place requested"
-        shape: stadium
+        type: start
       - id: B
         label: Pack covers the credit cost?
-        shape: diamond
+        type: decision
       - id: R1
         label: "Refuse: insufficient credits"
-        shape: rect
+        type: expression
       - id: C
         label: Session still scheduled and not full?
-        shape: diamond
+        type: decision
       - id: R2
         label: "Refuse: session unavailable"
-        shape: rect
+        type: expression
       - id: P
         label: Hold the place
-        shape: round
+        type: expression
       - id: E
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -572,6 +642,7 @@ rules:
         props:
           field: status
           value: held
+  # ---- Business rules — cancellation cutoff ---------------------------------
   - name: cancellationCutoff
     title: Cancellation Cutoff
     entity: Booking
@@ -580,19 +651,19 @@ rules:
     nodes:
       - id: A
         label: "Start: cancellation requested"
-        shape: stadium
+        type: start
       - id: B
         label: More than 12 hours before start?
-        shape: diamond
+        type: decision
       - id: C
         label: Return the credit
-        shape: rect
+        type: expression
       - id: D
         label: Forfeit the credit
-        shape: rect
+        type: expression
       - id: E
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -619,6 +690,7 @@ rules:
           field: fee_waived
           value: "false"
 stateMachines:
+  # ---- Workflow — the session lifecycle -------------------------------------
   - name: SessionLifecycle
     title: Session Lifecycle
     entity: ClassSession
@@ -635,6 +707,7 @@ stateMachines:
       - from: running
         to: completed
         trigger: complete
+  # ---- Workflow — the booking lifecycle -------------------------------------
   - name: BookingLifecycle
     title: Booking Lifecycle
     entity: Booking
@@ -658,6 +731,7 @@ stateMachines:
         to: cancelled
         trigger: waive
 sagas:
+  # ---- Workflow — waitlist promotion (saga) ---------------------------------
   - name: WaitlistPromotion
     title: Waitlist Promotion
     entity: WaitlistEntry
@@ -676,15 +750,3 @@ sagas:
           entity: Booking
           as: promotedBookingId
           fields: '{"class_session_id":"class_session_id","member_id":"member_id","status":"held"}'
-hookDiagrams:
-  - name: BookingHooks
-    title: Booking Hooks
-    entity: Booking
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: drawCredit]
-          C --> D[Process Booking]
-          D --> E[afterCreate: sendConfirmation]
-          E --> F[afterUpdate: returnCreditOnCancel]
-          F --> G[Response]

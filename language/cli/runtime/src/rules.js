@@ -1,5 +1,5 @@
 // Business-rule engine.
-// Evaluates the decision flows compiled from the EML rules sections. Each rule
+// Evaluates the decision graphs of the model's rules. Each rule
 // is a directed graph of nodes (input/decision/expression/function/output) and
 // edges. Evaluation walks the graph from the input node, taking decision
 // branches based on the record's field values, and returns a decision trace.

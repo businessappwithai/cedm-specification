@@ -471,7 +471,7 @@ pub fn build_reports_seed_sql(options: &ReportsSeedOptions) -> String {
     );
     out.push("--".to_string());
     out.push(
-        "-- One row per `%%report` directive. Every statement is `ON CONFLICT DO NOTHING`"
+        "-- One row per report the model declares. Every statement is `ON CONFLICT DO NOTHING`"
             .to_string(),
     );
     out.push(
@@ -489,7 +489,7 @@ pub fn build_reports_seed_sql(options: &ReportsSeedOptions) -> String {
 
     if reports.is_empty() {
         out.push(
-            "-- This model declares no %%report directives, so there is nothing to seed."
+            "-- This model declares no reports, so there is nothing to seed."
                 .to_string(),
         );
         out.push(
@@ -679,7 +679,7 @@ mod tests {
             reports: &[],
             table_for_entity: &HashMap::new(),
         });
-        assert!(sql.contains("declares no %%report directives"));
+        assert!(sql.contains("declares no reports"));
         assert!(!sql.contains("INSERT INTO sys_report"));
     }
 

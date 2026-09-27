@@ -1,48 +1,26 @@
 /**
- * The document checker against the checker it replaces.
+ * The model checker, one rule at a time.
  *
- * `language/yaml/checker.ts` reads the model document. The checker before it
- * read the document's Mermaid view, through the Mermaid parser. Before the view
- * is deleted, every rule of the new checker is held to what the old one said
- * about the same document — over every model in the corpus, and over one
- * fixture per rule, since the corpus alone exercises a handful of codes.
+ * `language/yaml/checker.ts` reads the model document and reports each finding
+ * at the document path that caused it. Each case below changes one thing in a
+ * model that is otherwise clean and names exactly the codes that change must
+ * raise — so a rule that stops firing fails its case, and so does a rule that
+ * starts firing where it has no business.
  *
- * Where the two differ, the difference is listed below with its reason. Nothing
- * else may differ.
+ * The cases were carried across from the port that replaced the checker which
+ * read the model's Mermaid rendering; each one held the two checkers to the
+ * same answer before that checker was deleted.
  */
 
 import { describe, expect, it } from "vitest";
-import { checkSource } from "../../../../../language/checker";
 import { checkModelDocument } from "../../../../../language/yaml/checker";
 import type { ModelDocument } from "../../../../../language/yaml/document";
-import { renderEmlView } from "../render-eml";
-
-/** Codes only the view-reading checker raised, and why the document checker does not. */
-const RETIRED: Record<string, string> = {
-  EML242:
-    "the saga or state machine's entity is reported once, as EML400; the view also raised it off the %%workflow line",
-  EML251:
-    "the rule's entity is reported once, as EML307; the view also raised it off the %%rule line",
-  EML501:
-    "an attribute's undeclared enum is reported once, as EML144; the view also raised it off the attribute",
-  EML221:
-    "an access rule's undeclared entity is reported once, as EML213; the view also read the %%rbac line as a guard",
-};
-
-/** Codes only the document checker raises, and why the view could not. */
-const ADDED: Record<string, string> = {
-  EML308: "a rule node declared twice; the Mermaid parser silently kept the first",
-  EML309: "an edge to an undeclared node; the Mermaid parser silently created a bare node for it",
-  EML429: "a transition, initial or final state missing from states; the view invented the state",
-};
 
 interface Case {
   name: string;
   change: (document: ModelDocument) => void;
-  /** Codes the document checker must raise. */
+  /** The codes the change raises, and only those. */
   expect: string[];
-  /** A known, reasoned difference in the count of one code. */
-  differs?: Record<string, string>;
 }
 
 function base(): ModelDocument {
@@ -127,10 +105,10 @@ function base(): ModelDocument {
         entity: "Order",
         event: "beforeCreate",
         nodes: [
-          { id: "A", label: "Order received", shape: "stadium" },
-          { id: "B", label: "total > 1000", shape: "diamond" },
-          { id: "C", label: "Flag for review", shape: "rect" },
-          { id: "D", label: "Done", shape: "stadium" },
+          { id: "A", label: "Order received", type: "start" },
+          { id: "B", label: "total > 1000", type: "decision" },
+          { id: "C", label: "Flag for review", type: "expression" },
+          { id: "D", label: "Done", type: "end" },
         ],
         edges: [
           { from: "A", to: "B" },
@@ -202,10 +180,6 @@ const CASES: Case[] = [
       delete d.name;
     },
     expect: ["EML001"],
-    differs: {
-      EML001:
-        "the view wrote a %%meta name: for every rule and workflow title, so a model with none of its own still read as named",
-    },
   },
   {
     name: "a duplicate entity",
@@ -213,21 +187,14 @@ const CASES: Case[] = [
       d.entities.push({ ...d.entities[0]! });
     },
     expect: ["EML101"],
-    differs: {
-      EML101:
-        "the Mermaid parser merged a repeated entity block into the first, so the view never saw two",
-    },
   },
   {
     name: "an entity with no attributes",
     change: (d) => {
       d.entities.push({ name: "Tag", help: "A label a customer can attach.", attributes: [] });
     },
-    expect: ["EML102"],
-    differs: {
-      EML102:
-        "the Mermaid parser added the generated id key before the check ran, so an entity was never empty to it",
-    },
+    // An entity with no columns has no foreign key either, so it relates to nothing.
+    expect: ["EML102", "EML503"],
   },
   {
     name: "a camelCase column",
@@ -263,7 +230,8 @@ const CASES: Case[] = [
         attributes: [{ name: "code", type: "string", pk: true }],
       });
     },
-    expect: ["EML113"],
+    // The fixture's entity is declared on its own, related to nothing.
+    expect: ["EML113", "EML503"],
   },
   {
     name: "a foreign key without _id",
@@ -310,7 +278,8 @@ const CASES: Case[] = [
     change: (d) => {
       order(d).attributes[0]!.pk = false;
     },
-    expect: ["EML117"],
+    // The fixture's column carries no help.
+    expect: ["EML117", "EML153"],
   },
   {
     name: "a relationship to nothing",
@@ -334,7 +303,8 @@ const CASES: Case[] = [
         toCardinality: "zero-or-more",
       });
     },
-    expect: ["EML123"],
+    // A self-reference is its own many side, and carries no foreign key back.
+    expect: ["EML123", "EML125"],
   },
   {
     name: "a duplicate relationship",
@@ -357,10 +327,6 @@ const CASES: Case[] = [
       d.enums!.push({ name: "OrderStatus", values: ["x"] });
     },
     expect: ["EML131"],
-    differs: {
-      EML131:
-        "the Mermaid parser kept the first enum of a name and dropped the second before the check ran",
-    },
   },
   {
     name: "a duplicate enum value",
@@ -374,7 +340,8 @@ const CASES: Case[] = [
     change: (d) => {
       d.enums![0]!.values.push("on.hold");
     },
-    expect: ["EML134"],
+    // The renamed value is no longer a state of the machine the enum backs.
+    expect: ["EML134", "EML427"],
   },
   {
     name: "an undeclared enum",
@@ -582,14 +549,15 @@ const CASES: Case[] = [
   {
     name: "a rule with no start",
     change: (d) => {
-      rule(d).nodes[0]!.shape = "rect";
+      rule(d).nodes[0]!.type = "expression";
     },
-    expect: ["EML300"],
+    // With no start, nothing in the graph is reachable.
+    expect: ["EML300", "EML305"],
   },
   {
     name: "a rule with two starts",
     change: (d) => {
-      rule(d).nodes.push({ id: "E", label: "Also start", shape: "stadium" });
+      rule(d).nodes.push({ id: "E", label: "Also start", type: "start" });
       rule(d).edges.push({ from: "E", to: "B" });
     },
     expect: ["EML301"],
@@ -597,7 +565,7 @@ const CASES: Case[] = [
   {
     name: "a rule with no end",
     change: (d) => {
-      rule(d).nodes[3]!.shape = "rect";
+      rule(d).nodes[3]!.type = "expression";
     },
     expect: ["EML302"],
   },
@@ -618,7 +586,7 @@ const CASES: Case[] = [
   {
     name: "an unreachable node",
     change: (d) => {
-      rule(d).nodes.push({ id: "Z", label: "Orphan", shape: "rect" });
+      rule(d).nodes.push({ id: "Z", label: "Orphan", type: "expression" });
       rule(d).edges.push({ from: "Z", to: "D" });
     },
     expect: ["EML305"],
@@ -641,7 +609,7 @@ const CASES: Case[] = [
   {
     name: "a duplicate rule node",
     change: (d) => {
-      rule(d).nodes.push({ id: "C", label: "Again", shape: "rect" });
+      rule(d).nodes.push({ id: "C", label: "Again", type: "expression" });
     },
     expect: ["EML308"],
   },
@@ -657,7 +625,8 @@ const CASES: Case[] = [
     change: (d) => {
       machine(d).entity = "Invoice";
     },
-    expect: ["EML400"],
+    // The access rule naming the machine's `ship` trigger loses the machine it named.
+    expect: ["EML214", "EML400"],
   },
   {
     name: "a state machine with no transitions",
@@ -666,7 +635,8 @@ const CASES: Case[] = [
       delete machine(d).initial;
       delete machine(d).final;
     },
-    expect: ["EML420"],
+    // The access rule naming the `ship` trigger names a transition that is gone.
+    expect: ["EML214", "EML420"],
   },
   {
     name: "no initial state",
@@ -674,10 +644,6 @@ const CASES: Case[] = [
       delete machine(d).initial;
     },
     expect: ["EML421"],
-    differs: {
-      EML423:
-        "without an initial state the view reported every state unreachable; EML421 already says why",
-    },
   },
   {
     name: "no final state",
@@ -685,10 +651,6 @@ const CASES: Case[] = [
       delete machine(d).final;
     },
     expect: ["EML422"],
-    differs: {
-      EML424:
-        "without a final state the view reported every state stranded; EML422 already says why",
-    },
   },
   {
     name: "an unreachable state",
@@ -745,7 +707,6 @@ const CASES: Case[] = [
       machine(d).transitions.push({ from: "submitted", to: "void", trigger: "void" });
     },
     expect: ["EML429"],
-    differs: { EML424: "the view invented state void", EML426: "idem" },
   },
   {
     name: "a state machine with no status column",
@@ -767,7 +728,8 @@ const CASES: Case[] = [
     change: (d) => {
       saga(d).steps[0]!.type = "SendFax";
     },
-    expect: ["EML261"],
+    // The later step reads a result the unknown step no longer publishes.
+    expect: ["EML261", "EML264"],
   },
   {
     name: "a step missing a property",
@@ -873,10 +835,6 @@ const CASES: Case[] = [
       saga(d).steps = [];
     },
     expect: ["EML430"],
-    differs: {
-      EML430:
-        "the view checker stayed silent whenever the saga's entity declared a hook, a condition left from when a saga ran on hooks",
-    },
   },
   {
     name: "a saga on nothing",
@@ -886,30 +844,80 @@ const CASES: Case[] = [
     expect: ["EML400"],
   },
   {
-    name: "a hook diagram with no hooks",
+    name: "a hook flow with no hooks",
     change: (d) => {
-      d.hookDiagrams = [
+      d.hookFlows = [
         {
           name: "CustomerHooks",
           entity: "Customer",
-          diagram: "flowchart TD\n    A[Request] --> B[Response]",
+          nodes: [
+            { id: "A", label: "Request" },
+            { id: "B", label: "Response" },
+          ],
+          edges: [{ from: "A", to: "B" }],
         },
       ];
     },
     expect: ["EML410"],
   },
+  {
+    name: "a hook flow drawing a hook the model does not declare",
+    change: (d) => {
+      d.hookFlows = [
+        {
+          name: "OrderHooks",
+          entity: "Order",
+          nodes: [
+            { id: "A", label: "Request" },
+            { id: "B", event: "afterCreate", handler: "notifyCustomer" },
+          ],
+          edges: [{ from: "A", to: "B" }],
+        },
+      ];
+    },
+    expect: ["EML411"],
+  },
+  {
+    name: "a hook flow declaring a node twice",
+    change: (d) => {
+      d.hookFlows = [
+        {
+          name: "OrderHooks",
+          entity: "Order",
+          nodes: [
+            { id: "A", label: "Request" },
+            { id: "B", event: "beforeCreate", handler: "stampOrderNumber" },
+            { id: "A", label: "Again" },
+          ],
+          edges: [{ from: "A", to: "B" }],
+        },
+      ];
+    },
+    expect: ["EML412"],
+  },
+  {
+    name: "a hook flow with an edge to an undeclared node",
+    change: (d) => {
+      d.hookFlows = [
+        {
+          name: "OrderHooks",
+          entity: "Order",
+          nodes: [
+            { id: "A", label: "Request" },
+            { id: "B", event: "beforeCreate", handler: "stampOrderNumber" },
+          ],
+          edges: [
+            { from: "A", to: "B" },
+            { from: "B", to: "Z" },
+          ],
+        },
+      ];
+    },
+    expect: ["EML413"],
+  },
 ];
 
-function viewCodes(document: ModelDocument): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const diagnostic of checkSource(renderEmlView(document).text).issues) {
-    if (RETIRED[diagnostic.code]) continue;
-    counts.set(diagnostic.code, (counts.get(diagnostic.code) ?? 0) + 1);
-  }
-  return counts;
-}
-
-function documentCodes(document: ModelDocument): Map<string, number> {
+function codes(document: ModelDocument): Map<string, number> {
   const counts = new Map<string, number>();
   for (const issue of checkModelDocument(document)) {
     counts.set(issue.code, (counts.get(issue.code) ?? 0) + 1);
@@ -917,28 +925,23 @@ function documentCodes(document: ModelDocument): Map<string, number> {
   return counts;
 }
 
-describe("the document checker, against the view checker it replaces", () => {
+describe("the model checker", () => {
+  const baseline = codes(base());
+
+  it("finds nothing wrong with the base model", () => {
+    expect([...baseline.keys()]).toEqual([]);
+  });
+
   for (const testCase of CASES) {
     it(testCase.name, () => {
       const document = base();
       testCase.change(document);
+      const found = codes(document);
 
-      const now = documentCodes(document);
-      for (const code of testCase.expect) expect(now.has(code), `${code} raised`).toBe(true);
-
-      const before = viewCodes(document);
-      const codes = new Set([...before.keys(), ...now.keys()]);
-      const unexplained = [...codes]
-        .filter((code) => !ADDED[code] && !testCase.differs?.[code])
-        .filter((code) => (before.get(code) ?? 0) !== (now.get(code) ?? 0))
-        .map((code) => `${code}: view ${before.get(code) ?? 0}, document ${now.get(code) ?? 0}`);
-      expect(unexplained).toEqual([]);
-
-      // A listed difference that no longer differs is a stale explanation.
-      const stale = Object.keys(testCase.differs ?? {}).filter(
-        (code) => (before.get(code) ?? 0) === (now.get(code) ?? 0)
-      );
-      expect(stale).toEqual([]);
+      // Exactly the codes the case names, and no others: a change that also
+      // trips an unrelated rule is either a second defect in the checker or a
+      // fixture that is not testing what it says.
+      expect([...found.keys()].sort()).toEqual([...new Set(testCase.expect)].sort());
     });
   }
 });

@@ -1,10 +1,12 @@
 /**
- * EML unified model.
+ * The `eml` CLI's model.
  *
- * The single in-memory representation of an .mmd EML document after parsing:
- * the data model (entities/relationships/enums/indexes), the declarative
- * business rules (decision flows), and the business workflows (lifecycle hooks
- * and state machines). The generator consumes this model to emit an application.
+ * What the CLI's own generators and the Node REST runtime consume, built from
+ * a validated model document (`*.eml.yaml`) by `from-document.ts`: the data
+ * model (entities, relationships, enums, indexes), the business rules as
+ * decision graphs, and the workflows (hook flows, state machines, sagas). It is
+ * also what the generated runtime serialises as `model.json`, so a field here is
+ * a field the runtime may read.
  */
 
 export type CanonicalType =
@@ -34,7 +36,7 @@ export type HookType =
   | "beforeList"
   | "afterList";
 
-export type RuleNodeShape = "stadium" | "diamond" | "circle" | "rounded" | "rect";
+export type RuleNodeType = "start" | "end" | "decision" | "expression" | "function";
 export type JdmNodeRole =
   | "inputNode"
   | "outputNode"
@@ -66,7 +68,7 @@ export interface EmlEntity {
   prefix?: string;
   label?: string;
   /**
-   * `%%entity <Name> help:` — what this entity is for, in the author's words.
+   * The entity's `help` — what it is for, in the author's words.
    *
    * The only place a model carries the *reason* an entity exists rather than
    * its shape, which is why it is the text every downstream description is
@@ -83,7 +85,6 @@ export interface EmlRelationship {
   source: string;
   target: string;
   cardinality: CardinalityKind;
-  operator: string;
   foreignKey: string;
 }
 
@@ -101,7 +102,7 @@ export interface EmlIndex {
 export interface RuleNode {
   id: string;
   label: string;
-  shape: RuleNodeShape;
+  type: RuleNodeType;
   jdmType: JdmNodeRole;
   /** Parsed condition when the label is machine-evaluable (decision nodes). */
   condition?: ParsedCondition;
@@ -127,8 +128,6 @@ export interface EmlRule {
   priority?: number;
   nodes: RuleNode[];
   edges: RuleEdge[];
-  /** The original Mermaid flowchart source for this rule (fed to the JDM converter). */
-  raw?: string;
 }
 
 export interface EmlHook {
@@ -162,6 +161,10 @@ export interface EmlWorkflow {
   kind: "hook" | "state" | "saga";
   hooks: EmlHook[];
   states: string[];
+  /** The state a new record starts in (state machines). */
+  initial?: string;
+  /** States with no way out (state machines). */
+  final?: string[];
   transitions: EmlTransition[];
   guards: EmlGuard[];
   triggers: EmlTrigger[];
@@ -174,31 +177,31 @@ export interface Diagnostic {
   code: string;
   message: string;
   line?: number;
-  /** Human description of the auto-correction applied, if any. */
+  column?: number;
+  /** How to put it right, or the correction that was applied. */
   fix?: string;
 }
 
 export interface EmlMeta {
   name?: string;
   version?: string;
-  stack?: string;
-  [key: string]: string | undefined;
+  description?: string;
 }
 
 /**
- * `%%report` — a question the application's users actually ask, written into
- * the model beside the entities it is asked about.
+ * A report — a question the application's users actually ask, written into the
+ * model beside the entities it is asked about.
  *
  * The reporting pack derives a baseline from structure alone: a register per
  * entity, a breakdown per enum, a lifecycle per state machine. That baseline
  * describes the *shape* of the data and nothing about the business running on
  * it. Nothing in an ERD says that a sales manager opens the application to see
  * which deals slipped this quarter, or that a dispatcher needs the jobs with no
- * engineer assigned — those come from knowing the domain, and this directive is
+ * engineer assigned — those come from knowing the domain, and a report is
  * where that knowledge is written down.
  *
- * `sql` is deliberately the author's own, and deliberately last on the line: it
- * runs against the generated application's database as written.
+ * `sql` is deliberately the author's own: it runs against the generated
+ * application's database as written.
  */
 export interface EmlReport {
   /** Stable identifier, used as the pack key. */
@@ -230,22 +233,4 @@ export interface EmlModel {
   hooks: EmlHook[];
   guards: EmlGuard[];
   triggers: EmlTrigger[];
-  diagnostics: Diagnostic[];
-}
-
-export function emptyModel(): EmlModel {
-  return {
-    meta: {},
-    entities: [],
-    relationships: [],
-    enums: [],
-    indexes: [],
-    rules: [],
-    reports: [],
-    workflows: [],
-    hooks: [],
-    guards: [],
-    triggers: [],
-    diagnostics: [],
-  };
 }

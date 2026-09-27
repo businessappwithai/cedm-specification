@@ -11,41 +11,34 @@
 #
 # Only `backend/` is compared. The frontend and the bun:test suite are TypeScript's
 # alone by design (cargo owns `backend/`, bun owns `frontend/` and `tests/`), and
-# `model/model.eml.mmd` sits at the project root, outside the compared tree.
+# `model/model.eml.yaml` sits at the project root, outside the compared tree.
 #
 # The `Generated:` line carries a wall-clock timestamp and is the one difference
 # that means nothing. Every other difference is a defect.
 #
-# Each model is checked in both syntaxes. A model's YAML (`*.eml.yaml`) is its
-# source of truth and its EML the view it converts from, so four backends are
-# generated per model — TypeScript and Rust, from each — and three comparisons
-# made: TS(EML) = Rust(EML), TS(YAML) = Rust(YAML), and Rust(YAML) = Rust(EML).
-# The last is the Rust half of what `model-yaml/__tests__/` proves for the
-# TypeScript generator.
-#
-# A fourth comparison covers the CLI-WASM target: the Rust generator compiled to
-# `wasm32-wasip1` and hosted by `scripts/appwithai-wasm.mjs` must emit, from the
-# YAML, exactly the backend the native binary emits. That is what makes the
-# WebAssembly build the same generator rather than a second one.
+# Three backends are generated per model, all from its YAML — TypeScript, the
+# native Rust binary, and the Rust generator compiled to `wasm32-wasip1` and hosted
+# by `scripts/appwithai-wasm.mjs` — and two comparisons made: TypeScript = Rust,
+# and WebAssembly = native. The second is what makes the WebAssembly build the
+# same generator rather than a second one.
 #
 # Run over EVERY model in PARITY_MODELS, not just the first. Parity on a model that
-# declares no `%%rbac` says nothing about the code that compiles `%%rbac`, so a
-# feature landing without a corpus line exercising it is a feature this script
+# declares no access rules says nothing about the code that compiles them, so a
+# feature landing without a corpus model exercising it is a feature this script
 # cannot see.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# The corpus. Grow this — and grow the models themselves — whenever a directive
+# The corpus. Grow this — and grow the models themselves — whenever a construct
 # or a template branch lands that no existing model reaches.
-# `<EML model>:<its YAML>`.
 PARITY_MODELS=(
-  "examples/drug-discovery.eml.mmd:examples/drug-discovery.eml.yaml"
-  "language/examples/crm.eml.mmd:language/yaml/examples/crm.eml.yaml"
-  "language/examples/dance-studio.eml.mmd:language/yaml/examples/dance-studio.eml.yaml"
-  "language/examples/ecommerce.eml.mmd:language/yaml/examples/ecommerce.eml.yaml"
-  "language/examples/helpdesk.eml.mmd:language/yaml/examples/helpdesk.eml.yaml"
-  "language/examples/minimal.eml.mmd:language/yaml/examples/minimal.eml.yaml"
+  "examples/drug-discovery.eml.yaml"
+  "language/yaml/examples/crm.eml.yaml"
+  "language/yaml/examples/dance-studio.eml.yaml"
+  "language/yaml/examples/ecommerce.eml.yaml"
+  "language/yaml/examples/helpdesk.eml.yaml"
+  "language/yaml/examples/minimal.eml.yaml"
 )
 
 OUT_DIR="${PARITY_OUT_DIR:-$(mktemp -d)}"
@@ -96,40 +89,28 @@ compare() {
   fi
 }
 
-for pair in "${PARITY_MODELS[@]}"; do
-  eml="${pair%%:*}"
-  yaml="${pair##*:}"
-  missing=0
-  for file in "$eml" "$yaml"; do
-    if [ ! -f "$file" ]; then
-      echo "!! missing corpus model: $file" >&2
-      missing=1
-    fi
-  done
-  if [ "$missing" -ne 0 ]; then
+for model in "${PARITY_MODELS[@]}"; do
+  if [ ! -f "$model" ]; then
+    echo "!! missing corpus model: $model" >&2
     failures=$((failures + 1))
     continue
   fi
 
-  slug="$(basename "$eml" | tr -c 'a-zA-Z0-9' '-')"
+  slug="$(basename "$model" | tr -c 'a-zA-Z0-9' '-')"
   rm -rf "$OUT_DIR/$slug"-*
 
   echo
-  echo "==> $eml  ·  $yaml"
+  echo "==> $model"
 
   # --skip-cli-scaffold throughout: `loco new` fetches over the network and its
   # output is identical either way, so scaffolding here would only make the
   # check flaky.
-  generate_ts "$eml" "$OUT_DIR/$slug-ts-eml"
-  generate_rs "$eml" "$OUT_DIR/$slug-rs-eml"
-  generate_ts "$yaml" "$OUT_DIR/$slug-ts-yaml"
-  generate_rs "$yaml" "$OUT_DIR/$slug-rs-yaml"
-  generate_wasm "$yaml" "$OUT_DIR/$slug-wasm-yaml"
+  generate_ts "$model" "$OUT_DIR/$slug-ts"
+  generate_rs "$model" "$OUT_DIR/$slug-rs"
+  generate_wasm "$model" "$OUT_DIR/$slug-wasm"
 
-  compare "TypeScript and Rust agree on the EML" "$OUT_DIR/$slug-ts-eml" "$OUT_DIR/$slug-rs-eml"
-  compare "TypeScript and Rust agree on the YAML" "$OUT_DIR/$slug-ts-yaml" "$OUT_DIR/$slug-rs-yaml"
-  compare "the Rust generator reads the YAML as it reads the EML" "$OUT_DIR/$slug-rs-yaml" "$OUT_DIR/$slug-rs-eml"
-  compare "the WebAssembly build emits what the native build emits" "$OUT_DIR/$slug-wasm-yaml" "$OUT_DIR/$slug-rs-yaml"
+  compare "TypeScript and Rust agree" "$OUT_DIR/$slug-ts" "$OUT_DIR/$slug-rs"
+  compare "the WebAssembly build emits what the native build emits" "$OUT_DIR/$slug-wasm" "$OUT_DIR/$slug-rs"
 done
 
 echo
@@ -138,4 +119,4 @@ if [ "$failures" -ne 0 ]; then
   echo "Fix the generator that is wrong — do not update the other to match a defect." >&2
   exit 1
 fi
-echo "PASSED: ${#PARITY_MODELS[@]} model(s) in both syntaxes, backends byte-identical."
+echo "PASSED: ${#PARITY_MODELS[@]} model(s), backends byte-identical across TypeScript, Rust and WebAssembly."

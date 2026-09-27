@@ -305,7 +305,7 @@ pub fn build_transitions_seed_sql(options: &TransitionsSeedOptions<'_>) -> Strin
 
     let mut out: Vec<String> = Vec::new();
     out.push(format!(
-        "-- State-machine edges for {project_name}, compiled from %%workflow kind: state."
+        "-- State-machine edges for {project_name}, compiled from the model's state machines."
     ));
     out.push("--".to_string());
     out.push(

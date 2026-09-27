@@ -1,3 +1,9 @@
+# ============================================================================
+# EML Minimal Example — smallest complete model with all three sections.
+# ============================================================================
+
+# ---- Section 1: ERD (structure) -------------------------------------------
+
 eml: "1.0"
 name: Minimal Blog
 enums:
@@ -65,7 +71,39 @@ hooks:
   - entity: Post
     event: afterUpdate
     handler: reindexSearch
+hookFlows:
+  # ---- Section 3: Workflow (lifecycle hooks) --------------------------------
+  - name: PostAuthoring
+    title: Post Authoring
+    entity: Post
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateSlug
+      - id: D
+        label: Process Post
+      - id: E
+        event: afterUpdate
+        handler: reindexSearch
+      - id: F
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
 rules:
+  # ---- Section 2: Business rule (declarative decision flow) ------------------
   - name: publishGate
     title: Publish Eligibility
     entity: Post
@@ -74,25 +112,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Publish Requested"
-        shape: stadium
+        type: start
       - id: B
         label: Body length >= 100?
-        shape: diamond
+        type: decision
       - id: R1
         label: "Reject: Too Short"
-        shape: rect
+        type: expression
       - id: C
         label: Author is_active?
-        shape: diamond
+        type: decision
       - id: R2
         label: "Reject: Inactive Author"
-        shape: rect
+        type: expression
       - id: P
         label: Approve Publish
-        shape: round
+        type: expression
       - id: E
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -114,14 +152,3 @@ rules:
         to: E
       - from: P
         to: E
-hookDiagrams:
-  - name: PostAuthoring
-    title: Post Authoring
-    entity: Post
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: generateSlug]
-          C --> D[Process Post]
-          D --> E[afterUpdate: reindexSearch]
-          E --> F[Response]

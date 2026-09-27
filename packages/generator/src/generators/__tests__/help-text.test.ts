@@ -1,9 +1,9 @@
 /**
  * Regression: the model's own help text never reached the running application.
  *
- * `%%entity <E> help:` and `%%field <E>.<c> help:` are the only place a model
+ * An entity's `help` and a column's `help` are the only place a model
  * says what something is *for* rather than what shape it is, and the parser has
- * hung both on the entity and the attribute since the directives were read.
+ * hung both on the entity and the attribute since the model was first read.
  * Only one of them landed. `sys_table.description` carried the entity's
  * sentence; `sys_column.description` was never written at all, and
  * `sys_field.help` — which is what the generated form renders under the control
@@ -25,32 +25,45 @@
 
 import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import { describe, expect, it } from "vitest";
-import { parseModel } from "../../pipeline/parse-model";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { buildDictionaryHelp } from "../dictionary-help";
 
-const MODEL = `
-%%meta name: Acme Dance Studio
-%%meta description: Bookings, class packs and waitlists for a single dance studio.
-erDiagram
-    Member {
-        string id PK
-        string full_name
-        string email
-    }
-    Booking {
-        string id PK
-        string member_id FK
-        string status
-    }
-    Member ||--o{ Booking : "holds"
-
-%%entity Booking help: One member's place in one session.
-%%field Booking.member_id help: Who holds the place. A booking may not be transferred between members; the studio's insurance names the attendee.
-%%field Booking.status help: Where the place is in its life: held, attended, cancelled or forfeited.
+const MODEL = `eml: "1.0"
+name: Acme Dance Studio
+description: Bookings, class packs and waitlists for a single dance studio.
+entities:
+  - name: Member
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: full_name
+        type: string
+      - name: email
+        type: string
+  - name: Booking
+    help: One member's place in one session.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: member_id
+        type: string
+        fk: true
+        help: Who holds the place. A booking may not be transferred between members; the studio's insurance names the attendee.
+      - name: status
+        type: string
+        help: "Where the place is in its life: held, attended, cancelled or forfeited."
+relationships:
+  - from: Member
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: holds
 `;
 
 function help() {
-  const model = parseModel(MODEL);
+  const model = compileYaml(MODEL);
   const declared = declaredEntityNames(model.entities);
   return {
     model,
@@ -86,7 +99,7 @@ describe("the model's own help text", () => {
     expect(fields.full_name).not.toContain("undefined");
   });
 
-  it("reads %%meta description: off the document", () => {
+  it("reads the model's description off the document", () => {
     expect(help().model.description).toBe(
       "Bookings, class packs and waitlists for a single dance studio."
     );

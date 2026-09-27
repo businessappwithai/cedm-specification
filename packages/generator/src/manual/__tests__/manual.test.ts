@@ -11,56 +11,94 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { parseModel } from "../../pipeline/parse-model";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { renderManual } from "../index";
 
-const MODEL = `
-%%meta name: Billing
-%%enum InvoiceStatus: draft, sent, paid
-
-%%category name: Money; description: What is owed; entities: Invoice, InvoiceLine
-
-erDiagram
-    Invoice {
-        string id PK
-        string number UK
-        string status
-        string customer_name
-    }
-
-    InvoiceLine {
-        string id PK
-        string invoice_id FK
-        string product_name
-        integer quantity
-    }
-
-    Invoice ||--o{ InvoiceLine : "has"
-
-    %%field Invoice.status enum: InvoiceStatus
-    %%entity Invoice help: A request for payment.
-    %%entity InvoiceLine parent: Invoice
-    %%rbac role:billing_clerk on Invoice.read
-
-%%meta name: Invoice Approval
-%%meta kind: rules
-%%rule invoiceApproval on Invoice event: beforeUpdate
-flowchart TD
-    A([Start]) --> B{status == paid?}
-    B --> C([Done])
-
-%%meta name: Invoice Lifecycle
-%%meta kind: workflow
-%%workflow InvoiceLifecycle entity: Invoice kind: state
-stateDiagram-v2
-    [*] --> draft
-    draft --> sent : send
-    sent --> paid : settle
-    paid --> [*]
+const MODEL = `eml: "1.0"
+name: Billing
+enums:
+  - name: InvoiceStatus
+    values: [draft, sent, paid]
+categories:
+  - name: Money
+    description: What is owed
+    entities: [Invoice, InvoiceLine]
+entities:
+  - name: Invoice
+    help: A request for payment.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: number
+        type: string
+        unique: true
+      - name: status
+        type: string
+        enum: InvoiceStatus
+      - name: customer_name
+        type: string
+  - name: InvoiceLine
+    parent: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: invoice_id
+        type: string
+        fk: true
+      - name: product_name
+        type: string
+      - name: quantity
+        type: integer
+relationships:
+  - from: Invoice
+    fromCardinality: exactly-one
+    to: InvoiceLine
+    toCardinality: zero-or-more
+    label: has
+rbac:
+  - entity: Invoice
+    action: read
+    roles: [billing_clerk]
+rules:
+  - name: invoiceApproval
+    title: Invoice Approval
+    entity: Invoice
+    event: beforeUpdate
+    nodes:
+      - id: A
+        label: Start
+        type: start
+      - id: B
+        label: status == paid?
+        type: decision
+      - id: C
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+stateMachines:
+  - name: InvoiceLifecycle
+    title: Invoice Lifecycle
+    entity: Invoice
+    states: [draft, sent, paid]
+    initial: draft
+    final: [paid]
+    transitions:
+      - from: draft
+        to: sent
+        trigger: send
+      - from: sent
+        to: paid
+        trigger: settle
 `;
 
 function manual(): string {
-  return renderManual(parseModel(MODEL), {
+  return renderManual(compileYaml(MODEL), {
     name: "Billing",
     version: "1.0.0",
     description: "Invoices and what is owed",
@@ -80,7 +118,7 @@ describe("renderManual", () => {
     expect(manual()).toContain("A request for payment.");
   });
 
-  it("lists the roles a %%rbac directive named, alongside the built-in two", () => {
+  it("lists the roles an access rule named, alongside the built-in two", () => {
     const html = manual();
     expect(html).toContain("Billing Clerk");
     expect(html).toContain("Administrator");

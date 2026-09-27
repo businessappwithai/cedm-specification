@@ -11,16 +11,16 @@
  * actually declares, and a model that declares less gets a smaller pack:
  *
  *   entity                → a register: what rows exist, newest first
- *   %%enum-bound column   → a breakdown: how the rows divide, as a chart
+ *   enum-bound column     → a breakdown: how the rows divide, as a chart
  *   created_at            → volume by month, as a line
  *   kind: state workflow  → a lifecycle report over the states the diagram
  *                           declares, in the diagram's order, zeroes included
  *   numeric columns       → a measures report, grouped by the entity's own
  *                           primary enum column where it has one
  *   oneToMany             → children per parent, ranked
- *   %%report              → the author's own question, listed first
+ *   report                → the author's own question, listed first
  *
- * The *names and descriptions* come from `%%entity help:` and `%%field help:` —
+ * The *names and descriptions* come from each entity's and column's `help` —
  * the only place a model says what an entity is for rather than what shape it
  * is. That is the difference between a report called "bus_account by status"
  * and one called "Accounts by status" that explains what an account is in this
@@ -44,7 +44,7 @@
 
 import type { Entity, EntityAttribute } from "@appwithai/core/types";
 import { tableNameFor } from "../naming/tables";
-import type { ParsedModel } from "../pipeline/parse-model";
+import type { ParsedModel } from "../model/compile";
 import { type DerivedAccess, deriveAccess } from "../rbac/roles";
 import type { CompiledWorkflow } from "../workflows/state-machine";
 
@@ -60,7 +60,7 @@ export interface SavedQuerySpec {
    * without parsing SQL at run time.
    *
    * Read off the query text rather than tracked as it is assembled, which
-   * sounds like the weaker of the two and is the stronger: a `%%report` the
+   * sounds like the weaker of the two and is the stronger: a report the
    * author wrote arrives as opaque SQL and has to be scanned anyway, and one
    * answer for both kinds cannot drift between them. The platform does not need
    * this — it parses the SQL and checks `ds_entity_permissions` itself — but
@@ -106,7 +106,7 @@ export interface DashboardSpec {
 }
 
 /**
- * One reporting-side role, derived from a `%%rbac` role but not the same thing.
+ * One reporting-side role, derived from a role the model's access rules name, but not the same thing.
  *
  * The application's role decides what a user may *do* to a record. This one
  * decides what a reporting user may *read* — which tables their queries and
@@ -177,7 +177,7 @@ export interface ReportingPack {
   reports: ReportSpec[];
   charts: ChartSpec[];
   dashboards: DashboardSpec[];
-  /** Roles to create on the reporting side, mirroring the model's `%%rbac`. */
+  /** Roles to create on the reporting side, mirroring the model's access rules. */
   access: AccessSpec;
 }
 
@@ -185,7 +185,7 @@ export interface BuildPackOptions {
   /**
    * The name the application was generated under — `appwithai generate -n`.
    *
-   * Not `%%meta name:`, and the difference is the whole point: it is what the
+   * Not the model's `name`, and the difference is the whole point: it is what the
    * generated application's own seeded addresses are built from, so deriving
    * the reporting addresses from anything else produces accounts that exist
    * nowhere while being printed as the way in.
@@ -196,7 +196,7 @@ export interface BuildPackOptions {
    *
    * `projectName` is the generate-time name and is what the seeded addresses
    * are built from, so it cannot also be the display name: a model whose
-   * `%%meta name:` reads "Enterprise CRM" generated as `crm` wants the reports
+   * `name:` reads "Enterprise CRM" generated as `crm` wants the reports
    * titled "Enterprise CRM — overview" and the accounts at `@crm.reports…`.
    * Defaults to `projectName`, which is right whenever a caller has only one
    * name to give.
@@ -228,7 +228,7 @@ export interface BuildPackOptions {
  * `APP_PASSWORD` mirrors `DEFAULT_ADMIN_PASSWORD` and `DEFAULT_ROLE_PASSWORD`
  * in the Loco backend's `src/tasks/ensure_admin.rs.hbs` and
  * `src/tasks/seed_access.rs.hbs` — the administrator and the one account per
- * `%%rbac` role that `cargo loco db seed` creates. It cannot be imported —
+ * access-rule role that `cargo loco db seed` creates. It cannot be imported —
  * those are Handlebars templates of Rust source — so this is a copy, and
  * `derive-pack.test.ts` reads the templates to hold the three together.
  *
@@ -243,10 +243,10 @@ const REPORT_PASSWORD = "admin";
 /**
  * What to call the entity in a report title.
  *
- * The entity's own name, split on its capitals — deliberately *not* `%%entity
+ * The entity's own name, split on its capitals — deliberately *not* the entity's
  * <E> label:`. That directive is documented as entity metadata and no generator
  * reads it, so an application generated from a model declaring
- * `%%entity Product label: Product Catalogue` calls the thing "Product" on
+ * An entity `Product` with `label: Product Catalogue` calls the thing "Product" on
  * every screen and in its navigation. Naming it "Product Catalogues" here
  * produced a reporting layer whose report titles matched nothing in the
  * application they report on, which is the opposite of what a mirror is for.
@@ -606,7 +606,7 @@ function deriveEntity(ctx: Ctx, e: Entity): void {
 }
 
 /**
- * `%%report` directives — the queries the model's author wrote for the people
+ * The model's reports — the queries the model's author wrote for the people
  * who will use the application.
  *
  * These are not derived from anything. Everything else here infers a report
@@ -620,7 +620,7 @@ function deriveEntity(ctx: Ctx, e: Entity): void {
 function addAuthoredReports(ctx: Ctx): void {
   for (const r of ctx.model.reports) {
     const key = `authored__${r.name}`;
-    const description = r.help?.trim() ?? `Declared in the model as %%report ${r.name}.`;
+    const description = r.help?.trim() ?? `Declared in the model as report ${r.name}.`;
     addQuery(ctx, { key, name: r.title, description, sql: r.sql });
 
     // Result columns are only knowable by running the query, which this
@@ -839,7 +839,7 @@ function assertNamesUnique(ctx: Ctx, dashboards: DashboardSpec[]): void {
 }
 
 /**
- * The reporting platform's roles, shaped by the model's `%%rbac`.
+ * The reporting platform's roles, shaped by the model's access rules.
  *
  * Two deliberate decisions here.
  *
@@ -852,7 +852,7 @@ function assertNamesUnique(ctx: Ctx, dashboards: DashboardSpec[]): void {
  * `admin@admin.com`, because that is the account the reporting platform
  * bootstraps for itself and the one every existing instruction names.
  *
- * **A role's tables come from `read` rules only.** `%%rbac` also restricts
+ * **A role's tables come from `read` rules only.** An access rule also restricts
  * create, update and delete, and none of that means anything to a reporting
  * user, who cannot write through that product at all. A role no `read` rule
  * mentions gets every table — which is what the application does too: a target
@@ -922,7 +922,7 @@ function deriveAccessSpec(model: ParsedModel, options: BuildPackOptions): Access
       throw new Error(
         `Reporting role "${role.name}" resolved ${role.tables.length} readable tables, ` +
           `but the application derives ${expected} for the same role. ` +
-          `These must agree — the reporting side is mirroring %%rbac, not reinterpreting it.`
+          `These must agree — the reporting side is mirroring the access rules, not reinterpreting them.`
       );
     }
   }
@@ -945,7 +945,7 @@ export function buildReportingPack(model: ParsedModel, options: BuildPackOptions
   }
 
   const ctx: Ctx = { model, queries: [], reports: [], charts: [] };
-  // Authored first, and therefore listed first. A `%%report` is a question
+  // Authored first, and therefore listed first. A report is a question
   // somebody decided the application's users ask; the derived ones below
   // describe the shape of the data and cannot know that.
   addAuthoredReports(ctx);
@@ -962,12 +962,12 @@ export function buildReportingPack(model: ParsedModel, options: BuildPackOptions
       name: appName,
       description:
         options.projectDescription?.trim() ||
-        // Both kinds, because `%%workflow` is one directive to whoever wrote
+        // Both kinds, because a state machine and a saga are both workflows to whoever wrote
         // the model: the state machines are `parsed.workflows` and the sagas
         // are `parsed.sagas`, and counting only the first understates a model
         // whose processes are mostly sagas by most of its processes.
         `${appName}: ${count(model.entities.length, "entity", "entities")}, ${count(model.workflows.length + model.sagas.length, "workflow")}.`,
-      model: options.modelFileName ?? `${kebabName(appName)}.eml.mmd`,
+      model: options.modelFileName ?? `${kebabName(appName)}.eml.yaml`,
       databaseName: options.databaseName,
       ...(options.generatedAt ? { generatedAt: options.generatedAt } : {}),
     },

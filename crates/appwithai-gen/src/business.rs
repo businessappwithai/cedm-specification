@@ -88,7 +88,7 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
     out.push("-- Applied by `cargo loco task seed_business`.".to_string());
     out.push("--".to_string());
     out.push(
-        "-- Every value is the model's own: a `%%enum` column takes a declared value, a"
+        "-- Every value is the model's own: a column with an enum takes a declared value, a"
             .to_string(),
     );
     out.push(

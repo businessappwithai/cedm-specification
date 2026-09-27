@@ -1,3 +1,11 @@
+# ============================================================================
+# EML Example — E-Commerce
+# Data model + business rules + workflows for an online store, in one artifact.
+# Every construct is drawn by the model viewer from this document.
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Store Core
 version: 1.0.0
@@ -210,6 +218,47 @@ hooks:
   - entity: Order
     event: afterUpdate
     handler: sendOrderConfirmation
+hookFlows:
+  # ---- Section 5: Workflow — checkout hooks ----------------------------------
+  - name: CheckoutHooks
+    title: Checkout Hooks
+    entity: Order
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Cart
+      - id: C
+        event: customValidate
+        handler: ensureStockAvailable
+      - id: D
+        event: beforeUpdate
+        handler: recomputeTotals
+      - id: E
+        label: Process Order
+      - id: F
+        event: afterUpdate
+        handler: decrementInventory
+      - id: G
+        event: afterUpdate
+        handler: sendOrderConfirmation
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
 rbac:
   - entity: Order
     action: place
@@ -228,6 +277,7 @@ triggers:
     source: webhook:carrier
     handler: markShipped
 rules:
+  # ---- Section 2: Business rule — pricing & discount -------------------------
   - name: pricing
     title: Order Pricing
     entity: Order
@@ -236,28 +286,28 @@ rules:
     nodes:
       - id: A
         label: "Start: Order Repriced"
-        shape: stadium
+        type: start
       - id: B
         label: Subtotal > 1000?
-        shape: diamond
+        type: decision
       - id: C
         label: Apply Premium Discount 15%
-        shape: rect
+        type: expression
       - id: D
         label: Customer is_verified?
-        shape: diamond
+        type: decision
       - id: E
         label: Apply Loyalty Discount 5%
-        shape: rect
+        type: expression
       - id: F
         label: No Discount
-        shape: rect
+        type: expression
       - id: G
         label: Calculate Total
-        shape: round
+        type: expression
       - id: H
         label: "End: Priced"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -281,6 +331,7 @@ rules:
         to: G
       - from: G
         to: H
+  # ---- Section 3: Business rule — free shipping eligibility ------------------
   - name: freeShipping
     title: Free Shipping
     entity: Order
@@ -289,28 +340,28 @@ rules:
     nodes:
       - id: S
         label: Start
-        shape: stadium
+        type: start
       - id: Q1
         label: Total >= 50?
-        shape: diamond
+        type: decision
       - id: P1
         label: Charge Standard Shipping
-        shape: rect
+        type: expression
       - id: Q2
         label: Item count >= 3?
-        shape: diamond
+        type: decision
       - id: P2
         label: Free Express Shipping
-        shape: rect
+        type: expression
       - id: P3
         label: Free Standard Shipping
-        shape: rect
+        type: expression
       - id: R
         label: Set Shipping Amount
-        shape: circle
+        type: function
       - id: E
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: S
         to: Q1
@@ -335,6 +386,7 @@ rules:
       - from: R
         to: E
 stateMachines:
+  # ---- Section 4: Workflow — order fulfilment (state machine) ----------------
   - name: OrderFulfilment
     title: Order Fulfilment
     entity: Order
@@ -363,16 +415,3 @@ stateMachines:
       - from: paid
         to: refunded
         trigger: refund
-hookDiagrams:
-  - name: CheckoutHooks
-    title: Checkout Hooks
-    entity: Order
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Cart]
-          B --> C[customValidate: ensureStockAvailable]
-          C --> D[beforeUpdate: recomputeTotals]
-          D --> E[Process Order]
-          E --> F[afterUpdate: decrementInventory]
-          F --> G[afterUpdate: sendOrderConfirmation]
-          G --> H[Response]

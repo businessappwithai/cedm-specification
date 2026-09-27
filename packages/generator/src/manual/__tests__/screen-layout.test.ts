@@ -24,15 +24,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import { buildDictionarySeedSql } from "../../generators/tanstack-astryx-loco/dictionary-seed";
-import { parseModel } from "../../pipeline/parse-model";
 import { renderManual } from "../index";
 
-const MODEL = join(import.meta.dirname, "../../../../../language/examples/crm.eml.mmd");
+const MODEL = join(import.meta.dirname, "../../../../../language/yaml/examples/crm.eml.yaml");
 
 function manual() {
-  const parsed = parseModel(readFileSync(MODEL, "utf-8"));
+  const parsed = compileYaml(readFileSync(MODEL, "utf-8"));
   return {
     parsed,
     html: renderManual(parsed, {

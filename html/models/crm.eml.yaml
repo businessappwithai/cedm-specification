@@ -1,7 +1,53 @@
+# ============================================================================
+# Enterprise Customer Relationship Management Platform
+# Complete model: entities · business rules · workflows
+
+# Every construct below is drawn by the model viewer from this document.
+
+# Scope: the whole commercial lifecycle, front to back —
+#   marketing   Campaign, CampaignMember, Lead
+#   sales       Account, Contact, Opportunity, OpportunityLineItem, Product
+#   commerce    Quote, QuoteLineItem, Contract
+#   service     SupportCase, SlaPolicy
+#   operations  User, Team, Territory, Activity
+
+# Generate:
+#   bun run generate:tanstack -- -i language/yaml/examples/crm.eml.yaml \
+#     -o generated-projects/crm -n crm
+
+# Check:
+#   bun packages/generator/dist/cli/generate.js validate language/yaml/examples/crm.eml.yaml
+
+# ---- How the three layers fit together --------------------------------------
+# Structure is the ERD in Section 1. Everything after it is behaviour, and the
+# file is arranged so behaviour reads in the order it fires:
+
+#   rules (2-9)      declarative decisions — scoring, routing, forecasting,
+#                    discount policy, triage, renewal risk. Compiled to GoRules
+#                    decision graphs and evaluated around the write.
+#   state (10-14)    the lifecycle each revenue object moves through, and who
+#                    is allowed to move it.
+#   hooks (15-21)    imperative side effects bound to CRUD lifecycle events.
+#   sagas (22-26)    multi-step, multi-entity processes: lead conversion,
+#                    discount approval, case escalation, closed-won handoff,
+#                    renewal playbook.
+
+# Three of the sagas are `trigger: rule` — they run only when a rule's
+# action names them, so the rule's condition is what decides. The other two
+# run on the entity's own lifecycle. Both halves of that pairing are here on
+# purpose: it is the difference between "escalate when the discount is out of
+# policy" and "hand off every opportunity that closes".
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Enterprise CRM
 version: 1.0.0
 enums:
+  # ---- Enumerations ----------------------------------------------------------
+  # Lifecycle enums carry exactly the states of the matching state workflow in
+  # Sections 10-14; the rest are closed vocabularies for reporting fields.
   - name: UserRole
     values: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager, administrator]
   - name: LeadStatus
@@ -55,6 +101,8 @@ enums:
   - name: ActivityPriority
     values: [low, medium, high, urgent]
 categories:
+  # ---- Entity categories ------------------------------------------------------
+  # Group entities into dashboard sections. One block per category.
   - name: Accounts and Contacts
     description: Customer organisations, their people and the territories that cover them
     icon: Building2
@@ -92,6 +140,12 @@ categories:
     default: true
     entities: [User, Team]
 entities:
+  # ---- Help text -----------------------------------------------------------
+  # What an entity's and a column's `help` buy: they are compiled into
+  # sys_table.description and sys_column.description, which are the only help
+  # the generated application has — the tooltip beside a control, and the lede
+  # of that entity's section in the generated manual. A model without them
+  # produces an application whose every field is a label somebody guesses at.
   - name: User
     help: Someone who signs in and does the work — a rep, a manager, an agent. Every business record names one as its owner.
     attributes:
@@ -1222,6 +1276,13 @@ relationships:
     toCardinality: zero-or-more
     label: owns
 hooks:
+  # account_number is unique and minted here rather than supplied by the
+  # caller. That is why it is OPTIONAL in the ERD: the conversion saga in
+  # Section 22 inserts an account without one, and a NOT NULL column would
+  # fail that insert before the hook ever ran. Postgres allows repeated NULLs
+  # under a unique index, so nothing collides in the window before the hook
+  # stamps a value. quote_number, contract_number and case_number are the
+  # same shape for the same reason.
   - entity: Account
     event: beforeCreate
     handler: normalizeAccountName
@@ -1362,7 +1423,353 @@ hooks:
     event: afterUpdate
     handler: scheduleRenewalReminders
     fields: [renewal_notice_days]
+hookFlows:
+  # ---- Section 15: Workflow — account governance hooks -----------------------
+  - name: AccountGovernance
+    title: Account Governance
+    entity: Account
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeAccountName
+      - id: D
+        event: beforeCreate
+        handler: assignAccountNumber
+      - id: E
+        event: customValidate
+        handler: ensureAccountNumberUnique
+      - id: F
+        label: Process Account
+      - id: G
+        event: afterCreate
+        handler: seedAccountTeam
+      - id: H
+        event: beforeList
+        handler: scopeToTerritory
+      - id: I
+        event: afterList
+        handler: attachHealthScore
+      - id: J
+        event: beforeDelete
+        handler: blockDeleteWithOpenBusiness
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 16: Workflow — contact hygiene hooks --------------------------
+  # Deliverability and consent are the two things a CRM quietly destroys if
+  # nobody guards them, so both are enforced at the write rather than in the UI.
+  - name: ContactHygiene
+    title: Contact Hygiene
+    entity: Contact
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeEmail
+      - id: D
+        event: customValidate
+        handler: ensureUniqueEmail
+      - id: E
+        label: Process Contact
+      - id: F
+        event: afterCreate
+        handler: enqueueWelcomeSequence
+      - id: G
+        event: afterUpdate
+        handler: syncToMarketingPlatform
+      - id: H
+        event: beforeRead
+        handler: enforceFieldLevelSecurity
+      - id: I
+        event: afterRead
+        handler: maskPersonalData
+      - id: J
+        event: afterDelete
+        handler: purgeMarketingConsent
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 17: Workflow — lead intake hooks ------------------------------
+  - name: LeadIntake
+    title: Lead Intake
+    entity: Lead
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampLeadSource
+      - id: D
+        event: customValidate
+        handler: requireContactChannel
+      - id: E
+        label: Process Lead
+      - id: F
+        event: afterCreate
+        handler: notifyOwnerOfNewLead
+      - id: G
+        event: beforeQuery
+        handler: scopeToOwnedLeads
+      - id: H
+        event: afterQuery
+        handler: annotateDuplicateLeads
+      - id: I
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+  # ---- Section 18: Workflow — opportunity integrity hooks --------------------
+  - name: OpportunityIntegrity
+    title: Opportunity Integrity
+    entity: Opportunity
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeUpdate
+        handler: snapshotStageChange
+      - id: D
+        event: customValidate
+        handler: requireLossReasonOnLoss
+      - id: E
+        label: Process Opportunity
+      - id: F
+        event: afterCreate
+        handler: notifySellingTeam
+      - id: G
+        event: afterUpdate
+        handler: recalculateAccountPipeline
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 19: Workflow — quote calculation hooks ------------------------
+  - name: QuoteCalculation
+    title: Quote Calculation
+    entity: Quote
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateQuoteNumber
+      - id: D
+        event: beforeUpdate
+        handler: recalculateQuoteTotals
+      - id: E
+        event: customValidate
+        handler: enforceDiscountCeiling
+      - id: F
+        label: Process Quote
+      - id: G
+        event: afterUpdate
+        handler: regenerateQuoteDocument
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 20: Workflow — case SLA tracking hooks ------------------------
+  - name: CaseSlaTracking
+    title: Case SLA Tracking
+    entity: SupportCase
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: assignCaseNumber
+      - id: D
+        event: beforeCreate
+        handler: stampSlaTargets
+      - id: E
+        event: beforeUpdate
+        handler: captureFirstResponse
+      - id: F
+        label: Process Case
+      - id: G
+        event: afterCreate
+        handler: acknowledgeCustomer
+      - id: H
+        event: afterUpdate
+        handler: recomputeSlaBreach
+      - id: I
+        event: beforeDelete
+        handler: blockDeleteOfOpenCase
+      - id: J
+        event: afterDelete
+        handler: archiveCaseTranscript
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 21: Workflow — contract governance hooks ----------------------
+  # A contract is drafted by the handoff saga in Section 25 before anyone has
+  # agreed dates, so the number is minted here and the date/term agreement is
+  # validated on the way out of draft rather than on the way in.
+  - name: ContractGovernance
+    title: Contract Governance
+    entity: Contract
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateContractNumber
+      - id: D
+        event: customValidate
+        handler: ensureTermMatchesDates
+      - id: E
+        label: Process Contract
+      - id: F
+        event: afterCreate
+        handler: notifyFinanceOfNewContract
+      - id: G
+        event: afterUpdate
+        handler: scheduleRenewalReminders
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
 rbac:
+  # ---- Access by functional role ---------------------------------------------
+  # Every entity belongs to at least one functional role, and `read` is the
+  # operation that decides it: a role that may not read an entity does not see it
+  # in the navigation at all, so signing in as `support.agent@…` gives you the
+  # service desk rather than the whole CRM with most of it refusing to open.
+  # The roles are the ones UserRole already names. Administrator bypasses all of
+  # it, which is what makes it the account to compare the others against.
+  # Restricting `read` is deliberately separate from the update and transition
+  # rules further down: those say who may change a record, this says whose
+  # application it is part of.
   - entity: Account
     action: read
     roles: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager]
@@ -1485,6 +1892,10 @@ triggers:
     source: message:billing.invoice.paid
     handler: markContractActive
 rules:
+  # ---- Section 2: Business rule — inbound lead scoring -----------------------
+  # Scores a lead on firmographics and source, then grades it. The grade is what
+  # routing (Section 3) and conversion (Section 22) both read, so the arithmetic
+  # lives in exactly one place.
   - name: leadScoring
     title: Lead Scoring
     entity: Lead
@@ -1493,67 +1904,67 @@ rules:
     nodes:
       - id: A
         label: "Start: Lead Captured"
-        shape: stadium
+        type: start
       - id: B
         label: employee_count >= 1000?
-        shape: diamond
+        type: decision
       - id: C
         label: Add 35 firmographic points
-        shape: rect
+        type: expression
       - id: D
         label: employee_count >= 100?
-        shape: diamond
+        type: decision
       - id: E
         label: Add 20 firmographic points
-        shape: rect
+        type: expression
       - id: F
         label: Add 5 firmographic points
-        shape: rect
+        type: expression
       - id: G
         label: lead_source == referral?
-        shape: diamond
+        type: decision
       - id: H
         label: Add 30 source points
-        shape: rect
+        type: expression
       - id: I
         label: lead_source == event?
-        shape: diamond
+        type: decision
       - id: J
         label: Add 20 source points
-        shape: rect
+        type: expression
       - id: K
         label: Add 8 source points
-        shape: rect
+        type: expression
       - id: L
         label: annual_revenue > 10000000?
-        shape: diamond
+        type: decision
       - id: M
         label: Add 25 revenue points
-        shape: rect
+        type: expression
       - id: N
         label: Add 5 revenue points
-        shape: rect
+        type: expression
       - id: O
         label: Compute lead score
-        shape: circle
+        type: function
       - id: P
         label: score >= 70?
-        shape: diamond
+        type: decision
       - id: Q
         label: Set rating hot
-        shape: rect
+        type: expression
       - id: R
         label: score >= 40?
-        shape: diamond
+        type: decision
       - id: S
         label: Set rating warm
-        shape: rect
+        type: expression
       - id: T
         label: Set rating cold
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Lead Scored"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1623,6 +2034,10 @@ rules:
         to: Z
       - from: T
         to: Z
+  # ---- Section 3: Business rule — lead routing -------------------------------
+  # Who picks the lead up. Enterprise-sized leads never sit in the shared queue,
+  # and a lead that arrived through a partner goes back to the partner desk
+  # whatever its size.
   - name: leadRouting
     title: Lead Routing
     entity: Lead
@@ -1631,49 +2046,49 @@ rules:
     nodes:
       - id: A
         label: "Start: Lead Scored"
-        shape: stadium
+        type: start
       - id: B
         label: lead_source == partner?
-        shape: diamond
+        type: decision
       - id: C
         label: Route to Partner Desk
-        shape: rect
+        type: expression
       - id: D
         label: annual_revenue > 50000000?
-        shape: diamond
+        type: decision
       - id: E
         label: Route to Strategic Accounts Team
-        shape: rect
+        type: expression
       - id: F
         label: employee_count >= 500?
-        shape: diamond
+        type: decision
       - id: G
         label: Route to Enterprise Team
-        shape: rect
+        type: expression
       - id: H
         label: rating == hot?
-        shape: diamond
+        type: decision
       - id: I
         label: Route to Mid Market Team
-        shape: rect
+        type: expression
       - id: J
         label: Route to SMB Queue
-        shape: rect
+        type: expression
       - id: K
         label: Assign owner from territory
-        shape: circle
+        type: function
       - id: L
         label: owner assigned?
-        shape: diamond
+        type: decision
       - id: M
         label: Notify assigned owner
-        shape: rect
+        type: expression
       - id: N
         label: Hold in unassigned queue
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Lead Routed"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1723,6 +2138,10 @@ rules:
         to: Z
       - from: N
         to: Z
+  # ---- Section 4: Business rule — lead qualification gate --------------------
+  # The gate a lead has to pass before it becomes an account. Its action is
+  # what makes the conversion saga in Section 22 run — without it the saga would
+  # either fire on every lead update or never fire at all.
   - name: leadQualification
     title: Lead Qualification
     entity: Lead
@@ -1731,37 +2150,37 @@ rules:
     nodes:
       - id: A
         label: "Start: Qualification Requested"
-        shape: stadium
+        type: start
       - id: B
         label: email present?
-        shape: diamond
+        type: decision
       - id: C
         label: "Reject: Contact email required"
-        shape: rect
+        type: expression
       - id: D
         label: company_name present?
-        shape: diamond
+        type: decision
       - id: E
         label: "Reject: Company name required"
-        shape: rect
+        type: expression
       - id: F
         label: score >= 40?
-        shape: diamond
+        type: decision
       - id: G
         label: Route back to nurturing
-        shape: rect
+        type: expression
       - id: H
         label: owner assigned?
-        shape: diamond
+        type: decision
       - id: I
         label: "Reject: Owner required before conversion"
-        shape: rect
+        type: expression
       - id: J
         label: Set status qualified
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Qualification Decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1806,6 +2225,12 @@ rules:
         props:
           workflow: LeadConversion
           message: Lead qualified — opening the account, contact and first opportunity
+  # A qualified lead is converted by the multi-step workflow in Section 22.
+  # The `when` is what keeps that workflow off every other lead update.
+
+  # ---- Section 5: Business rule — opportunity forecasting --------------------
+  # Probability and forecast category are derived, never typed in. Reps disagree
+  # about what "70% likely" means; a stage does not.
   - name: opportunityForecast
     title: Opportunity Forecasting
     entity: Opportunity
@@ -1814,61 +2239,61 @@ rules:
     nodes:
       - id: A
         label: "Start: Opportunity Updated"
-        shape: stadium
+        type: start
       - id: B
         label: stage == closed_won?
-        shape: diamond
+        type: decision
       - id: C
         label: Set probability 100 and category closed
-        shape: rect
+        type: expression
       - id: D
         label: stage == closed_lost?
-        shape: diamond
+        type: decision
       - id: E
         label: Set probability 0 and category omitted
-        shape: rect
+        type: expression
       - id: F
         label: stage == negotiation?
-        shape: diamond
+        type: decision
       - id: G
         label: Set probability 80 and category commit
-        shape: rect
+        type: expression
       - id: H
         label: stage == proposal?
-        shape: diamond
+        type: decision
       - id: I
         label: Set probability 60 and category best_case
-        shape: rect
+        type: expression
       - id: J
         label: stage == needs_analysis?
-        shape: diamond
+        type: decision
       - id: K
         label: Set probability 40 and category pipeline
-        shape: rect
+        type: expression
       - id: L
         label: stage == qualification?
-        shape: diamond
+        type: decision
       - id: M
         label: Set probability 20 and category pipeline
-        shape: rect
+        type: expression
       - id: N
         label: Set probability 10 and category pipeline
-        shape: rect
+        type: expression
       - id: O
         label: Recompute account pipeline
-        shape: circle
+        type: function
       - id: P
         label: expected_close_date in the past?
-        shape: diamond
+        type: decision
       - id: Q
         label: Flag as slipped
-        shape: rect
+        type: expression
       - id: R
         label: Keep current close date
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Forecast Recomputed"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -1934,6 +2359,9 @@ rules:
         to: Z
       - from: R
         to: Z
+  # ---- Section 6: Business rule — closed-won gate ----------------------------
+  # What a deal has to have before anyone is allowed to call it won. A pipeline
+  # nobody can trust is usually a pipeline where this gate was never written down.
   - name: opportunityCloseGate
     title: Closed Won Gate
     entity: Opportunity
@@ -1942,49 +2370,49 @@ rules:
     nodes:
       - id: A
         label: "Start: Close Requested"
-        shape: stadium
+        type: start
       - id: B
         label: stage == closed_won?
-        shape: diamond
+        type: decision
       - id: C
         label: stage == closed_lost?
-        shape: diamond
+        type: decision
       - id: D
         label: loss_reason present?
-        shape: diamond
+        type: decision
       - id: E
         label: "Reject: Loss reason required"
-        shape: rect
+        type: expression
       - id: F
         label: Stamp actual close date
-        shape: rect
+        type: expression
       - id: G
         label: "Allow: Not a closing transition"
-        shape: rect
+        type: expression
       - id: H
         label: amount > 0?
-        shape: diamond
+        type: decision
       - id: I
         label: "Reject: Amount required to close won"
-        shape: rect
+        type: expression
       - id: J
         label: accepted quote present?
-        shape: diamond
+        type: decision
       - id: K
         label: "Reject: An accepted quote is required"
-        shape: rect
+        type: expression
       - id: L
         label: primary contact present?
-        shape: diamond
+        type: decision
       - id: M
         label: "Reject: A primary contact is required"
-        shape: rect
+        type: expression
       - id: N
         label: Stamp actual close date and category closed
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Close Decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -2038,6 +2466,10 @@ rules:
         to: Z
       - from: N
         to: Z
+  # ---- Section 7: Business rule — quote discount policy ----------------------
+  # Discount authority by band. Anything past the rep's own authority stops the
+  # quote and raises an approval; anything past the ceiling is refused outright
+  # rather than sent up the chain, because no one is allowed to approve it.
   - name: quoteDiscountApproval
     title: Quote Discount Policy
     entity: Quote
@@ -2046,40 +2478,40 @@ rules:
     nodes:
       - id: A
         label: "Start: Quote Priced"
-        shape: stadium
+        type: start
       - id: B
         label: discount_percent > 40?
-        shape: diamond
+        type: decision
       - id: C
         label: "Reject: Above the maximum discount"
-        shape: rect
+        type: expression
       - id: D
         label: discount_percent > 25?
-        shape: diamond
+        type: decision
       - id: E
         label: Require VP approval
-        shape: rect
+        type: expression
       - id: F
         label: discount_percent > 15?
-        shape: diamond
+        type: decision
       - id: G
         label: Require sales manager approval
-        shape: rect
+        type: expression
       - id: H
         label: discount_percent > 0?
-        shape: diamond
+        type: decision
       - id: I
         label: Auto approve within rep authority
-        shape: rect
+        type: expression
       - id: J
         label: No discount applied
-        shape: rect
+        type: expression
       - id: K
         label: Recompute grand total
-        shape: circle
+        type: function
       - id: Z
         label: "End: Discount Decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -2131,6 +2563,13 @@ rules:
         when: discount_percent > 40
         props:
           message: Discounts above 40 percent cannot be approved by anyone — reprice the quote
+  # Out-of-policy discounts hold the quote and raise an approval task; the
+  # multi-step process that does it is Section 23.
+
+  # ---- Section 8: Business rule — support case triage ------------------------
+  # Priority is a function of who is asking and what broke, not of how the case
+  # was worded. The action hands a critical case to the escalation process in
+  # Section 24.
   - name: caseTriage
     title: Support Case Triage
     entity: SupportCase
@@ -2139,55 +2578,55 @@ rules:
     nodes:
       - id: A
         label: "Start: Case Raised"
-        shape: stadium
+        type: start
       - id: B
         label: account tier == strategic?
-        shape: diamond
+        type: decision
       - id: C
         label: case_type == incident?
-        shape: diamond
+        type: decision
       - id: D
         label: Set priority critical
-        shape: rect
+        type: expression
       - id: E
         label: Set priority high
-        shape: rect
+        type: expression
       - id: F
         label: case_type == incident?
-        shape: diamond
+        type: decision
       - id: G
         label: account tier == enterprise?
-        shape: diamond
+        type: decision
       - id: H
         label: Set priority high
-        shape: rect
+        type: expression
       - id: I
         label: Set priority medium
-        shape: rect
+        type: expression
       - id: J
         label: case_type == billing?
-        shape: diamond
+        type: decision
       - id: K
         label: Set priority medium
-        shape: rect
+        type: expression
       - id: L
         label: Set priority low
-        shape: rect
+        type: expression
       - id: M
         label: Stamp SLA targets from policy
-        shape: circle
+        type: function
       - id: N
         label: first response due within 60 minutes?
-        shape: diamond
+        type: decision
       - id: O
         label: Page the on-call queue
-        shape: rect
+        type: expression
       - id: P
         label: Queue for the next available agent
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Case Triaged"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -2257,6 +2696,13 @@ rules:
         when: status == "resolved" and resolution_notes == null
         props:
           message: A resolved case needs resolution notes
+  # A critical case escalates through Section 24 rather than waiting for an
+  # agent to notice it.
+
+  # ---- Section 9: Business rule — renewal risk -------------------------------
+  # Grades a contract as its renewal window opens. The renewal playbook in
+  # Section 26 evaluates this same rule as a step rather than forking a second
+  # copy of the policy.
   - name: renewalRisk
     title: Renewal Risk
     entity: Contract
@@ -2265,46 +2711,46 @@ rules:
     nodes:
       - id: A
         label: "Start: Renewal Window Opened"
-        shape: stadium
+        type: start
       - id: B
         label: account health_score < 40?
-        shape: diamond
+        type: decision
       - id: C
         label: Grade renewal at risk
-        shape: rect
+        type: expression
       - id: D
         label: open critical cases > 0?
-        shape: diamond
+        type: decision
       - id: E
         label: Grade renewal watch
-        shape: rect
+        type: expression
       - id: F
         label: annual_value >= 250000?
-        shape: diamond
+        type: decision
       - id: G
         label: auto_renew == true?
-        shape: diamond
+        type: decision
       - id: H
         label: Grade renewal secure and confirm terms
-        shape: rect
+        type: expression
       - id: I
         label: Grade renewal strategic and assign an executive
-        shape: rect
+        type: expression
       - id: J
         label: auto_renew == true?
-        shape: diamond
+        type: decision
       - id: K
         label: Grade renewal automatic
-        shape: rect
+        type: expression
       - id: L
         label: Grade renewal standard
-        shape: rect
+        type: expression
       - id: M
         label: Compute renewal probability
-        shape: circle
+        type: function
       - id: Z
         label: "End: Renewal Graded"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -2353,6 +2799,7 @@ rules:
       - from: M
         to: Z
 stateMachines:
+  # ---- Section 10: Workflow — lead lifecycle (state machine) -----------------
   - name: LeadLifecycle
     title: Lead Lifecycle
     entity: Lead
@@ -2387,6 +2834,7 @@ stateMachines:
       - from: new
         to: disqualified
         trigger: reject
+  # ---- Section 11: Workflow — opportunity pipeline (state machine) -----------
   - name: OpportunityPipeline
     title: Opportunity Pipeline
     entity: Opportunity
@@ -2424,6 +2872,7 @@ stateMachines:
       - from: negotiation
         to: proposal
         trigger: reprice
+  # ---- Section 12: Workflow — quote approval (state machine) -----------------
   - name: QuoteApproval
     title: Quote Approval
     entity: Quote
@@ -2458,6 +2907,7 @@ stateMachines:
       - from: presented
         to: expired
         trigger: lapse
+  # ---- Section 13: Workflow — support case lifecycle (state machine) ---------
   - name: SupportCaseLifecycle
     title: Support Case Lifecycle
     entity: SupportCase
@@ -2492,6 +2942,7 @@ stateMachines:
       - from: resolved
         to: closed
         trigger: close
+  # ---- Section 14: Workflow — contract lifecycle (state machine) -------------
   - name: ContractLifecycle
     title: Contract Lifecycle
     entity: Contract
@@ -2527,6 +2978,17 @@ stateMachines:
         to: active
         trigger: activate_renewal
 sagas:
+  # ---- Section 22: Workflow — lead conversion (saga) -------------------------
+  # The one process every CRM is judged on. A qualified lead becomes an account,
+  # a primary contact and an opening opportunity in one transaction, and the
+  # lead is stamped converted so it stops appearing in prospecting lists.
+
+  # `trigger: rule` is load-bearing: the qualification rule in Section 4 decides
+  # whether this runs at all. Step B's table is the sizing policy — grade in,
+  # tier and opening amount out — and the steps after it read what it published.
+  # Step G reaches back into the account step C created, using the id step C
+  # bound, which is the only way a later step can touch a row created earlier in
+  # the same run.
   - name: LeadConversion
     title: Lead Conversion
     entity: Lead
@@ -2572,6 +3034,10 @@ sagas:
           targetSource: newAccountId
           field: tier
           source: accountTier
+  # ---- Section 23: Workflow — quote discount approval (saga) -----------------
+  # Holds an out-of-policy quote and puts a named approval task in front of a
+  # human, with a review window sized by how far out of policy the discount is.
+  # Section 7 decides when it runs.
   - name: QuoteApprovalEscalation
     title: Quote Approval Escalation
     entity: Quote
@@ -2611,6 +3077,10 @@ sagas:
           targetSource: approvalTaskId
           field: description
           source: approvalLevel
+  # ---- Section 24: Workflow — critical case escalation (saga) ----------------
+  # A critical case does not wait for an agent to open the queue. The tier table
+  # sets the response clock, an escalation task is raised against the account,
+  # the case moves to escalated, and the on-call channel is told.
   - name: CriticalCaseEscalation
     title: Critical Case Escalation
     entity: SupportCase
@@ -2657,6 +3127,15 @@ sagas:
           url: https://hooks.example.com/crm/case-escalation
           method: POST
           bodyTemplate: '{"case":"{{case_number}}","tier":"{{escalationTier}}","respondWithinHours":"{{responseHours}}"}'
+  # `url:` carries no space before its value on purpose: a step's properties
+  # are split at whitespace preceding the next `<key>:`, so ` https://…`
+  # would be read as a property named "https" and the step would lose its url.
+
+  # ---- Section 25: Workflow — closed-won handoff (saga) ----------------------
+  # The other kind of trigger. Nothing gates this one on a rule: every
+  # opportunity that reaches closed_won is handed to delivery, because a deal
+  # that closes and is never onboarded is the failure mode this exists to stop.
+  # It runs on UPDATE, since closing is an update to an existing row.
   - name: ClosedWonHandoff
     title: Closed Won Handoff
     entity: Opportunity
@@ -2703,6 +3182,16 @@ sagas:
           targetSource: kickoffActivityId
           field: description
           source: onboardingTier
+  # ---- Section 26: Workflow — renewal playbook (saga) ------------------------
+  # Runs when a contract is updated into its renewal window. Step B evaluates
+  # the rule declared in Section 9 rather than carrying a second copy of the
+  # policy, which is the whole point of naming a rule instead of inlining a
+  # table: the grade a person sees in the rules editor is the grade this process
+  # acts on.
+
+  # Step C is the delete. Stale renewal tasks from the previous cycle are
+  # cleared by matching Activity.contract_id against the triggering contract —
+  # row targeting by foreign key, since no earlier step created those rows.
   - name: RenewalPlaybook
     title: Renewal Playbook
     entity: Contract
@@ -2748,135 +3237,3 @@ sagas:
           targetSource: renewalOpportunityId
           field: next_step
           source: renewalGrade
-hookDiagrams:
-  - name: AccountGovernance
-    title: Account Governance
-    entity: Account
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: normalizeAccountName]
-          C --> D[beforeCreate: assignAccountNumber]
-          D --> E[customValidate: ensureAccountNumberUnique]
-          E --> F[Process Account]
-          F --> G[afterCreate: seedAccountTeam]
-          G --> H[beforeList: scopeToTerritory]
-          H --> I[afterList: attachHealthScore]
-          I --> J[beforeDelete: blockDeleteWithOpenBusiness]
-          J --> K[Response]
-
-          %% account_number is unique and minted here rather than supplied by the
-          %% caller. That is why it is OPTIONAL in the ERD: the conversion saga in
-          %% Section 22 inserts an account without one, and a NOT NULL column would
-          %% fail that insert before the hook ever ran. Postgres allows repeated NULLs
-          %% under a unique index, so nothing collides in the window before the hook
-          %% stamps a value. quote_number, contract_number and case_number are the
-          %% same shape for the same reason.
-
-      %% ---- Section 16: Workflow — contact hygiene hooks --------------------------
-      %% Deliverability and consent are the two things a CRM quietly destroys if
-      %% nobody guards them, so both are enforced at the write rather than in the UI.
-  - name: ContactHygiene
-    title: Contact Hygiene
-    entity: Contact
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: normalizeEmail]
-          C --> D[customValidate: ensureUniqueEmail]
-          D --> E[Process Contact]
-          E --> F[afterCreate: enqueueWelcomeSequence]
-          F --> G[afterUpdate: syncToMarketingPlatform]
-          G --> H[beforeRead: enforceFieldLevelSecurity]
-          H --> I[afterRead: maskPersonalData]
-          I --> J[afterDelete: purgeMarketingConsent]
-          J --> K[Response]
-
-      %% ---- Section 17: Workflow — lead intake hooks ------------------------------
-  - name: LeadIntake
-    title: Lead Intake
-    entity: Lead
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: stampLeadSource]
-          C --> D[customValidate: requireContactChannel]
-          D --> E[Process Lead]
-          E --> F[afterCreate: notifyOwnerOfNewLead]
-          F --> G[beforeQuery: scopeToOwnedLeads]
-          G --> H[afterQuery: annotateDuplicateLeads]
-          H --> I[Response]
-
-      %% ---- Section 18: Workflow — opportunity integrity hooks --------------------
-  - name: OpportunityIntegrity
-    title: Opportunity Integrity
-    entity: Opportunity
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeUpdate: snapshotStageChange]
-          C --> D[customValidate: requireLossReasonOnLoss]
-          D --> E[Process Opportunity]
-          E --> F[afterCreate: notifySellingTeam]
-          F --> G[afterUpdate: recalculateAccountPipeline]
-          G --> H[Response]
-
-      %% ---- Section 19: Workflow — quote calculation hooks ------------------------
-  - name: QuoteCalculation
-    title: Quote Calculation
-    entity: Quote
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: generateQuoteNumber]
-          C --> D[beforeUpdate: recalculateQuoteTotals]
-          D --> E[customValidate: enforceDiscountCeiling]
-          E --> F[Process Quote]
-          F --> G[afterUpdate: regenerateQuoteDocument]
-          G --> H[Response]
-
-      %% ---- Section 20: Workflow — case SLA tracking hooks ------------------------
-  - name: CaseSlaTracking
-    title: Case SLA Tracking
-    entity: SupportCase
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: assignCaseNumber]
-          C --> D[beforeCreate: stampSlaTargets]
-          D --> E[beforeUpdate: captureFirstResponse]
-          E --> F[Process Case]
-          F --> G[afterCreate: acknowledgeCustomer]
-          G --> H[afterUpdate: recomputeSlaBreach]
-          H --> I[beforeDelete: blockDeleteOfOpenCase]
-          I --> J[afterDelete: archiveCaseTranscript]
-          J --> K[Response]
-
-      %% ---- Section 21: Workflow — contract governance hooks ----------------------
-      %% A contract is drafted by the handoff saga in Section 25 before anyone has
-      %% agreed dates, so the number is minted here and the date/term agreement is
-      %% validated on the way out of draft rather than on the way in.
-  - name: ContractGovernance
-    title: Contract Governance
-    entity: Contract
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: generateContractNumber]
-          C --> D[customValidate: ensureTermMatchesDates]
-          D --> E[Process Contract]
-          E --> F[afterCreate: notifyFinanceOfNewContract]
-          F --> G[afterUpdate: scheduleRenewalReminders]
-          G --> H[Response]
-
-      %% ---- Section 22: Workflow — lead conversion (saga) -------------------------
-      %% The one process every CRM is judged on. A qualified lead becomes an account,
-      %% a primary contact and an opening opportunity in one transaction, and the
-      %% lead is stamped converted so it stops appearing in prospecting lists.
-      %%
-      %% `trigger: rule` is load-bearing: the qualification rule in Section 4 decides
-      %% whether this runs at all. Step B's table is the sizing policy — grade in,
-      %% tier and opening amount out — and the steps after it read what it published.
-      %% Step G reaches back into the account step C created, using the id step C
-      %% bound, which is the only way a later step can touch a row created earlier in
-      %% the same run.

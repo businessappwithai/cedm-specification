@@ -1,22 +1,21 @@
 /**
  * Compile a model's records into everything it contributes to generation.
  *
- * This is the single semantic layer of the modelling language. An EML document
- * reaches it through `readEmlModel`, a YAML model document through
- * `documentToRecords`, and nothing downstream can tell which: the templates see
- * a `ParsedModel`, and there is one function that makes one.
+ * This is the single semantic layer of the model language: a model document
+ * reaches it through `documentToRecords`, and the templates see the
+ * `ParsedModel` it returns. There is one function that makes one.
  */
 
 import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import { type CompiledHook, compileHookDeclarations } from "../hooks";
-import { type EntityCategory, resolveCategoryDeclarations } from "../parsers/category.parser";
-import { compileErdRecords } from "../parsers/mermaid.parser";
+import { type EntityCategory, resolveCategoryDeclarations } from "./categories";
+import { compileErdRecords } from "./compile-erd";
 import { type CompiledRbac, compileRbacDeclarations } from "../rbac";
 import { type CompiledReport, compileReportDeclarations } from "../reports";
 import { type CompiledRule, compileRuleDeclarations } from "../rules";
 import { compileSagaDeclarations, type SagaWorkflow } from "../workflows/sagas";
 import { type CompiledWorkflow, compileStateMachineDeclarations } from "../workflows/state-machine";
-import type { ErdRecords, ModelRecords } from "./records";
+import type { ModelRecords } from "./records";
 
 /** Everything a model contributes to generation. */
 export interface ParsedModel {
@@ -26,7 +25,7 @@ export interface ParsedModel {
   categories: EntityCategory[];
   /** Enums bound to a column, with their reference ids. */
   enums: EntityEnum[];
-  /** Multi-step processes (`kind: saga` workflows). */
+  /** Multi-step processes: the model's sagas. */
   sagas: SagaWorkflow[];
   /** Role restrictions: CRUD operations and transitions. */
   rbac: CompiledRbac;
@@ -36,7 +35,7 @@ export interface ParsedModel {
   hooks: CompiledHook[];
   /** Analytical questions, with the SQL answering each. */
   reports: CompiledReport[];
-  /** Status machines (`kind: state` workflows) — which moves exist. */
+  /** The model's state machines — which moves exist. */
   workflows: CompiledWorkflow[];
   /**
    * The model's own sentence about the *business* rather than about its own
@@ -49,13 +48,6 @@ export interface ParsedModel {
 }
 
 export interface CompileOptions {
-  /**
-   * The ERD, as separately compiled parts. The CLI's multi-file mode
-   * (`--sys-file`, `--bus-file`, `--ref-file`) compiles each file's ERD on its
-   * own, so enum reference ids are allocated per file; a single document is one
-   * part, which is the default.
-   */
-  erdParts?: ErdRecords[];
   /** Where compile warnings go. */
   warn?: (message: string) => void;
 }
@@ -65,17 +57,7 @@ export function compileModelRecords(
   options: CompileOptions = {}
 ): ParsedModel {
   const warn = options.warn ?? (() => {});
-  const parts = options.erdParts ?? [records.erd];
-
-  const entities: Entity[] = [];
-  const relationships: Relationship[] = [];
-  const enums: EntityEnum[] = [];
-  for (const part of parts) {
-    const compiled = compileErdRecords(part);
-    entities.push(...compiled.entities);
-    relationships.push(...compiled.relationships);
-    enums.push(...compiled.enums);
-  }
+  const { entities, relationships, enums } = compileErdRecords(records.erd);
 
   const entityNames = entities.map((entity) => entity.name);
   const categories = resolveCategoryDeclarations(records.categories, entityNames);

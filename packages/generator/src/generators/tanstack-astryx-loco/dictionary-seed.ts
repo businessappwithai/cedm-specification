@@ -24,7 +24,7 @@ import type { BusEntity, EntityEnum } from "@appwithai/core/types";
 
 import { buildDictionaryHelp } from "../dictionary-help";
 
-/** Category declared by a `%%category` directive in the model. */
+/** Category declared in the model's `categories`. */
 export interface EntityCategorySeed {
   name: string;
   code: string;
@@ -42,7 +42,7 @@ export interface DictionarySeedOptions {
   entities: BusEntity[];
   categories?: EntityCategorySeed[];
   /**
-   * `%%enum` declarations a `%%field` binds a column to, with the reference id
+   * Enums a column's `enum` key binds it to, with the reference id
    * each was allocated.
    *
    * Without these the seed still stamps `sys_column.sys_reference_id` with the
@@ -208,7 +208,7 @@ const REF_LISTS: Array<{ referenceId: number; value: string; name: string }> = [
 /**
  * The dictionary's own screens, and what each one looks like.
  *
- * The icon is a lucide **id** — the same spelling `%%entity … icon:` writes and
+ * The icon is a lucide **id** — the same spelling an entity's `icon` holds and
  * the same one `sys_table.icon` holds. The dashboard used to carry a map from
  * window name to an icon and a route in the frontend instead, which meant a
  * window this list added and that map did not know about was dropped from the
@@ -288,7 +288,7 @@ export interface ScreenLayout {
 /**
  * The window, tab and fields the seed writes for each entity, keyed by table.
  *
- * A line item (`%%entity <E> parent: <P>`) sits on its parent's window, exactly
+ * A line item (an entity with `parent: <P>`) sits on its parent's window, exactly
  * as the seed attaches its `sys_tab` there.
  */
 export function screenLayout(entities: BusEntity[]): Map<string, ScreenLayout> {
@@ -356,7 +356,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
       })
     );
   }
-  // One list reference per `%%enum` the model binds to a column. Ids run from
+  // One list reference per enum the model binds to a column. Ids run from
   // 1000 up, allocated by the parser, so they are stable for a given set of
   // enum names and the seed stays idempotent across regenerations.
   for (const modelEnum of options.modelEnums ?? []) {
@@ -506,7 +506,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
     /*
      * A line item gets no window of its own.
      *
-     * `%%entity InvoiceLine parent: Invoice` says the child has no life away
+     * `InvoiceLine` declared with `parent: Invoice` says the child has no life away
      * from its parent, and the dictionary is where that stops being a comment
      * and starts being the application: no window means no card on the
      * dashboard and nothing to navigate to, and the tab below is attached to
@@ -556,7 +556,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         // model that declares no description leaves the field blank in the UI.
         description: entity.description || `Manage ${entity.displayName} records`,
         // Written only when the model declares one. `sys_table.icon` defaults
-        // to 'Table' in m0001, so an entity with no `%%entity … icon:` emits
+        // to 'Table' in m0001, so an entity with no `icon` emits
         // exactly the row it did before this key was read — and the name-pattern
         // guess in `getEntityIcon` stays out of the seed deliberately, because a
         // derivation here would be a second one for the Rust side to mirror.
@@ -612,9 +612,9 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
           sys_table_id: tableId,
           column_name: attr.columnName,
           name: attr.displayName,
-          // `%%field <Entity>.<column> help:`, as the author wrote it.
+          // The column's `help`, as the author wrote it.
           //
-          // The parser has hung this on the attribute since `%%field help:`
+          // The parser has hung this on the attribute since the column's `help`
           // was read, and the seed dropped it: the column existed in the DDL
           // and was never written, so the Application Dictionary's own column
           // screen showed nothing for every column of every entity, in a model

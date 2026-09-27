@@ -1429,7 +1429,7 @@ pub fn build_rules_seed_sql(options: &RulesSeedOptions<'_>) -> String {
 
     let mut out: Vec<String> = Vec::new();
     out.push(format!(
-        "-- Business rules for {project_name}, compiled from %%rule sections."
+        "-- Business rules for {project_name}, compiled from the model's rules."
     ));
     out.push("--".to_string());
     out.push(
@@ -1455,7 +1455,7 @@ pub fn build_rules_seed_sql(options: &RulesSeedOptions<'_>) -> String {
     if rules.is_empty() {
         out.push("--".to_string());
         out.push(
-            "-- This model declares no %%rule sections. The file is still emitted:".to_string(),
+            "-- This model declares no rules. The file is still emitted:".to_string(),
         );
         out.push(
             "-- `seed_rules.rs` embeds it with include_str!, which is resolved at".to_string(),
@@ -1699,7 +1699,7 @@ flowchart TD
             created_by: "system",
         });
         assert!(!sql.contains("INSERT INTO"));
-        assert!(sql.contains("declares no %%rule"));
+        assert!(sql.contains("declares no rules"));
     }
 
     #[test]

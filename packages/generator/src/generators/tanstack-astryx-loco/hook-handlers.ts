@@ -1,11 +1,11 @@
 /**
- * `%%hook` directives → Rust lifecycle handlers in the generated Loco backend.
+ * The model's `hooks` → Rust lifecycle handlers in the generated Loco backend.
  *
  * The directives were parsed, validated, documented in the manual and drawn on
  * the model graph, and then dropped: nothing emitted them into the backend, so
  * a model could declare `beforeCreate generateInchiKey on Compound` and the
  * generated application would silently do nothing. That is the same class of
- * failure the dictionary seed and the `%%rbac` grants each hit once — a
+ * failure the dictionary seed and the access-rule grants each hit once — a
  * directive the checker accepts and the generator throws away.
  *
  * Three kinds of file come out of here, and the split is the whole design:
@@ -211,7 +211,7 @@ export function buildHookHandlerModule(entity: string, hooks: CompiledHook[]): s
   const header =
     `//! Lifecycle handlers for ${entity}.\n` +
     `//!\n` +
-    `//! Declared by the model's \`%%hook\` directives and wired up in\n` +
+    `//! Declared by the model's \`hooks\` and wired up in\n` +
     `//! \`crate::hooks\`. **The bodies are yours.** This file is written\n` +
     `//! once and then left alone, so regenerating the project will not overwrite\n` +
     `//! what you put here; a hook added to the model later arrives as a new stub\n` +
@@ -261,7 +261,7 @@ export function buildHookHandlersMod(entities: string[]): string {
     `//! Generated wiring — rewritten on every run. The modules it names are not.\n\n`;
 
   if (entities.length === 0) {
-    return `${header}// No \`%%hook\` directive in this model.\n`;
+    return `${header}// No hooks are declared in this model.\n`;
   }
 
   return (
@@ -291,7 +291,7 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
   let out =
     `//! The hook registry: which handler runs on which entity, for each event.\n` +
     `//!\n` +
-    `//! Generated wiring — rewritten on every run, so a \`%%hook\` added to the\n` +
+    `//! Generated wiring — rewritten on every run, so a hook added to the\n` +
     `//! model is always picked up. The handler bodies in \`handlers/\` are not\n` +
     `//! rewritten; see that module's header.\n` +
     `//!\n` +

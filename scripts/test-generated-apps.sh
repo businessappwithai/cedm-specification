@@ -6,8 +6,7 @@
 # against the running application.
 #
 # The YAML is the source of truth, so the application is generated from the
-# `.eml.yaml`, never the `.mmd`. `examples-in-sync.test.ts` is what holds each
-# YAML to being the conversion of its Mermaid.
+# `.eml.yaml`.
 #
 # Per model, in order — a stage that fails is recorded and the next still runs,
 # so one report says everything that is wrong:

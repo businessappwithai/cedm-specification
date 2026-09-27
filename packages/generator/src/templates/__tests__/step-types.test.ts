@@ -21,7 +21,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { getStepNodeTypes } from "../../parsers/language-maps";
+import { getStepNodeTypes } from "../../model/language-maps";
 
 const STEP_TYPES_FILE = path.join(
   import.meta.dirname,

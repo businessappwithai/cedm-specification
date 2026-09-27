@@ -1,7 +1,7 @@
 /**
- * Reading YAML model text, and everything that can be wrong with it.
+ * Reading model text, and everything that can be wrong with it.
  *
- * Four layers, each reported against the line and column of the YAML the
+ * Three layers, each reported against the line and column of the YAML the
  * author edits:
  *
  * 1. **YAML** — the text parses, with no duplicate keys.
@@ -11,9 +11,6 @@
  * 3. **Model** — the language checker (`language/yaml/checker.ts`): the rules
  *    that relate one part of a model to another, which a schema cannot state.
  *    Each finding names the document path it is about, so it lands on the YAML.
- * 4. **View** — the view reads back to the same document. Where it does not,
- *    the model is still exactly what the YAML says; the drawing is what differs,
- *    and the author is told which construct EML cannot draw faithfully.
  */
 
 import Ajv2020, { type ErrorObject } from "ajv/dist/2020";
@@ -22,16 +19,13 @@ import languageDefinition from "../../../../language/appwithai-language.json";
 import { type LanguageDefinition, setLanguageDefinition } from "../../../../language/index";
 import { checkModelDocument } from "../../../../language/yaml/checker";
 import schema from "../../../../language/yaml/eml.schema.json";
-import { readEmlModel } from "../model/read-eml";
-import { documentToRecords, recordsToDocument } from "./convert";
-import { DOCUMENT_KEY_ORDER, type ModelDocument } from "./document";
-import { type DocumentPath, renderEmlView } from "./render-eml";
+import type { DocumentPath, ModelDocument } from "./document";
 
 export type DiagnosticSeverity = "error" | "warning" | "info";
 
 export interface ModelDiagnostic {
   severity: DiagnosticSeverity;
-  /** `YAML`, `SCHEMA`, `VIEW`, or the checker's own code (`EML117`, …). */
+  /** `YAML`, `SCHEMA`, or the checker's own code (`EML117`, …). */
   code: string;
   message: string;
   /** Where in the document, as keys and indexes. Empty for the document itself. */
@@ -52,10 +46,8 @@ export interface ReadModelYamlResult {
 }
 
 export interface ReadModelYamlOptions {
-  /** Run the language checker over the view (layer 3). Default true. */
+  /** Run the language checker (layer 3). Default true. */
   check?: boolean;
-  /** Confirm the view reads back to the document (layer 4). Default true. */
-  checkView?: boolean;
 }
 
 let compiledSchema: ReturnType<Ajv2020["compile"]> | undefined;
@@ -127,7 +119,7 @@ function schemaMessage(error: ErrorObject): { path: DocumentPath; message: strin
         return {
           path,
           message:
-            `${at} pairs cardinalities Mermaid has no operator for. Valid pairs: ` +
+            `${at} pairs cardinalities the language does not define. Valid pairs: ` +
             "exactly-one/exactly-one, exactly-one/zero-or-more, exactly-one/one-or-more, " +
             "zero-or-more/exactly-one, one-or-more/exactly-one, zero-or-more/zero-or-more, " +
             "one-or-more/one-or-more, zero-or-one/zero-or-one",
@@ -142,27 +134,6 @@ function schemaMessage(error: ErrorObject): { path: DocumentPath; message: strin
     default:
       return { path, message: `${at} ${error.message ?? "is invalid"}` };
   }
-}
-
-/** Indexes of the items in two lists that differ, or `undefined` when equal. */
-function differingItems(left: unknown[], right: unknown[]): number[] {
-  const differing: number[] = [];
-  const length = Math.max(left.length, right.length);
-  for (let index = 0; index < length; index++) {
-    if (JSON.stringify(left[index]) !== JSON.stringify(right[index])) differing.push(index);
-  }
-  return differing;
-}
-
-/**
- * A document in canonical form: what `recordsToDocument` writes for it.
- *
- * Canonical form states nothing twice — a title equal to the name, a `TD`
- * direction, a saga's default trigger and operation are all left out — so two
- * documents that mean the same thing are the same document.
- */
-export function canonicalDocument(document: ModelDocument): ModelDocument {
-  return recordsToDocument(documentToRecords(document)).document;
 }
 
 /**
@@ -241,29 +212,6 @@ export function readModelYaml(
     }
   }
 
-  if (options.checkView !== false) {
-    const view = renderEmlView(document);
-    {
-      const expected = drawableForm(canonicalDocument(document));
-      const drawn = recordsToDocument(readEmlModel(view.text)).document;
-      for (const key of DOCUMENT_KEY_ORDER) {
-        const want = expected[key];
-        const got = drawn[key];
-        if (Array.isArray(want) || Array.isArray(got)) {
-          const left = (want as unknown[] | undefined) ?? [];
-          const right = (got as unknown[] | undefined) ?? [];
-          for (const index of differingItems(left, right)) {
-            const path: DocumentPath = index < left.length ? [key, index] : [key];
-            diagnostics.push(viewDiagnostic(path, locate(path)));
-          }
-        } else if (JSON.stringify(want) !== JSON.stringify(got)) {
-          const path: DocumentPath = want !== undefined ? [key] : [];
-          diagnostics.push(viewDiagnostic(path, locate(path)));
-        }
-      }
-    }
-  }
-
   return {
     document,
     diagnostics,
@@ -271,63 +219,6 @@ export function readModelYaml(
   };
 }
 
-/**
- * Whether a query means the same with its line breaks turned into spaces.
- *
- * The view writes a report on one `%%report` line. Outside a quoted literal a
- * line break is whitespace like any other — unless it ends a `--` comment,
- * which would then swallow the rest of the query.
- */
-export function sqlSurvivesFlattening(sql: string): boolean {
-  let quote: string | null = null;
-  for (let index = 0; index < sql.length; index++) {
-    const character = sql[index]!;
-    if (quote) {
-      if (character === quote) quote = null;
-      else if (character === "\n") return false;
-      continue;
-    }
-    if (character === "'" || character === '"') quote = character;
-    else if (character === "-" && sql[index + 1] === "-") return false;
-  }
-  return true;
-}
-
-/**
- * The document as the view can draw it: a multi-line query on one line, where
- * that changes nothing it means. Compared against what the view reads back, so
- * only a real difference is reported.
- */
-function drawableForm(document: ModelDocument): ModelDocument {
-  if (!document.reports?.length) return document;
-  return {
-    ...document,
-    reports: document.reports.map((report) =>
-      sqlSurvivesFlattening(report.sql)
-        ? { ...report, sql: report.sql.replace(/\s*\n\s*/g, " ").trim() }
-        : report
-    ),
-  };
-}
-
-function viewDiagnostic(path: DocumentPath, at: { line: number; column: number }): ModelDiagnostic {
-  return {
-    severity: "warning",
-    code: "VIEW",
-    message:
-      `${pathLabel(path)} cannot be drawn faithfully in the Mermaid view. ` +
-      "The model is what the YAML says; the diagram shows it differently.",
-    path,
-    ...at,
-    hint:
-      "Usually a value containing text EML reserves: a `key:` inside a report or action value, " +
-      "a bracket inside a node label, or a state no transition reaches.",
-  };
-}
-
-/* ------------------------------------------------------------------------ */
-/*  The checker                                                               */
-/* ------------------------------------------------------------------------ */
 
 let definitionInstalled = false;
 

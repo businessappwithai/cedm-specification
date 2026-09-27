@@ -203,11 +203,12 @@ export const Route = createFileRoute("/api/generate")({
                *
                * This route used to construct `FullStackGeneratorOptions` itself
                * with six fields, so an application generated from the UI lost
-               * every `%%category`, every `%%enum` dropdown and every saga the
-               * model declared — and said "Generated successfully" anyway.
+               * every category, every enum dropdown and every saga the model
+               * declared — and said "Generated successfully" anyway.
                */
               await generateApplication({
                 document,
+                modelText: prepared.modelYaml,
                 model,
                 stackOption: finalStackOption,
                 projectName: project.name || `Project ${projectId}`,

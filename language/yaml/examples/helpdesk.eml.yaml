@@ -1,3 +1,12 @@
+# ============================================================================
+# EML Example — Helpdesk / Support Ticketing
+# A simple, complete model: the data model (ERD), a declarative business rule
+# (ticket prioritization), and a workflow (ticket lifecycle state machine)
+# plus lifecycle hooks.
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Helpdesk
 version: 1.0.0
@@ -131,6 +140,42 @@ hooks:
   - entity: Ticket
     event: afterUpdate
     handler: logStatusChange
+hookFlows:
+  # ---- Section 4: Workflow — ticket hooks ------------------------------------
+  - name: TicketHooks
+    title: Ticket Hooks
+    entity: Ticket
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampReference
+      - id: D
+        label: Process Ticket
+      - id: E
+        event: afterCreate
+        handler: notifyCustomer
+      - id: F
+        event: afterUpdate
+        handler: logStatusChange
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
 rbac:
   - entity: Ticket
     action: update
@@ -140,6 +185,8 @@ triggers:
     source: cron:0 * * * *
     handler: escalateStale
 rules:
+  # ---- Section 2: Business rule — ticket prioritization ----------------------
+  # Decision reads the ticket's own impact_score, so it evaluates on real data.
   - name: prioritize
     title: Ticket Prioritization
     entity: Ticket
@@ -148,25 +195,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Ticket Created"
-        shape: stadium
+        type: start
       - id: B
         label: impact_score >= 80?
-        shape: diamond
+        type: decision
       - id: P1
         label: Set Priority urgent
-        shape: rect
+        type: expression
       - id: C
         label: impact_score >= 50?
-        shape: diamond
+        type: decision
       - id: P2
         label: Set Priority high
-        shape: rect
+        type: expression
       - id: P3
         label: Set Priority low
-        shape: rect
+        type: expression
       - id: E
         label: "End: Prioritized"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -189,6 +236,7 @@ rules:
       - from: P3
         to: E
 stateMachines:
+  # ---- Section 3: Workflow — ticket lifecycle (state machine) ----------------
   - name: TicketLifecycle
     title: Ticket Lifecycle
     entity: Ticket
@@ -211,15 +259,3 @@ stateMachines:
       - from: resolved
         to: closed
         trigger: close
-hookDiagrams:
-  - name: TicketHooks
-    title: Ticket Hooks
-    entity: Ticket
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: stampReference]
-          C --> D[Process Ticket]
-          D --> E[afterCreate: notifyCustomer]
-          E --> F[afterUpdate: logStatusChange]
-          F --> G[Response]

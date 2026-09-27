@@ -1,5 +1,10 @@
 eml: "1.0"
 entities:
+  # School Management System Domain Model
+
+  # A comprehensive school management system
+
+  # Use: bun run generate:tanstack -- -i school-management.eml.yaml -o ./generated-projects -n school-management
   - name: Student
     attributes:
       - name: id

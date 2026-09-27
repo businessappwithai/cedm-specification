@@ -1,7 +1,24 @@
+# ============================================================================
+# Drug Discovery Experiment Operations Platform
+# Complete model: entities · business rules · workflows
+# Every construct is drawn by the model viewer from this document.
+
+# Entities: Compound, CompoundAlias, Experiment, ExperimentMetadata,
+#           User, Team, Sample, ChemicalInventory, Instrument, InstrumentBooking,
+#           Vendor, VendorRequest, WorkflowEvent, DeviationReport, CAPA,
+#           StabilityTest, StabilityPull
+
+# Generate: bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
+#            -o generated-projects/drug-discovery-clone -n drug-discovery-clone
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
 eml: "1.0"
 name: Drug Discovery Core
 version: 1.0.0
 enums:
+  # ---- Enumerations ----------------------------------------------------------
   - name: CompoundRegistrationStatus
     values: [draft, pending_review, approved, rejected, withdrawn]
   - name: CompoundClass
@@ -47,6 +64,9 @@ enums:
   - name: UserRole
     values: [lab_manager, researcher, quality_assurance, compliance_officer, technician, administrator]
 categories:
+  # ---- Entity categories ------------------------------------------------------
+  # Group entities into dashboard sections. Rendered one block per category,
+  # ordered alphabetically by name.
   - name: Compound Registry
     description: Compound structures, identifiers and aliases
     icon: FlaskConical
@@ -84,6 +104,9 @@ categories:
     default: true
     entities: [User, Team]
 entities:
+  # What each entity is drawn with on the dashboard, in its window heading and
+  # in the navigation. lucide names (https://lucide.dev/icons); note
+  # `flask-conical` — lucide has no `flask`, which is the documented trap.
   - name: Compound
     icon: flask-conical
     attributes:
@@ -679,6 +702,132 @@ hooks:
   - entity: DeviationReport
     event: afterCreate
     handler: notifyQualityTeam
+hookFlows:
+  # ---- Section 7: Workflow — compound registration hooks ---------------------
+  - name: CompoundRegistration
+    title: Compound Registration
+    entity: Compound
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate SMILES
+      - id: C
+        event: customValidate
+        handler: validateSmilesFormat
+      - id: D
+        event: beforeCreate
+        handler: generateInchiKey
+      - id: E
+        event: beforeCreate
+        handler: computeMolecularWeight
+      - id: F
+        label: Process Compound
+      - id: G
+        event: afterCreate
+        handler: indexForSearch
+      - id: H
+        event: afterCreate
+        handler: notifyRegistrationTeam
+      - id: I
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+  # ---- Section 8: Workflow — experiment audit trail hooks --------------------
+  - name: ExperimentAuditTrail
+    title: Experiment Audit Trail
+    entity: Experiment
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeUpdate
+        handler: snapshotPreviousState
+      - id: D
+        event: customValidate
+        handler: enforceGmpFields
+      - id: E
+        label: Process Experiment
+      - id: F
+        event: afterUpdate
+        handler: emitWorkflowEvent
+      - id: G
+        event: afterUpdate
+        handler: generateCryptographicSignature
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 9: Workflow — deviation report hooks -------------------------
+  - name: DeviationReportHooks
+    title: Deviation Report Hooks
+    entity: DeviationReport
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate
+      - id: C
+        event: beforeCreate
+        handler: timestampAnomaly
+      - id: D
+        event: customValidate
+        handler: requireDescription
+      - id: E
+        label: Process Deviation
+      - id: F
+        event: afterCreate
+        handler: triggerCapaIfCritical
+      - id: G
+        event: afterCreate
+        handler: notifyQualityTeam
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
 rbac:
   - entity: Experiment
     action: submit
@@ -703,6 +852,11 @@ triggers:
     source: cron:0 8 * * *
     handler: escalateOverdueCapa
 reports:
+  # ── Reports ──────────────────────────────────────────────────────────────
+  # The questions this model's author said were worth asking. Each is a single
+  # read, run verbatim against the generated application's own database and
+  # served at /api/reports. Soft-deleted rows are excluded everywhere, because
+  # `deleted_at` is how this schema retires a record rather than removing it.
   - name: compounds-by-registration-status
     title: Compounds by registration status
     entity: Compound
@@ -756,6 +910,7 @@ reports:
     help: How much outsourced work is in flight and how much has landed.
     sql: SELECT status, COUNT(*) AS requests FROM bus_vendor_request WHERE deleted_at IS NULL GROUP BY status ORDER BY requests DESC
 rules:
+  # ---- Section 2: Business rule — experiment submission gate -----------------
   - name: experimentSubmitGate
     title: Experiment Submission Gate
     entity: Experiment
@@ -764,37 +919,37 @@ rules:
     nodes:
       - id: A
         label: "Start: Submit Requested"
-        shape: stadium
+        type: start
       - id: B
         label: Status == draft?
-        shape: diamond
+        type: decision
       - id: X1
         label: "Reject: Not in Draft"
-        shape: rect
+        type: expression
       - id: C
         label: Title provided?
-        shape: diamond
+        type: decision
       - id: X2
         label: "Reject: Title Required"
-        shape: rect
+        type: expression
       - id: D
         label: PI assigned?
-        shape: diamond
+        type: decision
       - id: X3
         label: "Reject: PI Required"
-        shape: rect
+        type: expression
       - id: E
         label: Estimated duration >= 1?
-        shape: diamond
+        type: decision
       - id: X4
         label: "Reject: Duration Required"
-        shape: rect
+        type: expression
       - id: P
         label: "Set status: submitted"
-        shape: rect
+        type: expression
       - id: Z
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -832,6 +987,7 @@ rules:
         to: Z
       - from: P
         to: Z
+  # ---- Section 3: Business rule — deviation severity routing -----------------
   - name: deviationSeverity
     title: Deviation Severity Routing
     entity: DeviationReport
@@ -840,37 +996,37 @@ rules:
     nodes:
       - id: A
         label: "Start: Deviation Reported"
-        shape: stadium
+        type: start
       - id: B
         label: GMP-critical experiment?
-        shape: diamond
+        type: decision
       - id: C
         label: anomaly_description length >= 100?
-        shape: diamond
+        type: decision
       - id: H
         label: "Set severity: critical"
-        shape: rect
+        type: expression
       - id: M
         label: "Set severity: major"
-        shape: rect
+        type: expression
       - id: D
         label: Instrument failure involved?
-        shape: diamond
+        type: decision
       - id: M2
         label: "Set severity: major"
-        shape: rect
+        type: expression
       - id: L
         label: "Set severity: minor"
-        shape: rect
+        type: expression
       - id: N
         label: Notify QA
-        shape: circle
+        type: function
       - id: K
         label: Notify Supervisor
-        shape: circle
+        type: function
       - id: E
         label: "End: Routed"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -904,6 +1060,7 @@ rules:
         to: E
       - from: K
         to: E
+  # ---- Section 4: Business rule — instrument booking conflict check ----------
   - name: bookingConflict
     title: Instrument Booking Conflict
     entity: InstrumentBooking
@@ -912,31 +1069,31 @@ rules:
     nodes:
       - id: A
         label: "Start: Booking Requested"
-        shape: stadium
+        type: start
       - id: B
         label: Instrument is_active?
-        shape: diamond
+        type: decision
       - id: X1
         label: "Reject: Instrument Inactive"
-        shape: rect
+        type: expression
       - id: C
         label: calibration_status == overdue?
-        shape: diamond
+        type: decision
       - id: X2
         label: "Reject: Calibration Overdue"
-        shape: rect
+        type: expression
       - id: D
         label: Timeslot available?
-        shape: diamond
+        type: decision
       - id: X3
         label: "Reject: Booking Conflict"
-        shape: rect
+        type: expression
       - id: P
         label: Confirm Booking
-        shape: rect
+        type: expression
       - id: Z
         label: End
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -967,6 +1124,7 @@ rules:
       - from: P
         to: Z
 stateMachines:
+  # ---- Section 5: Workflow — experiment lifecycle (state machine) -------------
   - name: ExperimentLifecycle
     title: Experiment Lifecycle
     entity: Experiment
@@ -1007,6 +1165,7 @@ stateMachines:
       - from: approved
         to: cancelled
         trigger: cancel
+  # ---- Section 6: Workflow — CAPA lifecycle (state machine) ------------------
   - name: CapaLifecycle
     title: CAPA Lifecycle
     entity: CAPA
@@ -1030,6 +1189,12 @@ stateMachines:
         to: cancelled
         trigger: cancel
 sagas:
+  # ## Critical deviation escalation (saga)
+
+  # A deviation that turns out to be critical does not just change status: it has
+  # to open a CAPA, put a resolution date on it, and escalate the deviation itself.
+  # That is three tables in one process, which is what `kind: saga` is for — and
+  # what a hook cannot express, because a hook fires on one entity.
   - name: CriticalDeviationEscalation
     title: Critical Deviation Escalation
     entity: DeviationReport
@@ -1069,54 +1234,3 @@ sagas:
         properties:
           field: status
           value: escalated
-hookDiagrams:
-  - name: CompoundRegistration
-    title: Compound Registration
-    entity: Compound
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate SMILES]
-          B --> C[customValidate: validateSmilesFormat]
-          C --> D[beforeCreate: generateInchiKey]
-          D --> E[beforeCreate: computeMolecularWeight]
-          E --> F[Process Compound]
-          F --> G[afterCreate: indexForSearch]
-          G --> H[afterCreate: notifyRegistrationTeam]
-          H --> I[Response]
-
-      %% ---- Section 8: Workflow — experiment audit trail hooks --------------------
-  - name: ExperimentAuditTrail
-    title: Experiment Audit Trail
-    entity: Experiment
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeUpdate: snapshotPreviousState]
-          C --> D[customValidate: enforceGmpFields]
-          D --> E[Process Experiment]
-          E --> F[afterUpdate: emitWorkflowEvent]
-          F --> G[afterUpdate: generateCryptographicSignature]
-          G --> H[Response]
-
-      %% ---- Section 9: Workflow — deviation report hooks -------------------------
-  - name: DeviationReportHooks
-    title: Deviation Report Hooks
-    entity: DeviationReport
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate]
-          B --> C[beforeCreate: timestampAnomaly]
-          C --> D[customValidate: requireDescription]
-          D --> E[Process Deviation]
-          E --> F[afterCreate: triggerCapaIfCritical]
-          F --> G[afterCreate: notifyQualityTeam]
-          G --> H[Response]
-
-      ## Critical deviation escalation (saga)
-
-      A deviation that turns out to be critical does not just change status: it has
-      to open a CAPA, put a resolution date on it, and escalate the deviation itself.
-      That is three tables in one process, which is what `kind: saga` is for — and
-      what a `%%hook` cannot express, because a hook fires on one entity.
-
-      ```mermaid

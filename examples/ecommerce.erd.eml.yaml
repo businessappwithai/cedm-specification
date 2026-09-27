@@ -1,5 +1,17 @@
 eml: "1.0"
 entities:
+  # E-Commerce Domain Model
+
+  # This ERD demonstrates a typical e-commerce application with:
+  # - Customer management
+  # - Product catalog with categories
+  # - Order processing
+  # - Inventory tracking
+
+  # Use: appwithai generate -i examples/ecommerce.erd.eml.yaml -o ./generated -n ecommerce-app
+
+
+  # Customer and Authentication
   - name: Customer
     attributes:
       - name: id
@@ -49,6 +61,7 @@ entities:
         type: string
       - name: is_default
         type: boolean
+  # Product Catalog
   - name: Category
     attributes:
       - name: id
@@ -149,6 +162,7 @@ entities:
         type: integer
       - name: options
         type: json
+  # Inventory
   - name: Inventory
     attributes:
       - name: id
@@ -191,6 +205,7 @@ entities:
         type: string
       - name: is_active
         type: boolean
+  # Orders
   - name: Order
     attributes:
       - name: id
@@ -286,6 +301,7 @@ entities:
       - name: phone
         type: string
         optional: true
+  # Payments
   - name: Payment
     attributes:
       - name: id
@@ -311,6 +327,7 @@ entities:
       - name: processed_at
         type: datetime
         optional: true
+  # Reviews
   - name: Review
     attributes:
       - name: id
@@ -334,6 +351,7 @@ entities:
         type: boolean
       - name: is_approved
         type: boolean
+  # Coupons
   - name: Coupon
     attributes:
       - name: id
@@ -362,6 +380,7 @@ entities:
       - name: is_active
         type: boolean
 relationships:
+  # Relationships
   - from: Customer
     fromCardinality: exactly-one
     to: Address

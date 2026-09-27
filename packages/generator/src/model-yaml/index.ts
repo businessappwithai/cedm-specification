@@ -1,31 +1,32 @@
 /**
- * The YAML model language.
+ * The model language: a model is a YAML document, `*.eml.yaml`.
  *
- * A model written in YAML is the source of truth; its Mermaid (EML) view is
- * derived from it for drawing and is never read back for generation. Both
- * syntaxes are read into the same model records and compiled by the same
- * compiler, so a model means the same application whichever it was written in.
- *
- *   readModelYaml(text)        YAML text → validated document + diagnostics
- *   compileModelDocument(doc)  document → ParsedModel, what the templates consume
- *   renderEmlView(doc)         document → EML text, for viewers and the designer
- *   emlToModelDocument(text)   EML text → document, for migrating a model
- *   serializeModelDocument(d)  document → canonical YAML text
+ *   readModelYaml(text)          YAML text → validated document + diagnostics
+ *   compileModelDocument(doc)    document → ParsedModel, what the templates consume
+ *   serializeModelDocument(doc)  document → canonical YAML text
+ *   parseModelYaml(text)         all three steps, refusing a model with errors
  */
 
 import { Document, isScalar, visit } from "yaml";
 import { type CompileOptions, compileModelRecords, type ParsedModel } from "../model/compile";
-import { readEmlModel, type UncarriedLine, uncarriedDirectiveLines } from "../model/read-eml";
-import { type ConversionIssue, documentToRecords, recordsToDocument } from "./convert";
+import { canonicalDocument } from "./canonical";
 import type { ModelDocument } from "./document";
-import { canonicalDocument, type ModelDiagnostic, readModelYaml } from "./validate";
+import { documentToRecords } from "./to-records";
+import { type ModelDiagnostic, readModelYaml } from "./validate";
 
-export type { ConversionIssue } from "./convert";
-export { documentToRecords, recordsToDocument } from "./convert";
-export * from "./document";
-export { type DocumentPath, type RenderedView, renderEmlView } from "./render-eml";
+export { canonicalDocument } from "./canonical";
 export {
-  canonicalDocument,
+  AUTO_FIXABLE_CODES,
+  type AppliedFix,
+  type CheckAndFixResult,
+  checkAndFix,
+  type FixOptions,
+  type FixOutcome,
+  fixModelYaml,
+} from "./fixer";
+export * from "./document";
+export { documentToRecords } from "./to-records";
+export {
   type DiagnosticSeverity,
   type ModelDiagnostic,
   type ReadModelYamlOptions,
@@ -33,12 +34,12 @@ export {
   readModelYaml,
 } from "./validate";
 
-/** File suffix of a YAML model document. */
+/** File suffix of a model document. */
 export const MODEL_YAML_SUFFIX = ".eml.yaml";
 
-/** Whether a path names a YAML model document rather than an EML one. */
+/** Whether a path names a model document: `*.eml.yaml`, or any `.yaml` / `.yml`. */
 export function isModelYamlPath(filePath: string): boolean {
-  return /\.eml\.ya?ml$/i.test(filePath) || /\.ya?ml$/i.test(filePath);
+  return /\.ya?ml$/i.test(filePath);
 }
 
 /**
@@ -69,7 +70,7 @@ export function serializeModelDocument(document: ModelDocument): string {
 /** Compile a validated document into everything it contributes to generation. */
 export function compileModelDocument(
   document: ModelDocument,
-  options: Omit<CompileOptions, "erdParts"> = {}
+  options: CompileOptions = {}
 ): ParsedModel {
   return compileModelRecords(documentToRecords(document), options);
 }
@@ -94,7 +95,7 @@ export class ModelYamlError extends Error {
 }
 
 /**
- * Read, validate and compile YAML model text — what generation starts from.
+ * Read, validate and compile model text — what generation starts from.
  * Throws `ModelYamlError` when the model has errors.
  */
 export function parseModelYaml(
@@ -110,70 +111,4 @@ export function parseModelYaml(
     document: result.document,
     diagnostics: result.diagnostics,
   };
-}
-
-export interface EmlConversion {
-  document: ModelDocument;
-  /** Declarations EML repeated or pointed at nothing, and how each was resolved. */
-  issues: ConversionIssue[];
-  /** `%%` lines no compiler reads — comments and reserved directives. */
-  uncarried: UncarriedLine[];
-}
-
-/**
- * Convert an EML document to a YAML model document.
- *
- * Everything that compiles is carried: compiling the result produces exactly
- * the application the EML produces. What is not carried — comments, reserved
- * directives nothing compiles yet, annotations naming nothing — is returned so
- * the caller can show it rather than lose it quietly.
- */
-export function emlToModelDocument(source: string): EmlConversion {
-  const warnings: string[] = [];
-  const { document, issues } = recordsToDocument(
-    readEmlModel(source, (message) => warnings.push(message))
-  );
-  for (const message of warnings) {
-    issues.push({ construct: "directive", message, kind: "dropped" });
-  }
-  issues.push(...sagaDirectiveIssues(source));
-  return { document, issues, uncarried: uncarriedDirectiveLines(source) };
-}
-
-/**
- * Sagas that state a trigger or operation twice, differently.
- *
- * The language puts both on the `%%workflow` line; older models wrote them as
- * `%%meta` lines in the section. Both are read and the directive wins, so a
- * model saying `trigger: automatic` on one and `%%meta trigger: rule` on the
- * other runs automatically — which is worth saying, because one of the two
- * lines is not what the author believes.
- */
-function sagaDirectiveIssues(source: string): ConversionIssue[] {
-  const issues: ConversionIssue[] = [];
-  const lines = source.split(/\r?\n/);
-  lines.forEach((raw, index) => {
-    const header = raw.trim().match(/^%%workflow\s+(\S+)\s+(.*)$/);
-    if (!header || !/\bkind:\s*saga\b/i.test(header[2] ?? "")) return;
-    const name = header[1]!;
-    const onLine = (key: string) => header[2]?.match(new RegExp(`\\b${key}:\\s*(\\S+)`))?.[1];
-
-    for (let next = index + 1; next < lines.length; next++) {
-      const line = lines[next]!.trim();
-      if (/^%%workflow\s/.test(line)) break;
-      const meta = line.match(/^%%meta\s+(trigger|operation)\s*:\s*(\S+)/);
-      if (!meta) continue;
-      const declared = onLine(meta[1]!);
-      if (declared !== undefined && declared.toLowerCase() !== meta[2]!.toLowerCase()) {
-        issues.push({
-          construct: `%%workflow ${name}`,
-          message:
-            `declares ${meta[1]}: ${declared} on its %%workflow line and ${meta[2]} in a %%meta ` +
-            "line. The %%workflow line wins; the document states that value.",
-          kind: "resolved",
-        });
-      }
-    }
-  });
-  return issues;
 }

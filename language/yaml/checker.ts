@@ -303,7 +303,7 @@ class ModelChecker {
     this.checkRules();
     this.checkStateMachines();
     this.checkSagas();
-    this.checkHookDiagrams();
+    this.checkHookFlows();
     this.checkCrossReferences();
     return this.issues;
   }
@@ -322,7 +322,7 @@ class ModelChecker {
     const workflows =
       (this.document.stateMachines?.length ?? 0) +
       (this.document.sagas?.length ?? 0) +
-      (this.document.hookDiagrams?.length ?? 0);
+      (this.document.hookFlows?.length ?? 0);
     if (this.entities.length === 0 && !(this.document.rules?.length ?? 0) && workflows === 0) {
       this.error("EML004", "Empty model: no entities, rules or workflows.", ["entities"], {
         hint: "Declare at least one entity under  entities:.",
@@ -533,7 +533,10 @@ class ModelChecker {
       }
 
       // EML125: the many side should carry the foreign key.
-      const kind = relationshipKind(relationship.fromCardinality, relationship.toCardinality);
+      const kind = this.definition.cardinalities.map.find(
+        (entry) =>
+          entry.from === relationship.fromCardinality && entry.to === relationship.toCardinality
+      )?.kind;
       if (
         (kind === "oneToMany" || kind === "manyToOne") &&
         this.declares(from) &&
@@ -1275,7 +1278,7 @@ class ModelChecker {
     }
     if (inputs.length === 0) {
       this.error("EML300", `Rule "${rule.name}" has no start node.`, [...path, "nodes"], {
-        hint: "Add a  stadium  node with outgoing edges as the start.",
+        hint: "Add a node with  type: start  — the record the rule receives.",
       });
     } else if (inputs.length > 1) {
       this.warn(
@@ -1289,7 +1292,7 @@ class ModelChecker {
     }
     if (outputs.length === 0) {
       this.error("EML302", `Rule "${rule.name}" has no end node.`, [...path, "nodes"], {
-        hint: "Add a  stadium  node with only incoming edges as the end.",
+        hint: "Add a node with  type: end  — the rule's outcome.",
       });
     }
 
@@ -1297,7 +1300,7 @@ class ModelChecker {
     for (const edge of rule.edges) outgoing.set(edge.from, (outgoing.get(edge.from) ?? 0) + 1);
 
     rule.nodes.forEach((node, index) => {
-      if (node.shape !== "diamond") return;
+      if (node.type !== "decision") return;
       const count = outgoing.get(node.id) ?? 0;
       if (count < 2) {
         this.warn(
@@ -1311,7 +1314,7 @@ class ModelChecker {
 
     rule.edges.forEach((edge, index) => {
       const source = rule.nodes.find((node) => node.id === edge.from);
-      if (source?.shape === "diamond" && edge.label === undefined) {
+      if (source?.type === "decision" && edge.label === undefined) {
         this.warn(
           "EML304",
           `Rule "${rule.name}": an edge out of decision "${source.id}" has no label.`,
@@ -1792,33 +1795,83 @@ class ModelChecker {
   }
 
   /* ---------------------------------------------------------------------- */
-  /*  EML410: hook diagrams                                                  */
+  /*  EML410–EML413: hook flows                                              */
   /* ---------------------------------------------------------------------- */
 
-  private checkHookDiagrams(): void {
+  /**
+   * A hook flow draws the order an entity's hooks run in. It documents the
+   * model's `hooks`; nothing compiles it. So a hook step naming a hook the
+   * model does not declare is a drawing of code that will never run, and it is
+   * reported rather than drawn as though it would.
+   */
+  private checkHookFlows(): void {
+    const declared = new Set(
+      (this.document.hooks ?? []).map((hook) => `${hook.entity}|${hook.event}|${hook.handler}`)
+    );
     const hooked = new Set((this.document.hooks ?? []).map((hook) => hook.entity));
-    (this.document.hookDiagrams ?? []).forEach((diagram, index) => {
-      const path: DocumentPath = ["hookDiagrams", index];
-      if (!this.declares(diagram.entity)) {
+
+    (this.document.hookFlows ?? []).forEach((flow, index) => {
+      const path: DocumentPath = ["hookFlows", index];
+      if (!this.declares(flow.entity)) {
         this.warn(
           "EML400",
-          `Hook diagram "${diagram.name}" is bound to undeclared entity "${diagram.entity}".`,
+          `Hook flow "${flow.name}" is bound to undeclared entity "${flow.entity}".`,
           [...path, "entity"],
-          {
-            hint: `Declare "${diagram.entity}", or correct the name.`,
-          }
+          { hint: `Declare "${flow.entity}", or correct the name.` }
         );
       }
-      if (!hooked.has(diagram.entity)) {
+      if (!hooked.has(flow.entity)) {
         this.warn(
           "EML410",
-          `Hook diagram "${diagram.name}" draws ${diagram.entity}, which declares no hooks.`,
+          `Hook flow "${flow.name}" draws ${flow.entity}, which declares no hooks.`,
           path,
           {
-            hint: `Declare the hooks it draws under  hooks:, e.g.  { entity: ${diagram.entity}, event: beforeCreate, handler: ... }.`,
+            hint: `Declare the hooks it draws under  hooks:, e.g.  { entity: ${flow.entity}, event: beforeCreate, handler: ... }.`,
           }
         );
       }
+
+      const ids = new Set<string>();
+      flow.nodes.forEach((node, position) => {
+        const at: DocumentPath = [...path, "nodes", position];
+        if (ids.has(node.id)) {
+          this.error(
+            "EML412",
+            `Hook flow "${flow.name}" declares node "${node.id}" twice.`,
+            [...at, "id"],
+            { hint: "Node ids are how edges refer to nodes. Give the second one its own id." }
+          );
+        }
+        ids.add(node.id);
+
+        if (
+          node.event !== undefined &&
+          node.handler !== undefined &&
+          !declared.has(`${flow.entity}|${node.event}|${node.handler}`)
+        ) {
+          this.warn(
+            "EML411",
+            `Hook flow "${flow.name}" draws ${node.event} ${node.handler}, which ${flow.entity} does not declare.`,
+            at,
+            {
+              hint: `Declare  { entity: ${flow.entity}, event: ${node.event}, handler: ${node.handler} }  under  hooks:, or correct the step.`,
+            }
+          );
+        }
+      });
+
+      flow.edges.forEach((edge, position) => {
+        for (const end of ["from", "to"] as const) {
+          if (!ids.has(edge[end])) {
+            this.error(
+              "EML413",
+              `Hook flow "${flow.name}" has an edge ${end} "${edge[end]}", which is not one of its nodes.`,
+              [...path, "edges", position, end],
+              { hint: `Declare a node with  id: ${edge[end]}, or correct the edge.` }
+            );
+          }
+        }
+      });
     });
   }
 
@@ -1829,7 +1882,7 @@ class ModelChecker {
   private workflowNames(): string[] {
     return [
       ...(this.document.stateMachines ?? []).map((machine) => machine.name),
-      ...(this.document.hookDiagrams ?? []).map((diagram) => diagram.name),
+      ...(this.document.hookFlows ?? []).map((flow) => flow.name),
       ...(this.document.sagas ?? []).map((saga) => saga.name),
     ];
   }
@@ -1916,16 +1969,16 @@ class ModelChecker {
       }
     }
 
-    // EML505: workflow names are keys across state machines, sagas and diagrams.
+    // EML505: workflow names are keys across state machines, sagas and hook flows.
     const seen = new Set<string>();
     const named: Array<[string, DocumentPath]> = [
       ...(this.document.stateMachines ?? []).map((machine, index): [string, DocumentPath] => [
         machine.name,
         ["stateMachines", index, "name"],
       ]),
-      ...(this.document.hookDiagrams ?? []).map((diagram, index): [string, DocumentPath] => [
-        diagram.name,
-        ["hookDiagrams", index, "name"],
+      ...(this.document.hookFlows ?? []).map((flow, index): [string, DocumentPath] => [
+        flow.name,
+        ["hookFlows", index, "name"],
       ]),
       ...(this.document.sagas ?? []).map((saga, index): [string, DocumentPath] => [
         saga.name,
@@ -1935,7 +1988,7 @@ class ModelChecker {
     for (const [name, path] of named) {
       if (seen.has(name)) {
         this.warn("EML505", `Duplicate workflow name "${name}".`, path, {
-          hint: "State machines, sagas and hook diagrams share one namespace. Give each its own name.",
+          hint: "State machines, sagas and hook flows share one namespace. Give each its own name.",
         });
       }
       seen.add(name);
@@ -1947,40 +2000,17 @@ class ModelChecker {
 /*  Helpers without state                                                      */
 /* -------------------------------------------------------------------------- */
 
-/** The relationship's kind, as the compiler resolves it from its two ends. */
-function relationshipKind(
-  from: string,
-  to: string
-): "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany" {
-  const many = (end: string) => end === "zero-or-more" || end === "one-or-more";
-  if (many(from) && many(to)) return "manyToMany";
-  if (many(to)) return "oneToMany";
-  if (many(from)) return "manyToOne";
-  return "oneToOne";
-}
+/** The JDM node each node type of a rule compiles to. */
+const JDM_ROLE = {
+  start: "inputNode",
+  end: "outputNode",
+  decision: "switchNode",
+  expression: "expressionNode",
+  function: "functionNode",
+} as const;
 
-/**
- * The JDM role of each node of a rule, as the rule compiler assigns it: a
- * `stadium` is the output when it only receives edges and the input otherwise.
- */
 function ruleNodeRoles(rule: RuleDocument): Map<string, string> {
-  const sources = new Set(rule.edges.map((edge) => edge.from));
-  const targets = new Set(rule.edges.map((edge) => edge.to));
-  const roles = new Map<string, string>();
-  for (const node of rule.nodes) {
-    const role =
-      node.shape === "stadium"
-        ? targets.has(node.id) && !sources.has(node.id)
-          ? "outputNode"
-          : "inputNode"
-        : node.shape === "diamond"
-          ? "switchNode"
-          : node.shape === "circle"
-            ? "functionNode"
-            : "expressionNode";
-    roles.set(node.id, role);
-  }
-  return roles;
+  return new Map(rule.nodes.map((node) => [node.id, JDM_ROLE[node.type]]));
 }
 
 function parseJsonObject(text: string): Record<string, unknown> | undefined {

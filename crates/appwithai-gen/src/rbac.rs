@@ -556,7 +556,7 @@ pub fn derive_access(compiled: &CompiledRbac, options: &DeriveAccessOptions<'_>)
         roles.push(DerivedRole {
             name,
             declared_as: spelling.clone(),
-            description: format!("Declared by %%rbac as {spelling}"),
+            description: format!("Declared by the model's access rules as {spelling}"),
             is_admin: false,
             user_level: "U".to_string(),
         });
@@ -706,7 +706,7 @@ pub fn build_access_seed_sql(options: &AccessSeedOptions<'_>) -> String {
     };
 
     out.push(format!(
-        "-- Access rules for {project_name}, compiled from %%rbac."
+        "-- Access rules for {project_name}, compiled from the model's access rules."
     ));
     out.push("--".to_string());
     out.push(
@@ -725,7 +725,7 @@ pub fn build_access_seed_sql(options: &AccessSeedOptions<'_>) -> String {
     if rbac.operations.is_empty() && rbac.transitions.is_empty() {
         out.push("--".to_string());
         out.push(
-            "-- This model declares no %%rbac, so every operation stays open to any".to_string(),
+            "-- This model declares no access rules, so every operation stays open to any".to_string(),
         );
         out.push(
             "-- authenticated caller. The file is still emitted: `seed_access.rs`".to_string(),
@@ -1094,7 +1094,7 @@ mod tests {
             created_by: "system",
         });
         assert!(!sql.contains("INSERT INTO"));
-        assert!(sql.contains("declares no %%rbac"));
+        assert!(sql.contains("declares no access rules"));
     }
 
     #[test]

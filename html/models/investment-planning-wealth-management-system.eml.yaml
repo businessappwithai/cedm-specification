@@ -21,6 +21,10 @@ enums:
     values: [identified, planned, funded, achieved, cancelled]
   - name: RiskStatus
     values: [draft, assessed, approved, expired, superseded]
+  # ProposalStatus is declared before RecommendationStatus deliberately. The
+  # checker picks a machine's enum by best overlap and breaks a tie on
+  # declaration order; both enums cover every state of ProposalLifecycle, so the
+  # narrower one has to come first to be the one chosen.
   - name: ProposalStatus
     values: [draft, presented, accepted, rejected, expired]
   - name: RecommendationStatus
@@ -40,6 +44,9 @@ enums:
   - name: RiskCategory
     values: [conservative, moderately_conservative, moderate, moderately_aggressive, aggressive]
 categories:
+  # Every entity is named by exactly one category. The dashboard is built from
+  # these and nothing else, so an entity left out of all of them is a table with
+  # no way in.
   - name: Party and Household
     description: Legal identities, the households they belong to and the contact, nominee and mandate records attached to them
     icon: Users
@@ -3342,6 +3349,10 @@ relationships:
     toCardinality: zero-or-more
     label: produces
 hooks:
+  # `beforeList: scopeToOwnHouseholds` is the one that matters most here. An
+  # advisor may read Client — that is what the access rule says — but reading
+  # *every* client is a different permission from reading their own, and RBAC
+  # has no way to express the difference. The row filter belongs on the query.
   - entity: Client
     event: beforeCreate
     handler: assignClientNumber
@@ -3360,10 +3371,18 @@ hooks:
   - entity: Client
     event: beforeDelete
     handler: blockDeleteWithPortfolio
+  # A portfolio's value is arithmetic over its holdings, so it is recomputed
+  # on the write rather than read from a column somebody remembered to
+  # update. Unrealised gain is attached on the way out instead of stored: it
+  # moves with the price, and a stored copy is wrong the moment the market
+  # opens.
   - entity: Holding
     event: beforeCreate
     handler: normalizeQuantityScale
     fields: [quantity]
+  # One handler name per event. Binding the same name to both afterCreate
+  # and afterUpdate makes the generator keep the first and drop the second,
+  # so the update path would have had no handler at all.
   - entity: Holding
     event: afterCreate
     handler: revalueOnNewHolding
@@ -3375,6 +3394,9 @@ hooks:
   - entity: Holding
     event: afterList
     handler: attachUnrealisedGain
+  # An order that reached the exchange is a record of something that
+  # happened, and deleting it is not a correction — it is a hole in the audit
+  # trail. Cancel it through the state machine instead; that edge exists.
   - entity: Order
     event: beforeCreate
     handler: stampOrderedAt
@@ -3389,6 +3411,10 @@ hooks:
   - entity: Order
     event: beforeDelete
     handler: blockDeleteAfterSubmission
+  # The audit trail is append-only, and that has to be enforced where the
+  # write happens rather than by withholding a button: an access rule can say who may
+  # update the table, and the answer here is nobody, including the
+  # administrator the master role would otherwise let through.
   - entity: AuditEvent
     event: beforeCreate
     handler: stampCorrelationRef
@@ -3399,6 +3425,169 @@ hooks:
   - entity: AuditEvent
     event: beforeDelete
     handler: blockDeletion
+hookFlows:
+  # ---- Sections 9a-9d: Lifecycle hooks ---------------------------------------
+  # Rules decide and refuse; hooks act on the write itself. Everything below has
+  # to happen however the record is reached — through the API, through an import,
+  # through a saga — so none of it can live in a screen. The hook flow is what a
+  # reader sees and the `hooks` are what the generator compiles into
+  # handler modules; both halves have to say the same thing.
+  - name: ClientOnboardingHooks
+    title: Client Onboarding Hooks
+    entity: Client
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: assignClientNumber
+      - id: D
+        event: customValidate
+        handler: ensureClientNumberUnique
+      - id: E
+        label: Process Client
+      - id: F
+        event: afterCreate
+        handler: openComplianceFile
+      - id: G
+        event: beforeList
+        handler: scopeToOwnHouseholds
+      - id: H
+        event: beforeDelete
+        handler: blockDeleteWithPortfolio
+      - id: I
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+  - name: PortfolioValuationHooks
+    title: Portfolio Valuation Hooks
+    entity: Holding
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeQuantityScale
+      - id: D
+        label: Process Holding
+      - id: E
+        event: afterCreate
+        handler: revalueOnNewHolding
+      - id: F
+        event: afterUpdate
+        handler: revalueOnHoldingChange
+      - id: G
+        event: afterList
+        handler: attachUnrealisedGain
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  - name: OrderExecutionHooks
+    title: Order Execution Hooks
+    entity: Order
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampOrderedAt
+      - id: D
+        event: customValidate
+        handler: ensureDealingDeskOpen
+      - id: E
+        label: Process Order
+      - id: F
+        event: afterUpdate
+        handler: bookExecutedTransaction
+      - id: G
+        event: beforeDelete
+        handler: blockDeleteAfterSubmission
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  - name: AuditTrailHooks
+    title: Audit Trail Hooks
+    entity: AuditEvent
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampCorrelationRef
+      - id: D
+        label: Process AuditEvent
+      - id: E
+        event: beforeUpdate
+        handler: blockAmendment
+      - id: F
+        event: beforeDelete
+        handler: blockDeletion
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
 rbac:
   - entity: Party
     action: read
@@ -3590,6 +3779,22 @@ rbac:
     action: reject
     roles: [compliance_officer]
 reports:
+  # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
+
+  # What the derived pack already gives this model without being asked: a
+  # register per entity, a breakdown per enum-bound column, created-per-month,
+  # a lifecycle report over all eleven state machines in the diagram's own order,
+  # and children-per-parent for all 137 relationships. None of that needed anyone
+  # who has advised a client.
+
+  # These do. Each of the six roles on the access-rule matrix above is walked through
+  # the four questions — what they open first, what tells them something is wrong
+  # today, what they are asked for weekly, and what rots silently if nobody
+  # looks. The sets here are smaller than the CRM's because these read-lists are:
+  # an advisor may reason about three entities, a dealer about one. The test is
+  # the role's own job, not a count.
+
+  # -- advisor: the book they are responsible for ------------------------------
   - name: advisor-clients-stuck-onboarding
     title: Clients who never finished onboarding
     entity: Client
@@ -3613,6 +3818,7 @@ reports:
     entity: Client
     help: The account that rots silently. An active client with no interaction recorded in six months has usually already been approached by somebody else, and the first anyone here hears of it is the transfer request.
     sql: SELECT c.client_number, y.display_name AS client, c.status, MAX(i.interaction_at) AS last_contact FROM bus_client c LEFT JOIN bus_party y ON y.id = c.party_id LEFT JOIN bus_interaction i ON i.party_id = c.party_id AND i.deleted_at IS NULL WHERE c.deleted_at IS NULL AND c.status = 'active' GROUP BY c.id, c.client_number, y.display_name, c.status HAVING MAX(i.interaction_at) IS NULL OR MAX(i.interaction_at) < now() - interval '180 days' ORDER BY last_contact NULLS FIRST
+  # -- client: what the client themself can see --------------------------------
   - name: client-proposals-awaiting-answer
     title: Proposals presented and not answered
     entity: Proposal
@@ -3631,6 +3837,7 @@ reports:
     y: portfolios
     help: What the client asked the money to do, in their own words rather than the risk model's. Where this and the risk profile disagree, the suitability file is the thing that has to explain it.
     sql: SELECT COALESCE(NULLIF(p.investment_objective, ''), '(not stated)') AS objective, COUNT(*) AS portfolios FROM bus_portfolio p WHERE p.deleted_at IS NULL AND p.status = 'active' GROUP BY 1 ORDER BY portfolios DESC
+  # -- dealer: the portfolios they trade ---------------------------------------
   - name: dealer-portfolios-without-risk-profile
     title: Portfolios with no risk profile attached
     entity: Portfolio
@@ -3644,6 +3851,7 @@ reports:
     y: portfolios
     help: What the desk has to be able to settle in. A currency with a handful of portfolios still needs the same custody arrangement as the main one, and that cost is invisible until somebody counts.
     sql: SELECT p.base_currency AS currency, p.portfolio_type, COUNT(*) AS portfolios FROM bus_portfolio p WHERE p.deleted_at IS NULL AND p.status = 'active' GROUP BY p.base_currency, p.portfolio_type ORDER BY portfolios DESC
+  # -- compliance_officer: the file that has to be defensible ------------------
   - name: compliance-assessments-overdue
     title: Clients with no current suitability assessment
     entity: SuitabilityAssessment
@@ -3667,6 +3875,7 @@ reports:
     y: actions
     help: "Not a productivity measure and must not be read as one. It is the denominator: an advisor with far more audited changes than the rest is either carrying more, or working around something."
     sql: SELECT COALESCE(y.display_name, '(system)') AS advisor, COUNT(*) AS actions, COUNT(DISTINCT a.entity_type) AS entity_types FROM bus_audit_event a LEFT JOIN bus_advisor v ON v.id = a.advisor_id LEFT JOIN bus_party y ON y.id = v.party_id WHERE a.deleted_at IS NULL AND a."timestamp" > now() - interval '30 days' GROUP BY y.display_name ORDER BY actions DESC
+  # -- finance_user: what has been earned and what has landed ------------------
   - name: finance-commission-outstanding
     title: Commission earned and not settled
     entity: Commission
@@ -3688,6 +3897,7 @@ reports:
     entity: Commission
     help: Entries the reconciliation could not match. Each is money the firm believes it earned and the counterparty does not, and every one has to be chased individually before it ages out.
     sql: SELECT c.client_number, y.display_name AS client, m.commission_type, m.amount, m.earned_date, m.status FROM bus_commission m LEFT JOIN bus_client c ON c.id = m.client_id LEFT JOIN bus_party y ON y.id = c.party_id WHERE m.deleted_at IS NULL AND m.status IN ('failed', 'rejected', 'cancelled') ORDER BY m.earned_date DESC
+  # -- administrator: what nobody else can see ---------------------------------
   - name: admin-audit-gaps
     title: Days with no audit activity at all
     entity: AuditEvent
@@ -3707,6 +3917,10 @@ reports:
     help: The mix of interactive, batch and integration traffic. A source that suddenly dominates is usually an integration retrying, and it will fill the audit store long before anybody notices the cost.
     sql: SELECT COALESCE(NULLIF(a.source, ''), '(not recorded)') AS source, COUNT(*) AS events FROM bus_audit_event a WHERE a.deleted_at IS NULL AND a."timestamp" > now() - interval '30 days' GROUP BY 1 ORDER BY events DESC
 rules:
+  # ---- Section 1: Business rule — risk suitability ---------------------------
+  # A recommendation may not reach approval until a suitability result exists and
+  # passed. The gate is here rather than in the approval screen so that every
+  # caller — the saga, the API, an import — meets the same refusal.
   - name: riskSuitability
     title: Risk Suitability
     entity: InvestmentRecommendation
@@ -3715,25 +3929,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Recommendation moving forward"
-        shape: stadium
+        type: start
       - id: B
         label: status == pending_approval?
-        shape: diamond
+        type: decision
       - id: C
         label: Leave the write alone
-        shape: rect
+        type: expression
       - id: D
         label: suitability_result == pass?
-        shape: diamond
+        type: decision
       - id: E
         label: Allow the approval
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: suitability has not passed"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Suitability decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -3761,6 +3975,9 @@ rules:
         when: status == "pending_approval" and suitability_result != "pass"
         props:
           message: Suitability has not passed — a recommendation cannot go for approval until it has
+  # ---- Section 2: Business rule — product eligibility ------------------------
+  # A recommended line has to be a product the client may legally be sold, at the
+  # risk band the household was assessed into.
   - name: productEligibility
     title: Product Eligibility
     entity: RecommendationItem
@@ -3769,25 +3986,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Line added to a recommendation"
-        shape: stadium
+        type: start
       - id: B
         label: security is active?
-        shape: diamond
+        type: decision
       - id: C
         label: "Refuse: product withdrawn"
-        shape: rect
+        type: expression
       - id: D
         label: product risk <= household risk band?
-        shape: diamond
+        type: decision
       - id: E
         label: Accept the line
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: outside the assessed risk band"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Eligibility decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -3815,6 +4032,8 @@ rules:
         when: security_status != "active"
         props:
           message: This product has been withdrawn and cannot be recommended
+  # ---- Section 3: Business rule — concentration ------------------------------
+  # Nothing may push one holding past the concentration ceiling the mandate set.
   - name: concentrationCheck
     title: Concentration Check
     entity: Order
@@ -3823,25 +4042,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Order raised"
-        shape: stadium
+        type: start
       - id: B
         label: resulting weight > 25 percent?
-        shape: diamond
+        type: decision
       - id: C
         label: Within policy
-        shape: rect
+        type: expression
       - id: D
         label: dealer override recorded?
-        shape: diamond
+        type: decision
       - id: E
         label: Allow, and flag for review
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: concentration ceiling"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Concentration decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -3869,6 +4088,8 @@ rules:
         when: resulting_weight > 25 and override_reference == null
         props:
           message: This order would take one holding above the 25 percent concentration ceiling — record a dealer override or resize it
+  # ---- Section 4: Business rule — allocation deviation -----------------------
+  # How far a portfolio may drift from its model before a rebalance is raised.
   - name: allocationDeviation
     title: Allocation Deviation
     entity: RebalanceRecommendation
@@ -3877,25 +4098,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Drift measured"
-        shape: stadium
+        type: start
       - id: B
         label: deviation >= 5 percent?
-        shape: diamond
+        type: decision
       - id: C
         label: Below the band — no action
-        shape: rect
+        type: expression
       - id: D
         label: deviation >= 10 percent?
-        shape: diamond
+        type: decision
       - id: E
         label: Raise a priority rebalance
-        shape: rect
+        type: expression
       - id: F
         label: Raise a routine rebalance
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Deviation graded"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -3924,6 +4145,8 @@ rules:
         props:
           workflow: Rebalancing
           message: Allocation has drifted past the tolerance band — raising a rebalance
+  # ---- Section 5: Business rule — KYC completeness ---------------------------
+  # No money moves for a client whose identity file is incomplete or expired.
   - name: kycCompleteness
     title: KYC Completeness
     entity: Order
@@ -3932,25 +4155,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Order raised"
-        shape: stadium
+        type: start
       - id: B
         label: KYC verified?
-        shape: diamond
+        type: decision
       - id: C
         label: "Refuse: KYC incomplete"
-        shape: rect
+        type: expression
       - id: D
         label: KYC expiry in the future?
-        shape: diamond
+        type: decision
       - id: E
         label: Allow the order
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: KYC expired"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: KYC decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -3978,6 +4201,8 @@ rules:
         when: kyc_status != "verified"
         props:
           message: No order may be raised for a client whose KYC is not verified
+  # ---- Section 6: Business rule — approval gate ------------------------------
+  # A proposal cannot be produced from a recommendation nobody approved.
   - name: recommendationApprovalGate
     title: Recommendation Approval Gate
     entity: Proposal
@@ -3986,25 +4211,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Proposal requested"
-        shape: stadium
+        type: start
       - id: B
         label: approval recorded?
-        shape: diamond
+        type: decision
       - id: C
         label: "Refuse: approval missing"
-        shape: rect
+        type: expression
       - id: D
         label: approver differs from author?
-        shape: diamond
+        type: decision
       - id: E
         label: Produce the proposal
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: self-approval"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Approval decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -4037,6 +4262,8 @@ rules:
         when: approver_id == advisor_id
         props:
           message: The approver of a recommendation may not be its author
+  # ---- Section 7: Business rule — transaction eligibility --------------------
+  # Settlement-side gate: the account has to be live and the mandate in force.
   - name: transactionEligibility
     title: Transaction Eligibility
     entity: InvestmentTransaction
@@ -4045,25 +4272,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Transaction booked"
-        shape: stadium
+        type: start
       - id: B
         label: account active?
-        shape: diamond
+        type: decision
       - id: C
         label: "Refuse: account not active"
-        shape: rect
+        type: expression
       - id: D
         label: mandate in force?
-        shape: diamond
+        type: decision
       - id: E
         label: Book the transaction
-        shape: rect
+        type: expression
       - id: F
         label: "Refuse: no mandate"
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Eligibility decided"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -4085,6 +4312,9 @@ rules:
         to: Z
       - from: F
         to: Z
+  # ---- Section 8: Business rule — commission reconciliation ------------------
+  # What the platform expected against what the manufacturer paid, and what a
+  # difference is called.
   - name: commissionReconciliation
     title: Commission Reconciliation
     entity: CommissionReconciliation
@@ -4093,25 +4323,25 @@ rules:
     nodes:
       - id: A
         label: "Start: Statement received"
-        shape: stadium
+        type: start
       - id: B
         label: difference within tolerance?
-        shape: diamond
+        type: decision
       - id: C
         label: Mark matched
-        shape: rect
+        type: expression
       - id: D
         label: difference in the platform's favour?
-        shape: diamond
+        type: decision
       - id: E
         label: Raise a payable exception
-        shape: rect
+        type: expression
       - id: F
         label: Raise a receivable exception
-        shape: rect
+        type: expression
       - id: Z
         label: "End: Reconciliation graded"
-        shape: stadium
+        type: end
     edges:
       - from: A
         to: B
@@ -4140,6 +4370,7 @@ rules:
         props:
           message: Expected and received commission differ — record an exception before marking this reconciliation matched
 stateMachines:
+  # ---- Section 9: Workflow — prospect lifecycle ------------------------------
   - name: ProspectLifecycle
     title: Prospect Lifecycle
     entity: Prospect
@@ -4174,6 +4405,7 @@ stateMachines:
       - from: proposal
         to: lost
         trigger: decline
+  # ---- Section 10: Workflow — client lifecycle -------------------------------
   - name: ClientLifecycle
     title: Client Lifecycle
     entity: Client
@@ -4211,6 +4443,7 @@ stateMachines:
       - from: suspended
         to: closed
         trigger: close
+  # ---- Section 11: Workflow — financial plan lifecycle -----------------------
   - name: FinancialPlanLifecycle
     title: Financial Plan Lifecycle
     entity: FinancialPlan
@@ -4242,6 +4475,7 @@ stateMachines:
       - from: superseded
         to: archived
         trigger: archive
+  # ---- Section 12: Workflow — goal lifecycle ---------------------------------
   - name: GoalLifecycle
     title: Goal Lifecycle
     entity: Goal
@@ -4267,6 +4501,7 @@ stateMachines:
       - from: funded
         to: cancelled
         trigger: abandon
+  # ---- Section 13: Workflow — recommendation lifecycle -----------------------
   - name: RecommendationLifecycle
     title: Recommendation Lifecycle
     entity: InvestmentRecommendation
@@ -4304,6 +4539,7 @@ stateMachines:
       - from: accepted
         to: executed
         trigger: execute
+  # ---- Section 14: Workflow — proposal lifecycle -----------------------------
   - name: ProposalLifecycle
     title: Proposal Lifecycle
     entity: Proposal
@@ -4323,6 +4559,7 @@ stateMachines:
       - from: presented
         to: expired
         trigger: lapse
+  # ---- Section 15: Workflow — order lifecycle --------------------------------
   - name: OrderLifecycle
     title: Order Lifecycle
     entity: Order
@@ -4363,6 +4600,7 @@ stateMachines:
       - from: partially_executed
         to: cancelled
         trigger: cancel_balance
+  # ---- Section 16: Workflow — rebalance lifecycle ----------------------------
   - name: RebalanceLifecycle
     title: Rebalance Lifecycle
     entity: RebalanceRecommendation
@@ -4391,6 +4629,7 @@ stateMachines:
       - from: executing
         to: failed
         trigger: break
+  # ---- Section 17: Workflow — service request lifecycle ----------------------
   - name: ServiceRequestLifecycle
     title: Service Request Lifecycle
     entity: ServiceRequest
@@ -4419,6 +4658,7 @@ stateMachines:
       - from: processing
         to: rejected
         trigger: reject
+  # ---- Section 18: Workflow — client review lifecycle ------------------------
   - name: ClientReviewLifecycle
     title: Client Review Lifecycle
     entity: ClientReview
@@ -4444,6 +4684,7 @@ stateMachines:
       - from: follow_up
         to: closed
         trigger: close
+  # ---- Section 19: Workflow — onboarding case lifecycle ----------------------
   - name: OnboardingCaseLifecycle
     title: Onboarding Case Lifecycle
     entity: OnboardingCase
@@ -4476,6 +4717,11 @@ stateMachines:
         to: rejected
         trigger: reject
 sagas:
+  # ---- Section 20: Workflow — client onboarding (saga) -----------------------
+  # Runs when an onboarding case is opened: stands up the household record, the
+  # financial profile and the risk profile the rest of the platform reads, then
+  # moves the case on. Each step is a row somewhere else, so the flow is a saga
+  # rather than a hook.
   - name: ClientOnboarding
     title: Client Onboarding
     entity: OnboardingCase
@@ -4512,6 +4758,9 @@ sagas:
         properties:
           field: status
           value: kyc
+  # ---- Section 21: Workflow — recommendation execution (saga) ----------------
+  # What happens after a client accepts: the acceptance is what starts it, and it
+  # ends with an order on the dealing desk and an audit row that says who did it.
   - name: RecommendationExecution
     title: Recommendation Execution
     entity: ClientAcceptance
@@ -4541,6 +4790,9 @@ sagas:
         properties:
           field: status
           value: accepted
+  # ---- Section 22: Workflow — rebalancing (saga) -----------------------------
+  # Drift is detected against the model portfolio; this is what the platform does
+  # about it without waiting for anybody to open a screen.
   - name: Rebalancing
     entity: RebalanceRecommendation
     steps:
@@ -4570,77 +4822,3 @@ sagas:
         properties:
           field: status
           value: analysed
-hookDiagrams:
-  - name: ClientOnboardingHooks
-    title: Client Onboarding Hooks
-    entity: Client
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: assignClientNumber]
-          C --> D[customValidate: ensureClientNumberUnique]
-          D --> E[Process Client]
-          E --> F[afterCreate: openComplianceFile]
-          F --> G[beforeList: scopeToOwnHouseholds]
-          G --> H[beforeDelete: blockDeleteWithPortfolio]
-          H --> I[Response]
-
-          %% `beforeList: scopeToOwnHouseholds` is the one that matters most here. An
-          %% advisor may read Client — that is what the %%rbac rule says — but reading
-          %% *every* client is a different permission from reading their own, and RBAC
-          %% has no way to express the difference. The row filter belongs on the query.
-  - name: PortfolioValuationHooks
-    title: Portfolio Valuation Hooks
-    entity: Holding
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: normalizeQuantityScale]
-          C --> D[Process Holding]
-          D --> E[afterCreate: revalueOnNewHolding]
-          E --> F[afterUpdate: revalueOnHoldingChange]
-          F --> G[afterList: attachUnrealisedGain]
-          G --> H[Response]
-
-          %% A portfolio's value is arithmetic over its holdings, so it is recomputed
-          %% on the write rather than read from a column somebody remembered to
-          %% update. Unrealised gain is attached on the way out instead of stored: it
-          %% moves with the price, and a stored copy is wrong the moment the market
-          %% opens.
-          %% One handler name per event. Binding the same name to both afterCreate
-          %% and afterUpdate makes the generator keep the first and drop the second,
-          %% so the update path would have had no handler at all.
-  - name: OrderExecutionHooks
-    title: Order Execution Hooks
-    entity: Order
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: stampOrderedAt]
-          C --> D[customValidate: ensureDealingDeskOpen]
-          D --> E[Process Order]
-          E --> F[afterUpdate: bookExecutedTransaction]
-          F --> G[beforeDelete: blockDeleteAfterSubmission]
-          G --> H[Response]
-
-          %% An order that reached the exchange is a record of something that
-          %% happened, and deleting it is not a correction — it is a hole in the audit
-          %% trail. Cancel it through the state machine instead; that edge exists.
-  - name: AuditTrailHooks
-    title: Audit Trail Hooks
-    entity: AuditEvent
-    diagram: |-
-      flowchart TD
-          A[Client Request] --> B[Validate Request]
-          B --> C[beforeCreate: stampCorrelationRef]
-          C --> D[Process AuditEvent]
-          D --> E[beforeUpdate: blockAmendment]
-          E --> F[beforeDelete: blockDeletion]
-          F --> G[Response]
-
-          %% The audit trail is append-only, and that has to be enforced where the
-          %% write happens rather than by withholding a button: %%rbac can say who may
-          %% update the table, and the answer here is nobody, including the
-          %% administrator the master role would otherwise let through.
-
-      %% ---- Section 9: Workflow — prospect lifecycle ------------------------------

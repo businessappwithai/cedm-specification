@@ -1,21 +1,52 @@
 /**
- * A YAML model generates the same application as the EML it was converted
- * from — every file of it, frontend, backend and tests.
+ * The YAML model is the generation source, and the only one.
  *
- * This is the acceptance test for the YAML model language as a source: not
- * that the compiled model matches (the corpus test proves that), but that
- * nothing between the model and the disk still reads EML text. Two files may
- * differ and only two: the manifest names its input, and the shipped Mermaid
- * is the author's text for an EML model and the rendered view for a YAML one.
+ * Three properties of a generated application, each of which a regression has
+ * a plausible route to breaking without any other test noticing:
+ *
+ *   1. **Generation is a function of the model.** Two runs over the same
+ *      document write the same files with the same contents, apart from the
+ *      moment each was written. Anything else means a generator is reading
+ *      something besides the model — the clock, the environment, a directory
+ *      listing — and the byte-for-byte parity gate between the TypeScript and
+ *      Rust generators stops meaning anything.
+ *   2. **The model ships as the author wrote it.** `model/model.eml.yaml` is
+ *      the text, comments included, not a re-serialisation: the comments are
+ *      where an author records why a rule has three rows, and a copy without
+ *      them is a different document.
+ *   3. **Nothing generated is Mermaid.** No diagram source, no `%%` directive,
+ *      no reader or writer for either. The application stores what it builds
+ *      at run time — automations included — as YAML, and a Mermaid string left
+ *      in a template is a second model format the application would have to
+ *      keep reading forever.
  */
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { emlToModelDocument, readModelYaml, serializeModelDocument } from "../../model-yaml";
+import { readModelYaml } from "../../model-yaml";
 import { generateApplication } from "../index";
 
-const MODEL = path.resolve(__dirname, "../../../../../examples/drug-discovery.eml.mmd");
-const EXPECTED_TO_DIFFER = new Set([".appwithai.json", path.join("model", "model.eml.mmd")]);
+const MODEL = path.resolve(__dirname, "../../../../../examples/drug-discovery.eml.yaml");
+
+/** Binary assets are copied verbatim and cannot carry model text. */
+const BINARY = /\.(woff2?|ttf|otf|png|jpe?g|gif|ico|webp|wasm)$/i;
+
+/**
+ * What Mermaid looks like in a file: a diagram opener at the start of a line,
+ * a `%%` directive, or the library named at all.
+ */
+const MERMAID: Array<{ what: string; pattern: RegExp }> = [
+  {
+    what: "a diagram opener",
+    pattern: /^\s*(erDiagram|stateDiagram(-v2)?|flowchart\s+\w+|graph\s+(TD|TB|BT|LR|RL))\b/m,
+  },
+  {
+    what: "a %% directive",
+    pattern:
+      /%%\s*(meta|hook|entity|field|enum|index|category|rbac|rule|guard|trigger|report|workflow|step|action|loop)\b/,
+  },
+  { what: "the word mermaid", pattern: /mermaid/i },
+];
 
 async function files(root: string, directory = root): Promise<string[]> {
   const found: string[] = [];
@@ -49,56 +80,54 @@ describe("a YAML model as the generation source", () => {
     for (const output of outputs) await fs.rm(output, { recursive: true, force: true });
   });
 
-  it("generates the application its EML generates, file for file", async () => {
-    const eml = await fs.readFile(MODEL, "utf-8");
-    const yaml = serializeModelDocument(emlToModelDocument(eml).document);
-    const read = readModelYaml(yaml);
-    expect(read.ok).toBe(true);
-
-    const fromEml = await fs.mkdtemp("/tmp/yaml-source-eml-");
-    const fromYaml = await fs.mkdtemp("/tmp/yaml-source-yaml-");
-    outputs.push(fromEml, fromYaml);
-
-    const common = { projectName: "drug-discovery", skipCliScaffold: true } as const;
-    await quietly(() => generateApplication({ ...common, sources: eml, outputDir: fromEml }));
+  async function generate(modelText: string): Promise<string> {
+    const read = readModelYaml(modelText);
+    expect(read.ok, JSON.stringify(read.diagnostics.slice(0, 3))).toBe(true);
+    const output = await fs.mkdtemp("/tmp/yaml-source-");
+    outputs.push(output);
     await quietly(() =>
-      generateApplication({ ...common, document: read.document!, outputDir: fromYaml })
+      generateApplication({
+        projectName: "drug-discovery",
+        skipCliScaffold: true,
+        document: read.document!,
+        modelText,
+        outputDir: output,
+      })
     );
+    return output;
+  }
 
-    const emlFiles = await files(fromEml);
-    expect(await files(fromYaml)).toEqual(emlFiles);
-    expect(emlFiles.length).toBeGreaterThan(400);
+  it("generates the same application every time, ships the model as written, and no Mermaid", async () => {
+    const modelText = await fs.readFile(MODEL, "utf-8");
+    const [first, second] = [await generate(modelText), await generate(modelText)];
+
+    const written = await files(first);
+    expect(await files(second)).toEqual(written);
+    expect(written.length).toBeGreaterThan(400);
 
     const differing: string[] = [];
-    for (const file of emlFiles) {
+    const mermaid: string[] = [];
+    for (const file of written) {
+      if (BINARY.test(file)) continue;
       const [left, right] = await Promise.all([
-        fs.readFile(path.join(fromEml, file), "utf-8"),
-        fs.readFile(path.join(fromYaml, file), "utf-8"),
+        fs.readFile(path.join(first, file), "utf-8"),
+        fs.readFile(path.join(second, file), "utf-8"),
       ]);
       if (withoutTimestamps(left) !== withoutTimestamps(right)) differing.push(file);
+      for (const { what, pattern } of MERMAID) {
+        const match = left.match(pattern);
+        if (match) mermaid.push(`${file}: ${what} (${JSON.stringify(match[0].trim())})`);
+      }
     }
-    expect(differing.filter((file) => !EXPECTED_TO_DIFFER.has(file))).toEqual([]);
+    expect(differing).toEqual([]);
+    if (process.env.SHOW_MERMAID) console.error(mermaid.join("\n"));
+    expect(mermaid).toEqual([]);
 
-    // Both ship the model as YAML, and it is the same document.
-    const shippedFromEml = await fs.readFile(
-      path.join(fromEml, "model", "model.eml.yaml"),
-      "utf-8"
-    );
-    const shippedFromYaml = await fs.readFile(
-      path.join(fromYaml, "model", "model.eml.yaml"),
-      "utf-8"
-    );
-    expect(shippedFromYaml).toBe(yaml);
-    expect(shippedFromEml).toBe(yaml);
-
-    // The YAML-sourced project's Mermaid is the rendered view, marked as such.
-    const view = await fs.readFile(path.join(fromYaml, "model", "model.eml.mmd"), "utf-8");
-    expect(view).toContain("Rendered from the YAML model.");
+    // The author's text, comments and all — the header comment is the check
+    // that nothing re-serialised it on the way.
+    const shipped = await fs.readFile(path.join(first, "model", "model.eml.yaml"), "utf-8");
+    expect(shipped).toBe(modelText);
+    expect(shipped.startsWith("# ")).toBe(true);
+    expect(written).not.toContain(path.join("model", "model.eml.mmd"));
   }, 300_000);
-
-  it("refuses to run without a model", async () => {
-    await expect(
-      generateApplication({ projectName: "none", outputDir: "/tmp/never-written" })
-    ).rejects.toThrow(/needs a model/);
-  });
 });

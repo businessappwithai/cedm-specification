@@ -1,5 +1,11 @@
 eml: "1.0"
 entities:
+  # Clinic Management System - North American Clinical Automation
+
+  # Entities of a North American outpatient clinic: patients, practitioners, scheduling, encounters and claims.
+  # Covers: Patient, Practitioner, Appointment, Encounter, Claim
+
+  # Use: bun run generate:tanstack -- -i examples/clinic.erd.eml.yaml -o generated-projects/clinic -n clinic-app
   - name: Patient
     attributes:
       - name: patient_id

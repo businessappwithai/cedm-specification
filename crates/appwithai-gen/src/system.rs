@@ -40,7 +40,7 @@ const SETTINGS: &[Setting] = &[
         key: "app_description",
         data_type: "text",
         category: "identity",
-        description: "What this application is for. Taken from the model's %%meta description: and returned by GET /api/me/health.",
+        description: "What this application is for. Taken from the model's description and returned by GET /api/me/health.",
         is_sensitive: false,
     },
     Setting {

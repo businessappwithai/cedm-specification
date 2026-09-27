@@ -1,11 +1,11 @@
 /**
  * Model records — what a model *says*, before anything is compiled from it.
  *
- * A model can be written in two syntaxes: EML, where every construct rides on a
- * Mermaid diagram or a `%%` directive, and the YAML model language, where every
- * construct is a key. Both are read into these records, and only these records
- * are compiled. That is the whole equivalence argument: a construct has one
- * compiler, so the two syntaxes cannot come to mean different things.
+ * A model is a YAML document (`language/yaml/eml.schema.json`). It is read into
+ * these records by `documentToRecords`, and only these records are compiled.
+ * The Rust generator reads the same document into the same records
+ * (`crates/appwithai-gen/src/records.rs`) and compiles them with the same
+ * rules; `bun run parity` holds the two to identical output.
  *
  * The records keep what the author wrote, not what it will be compiled into.
  * An attribute's type is the token as written (`string(255)`, `email`), a
@@ -19,12 +19,15 @@
 /*  Entity-relationship model                                                  */
 /* -------------------------------------------------------------------------- */
 
-/** One column declaration inside an entity block: `type name MODIFIER…`. */
+/**
+ * One column declaration. The flags are the attribute's `pk`, `fk`, `unique` and
+ * `optional` keys, as the tokens `PK`, `FK`, `UK` and `OPTIONAL`, and a comment
+ * as one quoted token — the form both compilers resolve.
+ */
 export interface AttributeDeclaration {
-  /** The type token as written, length suffix included: `string(255)`, `email`. */
+  /** The type as written, length suffix included: `string(255)`, `email`. */
   type: string;
   name: string;
-  /** Whitespace-separated tokens after the name, as written. */
   modifiers: string[];
 }
 
@@ -33,17 +36,17 @@ export interface EntityDeclaration {
   attributes: AttributeDeclaration[];
 }
 
-/** One end of a relationship line, as Mermaid draws it. */
+/** How many records may stand at one end of a relationship. */
 export type RelationshipEnd = "exactly-one" | "zero-or-one" | "zero-or-more" | "one-or-more";
 
 export interface RelationshipDeclaration {
   source: string;
   target: string;
-  /** Cardinality at the source end (the left glyph pair). */
+  /** Cardinality at the source (`from`) end. */
   sourceEnd: RelationshipEnd;
-  /** Cardinality at the target end (the right glyph pair). */
+  /** Cardinality at the target (`to`) end. */
   targetEnd: RelationshipEnd;
-  /** The label after the colon, quotes removed, as written. */
+  /** The relationship's name, as written. */
   label?: string;
 }
 
@@ -71,26 +74,24 @@ export interface FieldHelp {
 }
 
 /**
- * `%%entity` keys the language validates and carries but no application
- * generator compiles yet. They are kept rather than dropped, so a model's
- * YAML states everything its EML stated — the `eml` CLI's generators read
- * `audited`, and a conversion that lost it lost a behaviour.
+ * Entity keys the language validates and carries but the application
+ * generators do not compile yet. The `eml` CLI's generators read `audited`.
  */
 export const ENTITY_OPTION_KEYS = ["label", "prefix", "softDelete", "audited"] as const;
 export type EntityOptionKey = (typeof ENTITY_OPTION_KEYS)[number];
 
-/** `%%field` keys carried on the same terms as `ENTITY_OPTION_KEYS`. */
+/** Attribute keys carried on the same terms as `ENTITY_OPTION_KEYS`. */
 export const FIELD_OPTION_KEYS = ["ui", "default", "min", "max", "format"] as const;
 export type FieldOptionKey = (typeof FIELD_OPTION_KEYS)[number];
 
-/** `%%entity <E> <key>: <value>` for a key in `ENTITY_OPTION_KEYS`, value as written. */
+/** An entity's value for a key in `ENTITY_OPTION_KEYS`, as text. */
 export interface EntityOption {
   entity: string;
   key: EntityOptionKey;
   value: string;
 }
 
-/** `%%field <E>.<column> <key>: <value>` for a key in `FIELD_OPTION_KEYS`, value as written. */
+/** An attribute's value for a key in `FIELD_OPTION_KEYS`, as text. */
 export interface FieldOption {
   entity: string;
   column: string;
@@ -101,11 +102,9 @@ export interface FieldOption {
 /**
  * Everything the ERD layer of a model declares.
  *
- * Entity-level annotations are lists in declaration order, not maps: the
- * compiler resolves repeats the way the EML reader always has (the last
- * `%%entity … help:` wins, but the entity keeps the position of the first), and
- * that rule belongs to the compiler rather than to whichever syntax happened to
- * be read.
+ * Entity-level annotations are lists in declaration order, not maps, so that
+ * the compiler alone decides how a repeat resolves (the last help wins, the
+ * entity keeps the position of the first).
  */
 export interface ErdRecords {
   entities: EntityDeclaration[];
@@ -125,7 +124,7 @@ export interface ErdRecords {
 /*  Categories                                                                 */
 /* -------------------------------------------------------------------------- */
 
-/** One `%%category` declaration. Declarations sharing a code are merged. */
+/** One category. Categories sharing a code are merged. */
 export interface CategoryDeclaration {
   name: string;
   code?: string;
@@ -142,7 +141,7 @@ export interface CategoryDeclaration {
 /* -------------------------------------------------------------------------- */
 
 /**
- * One `%%rbac` declaration: these roles may perform `target` on `entity`.
+ * One access rule: these roles may perform `target` on `entity`.
  *
  * `target` is a CRUD operation or one of its aliases, `*`, or the trigger of a
  * transition in the entity's state machine — which of those it is, the
@@ -155,13 +154,11 @@ export interface RbacDeclaration {
 }
 
 /**
- * One `%%trigger` declaration: an external event or a schedule that calls
- * `handler` on `entity`.
+ * An external event or a schedule that calls `handler` on `entity`.
  *
- * `source` is `cron:<expression>`, `webhook:<name>`, `message:<topic>` or
- * another form the checker's EML230 accepts. The two application generators
- * compile nothing from it yet; the `eml` CLI's generators do, which is why the
- * YAML language carries it rather than letting a conversion drop it.
+ * `source` is `cron:<expression>`, `webhook:<name>` or `message:<topic>`. The
+ * application generators compile nothing from it yet; the `eml` CLI's
+ * generators do.
  */
 export interface TriggerDeclaration {
   source: string;
@@ -169,20 +166,19 @@ export interface TriggerDeclaration {
   entity: string;
 }
 
-/** One `%%hook` declaration. `event` is checked against the hook vocabulary by the compiler. */
+/** One hook. `event` is checked against the hook vocabulary by the compiler. */
 export interface HookDeclaration {
   event: string;
   handler: string;
   entity: string;
   /**
-   * The columns the hook is scoped to, in the order written:
-   * `on Order[field: status, field: total]`. The compiled handler is scoped to
-   * the first; every one is carried, so the model states what its author did.
+   * The columns the hook is scoped to, in the order written. The compiled
+   * handler is scoped to the first; every one is carried.
    */
   fields?: string[];
 }
 
-/** One `%%report` declaration, before the read-only and chart checks. */
+/** One report, before the read-only and chart checks. */
 export interface ReportDeclaration {
   name: string;
   title?: string;
@@ -198,13 +194,21 @@ export interface ReportDeclaration {
 /*  Rules                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export type RuleNodeShape = "stadium" | "diamond" | "rect" | "circle" | "round";
+/**
+ * What a node of a rule's decision graph does, and so which GoRules JDM node it
+ * compiles to: `start` an input node, `end` an output node, `decision` a switch,
+ * `expression` an expression node, `function` a function node.
+ */
+export type RuleNodeType = "start" | "end" | "decision" | "expression" | "function";
 
 export interface RuleNode {
   id: string;
   label: string;
-  shape: RuleNodeShape;
+  type: RuleNodeType;
 }
+
+/** Which way a diagram of a graph is laid out. Layout only; nothing compiles it. */
+export type FlowDirection = "down" | "up" | "right" | "left";
 
 export interface RuleEdge {
   source: string;
@@ -237,9 +241,9 @@ export interface DecisionTable {
  * A business rule bound to a lifecycle event.
  *
  * A rule is compiled from exactly one of three things, in this precedence: an
- * editor-authored decision table, a list of actions, or the decision flowchart
- * itself. All three are kept because the flowchart is also what the rule looks
- * like, and dropping it on read would lose the drawing the author made.
+ * editor-authored decision table, a list of actions, or the decision graph
+ * itself. All three are kept because the graph is also what the rule looks
+ * like, and dropping it would lose what the author drew.
  */
 export interface RuleDeclaration {
   name: string;
@@ -247,8 +251,8 @@ export interface RuleDeclaration {
   entity: string;
   event: string;
   priority?: number;
-  /** Flowchart direction for the diagram view (`TD`, `LR`, …). */
-  direction?: string;
+  /** How the graph is laid out when drawn. */
+  direction?: FlowDirection;
   nodes: RuleNode[];
   edges: RuleEdge[];
   actions: RuleAction[];
@@ -266,11 +270,9 @@ export interface StateTransitionDeclaration {
 }
 
 /**
- * A `kind: state` workflow: the moves a record's status may make.
+ * A state machine: the moves a record's status may make.
  *
- * `states` is listed rather than inferred so its order is the author's; the EML
- * reader fills it in order of first appearance, which is the order the diagram
- * has always compiled to.
+ * `states` is listed rather than inferred, so its order is the author's.
  */
 export interface StateMachineDeclaration {
   name: string;
@@ -289,7 +291,7 @@ export interface SagaStepDeclaration {
   properties: Record<string, string>;
 }
 
-/** A `kind: saga` workflow: an ordered process of steps run on a write. */
+/** A saga: an ordered process of steps run on a write. */
 export interface SagaDeclaration {
   name: string;
   title?: string;
@@ -301,13 +303,30 @@ export interface SagaDeclaration {
   steps: SagaStepDeclaration[];
 }
 
-/** A `kind: hook` workflow — a drawing of a hook's logic. Carried, not compiled. */
-export interface HookDiagramDeclaration {
+/**
+ * One step of a hook flow: either a hook the entity declares, named by its
+ * event and handler, or a step the flow shows for context (the request, the
+ * write, the response), named by its label.
+ */
+export interface HookFlowNode {
+  id: string;
+  label?: string;
+  event?: string;
+  handler?: string;
+}
+
+/**
+ * The order an entity's hooks run in around a write, drawn as a graph. It
+ * documents the hooks; the hooks themselves are the model's `hooks`, and the
+ * compiled dispatch order is the hook vocabulary's, not this drawing's.
+ */
+export interface HookFlowDeclaration {
   name: string;
   title?: string;
   entity: string;
-  /** The diagram body, starting at its `flowchart` line. */
-  diagram: string;
+  direction?: FlowDirection;
+  nodes: HookFlowNode[];
+  edges: RuleEdge[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -327,32 +346,5 @@ export interface ModelRecords {
   rules: RuleDeclaration[];
   stateMachines: StateMachineDeclaration[];
   sagas: SagaDeclaration[];
-  hookDiagrams: HookDiagramDeclaration[];
-}
-
-/** Mermaid's glyph pair for each end, keyed by which side of `--` it sits on. */
-export const RELATIONSHIP_GLYPHS: Record<RelationshipEnd, { left: string; right: string }> = {
-  "exactly-one": { left: "||", right: "||" },
-  "zero-or-one": { left: "|o", right: "o|" },
-  "zero-or-more": { left: "}o", right: "o{" },
-  "one-or-more": { left: "}|", right: "|{" },
-};
-
-export const RELATIONSHIP_ENDS = Object.keys(RELATIONSHIP_GLYPHS) as RelationshipEnd[];
-
-/** The end a left-hand glyph pair denotes, or undefined for anything else. */
-export function endFromLeftGlyph(glyph: string): RelationshipEnd | undefined {
-  return RELATIONSHIP_ENDS.find((end) => RELATIONSHIP_GLYPHS[end].left === glyph);
-}
-
-/** The end a right-hand glyph pair denotes, or undefined for anything else. */
-export function endFromRightGlyph(glyph: string): RelationshipEnd | undefined {
-  return RELATIONSHIP_ENDS.find((end) => RELATIONSHIP_GLYPHS[end].right === glyph);
-}
-
-/** The Mermaid operator for a relationship, e.g. `||--o{`. */
-export function relationshipOperator(declaration: RelationshipDeclaration): string {
-  return `${RELATIONSHIP_GLYPHS[declaration.sourceEnd].left}--${
-    RELATIONSHIP_GLYPHS[declaration.targetEnd].right
-  }`;
+  hookFlows: HookFlowDeclaration[];
 }
