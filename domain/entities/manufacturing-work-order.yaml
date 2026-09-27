@@ -13,7 +13,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help:
+    - {id: MWO-003, rule: RELEASED work must preserve the effective BillOfMaterial and Routing versions used for execution and audit.}
+  - {id: MWO-004, rule: MaterialIssue and ProductionReceipt postings must reconcile to this work order and must be idempotent.}
+  - {id: MWO-005, rule: COMPLETED or CLOSED requires governed reconciliation of planned quantity, accepted output, scrap, material consumption, required operations, and quality gates.}
+  help:
       summary: Identifies the manufacturing work order record associated with this ManufacturingWorkOrder. The identifier
         connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ManufacturingWorkOrder records,
@@ -130,7 +133,26 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
-  invariants:
+  - name: billOfMaterial
+    target: BillOfMaterial
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Effective material structure governing planned component demand., businessMeaning: Defines what inputs are expected for the output Product., usage: Material planning, issue validation, variance, and genealogy., cardinalityMeaning: Optional for processes without a formal BOM., workflowRole: Released work preserves the effective BOM version.}
+  - name: routing
+    target: Routing
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Effective process definition governing production execution., businessMeaning: Defines ordered operations and resource expectations., usage: Scheduling, execution, costing, and audit., cardinalityMeaning: Optional for simple production without formal routing., workflowRole: Released work preserves the effective routing version.}
+  - name: materialIssues
+    target: MaterialIssue
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Component consumption transactions attributable to this work order., businessMeaning: Records actual input consumption separately from planned BOM demand., usage: Inventory, costing, genealogy, and variance., cardinalityMeaning: Zero or many issues across execution., workflowRole: Posted issues reduce inventory through attributable InventoryMovement.}
+  - name: productionReceipts
+    target: ProductionReceipt
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Accepted output receipts attributable to this work order., businessMeaning: Records actual produced quantity entering controlled inventory., usage: Completion, inventory, costing, genealogy, and quality., cardinalityMeaning: Partial production may create multiple receipts., workflowRole: Posted receipts increase inventory through attributable InventoryMovement.}
   - id: MWO-001
     rule: plannedEnd must not precede plannedStart.
   - id: MWO-002
