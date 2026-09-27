@@ -1,3 +1,0 @@
-trigger:
-  purpose: Trigger the semantic-help enrichment workflow.
-  generated: true
