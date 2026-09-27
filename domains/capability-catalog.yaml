@@ -48,8 +48,8 @@ catalog:
       processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
     - id: quality-management
       name: Quality Management
-      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition]
-      processes: [quality-definition, characteristic-configuration, sampling-plan, sampling-rule, sample-selection, inspection, measurement, acceptance, nonconformance, corrective-action, verification, release, disposition]
+      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
+      processes: [quality-definition, characteristic-configuration, test-method-governance, sampling-plan, sampling-rule, sample-selection, inspection, measurement, acceptance, nonconformance, corrective-action, verification, certificate-of-analysis, release, disposition]
     - id: financial-accounting
       name: Financial Accounting
       entities: [Account, JournalEntry, JournalEntryLine, Invoice, Payment, Currency]
