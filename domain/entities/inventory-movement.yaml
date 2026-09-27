@@ -103,3 +103,7 @@ entity:
     lifecycle: Prepared → validated → posted → immutable history. Errors use compensating events.
     changePropagation: SupplierReturn quantity or disposition changes require movement eligibility/reconciliation before posting. Posted movement changes require reversal or compensating movement, never destructive editing.
     example: Ten accepted units are returned to a supplier from RACK-A. A movement records the exact quantity and source location and references SupplierReturnLine. A retry of the workflow does not create a second reduction. The supplier credit is accounted for separately.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-INVENTORY-MOVEMENT
