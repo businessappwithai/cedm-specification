@@ -28,8 +28,8 @@ catalog:
       processes: [pick-pack-ship, delivery, receipt]
     - id: inventory-management
       name: Inventory Management
-      entities: [InventoryBalance, InventoryMovement, Product, Location]
-      processes: [stock-receipt, stock-issue, stock-transfer, cycle-count, adjustment]
+      entities: [InventoryBalance, InventoryMovement, InventoryReservation, Lot, SerialNumber, Product, InventoryLocation]
+      processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
     - id: warehouse-management
       name: Warehouse Management
       entities: [Warehouse, InventoryLocation, InventoryBalance, InventoryMovement]
