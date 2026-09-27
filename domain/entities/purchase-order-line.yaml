@@ -39,6 +39,16 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Unit used to quantify the commitment., businessMeaning: Defines how quantity is interpreted., workflowRole: Must reconcile with receiving and return conversions.}
+  - name: supplierQuotationLine
+    target: SupplierQuotationLine
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Awarded supplier offer line providing commercial provenance for this commitment., businessMeaning: Links committed quantity and price to evaluated sourcing evidence., usage: Sourcing compliance, price verification, split-award reconciliation, and audit., cardinalityMeaning: Optional for direct procurement or other authorized sourcing methods., workflowRole: Must reconcile with awarded quantity, product, UOM, price, and authorized negotiated amendments.}
+  - name: purchaseRequisitionLine
+    target: PurchaseRequisitionLine
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Internal demand line satisfied by this procurement commitment., businessMeaning: Preserves exact demand-to-order traceability., usage: Demand fulfillment, budget control, sourcing audit, and planning., cardinalityMeaning: Optional for procurement not originating from requisition., workflowRole: Ordered quantities contribute to fulfillment of approved internal demand.}
   - name: goodsReceiptLines
     target: GoodsReceiptLine
     cardinality: 0..*

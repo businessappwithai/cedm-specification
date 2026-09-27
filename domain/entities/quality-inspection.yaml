@@ -87,6 +87,11 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Structured observations captured during this inspection., businessMeaning: Provides individual quantitative or categorical evidence used to evaluate the inspection., usage: Acceptance testing, trend analysis, nonconformance evidence and corrective-action verification., cardinalityMeaning: An inspection may contain zero or many measurements depending on inspection method., workflowRole: Measurements are captured and evaluated before the overall inspection result is finalized.}
+  - name: certificatesOfAnalysis
+    target: CertificateOfAnalysis
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Certificates of analysis supported by this inspection., businessMeaning: Connects completed quality execution evidence to controlled certificate representations., usage: Release documentation, customer/supplier exchange, compliance, and audit., cardinalityMeaning: An inspection may support zero or many certificates across governed contexts or supersession history., workflowRole: Certificate issuance consumes completed inspection evidence but never replaces or mutates it.}
   - name: nonconformances
     target: Nonconformance
     cardinality: 0..*

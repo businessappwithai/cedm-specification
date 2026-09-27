@@ -1,0 +1,78 @@
+entity:
+  name: Timesheet
+  namespace: cedm.domain
+  kind: professional_services_transaction
+  description: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
+  identity:
+    key: timesheetId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: timesheetId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the Timesheet record.
+      businessMeaning: Identifies one governed Timesheet independently of related records and later lifecycle changes.
+      usage: Referencing, workflow execution, reporting, audit, and integration.
+      relationshipContext: Connects this record to its governing ProfessionalEngagement context and downstream evidence.
+      requiredMeaning: Required for stable traceability.
+  - name: timesheetCode
+    type: string
+    required: true
+    unique: true
+    maxLength: 120
+    help:
+      summary: Human-readable business reference for the Timesheet.
+      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
+      usage: Creation, review, search, workflow, reporting, and audit.
+      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
+      requiredMeaning: Required for operational identification.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    help:
+      summary: Lifecycle state of the Timesheet.
+      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
+      usage: Workflow gating, governance, reporting, and audit.
+      relationshipContext: Status changes can affect related ProfessionalEngagement workflows but never erase historical evidence.
+      valueSemantics:
+        DRAFT: Record is being prepared and is not yet normally effective.
+        ACTIVE: Record is effective for its governed business purpose.
+        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
+        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
+      requiredMeaning: Required for lifecycle governance.
+  relationships:
+  - name: context
+    target: ProfessionalEngagement
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Governing ProfessionalEngagement associated with this Timesheet.
+      businessMeaning: Supplies the business context needed to interpret and validate the record.
+      usage: Workflow navigation, validation, traceability, reporting, and audit.
+      cardinalityMeaning: Every Timesheet belongs to exactly one governing ProfessionalEngagement in this baseline model.
+      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+  invariants:
+  - id: TIMESHEET-001
+    rule: The governing ProfessionalEngagement relationship is required and must reference a valid record.
+  - id: TIMESHEET-002
+    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
+  - id: TIMESHEET-003
+    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  help:
+    summary: Represents Timesheet as a first-class governed CEDM business concept.
+    businessMeaning: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
+    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
+    relationshipContext: ProfessionalEngagement supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
+    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
+    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
+    example: A Timesheet is created for a valid ProfessionalEngagement, progresses through its governed lifecycle, and remains traceable after completion.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-TIMESHEET

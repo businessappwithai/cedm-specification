@@ -127,3 +127,7 @@ entity:
     lifecycle: Draft → calculated → matched/exception → approved → posted. After posting, historical calculation evidence is immutable and corrections use explicit financial documents or adjustments.
     changePropagation: Changes to Product/UOM/pricing/discount/tax masters require validation of future and open transactions but never silently modify posted InvoiceLines. Changes to procurement commitments, receipts, customer returns, supplier returns or credits can change downstream matching/adjustment eligibility through controlled reconciliation without rewriting the invoice calculation.
     example: A purchase invoice line is linked to a PurchaseOrderLine and accepted GoodsReceiptLine. If three received units are later returned to the supplier, SupplierReturnLine and SupplierCreditNoteLine reference this InvoiceLine; the original billed price and tax remain unchanged while the supplier credit is applied separately.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-INVOICE-LINE

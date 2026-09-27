@@ -84,6 +84,21 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Supplier return line authorizing this inventory movement when stock is being returned to a supplier., businessMeaning: Identifies the exact reverse-procurement quantity and source receipt evidence that justifies the stock reduction., usage: Supports supplier-return execution, duplicate prevention, audit and reconciliation., cardinalityMeaning: At most one SupplierReturnLine is the direct business source of a movement., workflowRole: Requires return-to-supplier movement to remain attributable to approved return quantity and prevents unexplained stock reductions.}
+  - name: shipmentLine
+    target: ShipmentLine
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Shipment line associated with this inventory event when logistics execution applies., businessMeaning: Preserves line-level transport-to-stock provenance., usage: Dispatch, transfer, receipt reconciliation, claims, and audit., cardinalityMeaning: Optional for inventory events unrelated to shipment execution., workflowRole: Product, quantity, UOM and direction must reconcile with shipment execution and source transaction.}
+  - name: lot
+    target: Lot
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Lot identity carried by this movement when the Product is lot-controlled., businessMeaning: Preserves batch genealogy through every stock event., usage: Traceability, expiry, quality, recall, and reconciliation., cardinalityMeaning: Optional for products not requiring lot control., workflowRole: Lot Product and movement Product must agree.}
+  - name: serialNumbers
+    target: SerialNumber
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Individually serialized units carried by this movement., businessMeaning: Preserves unit-level custody and location history., usage: Scanning, shipment, service, return, recall, and audit., cardinalityMeaning: Zero or more serials depending on serialization policy., workflowRole: Serial count/quantity must reconcile with movement quantity under product policy.}
   invariants:
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.}
@@ -103,3 +118,7 @@ entity:
     lifecycle: Prepared → validated → posted → immutable history. Errors use compensating events.
     changePropagation: SupplierReturn quantity or disposition changes require movement eligibility/reconciliation before posting. Posted movement changes require reversal or compensating movement, never destructive editing.
     example: Ten accepted units are returned to a supplier from RACK-A. A movement records the exact quantity and source location and references SupplierReturnLine. A retry of the workflow does not create a second reduction. The supplier credit is accounted for separately.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-INVENTORY-MOVEMENT

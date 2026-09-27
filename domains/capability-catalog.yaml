@@ -24,12 +24,12 @@ catalog:
       processes: [order-capture, order-approval, order-fulfillment, order-cancellation]
     - id: fulfillment
       name: Fulfillment
-      entities: [SalesOrder, Shipment, InventoryMovement, Location]
+      entities: [SalesOrder, Shipment, ShipmentLine, InventoryMovement, Location]
       processes: [pick-pack-ship, delivery, receipt]
     - id: inventory-management
       name: Inventory Management
-      entities: [InventoryBalance, InventoryMovement, Product, Location]
-      processes: [stock-receipt, stock-issue, stock-transfer, cycle-count, adjustment]
+      entities: [InventoryBalance, InventoryMovement, InventoryReservation, Lot, SerialNumber, Product, InventoryLocation]
+      processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
     - id: warehouse-management
       name: Warehouse Management
       entities: [Warehouse, InventoryLocation, InventoryBalance, InventoryMovement]
@@ -48,8 +48,8 @@ catalog:
       processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
     - id: quality-management
       name: Quality Management
-      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition]
-      processes: [quality-definition, characteristic-configuration, sampling-plan, sampling-rule, sample-selection, inspection, measurement, acceptance, nonconformance, corrective-action, verification, release, disposition]
+      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
+      processes: [quality-definition, characteristic-configuration, test-method-governance, sampling-plan, sampling-rule, sample-selection, inspection, measurement, acceptance, nonconformance, corrective-action, verification, certificate-of-analysis, release, disposition]
     - id: financial-accounting
       name: Financial Accounting
       entities: [Account, JournalEntry, JournalEntryLine, Invoice, Payment, Currency]
@@ -64,8 +64,8 @@ catalog:
       processes: [billing, collection, receipt, reconciliation]
     - id: procurement
       name: Procurement
-      entities: [Supplier, PurchaseRequisition, PurchaseOrder, PurchaseOrderLine]
-      processes: [requisition, sourcing, quotation, purchase-order, receiving]
+      entities: [Supplier, PurchaseRequisition, PurchaseRequisitionLine, RequestForQuotation, RequestForQuotationLine, SupplierQuotation, SupplierQuotationLine, PurchaseOrder, PurchaseOrderLine]
+      processes: [requisition, rfq, supplier-quotation, sourcing-award, purchase-order, receiving]
     - id: sales
       name: Sales
       entities: [Customer, Lead, Opportunity, Quotation, SalesOrder]

@@ -48,7 +48,7 @@ entity:
       summary: The operational availability of the entire block for container storage and movement activity.
       businessMeaning: Determines whether subordinate bays may normally be selected for placement, relocation, or planning.
       usage: Used by allocation and optimization algorithms to exclude unavailable storage areas.
-      relationshipContext: Block status is an upper-level constraint: a BLOCKED or CLOSED block can make otherwise ACTIVE bays and slots unusable for new placement.
+      relationshipContext: "Block status is an upper-level constraint: a BLOCKED or CLOSED block can make otherwise ACTIVE bays and slots unusable for new placement."
       valueSemantics:
         ACTIVE: The block may participate in normal yard operations subject to bay, tier, slot, equipment, safety, and container constraints.
         BLOCKED: The block is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.

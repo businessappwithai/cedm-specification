@@ -76,3 +76,7 @@ entity:
     lifecycle: Draft → active → reversed/cancelled. Historical applications are retained.
     changePropagation: Changes to posted CreditNote or Invoice never rewrite an application; corrections use reversal and replacement applications.
     example: A posted USD 590 CreditNote is applied to a USD 590 open invoice. The application consumes USD 590 of available credit and reduces the invoice exposure by USD 590. If applied incorrectly, the application is reversed and a new application is created.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-CREDIT-NOTE-APPLICATION

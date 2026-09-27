@@ -79,7 +79,7 @@ entity:
     rule: If an operational Location references an Address, the referenced Address must be active and usable when the Location becomes effective unless an explicitly supported historical/legacy exception applies.
   help:
     summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
-    businessMeaning: Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation.
+    businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."
     usage: Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes.
     relationshipContext: Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes.
     workflowContext: Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context.

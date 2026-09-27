@@ -118,6 +118,16 @@ entity:
       usage: Drives inventory and credit eligibility workflows.
       cardinalityMeaning: An authorized return requires at least one valid line.
       workflowRole: Lines provide the quantity and approved credit basis consumed downstream.
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled operational disposition decisions for quantities in this customer return.
+      businessMeaning: Provides explicit evidence of what should happen to returned material after receipt and inspection rather than encoding all execution only in line summary fields.
+      usage: Reverse logistics, warehouse execution, quality, inventory reconciliation, audit, and completion gating.
+      cardinalityMeaning: A customer return may have zero or many dispositions because different lines or partial quantities can receive different outcomes.
+      workflowRole: Authorized dispositions drive attributable InventoryMovement while financial credit remains a separate CreditNote workflow.
   - name: creditNotes
     target: CreditNote
     cardinality: 0..*

@@ -108,13 +108,17 @@ entity:
     - {id: PAYMENT-009, rule: Historical Payment amount, currency, date and method remain stable after posting except through authorized correction/reversal.}
     - {id: PAYMENT-010, rule: Payment linked to CreditNote as refund must be DISBURSEMENT and must not be reused as evidence for original customer receipt.}
     - {id: PAYMENT-011, rule: Payment linked to SupplierCreditNote as supplier refund must be RECEIPT to the organization and must not be treated as a SupplierCreditNoteApplication.}
-    - {id: PAYMENT-012, rule: SupplierCreditNote cash settlement and SupplierCreditNoteApplication are mutually distinct effects: one records money received from supplier, the other records non-cash reduction of payable exposure.}
+    - {id: PAYMENT-012, rule: "SupplierCreditNote cash settlement and SupplierCreditNoteApplication are mutually distinct effects: one records money received from supplier, the other records non-cash reduction of payable exposure."}
   help:
     summary: Represents movement or recognition of money while keeping payment execution, claim settlement, bank evidence, accounting recognition, customer refunds and supplier-credit refunds as separate connected facts.
     businessMeaning: Payment is the settlement event. Invoice is the claim. PaymentAllocation applies receipt payments to claims. CreditNote is a customer financial adjustment. SupplierCreditNote is a supplier payable adjustment. A refund or settlement Payment is separate cash evidence.
     usage: Accounts receivable, accounts payable, treasury, banking integrations, cash management, reconciliation, collections, supplier payments, customer refunds and supplier-credit refunds.
     relationshipContext: Currency defines denomination. PaymentAllocation connects receipt Payments to claims. CreditNote connects customer refunds. SupplierCreditNote connects supplier-credit cash settlements when a supplier returns funds. BankTransaction confirms external settlement. JournalEntry records accounting consequences.
-    workflowContext: Receipt Payment → approval → posting → allocation → bank evidence → cleared. Customer credit: CreditNote posted → application or refund due → DISBURSEMENT Payment → bank reconciliation. Supplier credit: SupplierCreditNote posted → application against payable or supplier refund due → RECEIPT Payment from supplier → bank reconciliation. Original payment and credit histories remain immutable.
+    workflowContext: "Receipt Payment → approval → posting → allocation → bank evidence → cleared. Customer credit: CreditNote posted → application or refund due → DISBURSEMENT Payment → bank reconciliation. Supplier credit: SupplierCreditNote posted → application against payable or supplier refund due → RECEIPT Payment from supplier → bank reconciliation. Original payment and credit histories remain immutable."
     lifecycle: Draft → approved → posted → cleared, with controlled void and reversal paths. Payment, Invoice, CreditNote, SupplierCreditNote, BankTransaction and JournalEntry retain independent lifecycle states because they represent different business facts.
     changePropagation: Changes to CreditNote or SupplierCreditNote settlement obligations require validation of linked payment eligibility. Payment reversal requires corresponding reversal of affected refund/settlement projections and accounting evidence; it must never rewrite the originating credit note.
     example: A supplier has a EUR 300 unapplied SupplierCreditNote. The supplier refunds EUR 300 rather than applying it to another invoice. A new RECEIPT Payment for EUR 300 is linked to the SupplierCreditNote and reconciled to bank evidence. The original supplier credit remains unchanged except for its controlled cash-settlement projection.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-PAYMENT

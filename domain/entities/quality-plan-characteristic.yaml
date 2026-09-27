@@ -122,6 +122,16 @@ entity:
       usage: Reuse, semantic interpretation, measurement linkage, and governance.
       cardinalityMeaning: Every configuration references exactly one reusable QualityCharacteristic.
       context: Separating reusable meaning from plan-specific criteria prevents conflicting definitions when the same property is used by multiple plans.
+  - name: testMethod
+    target: TestMethod
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Governed reusable procedure required to evaluate this characteristic in the plan.
+      businessMeaning: Replaces ambiguous free-text method interpretation with an authoritative method definition while allowing method text to remain a historical or integration snapshot.
+      usage: Inspection execution, laboratory testing, reproducibility, training, compliance, and audit.
+      cardinalityMeaning: A plan characteristic uses zero or one governed TestMethod when a reusable controlled method applies.
+      context: TestMethod defines how evidence is produced; this entity defines what criteria that evidence must satisfy.
   - name: samplingPlan
     target: SamplingPlan
     cardinality: 0..1

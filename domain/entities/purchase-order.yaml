@@ -86,6 +86,16 @@ entity:
       usage: Supports supplier returns, inventory reversal, supplier claims and payable reconciliation.
       cardinalityMeaning: One purchase order may have multiple returns across partial deliveries and return events.
       workflowRole: Provides original commitment context for SupplierReturn eligibility without mutating the purchase order history.
+  - name: requestForQuotation
+    target: RequestForQuotation
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Sourcing solicitation from which this order was awarded when applicable., businessMeaning: Preserves demand-to-source-to-order traceability., usage: Procurement compliance, price validation, and audit., cardinalityMeaning: Optional for direct or non-RFQ procurement., workflowRole: Supplies sourcing context without replacing order approval.}
+  - name: supplierQuotation
+    target: SupplierQuotation
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Accepted supplier offer forming the commercial basis of this order when applicable., businessMeaning: Preserves awarded price and term provenance., usage: Order verification, three-way sourcing audit, and supplier analysis., cardinalityMeaning: Optional where procurement does not use supplier quotations., workflowRole: Provides offer evidence while PurchaseOrder remains the external commitment.}
   invariants:
   - {id: PURCHASE-ORDER-001, rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.}
   - {id: PURCHASE-ORDER-002, rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when maintained.}

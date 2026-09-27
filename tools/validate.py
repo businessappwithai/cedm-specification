@@ -33,6 +33,7 @@ REGISTRY = ENTITY_DIR / "index.yaml"
 ENTITY_NAME = re.compile(r"^[A-Z][A-Za-z0-9]*$")
 IDENTIFIER = re.compile(r"^[A-Z0-9-]+$")
 CARDINALITIES = {"0..1", "1", "0..*", "1..*"}
+CARDINALITY_PATTERN = re.compile(r"^(?:0|[1-9][0-9]*)\.\.(?:1|\*)$")
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -77,7 +78,7 @@ def main() -> int:
         entities[name] = (path, entity)
 
         identity = entity.get("identity", {})
-        if not identity.get("key"):
+        if entity.get("kind") != "value_object" and not identity.get("key"):
             errors.append(f"{name}: identity.key is required")
         if identity.get("immutable") is not True:
             errors.append(f"{name}: identity.immutable must be true")
@@ -109,7 +110,7 @@ def main() -> int:
                 cardinality = rel.get("cardinality")
                 if not target:
                     errors.append(f"{name}: relationship target is required")
-                if cardinality not in CARDINALITIES:
+                if cardinality not in CARDINALITIES and not (isinstance(cardinality, str) and CARDINALITY_PATTERN.fullmatch(cardinality)):
                     errors.append(f"{name}.{rel.get('name', '<unnamed>')}: invalid cardinality {cardinality!r}")
 
         invariants = entity.get("invariants", [])

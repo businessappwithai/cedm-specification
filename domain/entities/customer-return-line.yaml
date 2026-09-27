@@ -140,6 +140,16 @@ entity:
       businessMeaning: Provides historical monetary, pricing and tax evidence for the returned quantity.
       usage: Supports credit calculation, audit and reconciliation.
       workflowRole: Supplies source financial evidence to CreditNoteLine.
+  - name: returnDispositions
+    target: ReturnDisposition
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled disposition decisions covering all or part of this returned quantity.
+      businessMeaning: Records explicit restock, quarantine, repair, scrap, reject, accept, or other governed operational outcomes for the line.
+      usage: Partial disposition, quality traceability, inventory execution, reconciliation, and audit.
+      cardinalityMeaning: A return line may have multiple dispositions when its quantity is split across operational outcomes.
+      workflowRole: Disposition quantities must reconcile to the line and authorize, but never replace, resulting InventoryMovement evidence.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
@@ -178,5 +188,5 @@ entity:
     workflowContext: Return authorization → returned quantity → receipt → inspection → disposition → restock/quarantine/repair/scrap → credit eligibility → CreditNoteLine → CreditNote posting. Each consequence is posted through its authoritative workflow.
     lifecycle: Pending → inspected → dispositioned → posted/completed, with controlled correction if necessary.
     changePropagation: Changes to source fulfillment, invoice, product, UOM or policy revalidate open return lines. Posted physical or financial effects are corrected through compensating events.
-    example: Five units returned: three restocked, one quarantined and one scrapped. Only three generate unrestricted positive inventory movement. An approved USD 590 credit becomes a CreditNoteLine and is posted through CreditNote without changing the original InvoiceLine.
+    example: "Five units returned: three restocked, one quarantined and one scrapped. Only three generate unrestricted positive inventory movement. An approved USD 590 credit becomes a CreditNoteLine and is posted through CreditNote without changing the original InvoiceLine."
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CUSTOMER-RETURN-LINE}

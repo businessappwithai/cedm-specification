@@ -129,3 +129,7 @@ entity:
     lifecycle: Draft → approved → posted → partially applied/fully applied or refund due → refunded, with cancellation and reversal paths.
     changePropagation: Changes to return disposition or original invoice evidence trigger revalidation of an unposted credit. Posted credit changes require explicit reversal and replacement. Applications are corrected by reversal/reallocation, and refund payments remain separate evidence.
     example: A customer returns five units with approved credit of USD 590. CreditNote is posted for USD 590. A CreditNoteApplication can consume the credit against an open invoice; if no eligible balance exists, the credit becomes refund due and a separate Payment settles it.
+specification:
+  version: 0.3.0
+  status: draft
+  identifier: CEDM-ENTITY-CREDIT-NOTE
