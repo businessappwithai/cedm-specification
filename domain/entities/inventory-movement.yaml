@@ -109,6 +109,12 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Manufacturing output transaction causing this stock receipt., businessMeaning: Explains production reason for finished/semi-finished stock increase., usage: Genealogy, costing, quality, and reconciliation., cardinalityMeaning: Optional outside manufacturing output., workflowRole: Product, quantity, lot and serial evidence must reconcile.}
+  - name: scrap
+    target: Scrap
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing scrap transaction causing this stock reduction when applicable., businessMeaning: Explains the governed production-loss reason for stock decrease., usage: Yield, costing, quality and inventory reconciliation., cardinalityMeaning: Optional outside manufacturing scrap or when process loss never entered inventory., workflowRole: Product, quantity, lot and serial evidence must reconcile and posting must be idempotent.}
+  invariants:
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.}
   - {id: INVENTORY-MOVEMENT-003, rule: RECEIPT requires targetLocation when inventory is location-managed.}
