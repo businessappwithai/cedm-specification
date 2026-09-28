@@ -9,28 +9,35 @@ registry:
     - AIModel
     - AIPolicy
     - AIPrediction
+    - AccessGrant
     - Account
     - Address
     - Aircraft
     - Allergy
+    - Approval
     - Asset
     - AssetDepreciation
+    - Assignment
     - BOMComponent
     - BankAccount
     - BankLoan
     - BankTransaction
-    - Brand
     - BillOfMaterial
-    - BusinessProcess
-    - BusinessTransaction
+    - Brand
     - Budget
     - BudgetLine
+    - BusinessProcess
+    - BusinessTransaction
+    - BusinessUnit
+    - Calendar
     - CarePlan
     - CashPosition
     - CertificateOfAnalysis
     - ChemicalBatch
+    - Classification
     - Compound
     - ConstructionProject
+    - ContactPoint
     - Container
     - ContainerMovement
     - Contract
@@ -38,6 +45,8 @@ registry:
     - Control
     - CorrectiveAction
     - CorrectiveActionVerification
+    - CostCenter
+    - Country
     - CreditNote
     - CreditNoteApplication
     - CreditNoteLine
@@ -46,14 +55,14 @@ registry:
     - Customer
     - CustomerReturn
     - CustomerReturnLine
-    - CostCenter
     - CustomsDeclaration
     - DataQualityAssessment
     - Dataset
+    - Department
     - Diagnosis
     - DiscountRule
-    - Document
     - Dock
+    - Document
     - ERP
     - EducationCourse
     - EducationProgram
@@ -65,6 +74,7 @@ registry:
     - EnergyMeter
     - EnergyTariff
     - Enrollment
+    - Escalation
     - Event
     - ExchangeRate
     - Experiment
@@ -73,12 +83,12 @@ registry:
     - FarmField
     - FiscalPeriod
     - Flight
-    - Forecast
     - FoodBatch
+    - Forecast
     - GoodsReceipt
     - GoodsReceiptLine
-    - HandlingUnit
     - GovernmentCase
+    - HandlingUnit
     - HealthcareEncounter
     - HealthcareOrder
     - HealthcarePatient
@@ -90,8 +100,8 @@ registry:
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
-    - InventoryBalance
     - InventoryAdjustment
+    - InventoryBalance
     - InventoryCount
     - InventoryLocation
     - InventoryMovement
@@ -99,17 +109,18 @@ registry:
     - InventoryTransfer
     - Invoice
     - InvoiceLine
+    - Job
     - JournalEntry
     - JournalEntryLine
-    - Job
+    - Language
     - Lead
     - Lease
     - Location
     - Lot
     - MaintenancePlan
-    - MaterialIssue
     - MaintenanceWorkOrder
     - ManufacturingWorkOrder
+    - MaterialIssue
     - MediaContent
     - MediaRight
     - Medication
@@ -122,39 +133,43 @@ registry:
     - Operation
     - Opportunity
     - Organization
+    - OrganizationMembership
+    - Packaging
+    - Packing
     - Party
+    - PartyRelationship
     - PartyRole
     - Payment
-    - Payroll
-    - Packaging
     - PaymentAllocation
     - PaymentTerm
-    - Packing
+    - Payroll
     - Permission
     - Person
+    - Picking
     - Policy
     - Position
-    - Picking
     - Prescription
     - Procedure
+    - ProcessDefinition
+    - ProcessInstance
     - Product
     - ProductAttribute
+    - ProductCategory
     - ProductLifecycle
     - ProductVariant
-    - Putaway
-    - ProductCategory
-    - ProductionRecord
     - ProductionReceipt
+    - ProductionRecord
     - ProfessionalEngagement
+    - ProfitCenter
     - Project
     - ProjectPhase
     - ProjectTask
     - Property
-    - ProfitCenter
     - PurchaseOrder
     - PurchaseOrderLine
     - PurchaseRequisition
     - PurchaseRequisitionLine
+    - Putaway
     - QualityCharacteristic
     - QualityInspection
     - QualityMeasurement
@@ -165,35 +180,33 @@ registry:
     - RegulatorySubmission
     - RepairEstimate
     - RepairEstimateLine
-    - ResearchProject
-    - ResourceAssignment
     - RequestForQuotation
     - RequestForQuotationLine
+    - ResearchProject
+    - ResourceAssignment
     - RetailSale
-    - Routing
     - RetailSaleLine
     - ReturnDisposition
     - Risk
     - RiskTreatment
     - Role
+    - Routing
     - SalesOrder
     - SalesOrderLine
-    - Scenario
-    - Scrap
     - Sample
     - SamplingPlan
     - SamplingRule
+    - Scenario
+    - Scrap
     - SecurityIncident
     - SerialNumber
-    - ServiceRequest
     - ServiceLevelAgreement
+    - ServiceRequest
     - Shipment
     - ShipmentLine
     - ShoppingCart
     - ShoppingCartLine
     - Store
-    - SupplierQuotation
-    - SupplierQuotationLine
     - Supplier
     - SupplierClaim
     - SupplierClaimResolution
@@ -204,12 +217,15 @@ registry:
     - SupplierDebitNoteApplication
     - SupplierDebitNoteLine
     - SupplierPerformanceAssessment
+    - SupplierQuotation
+    - SupplierQuotationLine
     - SupplierReturn
     - SupplierReturnLine
     - SupplyPlan
     - SupplyPlanLine
     - Task
     - TaxRule
+    - Team
     - TelecomService
     - TelecomSubscription
     - TestMethod
@@ -219,9 +235,9 @@ registry:
     - TripSegment
     - UnitOfMeasure
     - User
+    - Variance
     - Vehicle
     - VehicleModel
-    - Variance
     - Warehouse
     - WarehouseZone
     - Wave
