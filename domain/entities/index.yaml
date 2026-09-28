@@ -36,6 +36,7 @@ registry:
     - Brand
     - Budget
     - BudgetLine
+    - BusinessEvent
     - BusinessProcess
     - BusinessTransaction
     - BusinessUnit
@@ -80,6 +81,7 @@ registry:
     - DataQualityAssessment
     - Dataset
     - Delivery
+    - DeliveryAttempt
     - Department
     - Deposit
     - Diagnosis
@@ -133,6 +135,7 @@ registry:
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
+    - IntegrationEndpoint
     - Interest
     - InventoryAdjustment
     - InventoryBalance
@@ -163,6 +166,7 @@ registry:
     - MediaContent
     - MediaRight
     - Medication
+    - Message
     - MeterReading
     - Milestone
     - MiningSite
