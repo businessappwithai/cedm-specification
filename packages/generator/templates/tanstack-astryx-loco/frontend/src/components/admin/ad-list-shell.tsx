@@ -1,7 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Home, Plus, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { DynamicTable } from "@/components/tables/dynamic-table";
@@ -330,6 +330,10 @@ export function ADListShell({
   const [pendingRows, setPendingRows] = useState<FilterRow[]>([]);
   const [appliedRows, setAppliedRows] = useState<FilterRow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  // The toolbar's Save submits the inline create form by id, through the
+  // form's own submit handler. Without it the toolbar offered a Save while the
+  // form was open and the button did nothing.
+  const createFormId = useId();
   const [createErrors, setCreateErrors] = useState<string[]>([]);
 
   // The physical table behind this window, from the dictionary. Empty for the
@@ -435,6 +439,13 @@ export function ADListShell({
         }}
         isAdvancedSearchOpen={searchOpen}
         advancedFilterCount={activeFilterCount}
+        onSave={() =>
+          (document.getElementById(createFormId) as HTMLFormElement | null)?.requestSubmit()
+        }
+        onUndo={() => {
+          setIsCreating(false);
+          setCreateErrors([]);
+        }}
         isSaving={createMutation.isPending}
         isDeleting={false}
         hasChanges={isCreating}
@@ -527,6 +538,7 @@ export function ADListShell({
               fields={level.formFields}
               initialData={{}}
               onSubmit={(fd) => createMutation.mutate(fd)}
+              formId={createFormId}
               mode="create"
               isSaving={createMutation.isPending}
             />

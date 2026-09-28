@@ -198,15 +198,98 @@ export function getEntity(name: string): EntityMeta {
 }
 
 /**
- * Entities ordered so that a record's foreign-key targets are created first.
+ * FK columns naming a person by the role they played rather than by entity.
+ * Mirrors `foreignKeys.personRoleColumns` in appwithai-language.json and the
+ * backend's own COLUMN_TABLE_ALIASES.
+ */
+const PERSON_ROLE_COLUMNS = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/**
+ * Prefixes naming the role a reference plays rather than a different entity.
+ * Mirrors `foreignKeys.qualifierPrefixes` in appwithai-language.json.
+ */
+const QUALIFIER_PREFIXES = ["parent_"];
+
+function entityByStem(stem: string): EntityMeta | null {
+  return (
+    entities.find(
+      (e) =>
+        e.route === stem || e.tableName === `bus_${stem}` || e.name.toLowerCase() === stem.toLowerCase()
+    ) ?? null
+  );
+}
+
+/**
+ * Map a foreign-key column (`customer_id`) to the entity it references.
+ *
+ * A `_by` column points at a user, so it resolves to the user entity rather
+ * than to the table its name would suggest — there is no `bus_reported_by`.
+ * Getting this wrong leaves a mandatory FK unset and every create in the
+ * suite fails validation.
+ */
+export function referencedEntity(columnName: string): EntityMeta | null {
+  if (
+    columnName.endsWith("_by_id") ||
+    columnName.endsWith("_by") ||
+    PERSON_ROLE_COLUMNS.has(columnName)
+  ) {
+    const user = entityByStem("user");
+    if (user) return user;
+  }
+
+  // A qualifier names the role the reference plays, not another entity: a
+  // Sample's `parent_sample_id` is a Sample, and there is no
+  // `bus_parent_sample` to create one in.
+  const qualified = QUALIFIER_PREFIXES.find((prefix) => columnName.startsWith(prefix));
+  if (qualified) {
+    const stripped = columnName.slice(qualified.length);
+    if (PERSON_ROLE_COLUMNS.has(stripped)) {
+      const user = entityByStem("user");
+      if (user) return user;
+    }
+    if (stripped.endsWith("_id")) {
+      const parent = entityByStem(stripped.slice(0, -3));
+      if (parent) return parent;
+    }
+  }
+
+  if (!columnName.endsWith("_id")) return null;
+  return entityByStem(columnName.slice(0, -3));
+}
+
+/**
+ * Entities ordered so that a record's foreign-key targets are created first —
+ * and so, reversed, that a record is deleted before anything it references.
  * Falls back to declaration order for cycles.
+ *
+ * The edges are every foreign-key column resolved by `referencedEntity`, the
+ * same rule the suites use to fill those columns, plus the relationships the
+ * model declares. Relationships alone missed every reference a column name
+ * implies: `Compound.registered_by_id` is a User, but no relationship says so,
+ * so Compound sorted ahead of User, the bulk seed had no user to point at, and
+ * all 1000 compounds — then every alias of them — were refused.
  */
 export function topologicalEntities(): EntityMeta[] {
   const byName = new Map(entities.map((e) => [e.name, e]));
   const dependencies = new Map<string, Set<string>>();
 
   for (const entity of entities) {
-    dependencies.set(entity.name, new Set());
+    const references = new Set<string>();
+    for (const field of foreignKeyFields(entity)) {
+      const target = referencedEntity(field.name);
+      if (target) references.add(target.name);
+    }
+    dependencies.set(entity.name, references);
   }
   for (const rel of relationships) {
     // manyToOne / oneToOne: the source holds the FK, so the target must exist first.

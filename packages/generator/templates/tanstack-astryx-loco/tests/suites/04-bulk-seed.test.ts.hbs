@@ -28,37 +28,94 @@ import {
 /** Ids created per entity, reused to satisfy the next entity's foreign keys. */
 const createdIds = new Map<string, string[]>();
 
+/**
+ * Requests a minute the backend allows one caller, as it advertises in
+ * `ratelimit-limit`; 0 when the limiter is off.
+ *
+ * `bun run test` starts the backend with the limiter off, but `test:attach`
+ * runs against one someone else started — 300 a minute in development. The
+ * harness waits out every 429, so the records still land, just no faster than
+ * the budget: 1000 of them take more than three minutes, which a timeout sized
+ * for an unthrottled server cut off on every entity. Read once, before any
+ * test is registered, because a test's timeout is fixed when it is declared.
+ */
+const budgetPerMinute =
+  Number(
+    (await fetch(`${config.baseUrl}${config.apiPrefix}/sys/tables?limit=1`)).headers.get(
+      "ratelimit-limit"
+    )
+  ) || 0;
+
+/** How long seeding `count` records may take through the rules + audit pipeline. */
+function seedTimeoutMs(count: number): number {
+  const pipeline = Math.max(120_000, count * 200);
+  if (budgetPerMinute === 0) return pipeline;
+  // One POST per record: a full window per budget's worth, plus one to spare.
+  return pipeline + (Math.ceil(count / budgetPerMinute) + 1) * 60_000;
+}
+
+/**
+ * How many times a record the application refuses is rebuilt from fresh values.
+ *
+ * A model's business rules refuse input the factory has no way to foresee —
+ * crm's quote policy refuses any discount above 40 percent, and a percentage
+ * drawn from 0–100 breaks it more often than not. The rules are zen
+ * expressions evaluated by the backend; restating them here would be a second
+ * rules engine to keep in step with the first. So the seed does what a person
+ * at the form does when a rule says no: it submits different values. A record
+ * still refused after every attempt counts as rejected, and a rule no value
+ * can satisfy still fails the suite.
+ */
+const REBUILD_ATTEMPTS = 8;
+
 /** Insert records in bounded-concurrency batches so we do not open 1000 sockets. */
 async function seedEntity(
   entity: EntityMeta,
   count: number
-): Promise<{ created: number; failed: number }> {
+): Promise<{ created: number; failed: number; rebuilt: number }> {
   const fks = foreignKeyFields(entity);
   const ids: string[] = [];
   let failed = 0;
+  let rebuilt = 0;
+
+  const post = (payload: Record<string, unknown>) =>
+    harness.client.post<{ id: string }>(`/bus/${entity.route}`, payload, { allowFailure: true });
 
   for (let offset = 0; offset < count; offset += config.seedBatchSize) {
     const size = Math.min(config.seedBatchSize, count - offset);
 
-    const payloads = Array.from({ length: size }, (_unused, index) => {
+    const foreignKeysFor = (position: number): Record<string, string> => {
       const foreignKeys: Record<string, string> = {};
       for (const fk of fks) {
         const parent = harness.resolveParentEntity(fk.name);
         if (!parent) continue;
         const pool = createdIds.get(parent.route);
         if (pool && pool.length > 0) {
-          foreignKeys[fk.name] = pool[(offset + index) % pool.length]!;
+          foreignKeys[fk.name] = pool[position % pool.length]!;
         }
       }
-      return buildRecord(entity, { foreignKeys, uniqueSalt: `${offset + index}` });
-    });
+      return foreignKeys;
+    };
 
     const results = await Promise.allSettled(
-      payloads.map((payload) =>
-        harness.client.post<{ id: string }>(`/bus/${entity.route}`, payload, {
-          allowFailure: true,
-        })
-      )
+      Array.from({ length: size }, async (_unused, index) => {
+        const position = offset + index;
+        const foreignKeys = foreignKeysFor(position);
+        let response = await post(buildRecord(entity, { foreignKeys, uniqueSalt: `${position}` }));
+        // Only a validation refusal is worth another draw; anything else would
+        // fail the same way with any values.
+        for (
+          let attempt = 1;
+          !response.ok && response.status === 400 && attempt <= REBUILD_ATTEMPTS;
+          attempt++
+        ) {
+          rebuilt += 1;
+          response = await post(
+            buildRecord(entity, { foreignKeys, uniqueSalt: `${position}r${attempt}` })
+          );
+        }
+        return response;
+      })
     );
 
     for (const result of results) {
@@ -78,7 +135,7 @@ async function seedEntity(
     recordsPerEntity: count,
   });
 
-  return { created: ids.length, failed };
+  return { created: ids.length, failed, rebuilt };
 }
 
 describe("bulk seed", () => {
@@ -103,19 +160,19 @@ describe("bulk seed", () => {
     it(
       `seeds ${target} ${entity.displayName} records`,
       async () => {
-        const { created, failed } = await seedEntity(entity, target);
+        const { created, failed, rebuilt } = await seedEntity(entity, target);
 
         console.log(
           `    ${entity.displayName}: created ${created}/${target}` +
-            (failed > 0 ? ` (${failed} rejected)` : "")
+            (failed > 0 ? ` (${failed} rejected)` : "") +
+            (rebuilt > 0 ? ` (${rebuilt} redrawn after a validation refusal)` : "")
         );
 
         // Allow a small rejection margin for unique-constraint collisions the
         // factory cannot foresee, but the bulk of the batch must land.
         expect(created).toBeGreaterThanOrEqual(Math.floor(target * 0.95));
       },
-      // Generous: 1000 inserts through the full rules + audit pipeline.
-      Math.max(120_000, target * 200)
+      seedTimeoutMs(target)
     );
 
     it(`reports the seeded ${entity.displayName} rows in the list total`, async () => {

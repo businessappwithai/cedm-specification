@@ -113,6 +113,11 @@ pub struct PromotionOutcome {
     /// *sent*, and returning a body that contradicts the row just written is
     /// worse than not transforming at all. The caller merges these back.
     pub transformed: Map<String, Value>,
+    /// Whether an action ran that can write rows it does not name up front —
+    /// a `trigger-workflow` or a `cascade-update`, either of which may land on
+    /// the row that fired the rule. Unlike `transformed`, what they wrote is not
+    /// known here, so the caller re-reads the row when this is set.
+    pub side_effects_ran: bool,
 }
 
 impl PromotionOutcome {
@@ -162,7 +167,8 @@ impl PromotionService {
     ) -> AppResult<PromotionOutcome> {
         if jdms.is_empty() {
             // No rules configured for this entity: nothing can block it.
-            return self.finalize(meta, row, STATUS_FINAL, None, Map::new()).await;
+            return self.finalize(meta, row, STATUS_FINAL, None, Map::new(), false)
+                .await;
         }
 
         let data: Map<String, Value> = row
@@ -199,7 +205,7 @@ impl PromotionService {
             // to exist, so cascading off it would leave the other tables
             // describing something that never happened.
             return self
-                .finalize(meta, row, STATUS_REJECTED, Some(message), Map::new())
+                .finalize(meta, row, STATUS_REJECTED, Some(message), Map::new(), false)
                 .await;
         }
 
@@ -208,6 +214,7 @@ impl PromotionService {
         // multi-step rule, which is indistinguishable from the rule not
         // matching at all.
         let mut transformed = Map::new();
+        let mut side_effects_ran = false;
 
         for action in results
             .iter()
@@ -231,6 +238,11 @@ impl PromotionService {
                 continue;
             }
 
+            // Set before the action runs: one that fails part-way may still
+            // have written.
+            if matches!(action.action_type.as_str(), "trigger-workflow" | "cascade-update") {
+                side_effects_ran = true;
+            }
             if let Err(err) = self.run_action(meta, row, action).await {
                 // A side effect that fails must not fail the write that
                 // triggered it — the record is valid, and the rule is
@@ -244,7 +256,8 @@ impl PromotionService {
             }
         }
 
-        self.finalize(meta, row, STATUS_FINAL, None, transformed).await
+        self.finalize(meta, row, STATUS_FINAL, None, transformed, side_effects_ran)
+            .await
     }
 
     /// Carry out one non-blocking rule action.
@@ -492,11 +505,13 @@ impl PromotionService {
         status: &str,
         message: Option<String>,
         transformed: Map<String, Value>,
+        side_effects_ran: bool,
     ) -> AppResult<PromotionOutcome> {
         let outcome = PromotionOutcome {
             doc_status: status.to_string(),
             message,
             transformed,
+            side_effects_ran,
         };
 
         let Some(id) = row.get("id").and_then(Value::as_str) else {

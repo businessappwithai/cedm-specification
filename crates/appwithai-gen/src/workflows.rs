@@ -146,25 +146,35 @@ pub fn compile_state_machine_declarations(
     compiled
 }
 
+/// The language's lifecycle column names, in the order a machine's column is
+/// chosen from them. Mirrors `LIFECYCLE_COLUMN_NAMES` in
+/// `language/yaml/checker.ts`, the list `EML500` checks a machine's entity
+/// against; the parity gate holds the two generators to the same choice.
+pub const LIFECYCLE_COLUMNS: [&str; 3] = ["status", "state", "stage"];
+
+/// The first lifecycle column `has` reports, or `workflow_status` — the column
+/// `m0003_workflow_support` adds to every business table — when there is none.
+pub fn lifecycle_column(has: impl Fn(&str) -> bool) -> &'static str {
+    LIFECYCLE_COLUMNS
+        .into_iter()
+        .find(|name| has(name))
+        .unwrap_or("workflow_status")
+}
+
 /// The column a machine drives.
 ///
-/// `status` when the entity declares one; `workflow_status` otherwise — the
-/// column `m0003_workflow_support` adds to every business table for this case.
 /// Both the transitions seed and the access seed resolve it here, because a
-/// rule naming a different column from the edge it guards is inert.
+/// rule naming a different column from the edge it guards is inert. It used to
+/// look for `status` alone, so crm's Opportunity — whose lifecycle is `stage`,
+/// which the checker accepts — had its machine compiled onto
+/// `workflow_status`, and `stage` accepted any move.
 pub fn status_field_for(
     table_name: &str,
     columns_by_table: &HashMap<String, Vec<String>>,
 ) -> String {
-    let has_status = columns_by_table
-        .get(table_name)
-        .is_some_and(|columns| columns.iter().any(|column| column == "status"));
-    if has_status {
-        "status"
-    } else {
-        "workflow_status"
-    }
-    .to_string()
+    let columns = columns_by_table.get(table_name);
+    lifecycle_column(|name| columns.is_some_and(|columns| columns.iter().any(|c| c == name)))
+        .to_string()
 }
 
 pub struct TransitionsSeedOptions<'a> {
@@ -353,6 +363,24 @@ mod tests {
         assert_eq!(status_field_for("bus_task", &columns), "workflow_status");
         // A table the map does not know at all is the same case.
         assert_eq!(status_field_for("bus_ghost", &columns), "workflow_status");
+    }
+
+    #[test]
+    fn a_stage_or_state_column_carries_the_machine() {
+        let mut columns = HashMap::new();
+        columns.insert(
+            "bus_opportunity".to_string(),
+            vec!["name".to_string(), "stage".to_string()],
+        );
+        columns.insert("bus_ticket".to_string(), vec!["state".to_string()]);
+        columns.insert(
+            "bus_order".to_string(),
+            vec!["stage".to_string(), "status".to_string()],
+        );
+        assert_eq!(status_field_for("bus_opportunity", &columns), "stage");
+        assert_eq!(status_field_for("bus_ticket", &columns), "state");
+        // The language's order decides when an entity has more than one.
+        assert_eq!(status_field_for("bus_order", &columns), "status");
     }
 
     #[test]

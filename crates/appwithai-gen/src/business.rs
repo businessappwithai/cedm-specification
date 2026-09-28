@@ -18,7 +18,7 @@ use uuid::Uuid;
 use crate::bus::{foreign_key_target_table, BusAttribute, BusEntity};
 use crate::dictionary::{insert, now, text, Sql, NAMESPACE};
 use crate::model::{ModelEnum, Relationship};
-use crate::workflows::CompiledWorkflow;
+use crate::workflows::{lifecycle_column, CompiledWorkflow};
 
 /// Enough to fill a grid, show a lookup with choices, and page a list.
 ///
@@ -346,14 +346,8 @@ fn status_states(
         let Some(initial) = workflow.initial.as_ref() else {
             continue;
         };
-        let column = if columns_by_table
-            .get(workflow.table_name.as_str())
-            .is_some_and(|columns| columns.contains("status"))
-        {
-            "status"
-        } else {
-            "workflow_status"
-        };
+        let columns = columns_by_table.get(workflow.table_name.as_str());
+        let column = lifecycle_column(|name| columns.is_some_and(|c| c.contains(name)));
         states.insert(
             workflow.table_name.clone(),
             Machine {

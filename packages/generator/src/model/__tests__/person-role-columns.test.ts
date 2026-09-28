@@ -52,7 +52,7 @@ const MIRRORS: Array<{ label: string; file: string; anchor: string }> = [
   },
   {
     label: "the generated bun harness",
-    file: "packages/generator/templates/tanstack-astryx-loco/tests/harness/harness.ts.hbs",
+    file: "packages/generator/templates/tanstack-astryx-loco/tests/harness/entities.ts.hbs",
     anchor: "PERSON_ROLE_COLUMNS",
   },
   {

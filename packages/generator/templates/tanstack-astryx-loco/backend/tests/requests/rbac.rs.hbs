@@ -176,11 +176,28 @@ async fn restrict(pool: &PgPool, table_name: &str, operation: &str, role_name: &
     .expect("inserting an operation rule");
 }
 
+/// Leave `table_name` with no operation rule in force.
+///
+/// This suite's own rules are deleted; the model's are set aside by
+/// deactivating them, never deleted. Deleting by table took the model's rules
+/// with it for the rest of the binary, so every later suite ran against an
+/// application with fewer restrictions than the model declares.
+/// `support::with_app` reactivates them on entry to the next test, including
+/// after a test that failed before reaching its own cleanup.
 async fn clear_rules(pool: &PgPool, table_name: &str) {
-    let _ = sqlx::query("DELETE FROM sys_operation_access WHERE table_name = $1")
-        .bind(table_name)
-        .execute(pool)
-        .await;
+    let _ = sqlx::query(
+        "DELETE FROM sys_operation_access WHERE table_name = $1 AND is_model_managed = FALSE",
+    )
+    .bind(table_name)
+    .execute(pool)
+    .await;
+    let _ = sqlx::query(
+        "UPDATE sys_operation_access SET is_active = FALSE, updated_at = NOW()
+          WHERE table_name = $1 AND is_model_managed = TRUE",
+    )
+    .bind(table_name)
+    .execute(pool)
+    .await;
 }
 
 /// A rule closes an operation to the roles it names, and to nobody else.
@@ -296,15 +313,23 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
 
         // One edge, so the table has a machine at all. Without any rows the
         // guard has nothing to enforce and every move is legitimate.
-        sqlx::query(
+        //
+        // The id comes back only when this test created the row. When the model
+        // already draws `draft → approved` the insert is a no-op and the edge is
+        // the model's, so it is not this test's to remove — and the table's
+        // other edges never are. Deleting by table once took every edge the
+        // model drew for this entity with it, and `model_transitions` then
+        // failed or passed depending on which of the two ran first.
+        let probe_edge: Option<String> = sqlx::query_scalar(
             r"INSERT INTO sys_workflow_transitions (
                    sys_workflow_transition_id, table_name, status_field,
                    from_state, to_state, transition_name, is_active, created_at)
                VALUES (gen_random_uuid(), $1, 'status', 'draft', 'approved', 'approve', TRUE, NOW())
-               ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING",
+               ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING
+               RETURNING sys_workflow_transition_id::text",
         )
         .bind(entity.table_name)
-        .execute(pool)
+        .fetch_optional(pool)
         .await
         .expect("seeding one transition edge");
 
@@ -327,10 +352,14 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
         let undrawn = patch("nowhere").await;
         let drawn = patch("approved").await;
 
-        let _ = sqlx::query("DELETE FROM sys_workflow_transitions WHERE table_name = $1")
-            .bind(entity.table_name)
+        if let Some(edge) = probe_edge {
+            let _ = sqlx::query(
+                "DELETE FROM sys_workflow_transitions WHERE sys_workflow_transition_id = $1::uuid",
+            )
+            .bind(edge)
             .execute(pool)
             .await;
+        }
 
         assert_eq!(
             undrawn, 400,

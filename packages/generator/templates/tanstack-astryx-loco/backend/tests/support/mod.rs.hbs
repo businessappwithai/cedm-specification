@@ -78,16 +78,23 @@ async fn seed_once(ctx: &AppContext) {
 /// unrelated ones. Clearing on entry makes each test independent of whatever
 /// the last one did or failed to undo.
 ///
+/// The access rules get the same treatment. `requests::rbac` authors operation
+/// rules of its own and sets the model's aside while it probes a table, so on
+/// entry every test sees exactly the rules the model declared: the suite's
+/// leftovers removed and the model's back in force.
+///
 /// Straight to the database rather than through the API: this is setup, and it
 /// must work even when the thing under test does not.
 async fn clear_test_rules(ctx: &AppContext) {
     use sea_orm::ConnectionTrait;
-    let _ = ctx
-        .db
-        .execute_unprepared(
-            "UPDATE sys_rule_definitions SET is_active = false WHERE rule_name LIKE 'e2e-%'",
-        )
-        .await;
+    for statement in [
+        "UPDATE sys_rule_definitions SET is_active = false WHERE rule_name LIKE 'e2e-%'",
+        "DELETE FROM sys_operation_access WHERE is_model_managed = FALSE",
+        "UPDATE sys_operation_access SET is_active = TRUE, updated_at = NOW() \
+         WHERE is_model_managed = TRUE AND is_active = FALSE",
+    ] {
+        let _ = ctx.db.execute_unprepared(statement).await;
+    }
 }
 
 /// Sign in as the administrator and return the bearer token.

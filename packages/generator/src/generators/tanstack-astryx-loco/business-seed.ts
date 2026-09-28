@@ -36,6 +36,7 @@ import type { BusEntity, BusEntityAttribute } from "@appwithai/core/types";
 import { foreignKeyTargetTable, ReferenceType } from "@appwithai/core/types";
 import type { CompiledWorkflow } from "../../workflows/state-machine";
 import { insert, raw, type SqlValue, uuidv5 } from "./dictionary-seed";
+import { statusFieldFor } from "./transitions-seed";
 
 export interface BusinessSeedOptions {
   projectName: string;
@@ -313,9 +314,8 @@ function isReferenceColumn(column: string): boolean {
 /**
  * Physical table → the status column and the state a record starts in.
  *
- * The column is resolved the same way `statusFieldFor` resolves it for
- * `seed/transitions.sql`: the entity's own `status` when it declares one, and
- * `workflow_status` otherwise. Naming a different column here would seed a
+ * The column is resolved by `statusFieldFor`, the function that resolves it
+ * for `seed/transitions.sql`. Naming a different column here would seed a
  * state onto one column while the guard reads the other, and every record
  * would be stuck in the `none` the schema defaults to.
  */
@@ -333,9 +333,7 @@ function statusStates(
   const states = new Map<string, { column: string; state: string }>();
   for (const workflow of workflows) {
     if (!workflow.initial) continue;
-    const column = columnsByTable.get(workflow.tableName)?.has("status")
-      ? "status"
-      : "workflow_status";
+    const column = statusFieldFor(workflow.tableName, columnsByTable);
     states.set(workflow.tableName, { column, state: workflow.initial });
   }
   return states;

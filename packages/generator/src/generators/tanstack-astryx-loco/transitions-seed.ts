@@ -12,13 +12,13 @@
  *
  * ## The status column
  *
- * Every machine drives one column, and which one is decided the same way the
- * workflow seed decides it: `status` when the entity has one, `workflow_status`
- * otherwise. A guard reading a different column from the one the transition
- * writes would make every restriction inert, so the rule lives in one function
- * and both callers use it.
+ * Every machine drives one column: the entity's lifecycle column, as the
+ * language names them, or `workflow_status` when it has none. A guard reading a
+ * different column from the one the transition writes would make every
+ * restriction inert, so the rule lives in one function and every seed uses it.
  */
 
+import { LIFECYCLE_COLUMN_NAMES } from "../../../../../language/yaml/checker";
 import type { CompiledWorkflow } from "../../workflows/state-machine";
 import { insert, raw, uuidv5 } from "./dictionary-seed";
 
@@ -34,12 +34,25 @@ const NOW = raw("NOW()");
 /**
  * The column a machine drives.
  *
- * `status` when the entity declares one; `workflow_status` otherwise — which is
- * the column `m0003_workflow_support` adds to every business table for exactly
- * this case.
+ * The first of the language's lifecycle columns the entity declares —
+ * `status`, `state`, `stage`, in that order (`LIFECYCLE_COLUMN_NAMES`, the list
+ * `EML500` checks a machine's entity against) — and `workflow_status`, the
+ * column `m0003_workflow_support` adds to every business table, when it
+ * declares none.
+ *
+ * It used to look for `status` alone. crm's Opportunity keeps its lifecycle in
+ * `stage`, which the checker accepts, so its machine was compiled onto
+ * `workflow_status`: the stage topology the model draws guarded a column
+ * nothing writes stages to, and `stage` itself accepted any move.
  */
-export function statusFieldFor(tableName: string, columnsByTable: Map<string, string[]>): string {
-  return columnsByTable.get(tableName)?.includes("status") ? "status" : "workflow_status";
+export function statusFieldFor(
+  tableName: string,
+  columnsByTable: Map<string, readonly string[] | ReadonlySet<string>>
+): string {
+  const columns = columnsByTable.get(tableName);
+  const has = (name: string) =>
+    columns === undefined ? false : "has" in columns ? columns.has(name) : columns.includes(name);
+  return [...LIFECYCLE_COLUMN_NAMES].find(has) ?? "workflow_status";
 }
 
 export function buildTransitionsSeedSql(options: TransitionsSeedOptions): string {

@@ -545,7 +545,7 @@ Things to know before editing it:
   The canonical rules live in `foreignKeys` in `language/appwithai-language.json`
   and are mirrored in **seven** places that must agree: the backend's
   `dictionary.rs`, the generated `tests/support/entities.rs`, the bun
-  `tests/harness/harness.ts`, `common/seeds/business-data.ts`,
+  `tests/harness/entities.ts` (`referencedEntity`, which also orders the bulk seed and its cleanup), `common/seeds/business-data.ts`,
   `language/checker.ts`, and `isForeignKeyColumnName` /
   `is_foreign_key_column_name` in `bus-entity.types.ts` and `bus.rs`. Change
   one, change all of them.

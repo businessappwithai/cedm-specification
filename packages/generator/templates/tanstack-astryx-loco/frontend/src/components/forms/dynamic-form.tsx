@@ -50,6 +50,12 @@ interface DynamicFormProps {
   readOnlyFields?: string[];
   /** Data from the immediate parent record — used to filter lookup dropdowns (e.g. filter columns by parent tab's sys_table_id) */
   parentContext?: Record<string, unknown>;
+  /**
+   * `id` of the rendered `<form>`, so a control outside it — a toolbar Save —
+   * can submit it with `requestSubmit()` and go through the same validation and
+   * normalisation as the form's own button.
+   */
+  formId?: string;
 }
 
 const REFERENCE_TYPE = {
@@ -843,6 +849,7 @@ export function DynamicForm({
   parentField,
   readOnlyFields = [],
   parentContext,
+  formId,
 }: DynamicFormProps) {
   const { t } = useTranslations();
   const {
@@ -1066,7 +1073,7 @@ export function DynamicForm({
   return (
     <form.Provider>
       {onChange && <FormChangeNotifier form={form} onChange={onChange} />}
-      <form onSubmit={handleFormSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleFormSubmit} className="space-y-6">
         {/* Form summary bar */}
         <HStack align="center" justify="between">
           <HStack align="center" gap={3}>

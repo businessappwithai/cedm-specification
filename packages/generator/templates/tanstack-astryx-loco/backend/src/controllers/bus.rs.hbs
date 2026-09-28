@@ -210,6 +210,8 @@ pub async fn create(
     )
     .await;
 
+    settle_row(&repo, &table, &mut row, &outcome).await?;
+
     // After the audit entry, so the trail records the write whatever the hook
     // does. An `after*` hook cannot undo the write — an error here surfaces to
     // the caller with the row already committed.
@@ -296,6 +298,8 @@ pub async fn update(
         &auth.user,
     )
     .await;
+
+    settle_row(&repo, &table, &mut row, &outcome).await?;
 
     // After the audit entry, and unable to undo the write — see `create`.
     hooks::after_update(&meta.table_name, &row).await?;
@@ -513,6 +517,42 @@ fn with_etag(row: &Value, mut response: Response) -> Response {
 }
 
 /// The row's primary key, as the audit log stores it (`entity_id` is VARCHAR).
+/// Bring the response up to date with what a rule's side effects wrote.
+///
+/// A `trigger-workflow` or `cascade-update` action runs inside this request
+/// and can write the row that fired it — a saga moving a quote to `in_review`
+/// is the common case. The response used to describe the row as it stood
+/// before they ran: crm's create answered `draft` for a quote the database
+/// already held as `in_review`, a caller acting on that status asked for a
+/// move out of a state the record had left, and the `version` — so the ETag
+/// a conditional update sends back — was one behind. A transform's columns are
+/// known and merged by `apply_promotion`; a workflow's are not, so the row is
+/// read back whole. It runs after the audit entry, which records the write
+/// the caller made.
+async fn settle_row(
+    repo: &DynamicRepo,
+    table: &crate::services::dictionary::TableName,
+    row: &mut Value,
+    outcome: &PromotionOutcome,
+) -> AppResult<()> {
+    if !outcome.side_effects_ran {
+        return Ok(());
+    }
+    let Some(id) = row
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+    else {
+        return Ok(());
+    };
+    if let (Some(Value::Object(settled)), Value::Object(map)) =
+        (repo.find_by_id(table, id).await?, row)
+    {
+        map.extend(settled);
+    }
+    Ok(())
+}
+
 fn row_id(row: &Value) -> Option<String> {
     row.get("id").map(|id| match id {
         // Already a string for UUID keys; anything else is rendered rather
