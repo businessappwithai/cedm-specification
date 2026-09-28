@@ -8,9 +8,9 @@
 
 # Written as the worked example for the interactive authoring protocol in
 # llmtext/llmdetailed.txt §10, so it holds that section's standard: help text
-# on every entity and every column, one %%rbac read rule per entity, and every
-# state backed by a declared %%enum. 0 errors, 0 warnings, clean under
-# --strict. Every diagram is valid, renderable Mermaid.
+# on every entity and every column, one rbac read rule per entity, and every
+# state backed by a declared enum. 0 errors, 0 warnings, clean under
+# --strict.
 # ============================================================================
 
 
@@ -459,12 +459,12 @@ reports:
   # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
 
   # What the derived pack already gives this model without being asked: a
-  # register per entity, a breakdown per %%enum-bound column, created-per-month,
+  # register per entity, a breakdown per enum-bound column, created-per-month,
   # a lifecycle report over both state machines in the diagram's own order, and
   # children-per-parent for all 10 relationships. None of that needed anyone who
   # understands how a studio fills a room.
 
-  # These do. Each of the four roles on the %%rbac matrix above is walked through
+  # These do. Each of the four roles on the rbac matrix above is walked through
   # the four questions — what they open first, what tells them something is wrong
   # today, what they are asked for weekly, and what rots silently if nobody
   # looks — so each can do its whole job from what it can see.

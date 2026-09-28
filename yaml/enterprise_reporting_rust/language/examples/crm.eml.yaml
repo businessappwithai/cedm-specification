@@ -2,11 +2,8 @@
 # Enterprise Customer Relationship Management Platform
 # EML — complete model: ERD · business rules · workflows
 
-# Every rule, state and saga diagram below is stock Mermaid and renders as
-# drawn. The ERD carries EML's OPTIONAL modifier, which Mermaid's ER grammar
-# has no equivalent for, so it renders through toRenderableMermaid()
-# (packages/web/src/lib/mermaid-render.ts) — the normalization the application
-# applies to every ERD before handing it to Mermaid.
+# Every entity, rule, state machine and saga below is drawn by the model
+# viewer from this document; the YAML itself is what every generator reads.
 
 # Scope: the whole commercial lifecycle, front to back —
 #   marketing   Campaign, CampaignMember, Lead
@@ -16,11 +13,11 @@
 #   operations  User, Team, Territory, Activity
 
 # Generate:
-#   bun run generate:tanstack -- -i language/examples/crm.eml.mmd \
+#   bun run generate:tanstack -- -i language/examples/crm.eml.yaml \
 #     -o generated-projects/crm -n crm
 
 # Check:
-#   bun language/checker.ts language/examples/crm.eml.mmd
+#   bun language/cli/eml.ts validate -i language/examples/crm.eml.yaml
 
 # ---- How the three layers fit together --------------------------------------
 # Structure is the ERD in Section 1. Everything after it is behaviour, and the
@@ -37,7 +34,7 @@
 #                    renewal playbook.
 
 # Three of the sagas are `trigger: rule` — they run only when a rule's
-# %%action names them, so the rule's condition is what decides. The other two
+# action names them, so the rule's condition is what decides. The other two
 # run on the entity's own lifecycle. Both halves of that pairing are here on
 # purpose: it is the difference between "escalate when the discount is out of
 # policy" and "hand off every opportunity that closes".
@@ -1862,7 +1859,7 @@ rules:
       - from: N
         to: Z
   # ---- Section 4: Business rule — lead qualification gate --------------------
-  # The gate a lead has to pass before it becomes an account. Its %%action is
+  # The gate a lead has to pass before it becomes an account. Its action is
   # what makes the conversion saga in Section 22 run — without it the saga would
   # either fire on every lead update or never fire at all.
   - name: leadQualification
@@ -2291,7 +2288,7 @@ rules:
 
   # ---- Section 8: Business rule — support case triage ------------------------
   # Priority is a function of who is asking and what broke, not of how the case
-  # was worded. The %%action hands a critical case to the escalation process in
+  # was worded. The action hands a critical case to the escalation process in
   # Section 24.
   - name: caseTriage
     title: Support Case Triage

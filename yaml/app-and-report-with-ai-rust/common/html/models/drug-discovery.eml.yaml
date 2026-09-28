@@ -2,11 +2,8 @@
 # Small-Molecule Drug Discovery Platform
 # EML — complete model: ERD · business rules · workflows
 
-# Every rule, state and saga diagram below is stock Mermaid and renders as
-# drawn. The ERD carries EML's OPTIONAL modifier, which Mermaid's ER grammar
-# has no equivalent for, so it renders through toRenderableMermaid()
-# (packages/web/src/lib/mermaid-render.ts) — the normalization the application
-# applies to every ERD before handing it to Mermaid.
+# Every entity, rule, state machine and saga below is drawn by the model
+# viewer from this document; the YAML itself is what every generator reads.
 
 # Scope: a discovery portfolio from target to candidate, and the laboratory
 # that feeds it —
@@ -20,11 +17,11 @@
 #   people       User, Team
 
 # Generate:
-#   bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+#   bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
 #     -o generated-projects/drug-discovery -n drug-discovery
 
 # Check:
-#   bun language/checker.ts examples/drug-discovery.eml.mmd
+#   bun language/cli/eml.ts validate -i examples/drug-discovery.eml.yaml
 
 # ---- What this model is about ----------------------------------------------
 # A discovery programme is a bet on a biological target. The bet is tested by
@@ -1434,12 +1431,12 @@ reports:
   # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
 
   # What the derived pack already gives this model without being asked: a
-  # register per entity, a breakdown per %%enum-bound column, created-per-month,
+  # register per entity, a breakdown per enum-bound column, created-per-month,
   # a lifecycle report over all three state machines in the diagram's own order,
   # and children-per-parent for all 31 relationships. None of that needed anyone
   # who has run a discovery programme.
 
-  # These do. Each of the eight roles on the %%rbac matrix above is walked
+  # These do. Each of the eight roles on the rbac matrix above is walked
   # through the four questions — what they open first, what tells them something
   # is wrong today, what they are asked for weekly, and what rots silently if
   # nobody looks — so each can do its whole job from what it can see.

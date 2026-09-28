@@ -1,6 +1,6 @@
 # ============================================================================
 # EML Minimal Example — smallest complete model with all three sections.
-# Every diagram below is valid, renderable Mermaid.
+#
 # ============================================================================
 
 # ---- Section 1: ERD (structure) -------------------------------------------

@@ -8,7 +8,7 @@ entities:
   # - Order processing
   # - Inventory tracking
 
-  # Use: appwithai generate -i examples/ecommerce.erd.mmd -o ./generated -n ecommerce-app
+  # Use: appwithai generate -i examples/ecommerce.erd.eml.yaml -o ./generated -n ecommerce-app
 
 
   # Customer and Authentication

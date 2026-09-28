@@ -1,7 +1,7 @@
 # ============================================================================
 # EML Example — E-Commerce
 # Data model + business rules + workflows for an online store, in one artifact.
-# All diagrams are valid, renderable Mermaid.
+#
 # ============================================================================
 
 # ---- Section 1: ERD --------------------------------------------------------

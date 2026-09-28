@@ -2,7 +2,7 @@
 # EML Example — Helpdesk / Support Ticketing
 # A simple, complete model: the data model (ERD), a declarative business rule
 # (ticket prioritization), and a workflow (ticket lifecycle state machine)
-# plus lifecycle hooks. Every diagram is valid, renderable Mermaid.
+# plus lifecycle hooks.
 # ============================================================================
 
 # ---- Section 1: ERD --------------------------------------------------------

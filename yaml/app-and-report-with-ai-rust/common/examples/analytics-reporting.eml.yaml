@@ -7,13 +7,13 @@
 
 # Written for the `enterprise-reporting` target:
 
-#   bun language/cli/eml.ts generate -i examples/analytics-reporting.eml.mmd \
+#   bun language/cli/eml.ts generate -i examples/analytics-reporting.eml.yaml \
 #     -o ./out --stack enterprise-reporting
 
 # That target compiles the ERD — tables, Zod schemas, forms, columns — and
 # emits the rules below as GoRules JDM without wiring them up. It does not
-# compile the workflow section or %%rbac. Both are written anyway: the same
-# file generates a whole application under --stack tanstack-nestjs, and the
+# compile the workflows or rbac. Both are written anyway: the same file
+# generates a whole application under --stack tanstack-astryx-loco, and the
 # checker validates all of it either way.
 # ============================================================================
 

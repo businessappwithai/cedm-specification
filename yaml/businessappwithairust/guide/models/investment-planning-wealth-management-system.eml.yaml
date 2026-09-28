@@ -3350,7 +3350,7 @@ relationships:
     label: produces
 hooks:
   # `beforeList: scopeToOwnHouseholds` is the one that matters most here. An
-  # advisor may read Client — that is what the %%rbac rule says — but reading
+  # advisor may read Client — that is what the rbac rule says — but reading
   # *every* client is a different permission from reading their own, and RBAC
   # has no way to express the difference. The row filter belongs on the query.
   - entity: Client
@@ -3412,7 +3412,7 @@ hooks:
     event: beforeDelete
     handler: blockDeleteAfterSubmission
   # The audit trail is append-only, and that has to be enforced where the
-  # write happens rather than by withholding a button: %%rbac can say who may
+  # write happens rather than by withholding a button: rbac can say who may
   # update the table, and the answer here is nobody, including the
   # administrator the master role would otherwise let through.
   - entity: AuditEvent
@@ -3429,8 +3429,8 @@ hookFlows:
   # ---- Sections 9a-9d: Lifecycle hooks ---------------------------------------
   # Rules decide and refuse; hooks act on the write itself. Everything below has
   # to happen however the record is reached — through the API, through an import,
-  # through a saga — so none of it can live in a screen. The flowchart is what a
-  # reader sees and the `%%hook` lines are what the generator compiles into
+  # through a saga — so none of it can live in a screen. The hook flow is what a
+  # reader sees and the `hooks` entries are what the generator compiles into
   # handler modules; both halves have to say the same thing.
   - name: ClientOnboardingHooks
     title: Client Onboarding Hooks
@@ -3782,12 +3782,12 @@ reports:
   # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
 
   # What the derived pack already gives this model without being asked: a
-  # register per entity, a breakdown per %%enum-bound column, created-per-month,
+  # register per entity, a breakdown per enum-bound column, created-per-month,
   # a lifecycle report over all eleven state machines in the diagram's own order,
   # and children-per-parent for all 137 relationships. None of that needed anyone
   # who has advised a client.
 
-  # These do. Each of the six roles on the %%rbac matrix above is walked through
+  # These do. Each of the six roles on the rbac matrix above is walked through
   # the four questions — what they open first, what tells them something is wrong
   # today, what they are asked for weekly, and what rots silently if nobody
   # looks. The sets here are smaller than the CRM's because these read-lists are:

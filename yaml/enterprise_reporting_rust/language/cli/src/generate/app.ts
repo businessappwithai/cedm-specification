@@ -166,7 +166,7 @@ function generatePackageJson(appName: string): string {
       version: "1.0.0",
       private: true,
       type: "module",
-      description: "Application generated from an EML (.mmd) model by the Enterprise Reporting EML CLI.",
+      description: "Application generated from an EML model (.eml.yaml) by the Enterprise Reporting EML CLI.",
       scripts: {
         start: "node src/server.js",
         dev: "node --watch src/server.js",

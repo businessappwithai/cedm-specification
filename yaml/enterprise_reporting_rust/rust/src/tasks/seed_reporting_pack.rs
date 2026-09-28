@@ -974,7 +974,7 @@ mod tests {
     #[test]
     fn a_pack_without_access_parses() {
         let pack: ReportingPack = serde_json::from_value(json!({
-            "application": { "name": "crm", "description": "", "model": "crm.eml.mmd", "databaseName": "crm" },
+            "application": { "name": "crm", "description": "", "model": "crm.eml.yaml", "databaseName": "crm" },
             "dataSource": { "name": "crm (application database)", "description": "", "clientType": "pg" },
             "queries": [], "reports": [], "charts": [], "dashboards": []
         }))

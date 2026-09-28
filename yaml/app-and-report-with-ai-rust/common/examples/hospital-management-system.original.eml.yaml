@@ -1296,8 +1296,8 @@ hookFlows:
   # ---- Lifecycle hooks -------------------------------------------------------
   # Rules decide; hooks act on the write itself. Everything below is something
   # that has to happen on every path into the record — the API, an import, a
-  # saga — and so cannot live in a screen. The flowchart is what a reader sees
-  # and the `%%hook` lines are what the generator compiles; both halves have to
+  # saga — and so cannot live in a screen. The hook flow is what a reader sees
+  # and the `hooks` entries are what the generator compiles; both halves have to
   # say the same thing.
   - name: PatientRegistration
     title: Patient Registration
@@ -1723,9 +1723,9 @@ rbac:
     action: cancel
     roles: [inventory_manager]
 triggers:
-  # Nobody presses these; the clock does. `%%trigger` is validated rather
+  # Nobody presses these; the clock does. A trigger is validated rather
   # than compiled, so it documents the schedule the operator has to provide
-  # rather than creating it — check the directive's status before promising
+  # rather than creating it — check the construct's status before promising
   # a user that it runs.
   - entity: Appointment
     source: cron:0 7 * * *

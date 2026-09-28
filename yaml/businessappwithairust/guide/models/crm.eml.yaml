@@ -2,11 +2,8 @@
 # Enterprise Customer Relationship Management Platform
 # EML — complete model: ERD · business rules · workflows
 
-# Every rule, state and saga diagram below is stock Mermaid and renders as
-# drawn. The ERD carries EML's OPTIONAL modifier, which Mermaid's ER grammar
-# has no equivalent for, so it renders through toRenderableMermaid()
-# (packages/web/src/lib/mermaid-render.ts) — the normalization the application
-# applies to every ERD before handing it to Mermaid.
+# Every entity, rule, state machine and saga below is drawn by the model
+# viewer from this document; the YAML itself is what every generator reads.
 
 # Scope: the whole commercial lifecycle, front to back —
 #   marketing   Campaign, CampaignMember, Lead
@@ -16,11 +13,11 @@
 #   operations  User, Team, Territory, Activity
 
 # Generate:
-#   bun run generate:tanstack -- -i language/examples/crm.eml.mmd \
+#   bun run generate:tanstack -- -i language/examples/crm.eml.yaml \
 #     -o generated-projects/crm -n crm
 
 # Check:
-#   bun language/checker.ts language/examples/crm.eml.mmd
+#   bun language/cli/eml.ts validate -i language/examples/crm.eml.yaml
 
 # ---- How the three layers fit together --------------------------------------
 # Structure is the ERD in Section 1. Everything after it is behaviour, and the
@@ -37,7 +34,7 @@
 #                    renewal playbook.
 
 # Three of the sagas are `trigger: rule` — they run only when a rule's
-# %%action names them, so the rule's condition is what decides. The other two
+# action names them, so the rule's condition is what decides. The other two
 # run on the entity's own lifecycle. Both halves of that pairing are here on
 # purpose: it is the difference between "escalate when the discount is out of
 # policy" and "hand off every opportunity that closes".
@@ -145,7 +142,7 @@ categories:
     entities: [User, Team]
 entities:
   # ---- Help text -----------------------------------------------------------
-  # What `%%entity … help:` and `%%field … help:` buy: they are compiled into
+  # What an entity's and an attribute's `help` buy: they are compiled into
   # sys_table.description and sys_column.description, which are the only help
   # the generated application has — the tooltip beside a control, and the lede
   # of that entity's section in the generated manual. A model without them
@@ -1900,12 +1897,12 @@ reports:
   # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
 
   # What the derived pack already gives this model without being asked: a
-  # register per entity, a breakdown per %%enum-bound column, created-per-month,
+  # register per entity, a breakdown per enum-bound column, created-per-month,
   # a lifecycle report over every state machine in the diagram's own order, and
   # children-per-parent for all 39 relationships. None of that needed anyone who
   # understands selling.
 
-  # These do. Every role on the %%rbac matrix above is walked through the four
+  # These do. Every role on the rbac matrix above is walked through the four
   # questions — what they open first, what tells them something is wrong today,
   # what they are asked for weekly, and what rots silently if nobody looks — so
   # each role can do its whole job from what it can see.
@@ -2379,7 +2376,7 @@ rules:
       - from: N
         to: Z
   # ---- Section 4: Business rule — lead qualification gate --------------------
-  # The gate a lead has to pass before it becomes an account. Its %%action is
+  # The gate a lead has to pass before it becomes an account. Its action is
   # what makes the conversion saga in Section 22 run — without it the saga would
   # either fire on every lead update or never fire at all.
   - name: leadQualification
@@ -2808,7 +2805,7 @@ rules:
 
   # ---- Section 8: Business rule — support case triage ------------------------
   # Priority is a function of who is asking and what broke, not of how the case
-  # was worded. The %%action hands a critical case to the escalation process in
+  # was worded. The action hands a critical case to the escalation process in
   # Section 24.
   - name: caseTriage
     title: Support Case Triage

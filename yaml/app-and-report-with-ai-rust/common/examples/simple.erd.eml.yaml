@@ -4,7 +4,7 @@ entities:
 
   # A minimal example for testing the generator
 
-  # Use: appwithai generate -i examples/simple.erd.mmd -o ./generated -n blog-app
+  # Use: appwithai generate -i examples/simple.erd.eml.yaml -o ./generated -n blog-app
   - name: User
     attributes:
       - name: id

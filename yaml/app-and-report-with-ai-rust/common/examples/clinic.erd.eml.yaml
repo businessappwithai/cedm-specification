@@ -2,10 +2,10 @@ eml: "1.0"
 entities:
   # Clinic Management System - North American Clinical Automation
 
-  # Entities derived from the EML specification in clinic.mmd
+  # Entities derived from the EML specification in clinic.md
   # Covers: Patient, Practitioner, Appointment, Encounter, Claim
 
-  # Use: bun run generate:tanstack -- -i examples/clinic.erd.mmd -o generated-projects/clinic -n clinic-app
+  # Use: bun run generate:tanstack -- -i examples/clinic.erd.eml.yaml -o generated-projects/clinic -n clinic-app
   - name: Patient
     attributes:
       - name: patient_id

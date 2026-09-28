@@ -1,74 +1,25 @@
-# EML — Enterprise Reporting Modeling Language
+# EML — the model language, as this platform uses it
 
-**EML** is a Mermaid-based language for describing an application's
-**Entity Relationship Diagram (ERD)**, its **business rules**, and its
-**business workflows** — all in one artifact. The `eml` CLI reads it and
-produces a complete enterprise_reporting_tanstack-style application.
+An application model — entities, relationships, enumerations, business rules,
+lifecycle hooks, state machines, sagas and access rules — is one YAML document,
+`*.eml.yaml`. The `eml` CLI in this directory reads it and generates code for
+this platform from it.
 
-Every EML document is **valid, renderable Mermaid**. EML is a *semantic superset*:
-it assigns generator meaning to standard Mermaid diagrams (`erDiagram`,
-`flowchart`, `stateDiagram-v2`) and to renderer-safe `%%` directive comments.
+**The language is defined once, at the root of the repository**, and this
+directory does not carry a copy of it:
 
-> Based on the official Mermaid references for
-> [Entity Relationship Diagrams](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
-> and [Flowcharts](https://mermaid.js.org/syntax/flowchart.html).
+| What | Where |
+|---|---|
+| The definition (JSON Schema 2020-12) — what the validator runs | [`../../../language/yaml/eml.schema.json`](../../../language/yaml/eml.schema.json) |
+| The reference, construct by construct | [`../../../language/yaml/README.md`](../../../language/yaml/README.md) |
+| The specification, chapter by chapter | [`../../../language/spec/`](../../../language/spec/00-overview.md) |
+| The vocabulary — types, cardinalities, hook events, rule-node types | [`../../../language/appwithai-language.json`](../../../language/appwithai-language.json) |
+| The reader and checker — YAML syntax, the schema, ~130 semantic rules, each finding at its YAML line | `packages/generator/src/model-yaml/` |
 
----
-
-## Target stack
-
-The `enterprise-reporting` generator target (default) produces:
-
-```
-MyApp/
-├── src/
-│   ├── server-fns/<entity>.ts    # TanStack Start server functions (.inputValidator())
-│   ├── routes/_authed/<entity>/
-│   │   ├── index.tsx             # List page (TanStack Table + shadcn/ui)
-│   │   └── $id.tsx               # Detail/edit page (shadcn/ui form)
-│   └── lib/db/
-│       ├── kysely-db.ts          # Kysely Database interface extension
-│       └── migrations/           # SQL CREATE TABLE statements (MariaDB)
-├── package.json
-└── README.md
-```
-
-Technology choices match the parent repository:
-- **TanStack Start v1** (SSR, file-based routing)
-- **Kysely** ORM for DB access
-- **MariaDB** for the config database
-- **shadcn/ui + Tailwind CSS** for the UI layer
-- **Bun** as the runtime
-
----
-
-## The definition file
-
-The **full language** is defined in one machine-readable file:
-
-```
-language/erdwithai-language.json
-```
-
-This JSON is the **single source of truth** for the language: type vocabulary,
-modifiers, relationship cardinalities, hook types, directive definitions,
-and the generator contract. Everything else in this folder documents or loads it.
-
-Load it from code via the typed accessor:
-
-```ts
-import {
-  loadLanguageDefinition,
-  normalizeType,
-  cardinalityKind,
-  isHookType,
-} from "../language";
-
-const def = loadLanguageDefinition();
-normalizeType("varchar");     // "string"
-cardinalityKind("||--o{");    // "oneToMany"
-isHookType("beforeCreate");   // true
-```
+The CLI reads a model through that reader
+([`language/cli/src/document.ts`](../../../language/cli/src/document.ts)), so
+`eml validate` here reports exactly what `appwithai validate` reports. The
+generators are this platform's own.
 
 ---
 
@@ -76,124 +27,111 @@ isHookType("beforeCreate");   // true
 
 ```
 language/
-├── README.md                     # This file
-├── erdwithai-language.json       # ⭐ Canonical, machine-readable language definition
-├── index.ts                      # Typed loader/accessor
-├── composer.ts                   # Writes a complete EML document
-├── rag.ts                        # EML → retrieval chunks for RAG
-├── checker.ts                    # Validator — `bun language/checker.ts <file.mmd>`
-├── fixer.ts                      # Auto-fixes the checker's fixable codes
-├── grammar/
-│   └── erdwithai.ebnf            # Formal EBNF grammar
-├── spec/
-│   ├── 00-overview.md            # Concepts, document structure, sections
-│   ├── 01-erd.md                 # ERD reference
-│   ├── 02-business-rules.md      # Business-rules (decision-flow) reference
-│   ├── 03-workflows.md           # Workflow (hooks + state) reference
-│   ├── 04-types-and-modifiers.md # Type vocabulary, modifiers, cardinalities
-│   └── 05-directives.md          # Reserved %% directive reference
-├── cli/                          # The `eml` CLI — parse, validate, generate apps
+├── README.md                      # This file
+├── cli/                           # The `eml` CLI — validate, inspect, generate
 │   ├── README.md
-│   ├── eml.ts                    # Executable entrypoint (run with Bun)
+│   ├── eml.ts                     # Executable entrypoint (run with Bun)
+│   ├── runtime/src/               # The node-rest stack's dependency-free runtime
 │   └── src/
-│       ├── cli.ts                # CLI argument parsing and command dispatch
-│       ├── parser.ts             # EML document parser
-│       ├── validator.ts          # Model-level validation
-│       ├── model.ts              # EmlModel TypeScript types
-│       ├── util.ts               # String utilities
+│       ├── cli.ts                 # Argument parsing and command dispatch
+│       ├── model.ts               # The CLI's model — re-exported from the root CLI
+│       ├── util.ts                # String utilities
 │       └── generate/
-│           ├── app.ts            # node-rest generator (dependency-free Node app)
-│           └── enterprise-reporting.ts  # TanStack Start + Kysely generator
+│           ├── enterprise-reporting.ts  # TanStack Start + Kysely + PostgreSQL code
+│           ├── app.ts             # node-rest (dependency-free Node app)
+│           ├── jdm.ts             # Business rules → GoRules JDM
+│           ├── docker.ts, ci.ts   # --docker (node-rest)
+│           └── github.ts          # --github
 └── examples/
-    ├── helpdesk.eml.mmd          # Helpdesk support-ticket model
-    ├── inventory.eml.mmd         # Inventory management model (enterprise-reporting target)
-    ├── ecommerce.eml.mmd         # Full e-commerce model
-    └── minimal.eml.mmd           # Smallest complete example
+    ├── minimal.eml.yaml           # Smallest complete example
+    ├── helpdesk.eml.yaml          # Support tickets, SLA rule, ticket lifecycle
+    ├── ecommerce.eml.yaml         # Catalogue, orders, pricing rules, order lifecycle
+    └── crm.eml.yaml               # A full CRM: 17 entities, 8 rules, 5 sagas
 ```
 
 ## The `eml` CLI
 
 ```bash
-# Validate a model (writes model.mmd.error beside it)
-bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
+# Validate a model — every finding at its YAML line and column
+bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.yaml
 
-# Generate a TanStack Start + Kysely app (enterprise-reporting stack)
-bun language/cli/eml.ts generate -i model.eml.mmd -o ./out --stack enterprise-reporting
+# Summarise it
+bun language/cli/eml.ts info -i language/examples/helpdesk.eml.yaml
 
-# Generate a dependency-free Node app (node-rest stack)
-bun language/cli/eml.ts generate -i model.eml.mmd -o ./out --stack node-rest
+# TanStack Start + Kysely + PostgreSQL code for this repository (the default)
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out
 
-# Show language info
-bun language/cli/eml.ts info
+# A dependency-free Node app
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out --stack node-rest
 ```
 
-Flags: `--input / -i`, `--output / -o`, `--name`, `--stack`, `--docker`,
-`--github <owner/repo>`, `--force`, `--no-autofix`, `--json`, `--help`.
+Flags: `--input / -i`, `--output / -o`, `--name / -n`, `--stack`, `--docker`,
+`--github <owner/repo>`, `--force`, `--no-autofix`, `--json`, `--help`,
+`--version`. See [`cli/README.md`](cli/README.md).
 
 ---
 
-## Three sections at a glance
+## A model at a glance
 
-### 1. ERD — structure
-
-```mermaid
-erDiagram
-    Category {
-        string id PK
-        string name UK
-        string description OPTIONAL
-    }
-    Product {
-        string  id PK
-        string  category_id FK
-        string  sku UK
-        decimal price
-        integer stock_quantity
-    }
-    Category ||--o{ Product : "contains"
+```yaml
+eml: "1.0"
+name: Minimal Blog
+enums:
+  - name: PostStatus
+    values: [draft, published, archived]
+entities:
+  - name: Author
+    help: Somebody who writes for the blog; kept after they stop, so their posts stay attributed.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: email, type: string, unique: true, help: The address the author signs in with. }
+      - { name: name, type: string, help: The by-line shown above each published post. }
+      - { name: is_active, type: boolean, help: "Cleared instead of deleting the author, which would orphan their posts." }
+  - name: Post
+    help: One article, from its first draft to its archiving.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: author_id, type: string, fk: true, help: Who wrote it. }
+      - { name: title, type: string, help: The headline readers see. }
+      - { name: status, type: string, enum: PostStatus, help: Where the post is in its lifecycle. }
+relationships:
+  - { from: Author, fromCardinality: exactly-one, to: Post, toCardinality: zero-or-more, label: writes }
+rules:
+  - name: publishGate
+    entity: Post
+    event: beforeUpdate
+    nodes:
+      - { id: A, label: "Start: Publish Requested", type: start }
+      - { id: B, label: Author is active?, type: decision }
+      - { id: C, label: Allow publish, type: expression }
+      - { id: D, label: Reject publish, type: expression }
+      - { id: E, label: "End", type: end }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: C, label: "Yes" }
+      - { from: B, to: D, label: "No" }
+      - { from: C, to: E }
+      - { from: D, to: E }
+stateMachines:
+  - name: PostLifecycle
+    entity: Post
+    states: [draft, published, archived]
+    initial: draft
+    final: [archived]
+    transitions:
+      - { from: draft, to: published, trigger: publish }
+      - { from: published, to: archived, trigger: archive }
 ```
 
-### 2. Business rules — declarative decision logic
+A rule node's `type` decides what it compiles to: `start` → inputNode,
+`end` → outputNode, `decision` → switchNode, `expression` → expressionNode,
+`function` → functionNode.
 
-```mermaid
-%%meta kind: rules
-flowchart TD
-    A([Start: Order Received]) --> B{Order Amount > 1000?}
-    B -->|Yes| C[Apply Premium Discount 15%]
-    B -->|No| D{Customer is VIP?}
-    D -->|Yes| E[Apply VIP Discount 10%]
-    D -->|No| F[Apply Standard Pricing]
-    C --> G(Calculate Final Price)
-    E --> G
-    F --> G
-    G --> H([End: Price Calculated])
-```
+## Diagrams
 
-### 3. Workflows — lifecycle hooks & state machines
+A model is drawn, not written, as a diagram. The model viewers and the
+modelling tool render the ERD, the rules, the state machines and the sagas from
+the YAML; nothing reads a drawing back.
 
-```mermaid
-%%meta kind: workflow
-%%workflow TicketLifecycle entity: Ticket kind: state
-stateDiagram-v2
-    [*] --> open
-    open --> in_progress : assign
-    in_progress --> resolved : resolve
-    resolved --> closed : close
-    open --> cancelled : cancel
-```
-
----
-
-## Validation
-
-```bash
-bun language/checker.ts model.mmd          # validates; writes model.mmd.error
-bun language/fixer.ts   model.mmd.error    # auto-fixes fixable codes, re-checks
-```
-
-See `spec/` for the full language reference and `erdwithai-language.json` for
-the machine-readable contract.
-
-For the full enterprise_reporting_tanstack system description — architecture,
-conventions, server functions, auth, NL query, RBAC — see
-[`../llmtext/llms-full.txt`](../llmtext/llms-full.txt).
+For the platform itself — architecture, conventions, server functions, auth, NL
+query, RBAC — see [`../CLAUDE.md`](../CLAUDE.md).

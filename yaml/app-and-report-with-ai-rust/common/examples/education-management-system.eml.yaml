@@ -9,9 +9,8 @@
 
 # Built through the interactive authoring protocol in llmdetailed.txt §10, so
 # it holds that section's standard: help text on every entity and every column,
-# one %%rbac read rule per entity, every state backed by a declared %%enum, and
-# reports for every role on the matrix. Every diagram is valid, renderable
-# Mermaid.
+# one rbac read rule per entity, every state backed by a declared enum, and
+# reports for every role on the matrix.
 # ============================================================================
 
 
@@ -1421,12 +1420,12 @@ reports:
   # ---- The reporting pass (llmdetailed §10.5.1) ------------------------------
 
   # What the derived pack already gives this model without being asked: a
-  # register per entity, a breakdown per %%enum-bound column, created-per-month,
+  # register per entity, a breakdown per enum-bound column, created-per-month,
   # a lifecycle report over all eleven state machines in the diagram's own order,
   # totals over the numeric columns, and children-per-parent for all 31
   # relationships. None of that needed anyone who understands how a school runs.
 
-  # These do. Each of the eight roles on the %%rbac matrix above is walked through
+  # These do. Each of the eight roles on the rbac matrix above is walked through
   # the four questions — what they open first, what tells them something is wrong
   # today, what they are asked for weekly, and what rots silently if nobody
   # looks — so each can do its whole job from what it can see.
@@ -1677,7 +1676,7 @@ reports:
     sql: SELECT s.first_name || ' ' || s.last_name AS student, f.invoice_number, t.name AS term, f.due_on, f.total_amount, f.amount_paid, f.balance_due, f.status FROM bus_fee_invoice f JOIN bus_student s ON s.id = f.student_id JOIN bus_academic_term t ON t.id = f.academic_term_id WHERE f.deleted_at IS NULL AND f.status IN ('issued', 'part_paid', 'overdue') AND f.balance_due > 0 ORDER BY f.due_on
 rules:
   # ---- Business rules — admission assessment (decides only, cannot act) -------
-  # This section carries a node graph and no %%action directives, deliberately.
+  # This section carries a node graph and no actions, deliberately.
   # It is the judgement an admissions officer exercises today, written down so it
   # is visible in the application's rule screen and in the viewers — and per §3.4
   # a node-graph rule carries no outputs, so it decides and never writes. The
