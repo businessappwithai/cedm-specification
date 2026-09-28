@@ -10,7 +10,7 @@
  * is what it maps to. A non-link `asChild` renders the children directly rather
  * than wrapping them in a button that would nest interactive elements.
  */
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 import { Button as AstryxButton } from "@astryxdesign/core/Button";
 
 type Variant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
@@ -34,6 +34,25 @@ export interface ButtonProps {
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
   title?: string;
+}
+
+/**
+ * `<Icon /> Text` — the shape shadcn call sites write — as Astryx's `icon` and
+ * `label`, or null for any other composition.
+ *
+ * Astryx lays `icon` out beside the label; children go inside the label's text
+ * span, where an SVG is a block (Tailwind's preflight) and pushes the text onto
+ * a second line the button's height then clips. That is how "Run again",
+ * "Refresh" and "New Rule" rendered, each with an empty accessible name,
+ * because the label passed alongside non-string children was "".
+ */
+function iconAndText(children: ReactNode): { icon: ReactNode; text: string } | null {
+  const parts = Children.toArray(children);
+  const [first, ...rest] = parts;
+  if (!isValidElement(first) || rest.length === 0) return null;
+  if (!rest.every((part) => typeof part === "string" || typeof part === "number")) return null;
+  const text = rest.join("").trim();
+  return text ? { icon: first, text } : null;
 }
 
 /** shadcn variant names → Astryx variant names. */
@@ -70,6 +89,25 @@ export function Button({
   // child rather than nesting it inside a button.
   if (asChild && !href) {
     return <>{children}</>;
+  }
+
+  const split = iconAndText(children);
+  if (split) {
+    return (
+      <AstryxButton
+        label={split.text}
+        icon={split.icon}
+        variant={VARIANTS[variant] as never}
+        size={SIZES[size]}
+        type={type}
+        isDisabled={disabled}
+        isLoading={isLoading}
+        href={href}
+        className={className}
+        tooltip={title}
+        clickAction={onClick}
+      />
+    );
   }
 
   return (
