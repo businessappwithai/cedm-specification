@@ -73,11 +73,13 @@ todo:
     - id: finance-accounting
       name: Finance / Accounting
       entities: [Ledger, Account, JournalEntry, JournalEntryLine, FiscalPeriod, Invoice, InvoiceLine, Payment, PaymentAllocation, TaxRule]
-      status: pending-verification
+      status: in-progress
+      notes: FiscalPeriod is implemented and JournalEntry posting now resolves to governed accounting-period eligibility; broader finance entity-depth audit remains pending.
     - id: treasury-banking
       name: Treasury / Banking
       entities: [BankAccount, BankTransaction, CashPosition, PaymentInstruction, BankReconciliation, ForeignExchangeTransaction]
-      status: pending-verification
+      status: in-progress
+      notes: CashPosition is implemented as a reproducible treasury snapshot over BankAccount, BankTransaction and Payment evidence; remaining treasury entities and reciprocal-depth validation are pending.
     - id: budgeting-planning
       name: Budgeting / Planning
       entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
@@ -197,8 +199,6 @@ todo:
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
 
   discoveredGaps:
-    - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
-    - {domain: treasury-banking, missing: [CashPosition], priority: high}
     - {domain: budgeting-planning, missing: [Budget], priority: high}
     - {domain: projects, missing: [ProjectPhase], priority: medium}
     - {domain: hr-hcm, missing: [Job], priority: high}
