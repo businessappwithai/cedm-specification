@@ -1,0 +1,22 @@
+entity:
+  name: Job
+  namespace: cedm.domain
+  kind: workforce_master
+  description: A governed reusable definition of work responsibilities, qualifications, classification, and organizational role characteristics that may be instantiated by Positions and occupied through Employment.
+  identity: {key: jobId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: Stable job-definition identity., businessMeaning: Identifies reusable work definition., usage: Workforce planning, recruiting, position and compensation processes., relationshipContext: Positions may reference Job., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed job code., businessMeaning: Human/integration classification identifier., usage: HCM and reporting., relationshipContext: Independent of employee/position identity., requiredMeaning: Required.}}
+  - {name: title, type: string, required: true, maxLength: 300, help: {summary: Standard job title., businessMeaning: Names the reusable work role., usage: Organization design and HR., relationshipContext: Position may have contextual display title., requiredMeaning: Required.}}
+  - name: status
+    type: enum
+    required: true
+    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+    help: {summary: Job-definition lifecycle., businessMeaning: Controls future position assignment., usage: HCM governance., relationshipContext: Historical employment remains valid., valueSemantics: {DRAFT: Being designed., ACTIVE: Available., INACTIVE: Temporarily unavailable., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+  relationships:
+  - {name: positions, target: Position, cardinality: 0..*, ownership: reference, help: {summary: Organizational positions based on job definition., businessMeaning: Instantiates reusable work definition in organization structure., usage: Workforce planning., cardinalityMeaning: Zero or many Positions., workflowRole: Job lifecycle affects new position use but not historical employment.}}
+  invariants:
+  - {id: JOB-001, rule: RETIRED Job cannot be newly assigned to a Position without governed reinstatement/migration.}
+  - {id: JOB-002, rule: Job definition changes must not rewrite historical Employment terms.}
+  help: {summary: Reusable definition of work in HCM., businessMeaning: Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements., usage: Workforce planning, recruiting, position management and compensation., relationshipContext: Position instantiates Job; Employment remains transaction/relationship evidence.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOB}
