@@ -44,12 +44,11 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(root, "guide", "source");
 
-/** The four published files a reader may need on disk. The one-file build is
+/** The three published files a reader may need on disk. The one-file build is
  *  deliberately absent: it is already a paste-through-text transport, and a
  *  base64 of a base64 payload is 190KB of nothing. */
 const FILES = [
-  { name: "checker.js", what: "every diagnostic, as check(source) — imported by fixer.js from beside it" },
-  { name: "fixer.js", what: "the auto-repairs, plus checkAndFix(source)" },
+  { name: "model-yaml.js", what: "the model language: validate(text) and fix(text), every finding at its YAML line" },
   { name: "check-model.mjs", what: "the runner: three passes, the report, exit 0/1/2" },
   { name: "audit-model.mjs", what: "the checklist audit: twenty-two checks, exit 0/1/2" },
 ];
@@ -104,9 +103,8 @@ sha256sum ${name}      # must print ${sha}</pre>
 
 <pre>writeFileSync("${name}", Buffer.from(b64.replace(/\\s+/g, ""), "base64"));</pre>
 
-<p><code>fixer.js</code> imports <code>checker.js</code> from beside itself, so
-those two must land in the same directory. Then point a runner at it:
-<code>node check-model.mjs &lt;model&gt;.mmd --base ./</code>.</p>
+<p>Put the files in one directory, then point a runner at it:
+<code>node check-model.mjs &lt;model&gt;.eml.yaml --base ./</code>.</p>
 
 <pre id="b64">${base64}</pre>
 
@@ -148,7 +146,7 @@ const index = (rows) => `<!doctype html>
 as files, and fetching them directly is one line:</p>
 
 <pre><code>curl -sO https://www.appwithai.org/guide/check-model.mjs
-node check-model.mjs &lt;model&gt;.mmd</code></pre>
+node check-model.mjs &lt;model&gt;.eml.yaml</code></pre>
 
 <p>This directory exists for one observed failure: a browsing or fetch layer
 that reads <code>text/html</code> but refuses
@@ -159,7 +157,7 @@ and <em>proved</em> to be the published ones.</p>
 
 <p>If your shell reaches no host at all, prefer
 <code><a href="../check-model-standalone.mjs">check-model-standalone.mjs</a></code>:
-one file, both modules and both runners inside it, nothing to reassemble.</p>
+one file, the module and both runners inside it, nothing to reassemble.</p>
 
 <table>
 <tr><th>Page</th><th>File</th><th>bytes</th><th>sha256</th></tr>
