@@ -290,16 +290,13 @@ fn label(attribute: &BusAttribute, entity: &BusEntity, index: usize) -> String {
     } else {
         format!("{} {}", attribute.display_name, index + 1)
     };
-    let scoped = if attribute.unique {
-        format!("{body} ({})", entity.table_name)
+    // Distinct within the table by its index, which is all a unique column
+    // needs — the constraint is per table. See `label` in `business-seed.ts`.
+    let limit = attribute.max_length.unwrap_or(255) as usize;
+    if body.chars().count() > limit {
+        body.chars().take(limit).collect()
     } else {
         body
-    };
-    let limit = attribute.max_length.unwrap_or(255) as usize;
-    if scoped.chars().count() > limit {
-        scoped.chars().take(limit).collect()
-    } else {
-        scoped
     }
 }
 

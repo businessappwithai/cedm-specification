@@ -291,11 +291,12 @@ function valueFor(attribute: BusEntityAttribute, context: ValueContext): SqlValu
 function label(attribute: BusEntityAttribute, context: ValueContext): string {
   const base = `${context.entity.displayName} ${context.index + 1}`;
   const text = attribute.isIdentifier ? base : `${attribute.displayName} ${context.index + 1}`;
-  // Unique columns must not collide, and a maxLength must not be exceeded — a
-  // seed that violates either fails the insert rather than the row.
-  const scoped = attribute.unique ? `${text} (${context.entity.tableName})` : text;
+  // Distinct within the table by its index, which is all a unique column needs:
+  // the constraint is per table. A unique value used to carry the table name as
+  // well — "Compound 1 (bus_compound)" — which prevented nothing and put an
+  // internal name into the title of every record identified by that column.
   const limit = attribute.maxLength ?? 255;
-  return scoped.length > limit ? scoped.slice(0, limit) : scoped;
+  return text.length > limit ? text.slice(0, limit) : text;
 }
 
 /** `Clinical Trial` → `clinical-trial`, for an address a reader can type. */

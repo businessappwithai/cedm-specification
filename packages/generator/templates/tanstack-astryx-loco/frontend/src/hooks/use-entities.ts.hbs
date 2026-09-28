@@ -43,6 +43,13 @@ export interface FieldMetadata {
   is_mandatory: boolean;
   is_updateable?: boolean;
   /**
+   * True for the column that names the record — `sys_column.is_identifier`,
+   * the dictionary's one answer to what a record is called. A record's title
+   * reads it; before `/bus/{entity}/fields/*` returned it, an entity with no
+   * `name` column was titled with its UUID.
+   */
+  is_identifier?: boolean;
+  /**
    * True for the table's primary key. `/sys/fields/*` has always returned it;
    * it was simply missing from this interface, so the one place that needs to
    * know which column is the key had to guess from the table name instead.

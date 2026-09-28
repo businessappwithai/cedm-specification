@@ -151,7 +151,15 @@ function NewWorkflowDefinition() {
 
       {/* Canvas */}
       <Box grow padding={4} className="min-h-0">
-        <BpmnCanvas ref={canvasRef} className="h-full" entityName={entityName} />
+        {/* The chain's WHEN line reads the trigger from here; without it every
+            definition was described as firing on create, update and delete,
+            whatever the Trigger on field above said. */}
+        <BpmnCanvas
+          ref={canvasRef}
+          className="h-full"
+          entityName={entityName}
+          triggerOperation={operation}
+        />
       </Box>
     </div>
   );

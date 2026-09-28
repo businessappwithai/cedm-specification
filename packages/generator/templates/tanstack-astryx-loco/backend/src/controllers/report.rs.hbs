@@ -18,8 +18,8 @@ use axum::{
     Json,
 };
 use loco_rs::prelude::*;
-use serde_json::{json, Map, Value};
-use sqlx::{AssertSqlSafe, Row};
+use serde_json::{json, Value};
+use sqlx::{AssertSqlSafe, Column, Row};
 use std::time::Instant;
 
 use crate::errors::{AppError, AppResult};
@@ -227,16 +227,18 @@ pub async fn run(
         result.truncate(usize::try_from(MAX_ROWS).unwrap_or(usize::MAX));
     }
 
-    // Read the column order off the first row rather than the driver's field
-    // list, so the order a report's SELECT declares is the order it renders in.
+    // The driver's column list is in the order the report's SELECT declares,
+    // which is the order it renders in. This used to be read off the first row's
+    // JSON keys, and a `serde_json::Map` is sorted: every report came back with
+    // its columns alphabetical, so crm's "source, leads, qualified, converted"
+    // rendered as "converted, leads, qualified, source".
     let columns: Vec<String> = result
         .first()
         .map(|row| {
-            row_to_json(row)
-                .as_object()
-                .map(Map::keys)
-                .map(|keys| keys.cloned().collect())
-                .unwrap_or_default()
+            row.columns()
+                .iter()
+                .map(|column| column.name().to_string())
+                .collect()
         })
         .unwrap_or_default();
 

@@ -205,6 +205,43 @@ async fn a_semicolon_inside_a_literal_is_not_a_second_statement() {
     .await;
 }
 
+#[tokio::test]
+#[serial]
+async fn columns_come_back_in_the_order_the_select_declares() {
+    // The screen lays a report out by `columns`. They were once read off a
+    // row's JSON keys, which are sorted, so every report rendered its columns
+    // alphabetically — the grouping column last, after the counts it groups.
+    support::with_app(|request, ctx, token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        sqlx::query(
+            "INSERT INTO sys_report (name, title, sql_text, sort_order)
+             VALUES ('t-ordered', 't-ordered', $1, 9999)
+             ON CONFLICT (name) DO UPDATE SET sql_text = EXCLUDED.sql_text",
+        )
+        .bind("SELECT 'z' AS zeta, 2 AS middle, 1 AS alpha")
+        .execute(pool)
+        .await
+        .expect("planting the query");
+
+        let response = request
+            .get("/api/reports/t-ordered/run")
+            .add_header("authorization", bearer(&token))
+            .await;
+
+        sqlx::query("DELETE FROM sys_report WHERE name = 't-ordered'")
+            .execute(pool)
+            .await
+            .expect("removing the planted row");
+
+        assert_eq!(response.status_code(), 200);
+        assert_eq!(
+            response.json::<Value>()["columns"],
+            json!(["zeta", "middle", "alpha"])
+        );
+    })
+    .await;
+}
+
 {{#if reports}}
 #[tokio::test]
 #[serial]

@@ -695,6 +695,24 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/reports/report-print-modal.tsx",
         dest: "src/components/reports/report-print-modal.tsx",
       },
+      // The model's reports: `sys_report`, served by `/api/reports`, which no
+      // screen called — every declared report was reachable only as JSON.
+      {
+        src: "src/components/reports/report-chart.tsx",
+        dest: "src/components/reports/report-chart.tsx",
+      },
+      {
+        src: "src/hooks/use-reports.ts",
+        dest: "src/hooks/use-reports.ts",
+      },
+      {
+        src: "src/routes/reports.index.tsx",
+        dest: "src/routes/reports.index.tsx",
+      },
+      {
+        src: "src/routes/reports.$name.tsx",
+        dest: "src/routes/reports.$name.tsx",
+      },
       {
         src: "src/lib/workflow/step-types.ts",
         dest: "src/lib/workflow/step-types.ts",

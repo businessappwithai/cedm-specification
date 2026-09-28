@@ -26,7 +26,14 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, Database, LayoutDashboard, Sparkles } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Database,
+  FileBarChart,
+  LayoutDashboard,
+  Sparkles,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -46,6 +53,13 @@ interface NavEntry {
   /** A lucide id from the dictionary. Null falls back to the section default. */
   icon?: string | null;
 }
+
+/** Icons for the entries every application has, whatever its model. */
+const FIXED_ICONS: Record<string, typeof LayoutDashboard> = {
+  '/dashboard': LayoutDashboard,
+  '/ask': Sparkles,
+  '/reports': FileBarChart,
+};
 
 export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
@@ -72,6 +86,7 @@ export function Sidebar({ className }: SidebarProps) {
   const fixed: NavEntry[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Ask', href: '/ask' },
+    { title: 'Reports', href: '/reports' },
   ];
 
   return (
@@ -110,8 +125,8 @@ export function Sidebar({ className }: SidebarProps) {
               <NavLink
                 key={entry.href}
                 entry={entry}
-                fallback={entry.href === '/ask' ? Sparkles : LayoutDashboard}
-                isActive={pathname === entry.href}
+                fallback={FIXED_ICONS[entry.href] ?? LayoutDashboard}
+                isActive={pathname === entry.href || pathname.startsWith(`${entry.href}/`)}
                 isCollapsed={isCollapsed}
               />
             ))}

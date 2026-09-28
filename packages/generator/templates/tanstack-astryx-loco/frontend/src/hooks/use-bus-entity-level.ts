@@ -63,7 +63,7 @@ export function useBusEntityLevel(entityName: string) {
   // Derive the name field — first non-id identifier field, then common name fallbacks
   const NAME_FALLBACKS = ["name", "title", "first_name", "description", "type"];
   const nameField =
-    formFields.find((f) => (f as any).is_identifier && f.column_name !== "id")?.column_name ??
+    formFields.find((f) => f.is_identifier && f.column_name !== "id")?.column_name ??
     NAME_FALLBACKS.find((candidate) => formFields.some((f) => f.column_name === candidate)) ??
     "name";
 
