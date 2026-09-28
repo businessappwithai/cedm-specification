@@ -1,0 +1,1381 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appwithai.dev/language/appwithai-language.json",
+  "language": {
+    "id": "appwithai-eml",
+    "name": "APPWITHAI Modeling Language",
+    "abbreviation": "EML",
+    "version": "2.0.0",
+    "description": "A YAML language for describing an application in one document: its entities and relationships, its business rules, its access rules, its reports and its workflows. The document is the source the APPWITHAI generators read to produce a full-stack application (TanStack Start + Astryx on a Loco.rs backend), and the source the modelling tool edits and draws.",
+    "fileExtensions": [
+      ".eml.yaml"
+    ],
+    "documentSchema": "language/yaml/eml.schema.json",
+    "documentVersion": "1.0",
+    "encoding": "utf-8",
+    "caseSensitivity": {
+      "entityNames": "significant (PascalCase recommended)",
+      "attributeNames": "significant (snake_case recommended)",
+      "keys": "significant (every key is spelled as the schema spells it)",
+      "types": "insensitive (normalized to lower-case before mapping)",
+      "hookTypes": "significant (camelCase, e.g. beforeCreate)"
+    },
+    "purpose": [
+      "Describe database structure (entities, attributes, keys, relationships).",
+      "Describe declarative business rules (decision logic, pricing, validation, eligibility) as decision graphs and decision tables that compile to GoRules JDM.",
+      "Describe who may do what (access rules), which questions the application answers (reports), and how records move (state machines, sagas, hooks).",
+      "Provide one coherent, human- and machine-readable document that the generators compile, the checker validates and the model viewer draws."
+    ]
+  },
+  "document": {
+    "description": "A model is one YAML mapping. `eml` is its version and `entities` its only other required key; every other key is optional and absent means none. The keys are written in this order by every tool that saves a model, so two saves of the same model are byte-identical and a diff shows only what changed. Comments (`#`) are the author's and are kept: a tool that edits a model edits the YAML document in place rather than re-serialising it.",
+    "schema": "language/yaml/eml.schema.json",
+    "reader": "packages/generator/src/model-yaml/validate.ts (readModelYaml)",
+    "layers": [
+      "1. YAML syntax, with duplicate keys refused rather than resolved by the last one winning.",
+      "2. The JSON Schema (ajv, draft 2020-12, strict), located at the key that is wrong.",
+      "3. The language checker (language/yaml/checker.ts), located at the document path it concerns."
+    ],
+    "keys": [
+      {
+        "key": "eml",
+        "required": true,
+        "meaning": "The document version. Always \"1.0\"."
+      },
+      {
+        "key": "name",
+        "meaning": "The application's name, as its users call it."
+      },
+      {
+        "key": "version",
+        "meaning": "The model's own version, carried into the generated application."
+      },
+      {
+        "key": "description",
+        "meaning": "One paragraph saying what the application is for. Seeded into sys_system.APP_DESCRIPTION and opens the generated manual."
+      },
+      {
+        "key": "enums",
+        "meaning": "Named value lists a column may be bound to."
+      },
+      {
+        "key": "categories",
+        "meaning": "Dashboard groupings of entities."
+      },
+      {
+        "key": "entities",
+        "required": true,
+        "meaning": "The tables, their columns, keys, indexes and help."
+      },
+      {
+        "key": "relationships",
+        "meaning": "How entities relate, by the cardinality of each end."
+      },
+      {
+        "key": "hooks",
+        "meaning": "Lifecycle handlers bound to an entity's writes and reads."
+      },
+      {
+        "key": "hookFlows",
+        "meaning": "The order an entity's hooks run in around a write, drawn as a graph."
+      },
+      {
+        "key": "rbac",
+        "meaning": "Access rules: which roles may perform an operation or cross a transition."
+      },
+      {
+        "key": "triggers",
+        "meaning": "External events and schedules that call a handler."
+      },
+      {
+        "key": "reports",
+        "meaning": "Questions the application answers, as read-only SQL."
+      },
+      {
+        "key": "rules",
+        "meaning": "Business rules: decision graphs, actions and decision tables."
+      },
+      {
+        "key": "stateMachines",
+        "meaning": "The lifecycle an entity's status column moves through."
+      },
+      {
+        "key": "sagas",
+        "meaning": "Multi-step processes of executable steps."
+      }
+    ]
+  },
+  "types": {
+    "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
+    "canonical": [
+      "string",
+      "text",
+      "integer",
+      "decimal",
+      "boolean",
+      "date",
+      "datetime",
+      "json"
+    ],
+    "map": {
+      "string": "string",
+      "varchar": "string",
+      "char": "string",
+      "uuid": "string",
+      "guid": "string",
+      "id": "string",
+      "email": "string",
+      "url": "string",
+      "phone": "string",
+      "password": "string",
+      "color": "string",
+      "text": "text",
+      "longtext": "text",
+      "int": "integer",
+      "integer": "integer",
+      "bigint": "integer",
+      "smallint": "integer",
+      "number": "decimal",
+      "decimal": "decimal",
+      "float": "decimal",
+      "double": "decimal",
+      "money": "decimal",
+      "amount": "decimal",
+      "bool": "boolean",
+      "boolean": "boolean",
+      "date": "date",
+      "datetime": "datetime",
+      "timestamp": "datetime",
+      "time": "datetime",
+      "json": "json",
+      "jsonb": "json",
+      "object": "json",
+      "array": "json"
+    },
+    "semanticHints": {
+      "description": "Aliases that normalize to a base type but carry UI and validation intent: the dictionary gives each its own reference, so the generated form draws the right control.",
+      "email": "string rendered as email input, validated as email",
+      "url": "string rendered as url input",
+      "password": "string rendered as password input, min length enforced",
+      "phone": "string rendered as tel input",
+      "color": "string rendered as color picker",
+      "uuid": "string treated as a UUID primary/foreign key"
+    },
+    "default": "string"
+  },
+  "attributes": {
+    "description": "The keys of one entry in an entity's `attributes` list. `name` and `type` are required; every flag defaults to false.",
+    "keys": {
+      "name": {
+        "meaning": "The column name, snake_case."
+      },
+      "type": {
+        "meaning": "One of the types.map keys, optionally with a length: `string(120)`."
+      },
+      "pk": {
+        "meaning": "Primary key.",
+        "effects": [
+          "unique",
+          "never required on a create — the generator supplies it",
+          "sets the entity's primary key"
+        ]
+      },
+      "fk": {
+        "meaning": "Foreign key.",
+        "effects": [
+          "marks the column as a reference; with a reference-shaped name it becomes a lookup (see foreignKeys)"
+        ]
+      },
+      "unique": {
+        "meaning": "Unique key.",
+        "effects": [
+          "a unique index"
+        ]
+      },
+      "optional": {
+        "meaning": "Nullable.",
+        "effects": [
+          "not required on a create"
+        ]
+      },
+      "enum": {
+        "meaning": "The name of an entry in `enums`.",
+        "effects": [
+          "the column becomes a dropdown of that enum's values (a List reference)"
+        ]
+      },
+      "help": {
+        "meaning": "What the column is for, in the business's words.",
+        "effects": [
+          "sys_column.description, the hint under the control, and the column's row in the manual"
+        ]
+      },
+      "comment": {
+        "meaning": "A note for the model's readers. Carried, not compiled."
+      },
+      "ui": {
+        "meaning": "Reserved: a control override. Validated and carried; not compiled."
+      },
+      "default": {
+        "meaning": "Reserved: a default value. Validated and carried; not compiled."
+      },
+      "min": {
+        "meaning": "Reserved: a lower bound. Validated and carried; not compiled."
+      },
+      "max": {
+        "meaning": "Reserved: an upper bound. Validated and carried; not compiled."
+      },
+      "format": {
+        "meaning": "Reserved: a display format. Validated and carried; not compiled."
+      }
+    },
+    "defaults": {
+      "required": "true unless `optional` or `pk`",
+      "unique": "false unless `unique` or `pk`"
+    },
+    "generatedKey": "An entity that declares no `id` column and no unique or primary `*_id` column gets an `id uuid` primary key from the generator. A declared natural key (a `code`, an `sku`) is then a unique column beside it."
+  },
+  "foreignKeys": {
+    "description": "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone — there is no explicit target syntax on the attribute — so the name has to carry the reference.",
+    "suffix": "_id",
+    "resolution": [
+      "1. A person-role name (see personRoleColumns) resolves to the model's person entity (User if it exists, then Staff, then Employee).",
+      "2. Otherwise <entity>_id resolves to bus_<entity>.",
+      "3. A column that resolves to nothing is stored as a plain string: no lookup, no display name, the raw id renders in grids and forms."
+    ],
+    "personRoleColumns": {
+      "description": "Columns naming a person by the role they played rather than by entity. All resolve to the model's person entity (User > Staff > Employee, whichever exists first).",
+      "suffixes": [
+        "_by",
+        "_by_id"
+      ],
+      "names": [
+        "assigned_to",
+        "author_id",
+        "lab_manager_id",
+        "manager_id",
+        "owner_id",
+        "pi_id",
+        "remediation_owner",
+        "remediation_owner_id",
+        "user_id"
+      ],
+      "examples": [
+        "reported_by_id -> bus_user (or bus_staff when the model has no User entity)",
+        "registered_by_id -> bus_user (or bus_staff / bus_employee)",
+        "pi_id -> bus_user (a principal investigator is a person, not a bus_pi table)"
+      ]
+    },
+    "checkerCodes": {
+      "EML114": "An `fk` column that does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by` becomes `reported_by_id` — everywhere the model names it — and starts resolving to the person entity.",
+      "EML119": "A column named like a reference (_id/_by, resolving to a declared entity) without `fk: true`. Both conditions are required for TABLE_DIRECT, and a column that fails either is recorded as a plain String."
+    }
+  },
+  "applicationDictionary": {
+    "description": "The generated application is metadata-driven: it does not hard-code forms. Every table, column, tab, field and lookup is a row in the Application Dictionary (sys_table, sys_column, sys_field, sys_tab, sys_window, sys_category, sys_reference, sys_ref_list), and the running interface reads those rows, which is why a field can be added to a live application without a deployment. Nothing in a model writes dictionary rows: they are derived, one way, from the entities. There is no dictionary key, and a model that wants a lookup or a dropdown gets one by declaring the column so that the derivation produces it.",
+    "derivedBy": "packages/core/src/types/bus-entity.types.ts (attributeReferenceId, isForeignKeyColumnName, attributeToBusAttribute)",
+    "consumedBy": [
+      "packages/generator/src/generators/tanstack-astryx-loco/dictionary-seed.ts (sys_table, sys_column, sys_tab, sys_field, sys_window seeds)",
+      "crates/appwithai-gen/src/dictionary.rs (the same seed, byte for byte)",
+      "the generated frontend (renders a control per sys_reference_id)"
+    ],
+    "referenceTypes": {
+      "description": "sys_reference_id decides the control the user gets. Ids below 1000 are the standard references below; an enum creates its own List reference at 1000 or above, with one sys_ref_list row per value.",
+      "standard": {
+        "10": "String - plain text box",
+        "11": "Integer",
+        "12": "Amount - decimal, right aligned",
+        "13": "ID - the record key, read-only",
+        "14": "Text - memo box",
+        "15": "Date",
+        "16": "DateTime",
+        "17": "List - dropdown fed by sys_ref_list",
+        "18": "Table - lookup with an explicit validation rule",
+        "19": "Table Direct - lookup on the table the column name resolves to",
+        "20": "Yes-No - switch",
+        "21": "Location",
+        "22": "Locator",
+        "23": "Account",
+        "24": "URL",
+        "25": "Image",
+        "26": "File",
+        "27": "Color",
+        "28": "JSON",
+        "29": "Password - masked",
+        "30": "Email",
+        "31": "Phone"
+      }
+    },
+    "derivation": [
+      "1. The entity's primary key, or a column named `id`, gets ID (13).",
+      "2. A column that is BOTH `fk: true` and named _id/_by (see foreignKeys.resolution) gets TABLE_DIRECT (19) - the lookup on the parent table.",
+      "3. A column with `enum: <Enum>` gets that enum's List reference (>= 1000).",
+      "4. Otherwise the semantic aliases decide: email/phone/url/password/color map to their own references (30, 31, 24, 29, 27).",
+      "5. Otherwise the canonical type decides: text -> Text, boolean -> Yes-No, decimal/money -> Amount, date -> Date, datetime -> DateTime, json -> JSON, integer -> Integer, everything else -> String."
+    ],
+    "silentDowngrades": {
+      "description": "Two authoring mistakes leave a column at String (10) with a document that is otherwise correct. Both were invisible before EML119 and EML146: the model validates, the relationship can be declared, and the generated application comes back with raw ids in text boxes.",
+      "unmarkedReference": "`{ name: vendor_id, type: string }` and the same with `fk: true` describe the same column, and only the second becomes TABLE_DIRECT. Reported as EML119.",
+      "unboundLifecycleColumn": "An enum does nothing to a column on its own. Without the column's `enum` key, a status/state/stage column is free text, and the form accepts values the state machine cannot act on. Reported as EML146."
+    },
+    "displayValue": {
+      "description": "What a record is called wherever something other than the record shows it: a Table Direct dropdown, and a grid cell holding a foreign key. Stored as sys_column.is_identifier, and the display value is the identifier columns concatenated in seq_no order - the same rule in both generators.",
+      "derivation": [
+        "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
+        "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
+        "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
+        "4. Otherwise, if the entity declares two or more FK columns ending _id/_by, it is a join entity: its first two references are the identifiers, each resolved through the parent's own label. CampaignMember reads as `Spring Promo - Omar Kowalski`.",
+        "5. Otherwise the first declared string/text column that is neither the key nor a reference.",
+        "6. Otherwise the key, so a lookup still lists something."
+      ],
+      "joinEntities": {
+        "description": "An entity whose identity is the pair of records it joins - CampaignMember, OrderLine, QuoteLineItem - has no name to give it, and step 5 would pick whatever text column came first: member_status, so every campaign member read `invited`. Two or more references and no name of its own is the shape.",
+        "depth": "One level only. A parent that is itself a join entity labels itself by its key rather than recursing, because a label assembled from four grandparents is not a name anybody reads.",
+        "pairOnly": "The first two references in declared order, never more. An entity with three parents labels itself from the first two, which is the only say the modeller has in it - so declare the two that name the record first.",
+        "separator": "Two names of one record join with a space (`Omar Kowalski`); two records join with an em dash (`Spring Promo - Omar Kowalski`). Sharing one separator turns a person into `Omar - Kowalski`.",
+        "sqlNote": "A generated key is UUID and a reference to it is VARCHAR(255), because the model declares `campaign_id` as a string `fk`. Postgres coerces a text parameter to uuid but refuses to compare the two columns, so the resolving subquery casts both sides."
+      },
+      "primaryKeyIsNotAnIdentifier": "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
+      "modellingAdvice": "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first. A join entity is the exception and needs nothing: it names itself from its parents."
+    },
+    "managedColumns": {
+      "description": "Columns every generated table carries, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
+      "names": [
+        "id",
+        "version",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "deleted_at",
+        "deleted_by"
+      ],
+      "declaringOne": "Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column \"created_at\" specified more than once`, so the generated application could not open its database. The generator now drops the model's definition and keeps its own; EML103 reports the line.",
+      "checkerCodes": {
+        "EML103": "A column the generator manages, declared in the model - the declaration is ignored."
+      }
+    },
+    "alsoDerived": [
+      "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
+      "An entity's `indexes` become real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
+      "`categories` become the dashboard grouping; a model declaring none gets a single General category holding every entity.",
+      "A column's `help` and an entity's `help` become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table.",
+      "An entity's `parent: <Parent>` makes it a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
+      "An entity's `icon` becomes sys_table.icon — the entity's dashboard card, its window heading and its navigation entry all draw it. It is a lucide name, and an administrator may override it afterwards in Table and Column, including by uploading an image; the same column holds both. A category carries an `icon` the same way, for its heading.",
+      "The remaining entity keys (label, prefix, softDelete, audited) are validated and carried but not yet compiled."
+    ],
+    "helpText": {
+      "description": "The only explanation a generated application has. An entity's `help` becomes sys_table.description and opens that entity's section of manual.html; a column's `help` becomes sys_column.description, the hint under the control, and the column's row in the manual. There is no second source — no hand-written tooltip, no README beside the form, no designer to ask — so a model that skips it produces an application whose manual is a table of dashes.",
+      "required": "On every entity and every column, without exception, including the ones that feel self-evident. The primary key is the one thing that needs none: it is a generated uuid, read-only on every form, and the only sentence anyone could write about it restates its name.",
+      "mustBeDomainKnowledge": "Help is where the *business* lands in the model, not where the schema is paraphrased. `Household id for HouseholdMember.` is the column name in a sentence and leaves the reader exactly where they started; `The family this membership is in — listed inside the household's own screen, since a membership away from its household is not something anybody looks up.` is what the field is for. The distinction is not style: help is compiled, so the difference between the two reaches every form, every dictionary row and every page of the manual.",
+      "whatToSay": [
+        "An entity: what this record is for in the business, when one comes into existence, what distinguishes it from the entities it sounds like, and what it must not be confused with.",
+        "A column: why the value matters, what is expected in it, what reads it downstream, and what goes wrong when it is wrong.",
+        "A reference column: what the reference is *for* — `the ward this bed stands in`, not `the ward id`.",
+        "An enum-bound column: what each value means to the business, because the dictionary lists the values and nothing else says what choosing one does.",
+        "A lifecycle column: which moves are possible from which state, since the state machine enforces a topology the form cannot show."
+      ],
+      "whenToWriteIt": "While the model is being written, and nowhere else. The moment a model is authored is the only moment anybody knows the answers, and no later pass adds them — which is why this is the most-skipped part of a model and the most expensive to skip.",
+      "checkerCodes": {
+        "EML151": "warning — help that restates its own subject: `Unique identifier for X`, the column name in prose (`Status for Client`), or a template sentence (`Address is a business record in the wealth-management platform`). Deliberately narrow: real help that happens to be short is not a restatement and does not fire.",
+        "EML152": "warning — an entity with no `help` at all.",
+        "EML153": "warning — the columns of one entity with no `help`, reported once per entity and naming them. One diagnostic per column would bury every other finding on a model that skipped help entirely, which is the common case."
+      }
+    },
+    "masterDetail": {
+      "description": "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
+      "effects": [
+        "The child gets no sys_window and no dashboard card: it is not somewhere the user navigates to.",
+        "The child's sys_tab is created under the parent's window at tab_level 1, sequenced after the master tab.",
+        "sys_tab.link_column_id is set to the child's own foreign key back to the parent, and that column is marked sys_column.is_parent.",
+        "Opening a parent record lists its children beneath the form, filtered to that record."
+      ],
+      "linkColumn": "The child's existing foreign key to the parent - <parent_snake>_id when present, else the first FK column whose name begins with the parent's snake_case name. Never declared twice: the relationship is already in the ERD.",
+      "identifyingAChild": [
+        "Would a list of these records, away from their owner, be useful to anyone? If not, it is a child.",
+        "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
+        "Would deleting the owner make the row meaningless? If so, it is a child.",
+        "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
+      ],
+      "whyItMustBeDeclared": "Nothing derives it, and the default is not an error. A model that never declares `parent` produces an application in which every line item carries its own dashboard card and its own screen, and no parent record shows its own lines — an invoice whose lines cannot be read from it, beside a card listing every line ever written. EML149 exists to name the candidates, because a silent default is the one thing a checker can still be useful about.",
+      "leaveItOutOfCategory": "A category is the dashboard's grouping, and a child has no card, so listing a child in one asks for a card the dictionary will not create. Reported as EML150.",
+      "detection": {
+        "description": "EML149 is an info rather than an error, because whether a list of these records away from their owner is useful to anyone is a question about the business and not about the document. The checker names the candidate parent and the foreign key the tab would link on; the author answers it either way.",
+        "shapes": [
+          "The entity's name begins with a declared entity's name and it carries a foreign key to that entity — InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team, FinancialPlanAssumption/FinancialPlan. The longest match wins, so a name that begins with two declared entities belongs to the longer one.",
+          "The entity's name ends in a line-item noun (Line, LineItem, Item, Detail, Entry, Row, singular or plural) and one of its foreign keys resolves to a declared entity — RecommendationItem under InvestmentRecommendation."
+        ],
+        "quietOn": "An entity that merely references another. Most foreign keys are references, and neither shape fires on one."
+      },
+      "key": "parent"
+    },
+    "checkerCodes": {
+      "EML103": "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
+      "EML119": "A reference-shaped column without `fk: true` - the lookup is lost.",
+      "EML146": "A status/state/stage column with no `enum` - the dropdown is lost.",
+      "EML147": "An entity's `parent` names an entity that is not declared, or the entity names itself.",
+      "EML148": "An entity's `parent` is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
+      "EML149": "info — an entity shaped like a line item that declares no parent:. Names the candidate parent and the column a tab would link on. Never an error: identifyingAChild's three questions are about the business, not the document.",
+      "EML150": "warning — an entity declared parent: is also listed in a category. The category asks for a dashboard card `parent` has taken away.",
+      "EML151": "warning — entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
+      "EML152": "warning — an entity with no help text at all.",
+      "EML153": "warning — columns with no help text, reported once per entity.",
+      "EML155": "An index names a column its entity does not declare. The index is left out of the DDL, because a migration that cannot apply is worse than a missing index.",
+      "EML500": "A state machine bound to an entity with no status/state/stage column at all - the machine has nothing to track."
+    },
+    "reportDesigns": {
+      "description": "Generated applications include a document report subsystem backed by the AnkaReport library. One default AnkaReport layout is seeded per entity into sys_report_designs at generation time. Administrators can customise any layout at Admin → Report Designs. Users get a Print button on a record's detail view (visible only when a design exists for that table), and can export the rendered report to PDF.",
+      "table": "sys_report_designs",
+      "columns": {
+        "id": "UUID primary key",
+        "table_name": "Entity table name; UNIQUE — one design per table",
+        "name": "Human-readable design name (e.g. \"Contact Default Report\")",
+        "layout": "JSONB AnkaReport ILayout object — headerSection, contentSection, footerSection"
+      },
+      "defaultLayout": {
+        "description": "Seeded by the generated backend from the dictionary. Fields in the layout are every non-audit, non-PK column: not id, created_at, updated_at, deleted_at, version.",
+        "structure": {
+          "headerSection": "height 56; entity displayName + \" Report\" in 20pt bold #0f4c75",
+          "contentSection": "binding: \"records\"; one label+value row per field, 24pt high with 4px gap",
+          "footerSection": "height 28; \"Generated by APPWITHAI\" in 9pt #9ca3af centered"
+        }
+      },
+      "adminRoutes": [
+        "GET /admin/reports — lists all entity tables with Designed/New badge",
+        "GET /admin/reports/:tableName — opens AnkaReport designer pre-loaded with the existing layout"
+      ],
+      "backendEndpoints": [
+        "GET /sys/report-designs — list all designs",
+        "GET /sys/report-designs/:tableName — get design by table",
+        "POST /sys/report-designs — create (admin only)",
+        "PUT /sys/report-designs/:tableName — upsert (admin only)",
+        "DELETE /sys/report-designs/:tableName — delete (admin only)"
+      ],
+      "printButton": "Appears in the record toolbar (ADToolbar hasPrintReport prop) only when a design exists for the current entity. Clicking opens ReportPrintModal which renders the report via AnkaReport.render() and offers PDF export.",
+      "authoringNote": "No model key controls report designs. The default layout is always seeded automatically from the entity's columns. Customisation is done through the running Admin UI, not through the model."
+    }
+  },
+  "cardinalities": {
+    "description": "How many records may stand at each end of a relationship, and the kind of relationship the two ends make. A relationship states `fromCardinality` and `toCardinality`; these eight pairs are the language's relationships, and the kind decides which side carries the foreign key: the many side of a one-to-many, named after the one side.",
+    "ends": {
+      "exactly-one": "one record, always",
+      "zero-or-one": "at most one record",
+      "zero-or-more": "any number of records, none included",
+      "one-or-more": "at least one record"
+    },
+    "map": [
+      {
+        "from": "exactly-one",
+        "to": "exactly-one",
+        "kind": "oneToOne",
+        "example": "User exactly-one — exactly-one Profile"
+      },
+      {
+        "from": "exactly-one",
+        "to": "zero-or-more",
+        "kind": "oneToMany",
+        "example": "Company exactly-one — zero-or-more Contact"
+      },
+      {
+        "from": "exactly-one",
+        "to": "one-or-more",
+        "kind": "oneToMany",
+        "example": "Order exactly-one — one-or-more OrderItem"
+      },
+      {
+        "from": "zero-or-more",
+        "to": "exactly-one",
+        "kind": "manyToOne",
+        "example": "Deal zero-or-more — exactly-one DealStage"
+      },
+      {
+        "from": "one-or-more",
+        "to": "exactly-one",
+        "kind": "manyToOne",
+        "example": "OrderItem one-or-more — exactly-one Order"
+      },
+      {
+        "from": "zero-or-more",
+        "to": "zero-or-more",
+        "kind": "manyToMany",
+        "example": "Student zero-or-more — zero-or-more Course"
+      },
+      {
+        "from": "one-or-more",
+        "to": "one-or-more",
+        "kind": "manyToMany",
+        "example": "Author one-or-more — one-or-more Book"
+      },
+      {
+        "from": "zero-or-one",
+        "to": "zero-or-one",
+        "kind": "oneToOne",
+        "example": "Employee zero-or-one — zero-or-one ParkingSpace"
+      }
+    ]
+  },
+  "hooks": {
+    "description": "Lifecycle event points a hook may bind to. Each entry of the model's `hooks` names an entity, an event and a handler, and generates that handler in the generated backend (src/hooks/handlers/<entity>.rs), dispatched by the registry in src/hooks/mod.rs around the matching CRUD operation. The registry is rewritten on every generation; a handler module is written once and never overwritten, so the body a developer writes survives regeneration.",
+    "types": [
+      {
+        "type": "beforeCreate",
+        "phase": "before",
+        "op": "create",
+        "purpose": "Validate/transform an entity before insert (e.g. hash password, generate slug)."
+      },
+      {
+        "type": "afterCreate",
+        "phase": "after",
+        "op": "create",
+        "purpose": "Side effects after insert (e.g. send welcome email, emit event)."
+      },
+      {
+        "type": "beforeUpdate",
+        "phase": "before",
+        "op": "update",
+        "purpose": "Validate/transform before update."
+      },
+      {
+        "type": "afterUpdate",
+        "phase": "after",
+        "op": "update",
+        "purpose": "Side effects after update (e.g. audit, cache invalidation)."
+      },
+      {
+        "type": "beforeDelete",
+        "phase": "before",
+        "op": "delete",
+        "purpose": "Guard/validate before delete (e.g. block if referenced)."
+      },
+      {
+        "type": "afterDelete",
+        "phase": "after",
+        "op": "delete",
+        "purpose": "Cleanup after delete (e.g. remove files)."
+      },
+      {
+        "type": "beforeQuery",
+        "phase": "before",
+        "op": "query",
+        "purpose": "Mutate the query before it runs (e.g. tenant scoping)."
+      },
+      {
+        "type": "afterQuery",
+        "phase": "after",
+        "op": "query",
+        "purpose": "Post-process query results."
+      },
+      {
+        "type": "customValidate",
+        "phase": "validate",
+        "op": "any",
+        "purpose": "Cross-field/business validation independent of a single CRUD verb."
+      },
+      {
+        "type": "beforeRead",
+        "phase": "before",
+        "op": "read",
+        "purpose": "Guard/transform a single-record read."
+      },
+      {
+        "type": "afterRead",
+        "phase": "after",
+        "op": "read",
+        "purpose": "Post-process a single record (e.g. redact fields)."
+      },
+      {
+        "type": "beforeList",
+        "phase": "before",
+        "op": "list",
+        "purpose": "Adjust list parameters (filter/sort/paginate)."
+      },
+      {
+        "type": "afterList",
+        "phase": "after",
+        "op": "list",
+        "purpose": "Post-process a list result set."
+      }
+    ],
+    "declaration": {
+      "keys": {
+        "entity": "the entity",
+        "event": "one of `types`",
+        "handler": "the generated function's name",
+        "fields": "optional: the columns the hook is scoped to, in order; the handler is scoped to the first"
+      },
+      "example": "{ entity: User, event: beforeCreate, handler: hashPassword, fields: [password] }"
+    },
+    "flows": {
+      "description": "`hookFlows` draws the order an entity's hooks run in around a write — the request, validation, each hook, the write, the response — as nodes and edges. A node is either a hook the model declares (`event` and `handler`, which must match an entry of `hooks`) or a step shown for context (`label`). Nothing compiles a flow: it is the diagram the model viewer draws, and the checker holds it to the hooks it names.",
+      "example": "{ name: TicketHooks, entity: Ticket, nodes: [{ id: A, label: Request }, { id: B, event: beforeCreate, handler: stampReference }], edges: [{ from: A, to: B }] }"
+    }
+  },
+  "ruleNodes": {
+    "description": "A rule's `nodes` form a decision graph: each node has an `id`, a `label` and a `type`, and `edges` connect them. The type decides the GoRules JDM node the graph compiles to.",
+    "types": [
+      {
+        "type": "start",
+        "jdmType": "inputNode",
+        "role": "Where the rule receives the record being written. Exactly one per rule."
+      },
+      {
+        "type": "end",
+        "jdmType": "outputNode",
+        "role": "The rule's outcome. At least one per rule."
+      },
+      {
+        "type": "decision",
+        "jdmType": "switchNode",
+        "role": "A branch. Its label is the condition; each outgoing edge's label is the branch it takes (Yes / No / a value)."
+      },
+      {
+        "type": "expression",
+        "jdmType": "expressionNode",
+        "role": "Set or compute an output value."
+      },
+      {
+        "type": "function",
+        "jdmType": "functionNode",
+        "role": "A reusable computation step."
+      }
+    ],
+    "edges": "`{ from, to, label? }`. A label is required on every edge leaving a decision node (EML304) and optional elsewhere.",
+    "precedence": "What a rule compiles *from* follows one order: a `decisionTable` authored in the rule editor, then its `actions`, then its graph. A rule with actions compiles to a decision table whose rows carry the actions, because that is the only JDM shape the rules engine reads actions out of; the graph beside it is what the viewer draws.",
+    "actions": {
+      "description": "Side-effecting actions a rule may emit, evaluated by the rules engine after the decision runs. Each entry of a rule's `actions` declares one: the `when` expression becomes the decision-table row's condition, and `props` become its outputs. Without this a model-declared rule could only decide, never act.",
+      "keys": {
+        "name": "an identifier, unique within the rule",
+        "type": "one of `types` below",
+        "when": "a zen expression over the record being written; absent or `true` fires on every write",
+        "props": "the action's properties, as `types` lists them"
+      },
+      "whenForm": "A zen expression over the record being written, e.g. `severity == \"critical\"`. Quote it in YAML when it contains `:` or starts with a quote.",
+      "types": [
+        {
+          "name": "trigger-workflow",
+          "purpose": "Run a workflow definition by name. This is what gates a saga declared with `trigger: rule` on a condition.",
+          "required": [
+            "workflow"
+          ],
+          "optional": [
+            "message"
+          ],
+          "example": "{ name: escalate, type: trigger-workflow, when: 'severity == \"critical\"', props: { workflow: CriticalDeviationEscalation } }"
+        },
+        {
+          "name": "validation-error",
+          "purpose": "Reject the write. The message is returned to the caller.",
+          "required": [
+            "message"
+          ],
+          "optional": [],
+          "example": "{ name: requireCause, type: validation-error, when: 'status == \"closed\" and root_cause == null', props: { message: A closed deviation needs a root cause } }"
+        },
+        {
+          "name": "transform",
+          "purpose": "Overwrite a field on the record being written.",
+          "required": [
+            "field",
+            "value"
+          ],
+          "optional": [
+            "message"
+          ],
+          "example": "{ name: stampSeverity, type: transform, when: \"true\", props: { field: severity, value: major } }"
+        }
+      ]
+    }
+  },
+  "workflowConstructs": {
+    "description": "The three kinds of workflow a model declares: state machines, sagas and hook flows.",
+    "stateMachines": {
+      "key": "stateMachines",
+      "declaration": "{ name, title?, entity, states: [..], initial?, final?: [..], transitions: [{ from, to, trigger? }] }",
+      "description": "The lifecycle an entity's status column moves through. `states` lists them in order, `initial` is where a new record starts (the first state when omitted), `final` are the states with no way out, and `transitions` are the only moves that exist. The status column should be bound to an enum carrying exactly these states (EML146, EML427).",
+      "enforcement": "The edges are enforced, not merely documented. Every transition a state machine declares is compiled into sys_workflow_transitions, and the generated backend (services/authz.rs, require_transition) refuses a write that moves a record to a state with no matching edge from the state it is in — answering 400 and leaving the record where it was. This holds for every caller, the master role included: an edge the model never declared is not a permission an administrator lacks, it is a move that does not exist, and allowing it would put the record in a state every rule and workflow downstream was written without. Who may cross an edge that does exist is the separate question the model's access rules answer, from sys_transition_access, and that one the master role does bypass. Keep the two apart: enforcing topology only where a role rule happens to cover it leaves every unguarded edge open.",
+      "readingTheEdges": "GET /api/workflows/transitions returns the stored edges, optionally narrowed by ?table= and ?from=. A screen offering a status change asks this rather than offering every state and letting the save be refused. A table with no state machine has no rows and nothing is enforced for it.",
+      "example": "{ name: OrderLifecycle, entity: Order, states: [draft, submitted, shipped], initial: draft, final: [shipped], transitions: [{ from: draft, to: submitted, trigger: submit }, { from: submitted, to: shipped, trigger: ship }] }"
+    },
+    "sagas": {
+      "key": "sagas",
+      "declaration": "{ name, title?, entity, trigger?: automatic|rule, operation?: CREATE|UPDATE|DELETE|ALL, description?, steps: [..] }",
+      "description": "A multi-entity, multi-step process — create a row here, update one there, delete a third, passing values between the steps — expressed in the model rather than drawn by hand in the application. Steps run in the order they are listed. Compiles to BPMN service tasks seeded into sys_workflow_definitions with source 'model' and run by the generated workflow executor; the generated Workflow Designer shows a model-owned definition read-only, and regeneration rewrites it.",
+      "trigger": {
+        "automatic": "Runs on every write to the bound entity that matches the workflow's operation. The default.",
+        "rule": "Runs only when a business rule emits a trigger-workflow action naming it, so the rule's condition decides. Use this whenever the workflow should not fire on every write."
+      },
+      "operation": "Which write runs the workflow. Defaults to CREATE. Only consulted for trigger: automatic — a rule-triggered workflow is resolved by name, so the rule decides.",
+      "example": "{ name: CriticalDeviationEscalation, entity: DeviationReport, trigger: rule, operation: CREATE, steps: [{ id: open, type: CreateEntity, properties: { entity: Capa, as: capaId, fields: '{\"title\":\"deviation_title\"}' } }] }"
+    },
+    "hookFlows": {
+      "key": "hookFlows",
+      "description": "See hooks.flows."
+    },
+    "stepNodes": {
+      "description": "Executable step types for a saga. Each entry of a saga's `steps` names one of these as its `type` and supplies its `properties`; each becomes one bpmn:serviceTask with appwithai:property extension elements. This table is the single source of truth for the checker, both generators, the modelling tool's canvas and the generated Workflow Designer.",
+      "declaration": "{ id, type, label?, properties? } — `id` is unique within the saga, `properties` is a map of strings.",
+      "propertyForm": "Every property value is a string. `fields` (CreateEntity) and `decisionTable` (Decision) are JSON, written as a YAML string.",
+      "variables": "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      "loopMembership": "`in: <loopId>` joins a step to a loop of an automation. It is read off every step type alike, before the type is consulted, so it belongs to no single contract below and is deliberately absent from their `optional` lists — see automations.loops.",
+      "types": [
+        {
+          "name": "UpdateEntity",
+          "purpose": "Write one column on the triggering record, or on rows of a related entity.",
+          "required": [
+            "field"
+          ],
+          "oneOf": [
+            [
+              "source",
+              "value"
+            ]
+          ],
+          "optional": [
+            "entity",
+            "targetField",
+            "targetSource"
+          ],
+          "rowTargeting": "Defaults to the record that triggered the workflow. To reach another entity, set `entity` plus either `targetSource` (a context key holding the row id) or `targetField` (a foreign key column matched against the triggering row). Targeting another entity by `id` with no `targetSource` is refused rather than guessed.",
+          "example": "{ id: D, type: UpdateEntity, properties: { entity: Capa, targetSource: newCapaId, field: effectiveness_metric, source: resolutionDays } }"
+        },
+        {
+          "name": "CreateEntity",
+          "purpose": "Insert a row, optionally publishing its id for later steps.",
+          "required": [
+            "entity",
+            "fields"
+          ],
+          "optional": [
+            "as"
+          ],
+          "notes": [
+            "`fields` is a JSON object of column -> context key or literal. A string that names a context key is substituted; anything else is written as-is.",
+            "`as` names the variable the new row's id is published under. It defaults to the table name without its bus_ prefix plus `Id`. Without it a workflow can insert a row and then never reach it again."
+          ],
+          "example": "{ id: C, type: CreateEntity, properties: { entity: Capa, as: newCapaId, fields: '{\"title\":\"capaTitle\",\"status\":\"open\"}' } }"
+        },
+        {
+          "name": "DeleteEntity",
+          "purpose": "Delete the triggering record or rows of a related entity.",
+          "required": [],
+          "optional": [
+            "entity",
+            "targetField",
+            "targetSource",
+            "hard"
+          ],
+          "notes": [
+            "Soft by default: stamps deleted_at, so the audit trail still points at a row that exists. `hard: true` removes it.",
+            "Row targeting matches UpdateEntity exactly, including the refusal to touch another entity by `id` with no targetSource."
+          ],
+          "example": "{ id: F, type: DeleteEntity, properties: { entity: Capa, targetSource: supersededCapaId } }"
+        },
+        {
+          "name": "Decision",
+          "purpose": "Evaluate a GoRules decision table and publish the matching row's output columns as variables the following steps read.",
+          "required": [],
+          "oneOf": [
+            [
+              "decisionTable",
+              "rule"
+            ]
+          ],
+          "optional": [
+            "publish"
+          ],
+          "notes": [
+            "`decisionTable` is the table itself as JSON — { hitPolicy, inputs, outputs, rules } — for logic only this process cares about. The generator wraps it in the input -> table -> output graph the engine evaluates, so a step never carries that plumbing.",
+            "`rule` names a rule declared elsewhere in the model, for when the same table already governs the entity and the process should not fork a second copy of it.",
+            "Outputs become variables under their `field` name. `publish` narrows that to a comma-separated allow-list when a table emits more than the process needs.",
+            "A table that matches no row publishes nothing. That is how 'leave it alone' is expressed, not an error — later steps that read a variable it would have set skip themselves.",
+            "Every row must set every output column: the engine silently discards a row that leaves one unset, and one such row stops the whole table matching."
+          ],
+          "example": "{ id: B, type: Decision, properties: { rule: ClassifySeverity, publish: 'priority, slaDays' } }"
+        },
+        {
+          "name": "Formula",
+          "purpose": "Publish a value into the workflow context for later steps.",
+          "required": [
+            "target",
+            "operation"
+          ],
+          "operations": {
+            "multiply": "target = Number(source) * Number(operand)",
+            "divide": "target = Number(source) / Number(operand)",
+            "add": "target = Number(source) + Number(operand)",
+            "subtract": "target = Number(source) - Number(operand)",
+            "set": "target = value, stored unchanged. The only way to pass text — a status, a title — to a later step.",
+            "copy": "target = context[source], carried across unchanged."
+          },
+          "perOperation": {
+            "multiply": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "divide": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "add": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "subtract": {
+              "required": [
+                "source",
+                "operand"
+              ]
+            },
+            "set": {
+              "required": [
+                "value"
+              ]
+            },
+            "copy": {
+              "required": [
+                "source"
+              ]
+            }
+          },
+          "example": "{ id: B, type: Formula, properties: { target: resolutionDays, source: baseDays, operation: multiply, operand: \"7\" } }"
+        },
+        {
+          "name": "REST",
+          "purpose": "Call an external HTTP endpoint.",
+          "required": [
+            "url"
+          ],
+          "optional": [
+            "method",
+            "bodyTemplate"
+          ],
+          "notes": [
+            "`bodyTemplate` interpolates {{key}} from the workflow context."
+          ],
+          "example": "{ id: E, type: REST, properties: { url: https://hooks.example.com/notify, method: POST } }"
+        },
+        {
+          "name": "Agent",
+          "purpose": "Invoke an AI agent. Placeholder pending Mastra integration — the executor logs and skips.",
+          "required": [
+            "agentId"
+          ],
+          "shipped": false,
+          "example": "{ id: G, type: Agent, properties: { agentId: deviation-triage-v1 } }"
+        }
+      ]
+    }
+  },
+  "automations": {
+    "description": "The automation document: the form a workflow takes when it is built in the automation builder — in the modelling tool and in a generated application. An automation is one sentence: a trigger, a flat list of conditions that must all pass, and an ordered list of steps. There is deliberately no graph: the executor runs steps in order and stops at the first failure, so a list is the honest representation. It is a constrained profile of `workflowConstructs.stepNodes`, not a second language: its steps are the same executable steps a saga declares.",
+    "document": {
+      "description": "Each automation is its own YAML document, stored in sys_workflow_definitions.definition_yaml. The backend refuses a document of any other shape.",
+      "version": "automation: \"1.0\"",
+      "keys": {
+        "automation": "the document version, \"1.0\"",
+        "name": "what the automation is called",
+        "description": "optional",
+        "kind": "automation | hook | saga",
+        "trigger": "{ entity, event } — the record type and the event (triggers.events) that starts it",
+        "sagaTrigger": "saga only: automatic | rule",
+        "sagaOperation": "saga only: CREATE | UPDATE | DELETE | ALL",
+        "conditions": "[{ id, field, operator, value }] — all must pass",
+        "loops": "[{ id, condition, maxPasses }]",
+        "steps": "[{ id, type, resultName, props, loopId?, table? }]",
+        "hooks": "hook kind only: [{ id, event, handler, field? }]",
+        "status": "draft | live | paused"
+      },
+      "writer": "frontend/src/lib/automation/yaml.ts automationToYaml()",
+      "reader": "frontend/src/lib/automation/yaml.ts automationFromYaml()",
+      "stable": "Keys are written in a fixed order and nothing that belongs to the screen is stored, so saving the same automation twice writes the same bytes."
+    },
+    "shipped": true,
+    "triggers": {
+      "description": "The events an automation can start from. These are the entity lifecycle hooks the generated services already fire, so a trigger is not a new concept — it is the hook, named the way someone describing their business would name it. The document stores the event name; the generated service runs the hook it maps to.",
+      "events": [
+        {
+          "event": "created",
+          "hook": "afterCreate",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the record is written. The record already exists."
+        },
+        {
+          "event": "beforeCreated",
+          "hook": "beforeCreate",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the record is written, so it can still block the write."
+        },
+        {
+          "event": "updated",
+          "hook": "afterUpdate",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the change is saved."
+        },
+        {
+          "event": "beforeUpdated",
+          "hook": "beforeUpdate",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the change is saved, so it can still block it."
+        },
+        {
+          "event": "deleted",
+          "hook": "afterDelete",
+          "phase": "after",
+          "blocking": false,
+          "purpose": "Runs after the record is removed."
+        },
+        {
+          "event": "beforeDeleted",
+          "hook": "beforeDelete",
+          "phase": "before",
+          "blocking": true,
+          "purpose": "Runs before the record is removed, so it can still block it."
+        }
+      ]
+    },
+    "conditions": {
+      "description": "A flat list of checks that must ALL pass for the steps to run. There is no OR and no nesting: an author who needs alternatives writes a second automation, which stays readable where a boolean tree does not. Zero conditions means the automation always runs.",
+      "form": "{ id, field, operator, value } — `value` is a string, empty for an operator of arity 0.",
+      "operators": [
+        {
+          "id": "eq",
+          "label": "is",
+          "arity": 1
+        },
+        {
+          "id": "neq",
+          "label": "is not",
+          "arity": 1
+        },
+        {
+          "id": "gt",
+          "label": "is greater than",
+          "arity": 1
+        },
+        {
+          "id": "gte",
+          "label": "is greater than or equal to",
+          "arity": 1
+        },
+        {
+          "id": "lt",
+          "label": "is less than",
+          "arity": 1
+        },
+        {
+          "id": "lte",
+          "label": "is less than or equal to",
+          "arity": 1
+        },
+        {
+          "id": "contains",
+          "label": "contains",
+          "arity": 1
+        },
+        {
+          "id": "startsWith",
+          "label": "starts with",
+          "arity": 1
+        },
+        {
+          "id": "isEmpty",
+          "label": "is empty",
+          "arity": 0
+        },
+        {
+          "id": "isNotEmpty",
+          "label": "is not empty",
+          "arity": 0
+        },
+        {
+          "id": "changed",
+          "label": "changed",
+          "arity": 0
+        }
+      ]
+    },
+    "steps": {
+      "description": "An ordered list. A step may name its result with `resultName`, which publishes a reference later steps can read.",
+      "types": [
+        {
+          "type": "Decision",
+          "purpose": "Evaluate a rule table and publish its outputs.",
+          "properties": [
+            "ruleTable",
+            "inputs"
+          ],
+          "example": "{ id: s1, type: Decision, resultName: tier, props: { ruleTable: Assay tier } }"
+        },
+        {
+          "type": "CreateEntity",
+          "purpose": "Create a record on another entity.",
+          "properties": [
+            "entity",
+            "values"
+          ],
+          "example": "{ id: s2, type: CreateEntity, resultName: newId, props: { entity: ChemicalInventory } }"
+        },
+        {
+          "type": "UpdateEntity",
+          "purpose": "Write a field, by default on the triggering record.",
+          "properties": [
+            "entity",
+            "field",
+            "value"
+          ],
+          "example": "{ id: s3, type: UpdateEntity, resultName: \"\", props: { field: status, value: \"{{tier}}\" } }"
+        },
+        {
+          "type": "DeleteEntity",
+          "purpose": "Remove a record.",
+          "properties": [
+            "entity",
+            "target"
+          ],
+          "example": "{ id: s4, type: DeleteEntity, resultName: \"\", props: { entity: Vendor } }"
+        },
+        {
+          "type": "Formula",
+          "purpose": "Compute a value from two operands and publish it.",
+          "properties": [
+            "operation",
+            "left",
+            "right"
+          ],
+          "example": "{ id: s5, type: Formula, resultName: total, props: { operation: add, left: \"{{order.subtotal}}\", right: \"9\" } }"
+        },
+        {
+          "type": "REST",
+          "purpose": "Call an external service.",
+          "properties": [
+            "method",
+            "url",
+            "body"
+          ],
+          "example": "{ id: s6, type: REST, resultName: \"\", props: { method: POST, url: https://lims.example.com/hook } }"
+        }
+      ]
+    },
+    "references": {
+      "description": "What a step can read: fields of the triggering record, and the published results of every step above it. A reference is written in double braces and resolved positionally — a step can only see what precedes it, which is what makes the ladder safe to reorder.",
+      "form": "{{<name>}}",
+      "sources": [
+        "{{<entity>.<field>}} — a field of the triggering record, entity name lowercased",
+        "{{<resultName>}} — the result of an earlier step, named by its `resultName`"
+      ]
+    },
+    "loops": {
+      "description": "Repeat while a check holds. A loop is `{ id, condition, maxPasses }`, and a step joins it by carrying the loop's id in `loopId`. The member steps run in order and repeat for as long as the check passes; the loop ends the first time it fails. The check is re-evaluated before every pass against the record as it stands then — a step inside the loop changes the record, and that change is what ends the loop.",
+      "operators": "The same eleven as automations.conditions — one vocabulary for every check in the language.",
+      "safety": {
+        "required": true,
+        "form": "maxPasses: <n>",
+        "note": "Every loop must declare its own ceiling; there is no default and no engine-wide constant. A while-loop is genuinely unbounded, and an automation runs inside the write that triggered it, so a check that never fails holds a database transaction open until something times out. After `maxPasses` passes the loop is abandoned and the run is marked FAILED with the loop and the limit named. This is a backstop, not a second way to spell the count: reaching it means the automation is wrong, so it is reported rather than finishing quietly as though the loop had ended on its own.",
+        "whyPerLoop": "How many passes is obviously too many is a property of the work, not of the engine. A retry that should give up after 5 and a reconciliation that legitimately runs 800 cannot share one number without the ceiling being meaningless for one of them.",
+        "minimum": 1,
+        "maximum": "none — the author owns the number",
+        "missing": "A loop with no `maxPasses` is refused by the builder and warned about by the compiler. An executor meeting one anyway runs a single pass and gives up, because the safe direction for a loop nobody bounded is not to run it."
+      },
+      "staticCheck": "A loop whose check reads a field that no member step writes is refused when the model is compiled: it would read the same every pass, so it either never runs or runs until the safety limit cuts it off. The check is deliberately shallow — only UpdateEntity writes are matched by field name, and every other step type is treated as able to change anything, so it reports only the case it is certain about.",
+      "nesting": "Not supported. A loop may not contain another loop; a step carries at most one `loopId`. Flattening nested repeats is what makes the ladder readable and the cost predictable.",
+      "references": "Steps inside a loop see the same values as steps outside it, plus `{{<loopId>.iteration}}` — the 1-based pass number. A value published by a step inside the loop is overwritten on each pass, so after the loop it holds what the last pass produced."
+    }
+  },
+  "constructs": {
+    "description": "Every construct a model declares, the key it is declared under, and what reads it. `status` says whether a compiler changes the generated application from it.",
+    "items": [
+      {
+        "key": "name / version / description",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/generators/tanstack-astryx-loco/system-seed.ts (sys_system.APP_DESCRIPTION)",
+          "packages/generator/src/manual/index.ts"
+        ],
+        "purpose": "What the application is called and what it is for."
+      },
+      {
+        "key": "enums",
+        "status": "compiled",
+        "consumedBy": [
+          "dictionary-seed.ts (sys_reference + sys_ref_list)",
+          "crates/appwithai-gen/src/dictionary.rs"
+        ],
+        "purpose": "Named value lists reusable by columns and by state machines.",
+        "example": "{ name: OrderStatus, values: [draft, submitted, shipped] }"
+      },
+      {
+        "key": "categories",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/model/categories.ts",
+          "crates/appwithai-gen/src/category.rs"
+        ],
+        "purpose": "Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Only `name` is required. `code` is a stable short identifier, slugified from `name` when omitted — it is the dictionary row's key, so setting it explicitly keeps that key stable across a rename. A model that declares none gets a single \"General\" default holding every entity.",
+        "dashboardScope": "A category block appears on the dashboard only when the reader may read at least one entity in it: the entity list is filtered by the model's `read` access rules and line items are excluded, because a child is reached through its parent. The Application Dictionary block beside the categories is the admin windows the reader is granted through sys_access, so it differs by role too.",
+        "iconNaming": "A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_category.icon and drawn beside the category heading on the dashboard.",
+        "example": "{ name: Compound Registry, description: Structures and aliases, icon: flask-conical, color: \"#6366f1\", entities: [Compound, CompoundAlias] }"
+      },
+      {
+        "key": "entities[].help / icon / parent",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/model/compile-erd.ts",
+          "crates/appwithai-gen/src/yaml_model.rs"
+        ],
+        "purpose": "The sentence that explains the entity to whoever opens its screen, the icon that represents it, and the parent it is a line item of.",
+        "iconNaming": "`icon` is a lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_table.icon, which is what the entity's dashboard card, its window heading and the navigation all draw. An administrator can override it afterwards in Table and Column, including by uploading an image - the same column holds both."
+      },
+      {
+        "key": "entities[].label / prefix / softDelete / audited",
+        "status": "validated",
+        "consumedBy": [
+          "language/yaml/checker.ts"
+        ],
+        "purpose": "Carried and validated; no generator compiles them yet."
+      },
+      {
+        "key": "entities[].indexes",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/model/compile-erd.ts -> the bus-table DDL"
+        ],
+        "purpose": "Database indexes over one or more columns.",
+        "example": "{ columns: [company_id, status], unique: false }"
+      },
+      {
+        "key": "attributes[].enum / help",
+        "status": "compiled",
+        "consumedBy": [
+          "dictionary-seed.ts",
+          "crates/appwithai-gen/src/dictionary.rs"
+        ],
+        "purpose": "The enum a column is bound to, and what the column is for."
+      },
+      {
+        "key": "attributes[].ui / default / min / max / format",
+        "status": "reserved",
+        "consumedBy": [],
+        "purpose": "Validated and carried; no reader."
+      },
+      {
+        "key": "relationships",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/model/compile-erd.ts"
+        ],
+        "purpose": "How two entities relate; the foreign key is on the many side.",
+        "example": "{ from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }"
+      },
+      {
+        "key": "hooks",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/hooks/index.ts",
+          "crates/appwithai-gen/src/hooks.rs"
+        ],
+        "purpose": "Bind a handler to an entity's lifecycle event.",
+        "example": "{ entity: User, event: beforeCreate, handler: hashPassword }"
+      },
+      {
+        "key": "hookFlows",
+        "status": "validated",
+        "consumedBy": [
+          "language/yaml/checker.ts (EML410-EML413)",
+          "the model viewer"
+        ],
+        "purpose": "The order an entity's hooks run in, drawn."
+      },
+      {
+        "key": "rbac",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/rbac/index.ts (both forms)",
+          "packages/generator/src/rbac/roles.ts (roles, one seeded account each, per-entity visibility)",
+          "seeded into sys_operation_access / sys_transition_access",
+          "enforced by the generated backend's services/authz.rs on /api/bus/*"
+        ],
+        "purpose": "Restrict a CRUD operation or a state transition to named roles. It restricts rather than grants: a target no rule mentions is open to any authenticated caller, so a model declaring no access rules generates what it always did. A target with one or more rules requires the union of the roles they name. A master role bypasses. That bypass is over access — who may do a thing — and not over the shape of the model: a state machine's topology is enforced for the master role too, because an edge the model never declared is a move that does not exist rather than a permission anyone is missing (see workflowConstructs.stateMachines.enforcement). Role names are matched case-insensitively, because seeded roles are title-cased (Manager) and rules are written lower-case (manager) - an exact match would make such a rule unsatisfiable, locking out exactly the people it was written to admit.",
+        "declaration": "{ entity, action, roles: [..] } where `action` is create | read | update | delete | * or a trigger of the entity's state machine",
+        "notes": {
+          "operations": "create | read | update | delete, plus * for all four. Aliases are accepted (insert/add, view/select/list, edit/write/modify, remove/destroy).",
+          "transitions": "An action that is not a CRUD operation is resolved against the triggers of the entity's state machine. There is no named-transition endpoint in a generated application - moving a record along an edge is a status update - so the rule is stored as the (from_state, to_state) pair it covers and the guard recognises the move by the states the write crosses. Both ends are kept because one trigger can sit on several edges and two triggers can reach the same state. This rule decides *who* may cross an edge; whether the edge exists at all is decided by the state machine itself and enforced separately, so an edge no rule names is open to any authenticated caller but an edge the machine omits is refused to everyone.",
+          "notSysAccess": "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
+          "functionalRoles": "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity in at least one `read` rule, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
+          "seededAccounts": "Every role a rule names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both generators derive the same list (packages/generator/src/rbac/roles.ts, crates/appwithai-gen/src/rbac.rs).",
+          "reportingRoles": "Deployed beside the Enterprise Reporting platform (app-and-report-with-ai-tanstack, ./start.sh), the same rules also shape that platform's roles: one reporting role per declared role, permitted to read exactly the bus_ tables the role's `read` rules admit. It is a mirror, not a shared system. The two products have separate databases, separate user tables and separate sign-in screens, and a role name means different things on each side: in the application it decides what a user may do to a record, in the reporting platform which tables their queries may read. The accounts differ deliberately - sales.manager@<app>.example.com against sales.manager@<app>.reports.example.com - so neither is mistaken for the other, and the front door at / lists both pairs. Only `read` rules narrow a reporting role; create, update and delete restrictions mean nothing to a reader who cannot write through that product at all."
+        },
+        "example": "{ entity: Quote, action: approve, roles: [sales_manager] }"
+      },
+      {
+        "key": "triggers",
+        "status": "validated",
+        "consumedBy": [
+          "language/yaml/checker.ts (EML230-EML233)"
+        ],
+        "purpose": "Declare an event or schedule source that calls a handler (webhook, cron, message).",
+        "example": "{ entity: Quote, source: \"cron:0 0 * * *\", handler: expireQuotes }"
+      },
+      {
+        "key": "reports",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/reports/index.ts -> sys_report",
+          "crates/appwithai-gen/src/reports.rs",
+          "language/yaml/checker.ts (shape: EML290-EML296)"
+        ],
+        "purpose": "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. A report is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
+        "notes": {
+          "readOnly": "A report may only read, and this is refused three times: by the checker at authoring time (EML293), by the compiler before the query can reach a seed file, and by each runtime before it executes - because sys_report is an ordinary table, so the reader does not trust what it is handed. A single trailing semicolon is allowed; a second statement behind it is not. Anything that writes belongs in a rule or a hook.",
+          "foreignKeysAreUuid": "A foreign key and a primary key are both UUID, so a join is written plainly: ON c.account_id = p.id. Do not cast.",
+          "chartNeedsAxes": "`chart` without both `x` and `y` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
+          "namesAreKeys": "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
+          "againstWhichSchema": "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
+          "multiLine": "A long query is written as a YAML block scalar (`sql: |`) and kept as written."
+        },
+        "example": "{ name: unassigned-jobs, title: Jobs with no engineer, sql: \"SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL ORDER BY scheduled_for\" }"
+      },
+      {
+        "key": "rules",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/rules/index.ts",
+          "crates/appwithai-gen/src/rules.rs"
+        ],
+        "purpose": "Business rules bound to an entity and a lifecycle event: a decision graph, actions, or a decision table. See ruleNodes."
+      },
+      {
+        "key": "stateMachines",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/workflows/state-machine.ts",
+          "crates/appwithai-gen/src/workflows.rs"
+        ],
+        "purpose": "See workflowConstructs.stateMachines."
+      },
+      {
+        "key": "sagas",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/workflows/sagas.ts",
+          "crates/appwithai-gen/src/saga.rs"
+        ],
+        "purpose": "See workflowConstructs.sagas."
+      }
+    ],
+    "statusVocabulary": {
+      "compiled": "A generator reads this key and it changes the generated application. `consumedBy` names the file that reads it.",
+      "validated": "No generator compiles it, but the schema and the checker enforce its shape and cross-references, so a malformed one fails validation rather than being silently ignored.",
+      "reserved": "Documented and validated for shape, with no reader. Writing one is legal and inert; the key is held so a later meaning cannot collide with it."
+    }
+  },
+  "generatorContract": {
+    "description": "How a model reaches a generated application.",
+    "pipeline": [
+      "1. The YAML text -> readModelYaml (YAML, schema, checker) -> the model document. A model with an error generates nothing, and each error names its line and column.",
+      "2. The document -> documentToRecords -> ModelRecords, the one semantic layer every compiler reads. Both generators hold this step byte-identical: packages/generator/src/model-yaml/to-records.ts and crates/appwithai-gen/src/yaml_model.rs.",
+      "3. entities + relationships -> compileErdRecords -> Entity[] + Relationship[] -> the bus-table DDL, the dictionary seed, the per-entity request suites.",
+      "4. categories -> compileCategoryDeclarations -> Application Dictionary groups on the generated dashboard. A model declaring none gets a single 'General' category holding every entity.",
+      "5. rules -> compileRuleDeclarations -> a GoRules JDM graph (or decision table, when the rule declares actions or a table) -> seed/rules.sql -> sys_rule_definitions, evaluated by the rules engine on every business write.",
+      "6. hooks -> compileHookDeclarations -> src/hooks/handlers/<entity>.rs (written once) plus src/hooks/mod.rs (rewritten every run), dispatched around every CRUD operation.",
+      "7. stateMachines -> compileWorkflows -> seed/transitions.sql -> sys_workflow_transitions, which services/authz.rs reads to refuse a status write the model never allowed, and which GET /api/workflows/transitions exposes so a screen can offer only the moves that exist.",
+      "8. sagas -> compileSagaDeclarations -> one bpmn:serviceTask per step -> seed/workflows.sql -> sys_workflow_definitions with source 'model'.",
+      "9. rbac -> compileRbacDeclarations -> seed/access.sql -> per-operation rules in sys_operation_access and per-transition rules in sys_transition_access, enforced by services/authz.rs. Restrictive, not granting: a target no rule names stays open.",
+      "10. reports -> compileReportDeclarations -> seed/reports.sql -> sys_report, served at /api/reports.",
+      "11. enums and stateMachines -> the generated test suite's harness/model.ts, which carries the declared values and edges into the suites as data. This is the one consumer that reads the model rather than the dictionary compiled from it: a suite that asserts a running application against the dictionary the same generator wrote proves only that the application is self-consistent.",
+      "12. The model text itself -> model/model.eml.yaml in the generated project, byte for byte, comments included."
+    ],
+    "referenceFiles": {
+      "pipeline": "packages/generator/src/pipeline/generate-application.ts",
+      "reader": "packages/generator/src/model-yaml/validate.ts",
+      "records": "packages/generator/src/model/records.ts",
+      "toRecords": "packages/generator/src/model-yaml/to-records.ts",
+      "compiler": "packages/generator/src/model/compile.ts",
+      "erdCompiler": "packages/generator/src/model/compile-erd.ts",
+      "categoryCompiler": "packages/generator/src/model/categories.ts",
+      "jdmConverter": "packages/generator/src/rules/jdm-converter.ts",
+      "ruleCompiler": "packages/generator/src/rules/index.ts",
+      "hookCompiler": "packages/generator/src/hooks/index.ts",
+      "stateMachineCompiler": "packages/generator/src/workflows/state-machine.ts",
+      "sagaCompiler": "packages/generator/src/workflows/sagas.ts",
+      "rbacCompiler": "packages/generator/src/rbac/index.ts",
+      "reportCompiler": "packages/generator/src/reports/index.ts",
+      "checker": "language/yaml/checker.ts",
+      "fixer": "packages/generator/src/model-yaml/fixer.ts",
+      "schema": "language/yaml/eml.schema.json",
+      "rustGenerator": "crates/appwithai-gen/src/main.rs",
+      "testHarnessModel": "packages/generator/templates/tanstack-astryx-loco/tests/harness/model.ts.hbs"
+    },
+    "authoringSurface": {
+      "description": "The modelling tool edits the YAML document and draws it. It never keeps a second copy of the model in another notation: the diagram is drawn from the document, and an edit made on the diagram is an edit to the document.",
+      "viewer": "packages/web/src/components/model/ModelViewer.tsx",
+      "editorRead": "packages/web/src/lib/model/ (reads through the same readModelYaml)",
+      "automationDocument": "packages/web/src/lib/automation/yaml.ts"
+    }
+  },
+  "conformance": {
+    "levels": {
+      "core": "entities, attributes and every relationship cardinality pair the language defines; indexes, enums bound to columns, and categories. Fully compiled.",
+      "rules": "decision graphs compiled to JDM by node type, actions compiled to a GoRules decision table, and decision tables authored in the rule editor. Fully compiled.",
+      "workflows": "hooks (all 13 lifecycle events), state machines and sagas. All three are compiled and seeded; an automation built in the builder is the same saga machinery.",
+      "help": "An entity's and a column's `help`. Both are compiled: the dictionary seed writes them to sys_table.description and sys_column.description, the generated application shows them under the field and beside the table, and manual.html is written from them. Write help on every entity and every column, and write domain knowledge rather than the name again: EML151, EML152 and EML153 report the three ways a model fails to. See applicationDictionary.helpText.",
+      "access": "rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated backend's services/authz.rs.",
+      "validated": "triggers, hookFlows, and the entity keys label, prefix, softDelete and audited. No generator compiles these, but the schema and the checker enforce their shape and cross-references.",
+      "reserved": "The attribute keys ui, default, min, max and format. Validated for shape, with no reader."
+    },
+    "validationRules": [
+      "Every entity name must match ^[A-Za-z][A-Za-z0-9_]*$ and be unique within the document.",
+      "Every relationship endpoint must reference a declared entity, and the pair of ends must be one the language defines.",
+      "A hook's entity must be declared; its event must be one of the 13 hook types.",
+      "A rule's graph must have exactly one start node and at least one end node, and every edge must join declared nodes.",
+      "A column's `enum` must name a declared enum.",
+      "A saga step's `type` must be one of workflowConstructs.stepNodes.types, with the properties its contract requires.",
+      "A hook flow's hook nodes must name hooks the model declares.",
+      "At most one category may declare `default: true`.",
+      "A trigger-workflow action must name a saga the model declares, or a workflow that already exists in the target application.",
+      "An access rule's action must be a CRUD operation (create/read/update/delete/*) or a trigger of the entity's state machine.",
+      "A report's SQL must be a single SELECT or WITH statement."
+    ],
+    "note": "Levels describe what the shipped generators do, not an aspiration. A construct's own `status` in `constructs.items` is authoritative for it; these levels group them."
+  },
+  "diagnostics": {
+    "description": "The checker (language/yaml/checker.ts) validates a model document against this definition and reports each finding at the document path — and so the YAML line and column — that caused it. The fixer (packages/generator/src/model-yaml/fixer.ts) applies the auto-fixable corrections to the YAML document in place, keeping its comments, and re-runs the checker.",
+    "severities": {
+      "error": "The document is wrong and the generator would produce something incorrect or nothing at all. Exit code 1.",
+      "warning": "Legal, but almost certainly not what the author meant - a dropped modifier, a state with no enum. Exit code 1 only under --strict.",
+      "info": "An observation worth reading once; never fails a run."
+    },
+    "codeRanges": {
+      "EML001-EML099": "Document level: name, emptiness.",
+      "EML100-EML119": "Entities and attributes.",
+      "EML120-EML129": "Relationships.",
+      "EML130-EML199": "Enums, column enum bindings, entity help/icon/parent, indexes and categories — including the line-item pair EML149 and EML150.",
+      "EML200-EML299": "Hooks, access rules, triggers, reports and saga steps.",
+      "EML300-EML399": "Business rules: decision graphs and actions.",
+      "EML400-EML449": "Workflows: state machines, sagas and hook flows.",
+      "EML500-EML599": "Cross-construct consistency.",
+      "YAML": "Not YAML, or a key written twice.",
+      "SCHEMA": "Valid YAML that is not a model document."
+    },
+    "autoFixable": {
+      "EML001": "The model has no name - sets one derived from the first entity.",
+      "EML103": "A column the generator adds anyway - removes the declaration.",
+      "EML112": "A column declared twice - removes the later one, keeping the stronger constraints.",
+      "EML114": "An `fk` column not ending in _id - appends the suffix, and renames it in indexes and hook fields too.",
+      "EML117": "An entity with no primary key - adds `id` as a string primary key.",
+      "EML287": "A rule condition names a camelCase identifier - rewrites it as the snake_case column.",
+      "EML421": "A state machine with no initial state - sets `initial` to its first state.",
+      "EML422": "A state machine with no final state - sets `final` to its states that have no way out."
+    },
+    "note": "The fixer's AUTO_FIXABLE_CODES and this list must name the same codes; a code in one and not the other is either a fix that never runs or a promise the fixer cannot keep."
+  }
+}

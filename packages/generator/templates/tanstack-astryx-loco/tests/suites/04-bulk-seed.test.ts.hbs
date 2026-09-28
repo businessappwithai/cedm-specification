@@ -1,0 +1,203 @@
+/**
+ * Bulk seeding — faker-generated volume data.
+ *
+ * Creates `E2E_RECORDS_PER_ENTITY` (default 1000) records for every entity,
+ * parents first so foreign keys resolve. This is the slow suite; it doubles as
+ * a load smoke test for list/pagination at realistic row counts.
+ *
+ * Records here are deliberately NOT tracked for harness teardown — the point is
+ * to leave the database populated for the rules and workflow suites that follow.
+ * Every id is written to `.e2e-seed-manifest.json` instead, so `bun run clean`
+ * can remove exactly this data later without touching the app's own seed rows.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import {
+  buildRecord,
+  config,
+  type EntityMeta,
+  foreignKeyFields,
+  harness,
+  recordSeeded,
+  reseed,
+} from "../harness";
+
+/** Ids created per entity, reused to satisfy the next entity's foreign keys. */
+const createdIds = new Map<string, string[]>();
+
+/**
+ * Requests a minute the backend allows one caller, as it advertises in
+ * `ratelimit-limit`; 0 when the limiter is off.
+ *
+ * `bun run test` starts the backend with the limiter off, but `test:attach`
+ * runs against one someone else started — 300 a minute in development. The
+ * harness waits out every 429, so the records still land, just no faster than
+ * the budget: 1000 of them take more than three minutes, which a timeout sized
+ * for an unthrottled server cut off on every entity. Read once, before any
+ * test is registered, because a test's timeout is fixed when it is declared.
+ */
+const budgetPerMinute =
+  Number(
+    (await fetch(`${config.baseUrl}${config.apiPrefix}/sys/tables?limit=1`)).headers.get(
+      "ratelimit-limit"
+    )
+  ) || 0;
+
+/** How long seeding `count` records may take through the rules + audit pipeline. */
+function seedTimeoutMs(count: number): number {
+  const pipeline = Math.max(120_000, count * 200);
+  if (budgetPerMinute === 0) return pipeline;
+  // One POST per record: a full window per budget's worth, plus one to spare.
+  return pipeline + (Math.ceil(count / budgetPerMinute) + 1) * 60_000;
+}
+
+/**
+ * How many times a record the application refuses is rebuilt from fresh values.
+ *
+ * A model's business rules refuse input the factory has no way to foresee —
+ * crm's quote policy refuses any discount above 40 percent, and a percentage
+ * drawn from 0–100 breaks it more often than not. The rules are zen
+ * expressions evaluated by the backend; restating them here would be a second
+ * rules engine to keep in step with the first. So the seed does what a person
+ * at the form does when a rule says no: it submits different values. A record
+ * still refused after every attempt counts as rejected, and a rule no value
+ * can satisfy still fails the suite.
+ */
+const REBUILD_ATTEMPTS = 8;
+
+/** Insert records in bounded-concurrency batches so we do not open 1000 sockets. */
+async function seedEntity(
+  entity: EntityMeta,
+  count: number
+): Promise<{ created: number; failed: number; rebuilt: number }> {
+  const fks = foreignKeyFields(entity);
+  const ids: string[] = [];
+  let failed = 0;
+  let rebuilt = 0;
+
+  const post = (payload: Record<string, unknown>) =>
+    harness.client.post<{ id: string }>(`/bus/${entity.route}`, payload, { allowFailure: true });
+
+  for (let offset = 0; offset < count; offset += config.seedBatchSize) {
+    const size = Math.min(config.seedBatchSize, count - offset);
+
+    const foreignKeysFor = (position: number): Record<string, string> => {
+      const foreignKeys: Record<string, string> = {};
+      for (const fk of fks) {
+        const parent = harness.resolveParentEntity(fk.name);
+        if (!parent) continue;
+        const pool = createdIds.get(parent.route);
+        if (pool && pool.length > 0) {
+          foreignKeys[fk.name] = pool[position % pool.length]!;
+        }
+      }
+      return foreignKeys;
+    };
+
+    const results = await Promise.allSettled(
+      Array.from({ length: size }, async (_unused, index) => {
+        const position = offset + index;
+        const foreignKeys = foreignKeysFor(position);
+        let response = await post(buildRecord(entity, { foreignKeys, uniqueSalt: `${position}` }));
+        // Only a validation refusal is worth another draw; anything else would
+        // fail the same way with any values.
+        for (
+          let attempt = 1;
+          !response.ok && response.status === 400 && attempt <= REBUILD_ATTEMPTS;
+          attempt++
+        ) {
+          rebuilt += 1;
+          response = await post(
+            buildRecord(entity, { foreignKeys, uniqueSalt: `${position}r${attempt}` })
+          );
+        }
+        return response;
+      })
+    );
+
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value.ok && result.value.data?.id) {
+        ids.push(result.value.data.id);
+      } else {
+        failed += 1;
+      }
+    }
+  }
+
+  createdIds.set(entity.route, ids);
+
+  // Record before asserting, so a partially-failed batch is still cleanable.
+  await recordSeeded(entity.route, ids, {
+    fakerSeed: config.fakerSeed,
+    recordsPerEntity: count,
+  });
+
+  return { created: ids.length, failed, rebuilt };
+}
+
+describe("bulk seed", () => {
+  beforeAll(async () => {
+    await harness.setup();
+    reseed();
+  });
+
+  afterAll(async () => {
+    // Volume data is intentionally left in place for later suites; only the
+    // harness-tracked records (none here) are removed.
+    harness.invalidateCache();
+  });
+
+  const target = config.recordsPerEntity;
+
+  it(`is configured for at least 1000 records per entity (got ${target})`, () => {
+    expect(target).toBeGreaterThanOrEqual(1);
+  });
+
+  for (const entity of harness.orderedEntities()) {
+    it(
+      `seeds ${target} ${entity.displayName} records`,
+      async () => {
+        const { created, failed, rebuilt } = await seedEntity(entity, target);
+
+        console.log(
+          `    ${entity.displayName}: created ${created}/${target}` +
+            (failed > 0 ? ` (${failed} rejected)` : "") +
+            (rebuilt > 0 ? ` (${rebuilt} redrawn after a validation refusal)` : "")
+        );
+
+        // Allow a small rejection margin for unique-constraint collisions the
+        // factory cannot foresee, but the bulk of the batch must land.
+        expect(created).toBeGreaterThanOrEqual(Math.floor(target * 0.95));
+      },
+      seedTimeoutMs(target)
+    );
+
+    it(`reports the seeded ${entity.displayName} rows in the list total`, async () => {
+      const response = await harness.client.get<{ meta: { total: number } }>(
+        `/bus/${entity.route}?limit=1`
+      );
+
+      expect(response.data.meta.total).toBeGreaterThanOrEqual(
+        Math.floor(target * 0.95)
+      );
+    });
+
+    it(`paginates ${entity.displayName} consistently`, async () => {
+      const first = await harness.client.get<{ data: Array<{ id: string }> }>(
+        `/bus/${entity.route}?page=1&limit=50&orderBy=id&orderDir=asc`
+      );
+      const second = await harness.client.get<{ data: Array<{ id: string }> }>(
+        `/bus/${entity.route}?page=2&limit=50&orderBy=id&orderDir=asc`
+      );
+
+      expect(first.data.data.length).toBeGreaterThan(0);
+
+      const firstIds = new Set(first.data.data.map((row) => row.id));
+      const overlap = second.data.data.filter((row) => firstIds.has(row.id));
+      expect(overlap).toEqual([]);
+    });
+  }
+});

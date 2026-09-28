@@ -1,0 +1,17 @@
+[package]
+name = "migration"
+version = "{{project.version}}"
+edition = "2021"
+publish = false
+
+[lib]
+name = "migration"
+path = "src/lib.rs"
+
+[dependencies]
+async-trait = "0.1"
+loco-rs = { version = "1.0", features = ["cli", "with-db"] }
+
+[dependencies.sea-orm-migration]
+version = "2.0"
+features = ["runtime-tokio-rustls", "sqlx-postgres"]

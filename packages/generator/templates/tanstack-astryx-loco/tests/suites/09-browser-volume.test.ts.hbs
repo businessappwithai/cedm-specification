@@ -1,0 +1,411 @@
+/**
+ * Volume CRUD through the browser — 100,000 records on one entity.
+ *
+ * Every other suite answers "does this work?". This one answers "does this
+ * still work when the table is not empty?", which is a different question and
+ * the one that gets found in production instead of in CI. A list endpoint that
+ * counts with `SELECT COUNT(*)` over an unindexed predicate, a grid that
+ * renders every row it was handed, a pagination scheme that offsets its way to
+ * page 2000 — all of them pass a ten-row test.
+ *
+ * The whole run happens inside a Chromium page that logged in through the
+ * application's own form, so the numbers below are the application's: its
+ * origin, its session, its dev-server proxy, its React grid. Writes go through
+ * `fetch` *inside that page* rather than through form typing — see the note in
+ * `harness/browser.ts` for why that is still the browser and why typing would
+ * not be.
+ *
+ * The run is self-cleaning. Every id it creates is written to the seed manifest
+ * before anything else happens, so a crash mid-run leaves `bun run clean` able
+ * to finish the job, and the suite deletes them all at the end and checks the
+ * table came back to the size it started at.
+ *
+ * Not part of the default run — it is minutes long by design. Start it with:
+ *
+ *   bun run test:browser-volume            # 100,000 records
+ *   E2E_BROWSER_RECORDS=5000 bun run test:browser-volume
+ *   bun run run.ts --browser-volume        # in sequence with everything else
+ *
+ * A caveat worth reading before quoting a number from this: the runner starts
+ * the backend with `cargo loco start`, which is a **debug** build. That is the
+ * right default — the suite's job is to catch a query that got quadratically
+ * worse, and debug-vs-release does not change the shape of a curve — but it is
+ * several times slower than what ships. For a figure you intend to publish,
+ * start a release build yourself and attach to it:
+ *
+ *   (cd backend && cargo loco start --release) &
+ *   bun run run.ts --browser-volume --only browser-volume --no-server
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { join } from "node:path";
+import {
+  buildRecord,
+  type BrowserSession,
+  clearManifest,
+  config,
+  type EntityMeta,
+  entities,
+  firstTextField,
+  foreignKeyFields,
+  harness,
+  numericFields,
+  openApp,
+  recordSeeded,
+  reseed,
+  startFrontend,
+  writableFields,
+} from "../harness";
+
+const TOTAL = config.browserVolume.records;
+const WRITE_BATCH = config.browserVolume.writeBatch;
+const CONCURRENCY = config.browserVolume.concurrency;
+const SAMPLE = config.browserVolume.sampleSize;
+
+/** Distinguishes this run's rows from any other run's, for cleanup and filters. */
+const RUN_ID = `perf-${Date.now().toString(36)}`;
+
+/**
+ * The entity to load up.
+ *
+ * "Any one business entity" — but not an arbitrary one. Foreign keys are the
+ * problem: an entity with mandatory parents needs 100,000 parents to exist
+ * first, which measures the parent's insert path instead of this one. So:
+ * prefer an entity with no required foreign keys, and among those take the one
+ * with the most scalar columns, since a wide row is the honest case. E2E_VOLUME_ENTITY
+ * overrides all of it.
+ */
+function pickEntity(): EntityMeta {
+  const override = process.env.E2E_VOLUME_ENTITY;
+  if (override) {
+    const found = entities.find(
+      (entity) => entity.name === override || entity.route === override
+    );
+    if (!found) {
+      throw new Error(
+        `E2E_VOLUME_ENTITY="${override}" matches no entity. Known: ${entities
+          .map((entity) => entity.route)
+          .join(", ")}`
+      );
+    }
+    return found;
+  }
+
+  const score = (entity: EntityMeta): number =>
+    foreignKeyFields(entity).filter((field) => field.required).length * -1000 +
+    writableFields(entity).length;
+
+  return [...entities].sort((a, b) => score(b) - score(a))[0]!;
+}
+
+const entity = pickEntity();
+const marker = firstTextField(entity);
+const numeric = numericFields(entity)[0];
+
+/** Wall-clock timing for one named phase. */
+interface Phase {
+  name: string;
+  ms: number;
+  ops: number;
+  /** Individual operation latencies, when the phase measured them. */
+  samples?: number[];
+}
+
+const phases: Phase[] = [];
+const createdIds: string[] = [];
+
+let session: BrowserSession;
+let stopFrontend: Awaited<ReturnType<typeof startFrontend>> = null;
+let baselineTotal = 0;
+
+async function timed<T>(name: string, ops: number, work: () => Promise<T>): Promise<T> {
+  const started = performance.now();
+  const result = await work();
+  phases.push({ name, ms: performance.now() - started, ops });
+  return result;
+}
+
+function percentile(sorted: number[], p: number): number {
+  if (sorted.length === 0) return 0;
+  const index = Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length));
+  return sorted[index]!;
+}
+
+function ms(value: number): string {
+  return value < 1000 ? `${value.toFixed(0)}ms` : `${(value / 1000).toFixed(1)}s`;
+}
+
+/** `meta.total` for the entity, which is what the grid's pager reads. */
+async function totalRows(): Promise<number> {
+  const response = await session.apiFetch<{ meta?: { total?: number } }>(
+    `/bus/${entity.route}?limit=1`
+  );
+  return response.data?.meta?.total ?? 0;
+}
+
+/** One run's worth of payloads, marked so they can be found again. */
+function payloadsFor(offset: number, count: number): Array<Record<string, unknown>> {
+  return Array.from({ length: count }, (_unused, index) => {
+    const record = buildRecord(entity, { uniqueSalt: `${RUN_ID}-${offset + index}` });
+    if (marker) {
+      record[marker.name] = `${RUN_ID}-${offset + index}`;
+    }
+    return record;
+  });
+}
+
+describe(`volume CRUD via the browser — ${entity.displayName}`, () => {
+  beforeAll(async () => {
+    reseed();
+    stopFrontend = await startFrontend(join(import.meta.dir, "..", "..", "frontend"));
+    session = await openApp();
+    baselineTotal = await totalRows();
+
+    console.log(`\n  Entity:        ${entity.displayName} (${entity.route})`);
+    console.log(`  Records:       ${TOTAL.toLocaleString("en")}`);
+    console.log(`  Batch/conc.:   ${WRITE_BATCH} per wave, ${CONCURRENCY} in flight`);
+    console.log(`  Baseline rows: ${baselineTotal.toLocaleString("en")}\n`);
+  }, config.browserVolume.setupTimeoutMs);
+
+  afterAll(async () => {
+    await session?.close();
+    await stopFrontend?.stop();
+  });
+
+  it(
+    `inserts ${TOTAL.toLocaleString("en")} records`,
+    async () => {
+      await timed("insert", TOTAL, async () => {
+        for (let offset = 0; offset < TOTAL; offset += WRITE_BATCH) {
+          const size = Math.min(WRITE_BATCH, TOTAL - offset);
+          const requests = payloadsFor(offset, size).map((body) => ({
+            path: `/bus/${entity.route}`,
+            method: "POST",
+            body,
+          }));
+
+          const results = await session.apiBatch<{ id?: string }>(requests, CONCURRENCY);
+          for (const result of results) {
+            if (result.ok && result.data?.id) createdIds.push(result.data.id);
+          }
+
+          // Record as we go, not at the end: a run killed at record 60,000
+          // should still be cleanable, and a manifest written only on success
+          // is a manifest that never exists when it is needed.
+          if (createdIds.length % (WRITE_BATCH * 20) === 0 || offset + size >= TOTAL) {
+            await recordSeeded(entity.route, createdIds, {
+              fakerSeed: config.fakerSeed,
+              recordsPerEntity: TOTAL,
+            });
+            const done = offset + size;
+            process.stdout.write(
+              `\r  inserted ${done.toLocaleString("en")}/${TOTAL.toLocaleString("en")}   `
+            );
+          }
+        }
+        process.stdout.write("\n");
+      });
+
+      expect(createdIds.length).toBe(TOTAL);
+      expect(await totalRows()).toBe(baselineTotal + TOTAL);
+    },
+    config.browserVolume.insertTimeoutMs
+  );
+
+  it(
+    "lists, paginates and filters at volume",
+    async () => {
+      await timed("list first page", 1, () =>
+        session.apiFetch(`/bus/${entity.route}?page=1&limit=50`)
+      );
+
+      // The page a user reaches by holding the "next" button, which is where an
+      // OFFSET-based pager stops being free.
+      const deepPage = Math.max(1, Math.floor((baselineTotal + TOTAL) / 50) - 1);
+      await timed("list deep page", 1, () =>
+        session.apiFetch(`/bus/${entity.route}?page=${deepPage}&limit=50`)
+      );
+
+      await timed("count only", 1, () => session.apiFetch(`/bus/${entity.route}?limit=1`));
+
+      if (marker) {
+        // `filter.<column>=<op>:<value>` — the shape `ad-list-shell` builds from
+        // the grid's column filters, so this measures the query a user's filter
+        // actually produces rather than one invented for the test.
+        const exact = await timed("filter exact", 1, () =>
+          session.apiFetch<{ meta?: { total?: number } }>(
+            `/bus/${entity.route}?filter.${marker.name}=eq:${encodeURIComponent(`${RUN_ID}-0`)}`
+          )
+        );
+        expect(exact.status).toBe(200);
+        expect(exact.data?.meta?.total).toBe(1);
+
+        const partial = await timed("filter contains", 1, () =>
+          session.apiFetch<{ meta?: { total?: number } }>(
+            `/bus/${entity.route}?filter.${marker.name}=contains:${encodeURIComponent(RUN_ID)}&limit=50`
+          )
+        );
+        expect(partial.data?.meta?.total).toBe(TOTAL);
+
+        await timed("search substring", 1, () =>
+          session.apiFetch(`/bus/${entity.route}?search=${encodeURIComponent(RUN_ID)}&limit=50`)
+        );
+      }
+
+      if (numeric) {
+        await timed("sort by column", 1, () =>
+          session.apiFetch(`/bus/${entity.route}?sort=${numeric.name}&order=desc&limit=50`)
+        );
+      }
+    },
+    config.browserVolume.phaseTimeoutMs
+  );
+
+  it(
+    "renders the grid with the table loaded",
+    async () => {
+      // The one phase that goes through the UI rather than through fetch: a
+      // backend that answers a list call in 40ms and a grid that then spends
+      // eight seconds laying it out are the same experience to a user, and only
+      // this measures the second half.
+      const started = performance.now();
+      await session.page.goto(`${config.origin}/${entity.route}`, {
+        waitUntil: "domcontentloaded",
+      });
+      await session.page.waitForSelector("table tbody tr", {
+        timeout: config.browserVolume.phaseTimeoutMs,
+      });
+      phases.push({ name: "grid first row (UI)", ms: performance.now() - started, ops: 1 });
+
+      const rows = await session.page.locator("table tbody tr").count();
+      expect(rows).toBeGreaterThan(0);
+      // A grid that put all 100,000 rows in the DOM is a bug, not a fast path.
+      expect(rows).toBeLessThan(1000);
+
+      // Leave the grid before the phases that issue thousands of requests. The
+      // list route keeps refetching, and its requests compete for the same
+      // handful of connections the browser allows per origin — which both
+      // distorts the latency figures below and makes a stall far likelier.
+      await session.page.goto(`${config.origin}/dashboard`, { waitUntil: "domcontentloaded" });
+    },
+    config.browserVolume.phaseTimeoutMs
+  );
+
+  it(
+    `reads, updates and re-reads ${SAMPLE} records`,
+    async () => {
+      const sample = createdIds.slice(0, SAMPLE);
+
+      const readLatencies: number[] = [];
+      await timed("read by id", sample.length, async () => {
+        for (const id of sample) {
+          const started = performance.now();
+          const response = await session.apiFetch(`/bus/${entity.route}/${id}`);
+          readLatencies.push(performance.now() - started);
+          expect(response.status).toBe(200);
+        }
+      });
+      phases[phases.length - 1]!.samples = [...readLatencies].sort((a, b) => a - b);
+
+      const updateLatencies: number[] = [];
+      await timed("update (PATCH)", sample.length, async () => {
+        for (const [index, id] of sample.entries()) {
+          const body: Record<string, unknown> = marker
+            ? { [marker.name]: `${RUN_ID}-updated-${index}` }
+            : { version: undefined };
+          const started = performance.now();
+          const response = await session.apiFetch(`/bus/${entity.route}/${id}`, {
+            method: "PATCH",
+            body,
+          });
+          updateLatencies.push(performance.now() - started);
+          expect(response.ok).toBe(true);
+        }
+      });
+      phases[phases.length - 1]!.samples = [...updateLatencies].sort((a, b) => a - b);
+
+      if (marker) {
+        const check = await session.apiFetch<Record<string, unknown>>(
+          `/bus/${entity.route}/${sample[0]}`
+        );
+        expect(check.data?.[marker.name]).toBe(`${RUN_ID}-updated-0`);
+      }
+    },
+    config.browserVolume.phaseTimeoutMs
+  );
+
+  it(
+    "deletes every record it created and leaves the table as it found it",
+    async () => {
+      await timed("delete", createdIds.length, async () => {
+        for (let offset = 0; offset < createdIds.length; offset += WRITE_BATCH) {
+          const batch = createdIds.slice(offset, offset + WRITE_BATCH);
+          await session.apiBatch(
+            batch.map((id) => ({ path: `/bus/${entity.route}/${id}`, method: "DELETE" })),
+            CONCURRENCY
+          );
+          process.stdout.write(
+            `\r  deleted ${Math.min(offset + batch.length, createdIds.length).toLocaleString(
+              "en"
+            )}/${createdIds.length.toLocaleString("en")}   `
+          );
+        }
+        process.stdout.write("\n");
+      });
+
+      // The point of the assertion: not "delete answered 204" but "the rows are
+      // gone from the view every other part of the app reads".
+      expect(await totalRows()).toBe(baselineTotal);
+      await clearManifest();
+
+      report();
+    },
+    config.browserVolume.insertTimeoutMs
+  );
+});
+
+/**
+ * The performance summary.
+ *
+ * Printed once, at the end, from data collected as the run went — so a phase
+ * that failed still shows the phases that came before it in the failure output.
+ */
+function report(): void {
+  const line = "─".repeat(78);
+  console.log(`\n${line}`);
+  console.log(`  PERFORMANCE — ${entity.displayName} @ ${TOTAL.toLocaleString("en")} records`);
+  console.log(line);
+  console.log(
+    `  ${"phase".padEnd(24)}${"ops".padStart(9)}${"elapsed".padStart(11)}` +
+      `${"ops/sec".padStart(11)}${"p50".padStart(8)}${"p95".padStart(8)}${"p99".padStart(8)}`
+  );
+  console.log(line);
+
+  for (const phase of phases) {
+    const perSecond = phase.ops > 0 && phase.ms > 0 ? (phase.ops / phase.ms) * 1000 : 0;
+    const sorted = phase.samples ?? [];
+    const cell = (value: number): string => (sorted.length > 0 ? ms(value) : "–");
+    console.log(
+      `  ${phase.name.padEnd(24)}${phase.ops.toLocaleString("en").padStart(9)}` +
+        `${ms(phase.ms).padStart(11)}${(perSecond >= 1 ? perSecond.toFixed(0) : perSecond.toFixed(2)).padStart(11)}` +
+        `${cell(percentile(sorted, 50)).padStart(8)}${cell(percentile(sorted, 95)).padStart(8)}` +
+        `${cell(percentile(sorted, 99)).padStart(8)}`
+    );
+  }
+
+  const total = phases.reduce((sum, phase) => sum + phase.ms, 0);
+  console.log(line);
+  console.log(`  ${"total".padEnd(24)}${"".padStart(9)}${ms(total).padStart(11)}`);
+  console.log(line);
+  console.log(
+    "  Measured against whichever backend was listening. `bun run test:e2e`\n" +
+      "  starts a debug build — compare runs, do not quote them."
+  );
+  console.log(`${line}\n`);
+}
+
+/** Referenced so an unused-import lint cannot fire on a harness re-export. */
+void harness;

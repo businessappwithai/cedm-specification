@@ -1,0 +1,5085 @@
+eml: "1.0"
+entities:
+  # Enterprise Hospital Management System (HMS) ERD
+
+  # A comprehensive Hospital Information System covering:
+  # - Patient Administration & Master Patient Index (MPI)
+  # - Outpatient Department (OPD) Management
+  # - Inpatient Department (IPD) & Ward Management
+  # - Electronic Medical Record (EMR)
+  # - Laboratory Information System (LIS)
+  # - Radiology Information System (RIS) & PACS
+  # - Pharmacy Management System
+  # - Billing & Revenue Cycle Management (RCM)
+  # - Procurement & Supply Chain
+  # - Staff & Department Management
+
+  # Compliant with: HIPAA, GDPR, HL7 v2.x, FHIR R4, DICOM
+
+  # Use: appwithai generate -i tests/test-data/hospital-erd/hospital.erd.eml.yaml -o ./generated/hospital-app -n hospital-hms
+
+
+  # =====================================================
+  # MASTER DATA / REFERENCE TABLES
+  # These contain predefined values for dropdown fields
+  # =====================================================
+
+  # Patient Demographics Masters
+  - name: Gender
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: BloodGroup
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: A+, A-, B+, B-, AB+, AB-, O+, O-, Unknown
+      - name: abo
+        type: string
+        comment: A, B, AB, O
+      - name: rh_factor
+        type: string
+        comment: +, -, Unknown
+      - name: is_active
+        type: boolean
+  - name: MaritalStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Single, Married, Widowed, Divorced, Separated, Domestic Partnership
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Country
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        comment: ISO 2-letter country code
+      - name: name
+        type: string
+      - name: nationality
+        type: string
+      - name: phone_code
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Title
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Mr, Mrs, Ms, Miss, Dr, Prof, Rev, Hon
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Relationship
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Spouse, Partner, Parent, Child, Sibling, Guardian, Friend, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Language
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        comment: ISO 639-1 language code
+      - name: name
+        type: string
+        comment: English, Spanish, French, German, Hindi, Chinese, Arabic, etc.
+      - name: is_active
+        type: boolean
+  # Clinical Masters
+  - name: PatientType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Outpatient, Inpatient, Emergency, Day Care, Home Care
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: VisitType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: New Patient, Follow-up, Routine, Urgent, Walk-in
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: AppointmentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Consultation, Procedure, Follow-up, Diagnostic, Screening
+      - name: description
+        type: string
+      - name: duration_minutes
+        type: integer
+      - name: is_active
+        type: boolean
+  - name: AdmissionType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Routine, Emergency, Urgent, Elective, Transfer
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: AdmissionSource
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Home, Transfer, Referral, ER, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DischargeDisposition
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Home, Transfer, SNF, Rehab, LTC, Against Medical Advice, Deceased
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Facility Masters
+  - name: DepartmentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Clinical, Administrative, Diagnostic, Therapeutic, Support
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: LocationType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Building, Floor, Wing, Unit, Room, Area
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: WardType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: General, Surgical, Medical, Orthopedic, Pediatric, OBGYN, ICU, PICU, NICU, Emergency
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RoomType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: General Ward, Semi-Private, Private, Deluxe, Suite, ICU, PICU, NICU, OT, Isolation
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RoomClass
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Standard, Premium, Deluxe, Suite
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: BedType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: General, Pediatric, Critical Care, Isolation, Pediatric, Ventilator
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: BedFeature
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Oxygen, Suction, Monitor, Isolation, Pediatric, Traction, Lateral Rotation
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Staff & User Masters
+  - name: StaffType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Doctor, Nurse, Technician, Admin, Support, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Designation
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Attending, Resident, Fellow, Consultant, Senior, Junior
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Specialty
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: General Practice, Internal Medicine, Surgery, Pediatrics, OBGYN, Cardiology, Neurology, Orthopedics, Dermatology, Ophthalmology, ENT, Psychiatry, Radiology, Pathology, Anesthesiology, Emergency Medicine, Oncology, Nephrology, Gastroenterology, Pulmonology, Endocrinology, Rheumatology, Urology, Vascular Surgery, Plastic Surgery, Critical Care
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Qualification
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: MBBS, MD, MS, DO, BN, RN, BPT, BOT, BPharm, DMLT, DRIT
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: CredentialType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: License, Certification, Diploma, Registration
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: EmploymentStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Active, On Leave, Suspended, Terminated, Resigned
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ShiftType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Day Shift (7AM-3PM), Evening Shift (3PM-11PM), Night Shift (11PM-7AM), Flexible, Rotating
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: UserRole
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Admin, Doctor, Nurse, Receptionist, Billing, Lab, Radiology, Pharmacy, Patient
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Clinical Documentation Masters
+  - name: EncounterType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Outpatient, Inpatient, Emergency, Day Care, Telehealth, Home Visit
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: EncounterClass
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Ambulatory, Inpatient, Emergency, Observation, Virtual
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: EncounterStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Planned, In Progress, On Hold, Discharged, Cancelled, Entered in Error
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: NoteType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Progress, Admission, Discharge, Procedure, Consultation, Telehealth
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DiagnosisType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Admission, Primary, Secondary, Discharge, Follow-up
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DiagnosisCategory
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Infectious (A00-B99), Neoplasms (C00-D49), Blood/Immune (D50-D89), Endocrine (E00-E89), Mental (F01-F99), Nervous (G00-G99), Circulatory (I00-I99), Respiratory (J00-J99), Digestive (K00-K95), Skin (L00-L99), Musculoskeletal (M00-M99), Genitourinary (N00-N99), Pregnancy (O00-O9A), Perinatal (P00-P96), Congenital (Q00-Q99), Symptoms (R00-R99), Injury (S00-T88), External Causes (V00-Y99), Factors (Z00-Z99)
+      - name: description
+        type: string
+        comment: ICD-10 Chapter
+      - name: is_active
+        type: boolean
+  - name: ConsentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Treatment, Surgical, Anesthesia, Blood Transfusion, Photography, Research, Information Release, Autopsy
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ConsentStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Signed, Expired, Revoked
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Orders Masters
+  - name: OrderType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Medication, Lab, Radiology, Procedure, Nursing, Supply
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: OrderCategory
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Diagnostic, Therapeutic, Preventive, Monitoring
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: OrderPriority
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Routine, Urgent, Stat, ASAP
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: OrderStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Requested, Approved, Pending, In Progress, Completed, Cancelled, On Hold, Discontinued
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Laboratory Masters
+  - name: LabTestCategory
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Hematology, Biochemistry, Microbiology, Immunology, Hormonal, Toxicology, Urine, Stool, Cytology, Histopathology, Molecular, Coagulation
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: SpecimenType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Blood, Urine, Swab, Tissue, Stool, Sputum, CSF, Synovial Fluid, Pleural Fluid, Peritoneal Fluid
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ContainerType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Tube, Bottle, Cup, Slide, Container, Swab
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ResultStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Pending, In Progress, Completed, Verified, Final, Amended, Cancelled
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ResultType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Numeric, Text, Option, Date, Time, Interval
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: LabEquipmentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Analyzer, Centrifuge, Microscope, Incubator, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Radiology Masters
+  - name: ModalityType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: XR (X-Ray), CT (CT Scan), MRI (Magnetic Resonance Imaging), US (Ultrasound), FLUORO (Fluoroscopy), MAMMO (Mammography), PET (PET Scan), NM (Nuclear Medicine), CR (Computed Radiography), DR (Digital Radiography), CT (Computed Tomography), MR (Magnetic Resonance), US (Ultrasound),XA (Angiography), PT (Positron Emission Tomography), ST (Still Storage), SR (Structured Report), KO (Key Object Selection), PR (Presentation State)
+      - name: description
+        type: string
+        comment: DICOM Modality
+      - name: is_active
+        type: boolean
+  - name: BodyPart
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Head, Neck, Chest, Abdomen, Pelvis, Spine, Extremity, Whole Body
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Laterality
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Left, Right, Bilateral, Unspecified
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ContrastType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: None, IV, Oral, Rectal, Intra-articular, Both
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RadiationDoseUnit
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: mSv, mGy, Gy
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RadiologyStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Scheduled, In Progress, Completed, Cancelled, Dictated, Transcribed, Verified, Approved
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ReportStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Preliminary, Final, Addendum, Corrected, Cancelled
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Pharmacy Masters
+  - name: MedicationForm
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Tablet, Capsule, Injection, Syrup, Suspension, Ointment, Cream, Gel, Drops, Spray, Patch, Inhaler, Suppository
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: MedicationClass
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Analgesics, Antibiotics, Antihypertensives, Antidiabetics, Cardiovascular, Dermatological, Gastrointestinal, Respiratory, Neurological, Psychiatric, Vitamins, Hormones, Blood Products, Vaccines, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Route
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Oral, IV (Intravenous), IM (Intramuscular), SC (Subcutaneous), Topical, Inhalation, Rectal, Vaginal, Ophthalmic, Otic, Nasal, Transdermal
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Frequency
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Once, Daily, BID (Twice Daily), TID (Three Times Daily), QID (Four Times Daily), Q4H, Q6H, Q8H, Q12H, Q24H, PRN (As Needed), Weekly, Monthly
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DurationUnit
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Days, Weeks, Months, Years
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DEASchedule
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: C-II, C-III, C-IV, C-V, Non-Controlled
+      - name: description
+        type: string
+        comment: DEA Schedule for controlled substances
+      - name: is_active
+        type: boolean
+  - name: PrescriptionType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Outpatient, Inpatient, Discharge, Take-Home, IV, PRN
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: SubstitutionAllowed
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Allowed, Not Allowed, Brand Required, Brand Mandated
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: AdministrationStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Scheduled, Given, Refused, Held, Missed, Partial
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ReasonNotGiven
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Patient Refused, NPO, Vomited, SW, Medication Unavailable, Duplicate Dose
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Allergy Masters
+  - name: AllergenType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Food, Drug, Environmental, Skin, Latex, Insect, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: AllergySeverity
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Mild, Moderate, Severe, Life Threatening
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: AllergyStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Active, Resolved, Unconfirmed, Refuted
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ReactionType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Rash, Hives, Itching, Swelling, Anaphylaxis, Respiratory, Gastrointestinal, Cardiovascular
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Billing Masters
+  - name: BillType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Professional, Facility, Both, Combined
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ChargeType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Consultation, Procedure, Room, Nursing, Pharmacy, Supply, Equipment, Lab, Radiology, Other
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ServiceType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Consultation, Procedure, Diagnostic Test, Therapy, Surgery, Nursing Care, Room & Board
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RevenueCode
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: UB-04 Revenue Codes
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: PaymentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Cash, Credit, Debit, Check, Electronic, Insurance
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: PaymentMethod
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Cash, Card, Check, Electronic Transfer, Mobile Payment
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: PaymentStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Pending, Partial, Paid, Overdue, Cancelled, Refunded
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: InsurancePlanType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: PPO, HMO, EPO, POS, Indemnity, High Deductible Health Plan
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: CoverageType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Primary, Secondary, Tertiary
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ClaimType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Medical, Prescription, Dental, Vision, Mental Health
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ClaimStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Submitted, Pending, Approved, Partially Approved, Denied, Paid, Resubmitted
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: SubmissionMethod
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: EDI, Paper, Portal, Electronic, Fax
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DenialCategory
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Clinical, Technical, Administrative, Eligibility, Authorization, Coding, Medical Necessity, Duplicate, Timely Filing
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: DenialStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Open, In Appeal, Resolved, Closed, Write-off
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Inventory Masters
+  - name: ItemType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Medication, Supply, Equipment, Food, Linen
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: ItemCategory
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: General, Medical, Surgical, Pharmaceutical, Laboratory, Radiology, Office, IT
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: UOM
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        comment: Unit of Measure
+      - name: name
+        type: string
+        comment: Each, Box, Bottle, Pack, Tablet, Capsule, ML, MG, Gram, KG, Liter, Meter, Pair, Set
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: SupplierType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Manufacturer, Distributor, Wholesaler, Service Provider
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: RequisitionStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Pending Approval, Approved, Rejected, Converted to PO
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: POStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Draft, Pending, Confirmed, Shipped, Partially Received, Received, Cancelled
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Document Masters
+  - name: DocumentType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: ID Proof, Medical Record, Insurance Card, Consent Form, Report, Medical Image, Lab Report, Bill, Invoice
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Queue Masters
+  - name: QueueStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Waiting, Called, In Progress, Completed, Skipped, Cancelled
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: QueuePriority
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Routine, Urgent, Emergency
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Telemedicine Masters
+  - name: SessionType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Video Consultation, Audio Consultation, Chat Consultation
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: SessionStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Scheduled, In Progress, Completed, Cancelled, No Show
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Audit Masters
+  - name: AuditActionType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Create, Update, Delete, Login, Logout, View, Export, Print, Email
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: EntityType
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Patient, Encounter, Order, Result, Report, Invoice, Claim, Payment
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  # Other Masters
+  - name: PriorityLevel
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: 1 (Critical), 2 (High), 3 (Medium), 4 (Low), 5 (Routine)
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: BookingSource
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Phone, Online, In-Person, Referral, Walk-in
+      - name: description
+        type: string
+      - name: is_active
+        type: boolean
+  - name: YesNo
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Yes, No
+      - name: is_active
+        type: boolean
+  - name: ActiveStatus
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string
+        unique: true
+      - name: name
+        type: string
+        comment: Active, Inactive
+      - name: is_active
+        type: boolean
+  # =====================================================
+  # PATIENT ADMINISTRATION & MASTER PATIENT INDEX (MPI)
+  # =====================================================
+  - name: Patient
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: uhid
+        type: string
+        unique: true
+      - name: mrn
+        type: string
+        unique: true
+        optional: true
+      - name: first_name
+        type: string
+      - name: middle_name
+        type: string
+        optional: true
+      - name: last_name
+        type: string
+      - name: date_of_birth
+        type: date
+      - name: gender
+        type: string
+        fk: true
+        comment: → Gender
+      - name: title
+        type: string
+        fk: true
+        comment: → Title
+      - name: blood_group
+        type: string
+        fk: true
+        comment: → BloodGroup
+      - name: marital_status
+        type: string
+        fk: true
+        comment: → MaritalStatus
+      - name: nationality
+        type: string
+        fk: true
+        comment: → Country
+      - name: national_id
+        type: string
+        optional: true
+      - name: passport_number
+        type: string
+        optional: true
+      - name: email
+        type: string
+        optional: true
+      - name: phone
+        type: string
+      - name: mobile
+        type: string
+        optional: true
+      - name: address_line1
+        type: string
+        optional: true
+      - name: address_line2
+        type: string
+        optional: true
+      - name: city
+        type: string
+        optional: true
+      - name: state
+        type: string
+        optional: true
+      - name: postal_code
+        type: string
+        optional: true
+      - name: country
+        type: string
+        fk: true
+        comment: → Country
+      - name: emergency_contact_name
+        type: string
+        optional: true
+      - name: emergency_contact_phone
+        type: string
+        optional: true
+      - name: emergency_contact_relation
+        type: string
+        fk: true
+        comment: → Relationship
+      - name: photo_url
+        type: text
+        optional: true
+      - name: biometric_data
+        type: text
+        optional: true
+      - name: is_vip
+        type: boolean
+      - name: is_active
+        type: boolean
+        fk: true
+        comment: → ActiveStatus
+      - name: registered_at
+        type: datetime
+  - name: PatientInsurance
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: insurance_provider_id
+        type: string
+        fk: true
+      - name: policy_number
+        type: string
+      - name: group_number
+        type: string
+        optional: true
+      - name: member_id
+        type: string
+        optional: true
+      - name: relationship_to_subscriber
+        type: string
+        fk: true
+        comment: → Relationship
+      - name: effective_date
+        type: date
+      - name: expiry_date
+        type: date
+        optional: true
+      - name: copay_amount
+        type: decimal
+        optional: true
+      - name: deductible_amount
+        type: decimal
+        optional: true
+      - name: deductible_met
+        type: decimal
+        optional: true
+      - name: coverage_type
+        type: string
+        fk: true
+        comment: → CoverageType
+      - name: is_primary
+        type: boolean
+      - name: is_active
+        type: boolean
+      - name: verified_at
+        type: datetime
+        optional: true
+  - name: InsuranceProvider
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: payer_id
+        type: string
+        optional: true
+      - name: address
+        type: string
+        optional: true
+      - name: city
+        type: string
+        optional: true
+      - name: state
+        type: string
+        optional: true
+      - name: phone
+        type: string
+        optional: true
+      - name: email
+        type: string
+        optional: true
+      - name: claims_submission_method
+        type: string
+        fk: true
+        comment: → SubmissionMethod
+      - name: is_active
+        type: boolean
+  - name: PatientDocument
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: document_type
+        type: string
+        fk: true
+        comment: → DocumentType
+      - name: document_name
+        type: string
+      - name: file_url
+        type: text
+      - name: mime_type
+        type: string
+      - name: file_size
+        type: integer
+        optional: true
+      - name: uploaded_at
+        type: datetime
+      - name: uploaded_by
+        type: string
+        fk: true
+        comment: → User
+      - name: is_verified
+        type: boolean
+  - name: PatientAllergy
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: allergen_type
+        type: string
+        fk: true
+        comment: → AllergenType
+      - name: allergen_name
+        type: string
+      - name: severity
+        type: string
+        fk: true
+        comment: → AllergySeverity
+      - name: reaction
+        type: string
+        fk: true
+        comment: → ReactionType
+      - name: onset_date
+        type: date
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → AllergyStatus
+      - name: recorded_by
+        type: string
+        fk: true
+        comment: → User
+      - name: recorded_at
+        type: datetime
+  # =====================================================
+  # APPOINTMENT & QUEUE MANAGEMENT
+  # =====================================================
+  - name: Appointment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: department_id
+        type: string
+        fk: true
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+      - name: appointment_type
+        type: string
+        fk: true
+        comment: → AppointmentType
+      - name: visit_reason
+        type: string
+        optional: true
+      - name: scheduled_start
+        type: datetime
+      - name: scheduled_end
+        type: datetime
+      - name: duration_minutes
+        type: integer
+      - name: status
+        type: string
+        fk: true
+        comment: → AppointmentStatus
+      - name: booking_source
+        type: string
+        fk: true
+        comment: → BookingSource
+      - name: notes
+        type: text
+        optional: true
+      - name: checked_in_at
+        type: datetime
+        optional: true
+      - name: checked_out_at
+        type: datetime
+        optional: true
+      - name: created_by
+        type: string
+        fk: true
+        comment: → User
+      - name: created_at
+        type: datetime
+  - name: QueueToken
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: appointment_id
+        type: string
+        fk: true
+        optional: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: department_id
+        type: string
+        fk: true
+      - name: service_point_id
+        type: string
+        fk: true
+        optional: true
+      - name: token_number
+        type: string
+      - name: token_type
+        type: string
+      - name: status
+        type: string
+        fk: true
+        comment: → QueueStatus
+      - name: priority_level
+        type: integer
+        fk: true
+        comment: → PriorityLevel
+      - name: issued_at
+        type: datetime
+      - name: called_at
+        type: datetime
+        optional: true
+      - name: served_at
+        type: datetime
+        optional: true
+      - name: estimated_wait_minutes
+        type: integer
+        optional: true
+  # =====================================================
+  # CLINICAL ENCOUNTERS (OPD & IPD)
+  # =====================================================
+  - name: Encounter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: appointment_id
+        type: string
+        fk: true
+        optional: true
+      - name: admission_id
+        type: string
+        fk: true
+        optional: true
+      - name: encounter_type
+        type: string
+        fk: true
+        comment: → EncounterType
+      - name: encounter_class
+        type: string
+        fk: true
+        comment: → EncounterClass
+      - name: status
+        type: string
+        fk: true
+        comment: → EncounterStatus
+      - name: start_datetime
+        type: datetime
+      - name: end_datetime
+        type: datetime
+        optional: true
+      - name: chief_complaint
+        type: string
+        optional: true
+      - name: history_present_illness
+        type: text
+        optional: true
+      - name: review_of_systems
+        type: text
+        optional: true
+      - name: physical_examination
+        type: text
+        optional: true
+      - name: assessment
+        type: text
+        optional: true
+      - name: plan
+        type: text
+        optional: true
+      - name: disposition
+        type: string
+        fk: true
+        comment: → DischargeDisposition
+      - name: attending_provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: department_id
+        type: string
+        fk: true
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+  - name: Admission
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        optional: true
+      - name: admission_type
+        type: string
+        fk: true
+        comment: → AdmissionType
+      - name: admission_source
+        type: string
+        fk: true
+        comment: → AdmissionSource
+      - name: admission_datetime
+        type: datetime
+      - name: discharge_datetime
+        type: datetime
+        optional: true
+      - name: discharge_disposition
+        type: string
+        fk: true
+        comment: → DischargeDisposition
+      - name: status
+        type: string
+        fk: true
+        comment: → EncounterStatus
+      - name: admitting_provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: attending_provider_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: bed_id
+        type: string
+        fk: true
+        optional: true
+      - name: admission_diagnosis
+        type: string
+        optional: true
+      - name: discharge_diagnosis
+        type: string
+        optional: true
+      - name: length_of_stay
+        type: integer
+        optional: true
+      - name: estimated_cost
+        type: decimal
+        optional: true
+      - name: is_emergency
+        type: boolean
+      - name: preadmission_notes
+        type: text
+        optional: true
+  # =====================================================
+  # WARD & BED MANAGEMENT
+  # =====================================================
+  - name: Department
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: department_type
+        type: string
+        fk: true
+        comment: → DepartmentType
+      - name: cost_center_code
+        type: string
+        optional: true
+      - name: head_of_department_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+      - name: phone_extension
+        type: string
+        optional: true
+      - name: email
+        type: string
+        optional: true
+      - name: is_clinical
+        type: boolean
+      - name: is_active
+        type: boolean
+      - name: sort_order
+        type: integer
+  - name: Ward
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: department_id
+        type: string
+        fk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: ward_type
+        type: string
+        fk: true
+        comment: → WardType
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+      - name: total_beds
+        type: integer
+      - name: available_beds
+        type: integer
+      - name: nurse_station_phone
+        type: string
+        optional: true
+      - name: is_isolation_capable
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: Room
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: ward_id
+        type: string
+        fk: true
+      - name: room_number
+        type: string
+      - name: room_type
+        type: string
+        fk: true
+        comment: → RoomType
+      - name: room_class
+        type: string
+        fk: true
+        comment: → RoomClass
+      - name: daily_rate
+        type: decimal
+      - name: bed_count
+        type: integer
+      - name: has_bathroom
+        type: boolean
+      - name: has_oxygen
+        type: boolean
+      - name: has_suction
+        type: boolean
+      - name: is_isolation
+        type: boolean
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: is_active
+        type: boolean
+  - name: Bed
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: room_id
+        type: string
+        fk: true
+      - name: bed_number
+        type: string
+      - name: bed_type
+        type: string
+        fk: true
+        comment: → BedType
+      - name: status
+        type: string
+        fk: true
+        comment: → BedStatus
+      - name: current_patient_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Patient
+      - name: current_admission_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Admission
+      - name: occupied_since
+        type: datetime
+        optional: true
+      - name: last_cleaned_at
+        type: datetime
+        optional: true
+      - name: is_active
+        type: boolean
+  - name: BedTransfer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: admission_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+        comment: → Patient
+      - name: from_bed_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Bed
+      - name: to_bed_id
+        type: string
+        fk: true
+        comment: → Bed
+      - name: transfer_reason
+        type: string
+      - name: transfer_datetime
+        type: datetime
+      - name: ordered_by
+        type: string
+        fk: true
+        comment: → User
+      - name: executed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: notes
+        type: text
+        optional: true
+  - name: Location
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: location_type
+        type: string
+        fk: true
+        comment: → LocationType
+      - name: building
+        type: string
+        optional: true
+      - name: floor
+        type: string
+        optional: true
+      - name: address
+        type: string
+        optional: true
+      - name: city
+        type: string
+        optional: true
+      - name: phone
+        type: string
+        optional: true
+      - name: is_active
+        type: boolean
+  # =====================================================
+  # CLINICAL DOCUMENTATION & EMR
+  # =====================================================
+  - name: VitalSign
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: recorded_at
+        type: datetime
+      - name: temperature
+        type: decimal
+        optional: true
+      - name: temperature_unit
+        type: string
+        optional: true
+      - name: pulse_rate
+        type: integer
+        optional: true
+      - name: respiratory_rate
+        type: integer
+        optional: true
+      - name: systolic_bp
+        type: integer
+        optional: true
+      - name: diastolic_bp
+        type: integer
+        optional: true
+      - name: oxygen_saturation
+        type: decimal
+        optional: true
+      - name: height
+        type: decimal
+        optional: true
+      - name: height_unit
+        type: string
+        optional: true
+      - name: weight
+        type: decimal
+        optional: true
+      - name: weight_unit
+        type: string
+        optional: true
+      - name: bmi
+        type: decimal
+        optional: true
+      - name: pain_score
+        type: integer
+        optional: true
+      - name: consciousness_level
+        type: string
+        optional: true
+      - name: notes
+        type: text
+        optional: true
+      - name: recorded_by
+        type: string
+        fk: true
+        comment: → User
+  - name: Diagnosis
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: icd_code
+        type: string
+      - name: icd_version
+        type: string
+      - name: description
+        type: string
+      - name: diagnosis_type
+        type: string
+        fk: true
+        comment: → DiagnosisType
+      - name: status
+        type: string
+        fk: true
+        comment: → AllergyStatus
+      - name: is_principal
+        type: boolean
+      - name: onset_date
+        type: date
+        optional: true
+      - name: resolved_date
+        type: date
+        optional: true
+      - name: diagnosed_by
+        type: string
+        fk: true
+        comment: → User
+      - name: diagnosed_at
+        type: datetime
+  - name: ClinicalNote
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: note_type
+        type: string
+        fk: true
+        comment: → NoteType
+      - name: title
+        type: string
+        optional: true
+      - name: content
+        type: text
+      - name: status
+        type: string
+        fk: true
+        comment: → NoteStatus
+      - name: author_id
+        type: string
+        fk: true
+        comment: → User
+      - name: authored_at
+        type: datetime
+      - name: cosigner_id
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: cosigned_at
+        type: datetime
+        optional: true
+      - name: is_addendum
+        type: boolean
+      - name: parent_note_id
+        type: string
+        fk: true
+        optional: true
+  - name: Consent
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        optional: true
+      - name: consent_type
+        type: string
+        fk: true
+        comment: → ConsentType
+      - name: procedure_name
+        type: string
+        optional: true
+      - name: consent_text
+        type: text
+      - name: status
+        type: string
+        fk: true
+        comment: → ConsentStatus
+      - name: signature_data
+        type: text
+        optional: true
+      - name: signed_at
+        type: datetime
+        optional: true
+      - name: witnessed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: witness_signed_at
+        type: datetime
+        optional: true
+      - name: provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: expires_at
+        type: datetime
+        optional: true
+  # =====================================================
+  # CLINICAL ORDERS (CPOE)
+  # =====================================================
+  - name: ClinicalOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: order_type
+        type: string
+        fk: true
+        comment: → OrderType
+      - name: order_category
+        type: string
+        fk: true
+        comment: → OrderCategory
+      - name: priority
+        type: string
+        fk: true
+        comment: → OrderPriority
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: ordered_at
+        type: datetime
+      - name: ordering_provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: scheduled_datetime
+        type: datetime
+        optional: true
+      - name: start_datetime
+        type: datetime
+        optional: true
+      - name: end_datetime
+        type: datetime
+        optional: true
+      - name: clinical_indication
+        type: text
+        optional: true
+      - name: special_instructions
+        type: text
+        optional: true
+      - name: frequency
+        type: string
+        fk: true
+        comment: → Frequency
+      - name: duration_value
+        type: integer
+        optional: true
+      - name: duration_unit
+        type: string
+        fk: true
+        comment: → DurationUnit
+      - name: is_stat
+        type: boolean
+      - name: discontinued_reason
+        type: string
+        optional: true
+      - name: discontinued_at
+        type: datetime
+        optional: true
+      - name: discontinued_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+  - name: OrderSet
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: description
+        type: string
+        optional: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: specialty
+        type: string
+        fk: true
+        optional: true
+        comment: → Specialty
+      - name: indication
+        type: string
+        optional: true
+      - name: is_active
+        type: boolean
+      - name: created_by
+        type: string
+        fk: true
+        comment: → User
+  - name: OrderSetItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_set_id
+        type: string
+        fk: true
+      - name: order_type
+        type: string
+        fk: true
+        comment: → OrderType
+      - name: item_code
+        type: string
+      - name: item_name
+        type: string
+      - name: default_priority
+        type: string
+        fk: true
+        comment: → OrderPriority
+      - name: default_frequency
+        type: string
+        fk: true
+        comment: → Frequency
+      - name: default_duration
+        type: integer
+        optional: true
+      - name: default_duration_unit
+        type: string
+        fk: true
+        comment: → DurationUnit
+      - name: default_instructions
+        type: text
+        optional: true
+      - name: sequence_order
+        type: integer
+      - name: is_required
+        type: boolean
+  # =====================================================
+  # LABORATORY INFORMATION SYSTEM (LIS)
+  # =====================================================
+  - name: LabOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: clinical_order_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: ordering_provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: priority
+        type: string
+        fk: true
+        comment: → OrderPriority
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: ordered_at
+        type: datetime
+      - name: collected_at
+        type: datetime
+        optional: true
+      - name: received_at
+        type: datetime
+        optional: true
+      - name: resulted_at
+        type: datetime
+        optional: true
+      - name: specimen_type
+        type: string
+        fk: true
+        comment: → SpecimenType
+      - name: collection_site
+        type: string
+        optional: true
+      - name: clinical_notes
+        type: text
+        optional: true
+      - name: is_fasting_required
+        type: boolean
+  - name: LabSample
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: lab_order_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: accession_number
+        type: string
+        unique: true
+      - name: barcode
+        type: string
+        unique: true
+      - name: specimen_type
+        type: string
+        fk: true
+        comment: → SpecimenType
+      - name: container_type
+        type: string
+        fk: true
+        comment: → ContainerType
+      - name: collection_site
+        type: string
+        optional: true
+      - name: collection_datetime
+        type: datetime
+      - name: collected_by
+        type: string
+        fk: true
+        comment: → User
+      - name: received_datetime
+        type: datetime
+        optional: true
+      - name: received_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: status
+        type: string
+        fk: true
+        comment: → ResultStatus
+      - name: rejection_reason
+        type: string
+        optional: true
+      - name: handling_instructions
+        type: text
+        optional: true
+  - name: LabTest
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: loinc_code
+        type: string
+        optional: true
+      - name: category
+        type: string
+        fk: true
+        comment: → LabTestCategory
+      - name: specimen_type
+        type: string
+        fk: true
+        comment: → SpecimenType
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: price
+        type: decimal
+      - name: turnaround_hours
+        type: integer
+      - name: method_description
+        type: text
+        optional: true
+      - name: preparation_instructions
+        type: text
+        optional: true
+      - name: requires_fasting
+        type: boolean
+      - name: is_panel
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: LabTestParameter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: lab_test_id
+        type: string
+        fk: true
+      - name: parameter_name
+        type: string
+      - name: parameter_code
+        type: string
+      - name: unit_of_measure
+        type: string
+        optional: true
+      - name: reference_low
+        type: decimal
+        optional: true
+      - name: reference_high
+        type: decimal
+        optional: true
+      - name: reference_range_text
+        type: string
+        optional: true
+      - name: result_type
+        type: string
+        fk: true
+        comment: → ResultType
+      - name: sequence_order
+        type: integer
+      - name: is_critical
+        type: boolean
+      - name: critical_low
+        type: decimal
+        optional: true
+      - name: critical_high
+        type: decimal
+        optional: true
+  - name: LabResult
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: lab_order_id
+        type: string
+        fk: true
+      - name: lab_sample_id
+        type: string
+        fk: true
+      - name: lab_test_id
+        type: string
+        fk: true
+      - name: lab_test_parameter_id
+        type: string
+        fk: true
+        optional: true
+      - name: result_value
+        type: string
+      - name: result_unit
+        type: string
+        optional: true
+      - name: result_status
+        type: string
+        fk: true
+        comment: → ResultStatus
+      - name: abnormal_flag
+        type: string
+        optional: true
+      - name: reference_range
+        type: string
+        optional: true
+      - name: is_critical
+        type: boolean
+      - name: comments
+        type: text
+        optional: true
+      - name: performed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: performed_at
+        type: datetime
+        optional: true
+      - name: verified_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: verified_at
+        type: datetime
+        optional: true
+      - name: is_auto_verified
+        type: boolean
+  - name: LabEquipment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: equipment_type
+        type: string
+        fk: true
+        comment: → LabEquipmentType
+      - name: manufacturer
+        type: string
+        optional: true
+      - name: model
+        type: string
+        optional: true
+      - name: serial_number
+        type: string
+        optional: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: interface_type
+        type: string
+        optional: true
+      - name: last_calibration_date
+        type: datetime
+        optional: true
+      - name: next_calibration_date
+        type: datetime
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: is_active
+        type: boolean
+  # =====================================================
+  # RADIOLOGY INFORMATION SYSTEM (RIS) & PACS
+  # =====================================================
+  - name: RadiologyOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: clinical_order_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: ordering_provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: modality_type
+        type: string
+        fk: true
+        comment: → ModalityType
+      - name: body_part
+        type: string
+        fk: true
+        comment: → BodyPart
+      - name: laterality
+        type: string
+        fk: true
+        comment: → Laterality
+      - name: priority
+        type: string
+        fk: true
+        comment: → OrderPriority
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: ordered_at
+        type: datetime
+      - name: scheduled_at
+        type: datetime
+        optional: true
+      - name: scheduled_modality_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Modality
+      - name: clinical_history
+        type: text
+        optional: true
+      - name: reason_for_exam
+        type: text
+      - name: is_contrast_required
+        type: boolean
+      - name: contrast_allergy_status
+        type: string
+        optional: true
+      - name: estimated_radiation_dose
+        type: decimal
+        optional: true
+  - name: RadiologyStudy
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: radiology_order_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: study_instance_uid
+        type: string
+        unique: true
+      - name: accession_number
+        type: string
+        unique: true
+      - name: modality_type
+        type: string
+        fk: true
+        comment: → ModalityType
+      - name: body_part
+        type: string
+        fk: true
+        comment: → BodyPart
+      - name: study_datetime
+        type: datetime
+      - name: status
+        type: string
+        fk: true
+        comment: → RadiologyStatus
+      - name: number_of_series
+        type: integer
+        optional: true
+      - name: number_of_images
+        type: integer
+        optional: true
+      - name: performed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: modality_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Modality
+      - name: study_description
+        type: text
+        optional: true
+      - name: radiation_dose
+        type: decimal
+        optional: true
+      - name: dose_unit
+        type: string
+        fk: true
+        comment: → RadiationDoseUnit
+  - name: RadiologyImage
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: radiology_study_id
+        type: string
+        fk: true
+      - name: series_instance_uid
+        type: string
+      - name: sop_instance_uid
+        type: string
+        unique: true
+      - name: series_number
+        type: integer
+      - name: instance_number
+        type: integer
+      - name: image_type
+        type: string
+        optional: true
+      - name: storage_path
+        type: text
+      - name: transfer_syntax
+        type: string
+        optional: true
+      - name: rows
+        type: integer
+        optional: true
+      - name: columns
+        type: integer
+        optional: true
+      - name: photometric_interpretation
+        type: string
+        optional: true
+      - name: acquisition_datetime
+        type: datetime
+        optional: true
+  - name: RadiologyReport
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: radiology_study_id
+        type: string
+        fk: true
+      - name: radiology_order_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: report_status
+        type: string
+        fk: true
+        comment: → ReportStatus
+      - name: findings
+        type: text
+        optional: true
+      - name: impression
+        type: text
+        optional: true
+      - name: recommendation
+        type: text
+        optional: true
+      - name: radiologist_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: reported_at
+        type: datetime
+        optional: true
+      - name: transcribed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: transcribed_at
+        type: datetime
+        optional: true
+      - name: verified_by
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: verified_at
+        type: datetime
+        optional: true
+      - name: is_critical
+        type: boolean
+      - name: critical_notified_at
+        type: datetime
+        optional: true
+  - name: Modality
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: modality_type
+        type: string
+        fk: true
+        comment: → ModalityType
+      - name: ae_title
+        type: string
+        optional: true
+      - name: ip_address
+        type: string
+        optional: true
+      - name: port
+        type: integer
+        optional: true
+      - name: manufacturer
+        type: string
+        optional: true
+      - name: model
+        type: string
+        optional: true
+      - name: serial_number
+        type: string
+        optional: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: last_maintenance_date
+        type: datetime
+        optional: true
+      - name: is_active
+        type: boolean
+  # =====================================================
+  # PHARMACY MANAGEMENT SYSTEM
+  # =====================================================
+  - name: Medication
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: generic_name
+        type: string
+      - name: brand_name
+        type: string
+        optional: true
+      - name: ndc_code
+        type: string
+        optional: true
+      - name: rxnorm_code
+        type: string
+        optional: true
+      - name: medication_class
+        type: string
+        fk: true
+        comment: → MedicationClass
+      - name: form
+        type: string
+        fk: true
+        comment: → MedicationForm
+      - name: strength
+        type: string
+      - name: strength_unit
+        type: string
+      - name: route
+        type: string
+        fk: true
+        comment: → Route
+      - name: manufacturer
+        type: string
+        optional: true
+      - name: unit_price
+        type: decimal
+      - name: is_controlled
+        type: boolean
+      - name: dea_schedule
+        type: string
+        fk: true
+        comment: → DEASchedule
+      - name: requires_refrigeration
+        type: boolean
+      - name: is_formulary
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: DrugBatch
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: medication_id
+        type: string
+        fk: true
+      - name: batch_number
+        type: string
+        unique: true
+      - name: lot_number
+        type: string
+        optional: true
+      - name: manufacture_date
+        type: date
+        optional: true
+      - name: expiry_date
+        type: date
+      - name: quantity_received
+        type: integer
+      - name: quantity_on_hand
+        type: integer
+      - name: unit_cost
+        type: decimal
+      - name: supplier_id
+        type: string
+        fk: true
+        optional: true
+      - name: storage_location
+        type: string
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: received_at
+        type: datetime
+      - name: received_by
+        type: string
+        fk: true
+        comment: → User
+  - name: Prescription
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: clinical_order_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: prescriber_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: prescription_number
+        type: string
+        unique: true
+      - name: prescribed_at
+        type: datetime
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: prescription_type
+        type: string
+        fk: true
+        comment: → PrescriptionType
+      - name: is_inpatient
+        type: boolean
+      - name: pharmacy_notes
+        type: text
+        optional: true
+      - name: dispensing_pharmacy_id
+        type: string
+        fk: true
+        optional: true
+  - name: PrescriptionItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: prescription_id
+        type: string
+        fk: true
+      - name: medication_id
+        type: string
+        fk: true
+      - name: dosage
+        type: string
+      - name: dosage_unit
+        type: string
+      - name: frequency
+        type: string
+        fk: true
+        comment: → Frequency
+      - name: route
+        type: string
+        fk: true
+        comment: → Route
+      - name: duration_value
+        type: integer
+      - name: duration_unit
+        type: string
+        fk: true
+        comment: → DurationUnit
+      - name: quantity_prescribed
+        type: integer
+      - name: refills_allowed
+        type: integer
+      - name: refills_remaining
+        type: integer
+      - name: sig_instructions
+        type: text
+      - name: special_instructions
+        type: text
+        optional: true
+      - name: substitution_allowed
+        type: string
+        fk: true
+        comment: → SubstitutionAllowed
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: start_date
+        type: datetime
+      - name: end_date
+        type: datetime
+        optional: true
+  - name: Dispensing
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: prescription_item_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: drug_batch_id
+        type: string
+        fk: true
+      - name: quantity_dispensed
+        type: integer
+      - name: dispensed_at
+        type: datetime
+      - name: dispensed_by
+        type: string
+        fk: true
+        comment: → User
+      - name: verified_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: verified_at
+        type: datetime
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → OrderStatus
+      - name: counseling_notes
+        type: text
+        optional: true
+      - name: patient_counseled
+        type: boolean
+  - name: MedicationAdministration
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: prescription_item_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: medication_id
+        type: string
+        fk: true
+      - name: dosage_given
+        type: string
+      - name: route
+        type: string
+        fk: true
+        comment: → Route
+      - name: scheduled_datetime
+        type: datetime
+      - name: administered_datetime
+        type: datetime
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → AdministrationStatus
+      - name: administered_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: witnessed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: barcode_verified
+        type: string
+      - name: administration_notes
+        type: text
+        optional: true
+      - name: reason_not_given
+        type: string
+        fk: true
+        comment: → ReasonNotGiven
+  - name: NarcoticLog
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: medication_id
+        type: string
+        fk: true
+      - name: drug_batch_id
+        type: string
+        fk: true
+      - name: transaction_type
+        type: string
+      - name: quantity
+        type: integer
+      - name: balance_before
+        type: integer
+      - name: balance_after
+        type: integer
+      - name: patient_id
+        type: string
+        fk: true
+        optional: true
+      - name: prescription_id
+        type: string
+        fk: true
+        optional: true
+      - name: performed_by
+        type: string
+        fk: true
+        comment: → User
+      - name: witnessed_by
+        type: string
+        fk: true
+        comment: → User
+      - name: transaction_datetime
+        type: datetime
+      - name: notes
+        type: text
+        optional: true
+      - name: wasted_reason
+        type: string
+        optional: true
+      - name: wasted_quantity
+        type: decimal
+        optional: true
+  # =====================================================
+  # BILLING & REVENUE CYCLE MANAGEMENT (RCM)
+  # =====================================================
+  - name: Bill
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        optional: true
+      - name: admission_id
+        type: string
+        fk: true
+        optional: true
+      - name: bill_number
+        type: string
+        unique: true
+      - name: bill_type
+        type: string
+        fk: true
+        comment: → BillType
+      - name: status
+        type: string
+        fk: true
+        comment: → PaymentStatus
+      - name: bill_date
+        type: date
+      - name: due_date
+        type: date
+        optional: true
+      - name: subtotal
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: adjustment_amount
+        type: decimal
+      - name: total_amount
+        type: decimal
+      - name: insurance_amount
+        type: decimal
+      - name: patient_amount
+        type: decimal
+      - name: amount_paid
+        type: decimal
+      - name: balance_due
+        type: decimal
+      - name: currency
+        type: string
+      - name: payment_status
+        type: string
+        fk: true
+        comment: → PaymentStatus
+      - name: billing_provider_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: notes
+        type: text
+        optional: true
+  - name: BillItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: bill_id
+        type: string
+        fk: true
+      - name: charge_item_id
+        type: string
+        fk: true
+        optional: true
+      - name: service_code
+        type: string
+      - name: service_description
+        type: string
+      - name: cpt_code
+        type: string
+        optional: true
+      - name: hcpcs_code
+        type: string
+        optional: true
+      - name: revenue_code
+        type: string
+        fk: true
+        optional: true
+        comment: → RevenueCode
+      - name: service_date
+        type: date
+      - name: quantity
+        type: integer
+      - name: unit_price
+        type: decimal
+      - name: discount_percent
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: line_total
+        type: decimal
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: provider_id
+        type: string
+        fk: true
+        optional: true
+        comment: → Staff
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+  - name: ChargeItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: charge_type
+        type: string
+        fk: true
+        comment: → ChargeType
+      - name: category
+        type: string
+        fk: true
+        comment: → ItemCategory
+      - name: service_type
+        type: string
+        fk: true
+        comment: → ServiceType
+      - name: cpt_code
+        type: string
+        optional: true
+      - name: hcpcs_code
+        type: string
+        optional: true
+      - name: revenue_code
+        type: string
+        fk: true
+        optional: true
+        comment: → RevenueCode
+      - name: standard_price
+        type: decimal
+      - name: cost
+        type: decimal
+        optional: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: is_taxable
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: Payment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: bill_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: payment_number
+        type: string
+        unique: true
+      - name: payment_type
+        type: string
+        fk: true
+        comment: → PaymentType
+      - name: payment_method
+        type: string
+        fk: true
+        comment: → PaymentMethod
+      - name: amount
+        type: decimal
+      - name: currency
+        type: string
+      - name: payment_date
+        type: date
+      - name: reference_number
+        type: string
+        optional: true
+      - name: authorization_code
+        type: string
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → PaymentStatus
+      - name: received_by
+        type: string
+        fk: true
+        comment: → User
+      - name: notes
+        type: text
+        optional: true
+  - name: InsuranceClaim
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: bill_id
+        type: string
+        fk: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: patient_insurance_id
+        type: string
+        fk: true
+      - name: claim_number
+        type: string
+        unique: true
+      - name: claim_type
+        type: string
+        fk: true
+        comment: → ClaimType
+      - name: status
+        type: string
+        fk: true
+        comment: → ClaimStatus
+      - name: service_from_date
+        type: date
+      - name: service_to_date
+        type: date
+      - name: billed_amount
+        type: decimal
+      - name: allowed_amount
+        type: decimal
+        optional: true
+      - name: paid_amount
+        type: decimal
+        optional: true
+      - name: patient_responsibility
+        type: decimal
+        optional: true
+      - name: submitted_at
+        type: datetime
+        optional: true
+      - name: adjudicated_at
+        type: datetime
+        optional: true
+      - name: submission_method
+        type: string
+        fk: true
+        comment: → SubmissionMethod
+      - name: payer_claim_number
+        type: string
+        optional: true
+      - name: rejection_reason
+        type: text
+        optional: true
+      - name: resubmission_count
+        type: integer
+  - name: ClaimDenial
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: insurance_claim_id
+        type: string
+        fk: true
+      - name: denial_code
+        type: string
+      - name: denial_reason
+        type: string
+      - name: denial_category
+        type: string
+        fk: true
+        comment: → DenialCategory
+      - name: denial_date
+        type: date
+      - name: status
+        type: string
+        fk: true
+        comment: → DenialStatus
+      - name: appeal_notes
+        type: text
+        optional: true
+      - name: appealed_at
+        type: datetime
+        optional: true
+      - name: appealed_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: resolved_at
+        type: datetime
+        optional: true
+      - name: resolution_outcome
+        type: string
+        optional: true
+      - name: recovered_amount
+        type: decimal
+        optional: true
+  # =====================================================
+  # PROCUREMENT & SUPPLY CHAIN
+  # =====================================================
+  - name: Supplier
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+      - name: supplier_type
+        type: string
+        fk: true
+        comment: → SupplierType
+      - name: tax_id
+        type: string
+        optional: true
+      - name: contact_name
+        type: string
+        optional: true
+      - name: email
+        type: string
+        optional: true
+      - name: phone
+        type: string
+        optional: true
+      - name: address
+        type: string
+        optional: true
+      - name: city
+        type: string
+        optional: true
+      - name: state
+        type: string
+        optional: true
+      - name: country
+        type: string
+        optional: true
+      - name: payment_terms
+        type: string
+        optional: true
+      - name: lead_time_days
+        type: integer
+        optional: true
+      - name: credit_limit
+        type: decimal
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: is_active
+        type: boolean
+  - name: InventoryItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: code
+        type: string
+        unique: true
+        comment: SKU
+      - name: item_type
+        type: string
+        fk: true
+        comment: → ItemType
+      - name: category
+        type: string
+        fk: true
+        comment: → ItemCategory
+      - name: unit_of_measure
+        type: string
+        fk: true
+        comment: → UOM
+      - name: unit_cost
+        type: decimal
+        optional: true
+      - name: unit_price
+        type: decimal
+        optional: true
+      - name: reorder_level
+        type: integer
+      - name: reorder_quantity
+        type: integer
+      - name: par_level
+        type: integer
+        optional: true
+      - name: abc_classification
+        type: string
+        optional: true
+      - name: ved_classification
+        type: string
+        optional: true
+      - name: is_medication
+        type: boolean
+      - name: medication_id
+        type: string
+        fk: true
+        optional: true
+      - name: is_active
+        type: boolean
+  - name: InventoryStock
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: inventory_item_id
+        type: string
+        fk: true
+      - name: location_id
+        type: string
+        fk: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: quantity_on_hand
+        type: integer
+      - name: quantity_reserved
+        type: integer
+      - name: quantity_available
+        type: integer
+      - name: last_count_date
+        type: date
+        optional: true
+      - name: last_counted_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+  - name: PurchaseRequisition
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: requisition_number
+        type: string
+        unique: true
+      - name: department_id
+        type: string
+        fk: true
+      - name: requester_id
+        type: string
+        fk: true
+        comment: → User
+      - name: request_date
+        type: date
+      - name: priority
+        type: string
+        fk: true
+        comment: → OrderPriority
+      - name: status
+        type: string
+        fk: true
+        comment: → RequisitionStatus
+      - name: justification
+        type: text
+        optional: true
+      - name: estimated_total
+        type: decimal
+        optional: true
+      - name: approved_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: approved_at
+        type: datetime
+        optional: true
+  - name: PurchaseRequisitionItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: purchase_requisition_id
+        type: string
+        fk: true
+      - name: inventory_item_id
+        type: string
+        fk: true
+      - name: quantity_requested
+        type: integer
+      - name: estimated_unit_cost
+        type: decimal
+        optional: true
+      - name: estimated_total
+        type: decimal
+        optional: true
+      - name: preferred_supplier_id
+        type: string
+        fk: true
+        optional: true
+      - name: specifications
+        type: text
+        optional: true
+  - name: PurchaseOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: purchase_requisition_id
+        type: string
+        fk: true
+        optional: true
+      - name: supplier_id
+        type: string
+        fk: true
+      - name: po_number
+        type: string
+        unique: true
+      - name: order_date
+        type: date
+      - name: expected_delivery_date
+        type: date
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → POStatus
+      - name: subtotal
+        type: decimal
+      - name: tax_amount
+        type: decimal
+      - name: shipping_amount
+        type: decimal
+      - name: total_amount
+        type: decimal
+      - name: currency
+        type: string
+      - name: payment_terms
+        type: string
+        optional: true
+      - name: shipping_address
+        type: text
+        optional: true
+      - name: created_by
+        type: string
+        fk: true
+        comment: → User
+      - name: approved_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: approved_at
+        type: datetime
+        optional: true
+  - name: PurchaseOrderItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: purchase_order_id
+        type: string
+        fk: true
+      - name: inventory_item_id
+        type: string
+        fk: true
+      - name: quantity_ordered
+        type: integer
+      - name: unit_cost
+        type: decimal
+      - name: tax_rate
+        type: decimal
+      - name: line_total
+        type: decimal
+      - name: quantity_received
+        type: integer
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+  - name: GoodsReceipt
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: purchase_order_id
+        type: string
+        fk: true
+      - name: grn_number
+        type: string
+        unique: true
+      - name: receipt_date
+        type: date
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: received_by
+        type: string
+        fk: true
+        comment: → User
+      - name: inspected_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+      - name: inspected_at
+        type: datetime
+        optional: true
+      - name: inspection_notes
+        type: text
+        optional: true
+      - name: supplier_invoice_number
+        type: string
+        optional: true
+      - name: supplier_invoice_amount
+        type: decimal
+        optional: true
+  - name: GoodsReceiptItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: goods_receipt_id
+        type: string
+        fk: true
+      - name: purchase_order_item_id
+        type: string
+        fk: true
+      - name: inventory_item_id
+        type: string
+        fk: true
+      - name: quantity_received
+        type: integer
+      - name: quantity_accepted
+        type: integer
+      - name: quantity_rejected
+        type: integer
+      - name: rejection_reason
+        type: string
+        optional: true
+      - name: batch_number
+        type: string
+        optional: true
+      - name: expiry_date
+        type: date
+        optional: true
+      - name: storage_location
+        type: string
+        optional: true
+  # =====================================================
+  # STAFF & USER MANAGEMENT
+  # =====================================================
+  - name: Staff
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: employee_number
+        type: string
+        unique: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+        unique: true
+      - name: phone
+        type: string
+        optional: true
+      - name: mobile
+        type: string
+        optional: true
+      - name: gender
+        type: string
+        fk: true
+        comment: → Gender
+      - name: date_of_birth
+        type: date
+        optional: true
+      - name: staff_type
+        type: string
+        fk: true
+        comment: → StaffType
+      - name: designation
+        type: string
+        fk: true
+        comment: → Designation
+      - name: department_id
+        type: string
+        fk: true
+      - name: specialty
+        type: string
+        fk: true
+        comment: → Specialty
+      - name: license_number
+        type: string
+        optional: true
+      - name: license_state
+        type: string
+        optional: true
+      - name: license_expiry_date
+        type: date
+        optional: true
+      - name: npi_number
+        type: string
+        optional: true
+      - name: dea_number
+        type: string
+        optional: true
+      - name: hire_date
+        type: date
+      - name: termination_date
+        type: date
+        optional: true
+      - name: employment_status
+        type: string
+        fk: true
+        comment: → EmploymentStatus
+      - name: is_provider
+        type: boolean
+      - name: can_prescribe
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: StaffSchedule
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_id
+        type: string
+        fk: true
+      - name: department_id
+        type: string
+        fk: true
+        optional: true
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+      - name: schedule_date
+        type: date
+      - name: start_time
+        type: datetime
+      - name: end_time
+        type: datetime
+      - name: shift_type
+        type: string
+        fk: true
+        comment: → ShiftType
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: notes
+        type: text
+        optional: true
+  - name: StaffCredential
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_id
+        type: string
+        fk: true
+      - name: credential_type
+        type: string
+        fk: true
+        comment: → CredentialType
+      - name: credential_name
+        type: string
+      - name: issuing_authority
+        type: string
+      - name: credential_number
+        type: string
+        optional: true
+      - name: issue_date
+        type: date
+      - name: expiry_date
+        type: date
+        optional: true
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: document_url
+        type: text
+        optional: true
+      - name: verified_at
+        type: datetime
+        optional: true
+      - name: verified_by
+        type: string
+        fk: true
+        optional: true
+        comment: → User
+  - name: User
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_id
+        type: string
+        fk: true
+        optional: true
+      - name: username
+        type: string
+        unique: true
+      - name: email
+        type: string
+        unique: true
+      - name: password_hash
+        type: string
+      - name: role
+        type: string
+        fk: true
+        comment: → UserRole
+      - name: status
+        type: string
+        fk: true
+        comment: → ActiveStatus
+      - name: is_active
+        type: boolean
+      - name: last_login_at
+        type: datetime
+        optional: true
+      - name: password_changed_at
+        type: datetime
+        optional: true
+      - name: failed_login_attempts
+        type: integer
+      - name: locked_until
+        type: datetime
+        optional: true
+      - name: mfa_enabled
+        type: boolean
+      - name: mfa_secret
+        type: string
+        optional: true
+  - name: AuditLog
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: user_id
+        type: string
+        fk: true
+        optional: true
+      - name: entity_type
+        type: string
+        fk: true
+        comment: → EntityType
+      - name: entity_id
+        type: string
+      - name: action
+        type: string
+        fk: true
+        comment: → AuditActionType
+      - name: old_values
+        type: text
+        optional: true
+      - name: new_values
+        type: text
+        optional: true
+      - name: ip_address
+        type: string
+        optional: true
+      - name: user_agent
+        type: string
+        optional: true
+      - name: created_at
+        type: datetime
+  # =====================================================
+  # TELEMEDICINE
+  # =====================================================
+  - name: TelemedicineSession
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: appointment_id
+        type: string
+        fk: true
+        optional: true
+      - name: encounter_id
+        type: string
+        fk: true
+        optional: true
+      - name: patient_id
+        type: string
+        fk: true
+      - name: provider_id
+        type: string
+        fk: true
+        comment: → Staff
+      - name: session_type
+        type: string
+        fk: true
+        comment: → SessionType
+      - name: status
+        type: string
+        fk: true
+        comment: → SessionStatus
+      - name: scheduled_start
+        type: datetime
+      - name: scheduled_end
+        type: datetime
+        optional: true
+      - name: actual_start
+        type: datetime
+        optional: true
+      - name: actual_end
+        type: datetime
+        optional: true
+      - name: duration_minutes
+        type: integer
+        optional: true
+      - name: meeting_url
+        type: string
+        optional: true
+      - name: meeting_id
+        type: string
+        optional: true
+      - name: platform
+        type: string
+      - name: technical_notes
+        type: text
+        optional: true
+      - name: billable_amount
+        type: decimal
+        optional: true
+relationships:
+  # =====================================================
+  # RELATIONSHIPS - MASTER DATA TO BUSINESS ENTITIES
+  # =====================================================
+
+  # Patient Demographic Relationships
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Gender
+    toCardinality: zero-or-more
+    label: has
+  - from: Patient
+    fromCardinality: exactly-one
+    to: BloodGroup
+    toCardinality: zero-or-more
+    label: has
+  - from: Patient
+    fromCardinality: exactly-one
+    to: MaritalStatus
+    toCardinality: zero-or-more
+    label: has
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Country
+    toCardinality: zero-or-more
+    label: has_nationality
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Country
+    toCardinality: zero-or-more
+    label: lives_in
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Title
+    toCardinality: zero-or-more
+    label: uses
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Relationship
+    toCardinality: zero-or-more
+    label: emergency_contact
+  # Staff Relationships to Masters
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Gender
+    toCardinality: zero-or-more
+    label: has
+  - from: Staff
+    fromCardinality: exactly-one
+    to: StaffType
+    toCardinality: zero-or-more
+    label: is
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Designation
+    toCardinality: zero-or-more
+    label: has
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Specialty
+    toCardinality: zero-or-more
+    label: practices
+  - from: Staff
+    fromCardinality: exactly-one
+    to: EmploymentStatus
+    toCardinality: zero-or-more
+    label: has
+  # User Relationships to Masters
+  - from: User
+    fromCardinality: exactly-one
+    to: UserRole
+    toCardinality: zero-or-more
+    label: has
+  - from: User
+    fromCardinality: exactly-one
+    to: ActiveStatus
+    toCardinality: zero-or-more
+    label: has
+  # =====================================================
+  # RELATIONSHIPS - BUSINESS ENTITIES
+  # =====================================================
+
+  # Patient Administration Relationships
+  - from: Patient
+    fromCardinality: exactly-one
+    to: PatientInsurance
+    toCardinality: zero-or-more
+    label: has_insurance
+  - from: Patient
+    fromCardinality: exactly-one
+    to: PatientDocument
+    toCardinality: zero-or-more
+    label: has_documents
+  - from: Patient
+    fromCardinality: exactly-one
+    to: PatientAllergy
+    toCardinality: zero-or-more
+    label: has_allergies
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: schedules
+  - from: Patient
+    fromCardinality: exactly-one
+    to: QueueToken
+    toCardinality: zero-or-more
+    label: receives
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: has_encounters
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: has_admissions
+  - from: Patient
+    fromCardinality: exactly-one
+    to: VitalSign
+    toCardinality: zero-or-more
+    label: has_vitals
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Diagnosis
+    toCardinality: zero-or-more
+    label: has_diagnoses
+  - from: Patient
+    fromCardinality: exactly-one
+    to: ClinicalNote
+    toCardinality: zero-or-more
+    label: mentioned_in
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Consent
+    toCardinality: zero-or-more
+    label: signs
+  - from: Patient
+    fromCardinality: exactly-one
+    to: TelemedicineSession
+    toCardinality: zero-or-more
+    label: participates_in
+  - from: InsuranceProvider
+    fromCardinality: exactly-one
+    to: PatientInsurance
+    toCardinality: zero-or-more
+    label: provides
+  - from: InsuranceProvider
+    fromCardinality: exactly-one
+    to: InsuranceClaim
+    toCardinality: zero-or-more
+    label: receives
+  # Appointment & Queue Relationships
+  - from: Appointment
+    fromCardinality: exactly-one
+    to: TelemedicineSession
+    toCardinality: zero-or-more
+    label: for
+  # Clinical Encounter Relationships
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: VitalSign
+    toCardinality: zero-or-more
+    label: records
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Diagnosis
+    toCardinality: zero-or-more
+    label: documents
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: ClinicalNote
+    toCardinality: zero-or-more
+    label: contains
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Consent
+    toCardinality: zero-or-more
+    label: requires
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: ClinicalOrder
+    toCardinality: zero-or-more
+    label: places
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: LabOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: RadiologyOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Prescription
+    toCardinality: zero-or-more
+    label: prescribes
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: MedicationAdministration
+    toCardinality: zero-or-more
+    label: administers
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: TelemedicineSession
+    toCardinality: zero-or-more
+    label: part_of
+  # Admission & Bed Management
+  - from: Admission
+    fromCardinality: exactly-one
+    to: BedTransfer
+    toCardinality: zero-or-more
+    label: has_transfers
+  - from: Admission
+    fromCardinality: exactly-one
+    to: Bed
+    toCardinality: exactly-one
+    label: occupies
+  # Ward & Location Hierarchy
+  - from: Department
+    fromCardinality: exactly-one
+    to: Ward
+    toCardinality: zero-or-more
+    label: contains
+  - from: Department
+    fromCardinality: exactly-one
+    to: Staff
+    toCardinality: zero-or-more
+    label: employs
+  - from: Department
+    fromCardinality: exactly-one
+    to: LabTest
+    toCardinality: zero-or-more
+    label: performs
+  - from: Department
+    fromCardinality: exactly-one
+    to: Modality
+    toCardinality: zero-or-more
+    label: operates
+  - from: Department
+    fromCardinality: exactly-one
+    to: ChargeItem
+    toCardinality: zero-or-more
+    label: owns
+  - from: Department
+    fromCardinality: exactly-one
+    to: StaffSchedule
+    toCardinality: zero-or-more
+    label: schedules
+  - from: Department
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: receives
+  - from: Department
+    fromCardinality: exactly-one
+    to: PurchaseRequisition
+    toCardinality: zero-or-more
+    label: requests
+  - from: Department
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: located_at
+  - from: Department
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: manages
+  - from: Department
+    fromCardinality: exactly-one
+    to: InventoryStock
+    toCardinality: zero-or-more
+    label: tracks
+  - from: Department
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: exactly-one
+    label: headed_by
+  - from: Location
+    fromCardinality: exactly-one
+    to: Ward
+    toCardinality: zero-or-more
+    label: houses
+  - from: Location
+    fromCardinality: exactly-one
+    to: Modality
+    toCardinality: zero-or-more
+    label: contains
+  - from: Location
+    fromCardinality: exactly-one
+    to: InventoryStock
+    toCardinality: zero-or-more
+    label: stores
+  - from: Location
+    fromCardinality: exactly-one
+    to: StaffSchedule
+    toCardinality: zero-or-more
+    label: assigned_to
+  - from: Location
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: hosted_at
+  - from: Location
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+    label: contains
+  - from: Location
+    fromCardinality: exactly-one
+    to: Bed
+    toCardinality: zero-or-more
+    label: located_in
+  - from: Ward
+    fromCardinality: exactly-one
+    to: Room
+    toCardinality: zero-or-more
+    label: contains
+  - from: Room
+    fromCardinality: exactly-one
+    to: Bed
+    toCardinality: zero-or-more
+    label: contains
+  - from: Bed
+    fromCardinality: exactly-one
+    to: BedTransfer
+    toCardinality: zero-or-more
+    label: transferred_to
+  # Clinical Orders Relationships
+  - from: OrderSet
+    fromCardinality: exactly-one
+    to: OrderSetItem
+    toCardinality: zero-or-more
+    label: contains
+  # Laboratory Relationships
+  - from: LabOrder
+    fromCardinality: exactly-one
+    to: LabSample
+    toCardinality: zero-or-more
+    label: requires
+  - from: LabOrder
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: produces
+  - from: LabSample
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: yields
+  - from: LabTest
+    fromCardinality: exactly-one
+    to: LabTestParameter
+    toCardinality: zero-or-more
+    label: defines
+  - from: LabTest
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: measured_by
+  - from: LabTestParameter
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: measures
+  - from: LabOrder
+    fromCardinality: exactly-one
+    to: LabTest
+    toCardinality: exactly-one
+    label: for
+  - from: LabResult
+    fromCardinality: exactly-one
+    to: LabTest
+    toCardinality: exactly-one
+    label: for
+  # Radiology Relationships
+  - from: RadiologyStudy
+    fromCardinality: exactly-one
+    to: RadiologyImage
+    toCardinality: zero-or-more
+    label: contains
+  - from: Modality
+    fromCardinality: exactly-one
+    to: RadiologyStudy
+    toCardinality: zero-or-more
+    label: performs
+  - from: Modality
+    fromCardinality: exactly-one
+    to: RadiologyOrder
+    toCardinality: zero-or-more
+    label: scheduled_on
+  - from: RadiologyStudy
+    fromCardinality: exactly-one
+    to: Modality
+    toCardinality: exactly-one
+    label: uses
+  - from: RadiologyOrder
+    fromCardinality: exactly-one
+    to: Modality
+    toCardinality: exactly-one
+    label: for
+  # Pharmacy Relationships
+  - from: Medication
+    fromCardinality: exactly-one
+    to: DrugBatch
+    toCardinality: zero-or-more
+    label: batched_as
+  - from: Medication
+    fromCardinality: exactly-one
+    to: PrescriptionItem
+    toCardinality: zero-or-more
+    label: prescribed_in
+  - from: Medication
+    fromCardinality: exactly-one
+    to: MedicationAdministration
+    toCardinality: zero-or-more
+    label: administered_as
+  - from: Medication
+    fromCardinality: exactly-one
+    to: NarcoticLog
+    toCardinality: zero-or-more
+    label: tracked_in
+  - from: Medication
+    fromCardinality: exactly-one
+    to: PatientAllergy
+    toCardinality: zero-or-more
+    label: allergy_to
+  - from: Prescription
+    fromCardinality: exactly-one
+    to: PrescriptionItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: PrescriptionItem
+    fromCardinality: exactly-one
+    to: Dispensing
+    toCardinality: zero-or-more
+    label: dispensed_as
+  - from: PrescriptionItem
+    fromCardinality: exactly-one
+    to: MedicationAdministration
+    toCardinality: zero-or-more
+    label: administered_via
+  - from: DrugBatch
+    fromCardinality: exactly-one
+    to: Dispensing
+    toCardinality: zero-or-more
+    label: dispensed_from
+  - from: DrugBatch
+    fromCardinality: exactly-one
+    to: NarcoticLog
+    toCardinality: zero-or-more
+    label: logged_in
+  - from: DrugBatch
+    fromCardinality: exactly-one
+    to: Medication
+    toCardinality: exactly-one
+    label: for
+  # Billing & RCM Relationships
+  - from: Bill
+    fromCardinality: exactly-one
+    to: BillItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Bill
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: receives
+  - from: Bill
+    fromCardinality: exactly-one
+    to: InsuranceClaim
+    toCardinality: zero-or-more
+    label: submitted_as
+  - from: ChargeItem
+    fromCardinality: exactly-one
+    to: BillItem
+    toCardinality: zero-or-more
+    label: charged_as
+  - from: BillItem
+    fromCardinality: exactly-one
+    to: ChargeItem
+    toCardinality: exactly-one
+    label: for
+  - from: PatientInsurance
+    fromCardinality: exactly-one
+    to: InsuranceClaim
+    toCardinality: zero-or-more
+    label: used_for
+  - from: InsuranceClaim
+    fromCardinality: exactly-one
+    to: ClaimDenial
+    toCardinality: zero-or-more
+    label: denied_as
+  # Procurement Relationships
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: PurchaseOrder
+    toCardinality: zero-or-more
+    label: fulfills
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: DrugBatch
+    toCardinality: zero-or-more
+    label: supplies
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: PurchaseRequisitionItem
+    toCardinality: zero-or-more
+    label: preferred_for
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: GoodsReceipt
+    toCardinality: zero-or-more
+    label: supplies
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: InventoryStock
+    toCardinality: zero-or-more
+    label: stocked_as
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: PurchaseRequisitionItem
+    toCardinality: zero-or-more
+    label: requested_as
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: PurchaseOrderItem
+    toCardinality: zero-or-more
+    label: ordered_as
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: GoodsReceiptItem
+    toCardinality: zero-or-more
+    label: received_as
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: Medication
+    toCardinality: exactly-one
+    label: is_medication
+  - from: PurchaseRequisition
+    fromCardinality: exactly-one
+    to: PurchaseRequisitionItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: PurchaseOrder
+    fromCardinality: exactly-one
+    to: PurchaseOrderItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: PurchaseOrder
+    fromCardinality: exactly-one
+    to: GoodsReceipt
+    toCardinality: zero-or-more
+    label: received_via
+  - from: PurchaseOrderItem
+    fromCardinality: exactly-one
+    to: GoodsReceiptItem
+    toCardinality: zero-or-more
+    label: received_as
+  - from: GoodsReceipt
+    fromCardinality: exactly-one
+    to: GoodsReceiptItem
+    toCardinality: zero-or-more
+    label: contains
+  # Staff Relationships
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: provides
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: attends
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: admits
+  - from: Staff
+    fromCardinality: exactly-one
+    to: ClinicalOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: LabOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: RadiologyOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Prescription
+    toCardinality: zero-or-more
+    label: prescribes
+  - from: Staff
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: verifies
+  - from: Staff
+    fromCardinality: exactly-one
+    to: RadiologyReport
+    toCardinality: zero-or-more
+    label: reports
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Dispensing
+    toCardinality: zero-or-more
+    label: dispenses
+  - from: Staff
+    fromCardinality: exactly-one
+    to: MedicationAdministration
+    toCardinality: zero-or-more
+    label: administers
+  - from: Staff
+    fromCardinality: exactly-one
+    to: StaffSchedule
+    toCardinality: zero-or-more
+    label: scheduled_as
+  - from: Staff
+    fromCardinality: exactly-one
+    to: StaffCredential
+    toCardinality: zero-or-more
+    label: holds
+  - from: Staff
+    fromCardinality: exactly-one
+    to: BedTransfer
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: NarcoticLog
+    toCardinality: zero-or-more
+    label: witnesses
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: receives
+  - from: Staff
+    fromCardinality: exactly-one
+    to: PurchaseRequisition
+    toCardinality: zero-or-more
+    label: requests
+  - from: Staff
+    fromCardinality: exactly-one
+    to: PurchaseOrder
+    toCardinality: zero-or-more
+    label: creates
+  - from: Staff
+    fromCardinality: exactly-one
+    to: GoodsReceipt
+    toCardinality: zero-or-more
+    label: receives
+  - from: Staff
+    fromCardinality: exactly-one
+    to: ClaimDenial
+    toCardinality: zero-or-more
+    label: appeals
+  - from: Staff
+    fromCardinality: exactly-one
+    to: PatientDocument
+    toCardinality: zero-or-more
+    label: uploads
+  - from: Staff
+    fromCardinality: exactly-one
+    to: PatientAllergy
+    toCardinality: zero-or-more
+    label: records
+  - from: Staff
+    fromCardinality: exactly-one
+    to: VitalSign
+    toCardinality: zero-or-more
+    label: records
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Diagnosis
+    toCardinality: zero-or-more
+    label: diagnoses
+  - from: Staff
+    fromCardinality: exactly-one
+    to: ClinicalNote
+    toCardinality: zero-or-more
+    label: authors
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Consent
+    toCardinality: zero-or-more
+    label: witnesses
+  - from: Staff
+    fromCardinality: exactly-one
+    to: StaffCredential
+    toCardinality: zero-or-more
+    label: verifies
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: exactly-one
+    label: belongs_to
+  # User & Audit Relationships
+  - from: User
+    fromCardinality: exactly-one
+    to: AuditLog
+    toCardinality: zero-or-more
+    label: creates
+  # Telemedicine Relationships
+  - from: TelemedicineSession
+    fromCardinality: zero-or-more
+    to: Patient
+    toCardinality: exactly-one
+    label: with_patient
+  - from: TelemedicineSession
+    fromCardinality: zero-or-more
+    to: Staff
+    toCardinality: exactly-one
+    label: with_provider

@@ -1,0 +1,127 @@
+//! Business entity tables (`bus_*`), generated from the ERD.
+//!
+//! Mirrors `common/migrations/bus-tables.migration.ts.hbs` — the template the
+//! NestJS generator actually renders — expression for expression, so both
+//! stacks emit the same schema. Note the tail is `created_at`, `updated_at`,
+//! `deleted_at`, `version`: the `*_by` columns some other migration templates
+//! carry are deliberately not here, because that template does not emit them.
+
+use sea_orm_migration::prelude::*;
+
+#[derive(DeriveMigrationName)]
+pub struct Migration;
+
+const UP_SQL: &str = r#"
+{{#each entities}}
+-- {{displayName}} ({{tableName}})
+CREATE TABLE IF NOT EXISTS {{tableName}} (
+  {{primaryKey}} UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  {{#each attributes}}
+  {{#unless (or (eq name ../primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at'))}}
+  {{#switch (typeToReferenceId type)}}
+    {{#case 10}}
+  {{#if isForeignKey}}
+  , {{name}} UUID{{#if required}} NOT NULL{{/if}}
+  {{else}}
+  , {{name}} VARCHAR({{#if maxLength}}{{maxLength}}{{else}}255{{/if}}){{#if required}} NOT NULL{{/if}}{{#if unique}} UNIQUE{{/if}}{{#if default}} DEFAULT '{{default}}'{{/if}}
+  {{/if}}
+    {{/case}}
+    {{#case 11}}
+  {{#if isForeignKey}}
+  , {{name}} UUID{{#if required}} NOT NULL{{/if}}
+  {{else}}
+  , {{name}} INTEGER{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
+  {{/if}}
+    {{/case}}
+    {{#case 12}}
+  , {{name}} DECIMAL(18,6){{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
+    {{/case}}
+    {{#case 13}}
+  , {{name}} UUID{{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#case 14}}
+  , {{name}} TEXT{{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#case 15}}
+  , {{name}} DATE{{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#case 16}}
+  , {{name}} TIMESTAMPTZ{{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#case 20}}
+  , {{name}} BOOLEAN{{#if required}} NOT NULL{{/if}}{{#if default}} DEFAULT {{default}}{{/if}}
+    {{/case}}
+    {{#case 30}}
+  , {{name}} VARCHAR(255){{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#case 31}}
+  , {{name}} VARCHAR(40){{#if required}} NOT NULL{{/if}}
+    {{/case}}
+    {{#default}}
+  , {{name}} VARCHAR(255){{#if required}} NOT NULL{{/if}}
+    {{/default}}
+  {{/switch}}
+  {{/unless}}
+  {{/each}}
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+{{#each indexes}}
+CREATE{{#if unique}} UNIQUE{{/if}} INDEX IF NOT EXISTS idx_{{../tableName}}_{{join columns "_"}} ON {{../tableName}} ({{join columns ", "}});
+{{/each}}
+{{/each}}
+
+{{#each relationships}}
+{{#if (eq cardinality 'oneToMany')}}
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_{{snakeCase targetEntity}}
+    ADD CONSTRAINT fk_bus_{{snakeCase targetEntity}}_{{snakeCase sourceEntity}}_id
+    FOREIGN KEY ({{snakeCase sourceEntity}}_id)
+    REFERENCES bus_{{snakeCase sourceEntity}}(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+{{/if}}
+{{/each}}
+"#;
+
+const DOWN_SQL: &str = r#"
+{{#each entities}}
+DROP TABLE IF EXISTS {{tableName}} CASCADE;
+{{/each}}
+"#;
+
+#[async_trait::async_trait]
+impl MigrationTrait for Migration {
+    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager.get_connection().execute_unprepared(UP_SQL).await?;
+        Ok(())
+    }
+
+    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager.get_connection().execute_unprepared(DOWN_SQL).await?;
+        Ok(())
+    }
+}

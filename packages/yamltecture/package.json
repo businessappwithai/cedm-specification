@@ -1,0 +1,30 @@
+{
+  "name": "@appwithai/yamltecture",
+  "version": "0.1.0",
+  "description": "Architecture graphs, queries and model context for AppWithAI: the assistant's exact, bounded view of a YAML model document.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./core": "./src/core/model.ts",
+    "./query": "./src/query/execute.ts",
+    "./git": "./src/git/history.ts",
+    "./zod": "./src/schema/zod.ts",
+    "./model": "./src/model/context.ts"
+  },
+  "scripts": {
+    "test": "bun --filter @appwithai/web test -- ../yamltecture/test",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "project": "bun scripts/project-model.ts",
+    "context": "bun scripts/model-context.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76",
+    "@appwithai/generator": "workspace:*"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "private": true
+}

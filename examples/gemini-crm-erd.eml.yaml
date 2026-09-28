@@ -1,0 +1,132 @@
+eml: "1.0"
+entities:
+  - name: Account
+    attributes:
+      - name: account_id
+        type: uuid
+        pk: true
+      - name: name
+        type: varchar
+      - name: industry
+        type: varchar
+      - name: sla_tier
+        type: varchar
+      - name: annual_revenue
+        type: numeric
+      - name: is_active
+        type: boolean
+  - name: Contact
+    attributes:
+      - name: contact_id
+        type: uuid
+        pk: true
+      - name: account_id
+        type: uuid
+        fk: true
+      - name: email
+        type: varchar
+      - name: phone
+        type: varchar
+      - name: consent_status
+        type: boolean
+      - name: is_active
+        type: boolean
+  - name: Lead
+    attributes:
+      - name: lead_id
+        type: uuid
+        pk: true
+      - name: email
+        type: varchar
+      - name: ai_score
+        type: int
+      - name: status
+        type: varchar
+      - name: campaign_id
+        type: uuid
+      - name: is_active
+        type: boolean
+  - name: Opportunity
+    attributes:
+      - name: opportunity_id
+        type: uuid
+        pk: true
+      - name: account_id
+        type: uuid
+        fk: true
+      - name: value
+        type: numeric
+      - name: stage
+        type: varchar
+      - name: probability
+        type: decimal
+      - name: is_active
+        type: boolean
+  - name: Product
+    attributes:
+      - name: product_id
+        type: uuid
+        pk: true
+      - name: name
+        type: varchar
+      - name: sku
+        type: varchar
+      - name: is_active
+        type: boolean
+  - name: Ticket
+    attributes:
+      - name: ticket_id
+        type: uuid
+        pk: true
+      - name: account_id
+        type: uuid
+        fk: true
+      - name: priority
+        type: varchar
+      - name: status
+        type: varchar
+      - name: sla_deadline
+        type: timestamp
+      - name: is_active
+        type: boolean
+  - name: OpportunityProduct
+    attributes:
+      - name: opportunity_product_id
+        type: uuid
+        pk: true
+      - name: opportunity_id
+        type: uuid
+        fk: true
+      - name: product_id
+        type: uuid
+        fk: true
+      - name: quantity
+        type: int
+      - name: unit_price
+        type: numeric
+relationships:
+  - from: Account
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: has
+  - from: Account
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: has
+  - from: Account
+    fromCardinality: exactly-one
+    to: Ticket
+    toCardinality: zero-or-more
+    label: has
+  - from: Opportunity
+    fromCardinality: exactly-one
+    to: OpportunityProduct
+    toCardinality: zero-or-more
+    label: includes
+  - from: Product
+    fromCardinality: exactly-one
+    to: OpportunityProduct
+    toCardinality: zero-or-more
+    label: included_in

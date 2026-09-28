@@ -1,0 +1,321 @@
+/**
+ * Entity registry — generated from the ERD.
+ *
+ * This is the single source of truth the suites iterate over. Every entity in
+ * the model appears here with the field metadata the factory needs to invent
+ * realistic values and the relationship metadata the workflow suite needs to
+ * wire records together.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+export type FieldType =
+  | "string"
+  | "integer"
+  | "decimal"
+  | "boolean"
+  | "date"
+  | "datetime"
+  | "text"
+  | "json";
+
+export interface FieldMeta {
+  /** Physical column name — what the API expects in a payload. */
+  name: string;
+  /** Human-readable label from the Application Dictionary. */
+  displayName: string;
+  type: FieldType;
+  required: boolean;
+  unique: boolean;
+  /** True for *_id columns that point at another bus_ table. */
+  isForeignKey: boolean;
+  maxLength?: number;
+  /**
+   * The enum this column is bound to, when its `enum` key binds one.
+   *
+   * Matches a `ModelEnum.referenceId` in `model.ts`, which is where the values
+   * themselves live — one copy, so the vocabulary a payload is built from and
+   * the vocabulary the suites assert against cannot disagree.
+   */
+  enumReferenceId?: number;
+}
+
+export interface EntityMeta {
+  /** ERD entity name, e.g. "Customer". */
+  name: string;
+  /** Physical table, e.g. "bus_customer" — the identifier the rules API uses. */
+  tableName: string;
+  /** Path segment for /api/bus/:entity. */
+  route: string;
+  displayName: string;
+  primaryKey: string;
+  /**
+   * The entity this one is a line item of, when its `parent` says so.
+   *
+   * Carried from the model rather than read back from the dictionary the same
+   * generator wrote — a suite that asks the application what it did and then
+   * checks that answer against itself proves only self-consistency.
+   */
+  parentEntity?: string;
+  /** The child's foreign key back to `parentEntity`. */
+  parentLinkColumn?: string;
+  fields: FieldMeta[];
+}
+
+export interface RelationshipMeta {
+  name: string;
+  sourceEntity: string;
+  targetEntity: string;
+  cardinality: "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
+  foreignKey?: string;
+}
+
+/**
+ * Columns the server owns — never sent in a create/update payload.
+ *
+ * `is_active` is deliberately NOT here. The generator does not add it: when a
+ * bus table has one it is because the model declared it, often as a required
+ * field. Excluding it meant the harness could never build a valid payload for
+ * those entities, and every create in the suite failed on a missing field the
+ * factory was forbidden from supplying.
+ */
+export const SERVER_MANAGED_FIELDS = new Set([
+  "id",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "created_by",
+  "updated_by",
+  "version",
+  "doc_status",
+]);
+
+export const entities: EntityMeta[] = [
+{{#each entities}}
+  {
+    name: "{{name}}",
+    tableName: "{{tableName}}",
+    route: "{{tableName}}",
+    displayName: "{{displayName}}",
+    primaryKey: "{{primaryKey}}",
+{{#if parentEntity}}
+    parentEntity: "{{parentEntity}}",
+{{/if}}
+{{#if parentLinkColumn}}
+    parentLinkColumn: "{{parentLinkColumn}}",
+{{/if}}
+    fields: [
+{{#each attributes}}
+      {
+        name: "{{columnName}}",
+        displayName: "{{displayName}}",
+        type: "{{type}}",
+        required: {{#if required}}true{{else}}false{{/if}},
+        unique: {{#if unique}}true{{else}}false{{/if}},
+        isForeignKey: {{#if isForeignKey}}true{{else}}false{{/if}},
+{{#if maxLength}}
+        maxLength: {{maxLength}},
+{{/if}}
+{{#if enumReferenceId}}
+        enumReferenceId: {{enumReferenceId}},
+{{/if}}
+      },
+{{/each}}
+    ],
+  },
+{{/each}}
+];
+
+export const relationships: RelationshipMeta[] = [
+{{#each relationships}}
+  {
+    name: "{{name}}",
+    sourceEntity: "{{sourceEntity}}",
+    targetEntity: "{{targetEntity}}",
+    cardinality: "{{cardinality}}",
+{{#if foreignKey}}
+    foreignKey: "{{foreignKey}}",
+{{/if}}
+  },
+{{/each}}
+];
+
+/** Fields a client is allowed to write. */
+export function writableFields(entity: EntityMeta): FieldMeta[] {
+  return entity.fields.filter((f) => !SERVER_MANAGED_FIELDS.has(f.name));
+}
+
+/** Writable fields excluding foreign keys — safe to populate without existing parents. */
+export function scalarFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => !f.isForeignKey && !f.name.endsWith("_id"));
+}
+
+export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => f.isForeignKey || f.name.endsWith("_id"));
+}
+
+/**
+ * Columns whose contents the model constrains to a shape. Tests write arbitrary
+ * markers into a text field to assert round-tripping and search, so a column
+ * with a format rule is the wrong one to pick — writing `e2e-1785…` into
+ * `email` trips the email-format rule and the create is rejected.
+ */
+const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature/i;
+
+/**
+ * The first free-text field, used for search and update assertions.
+ *
+ * A column the model gives an enum is not free text: it holds one of the
+ * declared values, its dictionary reference is a list rather than a string, and
+ * the backend's `?search=` deliberately does not match against it. Writing a
+ * marker into one and searching for it tests nothing the application promises,
+ * so an entity whose only text columns are enums has no free-text field.
+ */
+export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
+  const textish = scalarFields(entity).filter(
+    (f) => (f.type === "string" || f.type === "text") && f.enumReferenceId === undefined
+  );
+  return (
+    textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
+    // Every text column is format-constrained — fall back rather than skip the
+    // assertion entirely; the suite tolerates a create failure better than a
+    // silent gap in coverage.
+    textish[0]
+  );
+}
+
+export function numericFields(entity: EntityMeta): FieldMeta[] {
+  return scalarFields(entity).filter((f) => f.type === "integer" || f.type === "decimal");
+}
+
+export function getEntity(name: string): EntityMeta {
+  const found = entities.find(
+    (e) => e.name === name || e.tableName === name || e.route === name
+  );
+  if (!found) throw new Error(`Unknown entity "${name}"`);
+  return found;
+}
+
+/**
+ * FK columns naming a person by the role they played rather than by entity.
+ * Mirrors `foreignKeys.personRoleColumns` in appwithai-language.json and the
+ * backend's own COLUMN_TABLE_ALIASES.
+ */
+const PERSON_ROLE_COLUMNS = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/**
+ * Prefixes naming the role a reference plays rather than a different entity.
+ * Mirrors `foreignKeys.qualifierPrefixes` in appwithai-language.json.
+ */
+const QUALIFIER_PREFIXES = ["parent_"];
+
+function entityByStem(stem: string): EntityMeta | null {
+  return (
+    entities.find(
+      (e) =>
+        e.route === stem || e.tableName === `bus_${stem}` || e.name.toLowerCase() === stem.toLowerCase()
+    ) ?? null
+  );
+}
+
+/**
+ * Map a foreign-key column (`customer_id`) to the entity it references.
+ *
+ * A `_by` column points at a user, so it resolves to the user entity rather
+ * than to the table its name would suggest — there is no `bus_reported_by`.
+ * Getting this wrong leaves a mandatory FK unset and every create in the
+ * suite fails validation.
+ */
+export function referencedEntity(columnName: string): EntityMeta | null {
+  if (
+    columnName.endsWith("_by_id") ||
+    columnName.endsWith("_by") ||
+    PERSON_ROLE_COLUMNS.has(columnName)
+  ) {
+    const user = entityByStem("user");
+    if (user) return user;
+  }
+
+  // A qualifier names the role the reference plays, not another entity: a
+  // Sample's `parent_sample_id` is a Sample, and there is no
+  // `bus_parent_sample` to create one in.
+  const qualified = QUALIFIER_PREFIXES.find((prefix) => columnName.startsWith(prefix));
+  if (qualified) {
+    const stripped = columnName.slice(qualified.length);
+    if (PERSON_ROLE_COLUMNS.has(stripped)) {
+      const user = entityByStem("user");
+      if (user) return user;
+    }
+    if (stripped.endsWith("_id")) {
+      const parent = entityByStem(stripped.slice(0, -3));
+      if (parent) return parent;
+    }
+  }
+
+  if (!columnName.endsWith("_id")) return null;
+  return entityByStem(columnName.slice(0, -3));
+}
+
+/**
+ * Entities ordered so that a record's foreign-key targets are created first —
+ * and so, reversed, that a record is deleted before anything it references.
+ * Falls back to declaration order for cycles.
+ *
+ * The edges are every foreign-key column resolved by `referencedEntity`, the
+ * same rule the suites use to fill those columns, plus the relationships the
+ * model declares. Relationships alone missed every reference a column name
+ * implies: `Compound.registered_by_id` is a User, but no relationship says so,
+ * so Compound sorted ahead of User, the bulk seed had no user to point at, and
+ * all 1000 compounds — then every alias of them — were refused.
+ */
+export function topologicalEntities(): EntityMeta[] {
+  const byName = new Map(entities.map((e) => [e.name, e]));
+  const dependencies = new Map<string, Set<string>>();
+
+  for (const entity of entities) {
+    const references = new Set<string>();
+    for (const field of foreignKeyFields(entity)) {
+      const target = referencedEntity(field.name);
+      if (target) references.add(target.name);
+    }
+    dependencies.set(entity.name, references);
+  }
+  for (const rel of relationships) {
+    // manyToOne / oneToOne: the source holds the FK, so the target must exist first.
+    if (rel.cardinality === "manyToOne" || rel.cardinality === "oneToOne") {
+      dependencies.get(rel.sourceEntity)?.add(rel.targetEntity);
+    } else if (rel.cardinality === "oneToMany") {
+      dependencies.get(rel.targetEntity)?.add(rel.sourceEntity);
+    }
+  }
+
+  const ordered: EntityMeta[] = [];
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+
+  const visit = (name: string): void => {
+    if (visited.has(name) || visiting.has(name)) return;
+    visiting.add(name);
+    for (const dep of dependencies.get(name) ?? []) {
+      if (dep !== name) visit(dep);
+    }
+    visiting.delete(name);
+    visited.add(name);
+    const entity = byName.get(name);
+    if (entity) ordered.push(entity);
+  };
+
+  for (const entity of entities) visit(entity.name);
+  return ordered;
+}

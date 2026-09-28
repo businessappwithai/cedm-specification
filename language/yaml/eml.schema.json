@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://appwithai.dev/schema/eml/1.0/eml.schema.json",
+  "title": "AppWithAI model",
+  "description": "An AppWithAI application model: its entities and relationships, the enums and categories that shape its screens, its hooks, access rules, triggers and reports, and its business rules, state machines, sagas and hook flows. One document is one application; every generator reads it, and `appwithai-language.json` defines the vocabulary it is written in.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eml", "entities"],
+  "properties": {
+    "eml": {
+      "description": "Version of the model language this document is written in.",
+      "const": "1.0"
+    },
+    "name": {
+      "description": "The model's name.",
+      "$ref": "#/$defs/line"
+    },
+    "version": {
+      "description": "The model's own version.",
+      "$ref": "#/$defs/line"
+    },
+    "description": {
+      "description": "What the application is for, in one sentence. Rendered at the top of the generated manual and returned by the application's health endpoint.",
+      "$ref": "#/$defs/line"
+    },
+    "enums": {
+      "description": "Value lists a column can name. Only enums some attribute names reach the Application Dictionary, where each becomes a dropdown.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/enum" }
+    },
+    "categories": {
+      "description": "Dashboard groupings. An entity placed in none goes to the default category.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/category" }
+    },
+    "entities": {
+      "description": "The business entities, in the order their tables are created.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/entity" }
+    },
+    "relationships": {
+      "description": "How entities relate. The kind of each follows from its two cardinalities, and decides which side carries the foreign key.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    },
+    "hooks": {
+      "description": "Lifecycle handlers the generated backend dispatches to around every write and read.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/hook" }
+    },
+    "hookFlows": {
+      "description": "The order an entity's hooks run in around a write, drawn as a graph. Documentation of `hooks`: the checker holds each hook step to a declared hook, and nothing compiles the flow.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/hookFlow" }
+    },
+    "rbac": {
+      "description": "Role restrictions on operations and transitions. An operation no rule names stays open to any signed-in caller.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/rbac" }
+    },
+    "triggers": {
+      "description": "External events and schedules that call a handler on an entity.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/trigger" }
+    },
+    "reports": {
+      "description": "Analytical questions shipped with the application. Each query must be a single SELECT or WITH statement.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/report" }
+    },
+    "rules": {
+      "description": "Business rules bound to a lifecycle event, compiled to GoRules JDM decision graphs.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "stateMachines": {
+      "description": "Status machines: which moves a record may make. The generated API refuses a status change no transition allows.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/stateMachine" }
+    },
+    "sagas": {
+      "description": "Multi-step processes run on a write, compiled to BPMN and executed by the generated backend.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/saga" }
+    }
+  },
+  "$defs": {
+    "line": {
+      "description": "Single-line text with no leading or trailing whitespace.",
+      "type": "string",
+      "pattern": "^[^\\s](?:[^\\n\\r]*[^\\s])?$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "entityName": {
+      "description": "An entity name: begins with a letter; letters, digits and underscores. PascalCase by convention.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "token": {
+      "description": "A single word with no whitespace.",
+      "type": "string",
+      "pattern": "^\\S+$"
+    },
+    "direction": {
+      "description": "Which way a graph is laid out when drawn: `down` (the default), `up`, `right` or `left`. Layout only; nothing compiles it.",
+      "enum": ["down", "up", "right", "left"]
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "$ref": "#/$defs/identifier" },
+        "to": { "$ref": "#/$defs/identifier" },
+        "label": {
+          "description": "What the edge means, e.g. a decision's branch: `Yes`, `total > 1000`.",
+          "$ref": "#/$defs/line"
+        }
+      }
+    },
+    "enum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "values"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "values": {
+          "description": "The values, in the order a dropdown lists them. A value is stored and compared exactly as written.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/line" }
+        }
+      }
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "#/$defs/line" },
+        "code": {
+          "description": "Stable identifier. Derived from the name when omitted; categories sharing a code are merged.",
+          "$ref": "#/$defs/line"
+        },
+        "description": { "$ref": "#/$defs/line" },
+        "icon": {
+          "description": "A lucide icon, by its id (`flask-conical`) or its component name (`FlaskConical`).",
+          "$ref": "#/$defs/line"
+        },
+        "color": {
+          "description": "Accent colour, e.g. `#6366f1`.",
+          "$ref": "#/$defs/line"
+        },
+        "seq": {
+          "description": "Ordering hint for admin listings. The dashboard sorts by name.",
+          "type": "integer"
+        },
+        "default": {
+          "description": "Marks the category that receives entities placed in no other. At most one takes effect.",
+          "type": "boolean"
+        },
+        "entities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/entityName" }
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "attributes"],
+      "properties": {
+        "name": { "$ref": "#/$defs/entityName" },
+        "help": {
+          "description": "What one record of this entity is, in the business's terms. Becomes `sys_table.description` and opens the entity's section of the generated manual.",
+          "$ref": "#/$defs/line"
+        },
+        "icon": {
+          "description": "A lucide icon id, e.g. `flask-conical`. Drawn on the dashboard card, the window heading and the navigation.",
+          "type": "string",
+          "pattern": "^[\\w.-]+$"
+        },
+        "parent": {
+          "description": "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent.",
+          "$ref": "#/$defs/identifier"
+        },
+        "label": {
+          "description": "The name the screens show for the entity. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "prefix": {
+          "description": "Table prefix. Validated and carried; not yet compiled by the application generators.",
+          "enum": ["bus", "sys"]
+        },
+        "softDelete": {
+          "description": "Delete by setting `deleted_at` rather than removing the row. Validated and carried; not yet compiled by the application generators.",
+          "type": "boolean"
+        },
+        "audited": {
+          "description": "Keep an audit trail of changes. Validated and carried; the `eml` CLI's generators read it.",
+          "type": "boolean"
+        },
+        "attributes": {
+          "description": "Columns in declaration order. An `id` key is added when the entity declares no `id` and no unique `*_id` column.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/attribute" }
+        },
+        "indexes": {
+          "description": "Composite or explicit indexes, beyond the ones the generator derives from unique and foreign-key columns.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/index" }
+        }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "type": {
+          "description": "A type or alias from the language definition, with an optional length: `string`, `string(255)`, `text`, `integer`, `decimal`, `boolean`, `date`, `datetime`, `uuid`, `json`, `email`, `url`, `phone`, `password`, `color`, …",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*(?:\\([0-9,]+\\))?$"
+        },
+        "pk": { "description": "Primary key.", "type": "boolean" },
+        "fk": {
+          "description": "Foreign key. The table it references is derived from the column's name (`order_id` → Order; `*_by` and the person-role names → the user entity).",
+          "type": "boolean"
+        },
+        "unique": { "description": "Unique.", "type": "boolean" },
+        "optional": {
+          "description": "Nullable. Attributes are required unless optional or the primary key.",
+          "type": "boolean"
+        },
+        "comment": {
+          "description": "A note shown beside the column in the model viewer. Not compiled.",
+          "$ref": "#/$defs/line"
+        },
+        "enum": {
+          "description": "Names a declared enum, making the column a dropdown of its values.",
+          "$ref": "#/$defs/identifier"
+        },
+        "help": {
+          "description": "Why the value matters and what is expected in it. Becomes `sys_column.description`: the hint under the form control and the column's row in the manual.",
+          "$ref": "#/$defs/line"
+        },
+        "ui": {
+          "description": "The control to draw the column with. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "default": {
+          "description": "The value a new record starts with, as written. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        },
+        "min": {
+          "description": "Lowest accepted value. Validated and carried; not yet compiled by the application generators.",
+          "oneOf": [{ "type": "number" }, { "$ref": "#/$defs/line" }]
+        },
+        "max": {
+          "description": "Highest accepted value. Validated and carried; not yet compiled by the application generators.",
+          "oneOf": [{ "type": "number" }, { "$ref": "#/$defs/line" }]
+        },
+        "format": {
+          "description": "How the value is shown or checked, e.g. `email`. Validated and carried; not yet compiled by the application generators.",
+          "$ref": "#/$defs/line"
+        }
+      }
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns"],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "unique": { "type": "boolean" }
+      }
+    },
+    "cardinality": {
+      "description": "How many records may stand at one end of a relationship.",
+      "enum": ["exactly-one", "zero-or-one", "zero-or-more", "one-or-more"]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "fromCardinality", "toCardinality"],
+      "properties": {
+        "from": { "$ref": "#/$defs/identifier" },
+        "fromCardinality": { "$ref": "#/$defs/cardinality" },
+        "to": { "$ref": "#/$defs/identifier" },
+        "toCardinality": { "$ref": "#/$defs/cardinality" },
+        "label": {
+          "description": "The relationship's name, e.g. `places`. Defaults to `<from>_<to>`; written into generated code in snake_case, so it carries no quotes.",
+          "type": "string",
+          "pattern": "^[^\\s\"](?:[^\"\\n\\r]*[^\\s\"])?$"
+        }
+      },
+      "$comment": "The eight pairs `appwithai-language.json` lists under cardinalities.map are the language's relationships: exactly-one/exactly-one, exactly-one/zero-or-more, exactly-one/one-or-more, zero-or-more/exactly-one, one-or-more/exactly-one, zero-or-more/zero-or-more, one-or-more/one-or-more, zero-or-one/zero-or-one.",
+      "anyOf": [
+        {
+          "properties": {
+            "fromCardinality": { "const": "exactly-one" },
+            "toCardinality": { "enum": ["exactly-one", "zero-or-more", "one-or-more"] }
+          }
+        },
+        {
+          "properties": {
+            "fromCardinality": { "enum": ["zero-or-more", "one-or-more"] },
+            "toCardinality": { "const": "exactly-one" }
+          }
+        },
+        {
+          "properties": {
+            "fromCardinality": { "const": "zero-or-more" },
+            "toCardinality": { "const": "zero-or-more" }
+          }
+        },
+        {
+          "properties": {
+            "fromCardinality": { "const": "one-or-more" },
+            "toCardinality": { "const": "one-or-more" }
+          }
+        },
+        {
+          "properties": {
+            "fromCardinality": { "const": "zero-or-one" },
+            "toCardinality": { "const": "zero-or-one" }
+          }
+        }
+      ]
+    },
+    "hookEvent": {
+      "enum": [
+        "beforeCreate",
+        "afterCreate",
+        "beforeUpdate",
+        "afterUpdate",
+        "beforeDelete",
+        "afterDelete",
+        "beforeRead",
+        "afterRead",
+        "beforeQuery",
+        "afterQuery",
+        "beforeList",
+        "afterList",
+        "customValidate"
+      ]
+    },
+    "hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "event", "handler"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "event": { "$ref": "#/$defs/hookEvent" },
+        "handler": {
+          "description": "The function name in the entity's handler module. One name serves one event.",
+          "$ref": "#/$defs/identifier"
+        },
+        "fields": {
+          "description": "The columns a field-level hook concerns, in order. The generated handler is scoped to the first.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "hookFlowNode": {
+      "description": "One step of a hook flow: a hook the entity declares, named by `event` and `handler`, or a step shown for context — the request, the write, the response — named by `label`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "label": { "$ref": "#/$defs/line" },
+        "event": { "$ref": "#/$defs/hookEvent" },
+        "handler": { "$ref": "#/$defs/identifier" }
+      },
+      "dependentRequired": { "event": ["handler"], "handler": ["event"] },
+      "anyOf": [
+        { "required": ["label"], "properties": { "label": true } },
+        { "required": ["event"], "properties": { "event": true } }
+      ]
+    },
+    "hookFlow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "nodes", "edges"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "direction": { "$ref": "#/$defs/direction" },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/hookFlowNode" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/edge" }
+        }
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "action", "roles"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "action": {
+          "description": "`create`, `read`, `update`, `delete` (or an alias such as `insert`, `view`, `edit`, `remove`), `*` for all four, or the trigger of a transition in the entity's state machine.",
+          "type": "string",
+          "pattern": "^[A-Za-z_*]\\w*$"
+        },
+        "roles": {
+          "description": "The roles that may perform it. A role named here is created if the dictionary does not have it, with a demonstration account.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/token" }
+        }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity", "source", "handler"],
+      "properties": {
+        "entity": { "$ref": "#/$defs/identifier" },
+        "source": {
+          "description": "Where the call comes from: `cron:<5 or 6 field expression>`, `webhook:<name>` or `message:<topic>`.",
+          "type": "string",
+          "pattern": "^(?:cron|webhook|message):\\S(?:[^\\n\\r]*\\S)?$"
+        },
+        "handler": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sql"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][\\w-]*$" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": {
+          "description": "The entity the report is mainly about; groups it in the reports list.",
+          "$ref": "#/$defs/identifier"
+        },
+        "chart": { "enum": ["bar", "line", "pie", "area"] },
+        "x": { "description": "The result column the chart's x axis plots.", "$ref": "#/$defs/line" },
+        "y": { "description": "The result column the chart's y axis plots.", "$ref": "#/$defs/line" },
+        "help": { "$ref": "#/$defs/line" },
+        "sql": {
+          "description": "A single SELECT or WITH statement. May span lines. The generated application caps it at 5,000 rows.",
+          "type": "string",
+          "pattern": "^\\s*(?:[Ww][Ii][Tt][Hh]|[Ss][Ee][Ll][Ee][Cc][Tt])\\b"
+        }
+      },
+      "dependentRequired": { "chart": ["x", "y"] }
+    },
+    "ruleNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "label": { "$ref": "#/$defs/line" },
+        "type": {
+          "description": "`start` receives the record; `decision` branches on it; `expression` sets or computes a value; `function` runs a reusable computation; `end` is the rule's outcome.",
+          "enum": ["start", "end", "decision", "expression", "function"]
+        }
+      }
+    },
+    "ruleAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][\\w-]*$" },
+        "type": {
+          "description": "An action type from the language definition: `validation-error`, `transform`, `trigger-workflow`, …",
+          "type": "string",
+          "pattern": "^[A-Za-z][\\w-]*$"
+        },
+        "when": {
+          "description": "Condition over the record being written, in the rules engine's expression language. Absent means always.",
+          "$ref": "#/$defs/line"
+        },
+        "props": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z_]\\w*$" },
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        }
+      }
+    },
+    "decisionTableColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "field": { "type": "string" }
+      }
+    },
+    "decisionTable": {
+      "description": "A decision table authored in the rules editor. Takes precedence over the actions and the graph.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hitPolicy": { "enum": ["first", "collect"] },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/decisionTableColumn" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/decisionTableColumn" } },
+        "rules": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": { "type": "string" } }
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "event", "nodes", "edges"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "event": {
+          "description": "The lifecycle event the rule runs on, e.g. `beforeCreate`, `afterUpdate`.",
+          "$ref": "#/$defs/token"
+        },
+        "priority": { "description": "Lower runs first. Defaults to 100.", "type": "integer" },
+        "direction": { "$ref": "#/$defs/direction" },
+        "nodes": {
+          "description": "The decision graph's nodes. A rule with no decision table and no actions compiles from this graph.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleNode" }
+        },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } },
+        "actions": {
+          "description": "Side effects the rule emits. A rule with actions compiles to a decision table of them.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/ruleAction" }
+        },
+        "decisionTable": { "$ref": "#/$defs/decisionTable" }
+      }
+    },
+    "stateMachine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "states", "transitions"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "states": {
+          "description": "Every state, in the order the machine lists them.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "initial": {
+          "description": "The state a new record is stamped with.",
+          "$ref": "#/$defs/identifier"
+        },
+        "final": {
+          "description": "The states a record's lifecycle ends in.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "$ref": "#/$defs/identifier" },
+              "to": { "$ref": "#/$defs/identifier" },
+              "trigger": {
+                "description": "The event that makes the move. An `rbac` rule may name it as its action.",
+                "$ref": "#/$defs/line"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sagaStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "type": {
+          "description": "A step type from the language definition: `CreateEntity`, `UpdateEntity`, `DeleteEntity`, `Decision`, `Formula`, `REST`, `Agent`.",
+          "$ref": "#/$defs/identifier"
+        },
+        "label": { "$ref": "#/$defs/line" },
+        "properties": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Za-z_]\\w*$" },
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        }
+      }
+    },
+    "saga": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity", "steps"],
+      "properties": {
+        "name": { "$ref": "#/$defs/token" },
+        "title": { "$ref": "#/$defs/line" },
+        "entity": { "$ref": "#/$defs/identifier" },
+        "operation": {
+          "description": "Which write runs the saga. Defaults to CREATE.",
+          "enum": ["CREATE", "UPDATE", "DELETE", "ALL"]
+        },
+        "trigger": {
+          "description": "`automatic` (the default) runs it on every matching write; `rule` runs it only when a rule's trigger-workflow action names it.",
+          "enum": ["rule", "automatic"]
+        },
+        "description": { "$ref": "#/$defs/line" },
+        "steps": {
+          "description": "In execution order.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/sagaStep" }
+        }
+      }
+    }
+  }
+}
