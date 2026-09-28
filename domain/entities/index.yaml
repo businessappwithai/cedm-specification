@@ -13,6 +13,7 @@ registry:
     - Account
     - Activity
     - Address
+    - Agreement
     - Aircraft
     - Allergy
     - Approval
@@ -98,6 +99,7 @@ registry:
     - Facility
     - Farm
     - FarmField
+    - Filing
     - Finding
     - FiscalPeriod
     - Flight
@@ -117,6 +119,7 @@ registry:
     - HotelReservation
     - HotelRoom
     - Identity
+    - Incident
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
@@ -135,8 +138,12 @@ registry:
     - Language
     - Lead
     - Lease
+    - LegalCase
+    - LegalEntity
+    - LegalMatter
     - Load
     - Location
+    - LossEvent
     - Lot
     - MaintenancePlan
     - MaintenanceWorkOrder
@@ -151,6 +158,7 @@ registry:
     - Money
     - Nonconformance
     - NonprofitCampaign
+    - Obligation
     - Operation
     - Opportunity
     - Organization
@@ -212,6 +220,7 @@ registry:
     - RetailSaleLine
     - ReturnDisposition
     - Risk
+    - RiskAssessment
     - RiskTreatment
     - Role
     - Route
