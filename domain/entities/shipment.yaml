@@ -55,6 +55,9 @@ entity:
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
+  - {name: handlingUnits, target: HandlingUnit, cardinality: 0..*, ownership: reference, help: {summary: Physical logistics units assigned to shipment., businessMeaning: Identifies pallets/cartons/totes/packages transported., usage: Packing, loading, tracking and delivery., cardinalityMeaning: Zero or many handling units., workflowRole: Assignment does not itself dispatch or alter stock.}}
+  - {name: packingTasks, target: Packing, cardinality: 0..*, ownership: reference, help: {summary: Warehouse packing evidence preparing goods for shipment., businessMeaning: Connects picked goods and packages to transport readiness., usage: Fulfillment and loading., cardinalityMeaning: Zero or many packing tasks., workflowRole: PACKED is not dispatch/delivery evidence.}}
+  - {name: dock, target: Dock, cardinality: 0..1, ownership: reference, help: {summary: Warehouse dock used for shipment loading/unloading., businessMeaning: Provides physical execution resource., usage: Dock scheduling and carrier handoff., cardinalityMeaning: Optional for shipments not executed at managed dock., workflowRole: Dock type/direction must be compatible.}}
   invariants:
   - {id: SHIPMENT-001, rule: DELIVERED shipments must have actualDate.}
   - {id: SHIPMENT-002, rule: IN_TRANSIT shipments must have an origin or externally managed origin reference.}

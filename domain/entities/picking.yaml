@@ -1,0 +1,32 @@
+entity:
+  name: Picking
+  namespace: cedm.domain
+  kind: warehouse_execution_transaction
+  description: A governed warehouse task selecting reserved inventory from storage for fulfillment, production, transfer, or other authorized demand without itself being the stock ledger.
+  identity: {key: pickingId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: Stable pick-task identity., businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed to pick., businessMeaning: Defines execution demand., usage: Pick confirmation and variance., relationshipContext: Must reconcile with reservation and inventory events., requiredMeaning: Required.}}
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
+    help: {summary: Picking execution state., businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: PICKED is warehouse evidence, not shipment delivery., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+  relationships:
+  - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
+  - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., cardinalityMeaning: Exactly one source., workflowRole: Must hold eligible stock.}}
+  - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Destination staging position after pick., businessMeaning: Separates pick from dispatch., usage: Packing/shipping staging., cardinalityMeaning: Optional for direct issue., workflowRole: Relocation requires attributable inventory execution where location-managed.}}
+  - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Handling unit used for picked stock., businessMeaning: Supports tote/carton/pallet execution., usage: Scanning and packing., cardinalityMeaning: Optional., workflowRole: Custody must reconcile.}}
+  - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment demand served by pick., businessMeaning: Connects warehouse selection to logistics execution., usage: Fulfillment., cardinalityMeaning: Optional outside shipment picking., workflowRole: Pick does not itself mark shipment delivered.}}
+  invariants:
+  - {id: PICKING-001, rule: quantity must be greater than zero.}
+  - {id: PICKING-002, rule: Picked Product, lot and serial eligibility must satisfy reservation/demand and source availability.}
+  - {id: PICKING-003, rule: Pick confirmation must not duplicate reservation consumption or inventory relocation/issue on retry.}
+  help:
+    summary: Warehouse inventory-selection task for authorized demand.
+    businessMeaning: Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately.
+    usage: Sales fulfillment, production staging, transfer and service demand.
+    relationshipContext: Reservation supplies commitment; InventoryLocation supplies source; ShipmentLine may supply outbound demand.
+    lifecycle: Planned → released → in progress → picked/short, cancelled or exception.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PICKING}

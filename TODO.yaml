@@ -39,24 +39,28 @@ todo:
     - id: product-pim
       name: Product / PIM
       entities: [Product, ProductVariant, ProductCategory, Brand, ProductAttribute, BillOfMaterial, UnitOfMeasure, Packaging, ProductLifecycle]
-      status: pending-verification
+      status: in-progress
+      notes: ProductVariant, Brand, ProductAttribute, Packaging and ProductLifecycle are now implemented and connected to Product; core requested PIM entity coverage is present, with reciprocal-depth audit and validation remaining.
     - id: inventory
       name: Inventory
       entities: [InventoryItem, InventoryBalance, Lot, SerialNumber, InventoryReservation, InventoryMovement, InventoryTransfer, InventoryAdjustment, InventoryCount]
       status: in-progress
-      notes: Canonical Lot and SerialNumber traceability masters are implemented and propagated through Product, InventoryMovement and lot-segmented InventoryBalance; transfer, adjustment and count transaction coverage remains pending.
+      notes: Canonical Lot and SerialNumber traceability plus InventoryTransfer, InventoryCount and InventoryAdjustment are implemented. Stock-changing controls reconcile through InventoryMovement; remaining inventory work is verification and cross-domain hardening.
     - id: warehouse-wms
       name: Warehouse / WMS
       entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
-      status: pending-verification
+      status: in-progress
+      notes: WarehouseZone, HandlingUnit, Dock, Putaway, Picking, Packing and Wave are implemented and connected to Warehouse, InventoryLocation, InventoryTransfer, reservations and Shipment. Core WMS entity coverage is complete; reciprocal-depth audit and validation remain.
     - id: logistics-scm
       name: Logistics / SCM
       entities: [Shipment, ShipmentLine, Carrier, Route, Load, Consignment, FreightCharge, Delivery, TrackingEvent]
       status: pending-verification
     - id: manufacturing
       name: Manufacturing
-      entities: [BillOfMaterial, BOMComponent, Routing, WorkCenter, ProductionOrder, Operation, MaterialIssue, ProductionReceipt, Scrap]
-      status: pending-verification
+      entities: [BillOfMaterial, BOMComponent, Routing, WorkCenter, ManufacturingWorkOrder, Operation, MaterialIssue, ProductionReceipt, Scrap]
+      canonicalEquivalents: {ProductionOrder: ManufacturingWorkOrder}
+      status: in-progress
+      notes: Routing, WorkCenter, Operation, MaterialIssue and ProductionReceipt are implemented and connected to the canonical ManufacturingWorkOrder and InventoryMovement; Scrap is now implemented with lot/serial, quality and inventory reconciliation; deeper operation-execution evidence and full validation remain pending.
     - id: maintenance-eam
       name: Maintenance / EAM
       entities: [Asset, Equipment, MaintenancePlan, MaintenanceWorkOrder, Failure, QualityInspection, Meter, SparePart]
@@ -193,9 +197,6 @@ todo:
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
 
   discoveredGaps:
-    - {domain: product-pim, missing: [ProductVariant, Brand], priority: high}
-    - {domain: warehouse-wms, missing: [WarehouseZone], priority: high}
-    - {domain: manufacturing, missing: [Routing, ProductionOrder], priority: critical}
     - {domain: finance-accounting, missing: [FiscalPeriod], priority: high}
     - {domain: treasury-banking, missing: [CashPosition], priority: high}
     - {domain: budgeting-planning, missing: [Budget], priority: high}

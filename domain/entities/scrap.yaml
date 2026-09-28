@@ -1,0 +1,32 @@
+entity:
+  name: Scrap
+  namespace: cedm.domain
+  kind: manufacturing_disposition_transaction
+  description: A governed record of material or production quantity rejected, lost, damaged, or intentionally scrapped during manufacturing, with inventory and quality effects represented by explicit related evidence.
+  identity: {key: scrapId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: scrapId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of scrap event., businessMeaning: Identifies one governed production loss/disposition., usage: Manufacturing, inventory, costing, quality, and audit., relationshipContext: Links work order/product quantity to cause and inventory effect., requiredMeaning: Required.}}
+  - {name: scrapNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing scrap reference., businessMeaning: Operational identifier for production loss., usage: Shop-floor reporting, quality, costing and audit., relationshipContext: Distinct from inventory movement reference., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity classified as scrap., businessMeaning: Quantifies governed production loss or rejected material., usage: Yield, variance, costing and inventory., relationshipContext: Interpreted with Product/UOM/lot/serial context., requiredMeaning: Required.}}
+  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Governed reason for scrap., businessMeaning: Classifies why material/output was lost or rejected., usage: Quality analysis, costing and continuous improvement., relationshipContext: Should align with controlled reason taxonomy., requiredMeaning: Required.}}
+  - {name: scrappedAt, type: datetime, required: true, help: {summary: Effective scrap time., businessMeaning: Establishes production-loss chronology., usage: Cost period, genealogy and audit., relationshipContext: Must align with related execution evidence., requiredMeaning: Required.}}
+  relationships:
+  - {name: workOrder, target: ManufacturingWorkOrder, cardinality: '1', ownership: reference, help: {summary: Production order under which scrap occurred., businessMeaning: Supplies production authorization and planned context., usage: Yield and variance reconciliation., cardinalityMeaning: Exactly one work order., workflowRole: Scrap contributes to completion reconciliation.}}
+  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Material or output being scrapped., businessMeaning: Identifies the item affected., usage: Inventory, costing, quality and analysis., cardinalityMeaning: Exactly one Product., workflowRole: Must reconcile with work-order input/output context or approved exception.}}
+  - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Lot affected by scrap., businessMeaning: Preserves batch genealogy and disposition., usage: Recall, quality and inventory., cardinalityMeaning: Required under lot-control policy., workflowRole: Lot quantity/state must reconcile.}}
+  - {name: serialNumbers, target: SerialNumber, cardinality: 0..*, ownership: reference, help: {summary: Serialized units scrapped., businessMeaning: Permanently records unit-level disposition., usage: Asset/service traceability and audit., cardinalityMeaning: Required under serialization policy., workflowRole: Scrapped serials cannot re-enter available inventory without explicit corrective governance.}}
+  - {name: nonconformance, target: Nonconformance, cardinality: 0..1, ownership: reference, help: {summary: Quality nonconformance explaining scrap when applicable., businessMeaning: Connects loss to controlled defect evidence., usage: Quality, CAPA and supplier/process analysis., cardinalityMeaning: Optional where scrap is not quality-driven., workflowRole: Quality closure remains separate from inventory posting.}}
+  - {name: inventoryMovement, target: InventoryMovement, cardinality: 0..1, ownership: reference, help: {summary: Stock-ledger event implementing scrap quantity reduction where inventory is affected., businessMeaning: Separates scrap business reason from authoritative stock effect., usage: Inventory reconciliation and audit., cardinalityMeaning: Required when on-hand inventory is reduced; optional for process loss never received into inventory., workflowRole: Must reconcile product/quantity/lot/serial and be idempotent.}}
+  invariants:
+  - {id: SCRAP-001, rule: quantity must be greater than zero.}
+  - {id: SCRAP-002, rule: Scrap quantity must be reconciled with work-order material/output/yield and must not create unexplained duplicate loss.}
+  - {id: SCRAP-003, rule: Inventory-affecting scrap requires an attributable InventoryMovement; process loss not yet in inventory must not create a false stock issue.}
+  - {id: SCRAP-004, rule: Posted scrap is immutable; correction uses reversal or compensating evidence.}
+  help:
+    summary: Governed manufacturing loss/disposition evidence.
+    businessMeaning: Scrap explains rejected or lost quantity; it is distinct from accepted ProductionReceipt and from InventoryMovement, which remains the stock ledger.
+    usage: Yield, manufacturing variance, quality, costing, genealogy, inventory and continuous improvement.
+    relationshipContext: ManufacturingWorkOrder supplies context; Nonconformance may explain quality cause; Lot/Serial preserve genealogy; InventoryMovement records stock consequence when applicable.
+    lifecycle: Recorded → validated/authorized → inventory/quality reconciled → immutable historical evidence.
+    changePropagation: Scrap updates yield/cost/quality analysis and inventory only through governed attributable transactions.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SCRAP}

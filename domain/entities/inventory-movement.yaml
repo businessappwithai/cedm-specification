@@ -99,6 +99,23 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Individually serialized units carried by this movement., businessMeaning: Preserves unit-level custody and location history., usage: Scanning, shipment, service, return, recall, and audit., cardinalityMeaning: Zero or more serials depending on serialization policy., workflowRole: Serial count/quantity must reconcile with movement quantity under product policy.}
+  - name: materialIssue
+    target: MaterialIssue
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing material-consumption transaction causing this stock event., businessMeaning: Explains production reason for component issue., usage: Genealogy, costing, and reconciliation., cardinalityMeaning: Optional outside manufacturing consumption., workflowRole: Product, quantity, lot and serial evidence must reconcile.}
+  - name: productionReceipt
+    target: ProductionReceipt
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing output transaction causing this stock receipt., businessMeaning: Explains production reason for finished/semi-finished stock increase., usage: Genealogy, costing, quality, and reconciliation., cardinalityMeaning: Optional outside manufacturing output., workflowRole: Product, quantity, lot and serial evidence must reconcile.}
+  - name: scrap
+    target: Scrap
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Manufacturing scrap transaction causing this stock reduction when applicable., businessMeaning: Explains the governed production-loss reason for stock decrease., usage: Yield, costing, quality and inventory reconciliation., cardinalityMeaning: Optional outside manufacturing scrap or when process loss never entered inventory., workflowRole: Product, quantity, lot and serial evidence must reconcile and posting must be idempotent.}
+  - {name: inventoryTransfer, target: InventoryTransfer, cardinality: 0..1, ownership: reference, help: {summary: Transfer authorization causing this relocation event., businessMeaning: Explains source/target relocation purpose., usage: Transfer reconciliation and audit., cardinalityMeaning: Optional outside controlled transfer., workflowRole: Product, locations, quantity, lot and serial must reconcile.}}
+  - {name: inventoryAdjustment, target: InventoryAdjustment, cardinality: 0..1, ownership: reference, help: {summary: Approved discrepancy correction causing this adjustment event., businessMeaning: Supplies reason and evidence for stock correction., usage: Count reconciliation and audit., cardinalityMeaning: Optional outside adjustment., workflowRole: Signed ledger effect must reconcile with approved delta.}}
   invariants:
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: TRANSFER requires sourceLocation and targetLocation, and they must differ.}

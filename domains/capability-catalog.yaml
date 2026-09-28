@@ -28,16 +28,20 @@ catalog:
       processes: [pick-pack-ship, delivery, receipt]
     - id: inventory-management
       name: Inventory Management
-      entities: [InventoryBalance, InventoryMovement, InventoryReservation, Lot, SerialNumber, Product, InventoryLocation]
+      entities: [InventoryBalance, InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product, InventoryLocation]
       processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
     - id: warehouse-management
       name: Warehouse Management
-      entities: [Warehouse, InventoryLocation, InventoryBalance, InventoryMovement]
+      entities: [Warehouse, WarehouseZone, InventoryLocation, Dock, HandlingUnit, Putaway, Picking, Packing, Wave, InventoryBalance, InventoryMovement, InventoryTransfer, InventoryCount]
       processes: [inbound, putaway, picking, packing, outbound, replenishment]
     - id: transportation-management
       name: Transportation Management
       entities: [Shipment, Vehicle, Location]
       processes: [route-planning, dispatch, tracking, delivery, freight-settlement]
+    - id: manufacturing-management
+      name: Manufacturing Management
+      entities: [Product, BillOfMaterial, BOMComponent, Routing, Operation, WorkCenter, ManufacturingWorkOrder, MaterialIssue, ProductionReceipt, Lot, SerialNumber, InventoryMovement, QualityInspection]
+      processes: [production-planning, order-release, material-issue, operation-execution, in-process-quality, production-receipt, genealogy, variance, completion]
     - id: asset-management
       name: Asset Management
       entities: [Asset, Location, Organization]

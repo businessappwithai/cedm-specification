@@ -19,6 +19,7 @@ registry:
     - BankAccount
     - BankLoan
     - BankTransaction
+    - Brand
     - BillOfMaterial
     - BusinessProcess
     - BusinessTransaction
@@ -48,6 +49,7 @@ registry:
     - Diagnosis
     - DiscountRule
     - Document
+    - Dock
     - ERP
     - EducationCourse
     - EducationProgram
@@ -69,6 +71,7 @@ registry:
     - FoodBatch
     - GoodsReceipt
     - GoodsReceiptLine
+    - HandlingUnit
     - GovernmentCase
     - HealthcareEncounter
     - HealthcareOrder
@@ -82,9 +85,12 @@ registry:
     - InsuranceClaim
     - InsurancePolicy
     - InventoryBalance
+    - InventoryAdjustment
+    - InventoryCount
     - InventoryLocation
     - InventoryMovement
     - InventoryReservation
+    - InventoryTransfer
     - Invoice
     - InvoiceLine
     - JournalEntry
@@ -94,6 +100,7 @@ registry:
     - Location
     - Lot
     - MaintenancePlan
+    - MaterialIssue
     - MaintenanceWorkOrder
     - ManufacturingWorkOrder
     - MediaContent
@@ -110,17 +117,25 @@ registry:
     - Party
     - PartyRole
     - Payment
+    - Packaging
     - PaymentAllocation
     - PaymentTerm
+    - Packing
     - Permission
     - Person
     - Policy
     - Position
+    - Picking
     - Prescription
     - Procedure
     - Product
+    - ProductAttribute
+    - ProductLifecycle
+    - ProductVariant
+    - Putaway
     - ProductCategory
     - ProductionRecord
+    - ProductionReceipt
     - ProfessionalEngagement
     - Project
     - ProjectTask
@@ -144,6 +159,7 @@ registry:
     - RequestForQuotation
     - RequestForQuotationLine
     - RetailSale
+    - Routing
     - RetailSaleLine
     - ReturnDisposition
     - Risk
@@ -151,6 +167,7 @@ registry:
     - Role
     - SalesOrder
     - SalesOrderLine
+    - Scrap
     - Sample
     - SamplingPlan
     - SamplingRule
@@ -192,6 +209,9 @@ registry:
     - Vehicle
     - VehicleModel
     - Warehouse
+    - WarehouseZone
+    - Wave
+    - WorkCenter
     - Workflow
     - Yard
     - YardBay

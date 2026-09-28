@@ -1,0 +1,27 @@
+entity:
+  name: Dock
+  namespace: cedm.domain
+  kind: warehouse_resource_master
+  description: A governed warehouse door, bay, or loading position used for inbound receiving, outbound shipping, transfer, and staging execution.
+  identity: {key: dockId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: Stable dock identity., businessMeaning: Identifies one loading/receiving resource., usage: Appointment, staging, loading and receiving., relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}
+  - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: Operational dock code., businessMeaning: Human/scanner identifier for the physical position., usage: Yard and warehouse execution., relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
+  - name: dockType
+    type: enum
+    required: true
+    values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
+    help: {summary: Allowed dock operating purpose., businessMeaning: Controls eligible receiving/shipping work., usage: Scheduling and execution., relationshipContext: Warehouse policy may add constraints., valueSemantics: {INBOUND: Receiving-focused., OUTBOUND: Shipping-focused., BIDIRECTIONAL: Supports both directions., CROSS_DOCK: Supports direct inbound-to-outbound flow.}, requiredMeaning: Required.}
+  relationships:
+  - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Parent warehouse., businessMeaning: Supplies facility context., usage: Dock scheduling and control., cardinalityMeaning: Exactly one Warehouse., workflowRole: Warehouse status constrains dock use.}}
+  - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Default inventory staging position associated with dock., businessMeaning: Connects loading resource to stock-control location., usage: Receiving and shipping staging., cardinalityMeaning: Optional., workflowRole: Physical stock changes still require InventoryMovement.}}
+  invariants:
+  - {id: DOCK-001, rule: dockCode must be unique within Warehouse.}
+  - {id: DOCK-002, rule: Shipment direction must be compatible with dockType unless explicitly excepted.}
+  help:
+    summary: Warehouse loading/receiving execution resource.
+    businessMeaning: Dock is a physical process resource, not an inventory location unless separately represented by stagingLocation.
+    usage: Inbound, outbound, cross-dock, appointment, staging and loading workflows.
+    relationshipContext: Warehouse owns operational context; InventoryLocation supplies stock-control context; Shipment supplies transport work.
+    lifecycle: Configured → active/restricted → retired with historical execution retained.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCK}

@@ -100,6 +100,13 @@ entity:
       usage: Supports bin-level or area-level inventory, receiving, put-away, picking, replenishment, transfers, and stock counting.
       cardinalityMeaning: A warehouse may have zero or many InventoryLocations; a newly planned facility may have none before its storage structure is configured.
       context: Warehouse is the facility-level container; InventoryLocation is the operational stock-holding granularity. InventoryMovement changes stock between these locations or into/out of the warehouse.
+  - name: zones
+    target: WarehouseZone
+    cardinality: 0..*
+    ownership: aggregate
+    help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: Receiving, putaway, picking, quarantine, staging and shipping., cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
+  - {name: docks, target: Dock, cardinality: 0..*, ownership: aggregate, help: {summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: Dock scheduling, receiving, shipping and cross-dock., cardinalityMeaning: Zero or many docks., workflowRole: Dock eligibility constrains shipment execution.}}
+  - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., cardinalityMeaning: Zero or many waves., workflowRole: Wave does not itself alter inventory.}}
   invariants:
   - id: WAREHOUSE-001
     rule: warehouseCode must be unique within the organization's warehouse operating context.
