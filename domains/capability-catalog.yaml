@@ -80,7 +80,7 @@ catalog:
       processes: [case-intake, triage, resolution, escalation, closure]
     - id: project-management
       name: Project Management
-      entities: [Project, ProjectTask, Milestone, ResourceAssignment, Timesheet]
+      entities: [Project, ProjectPhase, ProjectTask, Milestone, ResourceAssignment, Timesheet]
       processes: [project-initiation, planning, execution, monitoring, closure]
     - id: human-capital
       name: Human Capital Management
@@ -122,3 +122,7 @@ catalog:
       name: Sustainability and ESG
       entities: [Emission, EnergyUsage, WasteRecord, ESGMetric, SustainabilityTarget]
       processes: [measurement, target-setting, reduction, disclosure, assurance]
+
+  - id: budgeting-planning
+    entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
+    processes: [budgeting, forecasting, scenario-planning, variance-analysis]
