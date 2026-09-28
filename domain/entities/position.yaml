@@ -120,6 +120,7 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: job, target: Job, cardinality: 0..1, ownership: reference, help: {summary: Reusable work definition underlying Position., businessMeaning: Separates job classification from organizational seat., usage: Workforce planning and HCM., cardinalityMeaning: Optional for positions not classified through Job., workflowRole: Job retirement prevents incompatible new assignment while preserving history.}}
   invariants:
   - id: POSITION-001
     rule: effectiveTo must not precede effectiveFrom.
