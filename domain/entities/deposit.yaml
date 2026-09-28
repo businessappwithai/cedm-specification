@@ -1,0 +1,22 @@
+entity:
+  name: Deposit
+  namespace: cedm.domain
+  kind: banking_transaction
+  description: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
+  identity: {key: depositId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: depositId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Deposit., businessMeaning: Identifies one governed Deposit record independently of mutable state., usage: Operations, finance, integration, reporting and audit., relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: Lifecycle, reconciliation and reporting., relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  relationships: []
+  invariants:
+  - {id: DEPOSIT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  help:
+    summary: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
+    purpose: Provide canonical enterprise semantics for Deposit.
+    businessMeaning: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
+    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
+    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
+    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPOSIT}
