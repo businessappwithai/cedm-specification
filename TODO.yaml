@@ -204,7 +204,7 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-09-28
-    registeredEntities: 227
+    registeredEntities: 294
     requestedUniqueEntityNames: 282
     unregisteredRequestedNames: 64
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
