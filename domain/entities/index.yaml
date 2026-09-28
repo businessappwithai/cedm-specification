@@ -23,6 +23,8 @@ registry:
     - BillOfMaterial
     - BusinessProcess
     - BusinessTransaction
+    - Budget
+    - BudgetLine
     - CarePlan
     - CashPosition
     - CertificateOfAnalysis
@@ -44,6 +46,7 @@ registry:
     - Customer
     - CustomerReturn
     - CustomerReturnLine
+    - CostCenter
     - CustomsDeclaration
     - DataQualityAssessment
     - Dataset
@@ -70,6 +73,7 @@ registry:
     - FarmField
     - FiscalPeriod
     - Flight
+    - Forecast
     - FoodBatch
     - GoodsReceipt
     - GoodsReceiptLine
@@ -97,6 +101,7 @@ registry:
     - InvoiceLine
     - JournalEntry
     - JournalEntryLine
+    - Job
     - Lead
     - Lease
     - Location
@@ -142,8 +147,10 @@ registry:
     - ProductionReceipt
     - ProfessionalEngagement
     - Project
+    - ProjectPhase
     - ProjectTask
     - Property
+    - ProfitCenter
     - PurchaseOrder
     - PurchaseOrderLine
     - PurchaseRequisition
@@ -171,6 +178,7 @@ registry:
     - Role
     - SalesOrder
     - SalesOrderLine
+    - Scenario
     - Scrap
     - Sample
     - SamplingPlan
@@ -178,6 +186,7 @@ registry:
     - SecurityIncident
     - SerialNumber
     - ServiceRequest
+    - ServiceLevelAgreement
     - Shipment
     - ShipmentLine
     - ShoppingCart
@@ -212,6 +221,7 @@ registry:
     - User
     - Vehicle
     - VehicleModel
+    - Variance
     - Warehouse
     - WarehouseZone
     - Wave
