@@ -112,11 +112,13 @@ registry:
     - Money
     - Nonconformance
     - NonprofitCampaign
+    - Operation
     - Opportunity
     - Organization
     - Party
     - PartyRole
     - Payment
+    - Payroll
     - Packaging
     - PaymentAllocation
     - PaymentTerm
