@@ -83,19 +83,23 @@ todo:
     - id: budgeting-planning
       name: Budgeting / Planning
       entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
-      status: pending-verification
+      status: in-progress
+      notes: Core requested budgeting/planning entities are implemented with strict separation of plans, analysis and actual JournalEntry evidence; reciprocal-depth audit and validation remain.
     - id: projects
       name: Projects
       entities: [Project, ProjectPhase, Milestone, ProjectTask, ResourceAssignment, Timesheet, ProjectCost]
-      status: pending-verification
+      status: in-progress
+      notes: ProjectPhase is implemented and linked from Project; remaining requested project entities require systematic verification.
     - id: hr-hcm
       name: HR / HCM
       entities: [Employee, Employment, Position, Job, Department, Compensation, LeaveRequest, Attendance, Payroll]
-      status: pending-verification
+      status: in-progress
+      notes: Job is implemented and linked from Position; remaining requested HCM entities require systematic verification.
     - id: service-management
       name: Service Management
       entities: [ServiceRequest, ServiceCase, Ticket, ServiceLevelAgreement, ServiceOrder, ServiceContract, Entitlement]
-      status: pending-verification
+      status: in-progress
+      notes: ServiceLevelAgreement is implemented and linked from ServiceRequest; remaining requested service entities require systematic verification.
     - id: contracts
       name: Contracts
       entities: [Contract, ContractLine, ContractClause, ContractObligation, ContractAmendment, ContractRenewal, ContractTermination]
@@ -199,7 +203,3 @@ todo:
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
 
   discoveredGaps:
-    - {domain: budgeting-planning, missing: [Budget], priority: high}
-    - {domain: projects, missing: [ProjectPhase], priority: medium}
-    - {domain: hr-hcm, missing: [Job], priority: high}
-    - {domain: service-management, missing: [ServiceLevelAgreement], priority: high}
