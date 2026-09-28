@@ -1,158 +1,234 @@
-# EML Overview
+# EML — Overview
 
-**APPWITHAI Modeling Language (EML)**, version 1.2.0 — a Mermaid-based language
-for describing an application's data model, business rules, and business
-workflows as one artifact.
+**APPWITHAI Modeling Language (EML)**, version 2.0.0 — a YAML language for
+describing an application in one document: its entities and relationships, its
+business rules, who may do what, the questions it answers, and how its records
+move.
 
-## Two syntaxes, one model
-
-A model is written as **YAML** (`*.eml.yaml`) — the source of truth, read by
-every generator — and drawn as **EML**, the Mermaid form this specification
-describes. Both are read into the same model records and compiled by one
-compiler, so a construct means the same thing whichever syntax states it;
-[`../yaml/README.md`](../yaml/README.md) lists each construct's YAML key beside
-its EML form, and the repository's tests hold every example to compiling
-identically from both. Where this specification says "an EML document", read
-"a model, as its Mermaid view shows it".
+A model is one file, `*.eml.yaml`. The APPWITHAI generators read it to produce a
+full-stack application (TanStack Start + Astryx on a Loco.rs backend), the
+checker validates it, and the modelling tool edits it and draws it. There is no
+second notation: the diagrams the tool shows are drawn from the document, and an
+edit made on a diagram is an edit to the document.
 
 ## Design goals
 
-1. **One language, three concerns.** Structure (ERD), decision logic (rules),
-   and process (workflows) are expressed with a shared, coherent syntax.
-2. **Valid Mermaid.** Every EML document renders as-is in any Mermaid viewer.
-   Nothing is lost when a stakeholder opens the file in a diagram tool.
-3. **Machine-readable and standalone.** The entire language is defined in
-   `language/appwithai-language.json`, independent of any single parser, so the
-   generator (and future tooling) reads one authoritative contract.
-4. **Renderer-safe extensibility.** Extra semantics ride on `%%` comments, which
-   Mermaid ignores. Adding generator meaning never breaks rendering.
+1. **One document, every concern.** Structure (entities, relationships), logic
+   (rules), access (who may do what), reporting and process (hooks, state
+   machines, sagas) live in one file, so an entity's whole behaviour is
+   reviewable in one place.
+2. **Every construct is a key.** A model is plain YAML: one mapping whose keys
+   the schema names. Nothing is inferred from layout, spacing or a comment, so a
+   model reads the same to every tool.
+3. **Machine-checked, and located.** Every finding — a YAML error, a schema
+   violation, a checker diagnostic — is reported at the line and column of the
+   YAML that caused it.
+4. **The author's text is kept.** A model's comments (`#`) are the author's.
+   Tools that change a model edit the YAML document in place rather than
+   re-serialising it, and the canonical form (below) makes two saves of the same
+   model byte-identical.
 
-## Document model
+## The definition
 
-An EML document is a UTF-8 text file containing one or more **sections**. Each
-section opens with a Mermaid diagram keyword:
+The language is defined in two files, and nothing else describes it:
 
-| Opening keyword | Section |
-|-----------------|---------|
-| `erDiagram` | ERD |
-| `flowchart` / `graph` | Business rules **or** workflow (disambiguated below) |
-| `stateDiagram-v2` | Workflow (state-machine form) |
+| File | Defines |
+|---|---|
+| [`../yaml/eml.schema.json`](../yaml/eml.schema.json) | The document's shape — every key, what it may hold, which are required (JSON Schema 2020-12). The reader validates with this file. |
+| [`../appwithai-language.json`](../appwithai-language.json) | What the shape means — the type vocabulary, foreign-key resolution, cardinalities, hook events, rule node types, saga step contracts, automation documents, diagnostics, and which construct each compiler reads. |
 
-A single file may hold several sections separated by blank lines.
+This specification explains the two. Where it and they disagree, they are right
+and this is the bug.
 
-### Comments and directives
+## The document
 
-- A line starting with `%%` is a Mermaid comment.
-- A **plain** comment (`%% notes...`) is documentation, ignored by everyone.
-- A **directive** comment begins with a reserved keyword and carries meaning to
-  the generator while staying invisible to renderers:
+A model is one YAML mapping. `eml` and `entities` are required; every other key
+is optional and absent means none. Tools write the keys in this order:
 
-  ```
-  %%meta     %%hook     %%step      %%action   %%entity   %%field
-  %%enum     %%category %%index     %%rule     %%guard    %%loop
-  %%rbac     %%trigger  %%workflow
-  ```
+| Key | Holds | Chapter |
+|---|---|---|
+| **`eml`** | The document version, `"1.0"`. | — |
+| `name` | The application's name, as its users call it. | — |
+| `version` | The model's own version, carried into the application. | — |
+| `description` | One paragraph saying what the application is for. Seeded into `sys_system.APP_DESCRIPTION`; opens the generated manual. | — |
+| `enums` | Named value lists a column may be bound to. | [01](01-entities.md#enums) |
+| `categories` | Dashboard groupings of entities. | [01](01-entities.md#categories) |
+| **`entities`** | The tables: columns, keys, indexes, help, icons, line items. | [01](01-entities.md) |
+| `relationships` | How entities relate, by the cardinality of each end. | [01](01-entities.md#relationships) |
+| `hooks` | Lifecycle handlers bound to an entity's writes and reads. | [03](03-workflows.md#hooks) |
+| `hookFlows` | The order an entity's hooks run in around a write, drawn. | [03](03-workflows.md#hook-flows) |
+| `rbac` | Who may perform an operation or cross a transition. | [05](05-access-reports-and-triggers.md#access-rules--rbac) |
+| `triggers` | External events and schedules that call a handler. | [05](05-access-reports-and-triggers.md#triggers) |
+| `reports` | Questions the application answers, as read-only SQL. | [05](05-access-reports-and-triggers.md#reports) |
+| `rules` | Business rules: decision graphs, actions, decision tables. | [02](02-business-rules.md) |
+| `stateMachines` | The lifecycle an entity's status column moves through. | [03](03-workflows.md#state-machines) |
+| `sagas` | Multi-step processes of executable steps. | [03](03-workflows.md#sagas) |
 
-  Most of these are **compiled** — a shipped reader consumes them and the
-  generated application changes as a result. Three (`%%entity`, `%%rule`,
-  `%%trigger`) are **validated**: nothing compiles them yet, but `checker.ts`
-  enforces their syntax so a malformed one fails validation rather than being
-  silently dropped.
+```yaml
+# yaml-language-server: $schema=../../language/yaml/eml.schema.json
+eml: "1.0"
+name: Orders
+description: Taking and fulfilling customer orders.
 
-  Each directive carries its own `status` in `appwithai-language.json`, which is
-  authoritative. See [`05-directives.md`](05-directives.md) for the reference.
+enums:
+  - { name: OrderStatus, values: [draft, submitted, shipped, cancelled] }
 
-### Disambiguating flowchart vs. rules vs. workflow
+entities:
+  - name: Customer
+    help: A person or company that buys from us.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: name, type: string(120), help: The name printed on invoices. }
+  - name: Order
+    help: A customer's commitment to buy, from the moment it is drafted.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: customer_id, type: uuid, fk: true, help: Who placed the order. }
+      - { name: status, type: string, enum: OrderStatus, help: Where the order is in fulfilment. }
 
-A `flowchart` is read as a **business-rules decision flow** when:
-
-- it is preceded by `%%meta kind: rules`, **or**
-- it contains only decision/expression/function/io node shapes and **no**
-  `%%hook` directives.
-
-Otherwise a `flowchart` is read as a **workflow**. A `stateDiagram-v2` is always
-a workflow (its states map to a status enum for the bound entity).
-
-## The pipeline
-
-Every entry point — the `appwithai` CLI and the web app's `/api/generate` —
-runs the same pipeline, so a model produces the same application however it was
-submitted.
-
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
 ```
-ERD section          → mermaid.parser      → Entity[] + Relationship[]  → migrations, DTOs, services, controllers, UI
-  %%index            → ┘                     entity.indexes             → real DDL indexes
-  %%enum / %%field   → ┘                     bound enums                → typed columns + UI selects
-%%category           → category.parser     → dictionary groups          → dashboard grouping
-Rules section        → flowchart-parser    → jdm-converter              → GoRules JDM graph → sys_rule_definitions
-  %%action           → compileRules        → JDM decision table         → rule actions (incl. trigger-workflow)
-Workflow, hook form  → compileHooks        → handler modules + registry → service lifecycle wiring
-Workflow, state form → compileWorkflows    → BPMN                       → sys_workflow_definitions, status machine
-Workflow, saga form  → compileSagaWorkflows→ one serviceTask per %%step → sys_workflow_definitions (source: model)
-%%rbac               → compileRbac         → operation + transition rules → sys_operation_access / sys_transition_access
-Whole document       → rag.ts              → retrieval chunks           → pgvector model_context index
-```
 
-Reference implementations — the generator's own readers, which are what decide
-what a generated application contains:
+The first line is optional. Editors that speak the YAML language server use it
+for completion and inline errors.
 
-- `packages/generator/src/pipeline/generate-application.ts` — the one path
-- `packages/generator/src/parsers/mermaid.parser.ts` — ERD, `%%index`, `%%enum`
-- `packages/generator/src/parsers/category.parser.ts` — `%%category`
-- `packages/generator/src/rules/` — `flowchart-parser.ts`, `jdm-converter.ts`, `index.ts` (`%%action`)
-- `packages/generator/src/hooks/index.ts` — `%%hook`, handler form
-- `packages/generator/src/workflows/` — `index.ts` (state, saga), `steps.ts` (`%%step`, `%%loop`)
-- `packages/generator/src/rbac/index.ts` — `%%rbac`, both the CRUD and transition forms
+### Constructs and their status
 
-The web app keeps its own parsers for the editors — they run in the browser and
-cannot import the generator. They read the same syntax but do not decide what is
-generated; when the two disagree, the generator's copy is the language and the
-web copy is the bug.
+Each construct is **compiled** (a generator reads it and the application changes),
+**validated** (the schema and the checker enforce its shape and references, and
+no generator compiles it yet), or **reserved** (validated for shape, with no
+reader; held so a later meaning cannot collide with it). The definition's
+`constructs` block records which, and names the file that reads each compiled
+one. Today:
+
+- **compiled** — `name`/`version`/`description`, `enums`, `categories`,
+  `entities` (with `help`, `icon`, `parent`, `indexes`), attribute `enum` and
+  `help`, `relationships`, `hooks`, `rbac`, `reports`, `rules`,
+  `stateMachines`, `sagas`;
+- **validated** — `hookFlows`, `triggers`, and the entity keys `label`,
+  `prefix`, `softDelete`, `audited`;
+- **reserved** — the attribute keys `ui`, `default`, `min`, `max`, `format`.
 
 ## Validation
 
-Two commands, and the second reads what the first wrote.
+`readModelYaml` (`packages/generator/src/model-yaml/validate.ts`) reads a model
+in three layers, and every tool — both generators, the `eml` CLI, the modelling
+tool and the browser bundle — reads through it:
+
+1. **YAML** — the text parses. A key written twice is an error, not "the last
+   one wins".
+2. **Schema** — the document is what `eml.schema.json` says a model is, located
+   at the key that is wrong.
+3. **Checker** — `language/yaml/checker.ts`: the rules that relate one part of a
+   model to another, which a schema cannot express. Does the foreign key have a
+   relationship behind it? Is the status column bound to the state machine's
+   states? Does a saga step read a variable an earlier step published?
 
 ```bash
-bun language/checker.ts model.mmd          # writes model.mmd.error beside it
-bun language/fixer.ts   model.mmd.error    # applies the auto-fixable codes, re-checks
+appwithai validate orders.eml.yaml [--strict]
+bun run eml validate -i orders.eml.yaml
 ```
 
-The checker validates a document against `appwithai-language.json` and emits
-diagnostics at three severities:
+```text
+  orders.eml.yaml:6:9   ✖ EML116 Primary key "Order.id" is marked optional.
+  orders.eml.yaml:11:5  ✖ EML121 Relationship references undeclared entity "Missing".
+  orders.eml.yaml:8:5   ✖ EML147 "OrderLine" names parent "Nowhere", which is not declared.
+```
 
 | Severity | Meaning | Fails the run |
-|----------|---------|---------------|
-| **error** | The document is wrong; the generator would produce something incorrect or nothing at all. | yes |
-| **warning** | Legal, but almost certainly not what the author meant — a dropped modifier, a state with no enum behind it. | only with `--strict` |
+|---|---|---|
+| **error** | The model is wrong; the generator would produce something incorrect or nothing at all. A model with an error generates nothing. | yes |
+| **warning** | Legal, but almost certainly not what the author meant — a dropped constraint, a state with no enum behind it. | only with `--strict` |
 | **info** | Worth reading once. | no |
 
-Codes are grouped by what they are about: `EML0xx` document, `EML1xx` entities
-and their directives, `EML2xx` directive-declared hooks/rules/workflows,
-`EML3xx` rule flowcharts, `EML4xx` workflow sections, `EML5xx` cross-section
-consistency. The full list, the auto-fixable set, and what each fix does are in
-the `diagnostics` block of `appwithai-language.json`.
+Codes group by what they concern: `EML0xx` the document; `EML100`–`EML119`
+entities and attributes; `EML120`–`EML129` relationships; `EML130`–`EML199`
+enums, bindings, help, icons, line items, indexes and categories; `EML2xx`
+hooks, access rules, triggers, reports and saga steps; `EML3xx` business rules;
+`EML400`–`EML449` state machines, sagas and hook flows; `EML5xx` consistency
+across constructs. A code keeps its meaning for as long as the language has it.
 
-Warnings are worth reading rather than clearing: most of them describe something
-the generator will silently accept and quietly get wrong. `EML118` is the
-clearest case — an unrecognised modifier is dropped, so `string email UNQIUE`
-generates a column that is simply not unique, and the rendered diagram looks
-exactly the same either way.
+Warnings are worth reading rather than clearing: most describe something the
+generator accepts and quietly gets wrong. `EML146` is the clearest case — a
+`status` column not bound to an enum is recorded as free text, and the form
+accepts values the state machine cannot act on.
 
-## Naming conventions
+### Fixing
+
+Eight codes are mechanically fixable, and `fixModelYaml`
+(`packages/generator/src/model-yaml/fixer.ts`) repairs them in the YAML document
+itself, keeping its comments, then re-runs the checker. The `eml` CLI applies
+them before it generates unless told `--no-autofix`, and reports each one.
+
+| Code | The fix |
+|---|---|
+| `EML001` | The model has no name — sets one from the first entity. |
+| `EML103` | A column the generator adds anyway — removes the declaration. |
+| `EML112` | A column declared twice — removes the later one, keeping the stronger constraints. |
+| `EML114` | An `fk` column not ending in `_id` — appends the suffix, everywhere the model names it. |
+| `EML117` | An entity with no primary key — adds `id`. |
+| `EML287` | A rule condition names a camelCase identifier — rewrites it as the snake_case column. |
+| `EML421` | A state machine with no initial state — sets `initial` to its first state. |
+| `EML422` | A state machine with no final state — sets `final` to its states with no way out. |
+
+## Canonical form
+
+`serializeModelDocument` writes one text for a model: keys in the order above,
+lists of plain values on one line, and nothing stated twice — a title equal to
+the name, a `down` direction, a saga's default trigger (`automatic`) and
+operation (`CREATE`), and `false` flags are omitted. Saving a model twice gives
+the same bytes, so a Git diff between two saves is exactly the change. The
+modelling tool keeps the author's own text as the model and writes the
+canonical form beside it (`.appwithai/model.ai.yaml`) for the assistant to read.
+
+## The pipeline
+
+Every entry point — the `appwithai` CLI and the web app's `/api/generate` — runs
+the same pipeline (`packages/generator/src/pipeline/generate-application.ts`),
+so a model produces the same application however it was submitted:
+
+```
+model text   → readModelYaml (YAML, schema, checker)   → the document
+document     → documentToRecords                        → model records, the one semantic layer
+entities, relationships → compileErdRecords             → bus-table DDL, dictionary seed, request suites
+categories   → compileCategoryDeclarations              → dashboard groups
+rules        → compileRuleDeclarations                  → GoRules JDM → seed/rules.sql → sys_rule_definitions
+hooks        → compileHookDeclarations                  → src/hooks/handlers/<entity>.rs + src/hooks/mod.rs
+stateMachines→ compileWorkflows                         → sys_workflow_transitions (enforced)
+sagas        → compileSagaDeclarations                  → BPMN → sys_workflow_definitions (source: model)
+rbac         → compileRbacDeclarations                  → sys_operation_access / sys_transition_access
+reports      → compileReportDeclarations                → sys_report, served at /api/reports
+the text     → model/model.eml.yaml in the generated project, byte for byte
+```
+
+`documentToRecords` is held byte-identical between the TypeScript generator
+(`packages/generator/src/model-yaml/to-records.ts`) and the Rust one
+(`crates/appwithai-gen/src/yaml_model.rs`), and the parity gate generates every
+corpus model with both and compares the backends file by file.
+
+## Naming
 
 | Element | Rule | Recommended case |
-|---------|------|------------------|
-| Entity name | `^[a-zA-Z][a-zA-Z0-9_]*$` | `PascalCase` |
-| Attribute name | `^[a-zA-Z][a-zA-Z0-9_]*$` | `snake_case` |
-| Hook / handler | `^[a-zA-Z_][a-zA-Z0-9_]*$` | `camelCase` |
+|---|---|---|
+| Entity name | `^[A-Za-z][A-Za-z0-9_]*$`, unique in the model | `PascalCase` |
+| Attribute name | `^[A-Za-z][A-Za-z0-9_]*$`, unique in the entity | `snake_case` |
+| Handler | `^[A-Za-z_][A-Za-z0-9_]*$` | `camelCase` |
 | Enum name | `^[A-Za-z][A-Za-z0-9_]*$` | `PascalCase` |
-| Node id (flows) | `^[A-Za-z_][A-Za-z0-9_]*$` | short `A`, `B`, … |
+| Node / step id | `^[A-Za-z_][A-Za-z0-9_]*$` | short: `A`, `B`, … |
 
-Continue with:
+Keys are case-sensitive and spelled as the schema spells them. Types are not:
+`VARCHAR`, `varchar` and `string` are one type.
 
-- [`01-erd.md`](01-erd.md) — Entity Relationship Diagrams
-- [`02-business-rules.md`](02-business-rules.md) — Business rules
-- [`03-workflows.md`](03-workflows.md) — Workflows
-- [`04-types-and-modifiers.md`](04-types-and-modifiers.md) — Types, modifiers, cardinalities
-- [`05-directives.md`](05-directives.md) — Directive reference
+## Chapters
+
+- [`01-entities.md`](01-entities.md) — entities, attributes, keys, enums,
+  indexes, categories, help, line items and relationships
+- [`02-business-rules.md`](02-business-rules.md) — decision graphs, actions and
+  decision tables
+- [`03-workflows.md`](03-workflows.md) — hooks, hook flows, state machines,
+  sagas and automations
+- [`04-types-and-cardinalities.md`](04-types-and-cardinalities.md) — the type
+  vocabulary, attribute flags and relationship cardinalities
+- [`05-access-reports-and-triggers.md`](05-access-reports-and-triggers.md) —
+  access rules, reports and triggers

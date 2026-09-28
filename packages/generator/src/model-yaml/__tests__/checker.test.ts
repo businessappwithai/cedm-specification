@@ -369,7 +369,7 @@ const CASES: Case[] = [
     change: (d) => {
       order(d).indexes = [{ columns: ["customer_id", "placed_on"] }];
     },
-    expect: ["EML151"],
+    expect: ["EML155"],
   },
   {
     name: "an undeclared parent",

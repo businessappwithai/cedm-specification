@@ -1271,7 +1271,7 @@ and acted on today: `%%meta`, `%%entity` (`help:`, `parent:`), `%%field`
 (`enum:`, `help:`), `%%enum`, `%%index`, `%%category`, `%%hook`, `%%rbac`,
 `%%report`, and `%%workflow ... kind: saga` with its `%%step`s. `%%rule`,
 `%%guard`, `%%trigger` and `%%workflow ... kind: state` are still the documented
-extension surface (`spec/05-directives.md`) — phases 6 and 7.
+extension surface (`spec/05-access-reports-and-triggers.md`) — phases 6 and 7.
 
 **`%%report` compiles to `sys_report` (m0015), applied by `seed_reports`.** One
 row per directive, served at `/api/reports` by `controllers::report`. The query

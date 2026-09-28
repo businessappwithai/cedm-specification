@@ -7272,6 +7272,7 @@ var appwithai_language_default = {
       EML151: "warning — entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
       EML152: "warning — an entity with no help text at all.",
       EML153: "warning — columns with no help text, reported once per entity.",
+      EML155: "An index names a column its entity does not declare. The index is left out of the DDL, because a migration that cannot apply is worse than a missing index.",
       EML500: "A state machine bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -7922,7 +7923,7 @@ var appwithai_language_default = {
       form: "{{<name>}}",
       sources: [
         "{{<entity>.<field>}} — a field of the triggering record, entity name lowercased",
-        "{{<resultName>}} — the result of an earlier step, named by its `as:`"
+        "{{<resultName>}} — the result of an earlier step, named by its `resultName`"
       ]
     },
     loops: {
@@ -8168,7 +8169,7 @@ var appwithai_language_default = {
     },
     authoringSurface: {
       description: "The modelling tool edits the YAML document and draws it. It never keeps a second copy of the model in another notation: the diagram is drawn from the document, and an edit made on the diagram is an edit to the document.",
-      viewer: "packages/web/src/components/model-viewer/",
+      viewer: "packages/web/src/components/model/ModelViewer.tsx",
       editorRead: "packages/web/src/lib/model/ (reads through the same readModelYaml)",
       automationDocument: "packages/web/src/lib/automation/yaml.ts"
     }
@@ -19152,7 +19153,7 @@ class ModelChecker {
         const path = [...this.entityPath(entity.name), "indexes", position];
         index.columns.forEach((column, at) => {
           if (!names.has(column)) {
-            this.error("EML151", `Index on "${entity.name}" names undeclared column "${column}".`, [...path, "columns", at], { hint: `Add "${column}" to "${entity.name}", or correct the name.` });
+            this.error("EML155", `Index on "${entity.name}" names undeclared column "${column}".`, [...path, "columns", at], { hint: `Add "${column}" to "${entity.name}", or correct the name.` });
           }
         });
       });

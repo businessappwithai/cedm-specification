@@ -49,7 +49,7 @@ describe("declared indexes", () => {
 
   it("drops an index naming a column the entity does not have", () => {
     // The migration would fail on a column that does not exist, and a
-    // migration that cannot apply is worse than a missing index (EML151).
+    // migration that cannot apply is worse than a missing index (EML155).
     const contact = contactWith(`${DECLARED}\n      - { columns: [nope] }`);
     expect(contact?.indexes?.some((index) => index.columns.includes("nope"))).toBe(false);
     expect(contact?.indexes).toHaveLength(2);

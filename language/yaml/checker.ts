@@ -661,7 +661,7 @@ class ModelChecker {
   }
 
   /* ---------------------------------------------------------------------- */
-  /*  EML150–EML152: indexes                                                 */
+  /*  EML155: indexes                                                        */
   /* ---------------------------------------------------------------------- */
 
   private checkIndexes(): void {
@@ -672,7 +672,7 @@ class ModelChecker {
         index.columns.forEach((column, at) => {
           if (!names.has(column)) {
             this.error(
-              "EML151",
+              "EML155",
               `Index on "${entity.name}" names undeclared column "${column}".`,
               [...path, "columns", at],
               { hint: `Add "${column}" to "${entity.name}", or correct the name.` }
