@@ -32,7 +32,7 @@ catalog:
       processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
     - id: warehouse-management
       name: Warehouse Management
-      entities: [Warehouse, WarehouseZone, InventoryLocation, HandlingUnit, InventoryBalance, InventoryMovement, InventoryTransfer, InventoryCount]
+      entities: [Warehouse, WarehouseZone, InventoryLocation, Dock, HandlingUnit, Putaway, Picking, Packing, Wave, InventoryBalance, InventoryMovement, InventoryTransfer, InventoryCount]
       processes: [inbound, putaway, picking, packing, outbound, replenishment]
     - id: transportation-management
       name: Transportation Management
