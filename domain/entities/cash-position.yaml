@@ -1,0 +1,29 @@
+entity:
+  name: CashPosition
+  namespace: cedm.domain
+  kind: treasury_snapshot
+  description: A point-in-time treasury view of available, restricted, pending, and forecast cash for a BankAccount and Currency, derived from authoritative bank and internal settlement evidence rather than acting as a cash ledger.
+  identity: {key: cashPositionId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: cashPositionId, type: uuid, required: true, immutable: true, help: {summary: Stable snapshot identity., businessMeaning: Identifies one reproducible treasury position., usage: Liquidity, forecasting and audit., relationshipContext: Derived from BankAccount and cash evidence., requiredMeaning: Required.}}
+  - {name: asOf, type: datetime, required: true, help: {summary: Effective timestamp of position., businessMeaning: Defines evidence cutoff., usage: Intraday/end-of-day liquidity., relationshipContext: Transactions after cutoff are excluded., requiredMeaning: Required.}}
+  - {name: ledgerBalance, type: Money, required: true, help: {summary: Account balance recognized at cutoff under position policy., businessMeaning: Baseline cash amount., usage: Treasury reporting., relationshipContext: Must be reproducible from authoritative evidence., requiredMeaning: Required.}}
+  - {name: availableBalance, type: Money, required: true, help: {summary: Cash considered available for use at cutoff., businessMeaning: Liquidity available after restrictions/pending effects under policy., usage: Funding and payment decisions., relationshipContext: Currency must match account/position currency., requiredMeaning: Required.}}
+  - {name: forecastBalance, type: Money, required: false, help: {summary: Projected cash after included future inflows/outflows., businessMeaning: Forward liquidity estimate, not posted cash., usage: Treasury planning., relationshipContext: Must identify forecast policy/horizon externally or through consuming process., optionalMeaning: Optional when no forecast is calculated.}}
+  relationships:
+  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account positioned., businessMeaning: Defines cash account context., usage: Treasury and reconciliation., cardinalityMeaning: Exactly one BankAccount., workflowRole: Account status/currency constrain calculation.}}
+  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: Bank evidence included in snapshot., businessMeaning: Supports reproducibility of observed cash., usage: Reconciliation and audit., cardinalityMeaning: Zero or many transactions depending on calculation window., workflowRole: Reversed/failed evidence handled according to policy.}}
+  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Internal settlement events included in available/forecast treatment., businessMeaning: Adds pending recognized inflow/outflow context., usage: Liquidity forecasting., cardinalityMeaning: Zero or many Payments., workflowRole: Payment state determines inclusion semantics.}}
+  invariants:
+  - {id: CASH-POSITION-001, rule: CashPosition is derived/snapshot information and must not directly post BankTransaction, Payment or JournalEntry.}
+  - {id: CASH-POSITION-002, rule: All Money values must use currency compatible with BankAccount or explicit governed conversion policy.}
+  - {id: CASH-POSITION-003, rule: Position must be reproducible from its asOf cutoff, source evidence and calculation policy.}
+  - {id: CASH-POSITION-004, rule: Later bank reconciliation or reversal creates/recalculates a new position rather than rewriting historical snapshot evidence where retained for audit.}
+  help:
+    summary: Reproducible point-in-time treasury liquidity view.
+    businessMeaning: CashPosition summarizes cash; BankTransaction supplies external evidence, Payment supplies internal settlement state, and JournalEntry supplies accounting recognition.
+    usage: Daily cash management, liquidity, funding, payment planning and treasury reporting.
+    relationshipContext: BankAccount defines account/currency; bank transactions and payments supply observed/pending cash evidence.
+    lifecycle: Calculated for an as-of cutoff → reviewed/published where required → retained or superseded by later snapshots.
+    changePropagation: New/reversed/reconciled cash evidence affects subsequent positions and forecasts, not source transaction history.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CASH-POSITION}
