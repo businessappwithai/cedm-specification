@@ -1,0 +1,378 @@
+# ============================================================================
+# EML Example — E-Commerce
+# Data model + business rules + workflows for an online store, in one artifact.
+# All diagrams are valid, renderable Mermaid.
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
+eml: "1.0"
+name: Store Core
+version: 1.0.0
+enums:
+  - name: OrderStatus
+    values: [cart, placed, paid, packed, shipped, delivered, cancelled, refunded]
+  - name: FulfilmentEvent
+    values: [place, pay, pack, ship, deliver, cancel, refund]
+  - name: PaymentStatus
+    values: [pending, authorized, captured, failed, refunded]
+  - name: PaymentMethod
+    values: [card, paypal, bank_transfer, gift_card]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: password_hash
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: phone
+        type: string
+        optional: true
+      - name: is_verified
+        type: boolean
+  - name: Product
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: sku
+        type: string
+        unique: true
+      - name: description
+        type: text
+        optional: true
+      - name: unit_price
+        type: decimal
+      - name: stock_qty
+        type: integer
+      - name: is_active
+        type: boolean
+    indexes:
+      - columns: [sku]
+        unique: true
+  - name: Category
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: parent_id
+        type: string
+        fk: true
+        optional: true
+  - name: Order
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: order_number
+        type: string
+        unique: true
+      - name: status
+        type: string
+        enum: OrderStatus
+      - name: subtotal
+        type: decimal
+      - name: discount_amount
+        type: decimal
+      - name: shipping_amount
+        type: decimal
+      - name: total_amount
+        type: decimal
+      - name: placed_at
+        type: datetime
+        optional: true
+    indexes:
+      - columns: [customer_id, status]
+  - name: OrderItem
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_id
+        type: string
+        fk: true
+      - name: product_id
+        type: string
+        fk: true
+      - name: quantity
+        type: integer
+      - name: unit_price
+        type: decimal
+      - name: line_total
+        type: decimal
+  - name: Payment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_id
+        type: string
+        fk: true
+      - name: method
+        type: string
+        enum: PaymentMethod
+      - name: status
+        type: string
+        enum: PaymentStatus
+      - name: amount
+        type: decimal
+      - name: captured_at
+        type: datetime
+        optional: true
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Order
+    toCardinality: zero-or-more
+    label: places
+  - from: Order
+    fromCardinality: exactly-one
+    to: OrderItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Product
+    fromCardinality: exactly-one
+    to: OrderItem
+    toCardinality: zero-or-more
+    label: ordered_in
+  - from: Order
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: paid_by
+  - from: Category
+    fromCardinality: exactly-one
+    to: Product
+    toCardinality: zero-or-more
+    label: categorizes
+  - from: Category
+    fromCardinality: exactly-one
+    to: Category
+    toCardinality: zero-or-more
+    label: has_subcategory
+hooks:
+  - entity: Order
+    event: customValidate
+    handler: ensureStockAvailable
+  - entity: Order
+    event: beforeUpdate
+    handler: recomputeTotals
+  - entity: Order
+    event: afterUpdate
+    handler: decrementInventory
+  - entity: Order
+    event: afterUpdate
+    handler: sendOrderConfirmation
+hookFlows:
+  # ---- Section 5: Workflow — checkout hooks ----------------------------------
+  - name: CheckoutHooks
+    title: Checkout Hooks
+    entity: Order
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Cart
+      - id: C
+        event: customValidate
+        handler: ensureStockAvailable
+      - id: D
+        event: beforeUpdate
+        handler: recomputeTotals
+      - id: E
+        label: Process Order
+      - id: F
+        event: afterUpdate
+        handler: decrementInventory
+      - id: G
+        event: afterUpdate
+        handler: sendOrderConfirmation
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+rbac:
+  - entity: Order
+    action: place
+    roles: [customer]
+  - entity: Order
+    action: pack
+    roles: [warehouse, admin]
+  - entity: Order
+    action: refund
+    roles: [admin]
+triggers:
+  - entity: Order
+    source: webhook:payment
+    handler: markPaid
+  - entity: Order
+    source: webhook:carrier
+    handler: markShipped
+rules:
+  # ---- Section 2: Business rule — pricing & discount -------------------------
+  - name: pricing
+    title: Order Pricing
+    entity: Order
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Order Repriced"
+        type: start
+      - id: B
+        label: Subtotal > 1000?
+        type: decision
+      - id: C
+        label: Apply Premium Discount 15%
+        type: expression
+      - id: D
+        label: Customer is_verified?
+        type: decision
+      - id: E
+        label: Apply Loyalty Discount 5%
+        type: expression
+      - id: F
+        label: No Discount
+        type: expression
+      - id: G
+        label: Calculate Total
+        type: expression
+      - id: H
+        label: "End: Priced"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: C
+        to: G
+      - from: E
+        to: G
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 3: Business rule — free shipping eligibility ------------------
+  - name: freeShipping
+    title: Free Shipping
+    entity: Order
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: S
+        label: Start
+        type: start
+      - id: Q1
+        label: Total >= 50?
+        type: decision
+      - id: P1
+        label: Charge Standard Shipping
+        type: expression
+      - id: Q2
+        label: Item count >= 3?
+        type: decision
+      - id: P2
+        label: Free Express Shipping
+        type: expression
+      - id: P3
+        label: Free Standard Shipping
+        type: expression
+      - id: R
+        label: Set Shipping Amount
+        type: function
+      - id: E
+        label: End
+        type: end
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: P1
+        label: No
+      - from: Q1
+        to: Q2
+        label: Yes
+      - from: Q2
+        to: P2
+        label: Yes
+      - from: Q2
+        to: P3
+        label: No
+      - from: P1
+        to: R
+      - from: P2
+        to: R
+      - from: P3
+        to: R
+      - from: R
+        to: E
+stateMachines:
+  # ---- Section 4: Workflow — order fulfilment (state machine) ----------------
+  - name: OrderFulfilment
+    title: Order Fulfilment
+    entity: Order
+    states: [cart, placed, paid, cancelled, packed, shipped, delivered, refunded]
+    initial: cart
+    final: [delivered, cancelled, refunded]
+    transitions:
+      - from: cart
+        to: placed
+        trigger: place
+      - from: placed
+        to: paid
+        trigger: pay
+      - from: placed
+        to: cancelled
+        trigger: cancel
+      - from: paid
+        to: packed
+        trigger: pack
+      - from: packed
+        to: shipped
+        trigger: ship
+      - from: shipped
+        to: delivered
+        trigger: deliver
+      - from: paid
+        to: refunded
+        trigger: refund
