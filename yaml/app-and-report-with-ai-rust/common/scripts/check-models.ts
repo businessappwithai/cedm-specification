@@ -47,7 +47,8 @@ if (all.length === 0) {
 
 for (const model of all) {
   const read = readModelYaml(readFileSync(path.join(ROOT, model), "utf8"));
-  const count = (severity: string) => read.diagnostics.filter((d) => d.severity === severity).length;
+  const count = (severity: string) =>
+    read.diagnostics.filter((d) => d.severity === severity).length;
   const errors = count("error");
   const summary = `${errors} errors, ${count("warning")} warnings, ${count("info")} notes`;
   if (read.ok && errors === 0) {
@@ -75,7 +76,9 @@ for (const published of models("html/models")) {
     console.log(`  ok    ${name} identical in html/models and examples`);
   } else {
     failed++;
-    console.error(`  FAIL  ${published} and ${source} differ — they are the same file checked in twice`);
+    console.error(
+      `  FAIL  ${published} and ${source} differ — they are the same file checked in twice`
+    );
   }
 }
 

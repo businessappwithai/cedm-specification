@@ -33,7 +33,10 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { ModelYamlError, parseModelYaml } from "../../../../packages/generator/src/model-yaml/index.ts";
+import {
+  ModelYamlError,
+  parseModelYaml,
+} from "../../../../packages/generator/src/model-yaml/index.ts";
 import {
   buildReportingPack,
   type ReportingPack,
@@ -76,7 +79,9 @@ export function buildPack(
     read = parseModelYaml(source, { source: path.basename(modelPath), warn: () => {} });
   } catch (error) {
     if (error instanceof ModelYamlError) {
-      throw new Error(`Model has errors; run \`eml validate\` for the full report:\n${error.message}`);
+      throw new Error(
+        `Model has errors; run \`eml validate\` for the full report:\n${error.message}`
+      );
     }
     throw error;
   }

@@ -8,12 +8,12 @@
 > reference as `llms-full.txt`; §10 is wholly different, and that difference
 > is the point of the file. `llms-full.txt`'s own protocol section is the
 > *authoring* one — read a brief, infer a model, write it, validate, deliver.
-> §10 here is the *enhancement* protocol: start from an `.mmd` the user
+> §10 here is the *enhancement* protocol: start from a `.eml.yaml` the user
 > already has, change what they asked for, keep everything they did not, and
 > prove it.
 >
 > **You have an input, and the work does not start without it. Ask the user to
-> load their `.mmd` first.** Never reconstruct a model from a summary, from the
+> load their model (the `.eml.yaml`, or an `.mmd` to convert first) first.** Never reconstruct a model from a summary, from the
 > conversation, or from an earlier draft — a reconstruction is a new model
 > wearing the old one's name, and everything hand-written in the original is
 > gone from it with no diagnostic to say so.
@@ -59,18 +59,77 @@
   a diagnostic. §10.2 and §10.5 are how the other two are caught.
 ---
 
+## The model is YAML — read this before anything else
+
+**A model is written in YAML — `<business-name>.eml.yaml` — and that YAML is the
+source of truth.** Every generator reads it: the `appwithai` CLI, the Rust
+generator and its WebAssembly build, the modelling tool's `/api/generate`, and
+the `eml` CLI. Mermaid (EML) is how a model is *drawn*: its view is rendered
+from the YAML and never read back for generation. The modelling tool saves a
+drawing edited in Mermaid by converting it to YAML.
+
+This governs every instruction in this document, in every section:
+
+- **Where this document says to write, edit, seed, enhance, validate or deliver
+  "the `.eml.yaml`", "the EML document" or "the Mermaid", do it to the YAML model.**
+  The construct is the same; §3.0 gives each EML form's YAML key, and the rest
+  of §3 describes what each construct means. EML text in the examples is the
+  view of a model, shown so its meaning can be read; it is not what you hand
+  over.
+- **The deliverable is one file, `<business-name>.eml.yaml`**: lower-case,
+  hyphenated, no spaces. It starts with `eml: "1.0"`, and it is accepted by the
+  YAML reader with zero errors.
+- **A model you are given as `.mmd` is converted first**, with
+  `appwithai convert <file>.mmd` (or `convert()` in `html/model-yaml.js`), and
+  the YAML is what you work on. `convert` writes the YAML only when it compiles
+  to exactly what the EML compiles to, and lists every line it does not carry —
+  `%%` comments, which become `#` comments, and the superseded
+  `%%guard role:…` form, which becomes `rbac`. Report that list to the user;
+  nothing on it may disappear silently.
+- **Validation reads the YAML.** It checks four layers — YAML syntax, the JSON
+  Schema, the language checker (the same `EML0xx`–`EML5xx` codes, run over the
+  model's view), and view fidelity — and reports every finding at the YAML line
+  and column that caused it. The codes keep their names, so every rule this
+  document states about a code still holds; only the location changes.
+
+### Validating a YAML model — the ladder
+
+Stop at the first rung that runs. One failed attempt is a finding about that
+attempt, not about the environment.
+
+| # | Rung | What it is |
+|---|---|---|
+| 1 | `appwithai validate <file>.eml.yaml` (`--strict` fails on warnings too) | the generator's own reader; in a checkout, `bun packages/generator/dist/cli/generate.js validate <file>` |
+| 2 | `bun run eml validate -i <file>.eml.yaml` | the `eml` CLI; the same four layers, reported at YAML lines |
+| 3 | `html/model-yaml.js` — `validate(text)` | the same reader bundled as one ES module, for any JavaScript runtime or a browser tab; `view(text)` and `convert(emlText)` are beside it |
+| 4 | the view through the published checker: render it (`appwithai view <file> -o -`, or `view()`), then `check(view)` from `https://www.appwithai.org/guide/checker.js` | runs every `EML` rule over the model; it does not run the schema, so a rung-4 result is reported as a check *of the view* |
+| 5 | the by-hand checklist in §10, applied to the YAML keys in §3.0 | only once 1–4 have been tried |
+
+**Repairs.** The published fixer repairs EML text. To use it on a YAML model,
+render the view, run `checkAndFix(view)`, convert the repaired view back with
+`convert()`, and validate the YAML again — the same check, fix, re-check loop
+this document requires, closed over the YAML. A repair the fixer cannot make
+is made in the YAML, at the line the diagnostic names.
+
+**Delivered means validated.** The file you hand over is the exact
+`<business-name>.eml.yaml` that came out of the last clean validation run, with
+the counts from that run. Its Mermaid view may be offered beside it for anyone
+who wants to see the diagram; it is never a substitute for the YAML.
+
+---
+
 ## 0. The one idea
 
 Most generators stop at the schema: you describe tables, you get CRUD screens,
 and every rule the business actually runs on is left to hand-write.
 
-APPWITHAI takes **one Mermaid document** that describes three things — the data,
+APPWITHAI takes **one model** — written in YAML, drawn as Mermaid — that describes three things — the data,
 the decisions, and the processes — and compiles all three. The rules and
 workflows drawn in the document are running in the generated application, not
 scaffolded as TODOs.
 
 ```
-one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack Start UI
+one .eml.yaml model →  generate  →  Postgres schema + NestJS API + TanStack Start UI
                                    + Application Dictionary + audit trail
                                    + rules engine + workflow engine, all wired
 ```
@@ -78,7 +137,8 @@ one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack S
 Two properties follow, and most confusion about this system comes from missing
 one of them:
 
-1. **Every EML document is valid, renderable Mermaid.** Generator semantics ride
+1. **A model is YAML, and its view is valid, renderable Mermaid.** The YAML is
+   what every generator reads; the view is rendered from it. Generator semantics ride
    on `%%` comment directives, which renderers ignore. A stakeholder opening the
    file in any Mermaid viewer sees the diagram; nothing is hidden in a sidecar.
 2. **The screens are derived from database rows, not from generated page code.**
@@ -125,53 +185,50 @@ When a request says "the app", resolve which one from context. "Generate",
 "designer", "wizard", "project" → the modelling tool. "bus_ table",
 "dictionary", "seeded rule" → the generated application.
 
-### 1a. The orchestrator repository
 
-The tree above is its own repository. `businessappwithai/app-and-report-with-ai-tanstack`
-holds the one language both products read, and orchestrates the two — it checks
-them out at pinned commits rather than containing them:
+### 1a. The orchestrator — `yaml/app-and-report-with-ai-rust`
+
+The tree above holds both generators and the one language they read. Beside
+it, under `yaml/`, sit the pieces that compose the two products into one
+running system — the orchestrator — and the reporting platform itself. Nothing
+is checked out on demand any more: all three are directories of one repository,
+and every path below is relative to its root.
 
 ```
-app-and-report-with-ai-tanstack/
-├── language/                      # ⭐ EML, canonical: definition, spec, grammar,
-│                                  #    checker, fixer, composer, examples, the `eml` CLI
-├── html/                          # The published guide, checker.js / fixer.js,
-│                                  #    the run-in-a-browser pages, html/models/
-├── website/
-│   ├── llmtext/                   #   this file · llmdetailed.txt · llms-reporting.txt
-│   └── viewers/                   #   the model viewers
-├── examples/                      # Sample models
-├── app-with-ai-tanstack/          # The generator and the modelling tool (§1)
-│                                  #   — a separate repository, placed by ./deps.sh
-└── enterprise_reporting_tanstack/ # The reporting and analytics platform
-                                   #   — likewise
+cedm-specification/
+├── language/                       # ⭐ the one language: YAML schema, definition,
+│                                   #    checker, the `eml` CLI (three --stack targets)
+├── packages/generator/             # the pipeline both products' models go through
+├── yaml/app-and-report-with-ai-rust/
+│   ├── start.sh · stop.sh          # generate an application and bring both up
+│   ├── docker-compose.yml          # postgres · the generated Loco app · the platform
+│   └── common/
+│       ├── build/                  # reporting-pack.ts · subpath-overlay.ts · landing.ts
+│       ├── examples/               # the models (*.eml.yaml) it is checked against
+│       ├── html/                   # the published guide and the in-browser generator
+│       ├── website/llmtext/        # this file · llmdetailed.txt · llms-reporting.txt
+│       ├── website/viewers/        # the model viewers
+│       └── scripts/                # check-models · check-stacks · check-clis · check-reporting-pack
+└── yaml/enterprise_reporting_rust/ # the reporting and analytics platform (Loco.rs + TanStack Start)
 ```
 
-The language folder lives outside both products because both read it, and a
-language with two copies has two meanings within a week. Each product keeps its
-own copy for its own CI — `app-with-ai-tanstack/language/` under the same name,
-and `enterprise_reporting_tanstack/language/` as an older fork called
-`erdwithai-language.json`. **All three have drifted from each other, and when
-any of them disagrees with the `common/` copy, the `common/` copy is the
-language.** (An earlier version of this file claimed the first two were
-byte-identical. They are not, and nothing checks them against each other; only
-the duplicated *example models* are held byte-identical, by CI.)
+**There is one language and it lives at the root.** The orchestrator used to
+carry its own `language/` and each product another, and all three had drifted
+while declaring the same version. Now `common/` imports the root's reader,
+checker and CLI (`../../../language/cli/eml.ts` from `common/`), and the
+reporting platform's `language/cli` re-exports the same model, so a model means
+one thing everywhere.
 
-Two consequences worth stating before anyone follows a path:
+`common/examples/*.eml.yaml` and `common/html/models/*.eml.yaml` are the same
+files checked in twice — one set is what the scripts read, the other is what the
+published guide serves — and `bun run check:models` asserts they stay
+byte-identical. Edit both.
 
-- `common/language/cli` reaches into the `app-with-ai-tanstack` checkout for the
-  two shipped modules
-  it must not fork — the JDM converter and the generator orchestrator. That is
-  deliberate: a vendored second copy of either is exactly how the CLI and the
-  modelling tool would come to disagree about what a rule flow compiles to.
-- `html/models/*.eml.mmd` and `language/examples/*.eml.mmd` are the same files
-  checked in twice, and CI asserts they stay byte-identical. Edit both.
-
-| | **APPWITHAI** (`app-with-ai-tanstack`) | **Enterprise Reporting** (`enterprise_reporting_tanstack`) |
+| | **APPWITHAI** (the root) | **Enterprise Reporting** (`yaml/enterprise_reporting_rust`) |
 |---|---|---|
 | What a model is | the whole application to generate | entities to report on |
-| Produces | Postgres schema, NestJS API, TanStack Start UI, dictionary, rules engine, workflow engine, manual | server functions, list/detail routes, a Kysely migration — to drop into that repo |
-| `--stack` | `tanstack-nestjs` (also `node-rest`) | `enterprise-reporting` |
+| Produces | Postgres schema, a Loco.rs API, a TanStack Start + Astryx UI, dictionary, rules engine, workflow engine, manual | server functions, list/detail routes, a Kysely migration — to drop into that platform |
+| `--stack` | `tanstack-astryx-loco` (also `node-rest`) | `enterprise-reporting` |
 | Standalone? | yes | no, by design (§4.1.2) |
 | Its own spec | this file | `llms-reporting.txt` |
 
@@ -250,11 +307,151 @@ the model. §9.7 walks a concrete instance of this chain.
 
 ---
 
-## 3. EML — the input language
+## 3. The model language — YAML, drawn as EML
 
 Full reference: `language/spec/` (6 documents), grammar in
 `language/grammar/appwithai.ebnf`, canonical definition in
 `language/appwithai-language.json`.
+
+### 3.0 The YAML model language — what you write
+
+A model is one YAML document, `*.eml.yaml`. Its keys are defined by
+`language/yaml/eml.schema.json`; the reference is `language/yaml/README.md`.
+Both syntaxes are read into the same model records and compiled by one
+compiler, and the repository's tests hold every model to compiling identically
+from each — so every construct in the rest of §3 means exactly the same thing
+under its YAML key. Keys below are in canonical order; required ones are bold.
+
+**Document**
+
+| Key | Meaning | EML form |
+|---|---|---|
+| **`eml`** | Language version, `"1.0"` | — |
+| `name`, `version` | The model's name and version | `%%meta name:` / `version:` |
+| `description` | What the application does, in several sentences — opens the manual and the dashboard | `%%meta description:` |
+| `enums` | `{ name, values: [...] }` | `%%enum Name: a, b` |
+| `categories` | `{ name, code?, description?, icon?, color?, seq?, default?, entities: [...] }` | `%%category` |
+| **`entities`** | see below | the `erDiagram` blocks and `%%entity`/`%%field`/`%%index` |
+| `relationships` | `{ from, fromCardinality, to, toCardinality, label? }` | `A ||--o{ B : label` |
+| `hooks` | `{ entity, event, handler, fields? }` | `%%hook <event> <handler> on <E>[field: a, field: b]` |
+| `rbac` | `{ entity, action, roles: [...] }` | `%%rbac role:a\|role:b on E.action` |
+| `triggers` | `{ entity, source, handler }` — `source` is `cron:…`, `webhook:…` or `message:…` | `%%trigger <source> -> <handler> on <E>` |
+| `reports` | `{ name, title?, entity?, chart?, x?, y?, help?, sql }` | `%%report` |
+| `rules` | `{ name, title?, entity, event, priority?, direction?, nodes, edges, actions?, decisionTable? }` | a `%%rule` flowchart section, `%%action` |
+| `stateMachines` | `{ name, title?, entity, states, initial?, final?, transitions: [{ from, to, trigger? }] }` | a `%%workflow … kind: state` section |
+| `sagas` | `{ name, title?, entity, operation?, trigger?, description?, steps: [{ id, type, label?, properties? }] }` | a `%%workflow … kind: saga` section, `%%step` |
+| `hookDiagrams` | `{ name, title?, entity, diagram }` — a drawing, not compiled | a `%%workflow … kind: hook` section |
+
+**Entity** — **`name`**, `help`, `icon`, `parent`, `label`, `prefix` (`bus`\|`sys`),
+`softDelete`, `audited`, **`attributes`**, `indexes` (`{ columns: [...], unique? }`).
+
+**Attribute** — **`name`**, **`type`** (an EML type or alias, with an optional
+length: `string(120)`), `pk`, `fk`, `unique`, `optional`, `enum` (binds a
+declared enum), `help`, `ui`, `default`, `min`, `max`, `format`, `comment`.
+
+**Relationship cardinality** is one of `exactly-one`, `zero-or-one`,
+`zero-or-more`, `one-or-more`, in the eight pairs Mermaid has an operator for
+(§3.3 lists the operators).
+
+A complete model — valid, zero errors and zero warnings:
+
+```yaml
+eml: "1.0"
+name: Orders
+description: Taking customer orders, pricing them, and following each one from submission to shipment or cancellation, with the warehouse and managers acting on it.
+
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped, cancelled]
+
+categories:
+  - name: Sales
+    icon: ShoppingCart
+    entities: [Customer, Order]
+
+entities:
+  - name: Customer
+    help: A person or company that buys from us. One record per buyer, created at their first order and kept for every order after, so their history stays in one place.
+    icon: user
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: name
+        type: string(120)
+        help: The name printed on invoices and delivery notes, exactly as the customer wants to be addressed.
+      - name: email
+        type: email
+        unique: true
+        help: Where order confirmations and shipping notices go. Unique, because it is how a returning customer is recognised.
+  - name: Order
+    help: One purchase by one customer, from the draft they build to the shipment that closes it. Its status is the order's place in that journey, and only the moves the lifecycle draws are allowed.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: customer_id
+        type: uuid
+        fk: true
+        help: The customer who placed the order and receives its invoice.
+      - name: status
+        type: string
+        enum: OrderStatus
+        help: Where the order is — draft while being built, submitted once the customer commits, then shipped or cancelled.
+      - name: total
+        type: decimal
+        optional: true
+        help: The sum of the order's lines at their agreed prices. Empty until the first line is added.
+    indexes:
+      - columns: [customer_id, status]
+  - name: OrderLine
+    parent: Order
+    help: One product at one quantity on one order. It has no life apart from its order, so it is edited inside the order rather than on a screen of its own.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: order_id
+        type: uuid
+        fk: true
+        help: The order this line belongs to.
+      - name: quantity
+        type: integer
+        help: How many units are ordered. Must be at least one; a line for none is deleted instead.
+
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
+  - { from: Order, fromCardinality: exactly-one, to: OrderLine, toCardinality: one-or-more }
+
+hooks:
+  - { entity: Order, event: beforeCreate, handler: stampOrderNumber }
+
+rbac:
+  - { entity: Order, action: delete, roles: [manager] }
+  - { entity: Order, action: ship, roles: [warehouse, manager] }
+
+stateMachines:
+  - name: OrderLifecycle
+    entity: Order
+    states: [draft, submitted, shipped, cancelled]
+    initial: draft
+    final: [shipped, cancelled]
+    transitions:
+      - { from: draft, to: submitted, trigger: submit }
+      - { from: submitted, to: shipped, trigger: ship }
+      - { from: submitted, to: cancelled, trigger: cancel }
+```
+
+**How it is read.** A duplicate key is an error, not "last wins". The schema
+refuses an unknown key, so a misspelt `help` is reported rather than ignored.
+A report's `sql`, a rule's text and any value may span lines (`|` block
+scalars); the view flattens them, and the fourth validation layer warns where
+the drawing would show a value differently from the YAML.
+
+**Canonical form.** `appwithai convert` and the modelling tool write one
+canonical text: keys in the order above, lists of plain values on one line,
+defaults omitted. Saving a model twice gives the same bytes, so a diff between
+two saves is exactly the change.
+
+**Reading the rest of §3.** §3.1–§3.6 describe each construct in its EML form,
+because that is the form the view draws and the form the checker's messages
+name (`%%entity B parent:` is `parent:` on entity `B`). Everything they say
+about meaning, status, compilation and validation applies to the YAML key
+unchanged.
 
 ### 3.1 Document structure
 
@@ -271,7 +468,7 @@ A `flowchart` is read as **rules** when preceded by `%%meta kind: rules`, or
 when it contains only decision/expression/function/io shapes and no `%%hook`
 directives. Otherwise it is a **workflow**.
 
-### 3.2 The sixteen directives, with status
+### 3.2 The fifteen directives, with status
 
 `status` is the field that matters. **compiled** = a shipped reader consumes it
 and the generated application changes. **validated** = only `checker.ts` reads
@@ -318,33 +515,43 @@ it — the icon is for the NestJS stack's screens.
 | `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
 | `%%workflow` | `%%workflow <Name> entity: <E> kind: <hook\|state\|saga>` | compiled | `generator/src/workflows/index.ts` |
 | `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | compiled | `generator/src/rbac/index.ts` |
-| `%%report` | `%%report <name> title: <T> [entity: <E>] [chart: <t> x: <col> y: <col>] [help: <why>] sql: <query>` | compiled | `generator/src/reports/index.ts` · `common/build/reporting-pack.ts` |
 | `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`, `icon:`, `parent:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
+| `%%report` | `%%report <name> title: <T> [entity: <E>] [chart: bar\|line\|pie\|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>` | compiled | `generator/src/reports/index.ts` |
 
-`%%report` is the newest and the only one whose payload is SQL. It declares a
-question the application's *users* ask, as the query that answers it — see
-§10.5.1 for when to write one and what the reporting layer already derives
-without being asked. The query runs against the generated application's own
-database, so it names `bus_` tables.
+`%%report` is the one directive whose payload is SQL. It declares a question the
+application's *users* ask, as the query that answers it, and the query runs
+against the generated application's own database, so it names `bus_` tables.
 
-**It has two compilers, and neither replaces the other.** The generator puts
-each report into the application it writes — a `sys_report` row under Admin →
-Analysis in the NestJS stack, a `model.json` entry under Reports in the browser
-one. Separately `common/build/reporting-pack.ts`, over the generator's own
-`buildReportingPack`, turns the same directive into a saved query, a report
-definition and — where `chart:` is set — a chart, seeded into the Enterprise
-Reporting platform ahead of the derived baseline. That platform is composed
-beside a *deployed* application by docker-compose, which is why the generated
-application compiles the directive too rather than leaving its reports answered
-by nothing.
+The checker holds it to its shape — a query that exists (`EML290`), a name
+(`EML291`), no duplicate name (`EML292`), `SELECT` or `WITH` rather than a write
+(`EML293`), both axes when a chart is asked for (`EML294`), an `entity:` the
+model declares (`EML295`), a known chart type (`EML296`).
 
-**A foreign key and a primary key are both `UUID`, in both stacks, so a join is
-written plainly: `ON c.account_id = p.id`.** Do not cast. `::text` was needed
-while the browser stack typed a foreign key as `VARCHAR`; it does not any more,
-and PostgreSQL has no implicit cast back, so a cast that is no longer needed is
-now the thing that breaks the query.
+**It is then compiled twice, by two readers, and neither replaces the other.**
+
+- **Here**, `generator/src/reports/index.ts` compiles each one into the
+  generated application itself. In the NestJS stack that is a row in
+  `sys_report`, served by `GET /sys/reports` and `…/:name/run`, and shown under
+  **Admin → Analysis**. In the browser application it is an entry in
+  `model.json`, served by `/api/reports`, and shown under **Reports**. Both run
+  the query on demand against the application's own database, so the answers
+  change as the application is used.
+- **In `businessappwithai/app-and-report-with-ai-tanstack`**, whose reporting
+  pack turns each one into a saved query, a report definition and, where
+  `chart:` is set, a chart — seeded into the separate Enterprise Reporting
+  platform, ahead of the baseline that repository derives from structure alone.
+  That platform is composed beside a *deployed* application by docker-compose;
+  it is not in the browser application and not in the zip.
+
+A report is read-only in both: the compiler refuses anything that is not a
+single `SELECT` or `WITH`, and each runtime refuses again before it executes —
+`sys_report` is an ordinary table and `model.json` an ordinary file, so neither
+reader trusts what it is handed.
+
+`sql:` is always last on the line and takes the rest of it, because a query
+contains spaces and colons and would otherwise be shredded by the key scan.
 
 **Do not tell a user a directive "will do X" without checking its status.** A
 `%%entity Order audited: true` is validated but not compiled: it will not make
@@ -467,6 +674,25 @@ stacks read it, so neither can disagree about who sees what. The administrator
 bypasses every rule, which is exactly why an application seeded with only an
 administrator cannot demonstrate its own access control — and why both sign-in
 screens list every account with the number of entities its role can see.
+
+**Deployed beside the reporting platform, the same directive shapes a second set
+of roles — and they are a mirror, not a shared system.** `./start.sh` in
+`app-and-report-with-ai-tanstack` brings the generated application up at `/app`
+and Enterprise Reporting at `/report`, with the application's database already
+attached as a data source. `reporting-pack.ts` derives one *reporting* role per
+declared role, permitted to read exactly the `bus_` tables that role's `read`
+rules admit.
+
+Nothing is shared between them. Separate databases, separate user tables,
+separate sessions, separate sign-in screens — and a role name that means
+different things on each side: in the application it decides what a user may
+**do** to a record, in the reporting platform which tables their queries may
+**read**. The accounts differ on purpose, `sales.manager@<app>.example.com`
+against `sales.manager@<app>.reports.example.com`, so that neither is mistaken
+for the other, and the origin's front door at `/` lists both pairs side by side.
+
+Only `read` rules narrow a reporting role. A restriction on create, update or
+delete means nothing to somebody who cannot write through that product at all.
 
 Two design facts that answer most questions about it:
 
@@ -798,21 +1024,20 @@ a second checker**: every diagnostic it reads comes from `checker.js`. Run both,
 and report both.
 
 **Write the URL in full, every time: `https://www.appwithai.org/…`.** Scheme
-included, never a bare host, and never under a `www.` label. Three things go wrong otherwise and
+included, `www.` included, never a bare host. Three things go wrong otherwise and
 all three have been observed:
 
 - **A bare host is not a URL.** `appwithai.org/guide/checker.js` is a string a
   runtime either refuses or has to guess a scheme for, and a sandboxed agent's
   HTTP client usually refuses.
 - **A Markdown link around a bare host is worse**, because it looks right.
-  `[appwithai.org](https://www.appwithai.org)` reads to a person as a working
+  `[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working
   link and to anything parsing your output as the bare host. Write the plain
   absolute URL: this is a specification, not a web page, and nothing here is
   rendered.
-- **The apex is not the canonical form.** `https://appwithai.org/…` serves the same files and
-  is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`
-  is the canonical form to write. Both carry a certificate now; write the
-  canonical one so every reference agrees.
+- **The apex is not the canonical form.** `https://appwithai.org/…` serves the
+  same files, but `https://www.appwithai.org/…` is canonical, and an environment
+  that resolves one and not the other is common enough never to rely on.
 
 **The same rule governs how you report a failure.** Name the exact request and
 the exact error. *"Validator retrieval failed for appwithai.org"* says neither
@@ -970,37 +1195,37 @@ The `eml` CLI carries a third `--stack` value, and it is the one that does not
 go through the pipeline above at all:
 
 ```bash
-bun language/cli/eml.ts generate -i model.eml.mmd -o ./out --stack enterprise-reporting
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out --stack enterprise-reporting
 ```
 
-`language/cli/src/generate/enterprise-reporting.ts` reads the same parsed model
-and writes, per entity, a TanStack Start server-function module, a list route, a
-detail route, one Kysely migration in **PostgreSQL** DDL, and a snippet for the
-`Database` interface. It drives no orchestrator and renders no Handlebars.
+`language/cli/src/generate/enterprise-reporting.ts` reads the same compiled
+model and writes, per entity, a TanStack Start server-function module, a list
+route, a detail route, one Kysely migration in **PostgreSQL** DDL, and a snippet
+for the `Database` interface. It drives no pipeline and renders no Handlebars.
 
 **It generates less on purpose, and this is the part to state when asked.** The
-target's output is not an application; it is code shaped to drop into an
-`enterprise_reporting_tanstack` checkout, which already holds auth, two layers of
-RBAC, an encrypted data-source connection manager, an NL→SQL pipeline, a job
-runner and a UI shell. Generating a copy of any of those would be forking a
-moving part.
+target's output is not an application; it is code shaped to drop into the
+reporting platform (`yaml/enterprise_reporting_rust`), which already holds auth,
+two layers of RBAC, an encrypted data-source connection manager, an NL→SQL
+pipeline, a job runner and a UI shell. Generating a copy of any of those would be
+forking a moving part.
 
 So the coverage is deliberately partial, and a model author who assumes
 otherwise ships an unguarded application:
 
-| EML level | `tanstack-nestjs` | `enterprise-reporting` |
+| Model part | `tanstack-astryx-loco` | `enterprise-reporting` |
 |---|---|---|
-| core — entities, fields, enums, indexes | compiled | compiled |
-| rules | compiled, seeded, evaluated | emitted as JDM under `rules/`, **not wired up** |
-| workflows — hooks, state machines, sagas | compiled | **not compiled** |
-| access — `%%rbac` | compiled to `sys_operation_access` / `sys_transition_access`, enforced by the guard | **not compiled** — the handlers call `requireAuth()`; adding `requirePermission()` and the role strings is an integration step |
-| help | dictionary + `manual.html` | field labels only |
+| core — `entities`, attributes, `enums`, `indexes` | compiled | compiled |
+| `rules` | compiled, seeded, evaluated | emitted as JDM under `rules/`, **not wired up** |
+| `hooks`, `stateMachines`, `sagas` | compiled | **not compiled** |
+| `rbac` | compiled to `sys_operation_access` / `sys_transition_access`, enforced by the three gates | **not compiled** — the handlers call `requireAuth()`; adding `requirePermission()` and the role strings is an integration step |
+| `help` | dictionary + `manual.html` | field labels only |
 
 Write the model in full regardless. The behaviour this target skips is still
-what `checker.js` validates, what the viewers render, and what the other target
+what the checker validates, what the viewers draw, and what the other target
 compiles from the very same file.
 
-Four conventions of the reporting repository are load-bearing, and getting them
+Four conventions of the reporting platform are load-bearing, and getting them
 right every time is most of why the target exists:
 
 1. **`.inputValidator()`, never `.validator()`.** The TanStack Start v1 Vite
@@ -1015,8 +1240,8 @@ right every time is most of why the target exists:
    `NUMERIC`, `gen_random_uuid()`. `TINYINT(1)`, `DATETIME`, backticks and
    `ON UPDATE CURRENT_TIMESTAMP` are MariaDB spellings; none of them parse, so
    `updated_at` is set by the update handler rather than by the column. Several
-   files under that repository's `docs/` still describe MariaDB or SQLite. None
-   of it is in the running system.
+   files under that platform's `docs/` still describe MariaDB or SQLite. None of
+   it is in the running system.
 
 Full detail, including that platform's own architecture, is in
 `llms-reporting.txt`.
@@ -1256,7 +1481,6 @@ so an administrator and an ordinary user see different cards there — and a
 window the dictionary defines is never withheld for want of an icon. Every
 card's icon comes from the dictionary: `sys_category.icon` for a heading,
 `sys_table.icon` for an entity, `sys_window.icon` for an admin card.
-
 
 ### 5.6 The manual
 
@@ -1699,6 +1923,11 @@ All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
 
 ## 9. Worked example — building a CRM
 
+> **The same model, as YAML**, is `language/yaml/examples/crm.eml.yaml` — the
+> file this walkthrough\'s model is written as, and the one to deliver. The EML
+> below is its view, shown so each construct can be read in the form §3.1–§3.6
+> describe; §3.0 gives the YAML key for each.
+
 Mirrors the human guide at https://www.appwithai.org/guide/index.html. Model:
 `language/examples/crm.eml.mmd`.
 
@@ -1822,14 +2051,20 @@ select * from sys_workflow_runs order by created_at desc limit 1;
 
 ## 10. Enhancement protocol — how to answer "change my existing model"
 
+> **The artifact is YAML.** Everything below is carried out on the model as
+> `<business-name>.eml.yaml`, validated by the YAML ladder at the top of this
+> document; where a step names the published `checker.js`/`fixer.js` or
+> `check-model.mjs`, run it on the model\'s rendered view as that ladder
+> describes and apply what it finds to the YAML.
+
 This section is the **procedure**, and it governs. When someone hands you an
-existing `.mmd` and asks for it to be extended, corrected, grown or reworked —
+existing model — a `.eml.yaml`, or an `.mmd` to convert first — and asks for it to be extended, corrected, grown or reworked —
 however informally they put it — carry out their instruction *within* these
 guidelines rather than in place of them. Their words set the change; this file
 sets the form of the answer.
 
 Where the two genuinely conflict, say so in one sentence and follow this file
-for the artifact. An enhanced `.mmd` that says what the user asked for but that
+for the artifact. An enhanced `.eml.yaml` that says what the user asked for but that
 `checker.js` refuses is not a deliverable, and neither is a clean document that
 quietly lost half of what they already had.
 
@@ -1853,10 +2088,10 @@ more.
 
 | Step | What it produces | Is it the deliverable? |
 |---|---|---|
-| §10.1 Obtain the model | The existing `.mmd`, in your hands | No — it is the input, and without it there is no work |
+| §10.1 Obtain the model | The existing model (`.eml.yaml`, or an `.mmd` converted first), in your hands | No — it is the input, and without it there is no work |
 | §10.2 Baseline it | An inventory and a checker report on the bytes as received | No — it is what the result is measured against |
 | §10.3 Establish the change | The change roster, in prose | No — it is your analysis, and it stays in the reply as text |
-| §10.4 Apply the enhancement | The enhanced `.mmd` | **Yes. This is the artifact.** |
+| §10.4 Apply the enhancement | The enhanced `.eml.yaml` | **Yes. This is the artifact.** |
 | §10.5 Validate and compare | Checker reports, and the regression table | No — but nothing ships until both are clean |
 | §10.6 Deliver | The whole file, downloadable, and what changed | The handover |
 
@@ -1883,7 +2118,7 @@ catch that, and they are the reason this protocol baselines before it edits.
 
 Do not skip step 1, do not start before it, and do not deliver before step 5.
 
-**Exactly one file leaves your hands, and it ends `.mmd`.** Not two — not the
+**Exactly one file leaves your hands, and it ends `.eml.yaml`.** Not two — not the
 enhanced model plus a change log, a report, a README or a copy of the original.
 Where your surface writes files, it writes one; where it attaches files, it
 attaches one. Everything you want to say about the enhancement is text in the
@@ -1891,11 +2126,11 @@ same reply, and none of it is a file.
 
 ### 10.1 Get the model first — do not start without it
 
-**Ask the user to load their `.mmd` before anything else.** This protocol has an
+**Ask the user to load their model (the `.eml.yaml`, or an `.mmd` to convert first) before anything else.** This protocol has an
 input, and until that input is in your hands there is nothing here to do. Say so
 plainly and ask for it:
 
-> Send me the `.mmd` you want enhanced — attach the file, or paste its contents
+> Send me the `.eml.yaml` you want enhanced — attach the file, or paste its contents
 > in a single fenced block — and tell me what you want changed. I will read the
 > model first, show you what is in it today, and then make the change.
 
@@ -1987,7 +2222,7 @@ business that still cannot invoice anything.
 
 So think the change through first, covering all six of the headings below. This
 is analysis, not the answer: it is text in your reply (§10.6), it is never a
-file of its own, and it never carries the `.mmd` name.
+file of its own, and it never carries the `.eml.yaml` name.
 
 1. **What is being added.** New entities, new columns, new enums, new values in
    an existing enum. For each new entity, everything the authoring protocol
@@ -2099,7 +2334,7 @@ node check-model.mjs my-business.mmd
 Run the three passes, apply the fixer to every diagnostic, re-run the checker,
 and repeat that cycle **at least 10 times or until the report is empty**,
 whichever comes first. Validate the file, not your message: `check()` takes the
-contents of the enhanced `.mmd` and nothing else. This document's validation
+contents of the enhanced `.eml.yaml` and nothing else. This document's validation
 section has the modules, the API and
 the offline routes; §10.2's baseline is what tells you whether a diagnostic is
 yours or was already there.
@@ -2173,9 +2408,9 @@ name it arrived with unless they asked for a different one.
 
 - If you can write to a filesystem, write it there and attach it.
 - If your surface has a file, download or artifact mechanism, use it, with the
-  `.mmd` extension intact — not `.txt`, not `.md`, not `.diff`.
+  `.eml.yaml` extension intact — not `.txt`, not `.md`, not `.diff`.
 - **Only if the surface truly cannot carry a file**: print the complete document
-  inside a single triple-backtick `mermaid` fence, the file name on the line
+  inside a single triple-backtick `yaml` fence, the file name on the line
   above it, the file's bytes and nothing else between the fences, and nothing
   left out. No elisions, no "unchanged from here down", no splitting one model
   across two blocks. The user saves that block verbatim.
@@ -2210,11 +2445,8 @@ you wrote down in §10.2, you are attaching a regression.
 
 ## 11. Rules for answering questions about this system
 
-1. **Resolve which application** — the modelling tool (:3000), the generated app
-   (:4000/4001), or the reporting platform (:4050)? Most ambiguity in questions
-   about "the app" is this. If the question names reports, charts, dashboards,
-   data sources, NL query, saved queries or scheduled jobs, it is the reporting
-   platform and the answer is in `llms-reporting.txt`, not here.
+1. **Resolve which application** — the modelling tool (:3000) or the generated
+   app (:4000/4001)? Most ambiguity in questions about "the app" is this.
 2. **Check a directive's `status` before promising behaviour.** `%%rule` and
    `%%trigger` are validated but not compiled — they will not change a
    generated application. `%%entity` is **compiled** for `help:`/`description:`
@@ -2249,11 +2481,13 @@ you wrote down in §10.2, you are attaching a regression.
     `https://www.appwithai.org`, reachable by one `curl`, and runnable in a browser tab.
     Never describe anything but a run of the published engine as a checker
     result, and never withhold the file because you could not produce one.
-13. **Say what the `enterprise-reporting` target does not compile.** Workflows
-    and `%%rbac` are not compiled there (§4.1.2). A model author who believes
-    their access rules were generated has an unguarded application and no reason
-    to look, so state it before they ask.
+
+13. **Say what the `enterprise-reporting` target does not compile.** `hooks`,
+    `stateMachines`, `sagas` and `rbac` are not compiled there (§4.1.2). A model
+    author who believes their access rules were generated has an unguarded
+    application and no reason to look, so state it before they ask.
 14. **Never describe MariaDB, SQLite, BullMQ or Redis as part of the reporting
-    platform.** They appear in that tree — in `docs/`, in three compose files,
-    in a dead `src/lib/queue/` — and none of them runs. The config database is
-    PostgreSQL; jobs are Trigger.dev with a built-in Bun cron fallback.
+    platform.** They appear in that tree — in `docs/` and in three compose
+    files — and none of them runs. The config database is PostgreSQL; jobs are
+    Trigger.dev with a built-in Bun cron fallback, and with `ERS_RUST_API_URL`
+    set the Loco.rs backend in `rust/` serves every API route.

@@ -1,80 +1,58 @@
-# app-and-report-with-ai-rust
+# The orchestrator — `common/`
 
-Two products and one modelling language. This repository is the **orchestrator**:
-it holds the language, and the pieces that compose the two products into one
-running system. It does not hold either product — both are separate
-repositories, checked out on demand at the commits `../deps.json` pins.
+This directory runs two products together from one model. It holds neither
+product: the generator and the language are the root of `cedm-specification`,
+and the reporting platform is `yaml/enterprise_reporting_rust`. All three are
+directories of one repository, so nothing here is pinned or checked out.
 
-| | What it is | Repository |
+| | What it is | Where |
 |---|---|---|
-| **APPWITHAI** | An AI-assisted ERD designer and full-stack code generator. One Mermaid document describes the data, the decisions and the processes; the generator compiles all three into a running application — a **Loco.rs (Rust)** backend behind a TanStack Start + Astryx front end | [businessappwithai/app-with-ai-rust](https://github.com/businessappwithai/app-with-ai-rust) |
-| **Enterprise Reporting** | A multi-datasource analytics platform: connect external databases, ask questions in natural language, and publish the answers as reports, charts, dashboards and scheduled deliveries. Its API, workers, scheduler and seeder are a **Loco.rs (Rust)** backend; its TanStack Start front end renders pages | [businessappwithai/enterprise_reporting_rust](https://github.com/businessappwithai/enterprise_reporting_rust) |
-
-**The server side is Rust throughout.** This repository used to compose the
-TanStack/NestJS pair (`app-with-ai-tanstack`, `enterprise_reporting_tanstack`);
-it now pins their Rust implementations, and nothing it runs serves an API from
-JavaScript except the reporting platform's CopilotKit runtime.
-
-**Neither product is vendored here.** This repository is the orchestrator: it
-holds the language, the glue and nothing else. Both are checked out on demand at
-the commits `../deps.json` pins:
-
-```bash
-../deps.sh --install     # place both beside common/, at their pinned commits
-../deps.sh --status      # what is checked out, and whether it matches
-```
-
-Both read the same language, and everything that is neither product lives in
-`common/`, one level up from this file:
+| **This directory** | The reporting-pack, subpath-overlay and front-door builds, the Docker pieces, the published guide, the model viewers and the protocol documents | `yaml/app-and-report-with-ai-rust/common` |
+| **APPWITHAI** | An AI-assisted ERD designer and full-stack code generator. One YAML model (`*.eml.yaml`) describes the data, the decisions and the processes; the generator compiles all three into a running application — a **Loco.rs (Rust)** backend behind a TanStack Start + Astryx front end | the repository root |
+| **Enterprise Reporting** | A multi-datasource analytics platform — reports, charts, dashboards and natural-language queries over connected databases — with a **Loco.rs (Rust)** backend (`rust/`) behind a TanStack Start front end | `yaml/enterprise_reporting_rust` |
 
 ```
-../
-├── deps.json                the two product repositories, and the commit of each
-├── deps.sh                  place them locally
-├── start.sh                 generate an application and bring both up
-├── stop.sh
-├── docker-compose.yml
-├── app-with-ai-rust/                ← placed by ./deps.sh, gitignored
-├── enterprise_reporting_rust/       ← placed by ./deps.sh, gitignored
+yaml/app-and-report-with-ai-rust/
+├── start.sh · stop.sh       generate an application and bring both up
+├── docker-compose.yml       profiles: demo (one PostgreSQL) · prod (two)
 └── common/
-    ├── language/    ⭐ EML — definition, spec, grammar, checker, fixer, composer, the `eml` CLI
-    ├── build/          model → reporting pack · the /app and /report subpath overlay
-    ├── docker/         the reporting front end's Dockerfile, nginx, and the demo database init
-    ├── scripts/        the checks behind `bun run check`
-    ├── html/           the published guide, checker.js / fixer.js, run-in-a-browser
-    ├── website/
-    │   ├── llmtext/    llms-full.txt · llmdetailed.txt · llms-reporting.txt
-    │   └── viewers/    the model viewers
-    └── examples/       sample models
+    ├── build/               generate-app.ts · reporting-pack.ts · subpath-overlay.ts · landing.ts · smoke.sh
+    ├── docker/              reporting.Dockerfile · nginx · pg-init
+    ├── examples/            the models (*.eml.yaml) the checks run over
+    ├── html/                the published guide, model-yaml.js, the in-browser generator, html/models/
+    ├── scripts/             check-models · check-stacks · check-clis · check-reporting-pack
+    └── website/
+        ├── llmtext/         llms-full.txt · llmdetailed.txt · the two enhancement editions · llms-reporting.txt
+        └── viewers/         the model viewers
 ```
 
-`language/appwithai-language.json` is the canonical definition. Each product
-repository keeps its own copy for its own CI — `app-with-ai-rust/language/`
-under the same name, and `enterprise_reporting_rust/language/` as an older
-fork called `erdwithai-language.json`. **All three have drifted from each other,
-and when any of them disagrees with this copy, this copy is the language.**
+## The language is the root's
 
-They were once meant to be byte-identical, and this file said so. They are not:
-at the pinned commits the two `appwithai-language.json` files differ from line 11
-on, and nothing checks them against each other. Only the two copies of the shared
-*example models* are held byte-identical, by `check:models` — see **Checks**
-below.
+A model is one YAML document, validated against `language/yaml/eml.schema.json`
+at the repository root, and read by the root's one reader. The scripts here
+import it (`../../../language/…` from `common/`); none of them parses a model
+itself. The reporting platform's `language/cli` re-exports the same model, so a
+model means one thing to all three.
+
+`examples/*.eml.yaml` and `html/models/*.eml.yaml` are the same files checked in
+twice — one set is what the scripts read, the other is what the published guide
+serves — and `check:models` asserts they stay byte-identical. **Edit both.**
 
 ## Running both, from one model
 
 ```bash
-./deps.sh --install                           # once — both products, at their pins
-./start.sh                                    # the reference CRM model
-./start.sh common/examples/my-app.eml.mmd     # any other model
-./start.sh my-app.eml.mmd --profile prod      # two database servers
+bun install                                       # at the repository root, once
+(cd yaml/app-and-report-with-ai-rust/common && bun install)
+cd yaml/app-and-report-with-ai-rust
+./start.sh                                        # the reference CRM model
+./start.sh common/examples/my-app.eml.yaml        # any other model
+./start.sh my-app.eml.yaml --profile prod         # two database servers
+./start.sh --port 8080                            # somewhere other than :80
 ```
 
-`start.sh` refuses to run without the checkouts, and says which one is missing:
-without them the generate fails on a module it cannot resolve and compose fails
-on a build context that does not exist, both a long way in and neither error
-naming what is actually absent.
-
-Then:
+`start.sh` refuses to run without the root's and `common/`'s `node_modules`, and
+says which is missing: generation drives the root's pipeline, and without it the
+failure is a module that cannot be resolved, a long way in.
 
 | | |
 |---|---|
@@ -83,211 +61,104 @@ Then:
 | http://localhost/report | the reporting platform, already holding that application's schema as a data source and its reports, charts and dashboard — its Loco backend answers `/report/api/` |
 | http://localhost/accounts | the accounts for both applications, one pair per role |
 
+`start.sh`'s seven steps: check the model with the root's `eml validate` →
+generate the application into `common/.runtime/app` through the root's pipeline
+(`--stack tanstack-astryx-loco`) → put its front end on `/app` → derive the
+reporting pack → write the front door → write `common/.runtime/.env` →
+`docker compose up`. Everything it writes goes under `common/.runtime/`, which is
+not checked in. `stop.sh` takes it down; `stop.sh --volumes` discards the
+databases too.
+
 The first `up` compiles both Rust backends inside their images, which takes
 several minutes; later builds reuse the dependency layers. No Rust toolchain is
-needed on the machine running `start.sh`.
+needed on the machine running `start.sh`: generation skips the `loco new`
+scaffold, which only contributes the framework's own CI workflow, rustfmt config
+and `AGENTS.md`.
 
-`start.sh` checks the model, generates the application, puts both applications on
-their URL prefix, derives the reporting pack from the model, and brings the stack
-up. `stop.sh` takes it down; `stop.sh --volumes` discards the databases too.
-Everything it writes goes under `common/.runtime/`, which is not checked in.
+**Secrets are generated once and then left alone.** `AUTH_SECRET`,
+`ENCRYPTION_KEY`, `JWT_SECRET` and `REPORT_ADMIN_PASSWORD` are each added to
+`common/.runtime/.env` only when absent. Regenerating `ENCRYPTION_KEY` leaves
+every stored data-source password undecryptable, and the failure looks like a
+broken data source rather than a rotated key. Writing that file before running
+`start.sh` is the supported way to inject configuration.
 
 **The two profiles.** `demo` (the default) runs one pgvector PostgreSQL 16
-holding three databases — the application's, `enterprise_config`, and
-`ers_knowledge`. `prod` runs two servers, each the image its application actually
-asks for: pgvector on PostgreSQL 18 for the generated application, Apache AGE on
-16 for the reporting platform. pgvector rather than Apache AGE in the demo is a
-forced choice, not a preference: no published image carries both extensions, and
-pgvector is the one that is not optional — AGE serves only the reporting
-platform's knowledge-graph feature, which is lazy. Under both profiles, the
-reporting platform's configuration
+holding three databases — the application's, `enterprise_config` and
+`ers_knowledge`. `prod` runs two servers, each the image its application asks
+for: pgvector on PostgreSQL 18 for the generated application, Apache AGE on 16
+for the reporting platform. Under both, the reporting platform's configuration
 never shares a database with the application it reports on — regenerating the
-application drops and recreates its tables, and the reports have to survive that.
+application drops and recreates its tables, and the reports have to survive
+that.
 
-**Where the reports come from.** `common/build/reporting-pack.ts` derives a
-baseline from structure: a register per entity, a breakdown per `%%enum`-bound
-column, a lifecycle per state machine in the diagram's own order, children per
-`oneToMany`. That baseline describes the shape of the data and nothing about the
-business running on it — so a model can also carry `%%report` directives, each a
-question its users actually ask written as the SQL that answers it. Those are
-listed first and take the top of the dashboard. See
-`website/llmtext/llmdetailed.txt` §10.5.1.
+**Where the reports come from.** `build/reporting-pack.ts` is a CLI over the
+generator's `buildReportingPack` (`packages/generator/src/reporting/pack.ts` at
+the root). It derives a baseline from structure — a register per entity, a
+breakdown per enum-bound column, a lifecycle per state machine in the order the
+model lists its states, children per one-to-many relationship — and one
+reporting role per role the model's `rbac` declares, reading exactly the tables
+that role may read. A model can also carry `reports`, each a question its users
+actually ask written as the single read-only query that answers it; those are
+listed first and take the top of the dashboard.
 
 ## One model, three targets
 
 ```bash
-bun language/checker.ts examples/analytics-reporting.eml.mmd
+bun language/cli/eml.ts validate -i <model.eml.yaml>          # from the repository root
 
-# A dependency-free prototype
 bun language/cli/eml.ts generate -i <model> -o ./out --stack node-rest
-
-# The whole application: a Loco.rs (Rust) backend crate, TanStack Start + Astryx front end
 bun language/cli/eml.ts generate -i <model> -o ./out --stack tanstack-astryx-loco
-
-# Entities for the reporting platform: server functions, routes, a Kysely migration
 bun language/cli/eml.ts generate -i <model> -o ./out --stack enterprise-reporting
 ```
 
 The three differ in what they write, never in what they understand — all of them
-read the same parsed model. They do not reach equally far into the language, and
-the `enterprise-reporting` target reaches least on purpose: that repository
-already holds auth, two layers of RBAC, an encrypted connection manager, an
-NL→SQL pipeline, a job runner and a UI shell, so the target emits only what a new
-entity needs. It does **not** compile workflows or `%%rbac` — see
-`language/README.md` for the coverage table, and the `README.md` the target
-writes beside its output for the integration steps.
+read the same compiled model. `node-rest` is a dependency-free prototype;
+`tanstack-astryx-loco` is the whole application; `enterprise-reporting` is code
+shaped to drop into the reporting platform, and it reaches least on purpose:
+that platform already holds auth, two layers of RBAC, an encrypted connection
+manager, an NL→SQL pipeline, a job runner and a UI shell. It does **not** compile
+`hooks`, `stateMachines`, `sagas` or `rbac`.
 
-## The two shipped CLIs
+The generator also ships two binaries of its own — `appwithai` (the TypeScript
+pipeline) and `appwithai-gen` (its Rust rewrite, the backend crate only, byte
+for byte the same). `bun run check:clis` runs both over a model here.
 
-`eml.ts` above is this repository's CLI. APPWITHAI publishes two binaries of its
-own, and they are not the same entry point — different argument parsing and
-different defaults:
+## Checks
 
 ```bash
-# The whole application, from the TypeScript pipeline
-bun app-with-ai-rust/packages/generator/src/cli/generate.ts \
-    generate -i <model> -o ./out --force --skip-cli-scaffold
-
-# The generator's Rust rewrite — the backend crate only, byte for byte the same
-cd app-with-ai-rust && cargo run -p appwithai-gen -- \
-    generate -i <model> -o ./out --force --skip-cli-scaffold
+bun install
+bun run check            # models, types, lint, bundles, every stack, both CLIs, the reporting SQL
 ```
-
-`bun run check:clis` runs both and checks what each produced rather than only
-that it exited 0. `check:cli` and `check:cli:rust` run one each; CI gives the
-Rust one its own job, because it is the only check that needs a Rust toolchain.
-`--skip-cli-scaffold` skips `loco new`, which only contributes the framework's
-own CI workflow, rustfmt config and AGENTS.md.
-
-Add `--no-setup` to the full-stack CLI to stop after writing files. Without it
-the CLI goes on to install, migrate and seed against a PostgreSQL server on
-127.0.0.1, which is the right default for someone generating an application to
-run and not what a check wants.
-
-## One docker, or two
-
-Both applications run under one `docker-compose.yml`, and the profile decides
-how far apart they sit:
 
 | | |
 |---|---|
-| `demo` (default) | One PostgreSQL 16 holding three databases — the generated application's, the platform's `enterprise_config`, and its `ers_knowledge`. One container, one image to pull |
-| `prod` | A server per application, each the image it actually asks for: pgvector on PostgreSQL 18 for the generated application, Apache AGE on 16 for the reporting platform |
+| `check:models` | Every model in `examples/` reads clean through the root's reader, and `html/models/` is byte-identical to its counterpart |
+| `type-check` | `build/**` and `scripts/**` under the strict config (`tsconfig.language.json`) |
+| `lint` | Biome over `scripts/` and `build/` |
+| `check:language-tools` | `html/model-yaml.js`, `html/assets/appwithai-model.js` and `website/viewers/appwithai-model.js` match what `scripts/build-site-bundles.ts` at the root builds from `language/browser/` |
+| `check:stacks` | All three `--stack` targets generate, and carry what the model declared |
+| `check:clis` | Both generator binaries generate, and wrote what each should. `appwithai-gen` needs cargo |
+| `check:pack` | Every query in every model's reporting pack runs against a **real** generated schema — the `bus_` DDL lifted out of the Loco crate's `m0002_bus_tables` migration. Skips itself with a message when no PostgreSQL is reachable; `check:pack:ci` refuses to |
 
-The application containers are separate under both — the generated Loco backend
-and its front end, the reporting platform's Loco backend and its front end, and
-the one-shot Rust seeder, behind one nginx on port 80. What the profile changes is the databases. And under both, the
-reporting platform's configuration never shares a database with the application
-it reports on: regenerating the application drops and recreates its tables, and
-the reports have to survive that.
+## CI
+
+Two workflows at the repository root run this directory, because GitHub reads
+workflows only from the root's `.github/workflows/`:
+
+| | |
+|---|---|
+| `yaml-imports.yml` | On pull requests touching `yaml/`, the language or the generator: the site bundles are current, then every check above against a real PostgreSQL, then the reporting platform's lint, type-check and format |
+| `yaml-build-and-run.yml` | On `workflow_dispatch` and nightly: `start.sh` over a model, then proves `/app` and `/report` answer — content types included, both APIs answered by Rust, via `build/smoke.sh` — and that the seeder exited 0 |
 
 ## Reading further
 
 | | |
 |---|---|
-| The language | [`language/README.md`](language/README.md), then `language/spec/` |
+| The model language | `language/yaml/README.md` at the repository root |
 | APPWITHAI, in full | [`website/llmtext/llms-full.txt`](website/llmtext/llms-full.txt) |
 | The interactive authoring walkthrough | [`website/llmtext/llmdetailed.txt`](website/llmtext/llmdetailed.txt) |
 | The reporting platform, in full | [`website/llmtext/llms-reporting.txt`](website/llmtext/llms-reporting.txt) |
 | The human guide | [`html/index.html`](html/index.html) — nine chapters building a CRM |
 
-Each product repository keeps its own `CLAUDE.md`, and that is the authority on
-that project's commands, conventions and CI — read it in the checkout `./deps.sh`
-placed, not from memory. `../CLAUDE.md` is the authority on this repository and
-on how the two are run together.
-
-## Where this repository knowingly differs from the product
-
-`deps.sh` places a checkout; it does not make the copies agree. Three
-divergences are deliberate and are recorded here so nobody "fixes" them back.
-`/sync-downstream` is the procedure for carrying a generator commit across; this
-is the list of things that procedure must *not* flatten.
-
-**The product's language JSON contradicts itself about `icon`, and this copy
-does not.** `applicationDictionary.alsoDerived` in
-`app-with-ai-tanstack/language/appwithai-language.json` still reads *"validated
-but not yet compiled … an entity's icon is not taken from the model"*, while its
-own `%%entity` entry three keys away says `icon:` compiles to `sys_table.icon`.
-`fe4ff9d` wrote the first; `ffed835` reversed it and left that line standing.
-This copy carries the fact rather than the contradiction: `icon` is compiled,
-the model sets the default and Application Dictionary → Table and Column keeps
-the last word. When the two disagree about the language, **this copy is the
-language** — and that is the case it was written for.
-
-**A product change to `llmdetailed.txt` fails the site's own spec check.**
-`7e6ced3` rewrote the bare-host counter-example as
-`[www.appwithai.org](https://www.appwithai.org)`. The site's `check-spec.mjs`
-held the apex spelling verbatim, because the bullet exists to *show* a link
-around a bare host and so has to be excluded from the scan that forbids one —
-so re-vendoring that document made it fail a check about a rule it obeys, on
-the very line that teaches the rule. Both spellings are the same lesson and
-both are true, so the check now accepts either rather than either document
-being edited to suit it. The vendored copy keeps the product's wording; this
-repository's own bases keep theirs.
-
-**The published hospital model is not the product's hospital model.**
-`app-with-ai-tanstack/examples/hospital-management-system.mmd` (1057 lines)
-gained 28 `%%entity icon:` lines, and `common/examples/` twins *that* file, so
-it has them too. The 1771-line `hospital-management-system.eml.mmd` the site and
-this repository publish is a different document — the one rebuilt through the
-interactive protocol — and it has no entity icons. Adding them would be
-authoring, not syncing, and nothing checks the two against each other.
-
-Every `icon:` in every model here and on the site does resolve: 189 names
-checked against lucide 1.47.0's 2112 ids, through the same `normalizeIconName`
-the generated front end uses (`icon.tsx` — it hyphenates before a digit, so
-`Building2` is `building-2` and valid), 0 invalid. A wrong name is not a
-diagnostic — the checker does not carry lucide's catalogue — so this is the
-only thing that would catch one.
-
-## Checks
-
-This folder has its own manifest and its own checks, separate from either
-product's:
-
-```bash
-bun install
-bun run check            # models, types, lint, every stack, both CLIs, and the reporting SQL
-```
-
-| | |
-|---|---|
-| `check:models` | Every model in `language/examples/` and `examples/` checks clean, and `html/models/` is still byte-identical to its counterpart |
-| `type-check` | `language/**`, `build/**` and `scripts/**` under the strict config (`tsconfig.language.json`) |
-| `lint` | Biome over `language/` and `scripts/` |
-| `check:stacks` | All three `--stack` targets actually generate |
-| `check:clis` | Both shipped binaries generate, and wrote what each should. `check:cli` / `check:cli:rust` run one each — CI uses those, so the cargo one gets its own toolchain |
-| `check:pack` | Every query in every model's reporting pack runs against a **real** generated schema — the `bus_` DDL lifted out of the Loco crate's `m0002_bus_tables` migration. Skips itself with a message when no PostgreSQL is reachable |
-
-**Every one of these needs `../deps.sh` to have run.** Two modules under
-`language/cli` import from `app-with-ai-rust` — the shipped JDM converter
-and the flowchart parser — and `jdm.ts` does it unconditionally, on every
-generation path. Without that checkout `type-check` reports TS2307 and *all
-three* stack targets fail at module resolution, not just the heavy one.
-
-`check:stacks` and `check:clis` additionally need that workspace's own
-dependencies installed (`../deps.sh --install`): `tanstack-astryx-loco` and the
-`appwithai` binary drive the pipeline, which resolves `zod` and the rest from
-there; `appwithai-gen` needs cargo. Pass `--skip-heavy` to run only the two self-contained targets:
-
-```bash
-bun scripts/check-stacks.ts --skip-heavy
-```
-
-## CI
-
-`.github/workflows/` holds two workflows:
-
-| | |
-|---|---|
-| `root-ci.yml` | `paths:`-filtered to `common/**`, `deps.json` and the scripts that run the two together. A `resolve` job reads `deps.json`, then four jobs check out `app-with-ai-rust` against it and run models/types/lint, every `--stack` target plus the `appwithai` CLI, the `appwithai-gen` CLI with a Rust toolchain, and the reporting pack against a real PostgreSQL |
-| `build-and-run.yml` | The orchestrator, on `workflow_dispatch` and nightly. Checks out both products at their pins, generates an application, injects configuration, brings the stack up, and proves `/app` and `/report` answer — content types included, and both APIs answered by Rust, via `common/build/smoke.sh` — and that the seeder exited 0 |
-
-`rust-cli` is a job of its own because it is the only one that needs a Rust
-toolchain; every other job runs on bun alone.
-
-Both workflows read the pins from `deps.json` and nowhere else — no workflow
-restates a ref in a `with:` block, which is how pins drift. Each product's own CI
-lives in its own repository, where the code is. That also means `paths:` cannot
-watch them: a change to `app-with-ai-rust` does not trigger a run here, and
-the nightly `build-and-run` is what notices instead.
+`../CLAUDE.md` is the authority on this directory and on how the two products
+are run together; the root's and the reporting platform's `CLAUDE.md` on theirs.

@@ -76,7 +76,9 @@ const SURFACE: {
   {
     what: "enum-bound columns as list references",
     declared: (model) =>
-      (model.entities ?? []).some((entity) => entity.attributes.some((attribute) => attribute.enum)),
+      (model.entities ?? []).some((entity) =>
+        entity.attributes.some((attribute) => attribute.enum)
+      ),
     file: "backend/seed/dictionary.sql",
     carries: (source) => /INSERT INTO sys_ref_list/.test(source),
   },
