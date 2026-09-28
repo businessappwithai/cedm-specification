@@ -71,6 +71,11 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Organization whose books recognize the accounting entry., usage: Supports legal-entity accounting, reporting, period control and ledger ownership., cardinalityMeaning: Optional when organization is inherited from ledger context., workflowRole: Determines accounting boundary and applicable chart/period policies.}
+  - name: fiscalPeriod
+    target: FiscalPeriod
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Accounting control period containing entryDate., businessMeaning: Establishes posting eligibility and close context., usage: Posting, close, reporting and audit., cardinalityMeaning: Required for POSTED entries under period-controlled accounting; optional while draft before determination., workflowRole: Organization/date must resolve to an eligible period before posting.}
   invariants:
   - {id: JOURNAL-001, rule: A POSTED journal entry must contain at least two lines and total debits must equal total credits.}
   - {id: JOURNAL-002, rule: A POSTED journal entry is immutable except through an explicit reversal entry.}
@@ -81,6 +86,7 @@ entity:
   - {id: JOURNAL-007, rule: Reversal must preserve the original journal entry and reference the entry being reversed.}
   - {id: JOURNAL-008, rule: JournalEntry must not be used as evidence that a Payment or refund Payment cleared the bank; bank evidence is represented by BankTransaction and reconciliation state.}
   - {id: JOURNAL-009, rule: A posted CreditNote, SupplierCreditNote, or SupplierDebitNote must not be treated as financially posted until required JournalEntry recognition has been posted or an explicitly governed accounting exception exists.}
+  - {id: JOURNAL-010, rule: POSTED JournalEntry must resolve entryDate and accounting organization to an eligible FiscalPeriod; closed-period exceptions require explicit governed authority.}
   help:
     summary: Represents accounting recognition of a business event in a balanced double-entry ledger.
     businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, SupplierDebitNote records buyer recovery, and JournalEntry records accounting recognition.
