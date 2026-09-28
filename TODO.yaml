@@ -49,7 +49,7 @@ todo:
       name: Warehouse / WMS
       entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
       status: in-progress
-      notes: WarehouseZone and HandlingUnit are implemented and propagated through Warehouse and InventoryLocation. Putaway, Picking, Packing, Wave and Dock execution entities remain pending.
+      notes: WarehouseZone, HandlingUnit, Dock, Putaway, Picking, Packing and Wave are implemented and connected to Warehouse, InventoryLocation, InventoryTransfer, reservations and Shipment. Core WMS entity coverage is complete; reciprocal-depth audit and validation remain.
     - id: logistics-scm
       name: Logistics / SCM
       entities: [Shipment, ShipmentLine, Carrier, Route, Load, Consignment, FreightCharge, Delivery, TrackingEvent]
