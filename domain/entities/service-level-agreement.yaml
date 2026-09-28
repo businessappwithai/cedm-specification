@@ -1,0 +1,25 @@
+entity:
+  name: ServiceLevelAgreement
+  namespace: cedm.domain
+  kind: service_commitment_master
+  description: A governed service-performance commitment defining response, resolution, availability, or other measurable obligations applicable to service requests, cases, orders, contracts, or entitled customers.
+  identity: {key: serviceLevelAgreementId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: serviceLevelAgreementId, type: uuid, required: true, immutable: true, help: {summary: Stable SLA identity., businessMeaning: Identifies one governed service commitment definition., usage: Service operations, entitlement and compliance., relationshipContext: Referenced by service transactions/contracts., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: SLA business code., businessMeaning: Human/integration identifier., usage: Service configuration and reporting., relationshipContext: Stable across display-name changes., requiredMeaning: Required.}}
+  - {name: responseTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to first qualifying response., businessMeaning: Defines response commitment., usage: Deadline calculation/escalation., relationshipContext: Calendar/pause policies may modify elapsed-time computation., optionalMeaning: Optional when SLA does not govern response.}}
+  - {name: resolutionTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to qualifying resolution., businessMeaning: Defines resolution commitment., usage: Deadline calculation/escalation., relationshipContext: Applied according to SLA calendar/pause policy., optionalMeaning: Optional when SLA does not govern resolution.}}
+  - name: status
+    type: enum
+    required: true
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    help: {summary: SLA lifecycle., businessMeaning: Controls applicability to new service work., usage: Service governance., relationshipContext: Historical service measurements retain applied SLA version., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible., SUSPENDED: Temporarily unavailable for new assignment., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+  relationships:
+  - {name: serviceRequests, target: ServiceRequest, cardinality: 0..*, ownership: reference, help: {summary: Requests governed by SLA., businessMeaning: Applies measurable service commitment., usage: Deadline and breach management., cardinalityMeaning: Zero or many requests., workflowRole: SLA changes do not silently recalculate closed historical evidence.}}
+  - {name: contract, target: Contract, cardinality: 0..1, ownership: reference, help: {summary: Contract establishing SLA when contractual., businessMeaning: Connects operational target to legal/commercial source., usage: Entitlement and compliance., cardinalityMeaning: Optional for policy-based SLA., workflowRole: Contract eligibility constrains applicability.}}
+  invariants:
+  - {id: SLA-001, rule: At least one governed service target must be defined for an ACTIVE SLA.}
+  - {id: SLA-002, rule: Target durations must be positive when supplied.}
+  - {id: SLA-003, rule: SLA version/target changes must preserve the terms applied to already completed service work.}
+  help: {summary: Governed measurable service commitment., businessMeaning: SLA defines service targets; service transactions provide actual timestamps/outcomes used to measure compliance., usage: Customer service, support, maintenance and contractual service., relationshipContext: ServiceRequest consumes SLA; Contract may establish commercial/legal basis., lifecycle: Draft to active/suspended to retired with historical versions retained.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-LEVEL-AGREEMENT}
