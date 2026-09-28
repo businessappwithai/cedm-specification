@@ -67,6 +67,16 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Individually traceable units of the Product., businessMeaning: Provides unit-level identity and custody history., usage: Inventory, logistics, service, warranty, returns, and assets., cardinalityMeaning: Many serialized units may exist., workflowRole: Serial lifecycle constrains unit eligibility independently of product master status.}
+  - name: brand
+    target: Brand
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Commercial/manufacturer brand of Product., businessMeaning: Supplies market identity independently of category., usage: PIM, catalog, sales, sourcing and reporting., cardinalityMeaning: Optional for unbranded products., workflowRole: Brand lifecycle affects future catalog/master eligibility without rewriting historical transactions.}
+  - name: variants
+    target: ProductVariant
+    cardinality: 0..*
+    ownership: aggregate
+    help: {summary: Governed configurations belonging to this product family., businessMeaning: Represents specific option combinations such as size, color, grade or pack., usage: Catalog, commerce, inventory and manufacturing., cardinalityMeaning: Zero or many variants., workflowRole: Parent Product restrictions propagate to variants.}
   invariants:
   - id: PRODUCT-001
     rule: code must be unique within its ERP context.
