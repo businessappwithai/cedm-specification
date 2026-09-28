@@ -1,0 +1,17 @@
+entity:
+  name: Forecast
+  namespace: cedm.domain
+  kind: financial_forecast
+  description: A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting.
+  identity: {key: forecastId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: Stable Forecast identity., businessMeaning: Identifies the governed Forecast concept independently of labels., usage: Planning, reporting and integration., relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+  relationships:
+  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+  - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Assumption scenario used by forecast., businessMeaning: Identifies planning case., usage: Forecast comparison., cardinalityMeaning: Optional., workflowRole: Scenario remains hypothetical.}}
+  - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Forecast accounting time bucket., businessMeaning: Aligns projection to reporting period., usage: Forecast-vs-actual., cardinalityMeaning: Optional for multi-period forecasts., workflowRole: Does not control ledger posting.}}
+  invariants:
+  - {id: FORECAST-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+  help: {summary: A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting., businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: Planning, control, management reporting and analysis., relationshipContext: Organization supplies governance; financial transactions remain authoritative for actuals.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FORECAST}
