@@ -6,4 +6,8 @@ members = ["crates/appwithai-gen"]
 # gitignored output rather than part of this repository's build. Without this,
 # cargo walks into `generated-projects/*/backend` and fails with "workspace
 # member not listed" the moment anyone generates an app.
-exclude = ["generated-projects"]
+#
+# The repositories under `yaml/` carry cargo projects of their own — the
+# reporting platform's Loco backend (`yaml/enterprise_reporting_rust/rust`) —
+# with their own lockfiles and release cadence, so they are excluded too.
+exclude = ["generated-projects", "yaml"]
