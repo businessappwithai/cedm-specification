@@ -1,0 +1,24 @@
+entity:
+  name: Contact
+  namespace: cedm.domain
+  kind: crm_contact
+  description: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
+  identity: {key: contactId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: contactId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Contact., businessMeaning: Identifies one governed Contact record., usage: Transactions, integration, reporting and audit., relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Contact., businessMeaning: Human or integration-friendly reference where applicable., usage: Search, exchange and reporting., relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  relationships:
+  - {name: person, target: Person, cardinality: '1', ownership: reference, help: {summary: Person represented by contact., businessMeaning: Preserves canonical human identity., usage: CRM communication and relationship management., cardinalityMeaning: Exactly one Person., workflowRole: Contact context must not duplicate Person master.}}
+  - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Commercial account context., businessMeaning: Identifies account for which person is a contact., usage: CRM and sales., cardinalityMeaning: Optional., workflowRole: Account relationship can change without changing Person identity.}}
+  invariants:
+  - {id: CONTACT-001, rule: Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects.}
+  help:
+    summary: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
+    purpose: Provide canonical implementation-neutral semantics for Contact across enterprise applications.
+    businessMeaning: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
+    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+    commonExamples: Enterprise sales and supply-chain operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT}
