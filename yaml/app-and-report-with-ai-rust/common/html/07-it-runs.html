@@ -86,7 +86,7 @@ select count(*) from bus_opportunity;   <span class="c-com">-- 4</span></code></
     </p>
     <figure>
       <img src="img/10-crm-lead-new-form.png" alt="The New Lead form filled in for Dana Whitfield at Northwind Trading, with employee count 2500 and annual revenue 75,000,000.">
-      <figcaption><b>A new lead.</b> Seventeen fields, seven required. The form knows which is which from the model's <code>OPTIONAL</code> modifiers.</figcaption>
+      <figcaption><b>A new lead.</b> Seventeen fields, seven required. The form knows which is which from the attributes the model marks <code>optional: true</code>.</figcaption>
     </figure>
   </li>
 
@@ -207,7 +207,7 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
     <tr>
       <td>Run exists, status <code>failed</code></td>
       <td>Its <code>error_details</code></td>
-      <td>A required column no step supplied. NOT NULL violations here are a modelling bug: mark the column <code>OPTIONAL</code> if a hook mints it, or set it in the step's <code>fields</code>.</td>
+      <td>A required column no step supplied. NOT NULL violations here are a modelling bug: mark the column <code>optional: true</code> if a hook mints it, or set it in the step's <code>fields</code>.</td>
     </tr>
     <tr>
       <td>Rule triggers the wrong workflow, or none</td>

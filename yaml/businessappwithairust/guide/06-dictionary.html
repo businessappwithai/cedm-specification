@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Windows, tabs and fields; the rule editor, the workflow editor, roles, the audit log and per-screen help.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM">
   <title>06 · Application Dictionary — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -84,7 +84,7 @@
           <div class="guide-sidebar-foot">
             Every screenshot on these pages comes from the CRM built in this guide, running locally.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -301,7 +301,7 @@
   <div class="note-title">The one trap</div>
   <p>
     Editing a model-owned rule or workflow in the app works, and the next generation overwrites it. If a
-    change matters, it belongs in the <code>.mmd</code>. The app is where you tune; the model is where you
+    change matters, it belongs in the model, <code>.eml.yaml</code>. The app is where you tune; the model is where you
     decide.
   </p>
 </div>
