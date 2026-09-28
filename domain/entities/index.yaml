@@ -11,6 +11,7 @@ registry:
     - AIPrediction
     - AccessGrant
     - Account
+    - Activity
     - Address
     - Aircraft
     - Allergy
@@ -30,13 +31,17 @@ registry:
     - BusinessTransaction
     - BusinessUnit
     - Calendar
+    - Campaign
     - CarePlan
+    - Carrier
     - CashPosition
     - CertificateOfAnalysis
     - ChemicalBatch
     - Classification
     - Compound
+    - Consignment
     - ConstructionProject
+    - Contact
     - ContactPoint
     - Container
     - ContainerMovement
@@ -58,6 +63,7 @@ registry:
     - CustomsDeclaration
     - DataQualityAssessment
     - Dataset
+    - Delivery
     - Department
     - Diagnosis
     - DiscountRule
@@ -85,6 +91,8 @@ registry:
     - Flight
     - FoodBatch
     - Forecast
+    - FreightCharge
+    - Fulfillment
     - GoodsReceipt
     - GoodsReceiptLine
     - GovernmentCase
@@ -115,6 +123,7 @@ registry:
     - Language
     - Lead
     - Lease
+    - Load
     - Location
     - Lot
     - MaintenancePlan
@@ -149,6 +158,7 @@ registry:
     - Policy
     - Position
     - Prescription
+    - Pricing
     - Procedure
     - ProcessDefinition
     - ProcessInstance
@@ -164,7 +174,9 @@ registry:
     - Project
     - ProjectPhase
     - ProjectTask
+    - Promotion
     - Property
+    - Prospect
     - PurchaseOrder
     - PurchaseOrderLine
     - PurchaseRequisition
@@ -190,6 +202,7 @@ registry:
     - Risk
     - RiskTreatment
     - Role
+    - Route
     - Routing
     - SalesOrder
     - SalesOrderLine
@@ -230,6 +243,7 @@ registry:
     - TelecomSubscription
     - TestMethod
     - Timesheet
+    - TrackingEvent
     - TradeDeclaration
     - Trip
     - TripSegment
