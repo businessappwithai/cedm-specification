@@ -1,0 +1,22 @@
+entity:
+  name: Filing
+  namespace: cedm.domain
+  kind: legal_filing
+  description: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
+  identity: {key: filingId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Filing., businessMeaning: Identifies one governed Filing record., usage: Governance, workflow, reporting and audit., relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: Chronology, reporting and audit., relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+  relationships: []
+  invariants:
+  - {id: FILING-001, rule: Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit.}
+  help:
+    summary: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
+    purpose: Provide canonical governance semantics for Filing.
+    businessMeaning: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
+    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
+    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
+    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
+    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
+    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FILING}
