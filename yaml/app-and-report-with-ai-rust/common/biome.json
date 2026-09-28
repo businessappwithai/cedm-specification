@@ -3,7 +3,11 @@
   "root": true,
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!cli/runtime", "!cli/node_modules"]
+    "includes": [
+      "**",
+      "!.runtime",
+      "!node_modules"
+    ]
   },
   "formatter": {
     "enabled": true,

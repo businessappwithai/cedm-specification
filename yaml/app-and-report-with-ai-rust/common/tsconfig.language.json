@@ -24,19 +24,15 @@
     ],
     "paths": {
       "@appwithai/core/*": [
-        "../app-with-ai-rust/packages/core/src/*"
+        "../../../packages/core/src/*"
       ],
       "@appwithai/core": [
-        "../app-with-ai-rust/packages/core/src"
+        "../../../packages/core/src"
       ]
     }
   },
   "include": [
-    "language/**/*.ts",
     "build/**/*.ts",
     "scripts/**/*.ts"
-  ],
-  "exclude": [
-    "language/cli/runtime"
   ]
 }

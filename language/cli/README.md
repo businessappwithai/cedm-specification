@@ -32,7 +32,7 @@ bun language/cli/eml.ts --help
 -i, --input <file>        Model (.eml.yaml); or first positional arg
 -o, --output <dir>        Output directory for the generated app
 -n, --name <name>         Application name (default: derived from the model)
-    --stack <stack>       node-rest (default) | tanstack-astryx-loco
+    --stack <stack>       node-rest (default) | tanstack-astryx-loco | enterprise-reporting
     --skip-cli-scaffold   tanstack-astryx-loco: skip `loco new` (offline; templates only)
     --docker              Also emit Dockerfile + docker-compose.yml (node-rest)
     --github <owner/repo> Publish the generated app to a GitHub repository
@@ -85,9 +85,18 @@ request suites, the TanStack Start + Astryx frontend, the bun test suites, and
 `model/model.eml.yaml` exactly as written. `loco new` scaffolds the backend
 first; `--skip-cli-scaffold` skips it for an offline build.
 
+**`enterprise-reporting`** — TanStack Start + Kysely + PostgreSQL code shaped to
+drop into the reporting platform (`yaml/enterprise_reporting_rust`): per entity,
+five CRUD server functions using `.inputValidator()` and `requireAuth()`, a
+paginated list route and a detail/edit route; plus one Kysely migration and a
+`KYSELY_TYPES.md` snippet for that platform's `Database` interface. It is not a
+standalone application: it expects the platform's auth, RBAC, connection manager
+and UI shell to be there already. The platform's own copy of the `eml` CLI
+(`yaml/enterprise_reporting_rust/language/cli`) makes this its default stack.
+
 ## Business rules → GoRules JDM
 
-For `node-rest`, each rule's decision graph is converted to a GoRules JDM
+For `node-rest` and `enterprise-reporting`, each rule's decision graph is converted to a GoRules JDM
 document by the generator's own converter
 (`packages/generator/src/rules/jdm-converter.ts`) and written to
 `<out>/rules/`. Node types map to JDM nodes: `start` → inputNode, `end` →

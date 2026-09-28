@@ -12,6 +12,7 @@ import { loadLanguageDefinition } from "../../index.ts";
 import { collectionName, generateApp } from "./generate/app.ts";
 import { generateCiWorkflow } from "./generate/ci.ts";
 import { generateDocker } from "./generate/docker.ts";
+import { generateEnterpriseReporting } from "./generate/enterprise-reporting.ts";
 import { publishToGithub } from "./generate/github.ts";
 import { generateJdm } from "./generate/jdm.ts";
 import { generateLoco } from "./generate/loco.ts";
@@ -19,7 +20,7 @@ import type { ModelDocument } from "../../yaml/document.ts";
 import { isModelPath, readModel, toEmlModel } from "./document.ts";
 import type { Diagnostic, EmlModel } from "./model.ts";
 
-const STACKS = ["node-rest", "tanstack-astryx-loco"] as const;
+const STACKS = ["node-rest", "tanstack-astryx-loco", "enterprise-reporting"] as const;
 const STACK_ALIASES: Record<string, (typeof STACKS)[number]> = {
   "node-rest": "node-rest",
   node: "node-rest",
@@ -27,6 +28,11 @@ const STACK_ALIASES: Record<string, (typeof STACKS)[number]> = {
   "tanstack-astryx-loco": "tanstack-astryx-loco",
   loco: "tanstack-astryx-loco",
   tanstack: "tanstack-astryx-loco",
+  "enterprise-reporting": "enterprise-reporting",
+  "enterprise-report": "enterprise-reporting",
+  enterprise: "enterprise-reporting",
+  reporting: "enterprise-reporting",
+  "tanstack-kysely": "enterprise-reporting",
 };
 
 const CLI_VERSION = "2.0.0";
@@ -166,6 +172,7 @@ ${c.bold("OPTIONS")}
   -o, --output <dir>        Output directory for the generated app
   -n, --name <name>         Application name (default: derived from the model)
       --stack <stack>       Target stack: node-rest (default) | tanstack-astryx-loco
+                              | enterprise-reporting
       --skip-cli-scaffold   tanstack-astryx-loco: skip \`loco new\` (offline; templates only)
       --docker              Also emit Dockerfile + docker-compose.yml (node-rest)
       --github <owner/repo> Publish the generated app to a GitHub repository
@@ -178,11 +185,29 @@ ${c.bold("OPTIONS")}
   -h, --help                Show help
   -v, --version             Show version
 
+${c.bold("STACKS")}
+  ${c.bold("node-rest")} (default)
+    A self-contained, dependency-free Node app (node:http + a JSON-file
+    datastore). Runnable with no install; useful for a quick prototype.
+
+  ${c.bold("tanstack-astryx-loco")}
+    The full application: a Loco.rs (Rust) backend crate — migrations,
+    dictionary, access rules, workflows and hooks — and a TanStack Start +
+    Astryx front end, from the one generation path \`appwithai generate\` runs.
+
+  ${c.bold("enterprise-reporting")}
+    TanStack Start + Kysely + PostgreSQL code shaped to drop into the reporting
+    platform (yaml/enterprise_reporting_rust): server functions using
+    .inputValidator(), list/detail routes (shadcn/ui + TanStack Table), and a
+    Kysely migration. Not a standalone app — it expects that platform's auth,
+    RBAC, connection manager and UI shell to already be there.
+
 ${c.bold("EXAMPLES")}
   eml validate -i model.eml.yaml
   eml generate -i model.eml.yaml -o ./out -n my-app
   eml generate -i model.eml.yaml -o ./out --docker
   eml generate -i model.eml.yaml -o ./out --stack tanstack-astryx-loco
+  eml generate -i model.eml.yaml -o ./out --stack enterprise-reporting
   eml generate -i model.eml.yaml -o ./out --github me/my-app --public
 `;
 
@@ -359,6 +384,13 @@ async function cmdGenerate(f: Flags): Promise<number> {
     });
     console.log(c.green(`  generated ${entities} entities (TanStack Start + Astryx on Loco.rs)`));
     runHint = `  cd ${outDir}/backend && cargo loco db migrate && cargo loco db seed && cargo loco start\n  cd ${outDir}/frontend && bun install && bun run dev`;
+  } else if (stack === "enterprise-reporting") {
+    const written = generateEnterpriseReporting(model, { outDir, appName });
+    console.log(
+      c.green(`  wrote ${written.length} file(s) (TanStack Start + Kysely + PostgreSQL)`)
+    );
+    runHint = `  see ${outDir}/README.md — copy the files into the reporting platform
+  (yaml/enterprise_reporting_rust), then paste ${outDir}/KYSELY_TYPES.md into src/lib/db/kysely-db.ts`;
   } else {
     const written = generateApp(model, { outDir, appName });
     console.log(c.green(`  wrote ${written.length} app file(s) (Node REST)`));
@@ -367,7 +399,7 @@ async function cmdGenerate(f: Flags): Promise<number> {
 
   // 5. Business rules → GoRules JDM (the generator's converter). The Loco
   // stack seeds its rules into the database itself.
-  if (stack === "node-rest") {
+  if (stack !== "tanstack-astryx-loco") {
     const jdmFiles = generateJdm(model, outDir);
     if (jdmFiles.length) {
       console.log(c.green(`  wrote ${jdmFiles.length} GoRules JDM file(s) → rules/`));

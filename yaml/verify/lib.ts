@@ -33,14 +33,21 @@ export const REFERENCE_COMMIT = "18f5792";
 
 /**
  * Where a Mermaid model of an imported repository went. Mirrors
- * `scripts/convert-model-files.ts`, plus the one rename the conversion made.
+ * `scripts/convert-model-files.ts`, plus the one rename and the one move the
+ * conversion made.
  */
 export function yamlPathFor(mermaidRelative: string): string | undefined {
   if (mermaidRelative === "app-and-report-with-ai-rust/common/examples/clinic.mmd") return undefined;
+  // The orchestrator's own language copy is gone (it uses the one at the root),
+  // and the reference models it carried moved beside its other examples.
+  const moved = mermaidRelative.replace(
+    /^app-and-report-with-ai-rust\/common\/language\/examples\//,
+    "app-and-report-with-ai-rust/common/examples/"
+  );
   const renamed =
-    mermaidRelative === "app-and-report-with-ai-rust/common/examples/hospital-management-system.mmd"
-      ? mermaidRelative.replace(/\.mmd$/, ".original.mmd")
-      : mermaidRelative;
+    moved === "app-and-report-with-ai-rust/common/examples/hospital-management-system.mmd"
+      ? moved.replace(/\.mmd$/, ".original.mmd")
+      : moved;
   const stem = basename(renamed).replace(/\.mmd$/i, "").replace(/\.eml$/i, "");
   return join(dirname(renamed), `${stem}.eml.yaml`);
 }
@@ -55,8 +62,19 @@ export function walk(dir: string, accept: (file: string) => boolean, out: string
   return out.sort();
 }
 
+/**
+ * Where the orchestrator's Mermaid copy has its dependency checkouts placed
+ * (`./deps.sh` put them there; they are other repositories, not its files).
+ */
+export const ORCHESTRATOR_CHECKOUTS = [
+  "app-and-report-with-ai-rust/app-with-ai-rust/",
+  "app-and-report-with-ai-rust/enterprise_reporting_rust/",
+];
+
 export function mermaidModels(mermaidDir: string): Array<{ mermaid: string; yaml?: string; key: string }> {
-  return walk(mermaidDir, (file) => file.endsWith(".mmd")).map((file) => {
+  return walk(mermaidDir, (file) => file.endsWith(".mmd"))
+    .filter((file) => !ORCHESTRATOR_CHECKOUTS.some((dir) => relative(mermaidDir, file).startsWith(dir)))
+    .map((file) => {
     const key = relative(mermaidDir, file);
     const target = yamlPathFor(key);
     return { mermaid: file, key, yaml: target ? join(YAML_ROOT, target) : undefined };
