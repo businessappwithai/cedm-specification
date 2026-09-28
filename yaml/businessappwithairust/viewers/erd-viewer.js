@@ -1,15 +1,15 @@
 /**
  * The database entity viewer.
  *
- * Draws the `erDiagram` half of a model: one box per entity, every column with
+ * Draws the `entities` and `relationships` of a model: one box per entity, every column with
  * the type the generator resolved it to, the key modifiers, the enum it is
  * bound to and the help text that becomes its label in the generated
  * application -- and between the boxes the relationships, in crow's foot
- * notation, because the glyph pair is the cardinality and drawing a plain arrow
- * throws away the half of it that decides where the foreign key lands.
+ * notation, because the glyph pair is the cardinality pair and drawing a plain
+ * arrow throws away the half of it that decides where the foreign key lands.
  *
- * Everything drawn here was read by `eml-model.js`, which is this repository's
- * own parser. The viewer decides how a column looks, never what it is.
+ * Everything drawn here was read by `appwithai-model.js`, the language's own
+ * reader and compiler (`readModelForViewer`). The viewer decides how a column looks, never what it is.
  */
 
 import { Canvas, el, svg } from "./canvas.js";
@@ -151,16 +151,16 @@ function entityCard(entity, options) {
 
   const chips = el("div", "awv-entity-chips");
   if (entity.category)
-    chips.append(badge(entity.category, "is-category", "Declared by %%category"));
+    chips.append(badge(entity.category, "is-category", "Declared under categories"));
   if (entity.parentEntity) {
     chips.append(
       badge(
         "tab of " + entity.parentEntity,
         "is-parent",
-        "%%entity " +
-          entity.name +
-          " parent: " +
+        "parent: " +
           entity.parentEntity +
+          " on " +
+          entity.name +
           " -- a line item, shown inside its parent rather than as a window of its own"
       )
     );
@@ -175,7 +175,7 @@ function entityCard(entity, options) {
     );
   } else {
     chips.append(
-      badge("all roles", "is-open", "No %%rbac read rule -- every signed-in user sees this")
+      badge("all roles", "is-open", "No rbac read rule -- every signed-in user sees this")
     );
   }
   if (chips.childElementCount) card.append(chips);
@@ -206,7 +206,7 @@ function entityCard(entity, options) {
         badge(
           (index.unique ? "unique " : "") + index.columns.join(" + "),
           "is-index",
-          "Declared by %%index"
+          "Declared under indexes"
         )
       );
     }

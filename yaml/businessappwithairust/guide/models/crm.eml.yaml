@@ -13,11 +13,11 @@
 #   operations  User, Team, Territory, Activity
 
 # Generate:
-#   bun run generate:tanstack -- -i language/examples/crm.eml.yaml \
+#   bun run generate:tanstack -- -i language/yaml/examples/crm.eml.yaml \
 #     -o generated-projects/crm -n crm
 
 # Check:
-#   bun language/cli/eml.ts validate -i language/examples/crm.eml.yaml
+#   bun language/cli/eml.ts validate -i language/yaml/examples/crm.eml.yaml
 
 # ---- How the three layers fit together --------------------------------------
 # Structure is the ERD in Section 1. Everything after it is behaviour, and the

@@ -7,8 +7,7 @@
 // Read and compile a model (*.eml.yaml) for this site's browser generators:
 //   import { compileForBrowser } from './appwithai-model.js';
 //   const { ok, model, diagnostics } = compileForBrowser(yamlText);
-//   generateWasmApp(model, { … })            // appwithai-wasm.js
-//   generateFullStack({ model, modelText })  // appwithai-fullstack.js
+//   generateFromModel({ model, modelText, … })   // appwithai-wasm.js
 //
 // Loaded without a bound import, it also answers to globalThis.EMLYamlGenerator.
 var __create = Object.create;
@@ -22591,6 +22590,45 @@ function readModelForViewer(text) {
     diagnostics: read.diagnostics
   };
 }
+function inspectModel(text) {
+  const read = readModelForViewer(text);
+  const issues = read.diagnostics.map((finding) => {
+    const d = finding;
+    return {
+      severity: d.severity,
+      code: d.code,
+      message: d.message,
+      line: d.line,
+      column: d.column,
+      ...d.hint ? { hint: d.hint } : {},
+      autoFixable: AUTO_FIXABLE_CODES.has(d.code)
+    };
+  });
+  if (!read.model) {
+    const first = issues.find((issue) => issue.severity === "error") ?? issues[0];
+    throw new Error(first ? `line ${first.line}: ${first.message}` : "the document is not a model");
+  }
+  const count = (severity) => issues.filter((issue) => issue.severity === severity).length;
+  return {
+    model: read.model,
+    report: {
+      ok: read.ok,
+      counts: { errors: count("error"), warnings: count("warning"), infos: count("info") },
+      issues
+    }
+  };
+}
+function formatReport(report) {
+  const lines = report.issues.map((issue) => {
+    const tag = issue.severity === "error" ? "error" : issue.severity === "warning" ? "warn " : "info ";
+    const hint = issue.hint ? ` → ${issue.hint}` : "";
+    return `${tag} ${issue.code}:${issue.line}:${issue.column}  ${issue.message}${hint}`;
+  });
+  const { errors: errors2, warnings, infos } = report.counts;
+  lines.push(`${report.ok ? "OK" : "FAILED"} — ${errors2} error${errors2 === 1 ? "" : "s"}, ` + `${warnings} warning${warnings === 1 ? "" : "s"}, ${infos} note${infos === 1 ? "" : "s"} ` + `(EML ${LANGUAGE_VERSION})`);
+  return lines.join(`
+`);
+}
 function compileForBrowser(text) {
   const read = readModelYaml(text);
   if (!read.ok || !read.document)
@@ -22609,6 +22647,8 @@ globalThis.EMLYamlGenerator = {
   compileForBrowser,
   toGeneratorModel,
   readModelForViewer,
+  inspectModel,
+  formatReport,
   viewerModel,
   validate,
   fix,
@@ -22625,6 +22665,8 @@ export {
   serializeModelDocument,
   readModelYaml,
   readModelForViewer,
+  inspectModel,
+  formatReport,
   fix,
   compileForBrowser,
   checkAndFix,

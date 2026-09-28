@@ -1,9 +1,9 @@
 # The model viewers
 
-What a language model writes is a `.eml.mmd`, and Mermaid draws only half of it.
-The ERD renders; the rules, the workflows, the enums and the access control live
-in `%%` directives Mermaid treats as comments — which is exactly the half a
-reader most needs to check while the model is still being written.
+What a language model writes is a model — one YAML document, `*.eml.yaml`. It
+says everything, but two thousand lines of YAML are not a picture, and a
+picture is what a reader needs to check a model against the business it
+describes while it is still being written.
 
 These modules draw all of it: the entities and their links, the state machines,
 the sagas, the decision flows and the decision tables, the lifecycle hooks and
@@ -13,31 +13,34 @@ there at the end of each phase of the walkthrough.
 
 ## The one rule
 
-**Nothing here reads a model.** `eml-model.js` is this repository's own parser,
-rule compiler, workflow compiler, RBAC derivation and checker, bundled for a
-browser by `scripts/build-viewers.ts` from
-`packages/generator/src/browser/viewers.ts`. The rest of the files decide how a
-column, a state or a step *looks* — never what it is.
+**Nothing here reads a model.** `appwithai-model.js` is the language's own
+reader — YAML, the JSON Schema, the full checker — and the repository's one
+compiler, bundled for a browser by `scripts/build-site-bundles.ts` at the root of
+`cedm-specification` from `language/browser/browser-generator.entry.ts`. The
+rest of the files decide how a column, a state or a step *looks* — never what
+it is.
 
-A viewer with a parser of its own is a viewer that shows an application nobody
+A viewer with a reader of its own is a viewer that shows an application nobody
 is going to get: it would disagree with the generator about which columns are
 foreign keys, which enum binding took, which transition is legal, and the author
 would find out only after generating. That is why the reading is a build
-artifact and not a second implementation, and why CI compares it byte for byte:
+artifact and not a second implementation, and why it is checked byte for byte:
 
 ```bash
-bun run build:viewers            # rebuild after changing anything it reaches
-bun run build:viewers --check    # what CI runs
+bun scripts/build-site-bundles.ts --only orchestrator           # rebuild
+bun scripts/build-site-bundles.ts --only orchestrator --check   # what CI runs
 ```
 
-It goes stale when anything under `packages/generator/src/{parsers,rules,hooks,workflows,rbac,pipeline,viewers}`
-or `language/` changes.
+It goes stale when anything under `packages/generator/src/{model,model-yaml,rbac}`,
+`language/yaml/` or `language/appwithai-language.json` changes.
+`yaml/verify` holds its model to the one the Mermaid-era reader produced for
+every published model.
 
 ## The files
 
 | File | What it is |
 |---|---|
-| `eml-model.js` | **Built.** `inspectModel(source)` → `{ model, report }`. Do not edit |
+| `appwithai-model.js` | **Built.** `inspectModel(text)` → `{ model, report }`, `formatReport(report)`. Do not edit |
 | `layout.js` | Layered graph placement — rank, order, space. No dependency |
 | `canvas.js` | The surface all three pictures are drawn on: pan, zoom, fit, select |
 | `erd-viewer.js` | Entity boxes, columns with their badges, crow's-foot relationships |
@@ -50,8 +53,8 @@ or `language/` changes.
 
 ## Running it here
 
-The modules load the example models by relative path, so serve the repository
-root rather than this directory:
+The modules load the example models by relative path, so serve `common/`
+rather than this directory:
 
 ```bash
 python3 -m http.server 8099

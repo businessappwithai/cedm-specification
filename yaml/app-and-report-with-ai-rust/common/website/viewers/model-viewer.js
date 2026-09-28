@@ -2,15 +2,16 @@
  * The viewer page.
  *
  * `website/llmtext/llmdetailed.txt` sends a reader through seven phases of
- * authoring a model, and between the phases they have a partial `.eml.mmd` and
- * no way to see it. Mermaid renders the ERD and nothing else: the `%%`
- * directives that carry the rules, the workflows, the enums and the access
- * control are comments to it, which is exactly the half a reader most needs to
- * check. This page draws all of it, and re-draws on every change.
+ * authoring a model, and between the phases they have a partial `.eml.yaml`
+ * and no way to see it. The YAML says everything — entities, rules, workflows,
+ * enums and access control — but a document of two thousand lines is not a
+ * picture, and a picture is what a reader most needs to check a model against
+ * the business it describes. This page draws all of it, from the language's own
+ * reader, and re-draws on every change.
  *
  * Three ways in, in the order a reader reaches for them:
  *
- *   watch    pick the `.eml.mmd` the model is writing and the page re-reads it
+ *   watch    pick the `.eml.yaml` the model is writing and the page re-reads it
  *            whenever it changes on disk. This is the one the walkthrough is
  *            written around -- the picture keeps up with the phases.
  *   open     pick or drop a file once.
@@ -22,7 +23,7 @@
  */
 
 import { el } from "./canvas.js";
-import { formatReport, inspectModel } from "./eml-model.js";
+import { formatReport, inspectModel } from "./appwithai-model.js";
 import { describeEntity, ErdViewer } from "./erd-viewer.js";
 import { actionList, RuleFlowViewer, ruleSummary } from "./rules-viewer.js";
 import { hookList, StateMachineViewer, sagaLadder } from "./workflow-viewer.js";
@@ -206,7 +207,7 @@ export class ModelViewer {
     let handle;
     try {
       const picked = await window.showOpenFilePicker({
-        types: [{ description: "EML model", accept: { "text/plain": [".mmd", ".md", ".txt"] } }],
+        types: [{ description: "EML model", accept: { "text/yaml": [".yaml", ".yml"] } }],
         multiple: false,
       });
       handle = picked[0];
@@ -499,7 +500,7 @@ export class ModelViewer {
         el(
           "p",
           "awv-hint",
-          "No %%rbac directive names this entity, so every signed-in user may read and write it."
+          "No rbac entry names this entity, so every signed-in user may read and write it."
         )
       );
     }
@@ -520,7 +521,7 @@ export class ModelViewer {
 
     if (entries.length === 0) {
       list.append(
-        el("p", "awv-hint", "This model declares no workflows yet — no %%workflow, no %%hook.")
+        el("p", "awv-hint", "This model declares no workflows yet — no stateMachines, no sagas, no hooks.")
       );
       this.els.workflowDetail.innerHTML = "";
       return;
@@ -615,7 +616,7 @@ export class ModelViewer {
           el(
             "p",
             "awv-detail-problem",
-            "Not declared by any %%enum: " +
+            "Not a value of the entity's enum: " +
               machine.undeclaredStates.join(", ") +
               ". A record can never hold these, so the moves onto them are dead."
           )
@@ -654,7 +655,7 @@ export class ModelViewer {
     list.innerHTML = "";
 
     if (this.model.rules.length === 0) {
-      list.append(el("p", "awv-hint", "This model declares no %%rule sections yet."));
+      list.append(el("p", "awv-hint", "This model declares no rules yet."));
       this.els.ruleDetail.innerHTML = "";
       return;
     }
@@ -711,7 +712,7 @@ export class ModelViewer {
         el(
           "p",
           "awv-hint",
-          "This model declares no %%rbac read rule, so every signed-in user sees every entity. Naming the roles a business has, and giving each entity a %%rbac … .read directive, is what turns the generated application into one where a support agent and a sales manager see different screens."
+          "This model declares no rbac read rule, so every signed-in user sees every entity. Naming the roles a business has, and giving each entity an rbac entry with action: read, is what turns the generated application into one where a support agent and a sales manager see different screens."
         )
       );
     }

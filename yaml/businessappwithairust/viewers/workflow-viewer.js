@@ -10,13 +10,13 @@
  *           An arrow that is not drawn is refused with a 403 for every caller,
  *           the administrator included, so the picture is the enforcement.
  *   saga    already an ordered list, so it gets the ladder rather than a canvas
- *           whose layout would carry no meaning. One rung per `%%step`, in the
+ *           whose layout would carry no meaning. One rung per step, in the
  *           order the document gives them.
  *   hook    a list of lifecycle handlers, so it gets a list, grouped by entity
  *           and ordered the way they run.
  *
  * Nothing here decides what a workflow is. The states, the edges, the step
- * properties and the order all arrive compiled from `eml-model.js`.
+ * properties and the order all arrive compiled from `appwithai-model.js`.
  */
 
 import { Canvas, el } from "./canvas.js";
@@ -90,7 +90,7 @@ function statePill(state, machine) {
 
   if (undeclared) {
     pill.title =
-      "No %%enum declares this value, so the column can never hold it and every move onto it is refused.";
+      "The entity's enum has no such value, so the column can never hold it and every move onto it is refused.";
     pill.append(el("span", "awv-state-warn", "!"));
   }
   return pill;
@@ -161,7 +161,7 @@ export function sagaLadder(saga) {
 
   if (saga.steps.length === 0) {
     ladder.append(
-      el("p", "awv-ladder-empty", "No %%step directives yet -- this workflow does nothing.")
+      el("p", "awv-ladder-empty", "No steps yet -- this workflow does nothing.")
     );
     return ladder;
   }

@@ -4,11 +4,11 @@
  *
  * The website (`yaml/businessappwithairust`) and the orchestrator's guide
  * (`yaml/app-and-report-with-ai-rust/common/html`) each vendor a browser build
- * of the application generator: `appwithai-wasm.js` (the in-tab application)
- * and `appwithai-fullstack.js` (the deployable project). Those bundles compile
- * a model themselves and never read a file: `generateWasmApp(model, …)` and the
- * pipeline behind `generateFullStack` take a compiled model. This module is
- * where that model comes from.
+ * of the application generator, `appwithai-wasm.js`, which writes an
+ * application that runs in the tab. It takes a compiled model
+ * (`generateFromModel`, added by `scripts/patch-vendored-generators.ts`). This
+ * module is where that model comes from, and where the model viewers' model
+ * comes from (`readModelForViewer`).
  *
  * A model is read and validated by the language's own reader — YAML syntax,
  * the JSON Schema, the full checker, every finding at its YAML line — and
@@ -45,9 +45,11 @@ import type { ParsedModel } from "../../packages/generator/src/model/compile";
 import { deriveAccess } from "../../packages/generator/src/rbac/roles";
 import type { ModelDocument } from "../../packages/generator/src/model-yaml/document";
 import {
+  AUTO_FIXABLE_CODES,
   canonicalDocument,
   checkAndFix,
   compileModelDocument,
+  type ModelDiagnostic,
   readModelYaml,
   serializeModelDocument,
 } from "../../packages/generator/src/model-yaml/index";
@@ -413,12 +415,87 @@ export function readModelForViewer(text: string): { ok: boolean; model?: Json; d
   };
 }
 
+/** One finding, as the model viewers list it. */
+export interface ViewerIssue {
+  severity: "error" | "warning" | "info";
+  code: string;
+  message: string;
+  line: number;
+  column: number;
+  hint?: string;
+  /** The fixer repairs this code mechanically. */
+  autoFixable: boolean;
+}
+
+/** The checker's verdict over one document, as the model viewers show it. */
+export interface ViewerReport {
+  ok: boolean;
+  counts: { errors: number; warnings: number; infos: number };
+  issues: ViewerIssue[];
+}
+
+/**
+ * Read a model for the viewers and report on it: `{ model, report }`. A
+ * document that does not read at all has nothing to draw, so it throws with
+ * the first finding's message and line — the viewer shows that as the reason.
+ */
+export function inspectModel(text: string): { model: Json; report: ViewerReport } {
+  const read = readModelForViewer(text);
+  const issues: ViewerIssue[] = read.diagnostics.map((finding) => {
+    const d = finding as unknown as ModelDiagnostic;
+    return {
+      severity: d.severity,
+      code: d.code,
+      message: d.message,
+      line: d.line,
+      column: d.column,
+      ...(d.hint ? { hint: d.hint } : {}),
+      autoFixable: AUTO_FIXABLE_CODES.has(d.code),
+    };
+  });
+  if (!read.model) {
+    const first = issues.find((issue) => issue.severity === "error") ?? issues[0];
+    throw new Error(
+      first ? `line ${first.line}: ${first.message}` : "the document is not a model"
+    );
+  }
+  const count = (severity: ViewerIssue["severity"]) =>
+    issues.filter((issue) => issue.severity === severity).length;
+  return {
+    model: read.model,
+    report: {
+      ok: read.ok,
+      counts: { errors: count("error"), warnings: count("warning"), infos: count("info") },
+      issues,
+    },
+  };
+}
+
+/**
+ * A report as text, for pasting back to whoever wrote the model: one line per
+ * finding at its YAML line, then the verdict — always the last line.
+ */
+export function formatReport(report: ViewerReport): string {
+  const lines = report.issues.map((issue) => {
+    const tag = issue.severity === "error" ? "error" : issue.severity === "warning" ? "warn " : "info ";
+    const hint = issue.hint ? ` → ${issue.hint}` : "";
+    return `${tag} ${issue.code}:${issue.line}:${issue.column}  ${issue.message}${hint}`;
+  });
+  const { errors, warnings, infos } = report.counts;
+  lines.push(
+    `${report.ok ? "OK" : "FAILED"} — ${errors} error${errors === 1 ? "" : "s"}, ` +
+      `${warnings} warning${warnings === 1 ? "" : "s"}, ${infos} note${infos === 1 ? "" : "s"} ` +
+      `(EML ${LANGUAGE_VERSION})`
+  );
+  return lines.join("\n");
+}
+
 export interface CompiledForBrowser {
   /** True when the model has no errors and was compiled. */
   ok: boolean;
   /** The validated document, when it read. */
   document?: ModelDocument;
-  /** The model for `generateWasmApp` / `generateFullStack({ model })`. */
+  /** The model for `generateFromModel({ model, modelText })`. */
   model?: Json;
   /** Every finding, at its YAML line and column. */
   diagnostics: ReturnType<typeof readModelYaml>["diagnostics"];
@@ -450,6 +527,8 @@ export const fix = checkAndFix;
   compileForBrowser,
   toGeneratorModel,
   readModelForViewer,
+  inspectModel,
+  formatReport,
   viewerModel,
   validate,
   fix,

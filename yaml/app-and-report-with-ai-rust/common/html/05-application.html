@@ -33,7 +33,7 @@
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
     <li><a href="run-in-browser.html"><span class="nav-num">09</span> Run it here</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -63,7 +63,7 @@
 <figure>
   <img src="img/08-crm-dashboard.png" alt="The CRM dashboard with seven category blocks and an Application Dictionary block.">
   <figcaption>
-    <b>Seven blocks, seven <code>%%category</code> directives.</b> Heading, description and membership are
+    <b>Seven blocks, seven <code>categories</code> entries.</b> Heading, description and membership are
     the model's; the eighth block, Application Dictionary, is the generator's own admin surface.
   </figcaption>
 </figure>
@@ -168,13 +168,13 @@
 <table>
   <thead><tr><th>In the model</th><th>Badge</th><th>Control</th></tr></thead>
   <tbody>
-    <tr><td><code>string account_id FK</code></td><td>Direct Lookup</td><td>Select of the referenced entity, labelled by its display column</td></tr>
-    <tr><td><code>%%field X.status enum: Y</code></td><td>Dropdown</td><td>Select of the enum's values, fetched from the list reference</td></tr>
-    <tr><td><code>text description</code></td><td>Long Text</td><td>Textarea</td></tr>
-    <tr><td><code>decimal amount</code></td><td>Amount</td><td>Numeric input</td></tr>
-    <tr><td><code>datetime due_at</code></td><td>Date/Time</td><td>Date-time picker</td></tr>
-    <tr><td><code>boolean auto_renew</code></td><td>Yes/No</td><td>Toggle</td></tr>
-    <tr><td><code>email email</code></td><td>Email</td><td>Email input with validation</td></tr>
+    <tr><td><code>{ name: account_id, type: string, fk: true }</code></td><td>Direct Lookup</td><td>Select of the referenced entity, labelled by its display column</td></tr>
+    <tr><td><code>{ name: status, type: string, enum: Y }</code></td><td>Dropdown</td><td>Select of the enum's values, fetched from the list reference</td></tr>
+    <tr><td><code>{ name: description, type: text }</code></td><td>Long Text</td><td>Textarea</td></tr>
+    <tr><td><code>{ name: amount, type: decimal }</code></td><td>Amount</td><td>Numeric input</td></tr>
+    <tr><td><code>{ name: due_at, type: datetime }</code></td><td>Date/Time</td><td>Date-time picker</td></tr>
+    <tr><td><code>{ name: auto_renew, type: boolean }</code></td><td>Yes/No</td><td>Toggle</td></tr>
+    <tr><td><code>{ name: email, type: email }</code></td><td>Email</td><td>Email input with validation</td></tr>
   </tbody>
 </table>
 </div>
@@ -182,8 +182,8 @@
 <figure>
   <img src="img/32-crm-enum-dropdowns.png" alt="The Lead form with Lead Source, Rating and Status rendered as Dropdown selects while Score stays an integer input and Owner Id stays a Direct Lookup.">
   <figcaption>
-    <b>Enums and lookups side by side.</b> Three dropdowns from <code>%%field … enum:</code>, one integer,
-    two lookups. The difference between a dropdown and a text box here is one line in the model.
+    <b>Enums and lookups side by side.</b> Three dropdowns from an attribute's <code>enum</code>, one integer,
+    two lookups. The difference between a dropdown and a text box here is one key in the model.
   </figcaption>
 </figure>
 

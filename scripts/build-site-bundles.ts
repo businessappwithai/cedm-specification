@@ -6,13 +6,14 @@
  *   bun scripts/build-site-bundles.ts --check         # fail if any committed copy is stale
  *   bun scripts/build-site-bundles.ts --only website  # one site (website | orchestrator)
  *
- * Each site gets two files, both built from `language/browser/` here — never
+ * Each site gets three files, all built from `language/browser/` here — never
  * copied, never edited:
  *
  * | File | Entry | What a page does with it |
  * |---|---|---|
  * | `model-yaml.js` | `model-yaml.entry.ts` | validate and repair a model (`*.eml.yaml`): YAML, the JSON Schema, the full checker, every finding at its YAML line. Its URL is published: the protocol documents tell a language model to run its output past it |
- * | `appwithai-model.js` | `browser-generator.entry.ts` | read, validate and compile a model for the browser generators the site vendors (`appwithai-wasm.js`, `appwithai-fullstack.js`) — see that entry's comment |
+ * | `appwithai-model.js` | `browser-generator.entry.ts` | read, validate and compile a model for the in-browser generator the site vendors (`appwithai-wasm.js`) — see that entry's comment |
+ * | `viewers/appwithai-model.js` | `browser-generator.entry.ts` | the same module beside the model viewers, which read a model with `inspectModel` and print a report with `formatReport` |
  *
  * Nothing here re-implements a rule. A model that passes in a browser passes in
  * the terminal, because it is the same code.
@@ -37,8 +38,12 @@ const GENERATOR_BLURB =
   "// Read and compile a model (*.eml.yaml) for this site's browser generators:\n" +
   "//   import { compileForBrowser } from './appwithai-model.js';\n" +
   "//   const { ok, model, diagnostics } = compileForBrowser(yamlText);\n" +
-  "//   generateWasmApp(model, { … })            // appwithai-wasm.js\n" +
-  "//   generateFullStack({ model, modelText })  // appwithai-fullstack.js\n";
+  "//   generateFromModel({ model, modelText, … })   // appwithai-wasm.js\n";
+
+const VIEWER_BLURB =
+  "// Read a model (*.eml.yaml) for the model viewers:\n" +
+  "//   import { inspectModel, formatReport } from './appwithai-model.js';\n" +
+  "//   const { model, report } = inspectModel(yamlText);   // throws when it does not read\n";
 
 interface Bundle {
   site: "website" | "orchestrator";
@@ -51,6 +56,7 @@ interface Bundle {
 
 const WEBSITE = "yaml/businessappwithairust";
 const ORCHESTRATOR = "yaml/app-and-report-with-ai-rust/common/html";
+const ORCHESTRATOR_VIEWERS = "yaml/app-and-report-with-ai-rust/common/website/viewers";
 
 const BUNDLES: Bundle[] = [
   {
@@ -84,6 +90,22 @@ const BUNDLES: Bundle[] = [
     global: "EMLYamlGenerator",
     what: "the model reader and compiler for the browser generators",
     blurb: GENERATOR_BLURB,
+  },
+  {
+    site: "website",
+    entry: "language/browser/browser-generator.entry.ts",
+    target: `${WEBSITE}/viewers/appwithai-model.js`,
+    global: "EMLYamlGenerator",
+    what: "the model reader for the model viewers",
+    blurb: VIEWER_BLURB,
+  },
+  {
+    site: "orchestrator",
+    entry: "language/browser/browser-generator.entry.ts",
+    target: `${ORCHESTRATOR_VIEWERS}/appwithai-model.js`,
+    global: "EMLYamlGenerator",
+    what: "the model reader for the model viewers",
+    blurb: VIEWER_BLURB,
   },
 ];
 
