@@ -19,6 +19,9 @@ registry:
     - Asset
     - AssetDepreciation
     - Assignment
+    - Attachment
+    - AuditCase
+    - AuditEvent
     - BOMComponent
     - BankAccount
     - BankLoan
@@ -38,6 +41,7 @@ registry:
     - CertificateOfAnalysis
     - ChemicalBatch
     - Classification
+    - ComplianceRequirement
     - Compound
     - Consignment
     - ConstructionProject
@@ -46,7 +50,12 @@ registry:
     - Container
     - ContainerMovement
     - Contract
+    - ContractAmendment
+    - ContractClause
+    - ContractLine
     - ContractObligation
+    - ContractRenewal
+    - ContractTermination
     - Control
     - CorrectiveAction
     - CorrectiveActionVerification
@@ -69,6 +78,8 @@ registry:
     - DiscountRule
     - Dock
     - Document
+    - DocumentClassification
+    - DocumentVersion
     - ERP
     - EducationCourse
     - EducationProgram
@@ -87,6 +98,7 @@ registry:
     - Facility
     - Farm
     - FarmField
+    - Finding
     - FiscalPeriod
     - Flight
     - FoodBatch
@@ -219,6 +231,7 @@ registry:
     - ShipmentLine
     - ShoppingCart
     - ShoppingCartLine
+    - Signature
     - Store
     - Supplier
     - SupplierClaim
