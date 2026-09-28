@@ -19,6 +19,7 @@ registry:
     - BankAccount
     - BankLoan
     - BankTransaction
+    - Brand
     - BillOfMaterial
     - BusinessProcess
     - BusinessTransaction
@@ -116,6 +117,7 @@ registry:
     - Party
     - PartyRole
     - Payment
+    - Packaging
     - PaymentAllocation
     - PaymentTerm
     - Packing
@@ -127,6 +129,9 @@ registry:
     - Prescription
     - Procedure
     - Product
+    - ProductAttribute
+    - ProductLifecycle
+    - ProductVariant
     - Putaway
     - ProductCategory
     - ProductionRecord
