@@ -206,9 +206,9 @@ todo:
     measuredAt: 2026-09-28
     registeredEntities: 227
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 101
+    unregisteredRequestedNames: 88
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 101 unresolved requested names, then validate help and relationship integrity.
+    nextAudit: Continue classifying and implementing the remaining 88 unresolved requested names, then validate help and relationship integrity.
     progress: Added and registered 16 foundational gaps covering organization structure, party contact/relationships, reference data, IAM and workflow control.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
