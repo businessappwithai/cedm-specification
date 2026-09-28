@@ -18,7 +18,11 @@ registry:
     - Allergy
     - Approval
     - Asset
+    - AssetAcquisition
+    - AssetClass
     - AssetDepreciation
+    - AssetDisposal
+    - AssetTransfer
     - Assignment
     - Attachment
     - AuditCase
@@ -26,6 +30,7 @@ registry:
     - BOMComponent
     - BankAccount
     - BankLoan
+    - BankReconciliation
     - BankTransaction
     - BillOfMaterial
     - Brand
@@ -42,6 +47,7 @@ registry:
     - CertificateOfAnalysis
     - ChemicalBatch
     - Classification
+    - Collateral
     - ComplianceRequirement
     - Compound
     - Consignment
@@ -75,6 +81,7 @@ registry:
     - Dataset
     - Delivery
     - Department
+    - Deposit
     - Diagnosis
     - DiscountRule
     - Dock
@@ -92,11 +99,13 @@ registry:
     - EnergyMeter
     - EnergyTariff
     - Enrollment
+    - Equipment
     - Escalation
     - Event
     - ExchangeRate
     - Experiment
     - Facility
+    - Failure
     - Farm
     - FarmField
     - Filing
@@ -105,6 +114,7 @@ registry:
     - Flight
     - FoodBatch
     - Forecast
+    - ForeignExchangeTransaction
     - FreightCharge
     - Fulfillment
     - GoodsReceipt
@@ -123,6 +133,7 @@ registry:
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
+    - Interest
     - InventoryAdjustment
     - InventoryBalance
     - InventoryCount
