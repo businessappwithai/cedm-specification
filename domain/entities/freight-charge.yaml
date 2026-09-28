@@ -1,0 +1,23 @@
+entity:
+  name: FreightCharge
+  namespace: cedm.domain
+  kind: logistics_charge
+  description: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
+  identity: {key: freightChargeId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: freightChargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of FreightCharge., businessMeaning: Identifies one governed FreightCharge record., usage: Transactions, integration, reporting and audit., relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for FreightCharge., businessMeaning: Human or integration-friendly reference where applicable., usage: Search, exchange and reporting., relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  relationships:
+  - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment receiving freight charge., businessMeaning: Attributes logistics cost., usage: Freight audit and settlement., cardinalityMeaning: Optional when charge is at load/consignment level., workflowRole: Charge does not itself post payment or journal.}}
+  invariants:
+  - {id: FREIGHT-CHARGE-001, rule: Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects.}
+  help:
+    summary: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
+    purpose: Provide canonical implementation-neutral semantics for FreightCharge across enterprise applications.
+    businessMeaning: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
+    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+    commonExamples: Enterprise sales and supply-chain operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FREIGHT-CHARGE}
