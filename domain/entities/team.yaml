@@ -1,0 +1,24 @@
+entity:
+  name: Team
+  namespace: cedm.domain
+  kind: organization_structure
+  description: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability.
+  identity: {key: teamId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Team., businessMeaning: Identifies the governed concept independently of mutable labels., usage: Cross-domain reference, integration and audit., relationshipContext: Used wherever this Team is referenced., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Team., businessMeaning: Human and integration-friendly identifier., usage: Search, configuration, exchange and reporting., relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Team., businessMeaning: Communicates the concept to business users., usage: UI, documents and reports., relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  relationships:
+  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: Authorization, reporting and workflow., cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+  invariants:
+  - {id: TEAM-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  help:
+    summary: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability.
+    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
+    businessMeaning: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability.
+    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
+    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
+    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
+    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
+    commonExamples: Enterprise configuration and cross-domain business workflows.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TEAM}
