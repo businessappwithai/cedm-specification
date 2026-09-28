@@ -1,0 +1,38 @@
+# Root-level only. Each product keeps its own .gitignore; this covers what runs
+# the two together.
+
+node_modules/
+
+# The two product repositories this one orchestrates. They are separate
+# repositories with their own CI, their own release cadence and their own
+# lockfiles — not vendored code, and not submodules. `./deps.sh` places them
+# here at the commits deps.json pins, and CI checks them out to these same paths
+# with actions/checkout, reading the same pins.
+/app-with-ai-rust
+/enterprise_reporting_rust
+
+# Everything ./start.sh writes: the generated application, the reporting pack
+# derived from the model, and the secrets it generates on first run. All of it
+# is reproducible from a model plus ./start.sh, and none of it belongs in git —
+# least of all common/.runtime/.env.
+common/.runtime/
+
+# The checker writes a `.error` file beside every model it reads — that is its
+# interface, not an accident. `examples/hospital-management-system.mmd.error` is
+# checked in on purpose and does not match: it is a `.mmd.error`, not an
+# `.eml.mmd.error`.
+*.eml.mmd.error
+
+# gstack's `./setup` writes one shim directory per skill beside the vendored
+# copy — a `.gstack-owned` marker plus symlinks into
+# .claude/skills/gstack/<skill>/, by absolute path. They are machine-local
+# scaffolding: the paths are only valid in the tree that generated them, and
+# every developer who runs ./setup gets all 55 of them as untracked files. CI's
+# "No uncommitted changes" step reads `git status --porcelain`, which counts
+# untracked, so leaving them unignored fails the language job for anyone who has
+# run setup.
+/.claude/skills/*/
+!/.claude/skills/gstack/
+# Skills authored here are not that, and are tracked: they are prose about
+# this repository, valid in any checkout of it.
+!/.claude/skills/sync-downstream/

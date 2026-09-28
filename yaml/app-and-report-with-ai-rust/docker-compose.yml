@@ -1,0 +1,344 @@
+# The generated application and the reporting platform, on one origin — with a
+# server side that is Rust throughout.
+#
+#   http://localhost/app      the application generated from an EML model:
+#                             a Loco.rs backend (app-backend) behind a TanStack
+#                             Start front end (app-frontend)
+#   http://localhost/report   the reporting platform: its Loco.rs backend
+#                             (report-backend) behind its TanStack Start front end
+#                             (report), already loaded with that application's
+#                             schema, reports, charts and dashboard
+#
+# Bring it up with ./start.sh, which generates the application and derives the
+# reporting pack first — this file cannot do either, and expects both to exist
+# under common/.runtime/. Down again with ./stop.sh.
+#
+# ── Where the server side lives ─────────────────────────────────────────────
+#
+# Every API request, workflow, scheduled job and seed is served by a Rust
+# binary: the generated application's `<app>-cli` (Loco, from app-with-ai-rust's
+# generator) and the platform's `ers-backend-cli` (Loco, from
+# enterprise_reporting_rust/rust). The two TanStack Start services render pages
+# and nothing else: nginx sends `/app/api/` straight to the application's Loco
+# backend, and the reporting front end forwards every route in its
+# rust/routes.json to its own (ERS_RUST_API_URL), starting no workers, no cron
+# runner and no graph sync of its own. The one `/api` path that stays in a
+# JavaScript process is the platform's CopilotKit runtime, a library protocol
+# with no data access of its own.
+#
+# ── The two profiles ────────────────────────────────────────────────────────
+#
+#   demo (default)  one PostgreSQL 16 with Apache AGE, holding three databases:
+#                   the application's, the platform's enterprise_config, and its
+#                   ers_knowledge graph. One container, one image to pull.
+#
+#   prod            two servers, each the image its application actually asks
+#                   for: pgvector on PostgreSQL 18 for the generated
+#                   application, Apache AGE on 16 for the reporting platform.
+#
+# Either way the reporting platform's configuration never shares a database with
+# the application it reports on. Regenerating the application drops and
+# recreates its tables; the reports have to survive that.
+#
+# ── Why nothing declares depends_on for a database ──────────────────────────
+#
+# A `depends_on` naming a service that is not in the active profile makes
+# compose refuse to start at all, so a service that must run under both profiles
+# cannot name either database. Each waits for its own instead: the generated
+# backend migrates and seeds on start and is restarted until that succeeds, the
+# reporting backend waits for its server and creates its config database if a
+# stale volume never got one, and the seeder waits explicitly for both —
+# including for the application's bus_ tables to exist, since an empty database
+# means "not migrated yet" rather than "nothing to report on".
+
+name: app-and-report
+
+x-app-db-url: &app-db-url
+  postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@${APP_DB_HOST:-postgres}:5432/${APP_DB_NAME:-appdb}
+
+x-report-db-url: &report-db-url
+  postgresql://${REPORT_DB_USER:-app}:${REPORT_DB_PASSWORD:-app}@${REPORT_DB_HOST:-postgres}:5432/enterprise_config
+
+x-report-graph-url: &report-graph-url
+  postgresql://${REPORT_DB_USER:-app}:${REPORT_DB_PASSWORD:-app}@${REPORT_DB_HOST:-postgres}:5432/ers_knowledge
+
+services:
+  # ── demo: one server, three databases ────────────────────────────────────
+  postgres:
+    profiles: ["demo"]
+    # pgvector rather than Apache AGE, and the choice is forced.
+    #
+    # One server has to satisfy both applications here, and no published image
+    # carries both extensions: `apache/age` has no pgvector, `pgvector/pgvector`
+    # has no AGE. The generated application's databases are created with the
+    # extension available; AGE serves the reporting platform's knowledge-graph
+    # NL feature, which is lazy: its config database, reports, charts and
+    # dashboards all boot without it.
+    #
+    # So the demo profile trades that one feature for a single stock image, and
+    # the prod profile, which runs a server per application, keeps AGE for the
+    # reporting side.
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app}
+      POSTGRES_DB: ${APP_DB_NAME:-appdb}
+    volumes:
+      - demo_pg:/var/lib/postgresql/data
+      - ./common/docker/pg-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${APP_DB_NAME:-appdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── prod: each application on the server it asks for ─────────────────────
+  postgres-app:
+    profiles: ["prod"]
+    image: pgvector/pgvector:pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app}
+      POSTGRES_DB: ${APP_DB_NAME:-appdb}
+    volumes:
+      # PostgreSQL 18 wants the mount at /var/lib/postgresql and keeps its data
+      # in a subdirectory; mounting the old path directly makes it refuse to
+      # start.
+      - prod_pg_app:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${APP_DB_NAME:-appdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres-report:
+    profiles: ["prod"]
+    # `apache/age:PG16` does not exist on Docker Hub — the tags are
+    # `release_PG<major>_<version>`. Pinned to a real one, which is what
+    # `docker compose up` discovered the first time it was actually run.
+    image: apache/age:release_PG16_1.6.0
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${REPORT_DB_USER:-enterprise}
+      POSTGRES_PASSWORD: ${REPORT_DB_PASSWORD:-enterprise_pass}
+      POSTGRES_DB: enterprise_config
+    volumes:
+      - prod_pg_report:/var/lib/postgresql/data
+      - ./common/docker/pg-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${REPORT_DB_USER:-enterprise} -d enterprise_config"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── The generated application: Loco.rs backend ────────────────────────────
+  #
+  # Built from common/.runtime/app/backend, the cargo crate ./start.sh
+  # generated from the model. The image's entrypoint is the crate's own CLI
+  # (`<app>-cli`, named in .env as APP_CLI), and a production config never
+  # migrates on boot, so the container runs the three steps a generated
+  # README gives: migrate, seed (dictionary, rules, workflows, access rules,
+  # configuration, demonstration records, reports, administrator — every one
+  # idempotent), then serve with the background worker in-process.
+  #
+  # Migrate is retried until the database answers. Nothing here may
+  # depends_on a database (see the top of this file), so the backend starts
+  # the same instant PostgreSQL does; a migrate that exits on "connection
+  # refused" is a container compose reports as failed, and app-frontend —
+  # which waits on this one's health — takes the whole `up` down with it.
+  # That is exactly what the first real build-and-run did.
+  app-backend:
+    build:
+      context: ./common/.runtime/app/backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        n=0;
+        until "$${APP_CLI}" db migrate; do
+          n=$$((n + 1));
+          if [ "$$n" -ge 60 ]; then echo "database never became reachable" >&2; exit 1; fi;
+          echo "waiting for the database ($$n)…"; sleep 3;
+        done &&
+        "$${APP_CLI}" db seed &&
+        exec "$${APP_CLI}" start --server-and-worker
+    environment:
+      APP_CLI: ${APP_CLI:?APP_CLI is required — ./start.sh writes it into .env}
+      # Loco reads LOCO_ENV, not NODE_ENV.
+      LOCO_ENV: production
+      PORT: "4001"
+      DATABASE_URL: *app-db-url
+      # The Postgres-backed job queue lives in the application's own database.
+      QUEUE_DATABASE_URL: *app-db-url
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required — ./start.sh writes one into .env}
+      # The browser reaches the application through nginx, so that is the
+      # origin the API must accept a sign-in from — not the front end's port.
+      CORS_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      # The one proxy in front of it is nginx, so X-Forwarded-For is nginx's to
+      # set and may be believed — without it every client shares one
+      # rate-limit bucket.
+      TRUST_PROXY: "true"
+      # The administrator and the one account per %%rbac role that `db seed`
+      # creates. The front door lists these, from the reporting pack.
+      ADMIN_EMAIL: admin@admin.com
+      ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-admin}
+      ROLE_ACCOUNT_PASSWORD: ${APP_ROLE_PASSWORD:-admin}
+      LOCAL_AI_BASE_URL: ${AI_BASE_URL:-}
+      LOCAL_AI_MODEL: ${AI_MODEL:-}
+      LOCAL_AI_API_KEY: ${AI_API_KEY:-local}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "4001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4001/api/me/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      # Migrate and seed come first, and the first run of a large model's
+      # dictionary seed is not instant.
+      start_period: 180s
+
+  # ── The generated application: TanStack Start front end ───────────────────
+  #
+  # Built from the whole generated project, not ./frontend: the root manifest
+  # is the workspace root, and the frontend Dockerfile expects to see it.
+  # Pages only — nginx sends /app/api/ to app-backend directly.
+  app-frontend:
+    build:
+      context: ./common/.runtime/app
+      dockerfile: ./frontend/Dockerfile
+      args:
+        # Empty: the client calls /app/api on whatever origin served the page
+        # (the subpath overlay moved its /api literals there), and nginx routes
+        # that to the backend. A base URL compiled into the bundle is an address
+        # the image can never be run under any other name.
+        VITE_API_URL: ""
+        VITE_APP_URL: ${PUBLIC_ORIGIN:-http://localhost}/app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # The front end's own /api/auth/$ route forwards here; nginx routes
+      # /app/api/ past it, so this is only reached by a request that bypasses
+      # the proxy.
+      BACKEND_URL: http://app-backend:4001
+    expose:
+      - "4000"
+    depends_on:
+      app-backend:
+        condition: service_healthy
+
+  # ── The reporting platform: Loco.rs backend ───────────────────────────────
+  #
+  # enterprise_reporting_rust/rust — every route in its rust/routes.json, the
+  # job workers and the cron scheduler, in one process. Exactly one of these
+  # per installation, or monitoring rules fire twice. It creates the
+  # administrator and NL-query accounts itself on boot.
+  report-backend:
+    image: app-and-report/report-backend:local
+    build:
+      context: ./enterprise_reporting_rust/rust
+    restart: unless-stopped
+    environment: &report-backend-env
+      DATABASE_URL: *report-db-url
+      GRAPH_DATABASE_URL: *report-graph-url
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required — ./start.sh writes one into .env}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required — ./start.sh writes one into .env}
+      # Better Auth's base URL: its origin is the one a sign-in is trusted from.
+      BETTER_AUTH_URL: ${PUBLIC_ORIGIN:-http://localhost}/report
+      CORS_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      # The bootstrap administrator. Eight characters or more, or the platform
+      # ignores it and generates one; ./start.sh writes a random one once.
+      ADMIN_PASSWORD: ${REPORT_ADMIN_PASSWORD:-}
+      # The application's database is on this network, and the platform
+      # refuses a private address unless it is named here.
+      DATA_SOURCE_HOST_ALLOWLIST: ${APP_DB_HOST:-postgres}
+      MASTRA_URL: ${MASTRA_URL:-}
+      LLAMA_REASONING_URL: ${LLAMA_REASONING_URL:-}
+      LLAMA_EMBEDDING_URL: ${LLAMA_EMBEDDING_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "5150"
+
+  # ── The reporting platform: TanStack Start front end ─────────────────────
+  report:
+    build:
+      context: ./enterprise_reporting_rust
+      dockerfile: ../common/docker/reporting.Dockerfile
+      # The overlay lives in common/, which is not the build context. Naming it
+      # as an extra context keeps the context itself small.
+      additional_contexts:
+        common: ./common
+      args:
+        BASE_PATH: /report
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # Rust is the backend: every route in rust/routes.json is forwarded
+      # there, and this process starts no workers, cron runner or graph sync.
+      ERS_RUST_API_URL: http://report-backend:5150
+      # Still read by the few server functions that have no Rust twin yet, and
+      # by the CopilotKit runtime. Both backends share one database and one key.
+      DATABASE_URL: *report-db-url
+      GRAPH_DATABASE_URL: *report-graph-url
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET is required — ./start.sh writes one into .env}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required — ./start.sh writes one into .env}
+      MASTRA_URL: ${MASTRA_URL:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "3000"
+    depends_on:
+      report-backend:
+        condition: service_started
+
+  # ── Loading the application into the platform ─────────────────────────────
+  #
+  # One shot, from the reporting backend's own image: `task seed_reporting_pack`
+  # registers the application's database as a data source, caches its
+  # introspected schema, and writes the reporting pack and its roles. It
+  # applies the platform's schema and bootstrap accounts itself, so it does not
+  # depend on report-backend having booted first. Idempotent, so it runs on
+  # every `up` rather than only the first.
+  seeder:
+    image: app-and-report/report-backend:local
+    build:
+      context: ./enterprise_reporting_rust/rust
+    restart: "no"
+    command: ["ers-backend-cli", "task", "seed_reporting_pack"]
+    environment:
+      <<: *report-backend-env
+      APP_DATABASE_URL: *app-db-url
+      REPORTING_PACK: /pack/reporting-pack.json
+    volumes:
+      - ./common/.runtime/pack:/pack:ro
+
+  # ── The front door ────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${PUBLIC_PORT:-80}:80"
+    volumes:
+      - ./common/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # The front door's own page, written by common/build/landing.ts from the
+      # reporting pack — so the accounts it lists are this model's. Read-only,
+      # and the config falls back to redirecting at /app when it is absent.
+      - ./common/.runtime/landing:/usr/share/nginx/landing:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  demo_pg:
+  prod_pg_app:
+  prod_pg_report:
