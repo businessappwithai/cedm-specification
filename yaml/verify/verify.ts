@@ -9,6 +9,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { type Check, requireDir } from "./lib";
+import { verifyBrowser } from "./browser";
 import { verifyEnterpriseCli } from "./enterprise";
 import { verifyModels } from "./models";
 
@@ -25,6 +26,7 @@ const mermaid = requireDir(value("--mermaid"), "--mermaid");
 const sections: Array<[string, () => Check[] | Promise<Check[]>]> = [
   ["models", () => verifyModels(mermaid, requireDir(value("--reference"), "--reference"))],
   ["enterprise", () => verifyEnterpriseCli(mermaid)],
+  ["browser", () => verifyBrowser(mermaid)],
 ];
 
 const checks: Check[] = [];

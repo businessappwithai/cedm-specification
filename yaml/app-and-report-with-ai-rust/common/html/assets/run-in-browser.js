@@ -3,11 +3,11 @@
  *
  * Three moving parts, in order:
  *
- *   1. A model is read — from `models/*.eml.mmd` beside this page, or from a
+ *   1. A model is read — from `models/*.eml.yaml` beside this page, or from a
  *      file the reader picks. Reading a picked file never leaves the tab.
- *   2. `appwithai-wasm.js` compiles it. That bundle is built from the same
- *      source the CLI uses, so the application produced here is the application
- *      `appwithai-wasm generate` would have written.
+ *   2. `appwithai-model.js` validates and compiles it — the language's own
+ *      reader and compiler, the ones the CLIs run — and `appwithai-wasm.js`
+ *      writes the application from the compiled model.
  *   3. The files are posted to a Service Worker, which serves them as if they
  *      had come off a web server, and an iframe is pointed at the result.
  *
@@ -19,28 +19,27 @@
  * keeps the generated application byte-identical to the one you would deploy.
  */
 
-// The published validator, not the copy inside the generator bundle. Same engine
-// either way — but this is the file `llms-full.txt` §10 tells a model to validate
-// against, so the page and the protocol cannot drift into disagreeing about
-// whether a document is acceptable. `fixer.js` carries the checker with it,
-// which is what lets it re-check what it repaired.
-import { checkAndFix } from "../fixer.js";
-import { generateFromSource } from "./appwithai-wasm.js";
+// The language's reader, checker, fixer and compiler, bundled from
+// language/browser/browser-generator.entry.ts — the same code as the published
+// validator (`model-yaml.js`) and the CLIs, so the page and the protocol cannot
+// disagree about whether a model is acceptable.
+import { compileForBrowser, fix } from "./appwithai-model.js";
+import { generateFromModel } from "./appwithai-wasm.js";
 
 const BASE = new URL("wasm-app/run/", window.location.href).pathname;
 const SW_URL = new URL("wasm-app/sw.js", window.location.href).pathname;
 const SW_SCOPE = new URL("wasm-app/", window.location.href).pathname;
 
 const BUILT_IN = {
-  crm: { path: "models/crm.eml.mmd", label: "crm.eml.mmd", name: "Acme CRM" },
+  crm: { path: "models/crm.eml.yaml", label: "crm.eml.yaml", name: "Acme CRM" },
   drug: {
-    path: "models/drug-discovery.eml.mmd",
-    label: "drug-discovery.eml.mmd",
+    path: "models/drug-discovery.eml.yaml",
+    label: "drug-discovery.eml.yaml",
     name: "Drug Discovery",
   },
   investment: {
-    path: "models/investment-planning-wealth-management-system.eml.mmd",
-    label: "investment-planning-wealth-management-system.eml.mmd",
+    path: "models/investment-planning-wealth-management-system.eml.yaml",
+    label: "investment-planning-wealth-management-system.eml.yaml",
     name: "Investment Planning and Wealth Management",
   },
 };
@@ -228,7 +227,7 @@ for (const type of ["dragleave", "drop"]) {
 async function readFile(file) {
   const text = await file.text();
   setModel(text, file.name);
-  const guessed = file.name.replace(/\.(eml\.)?mmd$|\.md$|\.txt$/i, "").replace(/[-_]+/g, " ");
+  const guessed = file.name.replace(/\.(eml\.)?ya?ml$|\.txt$/i, "").replace(/[-_]+/g, " ");
   if (guessed.trim()) $("app-name").value = titleCase(guessed.trim());
 }
 
@@ -274,7 +273,7 @@ function setModel(source, label) {
   // Checked here rather than at the point of generating, because this is the
   // moment the reader is looking at the model — and because a model with an
   // error is not going to become a working application by pressing Generate.
-  build.start("check", "Checking the model against the EML language definition");
+  build.start("check", "Checking the model: YAML, the schema and the language checker");
   const review = checkModel(source);
   if (!review.ok) {
     build.fail("check", `${review.counts.errors} error(s) — nothing was generated`);
@@ -291,27 +290,36 @@ function setModel(source, label) {
 /* -------------------------------------------------- checker + fixer feedback */
 
 /**
- * Run the checker over the model and show what it found.
+ * Validate the model and show what the reader found.
  *
- * This is the same engine as `bun language/checker.ts`, and the same repairs as
- * `bun language/fixer.ts` — bundled, not reimplemented. A model that passes says
- * nothing beyond a line in the build detail; a model that does not gets every
- * finding with its code, line and hint, because "generation failed" on its own
- * leaves the reader with a file and no idea which line of it is wrong.
+ * The same reader and fixer as `eml validate` and `appwithai validate` —
+ * YAML syntax, the JSON Schema, the language checker — bundled, not
+ * reimplemented. A model that passes says nothing beyond a line in the build
+ * detail; a model that does not gets every finding with its code, YAML line and
+ * hint, because "generation failed" on its own leaves the reader with a file
+ * and no idea which line of it is wrong.
  *
- * The repaired source replaces the loaded one when the fixer applied anything,
+ * The repaired text replaces the loaded one when the fixer applied anything,
  * so what gets compiled is what the reader is being shown findings about.
  */
 function checkModel(source) {
   let review;
   try {
-    // `checkAndFix` repairs the five auto-fixable codes and then re-checks, so
-    // what is reported describes the document that will actually be compiled
-    // rather than the one that arrived. `remaining` is that second reading.
-    const result = checkAndFix(source);
-    review = { ...result, issues: result.remaining };
+    // `fix` repairs what is mechanically repairable, keeping the author's
+    // comments, and then re-checks, so what is reported describes the document
+    // that will actually be compiled rather than the one that arrived.
+    const result = fix(source);
+    const count = (severity) => result.diagnostics.filter((d) => d.severity === severity).length;
+    review = {
+      ok: result.ok,
+      repaired: result.applied.length > 0,
+      source: result.text,
+      fixes: result.applied.map((applied) => ({ ...applied, applied: true })),
+      counts: { errors: count("error"), warnings: count("warning"), infos: count("info") },
+      issues: result.diagnostics,
+    };
   } catch (error) {
-    // A document the parser cannot read at all — not a finding, a refusal.
+    // A document the reader cannot read at all — not a finding, a refusal.
     review = {
       ok: false,
       repaired: false,
@@ -321,9 +329,9 @@ function checkModel(source) {
       issues: [
         {
           severity: "error",
-          code: "EML000",
-          message: `This file could not be read as EML: ${error.message}`,
-          hint: "An EML document is a Mermaid file with an erDiagram section.",
+          code: "YAML",
+          message: `This file could not be read as a model: ${error.message}`,
+          hint: "A model is a YAML document (*.eml.yaml) that opens with `eml: \"1.0\"`.",
         },
       ],
     };
@@ -422,10 +430,10 @@ function renderDiagnostics(review) {
         : `<p class="diag__foot"><b>Nothing was generated.</b> Fix the ${
             review.counts.errors === 1 ? "line above" : "lines above"
           } in your
-             <code>.mmd</code> file, save it, and choose it again — this page re-checks every
-             time a model is loaded, so you can correct and re-submit until it passes. The
-             command-line tool stops here too: <code>appwithai-wasm generate</code> refuses a
-             model with errors unless you pass <code>--skip-check</code>.</p>`
+             <code>.eml.yaml</code> file, save it, and choose it again — this page re-checks
+             every time a model is loaded, so you can correct and re-submit until it passes.
+             The command-line tools stop here too: <code>appwithai generate</code> and
+             <code>eml generate</code> refuse a model with errors.</p>`
     }`;
 }
 
@@ -452,8 +460,16 @@ $("generate").addEventListener("click", () => {
   // large one, and a button that never showed it was pressed reads as broken.
   requestAnimationFrame(() => {
     try {
-      const result = generateFromSource({
-        source: state.source,
+      const compiled = compileForBrowser(state.source);
+      if (!compiled.ok) {
+        const review = checkModel(state.source);
+        const error = new Error("The model has errors.");
+        error.review = review;
+        throw error;
+      }
+      const result = generateFromModel({
+        model: compiled.model,
+        modelText: state.source,
         name: $("app-name").value.trim() || "Generated App",
         adminEmail: $("admin-email").value.trim() || "admin@admin.com",
         adminPassword: $("admin-password").value || "admin",
@@ -472,7 +488,7 @@ $("generate").addEventListener("click", () => {
         `${result.summary.fileCount} files · ${(result.summary.bytes / 1024).toFixed(0)}KB`
       );
     } catch (error) {
-      // A ModelCheckError carries the findings; anything else is a compiler
+      // A model with errors carries the findings; anything else is a compiler
       // failure, which is a different thing and should not be dressed as one.
       if (error.review) {
         state.review = error.review;

@@ -11467,7 +11467,7 @@ const MIME = {
   ".wasm": "application/wasm",
   ".data": "application/octet-stream",
   ".sql": "text/plain; charset=utf-8",
-  ".mmd": "text/plain; charset=utf-8",
+  ".yaml": "text/yaml; charset=utf-8",
   ".md": "text/markdown; charset=utf-8",
   ".gz": "application/gzip",
   ".svg": "image/svg+xml",
@@ -15353,7 +15353,7 @@ export function modelRoutes(model, readAsset) {
   });
 
   router.get("/source", async () => {
-    const source = await readAsset("model/model.eml.mmd").catch(() => "");
+    const source = await readAsset("model/model.eml.yaml").catch(() => "");
     return text(source || "-- no model source was written with this application --");
   });
 
@@ -23111,7 +23111,7 @@ function buildReportingPack(model, options) {
     application: {
       name: appName,
       description: options.projectDescription?.trim() || `${appName}: ${model.entities.length} entities, ${model.workflows.length + model.sagas.length} workflows.`,
-      model: options.modelFileName ?? `${kebabName(appName)}.eml.mmd`,
+      model: options.modelFileName ?? `${kebabName(appName)}.eml.yaml`,
       databaseName: options.databaseName,
       ...options.generatedAt ? { generatedAt: options.generatedAt } : {}
     },
@@ -23992,7 +23992,7 @@ ${processSection}
 
   <section id="how-it-was-built">
     <h2>How this application was built</h2>
-    <p>It was generated from a single model file &mdash; a Mermaid document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
+    <p>It was generated from a single model file &mdash; a YAML document (<code>model.eml.yaml</code>) describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
     <p>The same model produces two applications, and this is the <b>${options.stack === "browser" ? "browser build</b>: a runtime that boots in a tab with no install and no build step, with PostgreSQL compiled to WebAssembly underneath it" : "deployable build</b>: NestJS and TanStack Start source you can read, edit and deploy, with a <code>docker-compose.yml</code> that brings up PostgreSQL, the API and the web front end together"}.</p>
     <p>Regenerating from an amended model rewrites all of it, this manual included. Nothing here is maintained by hand, which is why it cannot fall out of step with the application it describes.</p>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -26462,7 +26462,7 @@ function generateWasmApp(parsed, options) {
 `);
   files.set("app/schema.bus.sql", schema);
   if (options.source?.trim())
-    files.set("model/model.eml.mmd", options.source);
+    files.set("model/model.eml.yaml", options.source);
   files.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml2(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml2(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml2(initials2(options.name))));
   if (options.pgliteUrl && options.pgliteUrl !== DEFAULT_PGLITE_URL) {
     files.set("host/browser-node-host.js", (RUNTIME_ASSETS["host/browser-node-host.js"] ?? "").replace(DEFAULT_PGLITE_URL, options.pgliteUrl));
@@ -26570,7 +26570,7 @@ Node host; in the browser it is fetched and cached by the browser itself.
 | \`server/\` | the backend: routing, CRUD, rules engine, guards, hooks |
 | \`host/\` | the two runtimes that can start it — browser Worker, Node |
 | \`ui/\` | the interface, drawn from the Application Dictionary |
-| \`model/model.eml.mmd\` | the model this was generated from |
+| \`model/model.eml.yaml\` | the model this was generated from |
 
 ## This model
 
@@ -26652,13 +26652,55 @@ function generateFromSource(options) {
     review
   };
 }
+// generateFromModel: added by scripts/patch-vendored-generators.ts
+function generateFromModel(options) {
+  const warnings = [];
+  // Compiled from YAML by appwithai-model.js; nothing here reads model text.
+  const parsed = options.model;
+  const source = options.modelText;
+  if (!parsed.entities.length) {
+    throw new Error("This model declares no entities. A model declares its entities under `entities:`.");
+  }
+  const name = options.name?.trim() || "Generated App";
+  const generated = generateWasmApp(parsed, {
+    name,
+    version: options.version ?? "1.0.0",
+    description: options.description ?? `Generated from ${parsed.entities.length} entities`,
+    adminEmail: options.adminEmail ?? "admin@admin.com",
+    adminPassword: options.adminPassword ?? "admin",
+    adminName: options.adminName ?? "admin",
+    source,
+    pgliteUrl: options.pgliteUrl,
+    sampleRecords: options.sampleRecords,
+    sampleSeed: options.sampleSeed,
+    sampleNullRate: options.sampleNullRate
+  });
+  return {
+    files: Object.fromEntries(generated.files),
+    summary: {
+      project: name,
+      entities: parsed.entities.map((entity2) => entity2.name),
+      categories: parsed.categories.map((category) => category.name),
+      relationships: parsed.relationships.length,
+      enums: parsed.enums.length,
+      rules: parsed.rules.map((rule2) => rule2.name),
+      hooks: parsed.hooks.length,
+      workflows: parsed.workflows.map((workflow) => workflow.name),
+      sagas: parsed.sagas.map((saga) => saga.name),
+      accessRules: parsed.rbac.operations.length + parsed.rbac.transitions.length,
+      fileCount: generated.stats.fileCount,
+      bytes: generated.stats.bytes,
+      sampleRows: generated.stats.sampleRows
+    },
+    warnings
+  };
+}
+
 export {
   DEFAULT_PGLITE_URL,
   DEFAULT_SAMPLE_RECORDS,
   ModelCheckError,
   RUNTIME_BYTES,
-  generateFromSource,
-  generateWasmApp,
-  parseModel,
-  reviewModel
+  generateFromModel,
+  generateWasmApp
 };

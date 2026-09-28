@@ -42,6 +42,7 @@ import {
   setLanguageMapsDefinition,
 } from "../../packages/generator/src/model/language-maps";
 import type { ParsedModel } from "../../packages/generator/src/model/compile";
+import { deriveAccess } from "../../packages/generator/src/rbac/roles";
 import type { ModelDocument } from "../../packages/generator/src/model-yaml/document";
 import {
   canonicalDocument,
@@ -172,6 +173,246 @@ export function toGeneratorModel(document: ModelDocument, model: ParsedModel): J
   };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  The model viewers                                                          */
+/* -------------------------------------------------------------------------- */
+
+/** What each step type must, may, and publishes — the viewers' saga ladder. */
+function decisionPublishes(props: Json): string[] {
+  const allowed = String(props.publish ?? "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+  if (allowed.length > 0) return allowed;
+  const inline = String(props.decisionTable ?? "").trim();
+  if (!inline) return [];
+  try {
+    const table = JSON.parse(inline);
+    return (table.outputs ?? [])
+      .map((output: Json) => output?.field?.trim())
+      .filter((field: unknown) => Boolean(field));
+  } catch {
+    return [];
+  }
+}
+
+const STEP_CONTRACTS: Record<
+  string,
+  { required: string[]; oneOf?: string[][]; publishes?: (props: Json) => string[] }
+> = {
+  UpdateEntity: { required: ["field"], oneOf: [["source", "value"]] },
+  CreateEntity: {
+    required: ["entity", "fields"],
+    publishes: (props) => {
+      const explicit = String(props.as ?? "").trim();
+      if (explicit) return [explicit];
+      const table = String(props.entity ?? "").trim();
+      return table ? [`${table.replace(/^bus_/, "")}Id`] : [];
+    },
+  },
+  DeleteEntity: { required: [] },
+  Decision: { required: [], oneOf: [["decisionTable", "rule"]], publishes: decisionPublishes },
+  Formula: {
+    required: ["target", "operation"],
+    publishes: (props) => (String(props.target ?? "").trim() ? [String(props.target).trim()] : []),
+  },
+  REST: { required: ["url"] },
+  Agent: { required: ["agentId"] },
+};
+
+function missingProperties(step: Json): string[] {
+  const contract = STEP_CONTRACTS[step.type];
+  if (!contract) return [];
+  const missing = contract.required.filter((key) => !String(step.props[key] ?? "").trim());
+  for (const group of contract.oneOf ?? []) {
+    if (!group.some((key) => String(step.props[key] ?? "").trim())) missing.push(group.join(" or "));
+  }
+  return missing;
+}
+
+/** The enum-bound column a state machine's states live in, when one matches. */
+function resolveStatusColumn(workflow: Json, entity: Json | undefined): Json {
+  if (!entity) return {};
+  const states = new Set(workflow.states.map((state: Json) => state.name));
+  if (states.size === 0) return {};
+  let best: Json | undefined;
+  for (const attribute of entity.attributes) {
+    if (!attribute.enumValues?.length) continue;
+    const overlap = attribute.enumValues.filter((value: string) => states.has(value)).length;
+    if (overlap === 0) continue;
+    if (!best || overlap > best.overlap) {
+      best = { column: attribute.name, values: attribute.enumValues, overlap };
+    }
+  }
+  return best ? { column: best.column, values: best.values } : {};
+}
+
+/** A rule node's `type`, as the viewers draw it. */
+const VIEWER_ROLE: Record<string, string> = {
+  start: "start",
+  end: "end",
+  decision: "decision",
+  function: "compute",
+  expression: "action",
+};
+
+function eventOperation(event: string | undefined): string {
+  const normalized = (event ?? "").toLowerCase();
+  if (normalized.includes("create")) return "CREATE";
+  if (normalized.includes("update")) return "UPDATE";
+  if (normalized.includes("delete")) return "DELETE";
+  return "ALL";
+}
+
+function slug(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "model";
+}
+
+/**
+ * The model as the viewers draw it: the compiled model, each entity with its
+ * category, the roles that may read it and how connected it is; each rule as
+ * its graph and actions; each state machine with its status column and the
+ * roles on its edges; each saga step with what it is missing and publishes;
+ * and the roles the access rules derive.
+ */
+export function viewerModel(document: ModelDocument, model: Json): Json {
+  const entityByName = new Map<string, Json>(model.entities.map((entity: Json) => [entity.name, entity]));
+  const categoryOf = new Map<string, string>();
+  for (const category of model.categories)
+    for (const name of category.entities) categoryOf.set(name, category.name);
+  const readableBy = new Map<string, string[]>();
+  for (const rule of model.rbac.operations)
+    if (rule.operation === "read") readableBy.set(rule.entity, rule.roles);
+  const degree = new Map<string, number>();
+  for (const relationship of model.relationships) {
+    degree.set(relationship.sourceEntity, (degree.get(relationship.sourceEntity) ?? 0) + 1);
+    degree.set(relationship.targetEntity, (degree.get(relationship.targetEntity) ?? 0) + 1);
+  }
+  const entities = model.entities.map((entity: Json) => ({
+    ...entity,
+    category: categoryOf.get(entity.name),
+    readableBy: readableBy.get(entity.name) ?? [],
+    degree: degree.get(entity.name) ?? 0,
+  }));
+
+  const compiledByName = new Map<string, Json>(model.rules.map((rule: Json) => [rule.name, rule]));
+  const rules = (document.rules ?? []).map((rule) => {
+    const compiled = compiledByName.get(rule.name);
+    return {
+      name: rule.name,
+      title: rule.title,
+      entity: rule.entity,
+      event: rule.event,
+      operation: compiled?.operation ?? eventOperation(rule.event),
+      priority: compiled?.priority ?? rule.priority ?? 100,
+      tableName: compiled?.tableName,
+      nodes: (rule.nodes ?? []).map((node) => ({
+        id: node.id,
+        label: node.label,
+        role: VIEWER_ROLE[node.type] ?? "action",
+      })),
+      edges: (rule.edges ?? []).map((edge, index) => ({
+        id: `e${index}_${edge.from}_${edge.to}`,
+        source: edge.from,
+        target: edge.to,
+        label: edge.label,
+      })),
+      actions: (rule.actions ?? []).map((action) => ({
+        name: action.name,
+        type: action.type,
+        when: action.when?.trim() || "true",
+        props: { ...(action.props ?? {}) },
+      })),
+      compiled: Boolean(compiled),
+    };
+  });
+
+  const titleOf = new Map<string, string | undefined>([
+    ...(document.stateMachines ?? []).map((machine) => [machine.name, machine.title] as const),
+    ...(document.sagas ?? []).map((saga) => [saga.name, saga.title] as const),
+  ]);
+  const transitionRoles = new Map<string, Record<string, string[]>>();
+  for (const rule of model.rbac.transitions) {
+    const forEntity = transitionRoles.get(rule.entity) ?? {};
+    for (const edge of rule.edges) forEntity[`${edge.from}>${edge.to}`] = rule.roles;
+    transitionRoles.set(rule.entity, forEntity);
+  }
+  const workflows = model.workflows.map((workflow: Json) => {
+    const entity = entityByName.get(workflow.entity);
+    const { column, values } = resolveStatusColumn(workflow, entity);
+    const declared = new Set(values ?? []);
+    return {
+      ...workflow,
+      title: titleOf.get(workflow.name),
+      statusColumn: column,
+      declaredValues: values,
+      undeclaredStates: declared.size
+        ? workflow.states.map((state: Json) => state.name).filter((name: string) => !declared.has(name))
+        : [],
+      transitionRoles: transitionRoles.get(workflow.entity) ?? {},
+    };
+  });
+  const sagas = model.sagas.map((saga: Json) => ({
+    ...saga,
+    title: titleOf.get(saga.name),
+    steps: saga.steps.map((step: Json) => ({
+      ...step,
+      missing: missingProperties(step),
+      publishes: STEP_CONTRACTS[step.type]?.publishes?.(step.props) ?? [],
+    })),
+  }));
+  const meta: Json = {};
+  if (document.name) meta.name = document.name;
+  if (document.version) meta.version = document.version;
+  if (document.description) meta.description = document.description;
+  const access = deriveAccess(model.rbac, {
+    projectId: slug(meta.name ?? "model"),
+    entities: model.entities.map((entity: Json) => entity.name),
+  });
+  return {
+    meta,
+    entities,
+    relationships: model.relationships,
+    categories: model.categories,
+    enums: model.enums,
+    rules,
+    workflows,
+    sagas,
+    hooks: model.hooks,
+    rbac: model.rbac,
+    access,
+    warnings: [],
+    stats: {
+      entities: entities.length,
+      fields: entities.reduce((total: number, entity: Json) => total + entity.attributes.length, 0),
+      relationships: model.relationships.length,
+      enums: model.enums.length,
+      rules: rules.length,
+      hooks: model.hooks.length,
+      stateMachines: workflows.length,
+      sagas: sagas.length,
+      roles: access.roles.length,
+      accessRules: model.rbac.operations.length + model.rbac.transitions.length,
+    },
+  };
+}
+
+/**
+ * Read a model for the viewers: `{ ok, model, diagnostics }`. A model with
+ * errors is still drawn when it reads as a document, so an author can see what
+ * they have while fixing it; one that does not read has no model.
+ */
+export function readModelForViewer(text: string): { ok: boolean; model?: Json; diagnostics: Json[] } {
+  const read = readModelYaml(text);
+  if (!read.document) return { ok: false, diagnostics: read.diagnostics };
+  const compiled = compileModelDocument(read.document, { warn: () => {} });
+  return {
+    ok: read.ok,
+    model: viewerModel(read.document, toGeneratorModel(read.document, compiled)),
+    diagnostics: read.diagnostics,
+  };
+}
+
 export interface CompiledForBrowser {
   /** True when the model has no errors and was compiled. */
   ok: boolean;
@@ -208,6 +449,8 @@ export const fix = checkAndFix;
 (globalThis as Record<string, unknown>).EMLYamlGenerator = {
   compileForBrowser,
   toGeneratorModel,
+  readModelForViewer,
+  viewerModel,
   validate,
   fix,
   readModelYaml,

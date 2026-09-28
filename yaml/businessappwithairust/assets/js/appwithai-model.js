@@ -8335,6 +8335,101 @@ function setLanguageMapsDefinition(definition) {
   cachedDefinition = definition;
 }
 
+// packages/generator/src/rbac/roles.ts
+function titleCaseRole(name) {
+  return name.split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+function localPart(name) {
+  return name.toLowerCase().split(/[\s_-]+/).filter(Boolean).join(".");
+}
+var ADMIN_ROLE = "Administrator";
+var BUILT_IN = [
+  {
+    name: ADMIN_ROLE,
+    declaredAs: "administrator",
+    description: "Full access to every entity, and bypasses every restriction",
+    isAdmin: true,
+    userLevel: "S"
+  },
+  {
+    name: "User",
+    declaredAs: "user",
+    description: "Signed in, holding no functional role",
+    isAdmin: false,
+    userLevel: "U"
+  }
+];
+function deriveAccess(compiled, options) {
+  const declared = new Map;
+  const remember = (role) => {
+    const key = role.toLowerCase();
+    if (!declared.has(key))
+      declared.set(key, role);
+  };
+  for (const rule of compiled.operations)
+    for (const role of rule.roles)
+      remember(role);
+  for (const rule of compiled.transitions)
+    for (const role of rule.roles)
+      remember(role);
+  const roles = BUILT_IN.map((role) => ({ ...role }));
+  const taken = new Set(roles.map((role) => role.name.toLowerCase()));
+  for (const key of [...declared.keys()].sort()) {
+    const spelling = declared.get(key);
+    const name = titleCaseRole(spelling);
+    if (taken.has(name.toLowerCase()))
+      continue;
+    taken.add(name.toLowerCase());
+    roles.push({
+      name,
+      declaredAs: spelling,
+      description: `Declared by the model's access rules as ${spelling}`,
+      isAdmin: false,
+      userLevel: "U"
+    });
+  }
+  const adminEmail = options.adminEmail?.trim() || "admin@admin.com";
+  const domain = `${options.projectId || "app"}.example.com`;
+  const users = roles.map((role) => role.isAdmin ? {
+    email: adminEmail,
+    name: options.adminName?.trim() || "Administrator",
+    roleName: role.name,
+    description: "Bypasses every restriction — the account to compare the others against",
+    isAdmin: true
+  } : {
+    email: `${localPart(role.declaredAs)}@${domain}`,
+    name: role.name,
+    roleName: role.name,
+    description: `Holds ${role.name} and nothing else`,
+    isAdmin: false
+  });
+  const entityVisibility = {};
+  for (const rule of compiled.operations) {
+    if (rule.operation !== "read")
+      continue;
+    const existing = entityVisibility[rule.entity] ?? [];
+    entityVisibility[rule.entity] = [...new Set([...existing, ...rule.roles])].sort();
+  }
+  const allEntities = options.entities && options.entities.length > 0 ? options.entities : Object.keys(entityVisibility);
+  const normalize = (value) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const entityCounts = {};
+  for (const role of roles) {
+    entityCounts[role.name] = role.isAdmin ? allEntities.length : allEntities.filter((entity) => {
+      const allowed = entityVisibility[entity];
+      if (!allowed || allowed.length === 0)
+        return true;
+      return allowed.some((name) => normalize(name) === normalize(role.declaredAs));
+    }).length;
+  }
+  return {
+    roles,
+    users,
+    entityVisibility,
+    entityCounts,
+    scoped: Object.keys(entityVisibility).length > 0
+  };
+}
+
 // node_modules/.bun/yaml@2.9.1/node_modules/yaml/browser/dist/nodes/identity.js
 var ALIAS = Symbol.for("yaml.alias");
 var DOC = Symbol.for("yaml.document");
@@ -22277,6 +22372,225 @@ function toGeneratorModel(document3, model) {
     reports: compiled.reports
   };
 }
+function decisionPublishes(props) {
+  const allowed = String(props.publish ?? "").split(",").map((name) => name.trim()).filter(Boolean);
+  if (allowed.length > 0)
+    return allowed;
+  const inline = String(props.decisionTable ?? "").trim();
+  if (!inline)
+    return [];
+  try {
+    const table = JSON.parse(inline);
+    return (table.outputs ?? []).map((output) => output?.field?.trim()).filter((field) => Boolean(field));
+  } catch {
+    return [];
+  }
+}
+var STEP_CONTRACTS = {
+  UpdateEntity: { required: ["field"], oneOf: [["source", "value"]] },
+  CreateEntity: {
+    required: ["entity", "fields"],
+    publishes: (props) => {
+      const explicit = String(props.as ?? "").trim();
+      if (explicit)
+        return [explicit];
+      const table = String(props.entity ?? "").trim();
+      return table ? [`${table.replace(/^bus_/, "")}Id`] : [];
+    }
+  },
+  DeleteEntity: { required: [] },
+  Decision: { required: [], oneOf: [["decisionTable", "rule"]], publishes: decisionPublishes },
+  Formula: {
+    required: ["target", "operation"],
+    publishes: (props) => String(props.target ?? "").trim() ? [String(props.target).trim()] : []
+  },
+  REST: { required: ["url"] },
+  Agent: { required: ["agentId"] }
+};
+function missingProperties(step) {
+  const contract = STEP_CONTRACTS[step.type];
+  if (!contract)
+    return [];
+  const missing2 = contract.required.filter((key) => !String(step.props[key] ?? "").trim());
+  for (const group of contract.oneOf ?? []) {
+    if (!group.some((key) => String(step.props[key] ?? "").trim()))
+      missing2.push(group.join(" or "));
+  }
+  return missing2;
+}
+function resolveStatusColumn(workflow, entity) {
+  if (!entity)
+    return {};
+  const states = new Set(workflow.states.map((state) => state.name));
+  if (states.size === 0)
+    return {};
+  let best;
+  for (const attribute of entity.attributes) {
+    if (!attribute.enumValues?.length)
+      continue;
+    const overlap = attribute.enumValues.filter((value) => states.has(value)).length;
+    if (overlap === 0)
+      continue;
+    if (!best || overlap > best.overlap) {
+      best = { column: attribute.name, values: attribute.enumValues, overlap };
+    }
+  }
+  return best ? { column: best.column, values: best.values } : {};
+}
+var VIEWER_ROLE = {
+  start: "start",
+  end: "end",
+  decision: "decision",
+  function: "compute",
+  expression: "action"
+};
+function eventOperation(event) {
+  const normalized = (event ?? "").toLowerCase();
+  if (normalized.includes("create"))
+    return "CREATE";
+  if (normalized.includes("update"))
+    return "UPDATE";
+  if (normalized.includes("delete"))
+    return "DELETE";
+  return "ALL";
+}
+function slug(name) {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "model";
+}
+function viewerModel(document3, model) {
+  const entityByName = new Map(model.entities.map((entity) => [entity.name, entity]));
+  const categoryOf3 = new Map;
+  for (const category of model.categories)
+    for (const name of category.entities)
+      categoryOf3.set(name, category.name);
+  const readableBy = new Map;
+  for (const rule of model.rbac.operations)
+    if (rule.operation === "read")
+      readableBy.set(rule.entity, rule.roles);
+  const degree = new Map;
+  for (const relationship of model.relationships) {
+    degree.set(relationship.sourceEntity, (degree.get(relationship.sourceEntity) ?? 0) + 1);
+    degree.set(relationship.targetEntity, (degree.get(relationship.targetEntity) ?? 0) + 1);
+  }
+  const entities = model.entities.map((entity) => ({
+    ...entity,
+    category: categoryOf3.get(entity.name),
+    readableBy: readableBy.get(entity.name) ?? [],
+    degree: degree.get(entity.name) ?? 0
+  }));
+  const compiledByName = new Map(model.rules.map((rule) => [rule.name, rule]));
+  const rules = (document3.rules ?? []).map((rule) => {
+    const compiled = compiledByName.get(rule.name);
+    return {
+      name: rule.name,
+      title: rule.title,
+      entity: rule.entity,
+      event: rule.event,
+      operation: compiled?.operation ?? eventOperation(rule.event),
+      priority: compiled?.priority ?? rule.priority ?? 100,
+      tableName: compiled?.tableName,
+      nodes: (rule.nodes ?? []).map((node) => ({
+        id: node.id,
+        label: node.label,
+        role: VIEWER_ROLE[node.type] ?? "action"
+      })),
+      edges: (rule.edges ?? []).map((edge, index) => ({
+        id: `e${index}_${edge.from}_${edge.to}`,
+        source: edge.from,
+        target: edge.to,
+        label: edge.label
+      })),
+      actions: (rule.actions ?? []).map((action) => ({
+        name: action.name,
+        type: action.type,
+        when: action.when?.trim() || "true",
+        props: { ...action.props ?? {} }
+      })),
+      compiled: Boolean(compiled)
+    };
+  });
+  const titleOf2 = new Map([
+    ...(document3.stateMachines ?? []).map((machine) => [machine.name, machine.title]),
+    ...(document3.sagas ?? []).map((saga) => [saga.name, saga.title])
+  ]);
+  const transitionRoles = new Map;
+  for (const rule of model.rbac.transitions) {
+    const forEntity = transitionRoles.get(rule.entity) ?? {};
+    for (const edge of rule.edges)
+      forEntity[`${edge.from}>${edge.to}`] = rule.roles;
+    transitionRoles.set(rule.entity, forEntity);
+  }
+  const workflows = model.workflows.map((workflow) => {
+    const entity = entityByName.get(workflow.entity);
+    const { column, values } = resolveStatusColumn(workflow, entity);
+    const declared = new Set(values ?? []);
+    return {
+      ...workflow,
+      title: titleOf2.get(workflow.name),
+      statusColumn: column,
+      declaredValues: values,
+      undeclaredStates: declared.size ? workflow.states.map((state) => state.name).filter((name) => !declared.has(name)) : [],
+      transitionRoles: transitionRoles.get(workflow.entity) ?? {}
+    };
+  });
+  const sagas = model.sagas.map((saga) => ({
+    ...saga,
+    title: titleOf2.get(saga.name),
+    steps: saga.steps.map((step) => ({
+      ...step,
+      missing: missingProperties(step),
+      publishes: STEP_CONTRACTS[step.type]?.publishes?.(step.props) ?? []
+    }))
+  }));
+  const meta = {};
+  if (document3.name)
+    meta.name = document3.name;
+  if (document3.version)
+    meta.version = document3.version;
+  if (document3.description)
+    meta.description = document3.description;
+  const access = deriveAccess(model.rbac, {
+    projectId: slug(meta.name ?? "model"),
+    entities: model.entities.map((entity) => entity.name)
+  });
+  return {
+    meta,
+    entities,
+    relationships: model.relationships,
+    categories: model.categories,
+    enums: model.enums,
+    rules,
+    workflows,
+    sagas,
+    hooks: model.hooks,
+    rbac: model.rbac,
+    access,
+    warnings: [],
+    stats: {
+      entities: entities.length,
+      fields: entities.reduce((total, entity) => total + entity.attributes.length, 0),
+      relationships: model.relationships.length,
+      enums: model.enums.length,
+      rules: rules.length,
+      hooks: model.hooks.length,
+      stateMachines: workflows.length,
+      sagas: sagas.length,
+      roles: access.roles.length,
+      accessRules: model.rbac.operations.length + model.rbac.transitions.length
+    }
+  };
+}
+function readModelForViewer(text) {
+  const read = readModelYaml(text);
+  if (!read.document)
+    return { ok: false, diagnostics: read.diagnostics };
+  const compiled = compileModelDocument(read.document, { warn: () => {} });
+  return {
+    ok: read.ok,
+    model: viewerModel(read.document, toGeneratorModel(read.document, compiled)),
+    diagnostics: read.diagnostics
+  };
+}
 function compileForBrowser(text) {
   const read = readModelYaml(text);
   if (!read.ok || !read.document)
@@ -22294,6 +22608,8 @@ var fix = checkAndFix;
 globalThis.EMLYamlGenerator = {
   compileForBrowser,
   toGeneratorModel,
+  readModelForViewer,
+  viewerModel,
   validate,
   fix,
   readModelYaml,
@@ -22303,10 +22619,12 @@ globalThis.EMLYamlGenerator = {
   LANGUAGE_VERSION
 };
 export {
+  viewerModel,
   validate,
   toGeneratorModel,
   serializeModelDocument,
   readModelYaml,
+  readModelForViewer,
   fix,
   compileForBrowser,
   checkAndFix,
