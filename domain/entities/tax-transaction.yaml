@@ -1,0 +1,27 @@
+entity:
+  name: TaxTransaction
+  namespace: cedm.domain
+  kind: tax_transaction
+  description: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
+  identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: Enterprise processing, integration, reporting and audit., relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: status
+    type: enum
+    required: true
+    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxTransaction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+  relationships:
+  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  invariants:
+  - {id: TAX-TRANSACTION-001, rule: This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity.}
+  help:
+    summary: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
+    purpose: Provide canonical enterprise semantics for TaxTransaction while keeping planning, operational, financial and evidential responsibilities separated.
+    businessMeaning: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
+    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
+    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
+    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
+    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
+    commonExamples: Enterprise finance and recurring-revenue operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-TRANSACTION}
