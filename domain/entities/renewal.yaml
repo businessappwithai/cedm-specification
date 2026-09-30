@@ -1,0 +1,27 @@
+entity:
+  name: Renewal
+  namespace: cedm.domain
+  kind: subscription_lifecycle
+  description: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+  identity: {key: renewalId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Renewal., businessMeaning: Identifies one governed Renewal record., usage: Enterprise processing, integration, reporting and audit., relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: status
+    type: enum
+    required: true
+    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Renewal., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+  relationships:
+  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  invariants:
+  - {id: RENEWAL-001, rule: This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity.}
+  help:
+    summary: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+    purpose: Provide canonical enterprise semantics for Renewal while keeping planning, operational, financial and evidential responsibilities separated.
+    businessMeaning: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
+    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
+    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
+    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
+    commonExamples: Enterprise finance and recurring-revenue operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RENEWAL}
