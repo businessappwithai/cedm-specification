@@ -33,6 +33,7 @@ registry:
     - BankReconciliation
     - BankTransaction
     - BillOfMaterial
+    - BillingCycle
     - Brand
     - Budget
     - BudgetLine
@@ -46,6 +47,7 @@ registry:
     - Carrier
     - CashPosition
     - CertificateOfAnalysis
+    - Charge
     - ChemicalBatch
     - Classification
     - Collateral
@@ -69,6 +71,7 @@ registry:
     - CorrectiveActionVerification
     - CostCenter
     - Country
+    - Credit
     - CreditNote
     - CreditNoteApplication
     - CreditNoteLine
@@ -152,6 +155,7 @@ registry:
     - Language
     - Lead
     - Lease
+    - Ledger
     - LegalCase
     - LegalEntity
     - LegalMatter
@@ -185,6 +189,7 @@ registry:
     - PartyRole
     - Payment
     - PaymentAllocation
+    - PaymentInstruction
     - PaymentTerm
     - Payroll
     - Permission
@@ -225,6 +230,7 @@ registry:
     - Quotation
     - QuotationLine
     - RegulatorySubmission
+    - Renewal
     - RepairEstimate
     - RepairEstimateLine
     - RequestForQuotation
@@ -256,7 +262,10 @@ registry:
     - ShoppingCart
     - ShoppingCartLine
     - Signature
+    - SparePart
     - Store
+    - Subscription
+    - SubscriptionPlan
     - Supplier
     - SupplierClaim
     - SupplierClaimResolution
@@ -274,7 +283,12 @@ registry:
     - SupplyPlan
     - SupplyPlanLine
     - Task
+    - TaxCode
+    - TaxJurisdiction
+    - TaxRate
+    - TaxRegistration
     - TaxRule
+    - TaxTransaction
     - Team
     - TelecomService
     - TelecomSubscription
@@ -285,6 +299,7 @@ registry:
     - Trip
     - TripSegment
     - UnitOfMeasure
+    - UsageRecord
     - User
     - Variance
     - Vehicle
