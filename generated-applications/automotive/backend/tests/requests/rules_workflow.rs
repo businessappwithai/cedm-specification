@@ -19,7 +19,7 @@
 //! triggers it, then assert on the response, the *other* entity, or the run
 //! log.
 //!
-//! Generated: 2026-10-01T09:31:04.905Z
+//! Generated: 2026-10-01T15:42:38.568Z
 //! Project: automotive
 
 use serde_json::{json, Value};
@@ -28,7 +28,7 @@ use serial_test::serial;
 use crate::support::{
     self, bearer,
     entities::{parent_of, EntityMeta, ENTITIES},
-    factory::{build_record, create_with_parents},
+    factory::{build_record, build_record_with_parents, create_with_parents},
     rows,
 };
 
@@ -433,7 +433,12 @@ async fn a_rule_can_create_a_record_in_another_entity() {
                 &[
                     ("action", json!("create-record")),
                     ("targetEntity", json!(parent.table_name)),
-                    ("createData", json!(Value::Object(build_record(parent)))),
+                    (
+                        "createData",
+                        json!(Value::Object(
+                            build_record_with_parents(&request, &token, parent).await
+                        )),
+                    ),
                 ],
             ),
         )

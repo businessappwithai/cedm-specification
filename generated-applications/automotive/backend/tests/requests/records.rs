@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T09:31:04.900Z
+//! Generated: 2026-10-01T15:42:38.558Z
 //! Project: automotive
 
 use serde_json::{json, Value};

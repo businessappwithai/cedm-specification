@@ -19,7 +19,7 @@
 //! triggers it, then assert on the response, the *other* entity, or the run
 //! log.
 //!
-//! Generated: 2026-10-01T14:00:51.755Z
+//! Generated: 2026-10-01T15:42:31.465Z
 //! Project: artificial-intelligence
 
 use serde_json::{json, Value};

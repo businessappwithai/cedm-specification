@@ -1,7 +1,7 @@
 /**
  * Harness barrel — suites import everything from here.
  *
- * Generated: 2026-10-01T13:57:52.695Z
+ * Generated: 2026-10-01T15:44:26.681Z
  * Project: sales
  */
 

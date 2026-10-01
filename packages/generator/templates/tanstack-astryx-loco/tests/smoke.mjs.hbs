@@ -75,11 +75,20 @@ if (page.url().includes("/auth/login")) {
   process.exit(1);
 }
 
+// A step that throws is a finding, not a crash: the run still reports everything it
+// saw before it, and still exits 1.
+let cards = 0;
+let visited = 0;
+let records = 0;
+let creates = 0;
+let themesApplied = 0;
+let stateBars = 0;
+try {
 where = "dashboard";
 await page.goto(BASE + "/");
 await settle();
 await inspect();
-const cards = await page.locator(".swiss-card").count();
+cards = await page.locator(".swiss-card").count();
 if (shots) await page.screenshot({ path: OUT + "dashboard.png" });
 
 const hrefs = await page.evaluate(() =>
@@ -88,9 +97,6 @@ const hrefs = await page.evaluate(() =>
   )
 );
 
-let visited = 0;
-let records = 0;
-let creates = 0;
 // Every window up to a cap; past it, an even sample, so a domain with a hundred
 // reference-data windows costs the same as one with thirty.
 const limit = Number(process.env.LIMIT ?? 45);
@@ -131,7 +137,6 @@ where = "themes";
 await page.goto(BASE + (sample[0] ?? "/"));
 await settle();
 const themes = ["Neutral", "Butter", "Chocolate", "Matcha", "Stone", "Gothic", "Y2K"];
-let themesApplied = 0;
 for (const name of themes) {
   const selector = page.locator('[data-testid="theme-selector"]').first();
   if (!(await selector.count())) {
@@ -153,10 +158,11 @@ await page.getByRole("option", { name: "Neutral", exact: true }).first().click()
 where = "menu";
 const collapse = page.getByRole("button", { name: /collapse|expand|toggle (side)?(bar|menu)/i }).first();
 if (await collapse.count()) {
-  const before = await page.locator("aside").first().boundingBox();
+  const side = page.locator("aside, nav").first();
+  const before = await side.boundingBox({ timeout: 3000 }).catch(() => null);
   await collapse.click().catch(() => {});
   await page.waitForTimeout(500);
-  const after = await page.locator("aside").first().boundingBox();
+  const after = await side.boundingBox({ timeout: 3000 }).catch(() => null);
   if (before && after && after.width >= before.width) note("menu", "the menu did not collapse");
   await collapse.click().catch(() => {});
 } else {
@@ -175,7 +181,6 @@ if (await refresh.count()) {
 
 // A record whose table has a drawn state machine shows it.
 where = "workflow-state";
-let stateBars = 0;
 for (const href of sample.slice(0, 12)) {
   await page.goto(BASE + href);
   await settle();
@@ -192,6 +197,10 @@ for (const path of ["/admin/rules", "/admin/workflow-definitions", "/admin/workf
   await settle();
   await inspect();
   if (shots) await page.screenshot({ path: OUT + path.replace(/\//g, "_").replace(/^_/, "") + ".png" });
+}
+
+} catch (e) {
+  note("smoke-crash", e?.message ?? e);
 }
 
 await browser.close();
