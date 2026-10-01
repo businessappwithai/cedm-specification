@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T14:01:42.144Z
+//! Generated: 2026-10-01T14:42:39.770Z
 //! Project: agriculture
 //!
 //! Two things a person looking at a record wants that the CRUD routes cannot

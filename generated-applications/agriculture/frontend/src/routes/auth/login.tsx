@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T14:01:43.866Z
+ * Generated: 2026-10-01T14:42:43.108Z
  * Project: agriculture
  */
 
