@@ -172,6 +172,13 @@
     border-bottom: 2px solid var(--ad-highlight, var(--color-accent));
   }
 
+  /* Alternate rows: every other row a slight shade of the theme's own
+     highlight, so a long list can be followed across. Written before the
+     hover and selected rules, which share its specificity and must win. */
+  table tbody tr:nth-child(even) {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 6%, transparent);
+  }
+
   table tbody tr:hover {
     background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 10%, transparent);
   }

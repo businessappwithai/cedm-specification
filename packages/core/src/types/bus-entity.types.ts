@@ -293,6 +293,19 @@ export function identifierColumnNames(
     if (has(candidate)) return [candidate];
   }
 
+  /* The same, with the thing it numbers in front: `order_number`,
+     `invoice_number`, `po_reference`. Without this a sales order was labelled
+     by its currency and customer — the join-entity rule below — and its page
+     was headed by a uuid. The first such column in declaration order wins; a
+     foreign key or the key itself never qualifies. */
+  const quoted = attributes.find(
+    (attribute) =>
+      attribute.name !== primaryKey &&
+      !attribute.isForeignKey &&
+      /_(number|code|reference)$/.test(attribute.name)
+  );
+  if (quoted) return [quoted.name];
+
   /* Prose the author wrote about this record. A `text` column is a description
      — the sentence someone typed to say what happened — and that is what the
      record is called. It is checked before the join-entity rule below because

@@ -11,7 +11,7 @@
 //! statement, and the backend's refusal is the last of the three guards
 //! standing between that column and the database.
 //!
-//! Generated: 2026-10-01T11:58:49.274Z
+//! Generated: 2026-10-01T12:07:40.712Z
 //! Project: sales
 
 use serde_json::{json, Value};

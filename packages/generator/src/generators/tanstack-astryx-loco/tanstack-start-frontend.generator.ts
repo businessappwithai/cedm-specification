@@ -684,6 +684,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/doc-status-badge.tsx",
       },
       {
+        src: "src/components/admin/workflow-state-bar.tsx",
+        dest: "src/components/admin/workflow-state-bar.tsx",
+      },
+      {
         src: "src/components/admin/use-report-designs.ts",
         dest: "src/components/admin/use-report-designs.ts",
       },

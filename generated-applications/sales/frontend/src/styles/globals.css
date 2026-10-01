@@ -23,7 +23,7 @@
  * Phase C deletes everything Tailwind on this page: the three `tailwindcss/*`
  * imports and the bridge import, leaving only the Astryx ones.
  *
- * Generated: 2026-10-01T11:58:52.504Z
+ * Generated: 2026-10-01T12:07:43.709Z
  * Project: sales
  */
 
@@ -170,6 +170,13 @@
     background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 14%, var(--color-background-card));
     color: var(--color-text-primary);
     border-bottom: 2px solid var(--ad-highlight, var(--color-accent));
+  }
+
+  /* Alternate rows: every other row a slight shade of the theme's own
+     highlight, so a long list can be followed across. Written before the
+     hover and selected rules, which share its specificity and must win. */
+  table tbody tr:nth-child(even) {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 6%, transparent);
   }
 
   table tbody tr:hover {

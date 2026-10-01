@@ -275,6 +275,19 @@ fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Ve
         }
     }
 
+    // The same, with the thing it numbers in front: `order_number`,
+    // `invoice_number`, `po_reference`. The first such column in declaration
+    // order wins; a foreign key or the key itself never qualifies.
+    if let Some(quoted) = attributes.iter().find(|a| {
+        a.name != primary_key
+            && !a.is_foreign_key
+            && ["_number", "_code", "_reference"]
+                .iter()
+                .any(|suffix| a.name.ends_with(suffix))
+    }) {
+        return vec![quoted.name.clone()];
+    }
+
     // Prose the author wrote about this record. A `text` column is a
     // description — the sentence someone typed to say what happened — and that
     // is what the record is called. It is checked before the join-entity rule

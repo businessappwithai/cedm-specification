@@ -4,7 +4,7 @@
  * A rule action of type `trigger-workflow` enqueues a run. Runs are async, so
  * everything here polls to a terminal state rather than assuming completion.
  *
- * Generated: 2026-10-01T11:58:52.670Z
+ * Generated: 2026-10-01T12:07:43.812Z
  * Project: sales
  */
 
