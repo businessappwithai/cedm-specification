@@ -33,12 +33,12 @@ for domain in "$@"; do
   export CARGO_TARGET_DIR="$SCRATCH/target-$domain"
 
   ( cd "$app/backend" \
-    && cargo build -q --bin "${domain}-cli" 2>"$SCRATCH/$domain-build.log" \
-    && cargo run -q --bin "${domain}-cli" -- db migrate >"$SCRATCH/$domain-migrate.log" 2>&1 \
-    && cargo run -q --bin "${domain}-cli" -- db seed >"$SCRATCH/$domain-seed.log" 2>&1 ) \
+    && cargo build -q --bin "${crate}-cli" 2>"$SCRATCH/$domain-build.log" \
+    && cargo run -q --bin "${crate}-cli" -- db migrate >"$SCRATCH/$domain-migrate.log" 2>&1 \
+    && cargo run -q --bin "${crate}-cli" -- db seed >"$SCRATCH/$domain-seed.log" 2>&1 ) \
     || { echo "  backend setup failed (see $SCRATCH/$domain-*.log)"; rm -rf "$CARGO_TARGET_DIR"; continue; }
 
-  ( cd "$app/backend" && exec cargo run -q --bin "${domain}-cli" -- start --server-and-worker >"$SCRATCH/$domain-server.log" 2>&1 ) &
+  ( cd "$app/backend" && exec cargo run -q --bin "${crate}-cli" -- start --server-and-worker >"$SCRATCH/$domain-server.log" 2>&1 ) &
   BACK=$!
   for _ in $(seq 1 60); do curl -sf http://localhost:3000/api/me/health >/dev/null 2>&1 && break; sleep 1; done
 
