@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type FieldMetadata, useEntityMetadata } from "@/hooks/use-entities";
+import { type FieldMetadata, refreshDropdowns, useEntityMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
@@ -784,7 +784,11 @@ export function ADDetailShell({
             setHasChanges(false);
           }
         }}
-        onRefresh={() => refetch()}
+        onRefresh={() => {
+          // The record, and every dropdown on the form read again from the API.
+          refetch();
+          refreshDropdowns(queryClient);
+        }}
         onEdit={() => setIsEditing(true)}
         onCancelEdit={() => {
           setIsEditing(false);

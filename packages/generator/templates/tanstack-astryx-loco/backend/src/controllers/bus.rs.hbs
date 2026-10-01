@@ -959,11 +959,19 @@ async fn pagination_from(
         None => None,
     };
 
+    // Left alone, a list is the most recently modified first. Asking for a
+    // column to sort by without a direction still means ascending — that is
+    // what a column header click has always sent.
+    let order_dir = match (params.get("orderDir"), &order_by) {
+        (None, None) => OrderDir::Desc,
+        (direction, _) => OrderDir::parse(direction.map(String::as_str)),
+    };
+
     Ok(PaginationOptions {
         page,
         limit,
         order_by,
-        order_dir: OrderDir::parse(params.get("orderDir").map(String::as_str)),
+        order_dir,
     })
 }
 

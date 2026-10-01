@@ -142,6 +142,74 @@
     outline: 2px solid var(--color-text-accent);
     outline-offset: 1px;
   }
+
+  /* One signal hue per theme. Astryx's own accent is monochrome in `neutral`
+   * and `gothic`, so tints derived from it vanish there; this is the colour the
+   * highlights below are made from. Chosen to sit apart from each theme's
+   * surfaces and to keep contrast on both its light and dark backgrounds. */
+  [data-astryx-theme="neutral"]   { --ad-highlight: #2563eb; }
+  [data-astryx-theme="butter"]    { --ad-highlight: #d97706; }
+  [data-astryx-theme="chocolate"] { --ad-highlight: #ea580c; }
+  [data-astryx-theme="matcha"]    { --ad-highlight: #16a34a; }
+  [data-astryx-theme="stone"]     { --ad-highlight: #0d9488; }
+  [data-astryx-theme="gothic"]    { --ad-highlight: #a78bfa; }
+  [data-astryx-theme="y2k"]       { --ad-highlight: #db2777; }
+
+  /* ---- Highlights ------------------------------------------------------
+   * Every tint is a mix of the *theme's own* accent and its own surface, so
+   * each of the seven themes gets its own colour and light and dark both keep
+   * their contrast. Nothing here names a hex value. The mix percentages are
+   * deliberately strong enough to read as a signal rather than decoration:
+   * what the user acts on (primary action, current page, table header, the
+   * selected row, a form's focus) is tinted, what they only read is not. */
+  .swiss-card {
+    border-top: 3px solid var(--ad-highlight, var(--color-accent));
+  }
+
+  table thead th {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 14%, var(--color-background-card));
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--ad-highlight, var(--color-accent));
+  }
+
+  table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 10%, transparent);
+  }
+
+  table tbody tr[aria-selected="true"],
+  table tbody tr[data-selected="true"] {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 20%, transparent);
+    box-shadow: inset 3px 0 0 var(--ad-highlight, var(--color-accent));
+  }
+
+  /* The page the user is on, in the navigation. */
+  nav a[aria-current="page"],
+  nav [data-active="true"] {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 18%, transparent);
+    color: var(--color-text-accent);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--ad-highlight, var(--color-accent));
+  }
+
+  /* Links and the field the user is typing in. */
+  a:not([role="button"]):not([class*="button"]) {
+    color: var(--color-text-accent);
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="combobox"]:focus-visible {
+    outline: 2px solid var(--ad-highlight, var(--color-accent));
+    outline-offset: 1px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 25%, transparent);
+  }
+
+  /* A required field's marker and a validation message must be unmissable. */
+  [aria-invalid="true"] {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 25%, transparent);
+  }
 }
 
 /* The page itself, so the body behind every route follows the theme rather
