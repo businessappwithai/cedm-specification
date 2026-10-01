@@ -3,11 +3,40 @@ entity:
   namespace: cedm.domain
   kind: commercial_transaction
   description: A formal customer commitment for specified products or services, establishing what is requested, for whom, under which commercial terms, and for what fulfillment requirements; it is the commercial source for allocation, shipment, invoicing, and revenue processes.
+  ui:
+    icon: shopping-cart
   identity: {key: salesOrderId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: salesOrderId, type: uuid, required: true, immutable: true}
-  - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100}
-  - {name: orderDate, type: datetime, required: true}
+  - name: salesOrderId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: 'The sales order id of the sales order: an identifier the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
+      requiredMeaning: 'Required: a sales order cannot be understood without its sales order id.'
+  - name: orderNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: 'The order number of the sales order: a value the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
+      requiredMeaning: 'Required: a sales order cannot be understood without its order number.'
+  - name: orderDate
+    type: datetime
+    required: true
+    help:
+      summary: 'The order date of the sales order: a point in time the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
+      requiredMeaning: 'Required: a sales order cannot be understood without its order date.'
   - name: status
     type: enum
     required: true
@@ -18,34 +47,95 @@ entity:
       usage: Drives confirmation, allocation, fulfillment, shipment readiness and cancellation.
       relationshipContext: Summarizes downstream evidence; it is not an independent source of fulfillment quantity.
       workflowRole: Status transitions are validated against line, reservation, shipment and fulfillment evidence.
-  - {name: currencyId, type: reference, target: Currency, required: false}
-  - {name: requestedDeliveryDate, type: date, required: false}
-  - {name: totalAmount, type: decimal, required: false, precision: 20, scale: 4}
+      valueSemantics:
+        DRAFT: The status of the sales order is draft; set it when that is what the business means for this record.
+        CONFIRMED: The status of the sales order is confirmed; set it when that is what the business means for this record.
+        ALLOCATED: The status of the sales order is allocated; set it when that is what the business means for this record.
+        PARTIALLY_FULFILLED: The status of the sales order is partially fulfilled; set it when that is what the business means for this record.
+        FULFILLED: The status of the sales order is fulfilled; set it when that is what the business means for this record.
+        CANCELLED: The status of the sales order is cancelled; set it when that is what the business means for this record.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: false
+    help:
+      summary: 'The currency id of the sales order: a link to another record the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
+  - name: requestedDeliveryDate
+    type: date
+    required: false
+    help:
+      summary: 'The requested delivery date of the sales order: a calendar date the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
+  - name: totalAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: 'The total amount of the sales order: a number the business records on it.'
+      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on
+        its own.
   relationships:
   - name: customer
     target: Customer
     cardinality: '1'
     ownership: reference
+    help:
+      summary: Links a sales order to customer, the customer it relates to.
+      usage: Chosen from the existing customer records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has exactly one customer in this role.
+      context: Lets the sales order be found from, and reported with, its customer.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
+    help:
+      summary: Links a sales order to organization, the organization it relates to.
+      usage: Chosen from the existing organization records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has at most one organization in this role.
+      context: Lets the sales order be found from, and reported with, its organization.
   - name: lines
     target: SalesOrderLine
     cardinality: 1..*
     ownership: aggregate
+    help:
+      summary: Links a sales order to sales order line, the lines it relates to.
+      usage: Chosen from the existing sales order line records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has at least one sales order line in this role.
+      context: Lets the sales order be found from, and reported with, its sales order line.
   - name: deliveryLocation
     target: Location
     cardinality: 0..1
     ownership: reference
+    help:
+      summary: Links a sales order to location, the delivery location it relates to.
+      usage: Chosen from the existing location records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has at most one location in this role.
+      context: Lets the sales order be found from, and reported with, its location.
   - name: shipments
     target: Shipment
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a sales order to shipment, the shipments it relates to.
+      usage: Chosen from the existing shipment records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has any number of shipment in this role.
+      context: Lets the sales order be found from, and reported with, its shipment.
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a sales order to invoice, the invoices it relates to.
+      usage: Chosen from the existing invoice records when the sales order is created or edited.
+      cardinalityMeaning: A sales order has any number of invoice in this role.
+      context: Lets the sales order be found from, and reported with, its invoice.
   invariants:
   - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
   - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
@@ -61,6 +151,59 @@ entity:
   - {id: SALES-ORDER-012, rule: "Changes to Customer, Product, UOM, Price, DiscountRule, TaxRule, Currency, DeliveryLocation or requested delivery date that affect an executable order require controlled revalidation and, where applicable, repricing/reallocation/rescheduling workflows."}
   - {id: SALES-ORDER-013, rule: Invoice creation does not make an order FULFILLED and shipment delivery does not make an invoice PAID; each lifecycle is governed by its authoritative evidence.}
   - {id: SALES-ORDER-014, rule: Order-level derived totals and status must be recalculated atomically or through an idempotent recoverable workflow whenever a dependent line/reservation/fulfillment event changes.}
+  - {id: SALES-ORDER-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Sales Order Lifecycle
+    attribute: status
+    states: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
+    initial: DRAFT
+    terminal: [FULFILLED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: CONFIRMED, action: confirm}
+      - {from: CONFIRMED, to: ALLOCATED, action: mark_allocated}
+      - {from: ALLOCATED, to: PARTIALLY_FULFILLED, action: mark_partially_fulfilled}
+      - {from: PARTIALLY_FULFILLED, to: FULFILLED, action: fulfil}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: CONFIRMED, to: CANCELLED, action: cancel}
+      - {from: ALLOCATED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_FULFILLED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a sales order is ended"
+      description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a sales order is done"
+      description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
+      when: "status == \"FULFILLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-COMPLETED-{{id}}"
+              name: "Confirm sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
     businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.

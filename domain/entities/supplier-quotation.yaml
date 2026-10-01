@@ -29,6 +29,61 @@ entity:
   - {id: SUPPLIER-QUOTATION-003, rule: "Acceptance does not itself create inventory, accounts-payable, or purchase commitment effects."}
   - {id: SUPPLIER-QUOTATION-004, rule: PurchaseOrder commercial terms derived from the offer must remain traceable to this response or an authorized negotiated amendment.}
   - {id: SUPPLIER-QUOTATION-005, rule: Submitted and evaluated sourcing evidence is retained; corrections use controlled amendment or replacement semantics.}
+  - {id: SUPPLIER-QUOTATION-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Quotation Lifecycle
+    attribute: status
+    states: [RECEIVED, UNDER_REVIEW, ACCEPTED, REJECTED, EXPIRED, WITHDRAWN]
+    initial: RECEIVED
+    terminal: [REJECTED, EXPIRED, WITHDRAWN]
+    transitions:
+      - {from: RECEIVED, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: ACCEPTED, action: accept}
+      - {from: RECEIVED, to: REJECTED, action: reject}
+      - {from: UNDER_REVIEW, to: REJECTED, action: reject}
+      - {from: ACCEPTED, to: REJECTED, action: reject}
+      - {from: UNDER_REVIEW, to: EXPIRED, action: expire}
+      - {from: ACCEPTED, to: EXPIRED, action: expire}
+      - {from: RECEIVED, to: WITHDRAWN, action: withdraw}
+      - {from: UNDER_REVIEW, to: WITHDRAWN, action: withdraw}
+      - {from: ACCEPTED, to: WITHDRAWN, action: withdraw}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a supplier quotation is put forward"
+      description: "When a supplier quotation is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-QUOTATION-APPROVAL-{{id}}"
+              name: "Decide on supplier quotation {{quotation_number}}"
+              description: "Supplier quotation {{quotation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a supplier quotation is ended"
+      description: "When a supplier quotation is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-QUOTATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier quotation {{quotation_number}}"
+              description: "Supplier quotation {{quotation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Preserves a supplier's commercial response to governed sourcing.
     businessMeaning: SupplierQuotation is evidence of an offer; RequestForQuotation is the solicitation; PurchaseOrder is the later commitment.

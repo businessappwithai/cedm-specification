@@ -50,6 +50,13 @@ macro_rules! log_event {
     (entity_draft_discard_failed, $($field:tt)+) => {
         ::tracing::error!(event = "entity.draft.discard_failed", $($field)+, "A rejected draft could not be discarded and is still in the table")
     };
+    // entity — error
+    (entity_update_restore_failed) => {
+        ::tracing::error!(event = "entity.update.restore_failed", "A refused update could not be rolled back and the record still holds the refused values")
+    };
+    (entity_update_restore_failed, $($field:tt)+) => {
+        ::tracing::error!(event = "entity.update.restore_failed", $($field)+, "A refused update could not be rolled back and the record still holds the refused values")
+    };
     // entity — warn
     (entity_column_undecodable) => {
         ::tracing::warn!(event = "entity.column.undecodable", "A column's value could not be decoded and was served as null")
@@ -217,11 +224,12 @@ macro_rules! log_event {
 ///
 /// A list rather than a doc comment: a test can read it, and a catalogue
 /// nothing can enumerate is one nothing can hold to the spec.
-pub const EVENT_IDS: [&str; 27] = [
+pub const EVENT_IDS: [&str; 28] = [
     "entity.audit.unavailable",
     "entity.promotion.unavailable",
     "entity.promotion.failed",
     "entity.draft.discard_failed",
+    "entity.update.restore_failed",
     "entity.column.undecodable",
     "entity.delete.no_match",
     "rules.jdm.invalid",

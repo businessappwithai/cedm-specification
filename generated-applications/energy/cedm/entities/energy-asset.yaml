@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: energy_entity
   description: A physical asset used to generate, transmit, distribute, store, or consume energy.
+  ui:
+    icon: box
   identity:
     key: energyAssetId
     type: uuid
@@ -116,6 +118,21 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  invariants:
+  - {id: ENERGY-ASSET-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
+  lifecycle:
+    title: Energy Asset Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, MAINTENANCE, DECOMMISSIONED]
+    initial: PLANNED
+    terminal: [DECOMMISSIONED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
+      - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
+      - {from: PLANNED, to: DECOMMISSIONED, action: mark_decommissioned}
+      - {from: ACTIVE, to: DECOMMISSIONED, action: mark_decommissioned}
+      - {from: MAINTENANCE, to: DECOMMISSIONED, action: mark_decommissioned}
   help:
     summary: Represents a energy entity called EnergyAsset within the CEDM business model.
     businessMeaning: EnergyAsset is a business concept with its own identity and lifecycle. It captures information that must

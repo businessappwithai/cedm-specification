@@ -99,6 +99,56 @@ entity:
   invariants:
   - id: ENROLLMENT-001
     rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.
+  lifecycle:
+    title: Enrollment Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, WITHDRAWN, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, WITHDRAWN, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: WITHDRAWN, action: withdraw}
+      - {from: ACTIVE, to: WITHDRAWN, action: withdraw}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a enrollment is ended"
+      description: "When a enrollment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ENROLLMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on enrollment {{enrollment_number}}"
+              description: "Enrollment {{enrollment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a enrollment is done"
+      description: "When a enrollment is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ENROLLMENT-COMPLETED-{{id}}"
+              name: "Confirm enrollment {{enrollment_number}}"
+              description: "Enrollment {{enrollment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents a education transaction called Enrollment within the CEDM business model.
     businessMeaning: Enrollment is a business concept with its own identity and lifecycle. It captures information that must

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: core_master_entity
   description: A person or organization recognized by the business as an actor in one or more roles, relationships, transactions, or responsibilities. Party is the CEDM identity root from which business roles such as Customer, Supplier, Employee, Provider, and Owner can be established.
+  ui:
+    icon: users
   identity: {key: partyId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: partyId
@@ -151,6 +153,39 @@ entity:
     - {id: PARTY-003, rule: A party must not simultaneously represent both PERSON and ORGANIZATION specializations.}
   audit: {enabled: true, trackCreatedBy: true, trackCreatedAt: true, trackUpdatedBy: true, trackUpdatedAt: true}
   tags: [party, identity, master-data, polymorphic-root]
+  lifecycle:
+    title: Party Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a party is stopped"
+      description: "When a party is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PARTY-EXCEPTION-{{id}}"
+              name: "Resolve party {{display_name}}"
+              description: "Party {{display_name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: The foundational CEDM business concept for an identifiable person or organization participating in business.
     businessMeaning: Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities.

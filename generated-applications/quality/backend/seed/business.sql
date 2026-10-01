@@ -17,33 +17,33 @@ INSERT INTO bus_party (id, party_type, display_name, status, external_reference,
 VALUES ('a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'PERSON', 'Party 1', 'ACTIVE', 'External Reference 1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'ORGANIZATION', 'Party 2', 'INACTIVE', 'External Reference 2', 'final', NOW(), NOW())
+VALUES ('0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'ORGANIZATION', 'Party 2', 'ACTIVE', 'External Reference 2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'PERSON', 'Party 3', 'BLOCKED', 'External Reference 3', 'final', NOW(), NOW())
+VALUES ('ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'PERSON', 'Party 3', 'ACTIVE', 'External Reference 3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('cb59e05b-c041-5a29-9521-ac2714793800', 'ORGANIZATION', 'Party 4', 'RETIRED', 'External Reference 4', 'final', NOW(), NOW())
+VALUES ('cb59e05b-c041-5a29-9521-ac2714793800', 'ORGANIZATION', 'Party 4', 'ACTIVE', 'External Reference 4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
 VALUES ('f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'PERSON', 'Party 5', 'ACTIVE', 'External Reference 5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Person (bus_person)
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('33f97b6f-99e6-5aaf-a3ea-c4b13006f905', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'Title 1', 'Given Name 1', 'Middle Name 1', 'Family Name 1', 'Preferred Name 1', NULL, 'FEMALE', '1', 'PERSON', 'Person 1', 'ACTIVE', 'External Reference 1', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality_id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('33f97b6f-99e6-5aaf-a3ea-c4b13006f905', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'Title 1', 'Given Name 1', 'Middle Name 1', 'Family Name 1', 'Preferred Name 1', NULL, 'FEMALE', 'b9b578b0-6c77-5d0d-a1d6-595622f2a0d0', 'PERSON', 'Person 1', 'ACTIVE', 'External Reference 1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('bcdde785-4cdd-5626-858d-9f287b8c765a', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'Title 2', 'Given Name 2', 'Middle Name 2', 'Family Name 2', 'Preferred Name 2', NULL, 'MALE', '2', 'ORGANIZATION', 'Person 2', 'INACTIVE', 'External Reference 2', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality_id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('bcdde785-4cdd-5626-858d-9f287b8c765a', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'Title 2', 'Given Name 2', 'Middle Name 2', 'Family Name 2', 'Preferred Name 2', NULL, 'MALE', 'f344077e-9b91-52cb-81d0-635533b9c3a5', 'ORGANIZATION', 'Person 2', 'INACTIVE', 'External Reference 2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'Title 3', 'Given Name 3', 'Middle Name 3', 'Family Name 3', 'Preferred Name 3', NULL, 'NON_BINARY', '3', 'PERSON', 'Person 3', 'BLOCKED', 'External Reference 3', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality_id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'Title 3', 'Given Name 3', 'Middle Name 3', 'Family Name 3', 'Preferred Name 3', NULL, 'NON_BINARY', 'ceda296e-1dd4-5f0f-9da4-9916190f9283', 'PERSON', 'Person 3', 'BLOCKED', 'External Reference 3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('1b01939b-33ed-505a-9eec-37b3afef94a3', 'cb59e05b-c041-5a29-9521-ac2714793800', 'Title 4', 'Given Name 4', 'Middle Name 4', 'Family Name 4', 'Preferred Name 4', NULL, 'OTHER', '4', 'ORGANIZATION', 'Person 4', 'RETIRED', 'External Reference 4', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality_id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('1b01939b-33ed-505a-9eec-37b3afef94a3', 'cb59e05b-c041-5a29-9521-ac2714793800', 'Title 4', 'Given Name 4', 'Middle Name 4', 'Family Name 4', 'Preferred Name 4', NULL, 'OTHER', '57dbeed7-20ba-5987-a0f4-965f257b3705', 'ORGANIZATION', 'Person 4', 'RETIRED', 'External Reference 4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
-VALUES ('26345603-3291-5a74-804f-c63141115901', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'Title 5', 'Given Name 5', 'Middle Name 5', 'Family Name 5', 'Preferred Name 5', NULL, 'UNSPECIFIED', '5', 'PERSON', 'Person 5', 'ACTIVE', 'External Reference 5', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality_id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('26345603-3291-5a74-804f-c63141115901', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'Title 5', 'Given Name 5', 'Middle Name 5', 'Family Name 5', 'Preferred Name 5', NULL, 'UNSPECIFIED', 'ba149672-85b7-5486-afd5-b1839a16bf53', 'PERSON', 'Person 5', 'ACTIVE', 'External Reference 5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Organization (bus_organization)
@@ -51,13 +51,13 @@ INSERT INTO bus_organization (id, party_id, code, name, organization_type, statu
 VALUES ('93c56daf-ae30-51fc-a1c8-f52421a0b326', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'Code 1', 'Organization 1', 'ENTERPRISE', 'DRAFT', 'Legal Name 1', 'Registration Number 1', 'Tax Identifier 1', 'PERSON', 'Display Name 1', 'External Reference 1', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('a7cf5e89-2a30-5894-a811-4c189c0de18d', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'Code 2', 'Organization 2', 'COMPANY', 'ACTIVE', 'Legal Name 2', 'Registration Number 2', 'Tax Identifier 2', 'ORGANIZATION', 'Display Name 2', 'External Reference 2', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
+VALUES ('a7cf5e89-2a30-5894-a811-4c189c0de18d', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'Code 2', 'Organization 2', 'COMPANY', 'DRAFT', 'Legal Name 2', 'Registration Number 2', 'Tax Identifier 2', 'ORGANIZATION', 'Display Name 2', 'External Reference 2', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('a8264fb2-452c-507d-83ad-eea5dc832f58', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'Code 3', 'Organization 3', 'BUSINESS_UNIT', 'INACTIVE', 'Legal Name 3', 'Registration Number 3', 'Tax Identifier 3', 'PERSON', 'Display Name 3', 'External Reference 3', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
+VALUES ('a8264fb2-452c-507d-83ad-eea5dc832f58', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'Code 3', 'Organization 3', 'BUSINESS_UNIT', 'DRAFT', 'Legal Name 3', 'Registration Number 3', 'Tax Identifier 3', 'PERSON', 'Display Name 3', 'External Reference 3', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('57e35707-0d37-5d6b-87b4-ec18ed75f971', 'cb59e05b-c041-5a29-9521-ac2714793800', 'Code 4', 'Organization 4', 'DIVISION', 'RETIRED', 'Legal Name 4', 'Registration Number 4', 'Tax Identifier 4', 'ORGANIZATION', 'Display Name 4', 'External Reference 4', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
+VALUES ('57e35707-0d37-5d6b-87b4-ec18ed75f971', 'cb59e05b-c041-5a29-9521-ac2714793800', 'Code 4', 'Organization 4', 'DIVISION', 'DRAFT', 'Legal Name 4', 'Registration Number 4', 'Tax Identifier 4', 'ORGANIZATION', 'Display Name 4', 'External Reference 4', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
 VALUES ('8e4420a0-ccb4-5716-8f47-329d81591990', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'Code 5', 'Organization 5', 'DEPARTMENT', 'DRAFT', 'Legal Name 5', 'Registration Number 5', 'Tax Identifier 5', 'PERSON', 'Display Name 5', 'External Reference 5', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
@@ -68,16 +68,16 @@ INSERT INTO bus_party_role (id, party_id, role_type, code, valid_from, valid_to,
 VALUES ('ea559712-cf6d-5736-9ca9-742d5d2a03c4', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'CUSTOMER', 'Party Role 1', NULL, NULL, 'ACTIVE', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role (id, party_id, role_type, code, valid_from, valid_to, status, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('4188107d-3289-5095-ba1f-a7043d10ebff', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'SUPPLIER', 'Party Role 2', NULL, NULL, 'INACTIVE', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
+VALUES ('4188107d-3289-5095-ba1f-a7043d10ebff', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'SUPPLIER', 'Party Role 2', NULL, NULL, 'ACTIVE', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role (id, party_id, role_type, code, valid_from, valid_to, status, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('c212f3ee-0a99-56bd-964a-c2354b6734d7', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'EMPLOYEE', 'Party Role 3', NULL, NULL, 'EXPIRED', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
+VALUES ('c212f3ee-0a99-56bd-964a-c2354b6734d7', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'EMPLOYEE', 'Party Role 3', NULL, NULL, 'ACTIVE', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role (id, party_id, role_type, code, valid_from, valid_to, status, person_id, organization_id, doc_status, created_at, updated_at)
 VALUES ('258fece4-8768-5abe-99ec-d4efaae69279', 'cb59e05b-c041-5a29-9521-ac2714793800', 'PARTNER', 'Party Role 4', NULL, NULL, 'ACTIVE', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_party_role (id, party_id, role_type, code, valid_from, valid_to, status, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('aa60949a-a5f1-5b28-bf0a-9e6117ab294e', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'CARRIER', 'Party Role 5', NULL, NULL, 'INACTIVE', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
+VALUES ('aa60949a-a5f1-5b28-bf0a-9e6117ab294e', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'CARRIER', 'Party Role 5', NULL, NULL, 'ACTIVE', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Party Relationship (bus_party_relationship)
@@ -149,20 +149,20 @@ VALUES ('12d14482-4d91-5711-83e3-357ef8ee52b1', 'Code 5', 'Department 5', '8e442
 ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('34af42eb-4bea-5a3e-b2c8-96d765111639', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City 1', 'State Or Province 1', 'Postal Code 1', '1', 10.50, 10.50, TRUE, 'ACTIVE', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
+VALUES ('34af42eb-4bea-5a3e-b2c8-96d765111639', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'b9b578b0-6c77-5d0d-a1d6-595622f2a0d0', 'b8c22183-fadb-54ca-a560-9fd8e99d6cee', 'afb0140e-415d-5c60-9203-27f3c2252a33', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('5b662438-ae45-5363-8aac-cd2ba31c04a4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City 2', 'State Or Province 2', 'Postal Code 2', '2', 21.00, 21.00, FALSE, 'INACTIVE', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
+VALUES ('5b662438-ae45-5363-8aac-cd2ba31c04a4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'f344077e-9b91-52cb-81d0-635533b9c3a5', '259029ab-1c9f-58f9-83e2-1ebfcc8c1d4d', '4eb6ddb2-0051-528a-9ce3-8a7bfd6832e7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('28fece5a-99bd-533d-85b3-27c2b8a17628', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City 3', 'State Or Province 3', 'Postal Code 3', '3', 31.50, 31.50, TRUE, 'RETIRED', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
+VALUES ('28fece5a-99bd-533d-85b3-27c2b8a17628', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'ceda296e-1dd4-5f0f-9da4-9916190f9283', '4d23ff0e-3f84-5650-89ee-b64cd2ad2b2a', '3ee20a39-6379-5fad-a6c1-471b4e8a6e8a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City 4', 'State Or Province 4', 'Postal Code 4', '4', 42.00, 42.00, FALSE, 'ACTIVE', 'cb59e05b-c041-5a29-9521-ac2714793800', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
+VALUES ('f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', 'cb59e05b-c041-5a29-9521-ac2714793800', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', '57dbeed7-20ba-5987-a0f4-965f257b3705', '724f84b0-8e86-5361-9edf-0727025bde41', '442e7ae9-3957-5bae-a802-55dc0ee3e091', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('f4d4dfb8-15b2-5739-8b54-e37634d37181', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City 5', 'State Or Province 5', 'Postal Code 5', '5', 52.50, 52.50, TRUE, 'INACTIVE', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
+VALUES ('f4d4dfb8-15b2-5739-8b54-e37634d37181', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'ba149672-85b7-5486-afd5-b1839a16bf53', '6b862bbb-29ad-5735-8295-af2c5360b579', '3d971d6d-d58a-574d-8165-4b286f585842', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -184,104 +184,53 @@ ON CONFLICT DO NOTHING;
 
 -- Location (bus_location)
 INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('d8933e0c-f96d-5e0d-9056-b4db25997c1b', 'Code 1', 'Location 1', 'SITE', 'PLANNED', '34af42eb-4bea-5a3e-b2c8-96d765111639', 'd8933e0c-f96d-5e0d-9056-b4db25997c1b', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
+VALUES ('d8933e0c-f96d-5e0d-9056-b4db25997c1b', 'Location 1', 'Location 1', 'SITE', 'PLANNED', '34af42eb-4bea-5a3e-b2c8-96d765111639', 'd8933e0c-f96d-5e0d-9056-b4db25997c1b', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('0bad41c7-bfbe-5962-8f05-b7145daebe60', 'Code 2', 'Location 2', 'WAREHOUSE', 'ACTIVE', '5b662438-ae45-5363-8aac-cd2ba31c04a4', '0bad41c7-bfbe-5962-8f05-b7145daebe60', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
+VALUES ('0bad41c7-bfbe-5962-8f05-b7145daebe60', 'Location 2', 'Location 2', 'WAREHOUSE', 'PLANNED', '5b662438-ae45-5363-8aac-cd2ba31c04a4', '0bad41c7-bfbe-5962-8f05-b7145daebe60', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('cd3324c6-8934-5421-98df-5a0a2f3ee01d', 'Code 3', 'Location 3', 'STORE', 'INACTIVE', '28fece5a-99bd-533d-85b3-27c2b8a17628', 'cd3324c6-8934-5421-98df-5a0a2f3ee01d', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
+VALUES ('cd3324c6-8934-5421-98df-5a0a2f3ee01d', 'Location 3', 'Location 3', 'STORE', 'PLANNED', '28fece5a-99bd-533d-85b3-27c2b8a17628', 'cd3324c6-8934-5421-98df-5a0a2f3ee01d', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('32cb8818-d951-5a96-acfd-588a3c2416a3', 'Code 4', 'Location 4', 'OFFICE', 'CLOSED', 'f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', '32cb8818-d951-5a96-acfd-588a3c2416a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
+VALUES ('32cb8818-d951-5a96-acfd-588a3c2416a3', 'Location 4', 'Location 4', 'OFFICE', 'PLANNED', 'f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', '32cb8818-d951-5a96-acfd-588a3c2416a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('ade71508-2b65-5016-a41d-8f9e9db3a843', 'Code 5', 'Location 5', 'FACTORY', 'RETIRED', 'f4d4dfb8-15b2-5739-8b54-e37634d37181', 'ade71508-2b65-5016-a41d-8f9e9db3a843', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
--- Country (bus_country)
-INSERT INTO bus_country (id, code, name, doc_status, created_at, updated_at)
-VALUES ('0e9bd609-cdd3-581c-92df-16cf56be46cd', 'Code 1', 'Country 1', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_country (id, code, name, doc_status, created_at, updated_at)
-VALUES ('67b277bf-3782-5f02-8ea2-ac4d5b401f80', 'Code 2', 'Country 2', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_country (id, code, name, doc_status, created_at, updated_at)
-VALUES ('50c25cac-1cc3-5201-a7a9-46201dbb98b0', 'Code 3', 'Country 3', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_country (id, code, name, doc_status, created_at, updated_at)
-VALUES ('415ef746-d38f-5238-897e-e2888a15fbaa', 'Code 4', 'Country 4', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_country (id, code, name, doc_status, created_at, updated_at)
-VALUES ('9780fef4-1bdd-5c5d-b505-3bbbed4b38b1', 'Code 5', 'Country 5', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
--- Language (bus_language)
-INSERT INTO bus_language (id, code, name, doc_status, created_at, updated_at)
-VALUES ('b81121b8-ca2e-5a9f-8fd7-e02baff93ff2', 'Code 1', 'Language 1', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name, doc_status, created_at, updated_at)
-VALUES ('4ec988a6-c988-5aa7-bcb5-0b8dc1c95ac5', 'Code 2', 'Language 2', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name, doc_status, created_at, updated_at)
-VALUES ('2218d1a3-a61d-5a8d-980c-e9365212d3f3', 'Code 3', 'Language 3', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name, doc_status, created_at, updated_at)
-VALUES ('7a6d44a9-a7f0-5b15-aa2f-b5511aed264b', 'Code 4', 'Language 4', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_language (id, code, name, doc_status, created_at, updated_at)
-VALUES ('57bbffbe-3fbc-52a6-bca7-64c4379fe535', 'Code 5', 'Language 5', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
--- Currency (bus_currency)
-INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('ee734b2a-d392-5de4-83e3-d6326f638c66', 'C 1', 'Currency 1', 'Symbol 1', 1, 'ACTIVE', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('69ba38ef-eb8a-55f9-b8e0-ef9de685481b', 'C 2', 'Currency 2', 'Symbol 2', 2, 'INACTIVE', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('c2507944-eb8e-540e-b3dd-0d61af4ff52d', 'C 3', 'Currency 3', 'Symbol 3', 3, 'RETIRED', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('e632033b-588b-50a8-8285-085c0a3038f5', 'C 4', 'Currency 4', 'Symbol 4', 4, 'ACTIVE', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('62dffdf5-000f-5982-a4a7-b36e32f2dd42', 'C 5', 'Currency 5', 'Symbol 5', 5, 'INACTIVE', 'final', NOW(), NOW())
+VALUES ('ade71508-2b65-5016-a41d-8f9e9db3a843', 'Location 5', 'Location 5', 'FACTORY', 'PLANNED', 'f4d4dfb8-15b2-5739-8b54-e37634d37181', 'ade71508-2b65-5016-a41d-8f9e9db3a843', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
 INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
-VALUES ('0e165651-a53e-5ad1-bdfa-63f63bdce48c', 'ee734b2a-d392-5de4-83e3-d6326f638c66', 'ee734b2a-d392-5de4-83e3-d6326f638c66', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('0e165651-a53e-5ad1-bdfa-63f63bdce48c', 'fbca6673-27c9-562e-9a82-ad0128d1dd21', 'fbca6673-27c9-562e-9a82-ad0128d1dd21', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
-VALUES ('d0662b43-ddd2-59c8-9ed3-8550f9045318', '69ba38ef-eb8a-55f9-b8e0-ef9de685481b', '69ba38ef-eb8a-55f9-b8e0-ef9de685481b', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('d0662b43-ddd2-59c8-9ed3-8550f9045318', 'ba053992-2733-5145-8a19-d6fa5e1d413b', 'ba053992-2733-5145-8a19-d6fa5e1d413b', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
-VALUES ('050642d9-5155-505d-8269-b5b530da011d', 'c2507944-eb8e-540e-b3dd-0d61af4ff52d', 'c2507944-eb8e-540e-b3dd-0d61af4ff52d', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'EXPIRED', 'final', NOW(), NOW())
+VALUES ('050642d9-5155-505d-8269-b5b530da011d', '38c63602-4262-54e6-8b51-9db181b45a50', '38c63602-4262-54e6-8b51-9db181b45a50', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
-VALUES ('d5ec97c7-7eeb-509a-a5cd-da6829fe6f10', 'e632033b-588b-50a8-8285-085c0a3038f5', 'e632033b-588b-50a8-8285-085c0a3038f5', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'CANCELLED', 'final', NOW(), NOW())
+VALUES ('d5ec97c7-7eeb-509a-a5cd-da6829fe6f10', 'e4f7d729-b619-538f-8fa3-00c345e7f20d', 'e4f7d729-b619-538f-8fa3-00c345e7f20d', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
-VALUES ('9f908ea3-e5e3-5530-a5cd-e2c52e45dbb4', '62dffdf5-000f-5982-a4a7-b36e32f2dd42', '62dffdf5-000f-5982-a4a7-b36e32f2dd42', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('9f908ea3-e5e3-5530-a5cd-e2c52e45dbb4', 'ca2b07f2-819a-5848-b24b-aa3bb4a1005f', 'ca2b07f2-819a-5848-b24b-aa3bb4a1005f', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Unit Of Measure (bus_unit_of_measure)
 INSERT INTO bus_unit_of_measure (id, code, name, symbol, category, conversion_factor, base_unit_id, status, doc_status, created_at, updated_at)
-VALUES ('4cb05e82-ec3a-596e-acf6-870e71f68934', 'Code 1', 'Unit Of Measure 1', 'Symbol 1', 'QUANTITY', 10.50, '4cb05e82-ec3a-596e-acf6-870e71f68934', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('4cb05e82-ec3a-596e-acf6-870e71f68934', 'Unit Of Measure 1', 'Unit Of Measure 1', 'Symbol 1', 'QUANTITY', 10.50, '4cb05e82-ec3a-596e-acf6-870e71f68934', 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure (id, code, name, symbol, category, conversion_factor, base_unit_id, status, doc_status, created_at, updated_at)
-VALUES ('5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'Code 2', 'Unit Of Measure 2', 'Symbol 2', 'LENGTH', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'INACTIVE', 'final', NOW(), NOW())
+VALUES ('5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'Unit Of Measure 2', 'Unit Of Measure 2', 'Symbol 2', 'LENGTH', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure (id, code, name, symbol, category, conversion_factor, base_unit_id, status, doc_status, created_at, updated_at)
-VALUES ('95ec7619-1a1c-5986-84ca-25834d3f4083', 'Code 3', 'Unit Of Measure 3', 'Symbol 3', 'AREA', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'RETIRED', 'final', NOW(), NOW())
+VALUES ('95ec7619-1a1c-5986-84ca-25834d3f4083', 'Unit Of Measure 3', 'Unit Of Measure 3', 'Symbol 3', 'AREA', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure (id, code, name, symbol, category, conversion_factor, base_unit_id, status, doc_status, created_at, updated_at)
-VALUES ('86183754-0710-5558-8b24-d82e83bb5013', 'Code 4', 'Unit Of Measure 4', 'Symbol 4', 'VOLUME', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('86183754-0710-5558-8b24-d82e83bb5013', 'Unit Of Measure 4', 'Unit Of Measure 4', 'Symbol 4', 'VOLUME', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure (id, code, name, symbol, category, conversion_factor, base_unit_id, status, doc_status, created_at, updated_at)
-VALUES ('cc09702e-98af-5c58-9b46-bcedd9ac327c', 'Code 5', 'Unit Of Measure 5', 'Symbol 5', 'MASS', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'INACTIVE', 'final', NOW(), NOW())
+VALUES ('cc09702e-98af-5c58-9b46-bcedd9ac327c', 'Unit Of Measure 5', 'Unit Of Measure 5', 'Symbol 5', 'MASS', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Calendar (bus_calendar)
@@ -318,72 +267,89 @@ INSERT INTO bus_attachment (id, effective_at, doc_status, created_at, updated_at
 VALUES ('ce21e9eb-e563-5fd8-8458-a6c859907a63', NULL, 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Task (bus_task)
+INSERT INTO bus_task (id, code, name, description, task_type, status, priority, due_at, started_at, completed_at, assignee_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('bf0113b2-6d57-559e-813f-b5c1b08c46f0', 'Code 1', 'Task 1', 'Description 1', 'USER', 'CREATED', 'LOW', NULL, NULL, NULL, 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task (id, code, name, description, task_type, status, priority, due_at, started_at, completed_at, assignee_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('7933a949-84f7-5661-bc1f-d5c30b4e4f5c', 'Code 2', 'Task 2', 'Description 2', 'SYSTEM', 'CREATED', 'NORMAL', NULL, NULL, NULL, '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task (id, code, name, description, task_type, status, priority, due_at, started_at, completed_at, assignee_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('4b12dc09-a3a1-513e-8c0e-2fcba443d4fd', 'Code 3', 'Task 3', 'Description 3', 'APPROVAL', 'CREATED', 'HIGH', NULL, NULL, NULL, 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task (id, code, name, description, task_type, status, priority, due_at, started_at, completed_at, assignee_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('a6ce16fb-9150-53dc-b233-d4c376120936', 'Code 4', 'Task 4', 'Description 4', 'DECISION', 'CREATED', 'CRITICAL', NULL, NULL, NULL, 'cb59e05b-c041-5a29-9521-ac2714793800', '57e35707-0d37-5d6b-87b4-ec18ed75f971', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task (id, code, name, description, task_type, status, priority, due_at, started_at, completed_at, assignee_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('e3e86c57-eebf-580d-b97f-217747045ffc', 'Code 5', 'Task 5', 'Description 5', 'NOTIFICATION', 'CREATED', 'LOW', NULL, NULL, NULL, 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '8e4420a0-ccb4-5716-8f47-329d81591990', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Quality Characteristic (bus_quality_characteristic)
 INSERT INTO bus_quality_characteristic (id, code, name, description, data_type, status, evaluation_method, doc_status, created_at, updated_at)
-VALUES ('4e80fa5f-fb85-58cd-b191-46633e07a354', 'Code 1', 'Quality Characteristic 1', 'Description 1', 'DECIMAL', 'DRAFT', 'Evaluation Method 1', 'final', NOW(), NOW())
+VALUES ('4e80fa5f-fb85-58cd-b191-46633e07a354', 'Quality Characteristic 1', 'Quality Characteristic 1', 'Description 1', 'DECIMAL', 'DRAFT', 'Evaluation Method 1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_characteristic (id, code, name, description, data_type, status, evaluation_method, doc_status, created_at, updated_at)
-VALUES ('151b56d6-3306-5e21-a27b-6393af041629', 'Code 2', 'Quality Characteristic 2', 'Description 2', 'INTEGER', 'ACTIVE', 'Evaluation Method 2', 'final', NOW(), NOW())
+VALUES ('151b56d6-3306-5e21-a27b-6393af041629', 'Quality Characteristic 2', 'Quality Characteristic 2', 'Description 2', 'INTEGER', 'DRAFT', 'Evaluation Method 2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_characteristic (id, code, name, description, data_type, status, evaluation_method, doc_status, created_at, updated_at)
-VALUES ('156eae41-922e-5a10-a4fa-b3ab02dbc4d0', 'Code 3', 'Quality Characteristic 3', 'Description 3', 'STRING', 'RETIRED', 'Evaluation Method 3', 'final', NOW(), NOW())
+VALUES ('156eae41-922e-5a10-a4fa-b3ab02dbc4d0', 'Quality Characteristic 3', 'Quality Characteristic 3', 'Description 3', 'STRING', 'DRAFT', 'Evaluation Method 3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_characteristic (id, code, name, description, data_type, status, evaluation_method, doc_status, created_at, updated_at)
-VALUES ('a02f6cff-f172-5143-9325-4657bec81cf0', 'Code 4', 'Quality Characteristic 4', 'Description 4', 'BOOLEAN', 'DRAFT', 'Evaluation Method 4', 'final', NOW(), NOW())
+VALUES ('a02f6cff-f172-5143-9325-4657bec81cf0', 'Quality Characteristic 4', 'Quality Characteristic 4', 'Description 4', 'BOOLEAN', 'DRAFT', 'Evaluation Method 4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_characteristic (id, code, name, description, data_type, status, evaluation_method, doc_status, created_at, updated_at)
-VALUES ('02c3e472-9301-503e-b7e8-d733a963e87a', 'Code 5', 'Quality Characteristic 5', 'Description 5', 'ENUM', 'ACTIVE', 'Evaluation Method 5', 'final', NOW(), NOW())
+VALUES ('02c3e472-9301-503e-b7e8-d733a963e87a', 'Quality Characteristic 5', 'Quality Characteristic 5', 'Description 5', 'ENUM', 'DRAFT', 'Evaluation Method 5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Quality Plan (bus_quality_plan)
 INSERT INTO bus_quality_plan (id, code, name, status, doc_status, created_at, updated_at)
-VALUES ('6d16846a-ceaa-5468-a7d0-a11e36f22408', 'Code 1', 'Quality Plan 1', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('6d16846a-ceaa-5468-a7d0-a11e36f22408', 'Quality Plan 1', 'Quality Plan 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_plan (id, code, name, status, doc_status, created_at, updated_at)
-VALUES ('34709964-4ec6-5439-ac69-6c632c01baa3', 'Code 2', 'Quality Plan 2', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('34709964-4ec6-5439-ac69-6c632c01baa3', 'Quality Plan 2', 'Quality Plan 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_plan (id, code, name, status, doc_status, created_at, updated_at)
-VALUES ('d5616500-3749-55b4-9aae-286871af6cb9', 'Code 3', 'Quality Plan 3', 'SUSPENDED', 'final', NOW(), NOW())
+VALUES ('d5616500-3749-55b4-9aae-286871af6cb9', 'Quality Plan 3', 'Quality Plan 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_plan (id, code, name, status, doc_status, created_at, updated_at)
-VALUES ('e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'Code 4', 'Quality Plan 4', 'RETIRED', 'final', NOW(), NOW())
+VALUES ('e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'Quality Plan 4', 'Quality Plan 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_plan (id, code, name, status, doc_status, created_at, updated_at)
-VALUES ('e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'Code 5', 'Quality Plan 5', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'Quality Plan 5', 'Quality Plan 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Test Method (bus_test_method)
 INSERT INTO bus_test_method (id, code, name, instructions, status, doc_status, created_at, updated_at)
-VALUES ('4a43b649-26ff-5238-8e8a-5c6160416c3a', 'Code 1', 'Test Method 1', 'Instructions 1', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('4a43b649-26ff-5238-8e8a-5c6160416c3a', 'Test Method 1', 'Test Method 1', 'Instructions 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_test_method (id, code, name, instructions, status, doc_status, created_at, updated_at)
-VALUES ('af0e9c3e-9532-566b-845c-32e4909d0c5b', 'Code 2', 'Test Method 2', 'Instructions 2', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('af0e9c3e-9532-566b-845c-32e4909d0c5b', 'Test Method 2', 'Test Method 2', 'Instructions 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_test_method (id, code, name, instructions, status, doc_status, created_at, updated_at)
-VALUES ('d1a35ae1-fa88-57b6-8b9d-1191d1b98b6e', 'Code 3', 'Test Method 3', 'Instructions 3', 'SUSPENDED', 'final', NOW(), NOW())
+VALUES ('d1a35ae1-fa88-57b6-8b9d-1191d1b98b6e', 'Test Method 3', 'Test Method 3', 'Instructions 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_test_method (id, code, name, instructions, status, doc_status, created_at, updated_at)
-VALUES ('3221babc-14e4-5456-a9a3-5ea4f414c904', 'Code 4', 'Test Method 4', 'Instructions 4', 'RETIRED', 'final', NOW(), NOW())
+VALUES ('3221babc-14e4-5456-a9a3-5ea4f414c904', 'Test Method 4', 'Test Method 4', 'Instructions 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_test_method (id, code, name, instructions, status, doc_status, created_at, updated_at)
-VALUES ('abbecb0b-c084-5953-973a-a19c54bfcb48', 'Code 5', 'Test Method 5', 'Instructions 5', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('abbecb0b-c084-5953-973a-a19c54bfcb48', 'Test Method 5', 'Test Method 5', 'Instructions 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Sampling Plan (bus_sampling_plan)
 INSERT INTO bus_sampling_plan (id, code, name, method, status, doc_status, created_at, updated_at)
-VALUES ('bef77dbe-4153-5037-9154-0a2858c75ce4', 'Code 1', 'Sampling Plan 1', 'CENSUS', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('bef77dbe-4153-5037-9154-0a2858c75ce4', 'Sampling Plan 1', 'Sampling Plan 1', 'CENSUS', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_plan (id, code, name, method, status, doc_status, created_at, updated_at)
-VALUES ('ec90aae5-68be-5b64-89c3-1bb3fce4a17e', 'Code 2', 'Sampling Plan 2', 'RANDOM', 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('ec90aae5-68be-5b64-89c3-1bb3fce4a17e', 'Sampling Plan 2', 'Sampling Plan 2', 'RANDOM', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_plan (id, code, name, method, status, doc_status, created_at, updated_at)
-VALUES ('ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'Code 3', 'Sampling Plan 3', 'SYSTEMATIC', 'SUSPENDED', 'final', NOW(), NOW())
+VALUES ('ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'Sampling Plan 3', 'Sampling Plan 3', 'SYSTEMATIC', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_plan (id, code, name, method, status, doc_status, created_at, updated_at)
-VALUES ('5b834b37-56c1-516f-b317-e61870e91539', 'Code 4', 'Sampling Plan 4', 'STRATIFIED', 'RETIRED', 'final', NOW(), NOW())
+VALUES ('5b834b37-56c1-516f-b317-e61870e91539', 'Sampling Plan 4', 'Sampling Plan 4', 'STRATIFIED', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_plan (id, code, name, method, status, doc_status, created_at, updated_at)
-VALUES ('6588f947-1bcb-5b20-8873-55adabce302a', 'Code 5', 'Sampling Plan 5', 'FIXED_SIZE', 'DRAFT', 'final', NOW(), NOW())
+VALUES ('6588f947-1bcb-5b20-8873-55adabce302a', 'Sampling Plan 5', 'Sampling Plan 5', 'FIXED_SIZE', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Quality Plan Characteristic (bus_quality_plan_characteristic)
@@ -408,16 +374,16 @@ INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, 
 VALUES ('df36c85a-4149-566d-bde8-e7ca7850e1a5', 'Rule Number 1', 1, 1, 1, 1, 1, 'DRAFT', 'bef77dbe-4153-5037-9154-0a2858c75ce4', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('8e117347-8b70-5ffd-8b96-4ca406ec4978', 'Rule Number 2', 2, 2, 2, 2, 2, 'ACTIVE', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '34709964-4ec6-5439-ac69-6c632c01baa3', 'final', NOW(), NOW())
+VALUES ('8e117347-8b70-5ffd-8b96-4ca406ec4978', 'Rule Number 2', 2, 2, 2, 2, 2, 'DRAFT', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '34709964-4ec6-5439-ac69-6c632c01baa3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'Rule Number 3', 3, 3, 3, 3, 3, 'RETIRED', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'd5616500-3749-55b4-9aae-286871af6cb9', 'final', NOW(), NOW())
+VALUES ('b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'Rule Number 3', 3, 3, 3, 3, 3, 'DRAFT', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'd5616500-3749-55b4-9aae-286871af6cb9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
 VALUES ('76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'Rule Number 4', 4, 4, 4, 4, 4, 'DRAFT', '5b834b37-56c1-516f-b317-e61870e91539', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'Rule Number 5', 5, 5, 5, 5, 5, 'ACTIVE', '6588f947-1bcb-5b20-8873-55adabce302a', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'final', NOW(), NOW())
+VALUES ('6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'Rule Number 5', 5, 5, 5, 5, 5, 'DRAFT', '6588f947-1bcb-5b20-8873-55adabce302a', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Quality Inspection (bus_quality_inspection)
@@ -425,16 +391,16 @@ INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, stat
 VALUES ('a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'Inspection Number 1', '2026-01-15T09:00:00Z', 'OPEN', 'PASS', 'RELEASE', 'Notes 1', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('2462754d-806a-57eb-84e8-11b9bf20d435', 'Inspection Number 2', '2026-02-15T09:00:00Z', 'IN_PROGRESS', 'FAIL', 'ACCEPT', 'Notes 2', '34709964-4ec6-5439-ac69-6c632c01baa3', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
+VALUES ('2462754d-806a-57eb-84e8-11b9bf20d435', 'Inspection Number 2', '2026-02-15T09:00:00Z', 'OPEN', 'FAIL', 'ACCEPT', 'Notes 2', '34709964-4ec6-5439-ac69-6c632c01baa3', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('5918decf-c186-58cf-b94a-3ce0b72af062', 'Inspection Number 3', '2026-03-15T09:00:00Z', 'PASSED', 'CONDITIONAL', 'REJECT', 'Notes 3', 'd5616500-3749-55b4-9aae-286871af6cb9', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
+VALUES ('5918decf-c186-58cf-b94a-3ce0b72af062', 'Inspection Number 3', '2026-03-15T09:00:00Z', 'OPEN', 'CONDITIONAL', 'REJECT', 'Notes 3', 'd5616500-3749-55b4-9aae-286871af6cb9', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('1afb27d6-3123-5526-a9dc-fd6194a99b85', 'Inspection Number 4', '2026-04-15T09:00:00Z', 'FAILED', 'NOT_TESTED', 'QUARANTINE', 'Notes 4', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
+VALUES ('1afb27d6-3123-5526-a9dc-fd6194a99b85', 'Inspection Number 4', '2026-04-15T09:00:00Z', 'OPEN', 'NOT_TESTED', 'QUARANTINE', 'Notes 4', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'Inspection Number 5', '2026-05-15T09:00:00Z', 'CONDITIONAL', 'PASS', 'RETURN_TO_SUPPLIER', 'Notes 5', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
+VALUES ('4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'Inspection Number 5', '2026-05-15T09:00:00Z', 'OPEN', 'PASS', 'RETURN_TO_SUPPLIER', 'Notes 5', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Inspection Sample (bus_inspection_sample)
@@ -442,16 +408,16 @@ INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, uni
 VALUES ('f6d13731-6974-5b81-9a21-4d0c9a2c5c82', 'Sample Number 1', '2026-01-15T09:00:00Z', 10.50, '4cb05e82-ec3a-596e-acf6-870e71f68934', 'SELECTED', 'Selection Basis 1', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'bef77dbe-4153-5037-9154-0a2858c75ce4', 'df36c85a-4149-566d-bde8-e7ca7850e1a5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('665acde9-2ef0-565d-b4e4-a404843df3b9', 'Sample Number 2', '2026-02-15T09:00:00Z', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'IN_TESTING', 'Selection Basis 2', '2462754d-806a-57eb-84e8-11b9bf20d435', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '8e117347-8b70-5ffd-8b96-4ca406ec4978', 'final', NOW(), NOW())
+VALUES ('665acde9-2ef0-565d-b4e4-a404843df3b9', 'Sample Number 2', '2026-02-15T09:00:00Z', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'SELECTED', 'Selection Basis 2', '2462754d-806a-57eb-84e8-11b9bf20d435', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '8e117347-8b70-5ffd-8b96-4ca406ec4978', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'Sample Number 3', '2026-03-15T09:00:00Z', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'TESTED', 'Selection Basis 3', '5918decf-c186-58cf-b94a-3ce0b72af062', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'final', NOW(), NOW())
+VALUES ('a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'Sample Number 3', '2026-03-15T09:00:00Z', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'SELECTED', 'Selection Basis 3', '5918decf-c186-58cf-b94a-3ce0b72af062', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('7491c3fe-0a98-5523-9acc-b927b11d75bc', 'Sample Number 4', '2026-04-15T09:00:00Z', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'REJECTED', 'Selection Basis 4', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '5b834b37-56c1-516f-b317-e61870e91539', '76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'final', NOW(), NOW())
+VALUES ('7491c3fe-0a98-5523-9acc-b927b11d75bc', 'Sample Number 4', '2026-04-15T09:00:00Z', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'SELECTED', 'Selection Basis 4', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '5b834b37-56c1-516f-b317-e61870e91539', '76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('2881dbb7-2f70-5460-bbdd-702c798fba11', 'Sample Number 5', '2026-05-15T09:00:00Z', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'DISPOSED', 'Selection Basis 5', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '6588f947-1bcb-5b20-8873-55adabce302a', '6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'final', NOW(), NOW())
+VALUES ('2881dbb7-2f70-5460-bbdd-702c798fba11', 'Sample Number 5', '2026-05-15T09:00:00Z', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'SELECTED', 'Selection Basis 5', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '6588f947-1bcb-5b20-8873-55adabce302a', '6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Certificate Of Analysis (bus_certificate_of_analysis)
@@ -459,16 +425,16 @@ INSERT INTO bus_certificate_of_analysis (id, certificate_number, issued_at, stat
 VALUES ('2540836a-25cd-5888-8393-3150b4907689', 'Certificate Of Analysis 1', NULL, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_certificate_of_analysis (id, certificate_number, issued_at, status, doc_status, created_at, updated_at)
-VALUES ('3a144469-795a-5d59-a379-9f1857e55263', 'Certificate Of Analysis 2', NULL, 'APPROVED', 'final', NOW(), NOW())
+VALUES ('3a144469-795a-5d59-a379-9f1857e55263', 'Certificate Of Analysis 2', NULL, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_certificate_of_analysis (id, certificate_number, issued_at, status, doc_status, created_at, updated_at)
-VALUES ('03cf18f3-bff8-5fe7-93ca-a40262a902b2', 'Certificate Of Analysis 3', NULL, 'ISSUED', 'final', NOW(), NOW())
+VALUES ('03cf18f3-bff8-5fe7-93ca-a40262a902b2', 'Certificate Of Analysis 3', NULL, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_certificate_of_analysis (id, certificate_number, issued_at, status, doc_status, created_at, updated_at)
-VALUES ('428ce973-df6e-585a-9682-47cab563cd16', 'Certificate Of Analysis 4', NULL, 'SUPERSEDED', 'final', NOW(), NOW())
+VALUES ('428ce973-df6e-585a-9682-47cab563cd16', 'Certificate Of Analysis 4', NULL, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_certificate_of_analysis (id, certificate_number, issued_at, status, doc_status, created_at, updated_at)
-VALUES ('ee5ab055-c18f-5d92-8fed-57b18b53be72', 'Certificate Of Analysis 5', NULL, 'VOID', 'final', NOW(), NOW())
+VALUES ('ee5ab055-c18f-5d92-8fed-57b18b53be72', 'Certificate Of Analysis 5', NULL, 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Quality Measurement (bus_quality_measurement)
@@ -493,16 +459,16 @@ INSERT INTO bus_nonconformance (id, number, severity, status, description, detec
 VALUES ('48aa1600-b85e-5588-a168-923794ce6246', 'Nonconformance 1', 'LOW', 'OPEN', 'Description 1', '2026-01-15T09:00:00Z', NULL, 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_nonconformance (id, number, severity, status, description, detected_at, closed_at, inspection_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', 'Nonconformance 2', 'MEDIUM', 'UNDER_REVIEW', 'Description 2', '2026-02-15T09:00:00Z', NULL, '2462754d-806a-57eb-84e8-11b9bf20d435', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
+VALUES ('2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', 'Nonconformance 2', 'MEDIUM', 'OPEN', 'Description 2', '2026-02-15T09:00:00Z', NULL, '2462754d-806a-57eb-84e8-11b9bf20d435', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_nonconformance (id, number, severity, status, description, detected_at, closed_at, inspection_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'Nonconformance 3', 'HIGH', 'CONTAINED', 'Description 3', '2026-03-15T09:00:00Z', NULL, '5918decf-c186-58cf-b94a-3ce0b72af062', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
+VALUES ('7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'Nonconformance 3', 'HIGH', 'OPEN', 'Description 3', '2026-03-15T09:00:00Z', NULL, '5918decf-c186-58cf-b94a-3ce0b72af062', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_nonconformance (id, number, severity, status, description, detected_at, closed_at, inspection_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'Nonconformance 4', 'CRITICAL', 'CORRECTIVE_ACTION', 'Description 4', '2026-04-15T09:00:00Z', NULL, '1afb27d6-3123-5526-a9dc-fd6194a99b85', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
+VALUES ('1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'Nonconformance 4', 'CRITICAL', 'OPEN', 'Description 4', '2026-04-15T09:00:00Z', NULL, '1afb27d6-3123-5526-a9dc-fd6194a99b85', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_nonconformance (id, number, severity, status, description, detected_at, closed_at, inspection_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'Nonconformance 5', 'LOW', 'CLOSED', 'Description 5', '2026-05-15T09:00:00Z', NULL, '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
+VALUES ('657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'Nonconformance 5', 'LOW', 'OPEN', 'Description 5', '2026-05-15T09:00:00Z', NULL, '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Corrective Action (bus_corrective_action)
@@ -510,16 +476,16 @@ INSERT INTO bus_corrective_action (id, action_number, action_type, description, 
 VALUES ('985661f8-4747-5f86-8d5b-cbca9117f507', 'Action Number 1', 'CONTAINMENT', 'Description 1', 'OPEN', NULL, NULL, '48aa1600-b85e-5588-a168-923794ce6246', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('85c16536-6eab-5308-b295-974b06aa0eda', 'Action Number 2', 'CORRECTION', 'Description 2', 'ASSIGNED', NULL, NULL, '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
+VALUES ('85c16536-6eab-5308-b295-974b06aa0eda', 'Action Number 2', 'CORRECTION', 'Description 2', 'OPEN', NULL, NULL, '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'Action Number 3', 'CORRECTIVE', 'Description 3', 'IN_PROGRESS', NULL, NULL, '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
+VALUES ('f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'Action Number 3', 'CORRECTIVE', 'Description 3', 'OPEN', NULL, NULL, '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'Action Number 4', 'PREVENTIVE', 'Description 4', 'VERIFICATION', NULL, NULL, '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
+VALUES ('ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'Action Number 4', 'PREVENTIVE', 'Description 4', 'OPEN', NULL, NULL, '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('932aee24-3742-51e0-9acb-522715a96831', 'Action Number 5', 'CONTAINMENT', 'Description 5', 'COMPLETED', NULL, NULL, '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
+VALUES ('932aee24-3742-51e0-9acb-522715a96831', 'Action Number 5', 'CONTAINMENT', 'Description 5', 'OPEN', NULL, NULL, '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Corrective Action Verification (bus_corrective_action_verification)
@@ -527,16 +493,16 @@ INSERT INTO bus_corrective_action_verification (id, verification_number, verific
 VALUES ('7af571c1-8208-5707-bc5b-19cfac47b3b4', 'Verification Number 1', '2026-01-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 1', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '48aa1600-b85e-5588-a168-923794ce6246', '985661f8-4747-5f86-8d5b-cbca9117f507', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('b6b69a86-a343-526b-a892-96c34b82c14b', 'Verification Number 2', '2026-02-15T09:00:00Z', 'PARTIALLY_EFFECTIVE', 'IN_PROGRESS', 'Findings 2', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '85c16536-6eab-5308-b295-974b06aa0eda', 'final', NOW(), NOW())
+VALUES ('b6b69a86-a343-526b-a892-96c34b82c14b', 'Verification Number 2', '2026-02-15T09:00:00Z', 'PARTIALLY_EFFECTIVE', 'OPEN', 'Findings 2', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '85c16536-6eab-5308-b295-974b06aa0eda', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('98bf2333-a2e3-59ed-8623-83d1e794da23', 'Verification Number 3', '2026-03-15T09:00:00Z', 'INEFFECTIVE', 'COMPLETED', 'Findings 3', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'final', NOW(), NOW())
+VALUES ('98bf2333-a2e3-59ed-8623-83d1e794da23', 'Verification Number 3', '2026-03-15T09:00:00Z', 'INEFFECTIVE', 'OPEN', 'Findings 3', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('70b4ba7e-6306-574e-bea9-a39a687801e5', 'Verification Number 4', '2026-04-15T09:00:00Z', 'NOT_VERIFIABLE', 'REOPENED', 'Findings 4', 'cb59e05b-c041-5a29-9521-ac2714793800', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'final', NOW(), NOW())
+VALUES ('70b4ba7e-6306-574e-bea9-a39a687801e5', 'Verification Number 4', '2026-04-15T09:00:00Z', 'NOT_VERIFIABLE', 'OPEN', 'Findings 4', 'cb59e05b-c041-5a29-9521-ac2714793800', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('62b97123-1359-55ff-a8e3-f734a4449f96', 'Verification Number 5', '2026-05-15T09:00:00Z', 'EFFECTIVE', 'CANCELLED', 'Findings 5', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '932aee24-3742-51e0-9acb-522715a96831', 'final', NOW(), NOW())
+VALUES ('62b97123-1359-55ff-a8e3-f734a4449f96', 'Verification Number 5', '2026-05-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 5', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '932aee24-3742-51e0-9acb-522715a96831', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Return Disposition (bus_return_disposition)
@@ -544,14 +510,14 @@ INSERT INTO bus_return_disposition (id, disposition_code, disposition_date, quan
 VALUES ('3d9b4705-2b1f-5932-8f43-6263168c778d', 'RESTOCK', '2026-01-15T09:00:00Z', 10.50, 'DRAFT', 'Reason Code 1', '48aa1600-b85e-5588-a168-923794ce6246', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_return_disposition (id, disposition_code, disposition_date, quantity, status, reason_code, nonconformance_id, quality_inspection_id, doc_status, created_at, updated_at)
-VALUES ('5bc9703f-05c3-5ebc-aae4-e2c1b0b53e6b', 'QUARANTINE', '2026-02-15T09:00:00Z', 21.00, 'AUTHORIZED', 'Reason Code 2', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '2462754d-806a-57eb-84e8-11b9bf20d435', 'final', NOW(), NOW())
+VALUES ('5bc9703f-05c3-5ebc-aae4-e2c1b0b53e6b', 'QUARANTINE', '2026-02-15T09:00:00Z', 21.00, 'DRAFT', 'Reason Code 2', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '2462754d-806a-57eb-84e8-11b9bf20d435', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_return_disposition (id, disposition_code, disposition_date, quantity, status, reason_code, nonconformance_id, quality_inspection_id, doc_status, created_at, updated_at)
-VALUES ('5cbd4df1-c92c-57f6-a1db-6db2e8b43d73', 'RETURN_TO_SUPPLIER', '2026-03-15T09:00:00Z', 31.50, 'EXECUTED', 'Reason Code 3', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', '5918decf-c186-58cf-b94a-3ce0b72af062', 'final', NOW(), NOW())
+VALUES ('5cbd4df1-c92c-57f6-a1db-6db2e8b43d73', 'RETURN_TO_SUPPLIER', '2026-03-15T09:00:00Z', 31.50, 'DRAFT', 'Reason Code 3', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', '5918decf-c186-58cf-b94a-3ce0b72af062', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_return_disposition (id, disposition_code, disposition_date, quantity, status, reason_code, nonconformance_id, quality_inspection_id, doc_status, created_at, updated_at)
-VALUES ('307887d3-f354-50ff-811c-f6ef5e4a8813', 'REWORK', '2026-04-15T09:00:00Z', 42.00, 'CANCELLED', 'Reason Code 4', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', '1afb27d6-3123-5526-a9dc-fd6194a99b85', 'final', NOW(), NOW())
+VALUES ('307887d3-f354-50ff-811c-f6ef5e4a8813', 'REWORK', '2026-04-15T09:00:00Z', 42.00, 'DRAFT', 'Reason Code 4', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', '1afb27d6-3123-5526-a9dc-fd6194a99b85', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_return_disposition (id, disposition_code, disposition_date, quantity, status, reason_code, nonconformance_id, quality_inspection_id, doc_status, created_at, updated_at)
-VALUES ('a078ed09-80e8-55f7-89a3-b29e08908727', 'REPAIR', '2026-05-15T09:00:00Z', 52.50, 'EXCEPTION', 'Reason Code 5', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'final', NOW(), NOW())
+VALUES ('a078ed09-80e8-55f7-89a3-b29e08908727', 'REPAIR', '2026-05-15T09:00:00Z', 52.50, 'DRAFT', 'Reason Code 5', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

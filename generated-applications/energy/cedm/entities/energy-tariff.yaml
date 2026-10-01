@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: utilities_entity
   description: A pricing schedule defining charges for consumption, demand, connection, or other utility services.
+  ui:
+    icon: zap
   identity:
     key: tariffId
     type: uuid
@@ -118,6 +120,18 @@ entity:
   invariants:
   - id: TARIFF-001
     rule: effectiveTo must not precede effectiveFrom.
+  - {id: ENERGY-TARIFF-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Energy Tariff Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, EXPIRED, RETIRED]
+    initial: DRAFT
+    terminal: [EXPIRED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a utilities entity called EnergyTariff within the CEDM business model.
     businessMeaning: EnergyTariff is a business concept with its own identity and lifecycle. It captures information that

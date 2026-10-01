@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_agreement
   description: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
+  ui:
+    icon: file-check
   identity: {key: agreementId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Agreement., businessMeaning: Identifies one governed Agreement record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

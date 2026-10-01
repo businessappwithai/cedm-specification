@@ -21,20 +21,46 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "Message",
     "Event",
-    "IntegrationEndpoint"
+    "IntegrationEndpoint",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority"
   ],
   "categories": [
     "Foundation",
     "Integration and Event Management",
-    "Technology and IT Service Management records"
+    "Technology and IT Service Management records",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -54,10 +80,16 @@
     "PersonGender (5)",
     "PersonPartyType (2)",
     "PersonStatus (4)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:19:42.254Z"
+  "generatedAt": "2026-10-01T09:35:00.247Z"
 }

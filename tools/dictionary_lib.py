@@ -102,3 +102,8 @@ def value_meaning(entity: str, attribute: str, value: str) -> str:
         f"The {lower_words(attribute)} of the {lower_words(entity)} is {v}; "
         f"set it when that is what the business means for this record."
     )
+
+
+def cap(text: str) -> str:
+    """Sentence case: the first letter upper, the rest as it is."""
+    return text[:1].upper() + text[1:]

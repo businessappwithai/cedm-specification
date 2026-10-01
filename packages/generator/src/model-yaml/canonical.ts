@@ -48,6 +48,7 @@ function attributeOf(attribute: AttributeDocument): AttributeDocument {
     ...(attribute.pk ? { pk: true } : {}),
     ...(attribute.fk ? { fk: true } : {}),
     ...present("references", attribute.references),
+    ...present("narrowedBy", attribute.narrowedBy),
     ...(attribute.unique ? { unique: true } : {}),
     ...(attribute.optional ? { optional: true } : {}),
     ...present("enum", attribute.enum),
@@ -71,6 +72,7 @@ function entityOf(entity: EntityDocument): EntityDocument {
     ...present("prefix", entity.prefix),
     ...present("softDelete", entity.softDelete),
     ...present("audited", entity.audited),
+    ...present("data", entity.data),
     attributes: entity.attributes.map(attributeOf),
     ...nonEmpty(
       "indexes",

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_reference_entity
   description: A time-effective, sourced conversion rate used to translate monetary amounts from one Currency into another for explicitly governed commercial, settlement, banking, or accounting calculations.
+  ui:
+    icon: list
   identity:
     key: exchangeRateId
     type: uuid
@@ -110,6 +112,11 @@ entity:
       relationshipContext: Historical calculations retain the rate record even after it expires.
       workflowRole: Prevents use of draft, cancelled, or expired rates where policy does not permit them.
       requiredMeaning: Required for controlled rate selection.
+      valueSemantics:
+        DRAFT: The status of the exchange rate is draft; set it when that is what the business means for this record.
+        ACTIVE: The status of the exchange rate is active; set it when that is what the business means for this record.
+        EXPIRED: The status of the exchange rate is expired; set it when that is what the business means for this record.
+        CANCELLED: The status of the exchange rate is cancelled; set it when that is what the business means for this record.
   relationships:
   - name: fromCurrencyRef
     target: Currency
@@ -140,6 +147,37 @@ entity:
     rule: Historical financial calculations must retain the ExchangeRate reference actually used and must not be silently recalculated using a later rate.
   - id: EXCHANGE-RATE-005
     rule: A PaymentAllocation across different currencies requires an approved ExchangeRate and applicable rounding policy.
+  - {id: EXCHANGE-RATE-EXE-001, rule: "Rate cannot be negative.", violatedWhen: "rate != null and rate < 0", message: "Rate cannot be negative."}
+  lifecycle:
+    title: Exchange Rate Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXPIRED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a exchange rate is ended"
+      description: "When a exchange rate is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "EXCHANGE-RATE-FOLLOW-UP-{{id}}"
+              name: "Follow up on exchange rate {{id}}"
+              description: "Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents an auditable conversion rate between two currencies for a defined time and business purpose.
     businessMeaning: ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry.

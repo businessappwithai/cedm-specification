@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_transaction
   description: A governed grouping of shipments, consignments, handling units, or containers assigned together for transport execution.
+  ui:
+    icon: file-text
   identity: {key: loadId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: loadId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Load., businessMeaning: Identifies one governed Load record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

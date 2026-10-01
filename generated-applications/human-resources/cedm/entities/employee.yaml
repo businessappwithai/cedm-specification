@@ -4,6 +4,8 @@ entity:
   kind: party_role_specialization
   extends: PartyRole
   description: A person engaged by an organization as an employee.
+  ui:
+    icon: user-check
   identity:
     key: employeeId
     type: uuid
@@ -117,6 +119,19 @@ entity:
     rule: partyRole.roleType must equal EMPLOYEE.
   - id: EMPLOYEE-002
     rule: terminationDate must not precede hireDate.
+  lifecycle:
+    title: Employee Lifecycle
+    attribute: status
+    states: [ACTIVE, ON_LEAVE, TERMINATED, RETIRED]
+    initial: ACTIVE
+    terminal: [TERMINATED, RETIRED]
+    transitions:
+      - {from: ACTIVE, to: ON_LEAVE, action: mark_on_leave}
+      - {from: ON_LEAVE, to: ACTIVE, action: return_from_leave}
+      - {from: ACTIVE, to: TERMINATED, action: terminate}
+      - {from: ON_LEAVE, to: TERMINATED, action: terminate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: ON_LEAVE, to: RETIRED, action: retire}
   help:
     summary: Represents a party role specialization called Employee within the CEDM business model.
     businessMeaning: Employee is a business concept with its own identity and lifecycle. It captures information that must

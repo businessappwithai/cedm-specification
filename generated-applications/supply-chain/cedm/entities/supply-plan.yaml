@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supply_chain_entity
   description: A plan describing expected demand, supply, inventory, and replenishment actions over a planning horizon.
+  ui:
+    icon: table
   identity:
     key: supplyPlanId
     type: uuid
@@ -119,6 +121,39 @@ entity:
   invariants:
   - id: SUPPLY-PLAN-001
     rule: planningEnd must not precede planningStart.
+  - {id: SUPPLY-PLAN-EXE-001, rule: "Planning End must not be earlier than planning start.", violatedWhen: "planning_start != null and planning_end != null and planning_end < planning_start", message: "Planning End cannot be earlier than planning start."}
+  lifecycle:
+    title: Supply Plan Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, ACTIVE, CLOSED, CANCELLED]
+    initial: DRAFT
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supply plan is ended"
+      description: "When a supply plan is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLY-PLAN-FOLLOW-UP-{{id}}"
+              name: "Follow up on supply plan {{plan_number}}"
+              description: "Supply plan {{plan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a supply chain entity called SupplyPlan within the CEDM business model.
     businessMeaning: SupplyPlan is a business concept with its own identity and lifecycle. It captures information that must

@@ -164,6 +164,58 @@ entity:
     - {id: PAYMENT-010, rule: Payment linked to CreditNote as refund must be DISBURSEMENT and must not be reused as evidence for original customer receipt.}
     - {id: PAYMENT-011, rule: Payment linked to SupplierCreditNote as supplier refund must be RECEIPT to the organization and must not be treated as a SupplierCreditNoteApplication.}
     - {id: PAYMENT-012, rule: "SupplierCreditNote cash settlement and SupplierCreditNoteApplication are mutually distinct effects: one records money received from supplier, the other records non-cash reduction of payable exposure."}
+    - {id: PAYMENT-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  lifecycle:
+    title: Payment Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, POSTED, CLEARED, VOID, REVERSED]
+    initial: DRAFT
+    terminal: [CLEARED, VOID, REVERSED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: POSTED, action: post}
+      - {from: POSTED, to: CLEARED, action: mark_cleared}
+      - {from: DRAFT, to: VOID, action: void}
+      - {from: APPROVED, to: VOID, action: void}
+      - {from: POSTED, to: VOID, action: void}
+      - {from: POSTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a payment is ended"
+      description: "When a payment is void or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"VOID\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PAYMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on payment {{payment_number}}"
+              description: "Payment {{payment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a payment is done"
+      description: "When a payment is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PAYMENT-COMPLETED-{{id}}"
+              name: "Confirm payment {{payment_number}}"
+              description: "Payment {{payment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents movement or recognition of money while keeping payment execution, claim settlement, bank evidence, accounting recognition, customer refunds and supplier-credit refunds as separate connected facts.
     businessMeaning: Payment is the settlement event. Invoice is the claim. PaymentAllocation applies receipt payments to claims. CreditNote is a customer financial adjustment. SupplierCreditNote is a supplier payable adjustment. A refund or settlement Payment is separate cash evidence.

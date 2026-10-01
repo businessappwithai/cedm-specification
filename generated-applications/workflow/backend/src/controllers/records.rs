@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T05:19:55.752Z
+//! Generated: 2026-10-01T09:35:20.111Z
 //! Project: workflow
 //!
 //! Two things a person looking at a record wants that the CRUD routes cannot

@@ -72,6 +72,35 @@ entity:
     rule: tierNumber must not exceed the maximum permitted stacking height configured for the parent YardBay, unless the yard explicitly supports dynamic height configuration.
   - id: YARD-TIER-003
     rule: BLOCKED or CLOSED tiers must not receive new normal placement allocations unless an explicit operational exception permits them.
+  lifecycle:
+    title: Yard Tier Lifecycle
+    attribute: status
+    states: [ACTIVE, BLOCKED, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a yard tier is stopped"
+      description: "When a yard tier is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "YARD-TIER-EXCEPTION-{{id}}"
+              name: "Resolve yard tier {{id}}"
+              description: "Yard tier {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents one vertical level in a container stack and provides the model's explicit representation of stacking height and access dependency.
     businessMeaning: YardTier answers the question "how high in this bay is the position?" It is essential for calculating stack height, determining whether equipment can reach a container, and understanding whether retrieving one container requires moving containers above it.

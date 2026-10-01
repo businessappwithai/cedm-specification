@@ -143,6 +143,27 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Property Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, UNDER_CONSTRUCTION, INACTIVE, SOLD, RETIRED]
+    initial: PLANNED
+    terminal: [SOLD, RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: UNDER_CONSTRUCTION, action: mark_under_construction}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: UNDER_CONSTRUCTION, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: UNDER_CONSTRUCTION, action: reactivate}
+      - {from: PLANNED, to: SOLD, action: mark_sold}
+      - {from: ACTIVE, to: SOLD, action: mark_sold}
+      - {from: UNDER_CONSTRUCTION, to: SOLD, action: mark_sold}
+      - {from: INACTIVE, to: SOLD, action: mark_sold}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: UNDER_CONSTRUCTION, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a real estate entity called Property within the CEDM business model.
     businessMeaning: Property is a business concept with its own identity and lifecycle. It captures information that must

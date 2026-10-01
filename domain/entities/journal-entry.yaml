@@ -103,6 +103,52 @@ entity:
   - {id: JOURNAL-008, rule: JournalEntry must not be used as evidence that a Payment or refund Payment cleared the bank; bank evidence is represented by BankTransaction and reconciliation state.}
   - {id: JOURNAL-009, rule: "A posted CreditNote, SupplierCreditNote, or SupplierDebitNote must not be treated as financially posted until required JournalEntry recognition has been posted or an explicitly governed accounting exception exists."}
   - {id: JOURNAL-010, rule: POSTED JournalEntry must resolve entryDate and accounting organization to an eligible FiscalPeriod; closed-period exceptions require explicit governed authority.}
+  lifecycle:
+    title: Journal Entry Lifecycle
+    attribute: status
+    states: [DRAFT, POSTED, REVERSED]
+    initial: DRAFT
+    terminal: [REVERSED]
+    transitions:
+      - {from: DRAFT, to: POSTED, action: post}
+      - {from: POSTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a journal entry is ended"
+      description: "When a journal entry is reversed, a task asks someone to settle what depended on it."
+      when: "status == \"REVERSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "JOURNAL-ENTRY-FOLLOW-UP-{{id}}"
+              name: "Follow up on journal entry {{entry_number}}"
+              description: "Journal entry {{entry_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a journal entry is done"
+      description: "When a journal entry is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "JOURNAL-ENTRY-COMPLETED-{{id}}"
+              name: "Confirm journal entry {{entry_number}}"
+              description: "Journal entry {{entry_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents accounting recognition of a business event in a balanced double-entry ledger.
     businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, SupplierDebitNote records buyer recovery, and JournalEntry records accounting recognition.

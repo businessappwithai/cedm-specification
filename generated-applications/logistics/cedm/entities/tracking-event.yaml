@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_event
   description: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
+  ui:
+    icon: activity
   identity: {key: trackingEventId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TrackingEvent., businessMeaning: Identifies one governed TrackingEvent record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

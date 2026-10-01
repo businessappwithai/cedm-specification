@@ -66,6 +66,7 @@ pub async fn layout_fields(
                  c.is_identifier,
                  c.field_length, c.default_value AS column_default_value,
                  c.ref_table_name AS stored_ref_table_name,
+                 c.narrowed_by AS narrowed_by_json,
                  r.name AS reference_name,
                  g.name AS group_name, g.columns AS group_columns,
                  g.description AS group_description, g.layout_type AS group_layout_type,
@@ -187,6 +188,21 @@ pub async fn layout_fields(
         );
         field.insert("reference_name".into(), json!(text(row, "reference_name")));
         field.insert("ref_table_name".into(), json!(ref_table_name));
+        // The columns of the record that narrow this lookup's choices. The form
+        // sends their values to `/bus/{entity}/lookup/{column}` and clears the
+        // field when one of them changes; the server does the narrowing.
+        let narrowed_by: Vec<String> = row
+            .try_get::<Option<String>, _>("narrowed_by_json")
+            .ok()
+            .flatten()
+            .and_then(|json| {
+                serde_json::from_str::<Vec<crate::services::dictionary::Narrowing>>(&json).ok()
+            })
+            .unwrap_or_default()
+            .into_iter()
+            .map(|n| n.by)
+            .collect();
+        field.insert("narrowed_by".into(), json!(narrowed_by));
         field.insert("tab_name".into(), json!(text(row, "tab_name")));
         field.insert("help".into(), json!(text(row, "help")));
         // Filled in below, once every referenced table has been resolved in one

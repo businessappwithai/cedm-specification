@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_entity
   description: A formally defined rule, principle, or requirement governing business behavior or decision-making.
+  ui:
+    icon: shield
   identity:
     key: policyId
     type: uuid
@@ -159,6 +161,24 @@ entity:
     rule: effectiveTo must not precede effectiveFrom.
   - id: POLICY-002
     rule: only an APPROVED policy version may become ACTIVE.
+  - {id: POLICY-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Policy Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: ACTIVE, action: activate}
+      - {from: APPROVED, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: APPROVED, action: resume}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: APPROVED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Represents a governance entity called Policy within the CEDM business model.
     businessMeaning: Policy is a business concept with its own identity and lifecycle. It captures information that must remain

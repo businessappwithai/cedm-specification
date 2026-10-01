@@ -21,22 +21,53 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "BusinessProcess",
     "Workflow",
-    "Task",
     "ProcessDefinition",
-    "ProcessInstance"
+    "ProcessInstance",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "BusinessProcessStatus",
+    "WorkflowExecutionType",
+    "WorkflowStatus",
+    "WorkflowDefinitionFormat",
+    "ProcessDefinitionStatus",
+    "ProcessInstanceStatus"
   ],
   "categories": [
     "Foundation",
     "Workflow Orchestration",
-    "Workflow and Business Process Management records"
+    "Workflow and Business Process Management records",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -68,7 +99,13 @@
     "WorkflowExecutionType (3)",
     "WorkflowStatus (4)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "ProcessDefinitionFollowUpRequired on ProcessDefinition (1 steps, rule)",
+    "ProcessInstanceFollowUpRequired on ProcessInstance (1 steps, rule)",
+    "ProcessInstanceCompletionConfirmed on ProcessInstance (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:19:57.289Z"
+  "generatedAt": "2026-10-01T09:35:22.769Z"
 }

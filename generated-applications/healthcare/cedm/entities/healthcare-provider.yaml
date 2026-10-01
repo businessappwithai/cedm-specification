@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_party_role
   description: A person or organization authorized to provide healthcare services.
+  ui:
+    icon: database
   identity:
     key: providerId
     type: uuid
@@ -131,6 +133,20 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Healthcare Provider Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, SUSPENDED, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Represents a healthcare party role called HealthcareProvider within the CEDM business model.
     businessMeaning: HealthcareProvider is a business concept with its own identity and lifecycle. It captures information

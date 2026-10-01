@@ -31,6 +31,8 @@ export interface AttributeDeclaration {
   modifiers: string[];
   /** The entity a foreign key points at, where its name does not say. */
   references?: string;
+  /** Columns of the entity that narrow this lookup's choices. */
+  narrowedBy?: string[];
 }
 
 export interface EntityDeclaration {
@@ -121,6 +123,8 @@ export interface ErdRecords {
   fieldHelp: FieldHelp[];
   entityHelp: Array<{ entity: string; help: string }>;
   entityIcons: Array<{ entity: string; icon: string }>;
+  /** Rows an entity ships with: `data` of the entity document. */
+  entityData: Array<{ entity: string; key: string; rows: Array<Record<string, string | number | boolean | null>> }>;
   entityParents: Array<{ entity: string; parent: string }>;
   entityOptions: EntityOption[];
   fieldOptions: FieldOption[];

@@ -148,6 +148,44 @@ entity:
     rule: maturityDate must be later than startDate.
   - id: BANK-LOAN-002
     rule: principalAmount must be greater than zero.
+  - {id: BANK-LOAN-EXE-001, rule: "Principal Amount cannot be negative.", violatedWhen: "principal_amount != null and principal_amount < 0", message: "Principal Amount cannot be negative."}
+  lifecycle:
+    title: Bank Loan Lifecycle
+    attribute: status
+    states: [APPLICATION, APPROVED, ACTIVE, DELINQUENT, PAID_OFF, DEFAULTED, CANCELLED]
+    initial: APPLICATION
+    terminal: [CANCELLED]
+    transitions:
+      - {from: APPLICATION, to: APPROVED, action: approve}
+      - {from: APPROVED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: DELINQUENT, action: mark_delinquent}
+      - {from: DELINQUENT, to: PAID_OFF, action: mark_paid_off}
+      - {from: PAID_OFF, to: DEFAULTED, action: mark_defaulted}
+      - {from: APPLICATION, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: DELINQUENT, to: CANCELLED, action: cancel}
+      - {from: PAID_OFF, to: CANCELLED, action: cancel}
+      - {from: DEFAULTED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a bank loan is ended"
+      description: "When a bank loan is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BANK-LOAN-FOLLOW-UP-{{id}}"
+              name: "Follow up on bank loan {{loan_number}}"
+              description: "Bank loan {{loan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a banking entity called BankLoan within the CEDM business model.
     businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must

@@ -1,0 +1,53 @@
+# CEDM Reference Data
+#
+# Lists every application shares are not each application's to invent. A country,
+# a state, a city, a currency, a language means one thing across the enterprise,
+# so the common CEDM specification carries them — as entities, with their rows —
+# and every application generated from it ships the same lists, written into its
+# own tables when it is seeded.
+specification:
+  name: CEDM Reference Data
+  version: 1.0.0
+  status: draft
+  appliesTo: [domain/reference-data, domain/entities, domains/application-catalog.yaml]
+
+where:
+  entities: Country, StateProvince, City, Currency, Language — ordinary entities of the library, so a record points at one by relationship, never by typed code.
+  rows: domain/reference-data/<entity>.yaml, one file per entity, named by the entity's `referenceData` key. Rebuilt by tools/build_reference_data.py from public registries.
+  common: The common application module imports every one of them, so every domain application contains them.
+
+rows:
+  shape: "A file states `entity`, the `key` attribute and `rows`. A row is keyed by attribute name; a reference holds the natural key of the row it points at (a state's `country: US`)."
+  identity: A row's id is a UUIDv5 of the application, the table and the natural key, so seeding is idempotent and a record that points at a row keeps pointing at it across regeneration.
+  seeding: The rows are written by the dictionary seed as application data — never generated, randomised or skipped — parents before the rows that point at them.
+  business seed: Demonstration records point at these rows and add none of their own.
+  sources:
+    Country: ISO 3166-1 — all 249 entries, with the alpha-3 and numeric codes, the dialling prefix and the main currency.
+    Currency: ISO 4217 — every currency, with its decimal places.
+    Language: ISO 639-1 — every two-letter language.
+    StateProvince: "ISO 3166-2, first level — for the 47 countries listed in tools/build_reference_data.py. An application that needs another country's divisions adds rows of its own."
+    City: "GeoNames — every national capital and every city of 750 thousand or more. A city names its state or province where the registry says which (the United States and Canada); elsewhere it belongs to its country alone."
+
+geography:
+  hierarchy: Country → StateProvince → City. A state belongs to exactly one country; a city to exactly one country and, where known, one state of that country.
+  records: An address names its country, optionally its state or province, and its city from the list — or the city by name when it is not listed. It never holds a typed country, state or city code.
+
+narrowing:
+  rule: "A lookup states `narrowedBy`: the other references of the same record that narrow its choices, most specific first — a state by its country, a city by its state and then its country."
+  supply: The narrowing is applied by the backend that supplies the choices, `GET /api/bus/{entity}/lookup/{column}?<control column>=<value>`. A form passes the values the record holds and is given only the rows that belong to them; it never filters.
+  enforcement: A write that names a row outside the narrowed set is refused (400), whatever sent it. Changing only the country is checked against the state already on the record.
+  dictionary: "`sys_column.narrowed_by` holds `[{by, on}]`: the target rows whose `on` column equals the record's `by` column. `on` is the target's own foreign key to the table the controlling column points at."
+  form: Choosing a country empties a state or city that no longer belongs to it.
+
+label:
+  rule: A lookup lists records by the identifier columns of the entity. An entity with a unique `code` and a `name` is identified by both ("US · United States"); the code is the key people quote and the name is what they read.
+
+checks:
+  - id: REF-001
+    rule: Every row names the key attribute and its value is unique among the file's rows.
+  - id: REF-002
+    rule: Every reference in a row names a row of the entity it points at.
+  - id: REF-003
+    rule: Every value fits its attribute's type and length.
+  - id: REF-004
+    rule: A `narrowedBy` names references of the same entity, and the target has its own key to what each one points at.

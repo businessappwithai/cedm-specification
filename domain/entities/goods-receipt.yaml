@@ -90,6 +90,53 @@ entity:
   - {id: GOODS-RECEIPT-015, rule: "Changes to PurchaseOrder, Supplier, Product, UnitOfMeasure, Warehouse or InventoryLocation affecting an open receipt require revalidation."}
   - {id: GOODS-RECEIPT-016, rule: "SupplierReturn eligibility must be derived from accepted GoodsReceiptLine evidence after subtracting quantities already returned through posted SupplierReturnLine records, except authorized exceptions."}
   - {id: GOODS-RECEIPT-017, rule: A SupplierReturn must not change receivedQuantity or acceptedQuantity on the historical receipt; physical reduction is represented by attributable InventoryMovement events.}
+  - {id: GOODS-RECEIPT-EXE-001, rule: "Received Quantity cannot be negative.", violatedWhen: "received_quantity != null and received_quantity < 0", message: "Received Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-EXE-002, rule: "Accepted Quantity cannot be negative.", violatedWhen: "accepted_quantity != null and accepted_quantity < 0", message: "Accepted Quantity cannot be negative."}
+  lifecycle:
+    title: Goods Receipt Lifecycle
+    attribute: status
+    states: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
+    initial: DRAFT
+    terminal: [REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: RECEIVED, action: receive}
+      - {from: RECEIVED, to: ACCEPTED, action: accept}
+      - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
+      - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
+      - {from: ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: ACCEPTED, action: resume}
+      - {from: PARTIALLY_ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: PARTIALLY_ACCEPTED, action: resume}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: RECEIVED, to: REJECTED, action: reject}
+      - {from: ACCEPTED, to: REJECTED, action: reject}
+      - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
+      - {from: INSPECTION_PENDING, to: REJECTED, action: reject}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: RECEIVED, to: CANCELLED, action: cancel}
+      - {from: ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a goods receipt is ended"
+      description: "When a goods receipt is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GOODS-RECEIPT-FOLLOW-UP-{{id}}"
+              name: "Follow up on goods receipt {{receipt_number}}"
+              description: "Goods receipt {{receipt_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Controlled receiving document whose line evidence establishes original fulfillment and eligible basis for later supplier returns.
     businessMeaning: GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. SupplierReturn is a later reverse-procurement event that consumes eligible accepted receipt evidence without rewriting it.

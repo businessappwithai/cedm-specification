@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: sourcing_response_line
   description: A supplier's line-level commercial offer for one RequestForQuotationLine, preserving offered quantity, price, delivery and award evidence before purchase commitment.
+  ui:
+    icon: factory
   identity: {key: supplierQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one supplier offer line., businessMeaning: Identifies one commercial response independently of header and order conversion., usage: "Comparison, negotiation, award, and audit.", relationshipContext: Connects an RFQ requirement to resulting order lines., requiredMeaning: Required.}}
@@ -28,6 +30,8 @@ entity:
   - {id: SUPPLIER-QUOTATION-LINE-003, rule: Product and UOM must be compatible with RequestForQuotationLine or governed substitution/conversion evidence must exist.}
   - {id: SUPPLIER-QUOTATION-LINE-004, rule: Accepted quantity across resulting PurchaseOrderLines must not exceed the governed awarded quantity except by authorized amendment.}
   - {id: SUPPLIER-QUOTATION-LINE-005, rule: "Historical offered price, quantity and delivery promise must not be silently rewritten after evaluation."}
+  - {id: SUPPLIER-QUOTATION-LINE-EXE-001, rule: "Offered Quantity cannot be negative.", violatedWhen: "offered_quantity != null and offered_quantity < 0", message: "Offered Quantity cannot be negative."}
+  - {id: SUPPLIER-QUOTATION-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   help:
     summary: Line-level supplier offer used for sourcing comparison and controlled conversion to purchase commitment.
     businessMeaning: SupplierQuotationLine is commercial evidence, while PurchaseOrderLine is the binding procurement commitment.

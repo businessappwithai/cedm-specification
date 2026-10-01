@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: The atomic physical storage position in a structured container yard at which one container can be placed, reserved, or explicitly made unavailable, providing the final address used by yard execution and movement operations.
+  ui:
+    icon: table
   identity:
     key: yardSlotId
     type: uuid
@@ -108,6 +110,41 @@ entity:
     rule: EMPTY, RESERVED, BLOCKED, and OUT_OF_SERVICE slots must not receive a normal placement unless an explicit transition or exception authorizes it.
   - id: YARD-SLOT-005
     rule: A container assignment and the corresponding slot state must be updated atomically with the placement/movement process.
+  lifecycle:
+    title: Yard Slot Lifecycle
+    attribute: status
+    states: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]
+    initial: EMPTY
+    transitions:
+      - {from: EMPTY, to: OCCUPIED, action: mark_occupied}
+      - {from: OCCUPIED, to: RESERVED, action: reserve}
+      - {from: OCCUPIED, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: OCCUPIED, action: unblock}
+      - {from: RESERVED, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: RESERVED, action: unblock}
+      - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
+      - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a yard slot is stopped"
+      description: "When a yard slot is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "YARD-SLOT-EXCEPTION-{{id}}"
+              name: "Resolve yard slot {{id}}"
+              description: "Yard slot {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents the final, atomic physical position used to place and retrieve a container in a structured yard.
     businessMeaning: YardSlot answers the operational question "exactly where is this container?" It is the location at which a move becomes physically executable and where occupancy can be validated without ambiguity.

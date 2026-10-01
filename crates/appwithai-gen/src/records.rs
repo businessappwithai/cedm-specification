@@ -18,6 +18,8 @@ pub struct AttributeDeclaration {
     pub modifiers: Vec<String>,
     /// The entity a foreign key points at, where its name does not say.
     pub references: Option<String>,
+    /// Foreign-key columns of the entity that narrow this lookup's choices.
+    pub narrowed_by: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,6 +45,15 @@ pub struct IndexDeclaration {
     pub entity: String,
     pub columns: Vec<String>,
     pub unique: bool,
+}
+
+/// Rows an entity ships with (`data` of the entity document): keys are physical
+/// columns, a foreign key column holds the natural key of its target row, and
+/// `key` is the column that is this entity's own natural key.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct EntityData {
+    pub key: String,
+    pub rows: Vec<serde_json::Map<String, serde_json::Value>>,
 }
 
 /// An enum's business table, labels and meanings (`EnumDocument.table`, `labels`,
@@ -72,6 +83,8 @@ pub struct ErdRecords {
     pub field_help: Vec<(String, String, String)>,
     pub entity_help: Vec<(String, String)>,
     pub entity_icons: Vec<(String, String)>,
+    /// Rows an entity ships with: `(entity, data)`.
+    pub entity_data: Vec<(String, EntityData)>,
     pub entity_parents: Vec<(String, String)>,
 }
 

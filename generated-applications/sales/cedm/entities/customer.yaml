@@ -134,6 +134,39 @@ entity:
     - {id: CUSTOMER-004, rule: BLOCKED or RETIRED customers must not normally create new credit-bearing commitments unless an authorized exception workflow permits it.}
     - {id: CUSTOMER-005, rule: Customer status changes must not rewrite historical SalesOrder Invoice Payment or PaymentAllocation records.}
     - {id: CUSTOMER-006, rule: Invoice customer context and Payment payer context must remain traceable to the Customer's underlying PartyRole; payment allocation is the evidence connecting settlement to claims.}
+  lifecycle:
+    title: Customer Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a customer is stopped"
+      description: "When a customer is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CUSTOMER-EXCEPTION-{{id}}"
+              name: "Resolve customer {{id}}"
+              description: "Customer {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents the commercial customer role of a Party.
     businessMeaning: Party identifies who the party is; PartyRole establishes a role; Customer governs buyer-specific commercial behavior and controls.

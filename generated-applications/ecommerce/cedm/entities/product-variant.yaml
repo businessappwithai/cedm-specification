@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_master_entity
   description: A sellable, purchasable, manufacturable, or stockable variation of a parent Product distinguished by governed option or attribute values while retaining the parent product family identity.
+  ui:
+    icon: package
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
@@ -22,6 +24,41 @@ entity:
   - {id: PRODUCT-VARIANT-002, rule: ACTIVE variant cannot override a parent Product restriction that prohibits new use.}
   - {id: PRODUCT-VARIANT-003, rule: Variant attribute configuration must be unique within its parent product family under the applicable option model.}
   - {id: PRODUCT-VARIANT-004, rule: Variant master changes must not rewrite historical transaction evidence.}
+  lifecycle:
+    title: Product Variant Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
+    initial: DRAFT
+    terminal: [DISCONTINUED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a product variant is stopped"
+      description: "When a product variant is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PRODUCT-VARIANT-EXCEPTION-{{id}}"
+              name: "Resolve product variant {{code}}"
+              description: "Product variant {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Governed product-family variation for configuration-specific commercial and operational use.
     businessMeaning: Product defines the family/item concept; ProductVariant identifies a specific option combination such as size, color, grade or pack configuration.

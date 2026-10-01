@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-01T05:17:32.702Z
+//! Generated: 2026-10-01T09:31:39.977Z
 //! Project: document-management
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who

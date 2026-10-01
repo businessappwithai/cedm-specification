@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_case_management
   description: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
+  ui:
+    icon: briefcase
   identity: {key: legalCaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalCase., businessMeaning: Identifies one governed LegalCase record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

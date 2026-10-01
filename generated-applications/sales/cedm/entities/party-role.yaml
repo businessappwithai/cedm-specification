@@ -144,6 +144,18 @@ entity:
     rule: Ending or changing a PartyRole must not rewrite historical transactions that reference the role used at transaction time.
   - id: ROLE-007
     rule: Role eligibility for a new transaction requires Party status, PartyRole status, validity dates, organizational scope, and applicable specialized-role controls to all permit the transaction.
+  - {id: PARTY-ROLE-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+  lifecycle:
+    title: Party Role Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, EXPIRED]
+    initial: ACTIVE
+    terminal: [EXPIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: INACTIVE, to: EXPIRED, action: expire}
   help:
     summary: The bridge between stable Party identity and contextual business participation.
     businessMeaning: Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior.

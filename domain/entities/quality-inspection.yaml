@@ -182,6 +182,58 @@ entity:
   - {id: INSPECTION-011, rule: A failed required measurement must not be silently omitted from the inspection evidence or treated as a passing result without an authorized conditional or exception workflow.}
   - {id: INSPECTION-012, rule: "When a governing QualityPlanCharacteristic requires sampling, the required SamplingPlan/SamplingRule must be executed through InspectionSample before sample-dependent inspection completion."}
   - {id: INSPECTION-013, rule: "Sample selection does not itself change inventory balances, receipt quantities, return quantities, or financial balances."}
+  lifecycle:
+    title: Quality Inspection Lifecycle
+    attribute: status
+    states: [OPEN, IN_PROGRESS, PASSED, FAILED, CONDITIONAL, CANCELLED]
+    initial: OPEN
+    terminal: [PASSED, FAILED, CANCELLED]
+    transitions:
+      - {from: OPEN, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: CONDITIONAL, action: mark_conditional}
+      - {from: CONDITIONAL, to: PASSED, action: mark_passed}
+      - {from: IN_PROGRESS, to: FAILED, action: fail}
+      - {from: CONDITIONAL, to: FAILED, action: fail}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: CONDITIONAL, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a quality inspection is stopped"
+      description: "When a quality inspection is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUALITY-INSPECTION-EXCEPTION-{{id}}"
+              name: "Resolve quality inspection {{inspection_number}}"
+              description: "Quality inspection {{inspection_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a quality inspection is ended"
+      description: "When a quality inspection is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUALITY-INSPECTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on quality inspection {{inspection_number}}"
+              description: "Quality inspection {{inspection_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a quality inspection and its controlled sampling, measurements, result and disposition across inbound receiving and supplier-return workflows.
     businessMeaning: QualityInspection provides the execution context and overall decision; InspectionSample records the actual selected sample; QualityMeasurement records individual factual observations. The inspection does not itself perform inventory or financial changes.

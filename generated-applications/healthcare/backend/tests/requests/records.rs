@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T05:18:01.738Z
+//! Generated: 2026-10-01T09:32:24.593Z
 //! Project: healthcare
 
 use serde_json::{json, Value};

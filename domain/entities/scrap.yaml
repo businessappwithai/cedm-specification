@@ -24,6 +24,7 @@ entity:
   - {id: SCRAP-002, rule: Scrap quantity must be reconciled with work-order material/output/yield and must not create unexplained duplicate loss.}
   - {id: SCRAP-003, rule: Inventory-affecting scrap requires an attributable InventoryMovement; process loss not yet in inventory must not create a false stock issue.}
   - {id: SCRAP-004, rule: Posted scrap is immutable; correction uses reversal or compensating evidence.}
+  - {id: SCRAP-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Governed manufacturing loss/disposition evidence.
     businessMeaning: Scrap explains rejected or lost quantity; it is distinct from accepted ProductionReceipt and from InventoryMovement, which remains the stock ledger.

@@ -29,12 +29,15 @@ catalog:
       - ContactPoint
       - Location
       - Country
+      - StateProvince
+      - City
       - Language
       - Currency
       - ExchangeRate
       - UnitOfMeasure
       - Calendar
       - Attachment
+      - Task
 
   applications:
     - domain: enterprise

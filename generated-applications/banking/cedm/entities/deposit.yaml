@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: banking_transaction
   description: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
+  ui:
+    icon: file-text
   identity: {key: depositId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: depositId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Deposit., businessMeaning: Identifies one governed Deposit record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}

@@ -21,18 +21,47 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "FoodBatch",
-    "Product"
+    "Product",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "FoodBatchStatus",
+    "ProductProductType",
+    "ProductStatus"
   ],
   "categories": [
     "Foundation",
-    "Food and Beverage"
+    "Food and Beverage",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -55,10 +84,19 @@
     "PersonStatus (4)",
     "ProductProductType (7)",
     "ProductStatus (5)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "FoodBatchExceptionRaised on FoodBatch (1 steps, rule)",
+    "FoodBatchFollowUpRequired on FoodBatch (1 steps, rule)",
+    "ProductExceptionRaised on Product (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:17:59.335Z"
+  "generatedAt": "2026-10-01T09:32:20.977Z"
 }

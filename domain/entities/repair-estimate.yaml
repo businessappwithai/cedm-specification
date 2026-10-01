@@ -176,6 +176,80 @@ entity:
     rule: A REPAIR disposition should have sufficient RepairEstimateLine detail to establish the approved repair scope.
   - id: REPAIR-ESTIMATE-005
     rule: Only an APPROVED, non-CANCELLED estimate with disposition REPAIR may originate a repair MaintenanceWorkOrder under the standard workflow.
+  - {id: REPAIR-ESTIMATE-EXE-001, rule: "Estimated Repair Amount cannot be negative.", violatedWhen: "estimated_repair_amount != null and estimated_repair_amount < 0", message: "Estimated Repair Amount cannot be negative."}
+  - {id: REPAIR-ESTIMATE-EXE-002, rule: "Estimated Sale Amount cannot be negative.", violatedWhen: "estimated_sale_amount != null and estimated_sale_amount < 0", message: "Estimated Sale Amount cannot be negative."}
+  - {id: REPAIR-ESTIMATE-EXE-003, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
+  lifecycle:
+    title: Repair Estimate Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, APPROVED, REJECTED, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: SUBMITTED, action: submit}
+      - {from: SUBMITTED, to: APPROVED, action: approve}
+      - {from: APPROVED, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: SUBMITTED, to: REJECTED, action: reject}
+      - {from: APPROVED, to: REJECTED, action: reject}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: SUBMITTED, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a repair estimate is put forward"
+      description: "When a repair estimate is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "REPAIR-ESTIMATE-APPROVAL-{{id}}"
+              name: "Decide on repair estimate {{estimate_number}}"
+              description: "Repair estimate {{estimate_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a repair estimate is ended"
+      description: "When a repair estimate is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "REPAIR-ESTIMATE-FOLLOW-UP-{{id}}"
+              name: "Follow up on repair estimate {{estimate_number}}"
+              description: "Repair estimate {{estimate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a repair estimate is done"
+      description: "When a repair estimate is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "REPAIR-ESTIMATE-COMPLETED-{{id}}"
+              name: "Confirm repair estimate {{estimate_number}}"
+              description: "Repair estimate {{estimate_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents the controlled decision assessment between asset condition and the eventual repair or commercial disposition action.
     businessMeaning: RepairEstimate is not the repair itself. It evaluates what is wrong, what it is expected to cost, and which outcome is economically or operationally appropriate. It therefore sits between inspection/condition evidence and downstream execution or disposition.

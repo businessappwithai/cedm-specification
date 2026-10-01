@@ -174,6 +174,79 @@ entity:
   - {id: SHIPMENT-010, rule: Cancelling or reversing a shipment with posted inventory or fulfillment effects requires compensating InventoryMovement and fulfillment reversal/reconciliation workflows; status change alone is insufficient.}
   - {id: SHIPMENT-011, rule: "Changes to SalesOrder, PurchaseOrder, Product, UnitOfMeasure, InventoryLocation, Carrier or container eligibility that affect an open shipment must trigger controlled revalidation before dispatch or delivery progression."}
   - {id: SHIPMENT-012, rule: DELIVERED is transport evidence and must not directly set Invoice status to paid or settled.}
+  lifecycle:
+    title: Shipment Lifecycle
+    attribute: status
+    states: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
+    initial: PLANNED
+    terminal: [DELIVERED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: BOOKED, action: book}
+      - {from: BOOKED, to: IN_TRANSIT, action: mark_in_transit}
+      - {from: IN_TRANSIT, to: DELIVERED, action: deliver}
+      - {from: BOOKED, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: BOOKED, action: resolve_exception}
+      - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: BOOKED, to: CANCELLED, action: cancel}
+      - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
+      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a shipment is stopped"
+      description: "When a shipment is exception, a high-priority task asks someone to resolve it."
+      when: "status == \"EXCEPTION\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SHIPMENT-EXCEPTION-{{id}}"
+              name: "Resolve shipment {{shipment_number}}"
+              description: "Shipment {{shipment_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a shipment is ended"
+      description: "When a shipment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SHIPMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on shipment {{shipment_number}}"
+              description: "Shipment {{shipment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a shipment is done"
+      description: "When a shipment is delivered, a task asks someone to confirm the outcome."
+      when: "status == \"DELIVERED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SHIPMENT-COMPLETED-{{id}}"
+              name: "Confirm shipment {{shipment_number}}"
+              description: "Shipment {{shipment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents physical logistics execution bridging commercial fulfillment and transport while keeping inventory and financial state under their authoritative workflows.
     businessMeaning: Shipment answers how goods are physically moved. It is not itself the inventory ledger, SalesOrder fulfillment ledger, GoodsReceipt acceptance, or financial settlement.

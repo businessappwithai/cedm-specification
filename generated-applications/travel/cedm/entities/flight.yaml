@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: travel_transport_entity
   description: A scheduled or operational air transport service between locations.
+  ui:
+    icon: plane
   identity:
     key: flightId
     type: uuid
@@ -125,6 +127,41 @@ entity:
   invariants:
   - id: FLIGHT-001
     rule: arrivalAt must be later than departureAt.
+  lifecycle:
+    title: Flight Lifecycle
+    attribute: status
+    states: [SCHEDULED, BOARDING, DEPARTED, ARRIVED, DELAYED, CANCELLED]
+    initial: SCHEDULED
+    terminal: [CANCELLED]
+    transitions:
+      - {from: SCHEDULED, to: BOARDING, action: mark_boarding}
+      - {from: BOARDING, to: DEPARTED, action: mark_departed}
+      - {from: DEPARTED, to: ARRIVED, action: mark_arrived}
+      - {from: ARRIVED, to: DELAYED, action: mark_delayed}
+      - {from: SCHEDULED, to: CANCELLED, action: cancel}
+      - {from: BOARDING, to: CANCELLED, action: cancel}
+      - {from: DEPARTED, to: CANCELLED, action: cancel}
+      - {from: ARRIVED, to: CANCELLED, action: cancel}
+      - {from: DELAYED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a flight is ended"
+      description: "When a flight is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FLIGHT-FOLLOW-UP-{{id}}"
+              name: "Follow up on flight {{flight_number}}"
+              description: "Flight {{flight_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a travel transport entity called Flight within the CEDM business model.
     businessMeaning: Flight is a business concept with its own identity and lifecycle. It captures information that must remain

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_resource_master
   description: A governed manufacturing capacity resource or resource group where production operations are scheduled and executed.
+  ui:
+    icon: database
   identity: {key: workCenterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}
@@ -21,6 +23,20 @@ entity:
   invariants:
   - {id: WORK-CENTER-001, rule: capacityPerHour must be greater than zero when specified.}
   - {id: WORK-CENTER-002, rule: "INACTIVE, MAINTENANCE, or RETIRED work centers cannot receive new execution without an authorized exception."}
+  lifecycle:
+    title: Work Center Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
+      - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: MAINTENANCE, to: RETIRED, action: retire}
   help:
     summary: Manufacturing capacity resource used by routing and execution.
     businessMeaning: WorkCenter represents where or by which resource an Operation is performed.

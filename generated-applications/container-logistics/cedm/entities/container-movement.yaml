@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_transaction
   description: A traceable operational instruction and, once executed, historical event representing the movement of one specific shipping container between physical positions or transport states within a depot, terminal, port, workshop, yard, gate, or wider logistics network.
+  ui:
+    icon: file-text
   identity:
     key: containerMovementId
     type: uuid
@@ -162,6 +164,77 @@ entity:
     rule: A completed movement must produce a container position or transport state consistent with movementType.
   - id: CONTAINER-MOVEMENT-005
     rule: A completed movement is historical evidence and must not be overwritten to correct history; corrective activity is represented by a subsequent authorized event or reversal process.
+  - {id: CONTAINER-MOVEMENT-EXE-001, rule: "A container movement that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the container movement is completed."}
+  lifecycle:
+    title: Container Movement Lifecycle
+    attribute: status
+    states: [PLANNED, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED, FAILED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED, FAILED]
+    transitions:
+      - {from: PLANNED, to: ASSIGNED, action: assign}
+      - {from: ASSIGNED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: ASSIGNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: ASSIGNED, to: FAILED, action: fail}
+      - {from: IN_PROGRESS, to: FAILED, action: fail}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a container movement is stopped"
+      description: "When a container movement is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTAINER-MOVEMENT-EXCEPTION-{{id}}"
+              name: "Resolve container movement {{movement_number}}"
+              description: "Container movement {{movement_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a container movement is ended"
+      description: "When a container movement is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTAINER-MOVEMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on container movement {{movement_number}}"
+              description: "Container movement {{movement_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a container movement is done"
+      description: "When a container movement is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTAINER-MOVEMENT-COMPLETED-{{id}}"
+              name: "Confirm container movement {{movement_number}}"
+              description: "Container movement {{movement_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents one traceable physical or operational movement of one shipping container.
     businessMeaning: ContainerMovement is the execution-level event connecting the Container asset to yard positions, transport states, operators, and the business process that caused the move. It is deliberately separate from Container, which represents the asset, and YardSlot, which represents a physical storage position.

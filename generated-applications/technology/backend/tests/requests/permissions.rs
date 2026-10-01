@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T05:19:40.866Z
+//! Generated: 2026-10-01T09:34:57.933Z
 //! Project: technology
 
 use serde_json::Value;
@@ -43,6 +43,8 @@ const GUARDED_ROUTES: &[(&str, &str)] = &[
     ("GET", "/api/reports/nothing"),
     ("GET", "/api/reports/nothing/run"),
     ("GET", "/api/me/permissions"),
+    // A lookup lists rows of the table it points at, so it is read-guarded.
+    ("GET", "/api/bus/bus_user/lookup/id"),
     // The dashboard names every entity this caller may read, so it is a
     // listing of the application scoped to one account — guarded like the data
     // it points at, not like the dictionary metadata it is built from.

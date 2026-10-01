@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_transaction
   description: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
+  ui:
+    icon: file-text
   identity: {key: consignmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: consignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Consignment., businessMeaning: Identifies one governed Consignment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

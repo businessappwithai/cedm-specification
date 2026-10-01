@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: warehouse_logistics_master
   description: A uniquely identifiable physical logistics unit such as pallet, carton, tote, cage, or containerized package that groups inventory for warehouse and shipment handling.
+  ui:
+    icon: database
   identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable handling-unit identity., businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units., requiredMeaning: Required.}}

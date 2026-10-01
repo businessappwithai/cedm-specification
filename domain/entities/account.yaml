@@ -137,6 +137,17 @@ entity:
     rule: account code must be unique within its chart-of-accounts context.
   - id: ACCOUNT-002
     rule: account hierarchy must not contain cycles.
+  lifecycle:
+    title: Account Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a financial master entity called Account within the CEDM business model.
     businessMeaning: Account is a business concept with its own identity and lifecycle. It captures information that must

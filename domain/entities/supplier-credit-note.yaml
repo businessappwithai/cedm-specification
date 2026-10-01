@@ -66,6 +66,62 @@ entity:
   - {id: SUPPLIER-CREDIT-008, rule: Posting must be idempotent and must not create duplicate accounting adjustments on retry.}
   - {id: SUPPLIER-CREDIT-009, rule: amountApplied must reconcile with active SupplierCreditNoteApplication records and application status must reflect the resulting remaining amount.}
   - {id: SUPPLIER-CREDIT-010, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize CREDIT and the credit amount must not exceed the approved recovery amount."}
+  - {id: SUPPLIER-CREDIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+  - {id: SUPPLIER-CREDIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+  - {id: SUPPLIER-CREDIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Credit Note Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, CANCELLED, REVERSED]
+    initial: DRAFT
+    terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: POSTED, action: post}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
+      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: mark_fully_applied}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_APPLIED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier credit note is ended"
+      description: "When a supplier credit note is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CREDIT-NOTE-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier credit note {{credit_note_number}}"
+              description: "Supplier credit note {{credit_note_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a supplier credit note is done"
+      description: "When a supplier credit note is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CREDIT-NOTE-COMPLETED-{{id}}"
+              name: "Confirm supplier credit note {{credit_note_number}}"
+              description: "Supplier credit note {{credit_note_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents an explicit financial reduction of supplier payable exposure while preserving original procurement invoice claim resolution and return history.
     businessMeaning: SupplierClaim explains the issue; SupplierClaimResolution authorizes the remedy; SupplierReturn is the physical event; SupplierCreditNote records the financial consequence; SupplierCreditNoteApplication records consumption against invoices; JournalEntry records accounting recognition.

@@ -22,6 +22,7 @@ entity:
   - {id: INVENTORY-COUNT-002, rule: InventoryCount is observational and must never directly change stock balances.}
   - {id: INVENTORY-COUNT-003, rule: Count variance must use a governed ledger cutoff and account for movements around countedAt.}
   - {id: INVENTORY-COUNT-004, rule: Approved discrepancy correction must occur through InventoryAdjustment and InventoryMovement.}
+  - {id: INVENTORY-COUNT-EXE-001, rule: "Counted Quantity cannot be negative.", violatedWhen: "counted_quantity != null and counted_quantity < 0", message: "Counted Quantity cannot be negative."}
   help:
     summary: Physical inventory observation used for controlled reconciliation.
     businessMeaning: A count states what was observed; it does not rewrite what the ledger says happened.

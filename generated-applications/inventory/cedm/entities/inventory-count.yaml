@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_observation_transaction
   description: A governed physical or system-assisted observation of inventory quantity at an InventoryLocation used to reconcile recorded stock without directly changing the inventory ledger.
+  ui:
+    icon: boxes
   identity: {key: inventoryCountId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: inventoryCountId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of count observation., businessMeaning: Identifies one count evidence record., usage: "Cycle count, stocktake, reconciliation and audit.", relationshipContext: May cause InventoryAdjustment after approval., requiredMeaning: Required.}}
@@ -20,6 +22,7 @@ entity:
   - {id: INVENTORY-COUNT-002, rule: InventoryCount is observational and must never directly change stock balances.}
   - {id: INVENTORY-COUNT-003, rule: Count variance must use a governed ledger cutoff and account for movements around countedAt.}
   - {id: INVENTORY-COUNT-004, rule: Approved discrepancy correction must occur through InventoryAdjustment and InventoryMovement.}
+  - {id: INVENTORY-COUNT-EXE-001, rule: "Counted Quantity cannot be negative.", violatedWhen: "counted_quantity != null and counted_quantity < 0", message: "Counted Quantity cannot be negative."}
   help:
     summary: Physical inventory observation used for controlled reconciliation.
     businessMeaning: A count states what was observed; it does not rewrite what the ledger says happened.

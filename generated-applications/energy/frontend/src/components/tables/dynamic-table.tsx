@@ -309,22 +309,44 @@ export function DynamicTable({
   const lookupSources = useMemo(() => {
     const byTable = new Map<
       string,
-      { field: (typeof lookupFieldDefs)[number]; endpoint: string }
+      { field: (typeof lookupFieldDefs)[number]; endpoint: string; ids: Set<string> }
     >();
-    for (const { field } of lookupQueries) {
+    for (const { field, uniqueIds } of lookupQueries) {
       const refTable = field.ref_table_name;
-      if (!refTable || byTable.has(refTable)) continue;
+      if (!refTable) continue;
+      const known = byTable.get(refTable);
+      if (known) {
+        for (const id of uniqueIds) known.ids.add(id);
+        continue;
+      }
       const entity = refTable.replace(/^bus_/, "");
-      byTable.set(refTable, { field, endpoint: field.ref_endpoint ?? `/bus/${entity}` });
+      byTable.set(refTable, {
+        field,
+        endpoint: field.ref_endpoint ?? `/bus/${entity}`,
+        ids: new Set(uniqueIds),
+      });
     }
-    return Array.from(byTable.entries()).map(([refTable, v]) => ({ refTable, ...v }));
+    return Array.from(byTable.entries()).map(([refTable, v]) => ({
+      refTable,
+      field: v.field,
+      endpoint: v.endpoint,
+      ids: Array.from(v.ids).sort(),
+    }));
   }, [lookupQueries]);
 
+  // Only the records this page points at, by id. This used to fetch the first
+  // 500 rows of every referenced table and look the page's records up in them,
+  // so a state or city past the 500th showed as a raw id.
   const lookupResults = useQueries({
-    queries: lookupSources.map(({ refTable, endpoint }) => ({
-      queryKey: ["lookup", refTable, endpoint],
+    queries: lookupSources.map(({ refTable, endpoint, ids, field }) => ({
+      queryKey: ["lookup", refTable, endpoint, ids],
       queryFn: () =>
-        apiClient.get<PaginatedResponse<Record<string, unknown>>>(endpoint, { limit: 500 }),
+        field.ref_endpoint
+          ? apiClient.get<PaginatedResponse<Record<string, unknown>>>(endpoint, { limit: 500 })
+          : apiClient.get<PaginatedResponse<Record<string, unknown>>>(endpoint, {
+              limit: Math.min(Math.max(ids.length, 1), 500),
+              "filter.id": `in:${ids.join(",")}`,
+            }),
       staleTime: 60_000,
     })),
   });

@@ -60,6 +60,7 @@ entity:
     rule: Rounding must be explicit and reproducible at the calculation boundary defined by the consuming transaction or accounting policy.
   - id: MONEY-005
     rule: Historical Money values must preserve their original currency and recorded amount even if Currency master data is later retired or its display metadata changes.
+  - {id: MONEY-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   help:
     summary: Canonical CEDM value object for an amount paired with its monetary denomination.
     businessMeaning: Money provides the minimum semantic structure required to represent a financial amount safely. It does not determine whether the amount is a price, tax, discount, invoice total, payment, or accounting value; the containing field provides that business meaning.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_clinical_entity
   description: A clinical procedure performed or planned as part of healthcare delivery.
+  ui:
+    icon: table
   identity:
     key: procedureId
     type: uuid
@@ -118,6 +120,36 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Procedure Lifecycle
+    attribute: status
+    states: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a procedure is ended"
+      description: "When a procedure is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROCEDURE-FOLLOW-UP-{{id}}"
+              name: "Follow up on procedure {{code}}"
+              description: "Procedure {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a healthcare clinical entity called Procedure within the CEDM business model.
     businessMeaning: Procedure is a business concept with its own identity and lifecycle. It captures information that must

@@ -157,6 +157,26 @@ entity:
   invariants:
   - id: OPPORTUNITY-001
     rule: probability must be between 0 and 100 when supplied.
+  lifecycle:
+    title: Opportunity Lifecycle
+    attribute: stage
+    states: [QUALIFICATION, DISCOVERY, PROPOSAL, NEGOTIATION, WON, LOST]
+    initial: QUALIFICATION
+    terminal: [LOST]
+    transitions:
+      - {from: QUALIFICATION, to: DISCOVERY, action: mark_discovery}
+      - {from: DISCOVERY, to: PROPOSAL, action: mark_proposal}
+      - {from: PROPOSAL, to: WON, action: mark_won}
+      - {from: DISCOVERY, to: NEGOTIATION, action: mark_negotiation}
+      - {from: NEGOTIATION, to: DISCOVERY, action: resume}
+      - {from: PROPOSAL, to: NEGOTIATION, action: mark_negotiation}
+      - {from: NEGOTIATION, to: PROPOSAL, action: resume}
+      - {from: WON, to: NEGOTIATION, action: mark_negotiation}
+      - {from: NEGOTIATION, to: WON, action: resume}
+      - {from: DISCOVERY, to: LOST, action: mark_lost}
+      - {from: PROPOSAL, to: LOST, action: mark_lost}
+      - {from: WON, to: LOST, action: mark_lost}
+      - {from: NEGOTIATION, to: LOST, action: mark_lost}
   help:
     summary: Represents a crm entity called Opportunity within the CEDM business model.
     businessMeaning: Opportunity is a business concept with its own identity and lifecycle. It captures information that must

@@ -136,6 +136,181 @@ def dictionary_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
         errors.append(f"ENUM-002 {registry.stdout.strip() or registry.stderr.strip()}")
 
 
+TOKEN = re.compile(r"""\s*(?:(?P<num>\d+(?:\.\d+)?)|(?P<str>"(?:[^"\\]|\\.)*")|(?P<op>==|!=|<=|>=|<|>|\(|\))|(?P<word>[A-Za-z_][A-Za-z0-9_]*))""")
+KEYWORDS = {"and", "or", "not", "null", "true", "false"}
+
+
+def snake(name: str) -> str:
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
+
+
+def tokens(expression: str):
+    position, out = 0, []
+    while position < len(expression):
+        if not expression[position:].strip():
+            break
+        m = TOKEN.match(expression, position)
+        if not m:
+            return None
+        position = m.end()
+        kind = m.lastgroup
+        out.append((kind, m.group(kind)))
+    return out
+
+
+def business_logic_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
+    """BL-001…BL-011 of specification/business-logic.yaml."""
+    seen_ids: dict[str, str] = {}
+    for name, (_, entity) in entities.items():
+        attrs = {a["name"]: a for a in entity.get("attributes") or []}
+        columns = {snake(a) for a in attrs} | {"id", "created_at", "updated_at", "version"}
+        # A to-one relationship is a foreign key column on this entity.
+        columns |= {snake(r["name"]) + "_id" for r in entity.get("relationships") or [] if str(r.get("cardinality")) in ("1", "0..1")}
+        life = entity.get("lifecycle")
+        states: set[str] = set()
+        initial = None
+        status_attr = next((a for a in ("status", "state", "stage") if a in attrs and attrs[a].get("values")), None)
+        if isinstance(life, dict):
+            governed = life.get("attribute") or status_attr
+            values = [str(v) for v in (attrs.get(governed, {}).get("values") or [])]
+            states = {str(x) for x in life.get("states") or []}
+            if states != set(values):
+                errors.append(f"{name}: BL-001 lifecycle states differ from {governed} values (missing {sorted(set(values) - states)}, extra {sorted(states - set(values))})")
+            initial = life.get("initial") or ((life.get("states") or [None])[0])
+            terminal = {str(x) for x in life.get("terminal") or []}
+            if initial not in states:
+                errors.append(f"{name}: BL-002 lifecycle initial {initial!r} is not a state")
+            for t in terminal - states:
+                errors.append(f"{name}: BL-002 terminal {t!r} is not a state")
+            pairs, graph = set(), defaultdict(set)
+            for t in life.get("transitions") or []:
+                a, b = str(t.get("from")), str(t.get("to"))
+                if a not in states or b not in states:
+                    errors.append(f"{name}: BL-003 transition {a}→{b} names a state the lifecycle does not declare")
+                    continue
+                if (a, b) in pairs:
+                    errors.append(f"{name}: BL-003 transition {a}→{b} is declared twice")
+                pairs.add((a, b))
+                graph[a].add(b)
+                if a in terminal:
+                    errors.append(f"{name}: BL-004 terminal state {a} has an outgoing transition to {b}")
+            reach, frontier = {initial}, [initial]
+            while frontier:
+                for nxt in graph[frontier.pop()]:
+                    if nxt not in reach:
+                        reach.add(nxt)
+                        frontier.append(nxt)
+            for state in sorted(states - reach):
+                errors.append(f"{name}: BL-005 state {state} is not reachable from {initial}")
+            if terminal:
+                for state in sorted(states - terminal):
+                    seen, todo = {state}, [state]
+                    while todo:
+                        for nxt in graph[todo.pop()]:
+                            if nxt not in seen:
+                                seen.add(nxt)
+                                todo.append(nxt)
+                    if not (seen & terminal):
+                        errors.append(f"{name}: BL-006 state {state} cannot reach a terminal state")
+        elif status_attr:
+            warnings.append(f"{name}: BL-011 {status_attr} has values and the entity states no lifecycle")
+
+        for inv in entity.get("invariants") or []:
+            ident = str(inv.get("id"))
+            if ident in seen_ids and seen_ids[ident] != name:
+                errors.append(f"{name}: BL-007 invariant id {ident} is also used by {seen_ids[ident]}")
+            seen_ids[ident] = name
+            when = inv.get("violatedWhen")
+            if when is None:
+                continue
+            if not inv.get("message"):
+                errors.append(f"{name}.{ident}: BL-007 an executable invariant needs a message")
+            toks = tokens(str(when))
+            if toks is None:
+                errors.append(f"{name}.{ident}: BL-008 violatedWhen is not an expression the rules engine reads: {when!r}")
+                continue
+            idents = [v for k, v in toks if k == "word" and v not in KEYWORDS]
+            for word in idents:
+                if word not in columns:
+                    errors.append(f"{name}.{ident}: BL-008 violatedWhen names {word!r}, which is not a column of {name}")
+            for i, (k, v) in enumerate(toks):
+                if k == "op" and v in ("<", "<=", ">", ">=") and i > 0 and toks[i - 1][0] == "word":
+                    column = toks[i - 1][1]
+                    if column in attrs or snake(column) in {snake(a) for a in attrs}:
+                        if f"{column} != null" not in str(when) and attrs.get(next((a for a in attrs if snake(a) == column), ""), {}).get("required") is not True:
+                            errors.append(f"{name}.{ident}: BL-008 compares {column} without first guarding it against null")
+            # A state named in a comparison is a state the lifecycle declares.
+            for i, (k, v) in enumerate(toks[:-2]):
+                if k == "word" and v in ("status", "state", "stage") and toks[i + 1] == ("op", "==") and toks[i + 2][0] == "str" and states:
+                    literal = toks[i + 2][1].strip('"')
+                    if literal not in states:
+                        errors.append(f"{name}.{ident}: BL-009 names state {literal!r}, which the lifecycle does not declare")
+                    if initial is not None and literal == initial:
+                        errors.append(f"{name}.{ident}: BL-010 applies to the initial state {initial}, so a new record could not be created")
+
+
+def reference_data_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
+    """REF-001…REF-004 of specification/reference-data.yaml."""
+    loaded: dict[str, dict] = {}
+    for name, (_, entity) in entities.items():
+        ref = entity.get("referenceData")
+        if not ref:
+            continue
+        data = load_yaml(ROOT / "domain" / ref).get("referenceData") or {}
+        if data.get("entity") != name:
+            errors.append(f"{name}: REF-001 {ref} holds the rows of {data.get('entity')!r}")
+            continue
+        loaded[name] = data
+    for name, data in loaded.items():
+        entity = entities[name][1]
+        attrs = {a["name"]: a for a in entity.get("attributes") or []}
+        rels = {r["name"]: r for r in entity.get("relationships") or []}
+        key = data.get("key")
+        seen: set = set()
+        for row in data.get("rows") or []:
+            if key not in row:
+                errors.append(f"{name}: REF-001 a row has no {key}")
+                continue
+            if row[key] in seen:
+                errors.append(f"{name}: REF-001 {key} {row[key]!r} appears twice")
+            seen.add(row[key])
+            for field, value in row.items():
+                if field in rels:
+                    target = rels[field]["target"]
+                    if target in loaded:
+                        keys = {r.get(loaded[target]["key"]) for r in loaded[target]["rows"]}
+                        if value not in keys:
+                            errors.append(f"{name} {row[key]}: REF-002 {field} {value!r} is not a row of {target}")
+                elif field in attrs:
+                    spec = attrs[field]
+                    if isinstance(value, str) and spec.get("maxLength") and len(value) > int(spec["maxLength"]):
+                        errors.append(f"{name} {row[key]}: REF-003 {field} is {len(value)} long; the attribute allows {spec['maxLength']}")
+                    values = spec.get("values")
+                    if values and str(value) not in {str(v) for v in values}:
+                        errors.append(f"{name} {row[key]}: REF-003 {field} {value!r} is not one of {values}")
+                else:
+                    errors.append(f"{name} {row[key]}: REF-003 {field} is not an attribute or relationship of {name}")
+            for attr_name, spec in attrs.items():
+                if spec.get("required") is True and attr_name not in row and attr_name != entity.get("identity", {}).get("key"):
+                    errors.append(f"{name} {row[key]}: REF-003 required {attr_name} is missing")
+    # REF-004: narrowedBy names references of the entity, and the target has its own key to each.
+    for name, (_, entity) in entities.items():
+        rels = {r["name"]: r for r in entity.get("relationships") or []}
+        refs = {a["name"] for a in entity.get("attributes") or [] if a.get("type") == "reference"} | set(rels)
+        for holder in list(entity.get("relationships") or []) + list(entity.get("attributes") or []):
+            narrowed = holder.get("narrowedBy")
+            if not narrowed:
+                continue
+            for control in narrowed:
+                if control not in refs:
+                    errors.append(f"{name}.{holder['name']}: REF-004 narrowedBy names {control!r}, which is not a reference of {name}")
+                    continue
+                controlled = (rels.get(control) or next((a for a in entity["attributes"] if a["name"] == control), {})).get("target")
+                target = entities.get(holder.get("target") or "", (None, {}))[1]
+                if target and controlled and not any(r.get("target") == controlled and str(r.get("cardinality")) in ("1", "0..1") for r in target.get("relationships") or []):
+                    errors.append(f"{name}.{holder['name']}: REF-004 {holder.get('target')} has no key to {controlled}, so {control} cannot narrow it")
+
+
 def main() -> int:
     if not REGISTRY.exists():
         errors.append(f"Missing registry: {REGISTRY}")
@@ -229,6 +404,8 @@ def main() -> int:
                     errors.append(f"{name}: transition.to is not a declared state: {transition.get('to')}")
 
     dictionary_checks(entities)
+    business_logic_checks(entities)
+    reference_data_checks(entities)
 
     registered_set = set(registered)
     actual_set = set(entities)

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: iam_membership
   description: A governed relationship connecting a User or Party to an Organization with membership status and role context.
+  ui:
+    icon: building-2
   identity: {key: organizationMembershipId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of OrganizationMembership., businessMeaning: Identifies one governed OrganizationMembership record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
@@ -14,6 +16,36 @@ entity:
   relationships: []
   invariants:
   - {id: ORGANIZATION-MEMBERSHIP-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  lifecycle:
+    title: Organization Membership Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a organization membership is ended"
+      description: "When a organization membership is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ORGANIZATION-MEMBERSHIP-FOLLOW-UP-{{id}}"
+              name: "Follow up on organization membership {{id}}"
+              description: "Organization membership {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed relationship connecting a User or Party to an Organization with membership status and role context.
     purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.

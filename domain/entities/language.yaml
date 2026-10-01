@@ -4,11 +4,12 @@ entity:
   kind: reference_data
   description: A governed language reference used for localization, communication preferences, content, and reporting.
   ui:
-    icon: list
+    icon: languages
+  referenceData: reference-data/language.yaml
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Language., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
   relationships: []
   invariants:

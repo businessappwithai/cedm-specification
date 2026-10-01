@@ -50,6 +50,14 @@ export interface AttributeDocument {
    * would otherwise resolve to a `DeliveryLocation` nothing declares).
    */
   references?: string;
+  /**
+   * Foreign-key columns of the same entity that narrow this lookup's choices,
+   * most specific first: a state is narrowed by `country_id`, a city by
+   * `state_province_id` then `country_id`. The lookup offers only the target rows
+   * that belong to the values the record holds, and a write naming any other is
+   * refused. See `specification/reference-data.yaml`.
+   */
+  narrowedBy?: string[];
   unique?: boolean;
   optional?: boolean;
   comment?: string;
@@ -80,6 +88,19 @@ export interface EntityDocument {
   audited?: boolean;
   attributes: AttributeDocument[];
   indexes?: IndexDocument[];
+  /**
+   * Rows the application ships with: reference data every application of the
+   * common specification shares (countries, currencies, cities). Keys are
+   * physical columns; a foreign key column holds the *natural key* of the row it
+   * points at (`currency_id: "EUR"`), and `key` names the column that is the
+   * natural key of this entity's own rows.
+   */
+  data?: EntityData;
+}
+
+export interface EntityData {
+  key: string;
+  rows: Array<Record<string, string | number | boolean | null>>;
 }
 
 export interface RelationshipDocument {

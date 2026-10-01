@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: industry_specialization
   description: A person receiving or eligible to receive healthcare services.
+  ui:
+    icon: heart-pulse
   identity:
     key: patientId
     type: uuid
@@ -126,6 +128,18 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Healthcare Patient Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, DECEASED, MERGED]
+    initial: ACTIVE
+    transitions:
+      - {from: ACTIVE, to: DECEASED, action: mark_deceased}
+      - {from: DECEASED, to: MERGED, action: mark_merged}
+      - {from: DECEASED, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: DECEASED, action: reactivate}
+      - {from: MERGED, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: MERGED, action: reactivate}
   help:
     summary: Represents a industry specialization called HealthcarePatient within the CEDM business model.
     businessMeaning: HealthcarePatient is a business concept with its own identity and lifecycle. It captures information

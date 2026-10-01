@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_adjustment_transaction_line
   description: A line on a CreditNote that records the specific quantity or monetary component being credited, its original InvoiceLine basis, optional CustomerReturnLine justification, transaction-time pricing and tax evidence, and resulting credit amount.
+  ui:
+    icon: credit-card
   identity: {key: creditNoteLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: creditNoteLineId
@@ -165,6 +167,13 @@ entity:
   - {id: CREDIT-NOTE-LINE-006, rule: CreditNoteLine never directly changes the original InvoiceLine; all financial correction is represented by the CreditNote and its accounting/application workflows.}
   - {id: CREDIT-NOTE-LINE-007, rule: "Changes to InvoiceLine, CustomerReturnLine, Product, UnitOfMeasure, TaxRule, Currency or pricing policy affecting an open line require controlled revalidation."}
   - {id: CREDIT-NOTE-LINE-008, rule: Posted line corrections require explicit reversal/replacement rather than destructive mutation.}
+  - {id: CREDIT-NOTE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-003, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+  - {id: CREDIT-NOTE-LINE-EXE-007, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   help:
     summary: Represents one auditable financial adjustment detail and its source evidence.
     businessMeaning: CreditNoteLine translates an eligible original invoice or return into a specific credited value while preserving historical source facts.

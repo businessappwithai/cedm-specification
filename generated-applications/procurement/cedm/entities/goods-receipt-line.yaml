@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: transaction_line
   description: A line-level receiving event that records received, accepted, rejected and pending quantities for a PurchaseOrderLine, preserving exact evidence used for fulfillment, inventory posting, quality decisions, invoice matching and later supplier-return eligibility.
+  ui:
+    icon: list
   identity: {key: goodsReceiptLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: goodsReceiptLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt line., businessMeaning: Identifies original receipt evidence independently of later supplier returns., usage: "Receiving, inventory, matching, returns and audit.", relationshipContext: SupplierReturnLine references this evidence without modifying it., workflowRole: Stable line-level traceability., requiredMeaning: Required.}}
@@ -67,6 +69,11 @@ entity:
   - {id: GOODS-RECEIPT-LINE-012, rule: "Changes to Product, UnitOfMeasure, PurchaseOrderLine, InventoryLocation or Supplier status affecting an open receipt require revalidation."}
   - {id: GOODS-RECEIPT-LINE-013, rule: "SupplierReturnLine quantity must not exceed acceptedQuantity less quantities already consumed by posted SupplierReturnLine records, except an authorized exception."}
   - {id: GOODS-RECEIPT-LINE-014, rule: "SupplierReturnLine must not change receivedQuantity, acceptedQuantity, rejectedQuantity or pendingInspectionQuantity on this historical receipt line."}
+  - {id: GOODS-RECEIPT-LINE-EXE-001, rule: "Received Quantity cannot be negative.", violatedWhen: "received_quantity != null and received_quantity < 0", message: "Received Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-LINE-EXE-002, rule: "Accepted Quantity cannot be negative.", violatedWhen: "accepted_quantity != null and accepted_quantity < 0", message: "Accepted Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-LINE-EXE-003, rule: "Rejected Quantity cannot be negative.", violatedWhen: "rejected_quantity != null and rejected_quantity < 0", message: "Rejected Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-LINE-EXE-004, rule: "Pending Inspection Quantity cannot be negative.", violatedWhen: "pending_inspection_quantity != null and pending_inspection_quantity < 0", message: "Pending Inspection Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-LINE-EXE-005, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   help:
     summary: Provides the line-level bridge between ordered quantity, received quantity, accepted inventory, supplier invoice matching and later supplier returns.
     businessMeaning: GoodsReceiptLine is the actual receipt result. PurchaseOrderLine is commitment. InventoryMovement is stock consequence. InvoiceLine is financial claim. SupplierReturnLine records a later reversal of eligible accepted quantity.

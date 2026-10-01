@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Nonprofit and Fundraising, built on the CEDM common foundation.
   domain: nonprofit
+  enumerationTables: true
 imports:
   - module: common
   - entity: NonprofitCampaign

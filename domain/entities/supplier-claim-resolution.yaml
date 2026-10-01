@@ -101,6 +101,62 @@ entity:
   - {id: SUPPLIER-CLAIM-RESOLUTION-008, rule: Corrections after execution use reversal or compensating workflows in the affected downstream transaction and retain the original resolution history.}
   - {id: SUPPLIER-CLAIM-RESOLUTION-009, rule: Resolution execution must be idempotent and must not create duplicate returns credits debit notes or payments.}
   - {id: SUPPLIER-CLAIM-RESOLUTION-010, rule: "When approvedAmount is present, aggregate authorized financial execution must not exceed it except under explicit correction policy."}
+  - {id: SUPPLIER-CLAIM-RESOLUTION-EXE-001, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Claim Resolution Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, IN_EXECUTION, PARTIALLY_EXECUTED, EXECUTED, FAILED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXECUTED, FAILED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: IN_EXECUTION, action: mark_in_execution}
+      - {from: IN_EXECUTION, to: PARTIALLY_EXECUTED, action: mark_partially_executed}
+      - {from: PARTIALLY_EXECUTED, to: EXECUTED, action: mark_executed}
+      - {from: APPROVED, to: FAILED, action: fail}
+      - {from: IN_EXECUTION, to: FAILED, action: fail}
+      - {from: PARTIALLY_EXECUTED, to: FAILED, action: fail}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: IN_EXECUTION, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_EXECUTED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a supplier claim resolution is stopped"
+      description: "When a supplier claim resolution is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-RESOLUTION-EXCEPTION-{{id}}"
+              name: "Resolve supplier claim resolution {{resolution_number}}"
+              description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a supplier claim resolution is ended"
+      description: "When a supplier claim resolution is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-RESOLUTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier claim resolution {{resolution_number}}"
+              description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Converts a supplier claim decision into a controlled auditable execution plan without conflating the case remedy and resulting transactions.
     businessMeaning: SupplierClaim explains the problem; SupplierClaimResolution records the agreed remedy; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment execute distinct physical or financial consequences.

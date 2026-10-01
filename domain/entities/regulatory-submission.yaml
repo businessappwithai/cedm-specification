@@ -137,6 +137,64 @@ entity:
   invariants:
   - id: REG-SUB-001
     rule: submittedAt is required when status is SUBMITTED or later.
+  lifecycle:
+    title: Regulatory Submission Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, UNDER_REVIEW, QUESTIONS, APPROVED, REJECTED, WITHDRAWN]
+    initial: DRAFT
+    terminal: [REJECTED, WITHDRAWN]
+    transitions:
+      - {from: DRAFT, to: SUBMITTED, action: submit}
+      - {from: SUBMITTED, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: QUESTIONS, action: mark_questions}
+      - {from: QUESTIONS, to: APPROVED, action: approve}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: SUBMITTED, to: REJECTED, action: reject}
+      - {from: UNDER_REVIEW, to: REJECTED, action: reject}
+      - {from: QUESTIONS, to: REJECTED, action: reject}
+      - {from: APPROVED, to: REJECTED, action: reject}
+      - {from: DRAFT, to: WITHDRAWN, action: withdraw}
+      - {from: SUBMITTED, to: WITHDRAWN, action: withdraw}
+      - {from: UNDER_REVIEW, to: WITHDRAWN, action: withdraw}
+      - {from: QUESTIONS, to: WITHDRAWN, action: withdraw}
+      - {from: APPROVED, to: WITHDRAWN, action: withdraw}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a regulatory submission is put forward"
+      description: "When a regulatory submission is submitted or under review, a task asks someone to decide on it."
+      when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "REGULATORY-SUBMISSION-APPROVAL-{{id}}"
+              name: "Decide on regulatory submission {{submission_number}}"
+              description: "Regulatory submission {{submission_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a regulatory submission is ended"
+      description: "When a regulatory submission is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "REGULATORY-SUBMISSION-FOLLOW-UP-{{id}}"
+              name: "Follow up on regulatory submission {{submission_number}}"
+              description: "Regulatory submission {{submission_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a regulatory entity called RegulatorySubmission within the CEDM business model.
     businessMeaning: RegulatorySubmission is a business concept with its own identity and lifecycle. It captures information

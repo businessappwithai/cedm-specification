@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: core_business_transaction
   description: A recorded business event or transaction that changes, commits, or represents a business state or obligation.
+  ui:
+    icon: file-text
   identity:
     key: transactionId
     type: uuid
@@ -210,6 +212,60 @@ entity:
     rule: POSTED transactions must not be mutated except through an explicit reversal or correction process.
   - id: TRANSACTION-003
     rule: totalAmount must be non-negative unless the transaction type explicitly permits signed amounts.
+  - {id: BUSINESS-TRANSACTION-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Business Transaction Lifecycle
+    attribute: status
+    states: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED, REVERSED]
+    transitions:
+      - {from: DRAFT, to: OPEN, action: open}
+      - {from: OPEN, to: APPROVED, action: approve}
+      - {from: APPROVED, to: POSTED, action: post}
+      - {from: POSTED, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a business transaction is ended"
+      description: "When a business transaction is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BUSINESS-TRANSACTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on business transaction {{transaction_number}}"
+              description: "Business transaction {{transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a business transaction is done"
+      description: "When a business transaction is completed or posted, a task asks someone to confirm the outcome."
+      when: "(status == \"COMPLETED\" or status == \"POSTED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BUSINESS-TRANSACTION-COMPLETED-{{id}}"
+              name: "Confirm business transaction {{transaction_number}}"
+              description: "Business transaction {{transaction_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents a core business transaction called BusinessTransaction within the CEDM business model.
     businessMeaning: BusinessTransaction is a business concept with its own identity and lifecycle. It captures information

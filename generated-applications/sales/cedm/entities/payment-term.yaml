@@ -183,6 +183,18 @@ entity:
     rule: discountPercent requires discountDays when an early-payment discount is configured.
   - id: PAYMENT-TERM-005
     rule: Retiring or changing a PaymentTerm must not rewrite already-issued invoice due dates or historical transaction terms unless an explicit authorized amendment workflow exists.
+  - {id: PAYMENT-TERM-EXE-001, rule: "Discount Percent is a percentage between 0 and 100.", violatedWhen: "discount_percent != null and (discount_percent < 0 or discount_percent > 100)", message: "Discount Percent must be between 0 and 100."}
+  lifecycle:
+    title: Payment Term Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Defines reusable commercial rules for when financial obligations become due and when early-settlement benefits or operational grace periods apply.
     businessMeaning: PaymentTerm is a policy definition; an actual Invoice due date is a transaction-level result calculated from that policy and the applicable business event.

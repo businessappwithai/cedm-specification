@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS bus_person (
   , preferred_name VARCHAR(150)
   , date_of_birth DATE
   , gender VARCHAR(255)
-  , nationality VARCHAR(2)
+  , nationality_id UUID
   , party_type VARCHAR(255) NOT NULL
   , display_name VARCHAR(300) NOT NULL
   , status VARCHAR(255) NOT NULL
@@ -223,10 +223,8 @@ CREATE TABLE IF NOT EXISTS bus_address (
   , line1 VARCHAR(200) NOT NULL
   , line2 VARCHAR(200)
   , line3 VARCHAR(200)
-  , city VARCHAR(150) NOT NULL
-  , state_or_province VARCHAR(150)
+  , city_name VARCHAR(150)
   , postal_code VARCHAR(30)
-  , country_code VARCHAR(2) NOT NULL
   , latitude DECIMAL(18,6)
   , longitude DECIMAL(18,6)
   , is_primary BOOLEAN NOT NULL
@@ -234,6 +232,9 @@ CREATE TABLE IF NOT EXISTS bus_address (
   , party_id UUID
   , person_id UUID
   , organization_id UUID
+  , country_id UUID NOT NULL
+  , state_province_id UUID
+  , city_id UUID
   , customer_id UUID
   , supplier_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
@@ -306,8 +307,12 @@ CREATE INDEX IF NOT EXISTS idx_bus_location_name ON bus_location (name);
 -- Country (bus_country)
 CREATE TABLE IF NOT EXISTS bus_country (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , code VARCHAR(100) NOT NULL
+  , code VARCHAR(2) NOT NULL UNIQUE
+  , alpha3 VARCHAR(3)
+  , numeric_code VARCHAR(3)
   , name VARCHAR(300) NOT NULL
+  , phone_code VARCHAR(20)
+  , currency_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -325,10 +330,63 @@ CREATE TABLE IF NOT EXISTS bus_country (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_country_name ON bus_country (name);
+-- State Province (bus_state_province)
+CREATE TABLE IF NOT EXISTS bus_state_province (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(10) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , subdivision_type VARCHAR(100)
+  , country_id UUID NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_state_province_name ON bus_state_province (name);
+-- City (bus_city)
+CREATE TABLE IF NOT EXISTS bus_city (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(80) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , population INTEGER
+  , latitude DECIMAL(18,6)
+  , longitude DECIMAL(18,6)
+  , timezone VARCHAR(64)
+  , is_capital BOOLEAN
+  , country_id UUID NOT NULL
+  , state_province_id UUID
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_city_name ON bus_city (name);
 -- Language (bus_language)
 CREATE TABLE IF NOT EXISTS bus_language (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , code VARCHAR(100) NOT NULL
+  , code VARCHAR(2) NOT NULL UNIQUE
   , name VARCHAR(300) NOT NULL
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -468,6 +526,37 @@ CREATE TABLE IF NOT EXISTS bus_attachment (
 --
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
+-- Task (bus_task)
+CREATE TABLE IF NOT EXISTS bus_task (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL
+  , name VARCHAR(300) NOT NULL
+  , description VARCHAR(2000)
+  , task_type VARCHAR(255) NOT NULL
+  , status VARCHAR(255) NOT NULL
+  , priority VARCHAR(255) NOT NULL
+  , due_at TIMESTAMPTZ
+  , started_at TIMESTAMPTZ
+  , completed_at TIMESTAMPTZ
+  , assignee_id UUID
+  , organization_id UUID
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_task_name ON bus_task (name);
 -- Customer (bus_customer)
 CREATE TABLE IF NOT EXISTS bus_customer (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -1534,6 +1623,81 @@ CREATE TABLE IF NOT EXISTS bus_unit_of_measure_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_unit_of_measure_status_name ON bus_unit_of_measure_status (name);
+-- Task Task Type (bus_task_task_type)
+CREATE TABLE IF NOT EXISTS bus_task_task_type (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_task_task_type_name ON bus_task_task_type (name);
+-- Task Status (bus_task_status)
+CREATE TABLE IF NOT EXISTS bus_task_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_task_status_name ON bus_task_status (name);
+-- Task Priority (bus_task_priority)
+CREATE TABLE IF NOT EXISTS bus_task_priority (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_task_priority_name ON bus_task_priority (name);
 -- Customer Customer Type (bus_customer_customer_type)
 CREATE TABLE IF NOT EXISTS bus_customer_customer_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -2394,6 +2558,57 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
+  ALTER TABLE bus_address
+    ADD CONSTRAINT fk_bus_address_country_id
+    FOREIGN KEY (country_id)
+    REFERENCES bus_country(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_address
+    ADD CONSTRAINT fk_bus_address_state_province_id
+    FOREIGN KEY (state_province_id)
+    REFERENCES bus_state_province(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_address
+    ADD CONSTRAINT fk_bus_address_city_id
+    FOREIGN KEY (city_id)
+    REFERENCES bus_city(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
   ALTER TABLE bus_contact_point
     ADD CONSTRAINT fk_bus_contact_point_party_id
     FOREIGN KEY (party_id)
@@ -2415,6 +2630,74 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_location_location_id
     FOREIGN KEY (location_id)
     REFERENCES bus_location(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_country
+    ADD CONSTRAINT fk_bus_country_currency_id
+    FOREIGN KEY (currency_id)
+    REFERENCES bus_currency(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_state_province
+    ADD CONSTRAINT fk_bus_state_province_country_id
+    FOREIGN KEY (country_id)
+    REFERENCES bus_country(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_city
+    ADD CONSTRAINT fk_bus_city_country_id
+    FOREIGN KEY (country_id)
+    REFERENCES bus_country(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_city
+    ADD CONSTRAINT fk_bus_city_state_province_id
+    FOREIGN KEY (state_province_id)
+    REFERENCES bus_state_province(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2602,6 +2885,40 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_purchase_order_line_unit_of_measure_id
     FOREIGN KEY (unit_of_measure_id)
     REFERENCES bus_unit_of_measure(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_task
+    ADD CONSTRAINT fk_bus_task_party_id
+    FOREIGN KEY (party_id)
+    REFERENCES bus_party(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_task
+    ADD CONSTRAINT fk_bus_task_organization_id
+    FOREIGN KEY (organization_id)
+    REFERENCES bus_organization(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -3356,12 +3673,15 @@ DROP TABLE IF EXISTS bus_address CASCADE;
 DROP TABLE IF EXISTS bus_contact_point CASCADE;
 DROP TABLE IF EXISTS bus_location CASCADE;
 DROP TABLE IF EXISTS bus_country CASCADE;
+DROP TABLE IF EXISTS bus_state_province CASCADE;
+DROP TABLE IF EXISTS bus_city CASCADE;
 DROP TABLE IF EXISTS bus_language CASCADE;
 DROP TABLE IF EXISTS bus_currency CASCADE;
 DROP TABLE IF EXISTS bus_exchange_rate CASCADE;
 DROP TABLE IF EXISTS bus_unit_of_measure CASCADE;
 DROP TABLE IF EXISTS bus_calendar CASCADE;
 DROP TABLE IF EXISTS bus_attachment CASCADE;
+DROP TABLE IF EXISTS bus_task CASCADE;
 DROP TABLE IF EXISTS bus_customer CASCADE;
 DROP TABLE IF EXISTS bus_lead CASCADE;
 DROP TABLE IF EXISTS bus_opportunity CASCADE;
@@ -3403,6 +3723,9 @@ DROP TABLE IF EXISTS bus_exchange_rate_rate_type CASCADE;
 DROP TABLE IF EXISTS bus_exchange_rate_status CASCADE;
 DROP TABLE IF EXISTS bus_unit_of_measure_category CASCADE;
 DROP TABLE IF EXISTS bus_unit_of_measure_status CASCADE;
+DROP TABLE IF EXISTS bus_task_task_type CASCADE;
+DROP TABLE IF EXISTS bus_task_status CASCADE;
+DROP TABLE IF EXISTS bus_task_priority CASCADE;
 DROP TABLE IF EXISTS bus_customer_customer_type CASCADE;
 DROP TABLE IF EXISTS bus_customer_credit_status CASCADE;
 DROP TABLE IF EXISTS bus_customer_status CASCADE;

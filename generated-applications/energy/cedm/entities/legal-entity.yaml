@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_master
   description: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
+  ui:
+    icon: database
   identity: {key: legalEntityId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalEntity., businessMeaning: Identifies one governed LegalEntity record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T05:18:12.848Z
+//! Generated: 2026-10-01T09:32:42.266Z
 //! Project: insurance
 
 use serde_json::Value;

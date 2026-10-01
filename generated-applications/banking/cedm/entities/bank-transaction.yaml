@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: external_financial_evidence
   description: A bank-statement or financial-institution transaction representing external cash movement or bank-side adjustment, retained as independent evidence and reconciled to internal Payment and accounting records through controlled workflows.
+  ui:
+    icon: table
   identity:
     key: bankTransactionId
     type: uuid
@@ -58,6 +60,14 @@ entity:
       relationshipContext: Bank classification does not by itself determine internal accounting meaning.
       workflowRole: Helps identify whether evidence is a candidate Payment, fee, transfer, interest, or reversal.
       requiredMeaning: Required for reconciliation interpretation.
+      valueSemantics:
+        CREDIT: The transaction type of the bank transaction is credit; set it when that is what the business means for this record.
+        DEBIT: The transaction type of the bank transaction is debit; set it when that is what the business means for this record.
+        TRANSFER: The transaction type of the bank transaction is transfer; set it when that is what the business means for this record.
+        FEE: The transaction type of the bank transaction is fee; set it when that is what the business means for this record.
+        INTEREST: The transaction type of the bank transaction is interest; set it when that is what the business means for this record.
+        REVERSAL: The transaction type of the bank transaction is reversal; set it when that is what the business means for this record.
+        OTHER: The transaction type of the bank transaction is other; set it when that is what the business means for this record.
   - name: amount
     type: Money
     required: true
@@ -78,6 +88,11 @@ entity:
       relationshipContext: Independent from Payment status and JournalEntry status.
       workflowRole: POSTED evidence can normally support reconciliation; REVERSED evidence must trigger corresponding correction handling.
       requiredMeaning: Required for evidence lifecycle control.
+      valueSemantics:
+        PENDING: The status of the bank transaction is pending; set it when that is what the business means for this record.
+        POSTED: The status of the bank transaction is posted; set it when that is what the business means for this record.
+        REVERSED: The status of the bank transaction is reversed; set it when that is what the business means for this record.
+        FAILED: The status of the bank transaction is failed; set it when that is what the business means for this record.
   - name: reference
     type: string
     required: false
@@ -160,6 +175,53 @@ entity:
     rule: An unmatched BankTransaction must not automatically alter Invoice balances or statuses.
   - id: BANK-TRANSACTION-007
     rule: Bank fees, interest, FX differences, and other statement adjustments must not be silently converted into Payment amounts; they require their own accounting/reconciliation treatment.
+  lifecycle:
+    title: Bank Transaction Lifecycle
+    attribute: status
+    states: [PENDING, POSTED, REVERSED, FAILED]
+    initial: PENDING
+    terminal: [REVERSED, FAILED]
+    transitions:
+      - {from: PENDING, to: POSTED, action: post}
+      - {from: POSTED, to: REVERSED, action: reverse}
+      - {from: POSTED, to: FAILED, action: fail}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a bank transaction is stopped"
+      description: "When a bank transaction is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BANK-TRANSACTION-EXCEPTION-{{id}}"
+              name: "Resolve bank transaction {{reference}}"
+              description: "Bank transaction {{reference}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a bank transaction is ended"
+      description: "When a bank transaction is reversed, a task asks someone to settle what depended on it."
+      when: "status == \"REVERSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BANK-TRANSACTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on bank transaction {{reference}}"
+              description: "Bank transaction {{reference}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents external financial-institution evidence of a bank-side movement while keeping reconciliation, internal payment, and accounting meaning separate.
     businessMeaning: BankTransaction says what the bank reported. Payment says what the organization recognized as a payment. PaymentAllocation says how payment is applied to claims. JournalEntry says how the event is recognized in accounting.

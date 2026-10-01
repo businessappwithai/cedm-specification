@@ -180,6 +180,57 @@ entity:
     rule: percentComplete must be between 0 and 100.
   - id: PROJECT-TASK-002
     rule: dueDate must not precede startDate.
+  lifecycle:
+    title: Project Task Lifecycle
+    attribute: status
+    states: [NOT_STARTED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED]
+    initial: NOT_STARTED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: NOT_STARTED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: IN_PROGRESS, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: IN_PROGRESS, action: unblock}
+      - {from: NOT_STARTED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: BLOCKED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a project task is stopped"
+      description: "When a project task is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-TASK-EXCEPTION-{{id}}"
+              name: "Resolve project task {{name}}"
+              description: "Project task {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a project task is ended"
+      description: "When a project task is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-TASK-FOLLOW-UP-{{id}}"
+              name: "Follow up on project task {{name}}"
+              description: "Project task {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a project management entity called ProjectTask within the CEDM business model.
     businessMeaning: ProjectTask is a business concept with its own identity and lifecycle. It captures information that must

@@ -13,7 +13,7 @@
 //! at the right level, with the catalogue's own message — is the generator's
 //! `generated-events` suite and the `log_event!` macro's job.
 //!
-//! Generated: 2026-10-01T05:17:00.780Z
+//! Generated: 2026-10-01T09:30:53.583Z
 //! Project: analytics
 
 use serial_test::serial;

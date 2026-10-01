@@ -138,6 +138,21 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Lead Lifecycle
+    attribute: status
+    states: [NEW, QUALIFYING, QUALIFIED, DISQUALIFIED, CONVERTED, LOST]
+    initial: NEW
+    terminal: [LOST]
+    transitions:
+      - {from: NEW, to: QUALIFYING, action: mark_qualifying}
+      - {from: QUALIFYING, to: QUALIFIED, action: mark_qualified}
+      - {from: QUALIFIED, to: DISQUALIFIED, action: mark_disqualified}
+      - {from: DISQUALIFIED, to: CONVERTED, action: mark_converted}
+      - {from: QUALIFYING, to: LOST, action: mark_lost}
+      - {from: QUALIFIED, to: LOST, action: mark_lost}
+      - {from: DISQUALIFIED, to: LOST, action: mark_lost}
+      - {from: CONVERTED, to: LOST, action: mark_lost}
   help:
     summary: Represents a crm entity called Lead within the CEDM business model.
     businessMeaning: Lead is a business concept with its own identity and lifecycle. It captures information that must remain

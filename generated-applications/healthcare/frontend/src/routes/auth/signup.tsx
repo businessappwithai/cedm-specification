@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T05:18:02.881Z
+ * Generated: 2026-10-01T09:32:26.740Z
  * Project: healthcare
  */
 

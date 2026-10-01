@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_master_entity
   description: A structured definition of components, quantities, and relationships required to produce or assemble a product.
+  ui:
+    icon: database
   identity:
     key: billOfMaterialId
     type: uuid
@@ -116,6 +118,17 @@ entity:
   invariants:
   - id: BOM-001
     rule: effectiveTo must not precede effectiveFrom.
+  - {id: BILL-OF-MATERIAL-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Bill Of Material Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, OBSOLETE]
+    initial: DRAFT
+    terminal: [OBSOLETE]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: OBSOLETE, action: mark_obsolete}
+      - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
   help:
     summary: Represents a manufacturing master entity called BillOfMaterial within the CEDM business model.
     businessMeaning: BillOfMaterial is a business concept with its own identity and lifecycle. It captures information that

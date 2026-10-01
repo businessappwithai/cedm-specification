@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_transaction
   description: A traceable inventory event that changes, relocates, reserves, releases, receives, issues, returns, or corrects the quantity or availability of a Product at one or more InventoryLocations. Reverse-procurement movements must remain attributable to the SupplierReturnLine that authorized the stock reduction.
+  ui:
+    icon: boxes
   identity:
     key: inventoryMovementId
     type: uuid

@@ -12,7 +12,368 @@
 -- `[*] --> x` and `x --> [*]` are deliberately absent. They name the initial
 -- and terminal states, not moves a caller may make; recording `[*]` as a
 -- from-state would let any request reset a record to its starting status.
---
--- This model declares no state machines, so every status column accepts any
--- value the dictionary allows. The file is still emitted: `seed_workflows.rs`
--- embeds it with include_str!, which is resolved at compile time.
+
+-- PartyLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('e979d9c0-7882-5884-ac4c-d67b25b4aa62', 'bus_party', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9a9dbfa6-cc14-5844-b0f4-b98198559ac7', 'bus_party', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: ACTIVE → BLOCKED (block)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7357b6cc-a76a-57ca-b8b7-6cac2015c889', 'bus_party', 'status', 'ACTIVE', 'BLOCKED', 'block', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: BLOCKED → ACTIVE (unblock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0928965f-9fcb-5000-a492-ec1c92f33146', 'bus_party', 'status', 'BLOCKED', 'ACTIVE', 'unblock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f3f948b7-9cd0-505a-a2b1-5ec341e918a1', 'bus_party', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('83da4fd9-f4a9-538d-bc83-c46edb1a5c3a', 'bus_party', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyLifecycle: BLOCKED → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('331c71a1-29fa-5eaa-8d5b-756902cf7944', 'bus_party', 'status', 'BLOCKED', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9b837d88-7745-5d8c-acb2-92be73dd50bb', 'bus_organization', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d5533daa-e860-51e7-9eac-ef9ebe05b2ca', 'bus_organization', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3ab484b4-bf3a-5d05-9ebb-1ab632bc722e', 'bus_organization', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: DRAFT → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f2bf36d7-185d-50ff-8af5-77d388f5ac77', 'bus_organization', 'status', 'DRAFT', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('74e08118-4b46-5b0c-81fe-19c81f76cd85', 'bus_organization', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- OrganizationLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('419385eb-ef1d-522c-9dab-6b5c37bd8e88', 'bus_organization', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyRoleLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('027b9090-2019-573d-8220-b3767220a658', 'bus_party_role', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyRoleLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('576b073a-b5e5-5e7c-9f41-73d1826027ec', 'bus_party_role', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyRoleLifecycle: ACTIVE → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3f3f6966-9867-5ea2-b9ef-5a63e52dc8b0', 'bus_party_role', 'status', 'ACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PartyRoleLifecycle: INACTIVE → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f278e1b2-c669-54ee-ae61-852e57b67c17', 'bus_party_role', 'status', 'INACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AddressLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5a68be3c-3e1c-5b69-a5fc-3aa2b1e820f2', 'bus_address', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AddressLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8166900a-8fd1-5aac-a11d-31acb7a3d88d', 'bus_address', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AddressLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2177dddd-3049-5081-bd23-c1a89a9e4bf8', 'bus_address', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AddressLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('31beb722-80a6-54af-9431-2875629289f2', 'bus_address', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: PLANNED → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9ee1aea4-eb91-5aa0-871e-7440350f35b8', 'bus_location', 'status', 'PLANNED', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: ACTIVE → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d7213701-58d3-5667-a079-446ff98136be', 'bus_location', 'status', 'ACTIVE', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d2432f37-305c-5513-9b62-38901a718bac', 'bus_location', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('80317fce-dc4c-5c21-8b94-4dc4c1fe4f80', 'bus_location', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: PLANNED → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('53974159-2780-56cf-b0d0-57a6936371a8', 'bus_location', 'status', 'PLANNED', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('585744aa-4324-54e1-94e9-5a46f8782a78', 'bus_location', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LocationLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5c642111-aabb-51db-90dd-7adeebbbafd2', 'bus_location', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CurrencyLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('35cc4335-44f9-594f-9207-8a82f5392c81', 'bus_currency', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CurrencyLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4bea3ff4-29d3-5a4b-bf74-ae84e5f937d1', 'bus_currency', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CurrencyLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b1c89cad-e7a5-5ff7-b0e8-4d4c8bcd3ae0', 'bus_currency', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CurrencyLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('dea31f5e-d873-5b10-b5dd-9119bbae7343', 'bus_currency', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ExchangeRateLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('daeb8b22-a615-50ab-bade-a8cac65c008c', 'bus_exchange_rate', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ExchangeRateLifecycle: ACTIVE → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('edb2330f-8180-5916-a1e5-8cc028d54b25', 'bus_exchange_rate', 'status', 'ACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ExchangeRateLifecycle: DRAFT → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('551eddf3-089a-589c-b73a-a409acce6ee7', 'bus_exchange_rate', 'status', 'DRAFT', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- ExchangeRateLifecycle: ACTIVE → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d6ef1664-0fe5-54b9-9982-b83bde0639b1', 'bus_exchange_rate', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- UnitOfMeasureLifecycle: ACTIVE → INACTIVE (deactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b5d27fa0-7458-5f39-ac00-572c2726276c', 'bus_unit_of_measure', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- UnitOfMeasureLifecycle: INACTIVE → ACTIVE (reactivate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2fee4028-8b65-5636-8190-04da51c5ffaa', 'bus_unit_of_measure', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- UnitOfMeasureLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ff725615-f83e-5783-9672-ed603aa5e33a', 'bus_unit_of_measure', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- UnitOfMeasureLifecycle: INACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2a4a968e-7e1c-50d2-abb8-9abe72e3512e', 'bus_unit_of_measure', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: CREATED → READY (mark_ready)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('870cb53d-daa9-53ee-8e3c-f7e1d229270f', 'bus_task', 'status', 'CREATED', 'READY', 'mark_ready', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: READY → ASSIGNED (assign)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('deee57a1-2cb4-50dc-9cfe-290d39054cfd', 'bus_task', 'status', 'READY', 'ASSIGNED', 'assign', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: ASSIGNED → IN_PROGRESS (start)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d8ecbb73-12d2-50f4-aa5f-7b6b6e1a9906', 'bus_task', 'status', 'ASSIGNED', 'IN_PROGRESS', 'start', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: IN_PROGRESS → COMPLETED (complete)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f953f9ac-70d9-5350-83fe-a3ef209f0ab4', 'bus_task', 'status', 'IN_PROGRESS', 'COMPLETED', 'complete', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: READY → BLOCKED (block)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f2e8b1ef-f20d-5659-9060-7ee85ef67fac', 'bus_task', 'status', 'READY', 'BLOCKED', 'block', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: BLOCKED → READY (unblock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8bc86624-676c-53bd-b5d7-f8073d5271c0', 'bus_task', 'status', 'BLOCKED', 'READY', 'unblock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: ASSIGNED → BLOCKED (block)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9258d1b1-c273-5685-9715-1fbff1d887fb', 'bus_task', 'status', 'ASSIGNED', 'BLOCKED', 'block', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: BLOCKED → ASSIGNED (unblock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c4bf6ebd-e9bb-504f-96d3-1f1d5a2de305', 'bus_task', 'status', 'BLOCKED', 'ASSIGNED', 'unblock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: IN_PROGRESS → BLOCKED (block)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ed246266-1b8d-59eb-b8ae-e75d0eab1eed', 'bus_task', 'status', 'IN_PROGRESS', 'BLOCKED', 'block', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: BLOCKED → IN_PROGRESS (unblock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d530b4b3-c7d7-5f32-9bf2-d56feb714ecc', 'bus_task', 'status', 'BLOCKED', 'IN_PROGRESS', 'unblock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: CREATED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('778ae436-4aae-5080-a034-247953472795', 'bus_task', 'status', 'CREATED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: READY → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2d63d443-bac4-50f1-a55f-0d62cb565f48', 'bus_task', 'status', 'READY', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: ASSIGNED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('939578bf-a934-5622-a922-377a8d46766f', 'bus_task', 'status', 'ASSIGNED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: IN_PROGRESS → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6052ccbe-0894-54ae-a17c-992644daaba4', 'bus_task', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: BLOCKED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('35a729c8-fd26-5541-91ff-6327a2d42ec7', 'bus_task', 'status', 'BLOCKED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: READY → FAILED (fail)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c25c31bb-0f2f-56e3-a417-548ae5e448b7', 'bus_task', 'status', 'READY', 'FAILED', 'fail', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: ASSIGNED → FAILED (fail)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9920abf2-ff0a-5ea7-b221-28529316afb5', 'bus_task', 'status', 'ASSIGNED', 'FAILED', 'fail', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: IN_PROGRESS → FAILED (fail)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('96915e71-0cdc-540e-b984-4539bb010e6c', 'bus_task', 'status', 'IN_PROGRESS', 'FAILED', 'fail', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TaskLifecycle: BLOCKED → FAILED (fail)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('186fbe2f-e5ea-59c1-9574-d8c87477abd7', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: DRAFT → SUBMITTED (submit)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('91df0786-ecb6-5d64-818d-c809d7b75387', 'bus_regulatory_submission', 'status', 'DRAFT', 'SUBMITTED', 'submit', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: SUBMITTED → UNDER_REVIEW (review)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('61a11e39-7a85-5868-8c4d-f0d0b55d3f19', 'bus_regulatory_submission', 'status', 'SUBMITTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: UNDER_REVIEW → QUESTIONS (mark_questions)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0f8fba4b-fa18-501d-94da-3bf1664a66bc', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'QUESTIONS', 'mark_questions', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: QUESTIONS → APPROVED (approve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c4db6e8d-c4e9-5445-887b-5ecd8959c6d9', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'APPROVED', 'approve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: DRAFT → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7061d4b2-9721-5021-8497-1375bb7d6e72', 'bus_regulatory_submission', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: SUBMITTED → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('787b73e9-3bf7-5f93-bf8a-683268608b4a', 'bus_regulatory_submission', 'status', 'SUBMITTED', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: UNDER_REVIEW → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('700991b1-6020-578b-a804-e77cd509224c', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: QUESTIONS → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('1d356ba2-ceed-513e-b545-5e4f6d909479', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: APPROVED → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('a67b06ea-f411-5974-9fc0-565cd85dcb48', 'bus_regulatory_submission', 'status', 'APPROVED', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: DRAFT → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8103db10-e747-592c-99be-bca423153261', 'bus_regulatory_submission', 'status', 'DRAFT', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: SUBMITTED → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('edb9d94c-808f-5799-a3a2-f90414fc8ea6', 'bus_regulatory_submission', 'status', 'SUBMITTED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: UNDER_REVIEW → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5a9ffa86-cc96-51b5-b851-4510d99c6c9e', 'bus_regulatory_submission', 'status', 'UNDER_REVIEW', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: QUESTIONS → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bdec37b4-1c5c-59a9-a076-0f4f0e5e28ca', 'bus_regulatory_submission', 'status', 'QUESTIONS', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RegulatorySubmissionLifecycle: APPROVED → WITHDRAWN (withdraw)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d809459c-ac1b-5d48-9c94-f00c9680fa72', 'bus_regulatory_submission', 'status', 'APPROVED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
+ON CONFLICT DO NOTHING;

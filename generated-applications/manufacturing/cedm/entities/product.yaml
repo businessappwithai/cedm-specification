@@ -3,60 +3,211 @@ entity:
   namespace: cedm.domain
   kind: core_master_entity
   description: A canonical business offering or managed item that can be purchased, sold, stocked, consumed, delivered, subscribed to, or otherwise referenced by commercial and operational processes.
+  ui:
+    icon: package
   identity: {key: productId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productId, type: uuid, required: true, immutable: true}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100}
-  - {name: name, type: string, required: true, maxLength: 300}
-  - {name: description, type: string, required: false, maxLength: 4000}
+  - name: productId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: 'The product id of the product: an identifier the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+      requiredMeaning: 'Required: a product cannot be understood without its product id.'
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: 'The code of the product: a value the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+      requiredMeaning: 'Required: a product cannot be understood without its code.'
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: 'The name of the product: a value the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+      requiredMeaning: 'Required: a product cannot be understood without its name.'
+  - name: description
+    type: string
+    required: false
+    maxLength: 4000
+    help:
+      summary: 'The description of the product: a value the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
   - name: productType
     type: enum
     required: true
     values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
+    help:
+      summary: "The product type of the product: a value the business records on it."
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a product cannot be understood without its product type."
+      valueSemantics:
+        GOOD: The product type of the product is good; set it when that is what the business means for this record.
+        MATERIAL: The product type of the product is material; set it when that is what the business means for this record.
+        SERVICE: The product type of the product is service; set it when that is what the business means for this record.
+        SUBSCRIPTION: The product type of the product is subscription; set it when that is what the business means for this record.
+        ASSET: The product type of the product is asset; set it when that is what the business means for this record.
+        BUNDLE: The product type of the product is bundle; set it when that is what the business means for this record.
+        OTHER: The product type of the product is other; set it when that is what the business means for this record.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
-  - {name: sku, type: string, required: false, maxLength: 100}
-  - {name: unitOfMeasure, type: reference, target: UnitOfMeasure, required: false}
-  - {name: standardPrice, type: money, required: false}
-  - {name: taxCategory, type: string, required: false, maxLength: 100}
-  - {name: createdAt, type: datetime, required: true, systemManaged: true}
-  - {name: updatedAt, type: datetime, required: true, systemManaged: true}
+    help:
+      summary: "The status of the product: a value the business records on it."
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a product cannot be understood without its status."
+      valueSemantics:
+        DRAFT: The status of the product is draft; set it when that is what the business means for this record.
+        ACTIVE: The status of the product is active; set it when that is what the business means for this record.
+        DISCONTINUED: The status of the product is discontinued; set it when that is what the business means for this record.
+        BLOCKED: The status of the product is blocked; set it when that is what the business means for this record.
+        RETIRED: The status of the product is retired; set it when that is what the business means for this record.
+  - name: sku
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: 'The sku of the product: a value the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+  - name: unitOfMeasure
+    type: reference
+    target: UnitOfMeasure
+    required: false
+    help:
+      summary: 'The unit of measure of the product: a link to another record the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+  - name: standardPrice
+    type: money
+    required: false
+    help:
+      summary: 'The standard price of the product: a monetary amount the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+  - name: taxCategory
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: 'The tax category of the product: a value the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+  - name: createdAt
+    type: datetime
+    required: true
+    systemManaged: true
+    help:
+      summary: 'The created at of the product: a point in time the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+      requiredMeaning: 'Required: a product cannot be understood without its created at.'
+  - name: updatedAt
+    type: datetime
+    required: true
+    systemManaged: true
+    help:
+      summary: 'The updated at of the product: a point in time the business records on it.'
+      usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
+        own.
+      requiredMeaning: 'Required: a product cannot be understood without its updated at.'
   relationships:
   - name: category
     target: ProductCategory
     cardinality: 0..1
     ownership: reference
+    help:
+      summary: Links a product to product category, the category it relates to.
+      usage: Chosen from the existing product category records when the product is created or edited.
+      cardinalityMeaning: A product has at most one product category in this role.
+      context: Lets the product be found from, and reported with, its product category.
   - name: suppliers
     target: Supplier
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to supplier, the suppliers it relates to.
+      usage: Chosen from the existing supplier records when the product is created or edited.
+      cardinalityMeaning: A product has any number of supplier in this role.
+      context: Lets the product be found from, and reported with, its supplier.
   - name: locations
     target: Location
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to location, the locations it relates to.
+      usage: Chosen from the existing location records when the product is created or edited.
+      cardinalityMeaning: A product has any number of location in this role.
+      context: Lets the product be found from, and reported with, its location.
   - name: salesOrderLines
     target: SalesOrderLine
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to sales order line, the sales order lines it relates to.
+      usage: Chosen from the existing sales order line records when the product is created or edited.
+      cardinalityMeaning: A product has any number of sales order line in this role.
+      context: Lets the product be found from, and reported with, its sales order line.
   - name: purchaseOrderLines
     target: PurchaseOrderLine
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to purchase order line, the purchase order lines it relates to.
+      usage: Chosen from the existing purchase order line records when the product is created or edited.
+      cardinalityMeaning: A product has any number of purchase order line in this role.
+      context: Lets the product be found from, and reported with, its purchase order line.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to inventory balance, the inventory balances it relates to.
+      usage: Chosen from the existing inventory balance records when the product is created or edited.
+      cardinalityMeaning: A product has any number of inventory balance in this role.
+      context: Lets the product be found from, and reported with, its inventory balance.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to inventory movement, the inventory movements it relates to.
+      usage: Chosen from the existing inventory movement records when the product is created or edited.
+      cardinalityMeaning: A product has any number of inventory movement in this role.
+      context: Lets the product be found from, and reported with, its inventory movement.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
+    help:
+      summary: Links a product to invoice line, the invoice lines it relates to.
+      usage: Chosen from the existing invoice line records when the product is created or edited.
+      cardinalityMeaning: A product has any number of invoice line in this role.
+      context: Lets the product be found from, and reported with, its invoice line.
   - name: lots
     target: Lot
     cardinality: 0..*
@@ -99,6 +250,42 @@ entity:
     rule: Changing standardPrice must not overwrite negotiated, contracted, quoted, or already-captured transaction prices.
   - id: PRODUCT-009
     rule: Retiring a Product must validate open commitments and dependent inventory before retirement becomes effective; existing obligations require their own controlled continuation, substitution, cancellation, or exception workflow.
+  - {id: PRODUCT-EXE-001, rule: "Standard Price cannot be negative.", violatedWhen: "standard_price != null and standard_price < 0", message: "Standard Price cannot be negative."}
+  lifecycle:
+    title: Product Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+    initial: DRAFT
+    terminal: [DISCONTINUED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a product is stopped"
+      description: "When a product is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PRODUCT-EXCEPTION-{{id}}"
+              name: "Resolve product {{name}}"
+              description: "Product {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
     businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.

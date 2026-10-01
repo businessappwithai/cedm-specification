@@ -158,6 +158,43 @@ entity:
     rule: Historical sample selection cannot be silently regenerated after a SamplingPlan or SamplingRule change; a new controlled sample-selection event is required.
   - id: INSPECTION-SAMPLE-008
     rule: Sample selection must be idempotent for the same inspection, governed rule, execution context, and selection request.
+  - {id: INSPECTION-SAMPLE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  lifecycle:
+    title: Inspection Sample Lifecycle
+    attribute: status
+    states: [SELECTED, IN_TESTING, TESTED, REJECTED, DISPOSED, CANCELLED]
+    initial: SELECTED
+    terminal: [REJECTED, DISPOSED, CANCELLED]
+    transitions:
+      - {from: SELECTED, to: IN_TESTING, action: mark_in_testing}
+      - {from: IN_TESTING, to: TESTED, action: mark_tested}
+      - {from: SELECTED, to: REJECTED, action: reject}
+      - {from: IN_TESTING, to: REJECTED, action: reject}
+      - {from: TESTED, to: REJECTED, action: reject}
+      - {from: IN_TESTING, to: DISPOSED, action: mark_disposed}
+      - {from: TESTED, to: DISPOSED, action: mark_disposed}
+      - {from: SELECTED, to: CANCELLED, action: cancel}
+      - {from: IN_TESTING, to: CANCELLED, action: cancel}
+      - {from: TESTED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a inspection sample is ended"
+      description: "When a inspection sample is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INSPECTION-SAMPLE-FOLLOW-UP-{{id}}"
+              name: "Follow up on inspection sample {{sample_number}}"
+              description: "Inspection sample {{sample_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Execution record of the actual sample selected for a governed quality inspection.
     businessMeaning: InspectionSample separates sampling policy from the physical or logical sample actually selected. SamplingPlan and SamplingRule define how selection should occur; InspectionSample records what was actually selected; QualityMeasurement records observations from it.

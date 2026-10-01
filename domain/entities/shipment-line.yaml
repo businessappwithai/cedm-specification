@@ -25,6 +25,9 @@ entity:
   - {id: SHIPMENT-LINE-003, rule: Outbound quantities must not exceed eligible order/allocation quantities without authorized over-fulfillment policy.}
   - {id: SHIPMENT-LINE-004, rule: Shipment execution must reconcile to attributable InventoryMovement where inventory is affected; shipment quantities are not the stock ledger.}
   - {id: SHIPMENT-LINE-005, rule: Posted dispatch or delivery evidence is corrected through compensating events and must be idempotent.}
+  - {id: SHIPMENT-LINE-EXE-001, rule: "Planned Quantity cannot be negative.", violatedWhen: "planned_quantity != null and planned_quantity < 0", message: "Planned Quantity cannot be negative."}
+  - {id: SHIPMENT-LINE-EXE-002, rule: "Dispatched Quantity cannot be negative.", violatedWhen: "dispatched_quantity != null and dispatched_quantity < 0", message: "Dispatched Quantity cannot be negative."}
+  - {id: SHIPMENT-LINE-EXE-003, rule: "Delivered Quantity cannot be negative.", violatedWhen: "delivered_quantity != null and delivered_quantity < 0", message: "Delivered Quantity cannot be negative."}
   help:
     summary: Line-level logistics execution connecting commercial demand to physical transport and inventory evidence.
     businessMeaning: ShipmentLine says what quantity moved in logistics; InventoryMovement says what happened to stock.

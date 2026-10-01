@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supplier_financial_adjustment_transaction
   description: A formal buyer-issued financial debit raised against a supplier to increase recoverable supplier exposure for shortages, overcharges, penalties, service failures, damages, tax corrections, or other authorized commercial adjustments. It is separate from the supplier claim, claim resolution, original invoice, physical return, and cash settlement.
+  ui:
+    icon: factory
   identity: {key: supplierDebitNoteId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierDebitNoteId
@@ -24,8 +26,34 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, DISPUTED, CANCELLED, REVERSED]
-    help: {summary: Lifecycle state of the supplier debit adjustment., businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal., usage: Controls posting payable reconciliation and supplier dispute workflows., relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence., workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling., requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - APPROVED
+    - POSTED
+    - PARTIALLY_APPLIED
+    - FULLY_APPLIED
+    - DISPUTED
+    - CANCELLED
+    - REVERSED
+    help:
+      summary: Lifecycle state of the supplier debit adjustment.
+      businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal.
+      usage: Controls posting payable reconciliation and supplier dispute workflows.
+      relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence.
+      workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
+        APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
+        POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
+        PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business
+          means for this record.
+        FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for
+          this record.
+        DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
+        CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this
+          record.
+        REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
   - name: currencyId
     type: reference
     target: Currency
@@ -74,6 +102,64 @@ entity:
   - {id: SUPPLIER-DEBIT-008, rule: Posting must be idempotent and must not duplicate accounting recognition on retry.}
   - {id: SUPPLIER-DEBIT-009, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize a debit adjustment and the debit amount must not exceed the approved recovery amount."}
   - {id: SUPPLIER-DEBIT-010, rule: Active SupplierDebitNoteApplication records must reconcile to amountApplied and must not collectively exceed totalAmount.}
+  - {id: SUPPLIER-DEBIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+  - {id: SUPPLIER-DEBIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+  - {id: SUPPLIER-DEBIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Debit Note Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, DISPUTED, CANCELLED, REVERSED]
+    initial: DRAFT
+    terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: POSTED, action: post}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
+      - {from: PARTIALLY_APPLIED, to: DISPUTED, action: mark_disputed}
+      - {from: DISPUTED, to: FULLY_APPLIED, action: mark_fully_applied}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
+      - {from: DISPUTED, to: CANCELLED, action: cancel}
+      - {from: DISPUTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier debit note is ended"
+      description: "When a supplier debit note is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-DEBIT-NOTE-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier debit note {{debit_note_number}}"
+              description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a supplier debit note is done"
+      description: "When a supplier debit note is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-DEBIT-NOTE-COMPLETED-{{id}}"
+              name: "Confirm supplier debit note {{debit_note_number}}"
+              description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents a buyer-issued financial debit against a supplier while preserving the original payable claim supplier-claim history resolution decision and application evidence.
     businessMeaning: SupplierClaim explains the issue, SupplierClaimResolution authorizes the remedy, SupplierDebitNote records the financial recovery, SupplierDebitNoteApplication allocates that recovery to payable claims, and JournalEntry provides accounting recognition. Payment remains the separate cash-movement concept.

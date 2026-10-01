@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reverse_logistics_disposition
   description: A controlled decision record that states the operational outcome for returned material after receipt and, where required, quality evaluation. It separates the disposition decision from the physical InventoryMovement and from any customer or supplier financial adjustment.
+  ui:
+    icon: undo-2
   identity: {key: returnDispositionId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: returnDispositionId
@@ -13,8 +15,42 @@ entity:
   - name: dispositionCode
     type: enum
     required: true
-    values: [RESTOCK, QUARANTINE, RETURN_TO_SUPPLIER, REWORK, REPAIR, SCRAP, REJECT, ACCEPT, CONDITIONAL_RELEASE]
-    help: {summary: Controlled operational outcome selected for returned material., businessMeaning: Defines what should happen to the returned quantity., usage: "Drives warehouse execution, quality containment and eligibility for inventory availability.", relationshipContext: "The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote.", workflowRole: Determines which downstream physical workflow is permitted., requiredMeaning: Required.}
+    values:
+    - RESTOCK
+    - QUARANTINE
+    - RETURN_TO_SUPPLIER
+    - REWORK
+    - REPAIR
+    - SCRAP
+    - REJECT
+    - ACCEPT
+    - CONDITIONAL_RELEASE
+    help:
+      summary: Controlled operational outcome selected for returned material.
+      businessMeaning: Defines what should happen to the returned quantity.
+      usage: Drives warehouse execution, quality containment and eligibility for inventory availability.
+      relationshipContext: The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote.
+      workflowRole: Determines which downstream physical workflow is permitted.
+      requiredMeaning: Required.
+      valueSemantics:
+        RESTOCK: The disposition code of the return disposition is restock; set it when that is what the business means for
+          this record.
+        QUARANTINE: The disposition code of the return disposition is quarantine; set it when that is what the business means
+          for this record.
+        RETURN_TO_SUPPLIER: The disposition code of the return disposition is return to supplier; set it when that is what the
+          business means for this record.
+        REWORK: The disposition code of the return disposition is rework; set it when that is what the business means for this
+          record.
+        REPAIR: The disposition code of the return disposition is repair; set it when that is what the business means for this
+          record.
+        SCRAP: The disposition code of the return disposition is scrap; set it when that is what the business means for this
+          record.
+        REJECT: The disposition code of the return disposition is reject; set it when that is what the business means for this
+          record.
+        ACCEPT: The disposition code of the return disposition is accept; set it when that is what the business means for this
+          record.
+        CONDITIONAL_RELEASE: The disposition code of the return disposition is conditional release; set it when that is what
+          the business means for this record.
   - name: dispositionDate
     type: datetime
     required: true
@@ -28,8 +64,26 @@ entity:
     type: enum
     required: true
     default: AUTHORIZED
-    values: [DRAFT, AUTHORIZED, EXECUTED, CANCELLED, EXCEPTION]
-    help: {summary: Lifecycle state of the disposition decision., businessMeaning: "Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed.", usage: Controls whether downstream inventory execution is permitted., relationshipContext: "Does not replace CustomerReturn, SupplierReturn or QualityInspection status.", workflowRole: EXECUTED requires attributable physical evidence where the disposition changes inventory., requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - AUTHORIZED
+    - EXECUTED
+    - CANCELLED
+    - EXCEPTION
+    help:
+      summary: Lifecycle state of the disposition decision.
+      businessMeaning: Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed.
+      usage: Controls whether downstream inventory execution is permitted.
+      relationshipContext: Does not replace CustomerReturn, SupplierReturn or QualityInspection status.
+      workflowRole: EXECUTED requires attributable physical evidence where the disposition changes inventory.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the return disposition is draft; set it when that is what the business means for this record.
+        AUTHORIZED: The status of the return disposition is authorized; set it when that is what the business means for this
+          record.
+        EXECUTED: The status of the return disposition is executed; set it when that is what the business means for this record.
+        CANCELLED: The status of the return disposition is cancelled; set it when that is what the business means for this record.
+        EXCEPTION: The status of the return disposition is exception; set it when that is what the business means for this record.
   - name: reasonCode
     type: string
     required: false
@@ -78,6 +132,58 @@ entity:
   - {id: RETURN-DISPOSITION-009, rule: Executed disposition quantities must reconcile with attributable InventoryMovement quantities where a physical effect is required.}
   - {id: RETURN-DISPOSITION-010, rule: Corrections after execution create compensating disposition or reversal evidence and do not rewrite historical decisions.}
   - {id: RETURN-DISPOSITION-011, rule: Execution must be idempotent and protected against duplicate inventory effects.}
+  - {id: RETURN-DISPOSITION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  lifecycle:
+    title: Return Disposition Lifecycle
+    attribute: status
+    states: [DRAFT, AUTHORIZED, EXECUTED, CANCELLED, EXCEPTION]
+    initial: DRAFT
+    terminal: [EXECUTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: AUTHORIZED, action: authorize}
+      - {from: AUTHORIZED, to: EXECUTED, action: mark_executed}
+      - {from: AUTHORIZED, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: AUTHORIZED, action: resolve_exception}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: AUTHORIZED, to: CANCELLED, action: cancel}
+      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a return disposition is stopped"
+      description: "When a return disposition is exception, a high-priority task asks someone to resolve it."
+      when: "status == \"EXCEPTION\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RETURN-DISPOSITION-EXCEPTION-{{id}}"
+              name: "Resolve return disposition {{id}}"
+              description: "Return disposition {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a return disposition is ended"
+      description: "When a return disposition is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RETURN-DISPOSITION-FOLLOW-UP-{{id}}"
+              name: "Follow up on return disposition {{id}}"
+              description: "Return disposition {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides the controlled bridge between a returned quantity, its operational outcome, quality evidence and the physical inventory execution.
     businessMeaning: ReturnDisposition decides what happens to returned material. InventoryMovement records what physically happened. CreditNote or SupplierCreditNote records any separate financial consequence.

@@ -190,6 +190,12 @@
       },
       "properties": {
         "name": { "$ref": "#/$defs/attributeName" },
+        "narrowedBy": {
+          "description": "Other relationships or reference attributes of this entity that narrow the choices of this one, most specific first: a city is narrowed by its stateProvince and then its country. The lookup offers only the rows that belong to the values the record holds, and a write naming any other is refused.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/attributeName" }
+        },
         "column": {
           "description": "The physical column, where it is not the snake_case of the name (or `id`, for the identity key).",
           "type": "string",
@@ -271,6 +277,12 @@
           "type": "string",
           "pattern": "^[^\\s\"](?:[^\"\\n\\r]*[^\\s\"])?$"
         },
+        "narrowedBy": {
+          "description": "Other relationships or reference attributes of this entity that narrow the choices of this one, most specific first: a city is narrowed by its stateProvince and then its country. The lookup offers only the rows that belong to the values the record holds, and a write naming any other is refused.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/attributeName" }
+        },
         "foreignKey": {
           "description": "The attribute holding a to-one relationship's key (on the target, for a to-many one). Found by name when omitted and created when none exists; false says the key is kept elsewhere.",
           "oneOf": [{ "$ref": "#/$defs/attributeName" }, { "const": false }]
@@ -314,6 +326,37 @@
         "initial": { "type": "string" },
         "terminal": { "type": "array", "items": { "type": "string" } },
         "transitions": { "type": "array", "items": { "$ref": "#/$defs/transition" } }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "when", "steps"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+        "title": { "$ref": "#/$defs/line" },
+        "description": { "$ref": "#/$defs/prose" },
+        "when": {
+          "description": "A condition over the record, in the rules engine's expression language over physical columns. On an update `_previous_<column>` is the column as it was.",
+          "$ref": "#/$defs/line"
+        },
+        "event": { "type": "string", "pattern": "^\\S+$" },
+        "message": { "$ref": "#/$defs/line" },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^\\S+$" },
+              "type": { "enum": ["CreateEntity", "UpdateEntity", "DeleteEntity", "Decision", "Formula", "REST", "Agent"] },
+              "label": { "$ref": "#/$defs/line" },
+              "properties": { "type": "object" }
+            }
+          }
+        }
       }
     },
     "invariant": {
@@ -375,6 +418,31 @@
           ]
         },
         "invariants": { "type": "array", "items": { "$ref": "#/$defs/invariant" } },
+        "referenceData": {
+          "description": "A file under domain/ holding the rows this entity ships with; the library inlines it as `data`.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Rows the entity ships with, keyed by attribute or relationship name. A reference holds the natural key of the row it points at.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key", "rows"],
+          "properties": {
+            "key": { "type": "string" },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": { "type": ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        },
+        "workflows": {
+          "description": "Workflows the entity starts when a record meets a condition. Each lowers to a saga and a rule that triggers it.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/workflow" }
+        },
         "audit": { "type": "object" },
         "help": { "$ref": "#/$defs/help" },
         "ui": {

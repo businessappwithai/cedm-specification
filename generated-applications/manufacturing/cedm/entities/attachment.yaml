@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: document_attachment
   description: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
+  ui:
+    icon: paperclip
   identity: {key: attachmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Attachment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

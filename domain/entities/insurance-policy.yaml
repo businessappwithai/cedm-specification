@@ -155,6 +155,41 @@ entity:
   invariants:
   - id: INSURANCE-POLICY-001
     rule: effectiveTo must not precede effectiveFrom.
+  - {id: INSURANCE-POLICY-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Insurance Policy Lifecycle
+    attribute: status
+    states: [QUOTED, ACTIVE, SUSPENDED, EXPIRED, CANCELLED]
+    initial: QUOTED
+    terminal: [EXPIRED, CANCELLED]
+    transitions:
+      - {from: QUOTED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
+      - {from: QUOTED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a insurance policy is ended"
+      description: "When a insurance policy is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INSURANCE-POLICY-FOLLOW-UP-{{id}}"
+              name: "Follow up on insurance policy {{policy_number}}"
+              description: "Insurance policy {{policy_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a insurance entity called InsurancePolicy within the CEDM business model.
     businessMeaning: InsurancePolicy is a business concept with its own identity and lifecycle. It captures information that

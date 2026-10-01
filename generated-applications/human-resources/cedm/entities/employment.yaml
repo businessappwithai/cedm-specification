@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workforce_relationship
   description: A time-bounded employment relationship between a person and an organization.
+  ui:
+    icon: table
   identity:
     key: employmentId
     type: uuid
@@ -128,6 +130,18 @@ entity:
   invariants:
   - id: EMPLOYMENT-001
     rule: endDate must not precede startDate.
+  lifecycle:
+    title: Employment Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, SUSPENDED, TERMINATED]
+    initial: PENDING
+    terminal: [TERMINATED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: TERMINATED, action: terminate}
+      - {from: SUSPENDED, to: TERMINATED, action: terminate}
   help:
     summary: Represents a workforce relationship called Employment within the CEDM business model.
     businessMeaning: Employment is a business concept with its own identity and lifecycle. It captures information that must

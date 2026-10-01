@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_definition
   description: A reusable definition of a measurable or observable quality property, such as weight, temperature, dimension, purity, appearance, grade, or other acceptance characteristic. It defines the semantic nature of an observation; plan-specific limits and methods belong to QualityPlanCharacteristic.
+  ui:
+    icon: badge-check
   identity:
     key: qualityCharacteristicId
     type: uuid
@@ -127,6 +129,16 @@ entity:
     rule: Retiring a characteristic must trigger impact analysis for active QualityPlanCharacteristic configurations and open QualityInspections that depend on them.
   - id: QUALITY-CHARACTERISTIC-007
     rule: Characteristic definition changes must be auditable and idempotent and must not create duplicate active definitions for the same governed code.
+  lifecycle:
+    title: Quality Characteristic Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Reusable definition of one quality property that can be configured by quality plans and observed through quality measurements.
     businessMeaning: QualityCharacteristic answers what property is being evaluated. It intentionally does not own plan-specific limits because the same property can have different acceptance criteria for different products, suppliers, processes, or inspection plans.

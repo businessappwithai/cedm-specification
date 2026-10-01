@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-01T05:18:09.160Z
+//! Generated: 2026-10-01T09:32:36.575Z
 //! Project: human-resources
 
 use sea_orm::entity::prelude::*;
@@ -42,7 +42,7 @@ pub struct Model {
     pub preferred_name: Option<String>,
     pub date_of_birth: Option<Date>,
     pub gender: Option<String>,
-    pub nationality: Option<String>,
+    pub nationality_id: Option<Uuid>,
     pub party_type: String,
     pub display_name: String,
     pub status: String,

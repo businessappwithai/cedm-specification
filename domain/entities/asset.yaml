@@ -145,6 +145,45 @@ entity:
     rule: DISPOSED assets must not be treated as available for new operational assignments unless an explicit reinstatement process exists.
   - id: ASSET-004
     rule: Retired or disposed assets retain historical maintenance, movement, and financial records for audit according to retention policy.
+  - {id: ASSET-EXE-001, rule: "Acquisition Cost cannot be negative.", violatedWhen: "acquisition_cost != null and acquisition_cost < 0", message: "Acquisition Cost cannot be negative."}
+  lifecycle:
+    title: Asset Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, UNDER_MAINTENANCE, HELD, DISPOSED, RETIRED]
+    initial: PLANNED
+    terminal: [DISPOSED, RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: UNDER_MAINTENANCE, action: mark_under_maintenance}
+      - {from: UNDER_MAINTENANCE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: HELD, action: mark_held}
+      - {from: HELD, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: DISPOSED, action: mark_disposed}
+      - {from: UNDER_MAINTENANCE, to: DISPOSED, action: mark_disposed}
+      - {from: HELD, to: DISPOSED, action: mark_disposed}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: UNDER_MAINTENANCE, to: RETIRED, action: retire}
+      - {from: HELD, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a asset is stopped"
+      description: "When a asset is held, a high-priority task asks someone to resolve it."
+      when: "status == \"HELD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-EXCEPTION-{{id}}"
+              name: "Resolve asset {{name}}"
+              description: "Asset {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents the long-lived business object for a durable resource whose identity, ownership, location, maintenance, financial treatment, and lifecycle must be managed over time.
     businessMeaning: Asset is the instance-level concept used when an organization must manage a specific physical or accountable resource rather than merely a product type. A container, vehicle, machine, aircraft, or facility equipment item can be represented as an Asset when individual lifecycle and accountability matter.

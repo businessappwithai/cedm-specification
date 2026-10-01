@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: business_event
   description: An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction.
+  ui:
+    icon: activity
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}

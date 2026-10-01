@@ -4,6 +4,8 @@ entity:
   kind: process_industry_entity
   description: A traceable batch of chemical or process-industry material produced, received, or processed under controlled
     conditions.
+  ui:
+    icon: table
   identity:
     key: chemicalBatchId
     type: uuid
@@ -120,6 +122,59 @@ entity:
   invariants:
   - id: CHEMICAL-BATCH-001
     rule: expiryDate must not precede manufactureDate.
+  lifecycle:
+    title: Chemical Batch Lifecycle
+    attribute: status
+    states: [PLANNED, QUARANTINED, RELEASED, REJECTED, EXPIRED, CONSUMED]
+    initial: PLANNED
+    terminal: [CONSUMED, REJECTED, EXPIRED]
+    transitions:
+      - {from: PLANNED, to: RELEASED, action: release}
+      - {from: RELEASED, to: CONSUMED, action: consume}
+      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: RELEASED, action: release}
+      - {from: PLANNED, to: REJECTED, action: reject}
+      - {from: RELEASED, to: REJECTED, action: reject}
+      - {from: QUARANTINED, to: REJECTED, action: reject}
+      - {from: RELEASED, to: EXPIRED, action: expire}
+      - {from: QUARANTINED, to: EXPIRED, action: expire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a chemical batch is stopped"
+      description: "When a chemical batch is quarantined, a high-priority task asks someone to resolve it."
+      when: "status == \"QUARANTINED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CHEMICAL-BATCH-EXCEPTION-{{id}}"
+              name: "Resolve chemical batch {{batch_number}}"
+              description: "Chemical batch {{batch_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a chemical batch is ended"
+      description: "When a chemical batch is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CHEMICAL-BATCH-FOLLOW-UP-{{id}}"
+              name: "Follow up on chemical batch {{batch_number}}"
+              description: "Chemical batch {{batch_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a process industry entity called ChemicalBatch within the CEDM business model.
     businessMeaning: ChemicalBatch is a business concept with its own identity and lifecycle. It captures information that

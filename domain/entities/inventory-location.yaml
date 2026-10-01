@@ -141,6 +141,36 @@ entity:
   - {id: INVENTORY-LOCATION-006, rule: "A location with on-hand stock cannot be made operationally inaccessible without a controlled relocation, exception, or stock-management workflow."}
   - {id: INVENTORY-LOCATION-007, rule: "Existing reservations on a blocked/inactive location must be released, transferred, or explicitly retained under an authorized exception before the location is excluded from allocation."}
   - {id: INVENTORY-LOCATION-008, rule: Historical inventory movements and balances must retain the original location identity even after the location becomes inactive.}
+  - {id: INVENTORY-LOCATION-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
+  lifecycle:
+    title: Inventory Location Lifecycle
+    attribute: status
+    states: [ACTIVE, BLOCKED, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a inventory location is stopped"
+      description: "When a inventory location is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-LOCATION-EXCEPTION-{{id}}"
+              name: "Resolve inventory location {{code}}"
+              description: "Inventory location {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Granular inventory position whose lifecycle controls future execution while preserving historical inventory state.
     businessMeaning: A location is operational infrastructure, not merely an address. Changing its status can affect receiving, put-away, reservations, picking, transfers, replenishment and shipment staging.

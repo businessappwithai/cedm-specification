@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: iam_authorization
   description: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
+  ui:
+    icon: key
   identity: {key: accessGrantId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: accessGrantId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AccessGrant., businessMeaning: Identifies one governed AccessGrant record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
@@ -14,6 +16,36 @@ entity:
   relationships: []
   invariants:
   - {id: ACCESS-GRANT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  lifecycle:
+    title: Access Grant Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a access grant is ended"
+      description: "When a access grant is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ACCESS-GRANT-FOLLOW-UP-{{id}}"
+              name: "Follow up on access grant {{id}}"
+              description: "Access grant {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
     purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workflow_definition
   description: A versioned executable-neutral definition of a business process, its activities, transitions, assignments, controls, and completion semantics.
+  ui:
+    icon: settings
   identity: {key: processDefinitionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessDefinition., businessMeaning: Identifies one governed ProcessDefinition record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
@@ -14,6 +16,36 @@ entity:
   relationships: []
   invariants:
   - {id: PROCESS-DEFINITION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  lifecycle:
+    title: Process Definition Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a process definition is ended"
+      description: "When a process definition is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROCESS-DEFINITION-FOLLOW-UP-{{id}}"
+              name: "Follow up on process definition {{id}}"
+              description: "Process definition {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A versioned executable-neutral definition of a business process, its activities, transitions, assignments, controls, and completion semantics.
     purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.

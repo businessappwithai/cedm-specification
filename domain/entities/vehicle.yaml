@@ -126,6 +126,22 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  invariants:
+  - {id: VEHICLE-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
+  lifecycle:
+    title: Vehicle Lifecycle
+    attribute: status
+    states: [ACTIVE, MAINTENANCE, OUT_OF_SERVICE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
+      - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: MAINTENANCE, to: RETIRED, action: retire}
+      - {from: OUT_OF_SERVICE, to: RETIRED, action: retire}
   help:
     summary: Represents a logistics asset called Vehicle within the CEDM business model.
     businessMeaning: Vehicle is a business concept with its own identity and lifecycle. It captures information that must

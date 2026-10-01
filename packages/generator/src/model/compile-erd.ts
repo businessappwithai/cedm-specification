@@ -84,6 +84,9 @@ function mergeDuplicateAttributes(attributes: EntityAttribute[]): EntityAttribut
     if (existing.references === undefined && attribute.references !== undefined) {
       existing.references = attribute.references;
     }
+    if (existing.narrowedBy === undefined && attribute.narrowedBy !== undefined) {
+      existing.narrowedBy = attribute.narrowedBy;
+    }
     // Anything the first line did not say, a later one may still supply.
     if (existing.maxLength === undefined && attribute.maxLength !== undefined) {
       existing.maxLength = attribute.maxLength;
@@ -133,6 +136,10 @@ export function attributeFromDeclaration(declaration: AttributeDeclaration): Ent
     ...(isForeignKey &&
       declaration.references !== undefined && {
         references: declaration.references,
+      }),
+    ...(isForeignKey &&
+      declaration.narrowedBy !== undefined && {
+        narrowedBy: declaration.narrowedBy,
       }),
     ...(SEMANTIC_TYPES.has(baseType) && {
       semanticType: baseType as NonNullable<EntityAttribute["semanticType"]>,
@@ -210,6 +217,10 @@ export function compileErdRecords(records: ErdRecords): {
     if (entity) entity.icon = icon;
   }
   attachParents(entities, entityParents);
+  for (const { entity: name, key, rows } of records.entityData) {
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity) entity.data = { key, rows };
+  }
   const enums = attachEnums(entities, declaredEnums, records.enumBindings, enumDetails);
 
   return { entities, relationships, enums };

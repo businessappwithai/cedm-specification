@@ -97,6 +97,9 @@ pub enum FilterOp {
     Contains,
     StartsWith,
     EndsWith,
+    /// Any of a comma-separated list: `filter.id=in:a,b,c`. A grid asks for just
+    /// the records its page points at, rather than a whole table to look them up in.
+    In,
 }
 
 impl FilterOp {
@@ -110,6 +113,7 @@ impl FilterOp {
             "contains" => Ok(Self::Contains),
             "startsWith" => Ok(Self::StartsWith),
             "endsWith" => Ok(Self::EndsWith),
+            "in" => Ok(Self::In),
             other => Err(AppError::BadRequest(format!(
                 "Unsupported filter operator '{other}'"
             ))),
@@ -587,8 +591,25 @@ fn meta_table(meta: &TableMeta) -> TableName {
     TableName::from_verified(meta.table_name.clone())
 }
 
+/// Whether a filter value is a UUID. The value arrives as text and is bound as
+/// text, and Postgres will not compare a `uuid` column with it — so a filter on
+/// a key column (`country_id = …`, `id IN (…)`) compares the column as text.
+fn looks_like_uuid(value: &str) -> bool {
+    uuid::Uuid::parse_str(value.trim()).is_ok()
+}
+
 fn filter_condition(filter: &Filter) -> Expr {
-    let column = Expr::col(Alias::new(filter.column.clone()));
+    let plain = Expr::col(Alias::new(filter.column.clone()));
+    let uuid_valued = match filter.op {
+        FilterOp::Equals => looks_like_uuid(&filter.value),
+        FilterOp::In => filter.value.split(',').any(|part| looks_like_uuid(part)),
+        _ => false,
+    };
+    let column = if uuid_valued {
+        plain.cast_as(Alias::new("text"))
+    } else {
+        plain
+    };
     match filter.op {
         FilterOp::Equals => column.eq(filter.value.clone()),
         FilterOp::Gt => column.gt(filter.value.clone()),
@@ -598,6 +619,15 @@ fn filter_condition(filter: &Filter) -> Expr {
         FilterOp::Contains => column.like(format!("%{}%", escape_like(&filter.value))),
         FilterOp::StartsWith => column.like(format!("{}%", escape_like(&filter.value))),
         FilterOp::EndsWith => column.like(format!("%{}", escape_like(&filter.value))),
+        FilterOp::In => column.is_in(
+            filter
+                .value
+                .split(',')
+                .map(str::trim)
+                .filter(|part| !part.is_empty())
+                .map(str::to_string)
+                .collect::<Vec<_>>(),
+        ),
     }
 }
 

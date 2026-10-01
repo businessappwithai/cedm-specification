@@ -1,7 +1,7 @@
 # CEDM Specification Vocabulary
 specification:
   name: CEDM
-  version: 0.2.0
+  version: 0.3.0
   status: draft
   namespace: cedm.domain
 
@@ -76,3 +76,34 @@ vocabulary:
       - createdBy
       - updatedAt
       - updatedBy
+
+  # Entity kinds are open (a domain names its own: `healthcare_transaction`), but
+  # the dictionary needs a closed set of classes to decide how a window behaves.
+  # A kind resolves to the class of the first rule whose pattern matches; the
+  # last rule matches everything, so the resolution is total (DICT-002). An
+  # entity with no kind is class `entity`. See dictionary-mapping.yaml.
+  kindClasses:
+    classes:
+      line: a line item that has no life apart from its document
+      event: an append-only record of something that happened
+      transaction: a business document with a lifecycle
+      reference: controlled reference data or a classification
+      definition: a definition, policy or configuration others follow
+      master: a party, role, asset or other reusable master record
+      entity: any other business record
+    rules:
+      - {class: line, pattern: '(^|_)line$|_line_|_lines$'}
+      - {class: event, pattern: '(^|_)event$'}
+      - {class: transaction, pattern: 'transaction'}
+      - {class: reference, pattern: 'reference|classification'}
+      - {class: definition, pattern: 'definition|policy|configuration'}
+      - {class: master, pattern: 'master|party|role|specialization|asset'}
+      - {class: entity, pattern: '.*'}
+    windowType:
+      master: M
+      reference: M
+      definition: M
+      entity: M
+      transaction: T
+      line: T
+      event: T

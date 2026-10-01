@@ -205,6 +205,13 @@ entity:
   - {id: PURCHASE-ORDER-LINE-012, rule: returnedQuantity must reconcile with posted SupplierReturnLine quantities attributable to this PurchaseOrderLine.}
   - {id: PURCHASE-ORDER-LINE-013, rule: SupplierReturnLine must reference eligible accepted GoodsReceiptLine evidence before return execution.}
   - {id: PURCHASE-ORDER-LINE-014, rule: "Changes to Product, PriceList, DiscountRule, Currency or UnitOfMeasure must not silently rewrite an approved PurchaseOrderLine; open commitments require explicit revalidation or repricing."}
+  - {id: PURCHASE-ORDER-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-003, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-004, rule: "Received Quantity cannot be negative.", violatedWhen: "received_quantity != null and received_quantity < 0", message: "Received Quantity cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-005, rule: "Accepted Quantity cannot be negative.", violatedWhen: "accepted_quantity != null and accepted_quantity < 0", message: "Accepted Quantity cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-006, rule: "Returned Quantity cannot be negative.", violatedWhen: "returned_quantity != null and returned_quantity < 0", message: "Returned Quantity cannot be negative."}
+  - {id: PURCHASE-ORDER-LINE-EXE-007, rule: "Outstanding Quantity cannot be negative.", violatedWhen: "outstanding_quantity != null and outstanding_quantity < 0", message: "Outstanding Quantity cannot be negative."}
   help:
     summary: Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state.
     businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier claim.

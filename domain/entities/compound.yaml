@@ -114,6 +114,22 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  invariants:
+  - {id: COMPOUND-EXE-001, rule: "Molecular Weight cannot be negative.", violatedWhen: "molecular_weight != null and molecular_weight < 0", message: "Molecular Weight cannot be negative."}
+  lifecycle:
+    title: Compound Lifecycle
+    attribute: status
+    states: [RESEARCH, DEVELOPMENT, CANDIDATE, APPROVED, DISCONTINUED]
+    initial: CANDIDATE
+    terminal: [DISCONTINUED]
+    transitions:
+      - {from: CANDIDATE, to: DEVELOPMENT, action: mark_development}
+      - {from: DEVELOPMENT, to: RESEARCH, action: mark_research}
+      - {from: RESEARCH, to: APPROVED, action: approve}
+      - {from: CANDIDATE, to: DISCONTINUED, action: discontinue}
+      - {from: DEVELOPMENT, to: DISCONTINUED, action: discontinue}
+      - {from: RESEARCH, to: DISCONTINUED, action: discontinue}
+      - {from: APPROVED, to: DISCONTINUED, action: discontinue}
   help:
     summary: Represents a life sciences entity called Compound within the CEDM business model.
     businessMeaning: Compound is a business concept with its own identity and lifecycle. It captures information that must

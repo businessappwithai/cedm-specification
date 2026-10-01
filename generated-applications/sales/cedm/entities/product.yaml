@@ -250,6 +250,42 @@ entity:
     rule: Changing standardPrice must not overwrite negotiated, contracted, quoted, or already-captured transaction prices.
   - id: PRODUCT-009
     rule: Retiring a Product must validate open commitments and dependent inventory before retirement becomes effective; existing obligations require their own controlled continuation, substitution, cancellation, or exception workflow.
+  - {id: PRODUCT-EXE-001, rule: "Standard Price cannot be negative.", violatedWhen: "standard_price != null and standard_price < 0", message: "Standard Price cannot be negative."}
+  lifecycle:
+    title: Product Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+    initial: DRAFT
+    terminal: [DISCONTINUED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a product is stopped"
+      description: "When a product is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PRODUCT-EXCEPTION-{{id}}"
+              name: "Resolve product {{name}}"
+              description: "Product {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
     businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.

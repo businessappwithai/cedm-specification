@@ -162,6 +162,43 @@ entity:
   invariants:
   - id: LEASE-001
     rule: endDate must not precede startDate.
+  - {id: LEASE-EXE-001, rule: "Periodic Amount cannot be negative.", violatedWhen: "periodic_amount != null and periodic_amount < 0", message: "Periodic Amount cannot be negative."}
+  lifecycle:
+    title: Lease Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXPIRED, TERMINATED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: TERMINATED, action: terminate}
+      - {from: SUSPENDED, to: TERMINATED, action: terminate}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a lease is ended"
+      description: "When a lease is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on lease {{lease_number}}"
+              description: "Lease {{lease_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a real estate commercial entity called Lease within the CEDM business model.
     businessMeaning: Lease is a business concept with its own identity and lifecycle. It captures information that must remain

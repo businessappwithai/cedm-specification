@@ -129,6 +129,18 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Energy Meter Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, DISCONNECTED, RETIRED]
+    initial: PLANNED
+    terminal: [RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: DISCONNECTED, action: mark_disconnected}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: DISCONNECTED, to: RETIRED, action: retire}
   help:
     summary: Represents a utility entity called EnergyMeter within the CEDM business model.
     businessMeaning: EnergyMeter is a business concept with its own identity and lifecycle. It captures information that must

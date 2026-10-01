@@ -109,6 +109,39 @@ entity:
   - {id: SUPPLIER-010, rule: SupplierClaimResolution must remain traceable to exactly one SupplierClaim and its executed downstream evidence.}
   - {id: SUPPLIER-011, rule: "SupplierPerformanceAssessment must reference the supplier and must not mutate the source procurement, receipt, quality, claim, return, financial or corrective-action records used as evidence."}
   - {id: SUPPLIER-012, rule: Published supplier performance assessments are immutable historical governance evidence; corrections use a superseding assessment rather than rewriting the prior result.}
+  lifecycle:
+    title: Supplier Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: BLOCKED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a supplier is stopped"
+      description: "When a supplier is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-EXCEPTION-{{id}}"
+              name: "Resolve supplier {{id}}"
+              description: "Supplier {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents the procurement-facing role of a Party that supplies business inputs and participates in reverse procurement, supplier claims, financial recovery and performance governance.
     businessMeaning: Party provides identity, PartyRole provides the role, and Supplier adds procurement-specific qualification, terms and transaction history. SupplierClaim captures the case; SupplierClaimResolution captures the remedy; downstream transactions execute it; SupplierPerformanceAssessment interprets accumulated evidence for governance.

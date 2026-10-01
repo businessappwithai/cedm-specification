@@ -21,19 +21,49 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "SupplyPlan",
     "SupplyPlanLine",
-    "Product"
+    "Product",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "SupplyPlanStatus",
+    "SupplyPlanLineStatus",
+    "ProductProductType",
+    "ProductStatus"
   ],
   "categories": [
     "Foundation",
-    "Supply Chain Planning"
+    "Supply Chain Planning",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -57,10 +87,19 @@
     "ProductStatus (5)",
     "SupplyPlanLineStatus (4)",
     "SupplyPlanStatus (5)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "SupplyPlanFollowUpRequired on SupplyPlan (1 steps, rule)",
+    "SupplyPlanLineFollowUpRequired on SupplyPlanLine (1 steps, rule)",
+    "ProductExceptionRaised on Product (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:19:35.095Z"
+  "generatedAt": "2026-10-01T09:34:48.947Z"
 }

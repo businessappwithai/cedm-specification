@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: agriculture_master_entity
   description: A crop or cultivated plant category managed within an agricultural operation.
+  ui:
+    icon: sprout
   identity:
     key: cropId
     type: uuid
@@ -107,6 +109,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Crop Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a agriculture master entity called Crop within the CEDM business model.
     businessMeaning: Crop is a business concept with its own identity and lifecycle. It captures information that must remain

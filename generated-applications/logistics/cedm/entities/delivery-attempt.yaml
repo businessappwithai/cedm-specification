@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: integration_delivery_event
   description: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
+  ui:
+    icon: truck
   identity: {key: deliveryAttemptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}

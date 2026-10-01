@@ -146,6 +146,61 @@ entity:
   invariants:
   - id: INSURANCE-CLAIM-001
     rule: approvedAmount cannot exceed claimedAmount when both are supplied.
+  - {id: INSURANCE-CLAIM-EXE-001, rule: "Claimed Amount cannot be negative.", violatedWhen: "claimed_amount != null and claimed_amount < 0", message: "Claimed Amount cannot be negative."}
+  - {id: INSURANCE-CLAIM-EXE-002, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
+  lifecycle:
+    title: Insurance Claim Lifecycle
+    attribute: status
+    states: [REPORTED, UNDER_REVIEW, APPROVED, PARTIALLY_APPROVED, DENIED, SETTLED, CLOSED]
+    initial: REPORTED
+    terminal: [CLOSED, DENIED]
+    transitions:
+      - {from: REPORTED, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: APPROVED, action: approve}
+      - {from: APPROVED, to: PARTIALLY_APPROVED, action: mark_partially_approved}
+      - {from: PARTIALLY_APPROVED, to: SETTLED, action: settle}
+      - {from: SETTLED, to: CLOSED, action: close}
+      - {from: REPORTED, to: DENIED, action: deny}
+      - {from: UNDER_REVIEW, to: DENIED, action: deny}
+      - {from: APPROVED, to: DENIED, action: deny}
+      - {from: PARTIALLY_APPROVED, to: DENIED, action: deny}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a insurance claim is put forward"
+      description: "When a insurance claim is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INSURANCE-CLAIM-APPROVAL-{{id}}"
+              name: "Decide on insurance claim {{claim_number}}"
+              description: "Insurance claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a insurance claim is ended"
+      description: "When a insurance claim is denied, a task asks someone to settle what depended on it."
+      when: "status == \"DENIED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INSURANCE-CLAIM-FOLLOW-UP-{{id}}"
+              name: "Follow up on insurance claim {{claim_number}}"
+              description: "Insurance claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a insurance transaction called InsuranceClaim within the CEDM business model.
     businessMeaning: InsuranceClaim is a business concept with its own identity and lifecycle. It captures information that

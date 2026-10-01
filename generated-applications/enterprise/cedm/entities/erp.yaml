@@ -4,6 +4,8 @@ entity:
   kind: root_business_entity
   description: An ERP represents an enterprise business application context that manages shared master data, organizational
     structures, business processes, transactions, documents, workflows, and operational resources.
+  ui:
+    icon: table
   identity:
     key: erpId
     type: uuid
@@ -82,8 +84,9 @@ entity:
         RETIRED: Represents the retired state or classification in the context of ERP.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
-  - name: baseCurrency
-    type: currency_code
+  - name: baseCurrencyId
+    type: reference
+    target: Currency
     required: false
     description: Default accounting currency for the ERP context.
     help:

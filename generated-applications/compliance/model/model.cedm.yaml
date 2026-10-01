@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Compliance, Risk and Governance, built on the CEDM common foundation.
   domain: compliance
+  enumerationTables: true
 imports:
   - module: common
   - entity: Policy

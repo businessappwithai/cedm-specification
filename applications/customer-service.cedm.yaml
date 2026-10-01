@@ -14,7 +14,6 @@ imports:
   - module: common
   - entity: Customer
   - entity: ServiceRequest
-  - entity: Task
   - entity: Incident
   - entity: Escalation
   - entity: ServiceLevelAgreement
@@ -22,6 +21,6 @@ ui:
   categories:
     - name: Customer Service
       icon: headphones
-      entities: [Customer, ServiceRequest, Task]
+      entities: [Customer, ServiceRequest]
     - name: Customer Service and CRM records
       entities: [Incident, Escalation, ServiceLevelAgreement]

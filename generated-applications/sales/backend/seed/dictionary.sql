@@ -191,10 +191,19 @@ INSERT INTO sys_reference (sys_reference_id, name, description, validation_type,
 VALUES (1042, 'SupplierSupplierType', 'Values allowed for SupplierSupplierType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1043, 'UnitOfMeasureCategory', 'Values allowed for UnitOfMeasureCategory', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1043, 'TaskPriority', 'Values allowed for TaskPriority', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES (1044, 'UnitOfMeasureStatus', 'Values allowed for UnitOfMeasureStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES (1044, 'TaskStatus', 'Values allowed for TaskStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1045, 'TaskTaskType', 'Values allowed for TaskTaskType', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1046, 'UnitOfMeasureCategory', 'Values allowed for UnitOfMeasureCategory', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_reference (sys_reference_id, name, description, validation_type, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES (1047, 'UnitOfMeasureStatus', 'Values allowed for UnitOfMeasureStatus', 'T', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_list (sys_ref_list_id, sys_reference_id, value, name, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('7cac0cf4-b27a-55a3-bb57-b4aa018a7695', 100, 'S', 'System Only', 'S', TRUE, 'system', 'system', NOW(), NOW())
@@ -345,7 +354,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('440d65b3-4fea-58a2-974e-755944acc0eb', '540cc60d-f42a-5c73-9c4e-e7a5a10e2bc3', 'gender', 'Gender', 'Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for this record. The gender of the person is male; set it when that is what the business means for this record. The gender of the person is non binary; set it when that is what the business means for this record. The gender of the person is other; set it when that is what the business means for this record. The gender of the person is unspecified; set it when that is what the business means for this record.', 1027, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a76cb2ce-4dec-56df-adca-2207678707d0', '540cc60d-f42a-5c73-9c4e-e7a5a10e2bc3', 'nationality', 'Nationality', 'Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.', 10, 2, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4c9262ea-171e-5cc7-8efe-377fc700a24c', '540cc60d-f42a-5c73-9c4e-e7a5a10e2bc3', 'nationality_id', 'Nationality', 'The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c37998a7-7e4b-50e4-a505-3cdc0e273f0e', '540cc60d-f42a-5c73-9c4e-e7a5a10e2bc3', 'party_type', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party''s specialization and applicable business semantics depend on it.', 1028, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -359,6 +368,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e7331023-bdb5-54cd-9b0e-f8c3ac4dca66', '540cc60d-f42a-5c73-9c4e-e7a5a10e2bc3', 'external_reference', 'External Reference', 'An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.', 10, 200, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_country' WHERE sys_column_id = '4c9262ea-171e-5cc7-8efe-377fc700a24c';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('5ba592b8-2e8b-59cc-ad10-f64126315d5e', '9f56c983-5532-515a-a408-bde52860884b', 'c5b28e8e-8c0d-5949-ae3b-c77df5436831', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record. required for specialization traceability. Must be unique: a save is rejected if another Person already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -387,7 +397,7 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('d95dd59e-74cf-5420-976c-ceaf1ef5df26', '9f56c983-5532-515a-a408-bde52860884b', '440d65b3-4fea-58a2-974e-755944acc0eb', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Gender', 'Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for this record. The gender of the person is male; set it when that is what the business means for this record. The gender of the person is non binary; set it when that is what the business means for this record. The gender of the person is other; set it when that is what the business means for this record. The gender of the person is unspecified; set it when that is what the business means for this record.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('202c8f9b-0e76-5f0f-afe6-330634dcb2b8', '9f56c983-5532-515a-a408-bde52860884b', 'a76cb2ce-4dec-56df-adca-2207678707d0', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Nationality', 'Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional. Up to 2 characters.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('cacf4dd8-20ae-56cd-a72f-1ea7de8b89e3', '9f56c983-5532-515a-a408-bde52860884b', '4c9262ea-171e-5cc7-8efe-377fc700a24c', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Nationality', 'The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('771562de-d293-5c63-bb5e-be4905eaf923', '9f56c983-5532-515a-a408-bde52860884b', 'c37998a7-7e4b-50e4-a505-3cdc0e273f0e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Party Type', 'Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party''s specialization and applicable business semantics depend on it. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -416,7 +426,7 @@ VALUES ('e5718f81-e044-515c-b59a-0fc4acdb2860', 'Organization', 'Maintain Organi
 
 Id and Party are unique: no two Organization records may share the same value, and a save that would duplicate one is rejected. Party, Code, Name, Organization Type, Status, Party Type and Display Name must be filled in before the record can be saved.
 
-Every Organization points at Party and Person. Choose the linked record from the lookup on those fields rather than typing an identifier. Party Role, Business Unit, Department, Address, Location, Customer, Sales Order, Purchase Order and Supplier refer back to Organization, so what you change here can affect those records.
+Every Organization points at Party and Person. Choose the linked record from the lookup on those fields rather than typing an identifier. Party Role, Business Unit, Department, Address, Location, Task, Customer, Sales Order, Purchase Order and Supplier refer back to Organization, so what you change here can affect those records.
 
 Every save starts as a Draft. The business rules and workflows attached to Organization then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Organization with no rules or workflows attached is marked Final immediately.', 'building-2', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -781,11 +791,11 @@ ON CONFLICT DO NOTHING;
 -- Address (bus_address)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('84225c36-03d3-577b-8b69-f978c61fb956', 'Address', 'Maintain Address records', 'Create, find and maintain Address records. The list shows every Address you have access to — select a row to open it, or use New to add one. Each row is a single Address, described by 18 fields.
+VALUES ('84225c36-03d3-577b-8b69-f978c61fb956', 'Address', 'Maintain Address records', 'Create, find and maintain Address records. The list shows every Address you have access to — select a row to open it, or use New to add one. Each row is a single Address, described by 19 fields.
 
-Id is unique: no two Address records may share the same value, and a save that would duplicate one is rejected. Address Type, Line1, City, Country Code, Is Primary and Status must be filled in before the record can be saved.
+Id is unique: no two Address records may share the same value, and a save that would duplicate one is rejected. Address Type, Line1, Is Primary, Status and Country must be filled in before the record can be saved.
 
-Every Address points at Party, Person, Organization, Customer and Supplier. Choose the linked record from the lookup on those fields rather than typing an identifier. Location refers back to Address, so what you change here can affect that record.
+Every Address points at Party, Person, Organization, Country, State Province, City, Customer and Supplier. Choose the linked record from the lookup on those fields rather than typing an identifier. Location refers back to Address, so what you change here can affect that record.
 
 Every save starts as a Draft. The business rules and workflows attached to Address then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. An Address with no rules or workflows attached is marked Final immediately.', 'map-pin', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -793,7 +803,7 @@ INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access
 VALUES ('78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'bus_address', 'Address', 'Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.', 'map-pin', 'A', FALSE, FALSE, FALSE, TRUE, '84225c36-03d3-577b-8b69-f978c61fb956', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4f96daa4-46fa-50b2-b3b5-8b21f506d337', '84225c36-03d3-577b-8b69-f978c61fb956', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'Address', 'Shows one Address at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 6 fields marked with a red asterisk (*) must have a value before Save will accept the record. Party, Person, Organization, Customer and Supplier are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4f96daa4-46fa-50b2-b3b5-8b21f506d337', '84225c36-03d3-577b-8b69-f978c61fb956', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'Address', 'Shows one Address at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Party, Person, Organization, Country, State Province, City, Customer and Supplier are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('db7ddb96-a930-5d79-984e-7f844c50c263', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'id', 'Id', 'The address id of the address: an identifier the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address id.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -811,44 +821,49 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('9845f31f-73f3-5df7-9e1b-d1a9c8f4a298', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'line3', 'Line3', 'The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 10, 200, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('eaf7d2ad-64f8-52a2-ae24-f5529f23b971', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'city', 'City', 'The city of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its city.', 10, 150, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('54bbd715-d66c-5ac9-9e8e-a32be13277e6', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'city_name', 'City Name', 'The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.', 10, 150, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('fcbc25b0-f30a-5268-8910-f8134814f52a', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'state_or_province', 'State Or Province', 'The state or province of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 10, 150, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2bd9f36e-2fdc-5ab9-9ea9-9a9915ae1dd9', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'postal_code', 'Postal Code', 'The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 10, 30, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2bd9f36e-2fdc-5ab9-9ea9-9a9915ae1dd9', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'postal_code', 'Postal Code', 'The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 10, 30, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('bd5f1750-cb2b-501d-8008-ede1155463f8', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'latitude', 'Latitude', 'The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('21ff753c-bb7d-541b-abbf-857fcbf3db9e', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'country_code', 'Country Code', 'The country code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its country code.', 10, 2, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('accb92a2-8908-509a-853d-4140b5695cdd', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'longitude', 'Longitude', 'The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('bd5f1750-cb2b-501d-8008-ede1155463f8', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'latitude', 'Latitude', 'The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c79c0b56-9e44-5520-918a-5459ea2a9ef4', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'is_primary', 'Is Primary', 'The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('accb92a2-8908-509a-853d-4140b5695cdd', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'longitude', 'Longitude', 'The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('015a0166-090b-54b3-ae15-6284d3c81905', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'status', 'Status', 'The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record.', 1001, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c79c0b56-9e44-5520-918a-5459ea2a9ef4', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'is_primary', 'Is Primary', 'The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ad825424-4ff9-503d-879e-a8b116115d7e', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'party_id', 'Party', 'Party that maintains or uses this reusable address. Provides party master-data context for address selection.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('015a0166-090b-54b3-ae15-6284d3c81905', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'status', 'Status', 'The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record.', 1001, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('8587d57b-7cbd-5240-88d4-d4f2bf93a8c9', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'person_id', 'Person', 'The Person this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 130, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ad825424-4ff9-503d-879e-a8b116115d7e', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'party_id', 'Party', 'Party that maintains or uses this reusable address. Provides party master-data context for address selection.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b751c7e6-b450-5b1f-a080-7040c3d13acf', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'organization_id', 'Organization', 'The Organization this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 140, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('8587d57b-7cbd-5240-88d4-d4f2bf93a8c9', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'person_id', 'Person', 'The Person this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, 150, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f464525f-48b1-5005-a993-d0e9231412cc', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'country_id', 'Country', 'The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 150, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b751c7e6-b450-5b1f-a080-7040c3d13acf', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'organization_id', 'Organization', 'The Organization this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 160, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f2c86efc-abd5-5e3f-b218-d14536b391d1', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'state_province_id', 'State Province', 'The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address''s own country.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 160, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0107a103-1dc6-5ea6-8db5-92eb9b8f62df', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'customer_id', 'Customer', 'The Customer this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 170, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a3063c76-0552-51f2-ac0b-026aa77e5721', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'city_id', 'City', 'The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address''s own country, and of its state or province where one is stated.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 170, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0278666e-8279-5817-b324-7ea907fc80e1', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'supplier_id', 'Supplier', 'The Supplier this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 180, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0107a103-1dc6-5ea6-8db5-92eb9b8f62df', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'customer_id', 'Customer', 'The Customer this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 180, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0278666e-8279-5817-b324-7ea907fc80e1', '78e6ff16-ccdb-5174-915b-5074a7ef5c00', 'supplier_id', 'Supplier', 'The Supplier this Address belongs to.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 190, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET narrowed_by = '[{"by":"country_id","on":"country_id"}]' WHERE sys_column_id = 'f2c86efc-abd5-5e3f-b218-d14536b391d1';
+UPDATE sys_column SET narrowed_by = '[{"by":"state_province_id","on":"state_province_id"},{"by":"country_id","on":"country_id"}]' WHERE sys_column_id = 'a3063c76-0552-51f2-ac0b-026aa77e5721';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b1d21c7f-9b7f-5eec-8ab1-f4e25bc4d2f8', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'db7ddb96-a930-5d79-984e-7f844c50c263', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'The address id of the address: an identifier the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address id. Must be unique: a save is rejected if another Address already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -865,43 +880,46 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('8f703d95-6365-5a1e-85e5-87e15c910565', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '9845f31f-73f3-5df7-9e1b-d1a9c8f4a298', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Line3', 'The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Up to 200 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('0f82c77b-1fb7-5a9d-ad54-336736dc6e7d', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'eaf7d2ad-64f8-52a2-ae24-f5529f23b971', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'City', 'The city of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its city. Required — the record cannot be saved while this is empty. Up to 150 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a9c3105b-ff6d-53c3-af15-456e1be9330a', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '54bbd715-d66c-5ac9-9e8e-a32be13277e6', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'City Name', 'The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other. Up to 150 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c7064586-ea84-50ed-bd47-1054db1c0881', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'fcbc25b0-f30a-5268-8910-f8134814f52a', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'State Or Province', 'The state or province of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Up to 150 characters.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('75a77f82-1f77-5989-9d95-97c7dc10b657', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '2bd9f36e-2fdc-5ab9-9ea9-9a9915ae1dd9', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Postal Code', 'The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Up to 30 characters.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('75a77f82-1f77-5989-9d95-97c7dc10b657', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '2bd9f36e-2fdc-5ab9-9ea9-9a9915ae1dd9', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Postal Code', 'The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Up to 30 characters.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('86cc0811-0e8e-52e5-aff4-ddca103770f0', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'bd5f1750-cb2b-501d-8008-ede1155463f8', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Latitude', 'The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2a42951b-2ec0-50eb-a90a-bcfdae187555', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '21ff753c-bb7d-541b-abbf-857fcbf3db9e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Country Code', 'The country code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its country code. Required — the record cannot be saved while this is empty. Up to 2 characters.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d7b1ec70-b029-522a-bb83-bf4875a2eb68', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'accb92a2-8908-509a-853d-4140b5695cdd', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Longitude', 'The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('86cc0811-0e8e-52e5-aff4-ddca103770f0', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'bd5f1750-cb2b-501d-8008-ede1155463f8', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Latitude', 'The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d5e895f1-20ac-5305-805c-0ffb82d76111', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'c79c0b56-9e44-5520-918a-5459ea2a9ef4', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Primary', 'The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary. Required — the record cannot be saved while this is empty.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d7b1ec70-b029-522a-bb83-bf4875a2eb68', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'accb92a2-8908-509a-853d-4140b5695cdd', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Longitude', 'The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('cbe3547d-9c99-5ea3-99b7-dad952a77e54', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '015a0166-090b-54b3-ae15-6284d3c81905', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Status', 'The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record. Required — the record cannot be saved while this is empty.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d5e895f1-20ac-5305-805c-0ffb82d76111', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'c79c0b56-9e44-5520-918a-5459ea2a9ef4', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Primary', 'The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary. Required — the record cannot be saved while this is empty.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('00f7fd9c-16ce-5872-ba66-4806d7a69d0c', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'ad825424-4ff9-503d-879e-a8b116115d7e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Party', 'Party that maintains or uses this reusable address. Provides party master-data context for address selection.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('cbe3547d-9c99-5ea3-99b7-dad952a77e54', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '015a0166-090b-54b3-ae15-6284d3c81905', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Status', 'The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address''s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record. Required — the record cannot be saved while this is empty.', 130, 130, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c4fa1e04-b80d-5e56-a12e-90687ea99ba2', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '8587d57b-7cbd-5240-88d4-d4f2bf93a8c9', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Person', 'The Person this Address belongs to.', 130, 130, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('00f7fd9c-16ce-5872-ba66-4806d7a69d0c', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'ad825424-4ff9-503d-879e-a8b116115d7e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Party', 'Party that maintains or uses this reusable address. Provides party master-data context for address selection.', 140, 140, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('911057f0-0ceb-5ccf-824d-b2673e2d75d1', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'b751c7e6-b450-5b1f-a080-7040c3d13acf', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Organization', 'The Organization this Address belongs to.', 140, 140, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c4fa1e04-b80d-5e56-a12e-90687ea99ba2', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '8587d57b-7cbd-5240-88d4-d4f2bf93a8c9', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Person', 'The Person this Address belongs to.', 150, 150, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f4ff3b14-693e-5957-8f83-b3c0ef3bc340', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'f464525f-48b1-5005-a993-d0e9231412cc', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Country', 'The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it. Required — the record cannot be saved while this is empty.', 150, 150, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('911057f0-0ceb-5ccf-824d-b2673e2d75d1', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'b751c7e6-b450-5b1f-a080-7040c3d13acf', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Organization', 'The Organization this Address belongs to.', 160, 160, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a756485e-225c-5ae8-a538-458f06002a38', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'f2c86efc-abd5-5e3f-b218-d14536b391d1', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'State Province', 'The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address''s own country.', 160, 160, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('08946362-cc07-55bd-80b2-bd6037fec956', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '0107a103-1dc6-5ea6-8db5-92eb9b8f62df', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Customer', 'The Customer this Address belongs to.', 170, 170, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1c4aeb04-d516-5fca-a19e-76277426d8b1', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', 'a3063c76-0552-51f2-ac0b-026aa77e5721', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'City', 'The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address''s own country, and of its state or province where one is stated.', 170, 170, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9c0b66cc-0a63-5a7a-8709-cbae4961b5b8', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '0278666e-8279-5817-b324-7ea907fc80e1', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Supplier', 'The Supplier this Address belongs to.', 180, 180, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('08946362-cc07-55bd-80b2-bd6037fec956', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '0107a103-1dc6-5ea6-8db5-92eb9b8f62df', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Customer', 'The Customer this Address belongs to.', 180, 180, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9c0b66cc-0a63-5a7a-8709-cbae4961b5b8', '4f96daa4-46fa-50b2-b3b5-8b21f506d337', '0278666e-8279-5817-b324-7ea907fc80e1', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Supplier', 'The Supplier this Address belongs to.', 190, 190, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ca8ac6aa-841d-5af1-b568-4f1dbe0f5cbf', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '78e6ff16-ccdb-5174-915b-5074a7ef5c00', '84225c36-03d3-577b-8b69-f978c61fb956', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -981,7 +999,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('f9cf3b22-81a4-58b5-bf1c-47b7c7604d34', '4ce7e1da-a37e-5679-99d4-3ab3154b4734', 'id', 'Id', 'The location id of the location: an identifier the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location''s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its location id.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b5f376e2-e53d-534c-87ca-e00d884a4247', '4ce7e1da-a37e-5679-99d4-3ab3154b4734', 'code', 'Code', 'The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location''s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b5f376e2-e53d-534c-87ca-e00d884a4247', '4ce7e1da-a37e-5679-99d4-3ab3154b4734', 'code', 'Code', 'The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location''s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('96be3586-b736-5f53-80c1-35c94126d54f', '4ce7e1da-a37e-5679-99d4-3ab3154b4734', 'name', 'Name', 'The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location''s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its name.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1042,35 +1060,61 @@ ON CONFLICT DO NOTHING;
 -- Country (bus_country)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', 'Country', 'Maintain Country records', 'Create, find and maintain Country records. The list shows every Country you have access to — select a row to open it, or use New to add one. Each row is a single Country, described by 3 fields.
+VALUES ('dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', 'Country', 'Maintain Country records', 'Create, find and maintain Country records. The list shows every Country you have access to — select a row to open it, or use New to add one. Each row is a single Country, described by 7 fields.
 
-Id is unique: no two Country records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
+Id and Code are unique: no two Country records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
 
-Every save starts as a Draft. The business rules and workflows attached to Country then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Country with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+Every Country points at Currency. Choose the linked record from the lookup on those fields rather than typing an identifier. Address, State Province and City refer back to Country, so what you change here can affect those records.
+
+Every save starts as a Draft. The business rules and workflows attached to Country then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Country with no rules or workflows attached is marked Final immediately.', 'globe', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('13d95173-1287-5261-a5b8-48e371d126de', 'bus_country', 'Country', 'A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('13d95173-1287-5261-a5b8-48e371d126de', 'bus_country', 'Country', 'A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.', 'globe', 'A', FALSE, FALSE, FALSE, TRUE, 'dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d7b20152-b8ab-57ae-8bbe-5acc6c18df15', 'dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', '13d95173-1287-5261-a5b8-48e371d126de', 'Country', 'Shows one Country at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d7b20152-b8ab-57ae-8bbe-5acc6c18df15', 'dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', '13d95173-1287-5261-a5b8-48e371d126de', 'Country', 'Shows one Country at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Currency is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('33138d74-e776-5d79-a635-29318ee3006b', '13d95173-1287-5261-a5b8-48e371d126de', 'id', 'Id', 'Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('33138d74-e776-5d79-a635-29318ee3006b', '13d95173-1287-5261-a5b8-48e371d126de', 'id', 'Id', 'Stable identity of Country. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a219610e-9a3f-5435-8f31-6a708bcfa68b', '13d95173-1287-5261-a5b8-48e371d126de', 'code', 'Code', 'Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a219610e-9a3f-5435-8f31-6a708bcfa68b', '13d95173-1287-5261-a5b8-48e371d126de', 'code', 'Code', 'The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.', 10, 2, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('617e51b0-1a25-503d-aa11-b0fc00f8281b', '13d95173-1287-5261-a5b8-48e371d126de', 'name', 'Name', 'Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('20f89f03-534d-565b-9978-9110fef37295', '13d95173-1287-5261-a5b8-48e371d126de', 'alpha3', 'Alpha3', 'The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.', 10, 3, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e229e79b-d015-59d8-bb74-04ee9c275791', '13d95173-1287-5261-a5b8-48e371d126de', 'numeric_code', 'Numeric Code', 'The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.', 10, 3, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('617e51b0-1a25-503d-aa11-b0fc00f8281b', '13d95173-1287-5261-a5b8-48e371d126de', 'name', 'Name', 'The country''s short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9a1ebba3-4988-5f68-b6b8-457710609554', '13d95173-1287-5261-a5b8-48e371d126de', 'phone_code', 'Phone Code', 'The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.', 31, 20, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('473830e7-0f59-5519-9138-e403036ac611', '13d95173-1287-5261-a5b8-48e371d126de', 'currency_id', 'Currency', 'The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency follow the country chosen on an address.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('940c11b0-6d04-5513-9f2b-85681bdd8a89', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '33138d74-e776-5d79-a635-29318ee3006b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required. Must be unique: a save is rejected if another Country already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('940c11b0-6d04-5513-9f2b-85681bdd8a89', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '33138d74-e776-5d79-a635-29318ee3006b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of Country. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required. Must be unique: a save is rejected if another Country already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f29fe18c-1dc5-5156-9d73-b3af413daddf', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', 'a219610e-9a3f-5435-8f31-6a708bcfa68b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required. Required — the record cannot be saved while this is empty. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f29fe18c-1dc5-5156-9d73-b3af413daddf', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', 'a219610e-9a3f-5435-8f31-6a708bcfa68b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Country already uses this value. Up to 2 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7631e3c0-8009-51d2-b156-efe5db5d15cd', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '617e51b0-1a25-503d-aa11-b0fc00f8281b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c2a7254f-4439-54d4-ae9a-44aa1c0d9d0a', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '20f89f03-534d-565b-9978-9110fef37295', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Alpha3', 'The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries. Up to 3 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ea5b4c96-aa61-557a-a16f-bad7f25b21a4', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', 'e229e79b-d015-59d8-bb74-04ee9c275791', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Numeric Code', 'The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries. Up to 3 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7631e3c0-8009-51d2-b156-efe5db5d15cd', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '617e51b0-1a25-503d-aa11-b0fc00f8281b', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Name', 'The country''s short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required. Required — the record cannot be saved while this is empty. Up to 300 characters.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('50e41283-84b7-5171-a919-ca911df3687d', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '9a1ebba3-4988-5f68-b6b8-457710609554', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Phone Code', 'The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix. Up to 20 characters.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e6c717b5-85a2-541c-a106-4ef8ce9e4c0d', 'd7b20152-b8ab-57ae-8bbe-5acc6c18df15', '473830e7-0f59-5519-9138-e403036ac611', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Currency', 'The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency follow the country chosen on an address.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b8dd69c4-848b-584b-91df-69c6da678289', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '13d95173-1287-5261-a5b8-48e371d126de', 'dcb1c89a-1cc9-5cdf-97ff-4f3191d8bb0e', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1080,17 +1124,158 @@ VALUES ('8bbf781c-2a6f-5f7e-a7b3-041db13b977b', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- State Province (bus_state_province)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('96a5f88d-5e94-5922-9317-ece96ae9d072', 'State Province', 'Maintain State Province records', 'Create, find and maintain State Province records. The list shows every State Province you have access to — select a row to open it, or use New to add one. Each row is a single State Province, described by 5 fields.
+
+Id and Code are unique: no two State Province records may share the same value, and a save that would duplicate one is rejected. Code, Name and Country must be filled in before the record can be saved.
+
+Every State Province points at Country. Choose the linked record from the lookup on those fields rather than typing an identifier. Address and City refer back to State Province, so what you change here can affect those records.
+
+Every save starts as a Draft. The business rules and workflows attached to State Province then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A State Province with no rules or workflows attached is marked Final immediately.', 'map', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f3beed89-dbe3-509b-a355-9c07601376aa', 'bus_state_province', 'State Province', 'A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.', 'map', 'A', FALSE, FALSE, FALSE, TRUE, '96a5f88d-5e94-5922-9317-ece96ae9d072', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '96a5f88d-5e94-5922-9317-ece96ae9d072', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'State Province', 'Shows one State Province at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Country is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4c59dc00-072d-51ae-9b40-eacda6876f70', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'id', 'Id', 'Stable identity of StateProvince. Cross-domain reference, integration and audit. Used wherever this StateProvince is referenced. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('40aef4a6-fb09-5abc-b589-0d5b64fde6d0', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'code', 'Code', 'The ISO 3166-2 code, the country code and the division''s own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.', 10, 10, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1f62e682-ee9a-584f-a73d-487cdd901088', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'name', 'Name', 'The division''s name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('724432d2-a174-5b48-a827-cdc2731be4f5', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'subdivision_type', 'Subdivision Type', 'What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.', 10, 100, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('60d128ec-c23d-537b-bdf8-80969248021b', 'f3beed89-dbe3-509b-a355-9c07601376aa', 'country_id', 'Country', 'The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('eeca7e8c-46d0-5048-840f-36452aee0a12', 'de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '4c59dc00-072d-51ae-9b40-eacda6876f70', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of StateProvince. Cross-domain reference, integration and audit. Used wherever this StateProvince is referenced. Required. Must be unique: a save is rejected if another State Province already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b92e4af7-5318-5841-bab3-6afc4bf591ab', 'de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '40aef4a6-fb09-5abc-b589-0d5b64fde6d0', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The ISO 3166-2 code, the country code and the division''s own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another State Province already uses this value. Up to 10 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('fef88f7e-49b0-52b9-8e79-993cf831106b', 'de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '1f62e682-ee9a-584f-a73d-487cdd901088', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'The division''s name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('341e8d72-cc40-52ff-8e18-e3dfa52f430f', 'de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '724432d2-a174-5b48-a827-cdc2731be4f5', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Subdivision Type', 'What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only. Up to 100 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('33cf4e3b-46fd-505e-8afe-1b7e916afabb', 'de1b2f7f-5787-5a66-9ca6-6b00ff9f22ad', '60d128ec-c23d-537b-bdf8-80969248021b', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Country', 'The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9af53dbb-91bb-5131-8f86-945ff5089b57', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'f3beed89-dbe3-509b-a355-9c07601376aa', '96a5f88d-5e94-5922-9317-ece96ae9d072', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('afb163aa-95ae-5f14-8e9c-d868026afb54', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'f3beed89-dbe3-509b-a355-9c07601376aa', '96a5f88d-5e94-5922-9317-ece96ae9d072', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- City (bus_city)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8a194830-bbe7-5b7a-ac7f-a1433a99301b', 'City', 'Maintain City records', 'Create, find and maintain City records. The list shows every City you have access to — select a row to open it, or use New to add one. Each row is a single City, described by 10 fields.
+
+Id and Code are unique: no two City records may share the same value, and a save that would duplicate one is rejected. Code, Name and Country must be filled in before the record can be saved.
+
+Every City points at Country and State Province. Choose the linked record from the lookup on those fields rather than typing an identifier. Address refers back to City, so what you change here can affect that record.
+
+Every save starts as a Draft. The business rules and workflows attached to City then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A City with no rules or workflows attached is marked Final immediately.', 'building-2', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'bus_city', 'City', 'A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.', 'building-2', 'A', FALSE, FALSE, FALSE, TRUE, '8a194830-bbe7-5b7a-ac7f-a1433a99301b', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ad8f65da-e3c3-51f9-b574-95f250dedb19', '8a194830-bbe7-5b7a-ac7f-a1433a99301b', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'City', 'Shows one City at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 3 fields marked with a red asterisk (*) must have a value before Save will accept the record. Country and State Province are lookups — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('585534a0-0593-5bea-b971-6f3af848ef98', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'id', 'Id', 'Stable identity of City. Cross-domain reference, integration and audit. Used wherever this City is referenced. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('71fbb290-d627-50c9-8ccf-dd4abb894d32', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'code', 'Code', 'The city''s code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.', 10, 80, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c51b6ab4-6da6-52fe-aee8-e741a5ad8739', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'name', 'Name', 'The city''s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('63338b9c-8116-593a-aba5-a798f36d7daf', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'population', 'Population', 'The registry''s population figure. Ordering and sizing; not a current census count. Describes the city only.', 11, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('88f17885-5636-59ce-9c78-7d2aef55a8b9', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'latitude', 'Latitude', 'Latitude in degrees, north positive. Maps and distance. Describes the city only.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3c12e37e-7002-563a-9912-f3bbfdad76e4', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'longitude', 'Longitude', 'Longitude in degrees, east positive. Maps and distance. Describes the city only.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8c807de6-7221-51af-829e-6e6aa92c4913', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'timezone', 'Timezone', 'The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.', 10, 64, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dcc7e8b6-9771-50bb-9afe-87b761dd4c34', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'is_capital', 'Is Capital', 'Whether the city is its country''s capital. Highlighting the capital in lists. At most one capital per country in this list.', 20, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('04df1590-db2e-5dda-80a3-957a60907799', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'country_id', 'Country', 'The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.', 19, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f7642eca-1d8e-5fc7-aae2-9e72d8d1a8e7', '957f3759-b97c-5aa2-8d2b-d0f9dd847862', 'state_province_id', 'State Province', 'The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state of a city must be a division of the city''s own country.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET narrowed_by = '[{"by":"country_id","on":"country_id"}]' WHERE sys_column_id = 'f7642eca-1d8e-5fc7-aae2-9e72d8d1a8e7';
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('99931e14-2c95-57f5-9432-1d8bbb415af6', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '585534a0-0593-5bea-b971-6f3af848ef98', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of City. Cross-domain reference, integration and audit. Used wherever this City is referenced. Required. Must be unique: a save is rejected if another City already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d263f86f-0ff5-5547-8c17-adb1a8cfdcfd', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '71fbb290-d627-50c9-8ccf-dd4abb894d32', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The city''s code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another City already uses this value. Up to 80 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e0bf6a75-3aa2-5353-a3c3-1e7a604cbeba', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', 'c51b6ab4-6da6-52fe-aee8-e741a5ad8739', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'The city''s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c1414048-1462-5bd7-9c0e-5cd3adcc8b75', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '63338b9c-8116-593a-aba5-a798f36d7daf', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Population', 'The registry''s population figure. Ordering and sizing; not a current census count. Describes the city only.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c06b4c86-f8f4-5e35-b791-7ae634947909', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '88f17885-5636-59ce-9c78-7d2aef55a8b9', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Latitude', 'Latitude in degrees, north positive. Maps and distance. Describes the city only.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d325c2c8-d708-5c66-88c7-4ea826d31a7f', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '3c12e37e-7002-563a-9912-f3bbfdad76e4', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Longitude', 'Longitude in degrees, east positive. Maps and distance. Describes the city only.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0bbc4c37-b95e-547b-8f01-be8dae1d5d53', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '8c807de6-7221-51af-829e-6e6aa92c4913', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Timezone', 'The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only. Up to 64 characters.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cabcc596-bc66-58ee-bcdd-05bbba5eb755', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', 'dcc7e8b6-9771-50bb-9afe-87b761dd4c34', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Capital', 'Whether the city is its country''s capital. Highlighting the capital in lists. At most one capital per country in this list.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a0b70c11-29d1-5670-95cd-a3f7fb4f069f', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', '04df1590-db2e-5dda-80a3-957a60907799', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Country', 'The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one. Required — the record cannot be saved while this is empty.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7d2f0442-9ea4-5cfa-b45a-33b4686b10cc', 'ad8f65da-e3c3-51f9-b574-95f250dedb19', 'f7642eca-1d8e-5fc7-aae2-9e72d8d1a8e7', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'State Province', 'The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state of a city must be a division of the city''s own country.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b9376618-b878-5e29-9578-e3f4adfee26b', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '957f3759-b97c-5aa2-8d2b-d0f9dd847862', '8a194830-bbe7-5b7a-ac7f-a1433a99301b', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3a42fc49-0adc-5de4-abdf-3382b5f94080', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '957f3759-b97c-5aa2-8d2b-d0f9dd847862', '8a194830-bbe7-5b7a-ac7f-a1433a99301b', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Language (bus_language)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('33b73513-1a32-5b27-8984-c9d79f39512f', 'Language', 'Maintain Language records', 'Create, find and maintain Language records. The list shows every Language you have access to — select a row to open it, or use New to add one. Each row is a single Language, described by 3 fields.
 
-Id is unique: no two Language records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
+Id and Code are unique: no two Language records may share the same value, and a save that would duplicate one is rejected. Code and Name must be filled in before the record can be saved.
 
-Every save starts as a Draft. The business rules and workflows attached to Language then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Language with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+Every save starts as a Draft. The business rules and workflows attached to Language then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Language with no rules or workflows attached is marked Final immediately.', 'languages', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('81de03bd-4320-56d7-acc3-1dd08656198b', 'bus_language', 'Language', 'A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '33b73513-1a32-5b27-8984-c9d79f39512f', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('81de03bd-4320-56d7-acc3-1dd08656198b', 'bus_language', 'Language', 'A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.', 'languages', 'A', FALSE, FALSE, FALSE, TRUE, '33b73513-1a32-5b27-8984-c9d79f39512f', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9c88c09b-d3f6-50dd-a017-7872bac1b3fe', '33b73513-1a32-5b27-8984-c9d79f39512f', '81de03bd-4320-56d7-acc3-1dd08656198b', 'Language', 'Shows one Language at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 2 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1099,7 +1284,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('b564f0af-ccd8-5ae4-b1a8-d8f63317d257', '81de03bd-4320-56d7-acc3-1dd08656198b', 'id', 'Id', 'Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('f5dc4e21-d26d-5fda-9c24-44de3a9a5578', '81de03bd-4320-56d7-acc3-1dd08656198b', 'code', 'Code', 'Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('f5dc4e21-d26d-5fda-9c24-44de3a9a5578', '81de03bd-4320-56d7-acc3-1dd08656198b', 'code', 'Code', 'Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.', 10, 2, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('f5aec15b-1290-5018-9eeb-2d6cc767d47b', '81de03bd-4320-56d7-acc3-1dd08656198b', 'name', 'Name', 'Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1108,7 +1293,7 @@ INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_
 VALUES ('64f957df-4921-5197-a90e-0af0054d5d69', '9c88c09b-d3f6-50dd-a017-7872bac1b3fe', 'b564f0af-ccd8-5ae4-b1a8-d8f63317d257', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required. Must be unique: a save is rejected if another Language already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1d2632b0-0c21-502f-83bd-c2b0a0c593f1', '9c88c09b-d3f6-50dd-a017-7872bac1b3fe', 'f5dc4e21-d26d-5fda-9c24-44de3a9a5578', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required. Required — the record cannot be saved while this is empty. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1d2632b0-0c21-502f-83bd-c2b0a0c593f1', '9c88c09b-d3f6-50dd-a017-7872bac1b3fe', 'f5dc4e21-d26d-5fda-9c24-44de3a9a5578', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Language already uses this value. Up to 2 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('4280759b-e457-5d70-a6f4-3755df56f21b', '9c88c09b-d3f6-50dd-a017-7872bac1b3fe', 'f5aec15b-1290-5018-9eeb-2d6cc767d47b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1128,7 +1313,7 @@ VALUES ('51755e11-b4ae-528c-aae9-1c414ab5d91d', 'Currency', 'Maintain Currency r
 
 Id and Code are unique: no two Currency records may share the same value, and a save that would duplicate one is rejected. Code, Name, Decimal Places and Status must be filled in before the record can be saved.
 
-Quotation, Sales Order, Purchase Order and Product refer back to Currency, so what you change here can affect those records.
+Country, Quotation, Sales Order, Purchase Order and Product refer back to Currency, so what you change here can affect those records.
 
 Every save starts as a Draft. The business rules and workflows attached to Currency then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Currency with no rules or workflows attached is marked Final immediately.', 'coins', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
@@ -1142,7 +1327,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('f2e73fc4-fb3c-5a0a-94ef-f275f3981fc4', '7ad24190-8b0a-5b11-8bb6-84b15d8b90ca', 'id', 'Id', 'Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Required for unambiguous monetary interpretation.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b0c5d752-9a51-52ef-9b56-c95388c9fb34', '7ad24190-8b0a-5b11-8bb6-84b15d8b90ca', 'code', 'Code', 'Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.', 10, 3, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b0c5d752-9a51-52ef-9b56-c95388c9fb34', '7ad24190-8b0a-5b11-8bb6-84b15d8b90ca', 'code', 'Code', 'Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.', 10, 3, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('1895b88a-9f2a-5b24-b858-b62e684dba16', '7ad24190-8b0a-5b11-8bb6-84b15d8b90ca', 'name', 'Name', 'Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Required for usable currency master data.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1282,7 +1467,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('8be56349-9b92-56cf-9379-532b099ad4aa', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'id', 'Id', 'Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted. Required for unambiguous measurement semantics.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3f0981c7-7a9b-57e1-87a9-feec116b191a', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'code', 'Code', 'Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.', 10, 30, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3f0981c7-7a9b-57e1-87a9-feec116b191a', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'code', 'Code', 'Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.', 10, 30, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('35abc8ec-ad82-5cf5-b830-80aaf7bbbfd2', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'name', 'Name', 'Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users. Required for clear business interpretation.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1291,7 +1476,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('d2344fc2-29f8-5600-8e67-e085381aa6fb', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'symbol', 'Symbol', 'Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities. Optional when the unit has no standard symbol or display policy does not require one.', 10, 20, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('578c72e4-8df6-5b40-84b3-facd26652587', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'category', 'Category', 'Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility. The category of the unit of measure is quantity; set it when that is what the business means for this record. The category of the unit of measure is length; set it when that is what the business means for this record. The category of the unit of measure is area; set it when that is what the business means for this record. The category of the unit of measure is volume; set it when that is what the business means for this record. The category of the unit of measure is mass; set it when that is what the business means for this record. The category of the unit of measure is time; set it when that is what the business means for this record. The category of the unit of measure is count; set it when that is what the business means for this record. The category of the unit of measure is currency; set it when that is what the business means for this record. The category of the unit of measure is other; set it when that is what the business means for this record.', 1043, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('578c72e4-8df6-5b40-84b3-facd26652587', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'category', 'Category', 'Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility. The category of the unit of measure is quantity; set it when that is what the business means for this record. The category of the unit of measure is length; set it when that is what the business means for this record. The category of the unit of measure is area; set it when that is what the business means for this record. The category of the unit of measure is volume; set it when that is what the business means for this record. The category of the unit of measure is mass; set it when that is what the business means for this record. The category of the unit of measure is time; set it when that is what the business means for this record. The category of the unit of measure is count; set it when that is what the business means for this record. The category of the unit of measure is currency; set it when that is what the business means for this record. The category of the unit of measure is other; set it when that is what the business means for this record.', 1046, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('3d40bea1-9944-519d-9b57-01361fb16dbf', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'conversion_factor', 'Conversion Factor', 'Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation. Optional for base units or units whose conversion requires a dedicated rule.', 12, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -1300,7 +1485,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5c69d642-caf4-5d1b-93ff-f5af958bd9d4', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'base_unit_id', 'Base Unit', 'Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities. Optional for a base unit itself.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('31d6f7e6-8d7b-52bf-8ebc-4615d17dc3b1', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'status', 'Status', 'Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility. The status of the unit of measure is active; set it when that is what the business means for this record. The status of the unit of measure is inactive; set it when that is what the business means for this record. The status of the unit of measure is retired; set it when that is what the business means for this record.', 1044, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('31d6f7e6-8d7b-52bf-8ebc-4615d17dc3b1', '7835ae86-27ff-5b6e-bfd6-e681bd663773', 'status', 'Status', 'Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility. The status of the unit of measure is active; set it when that is what the business means for this record. The status of the unit of measure is inactive; set it when that is what the business means for this record. The status of the unit of measure is retired; set it when that is what the business means for this record.', 1047, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_column SET ref_table_name = 'bus_unit_of_measure' WHERE sys_column_id = '5c69d642-caf4-5d1b-93ff-f5af958bd9d4';
 INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -1408,6 +1593,104 @@ VALUES ('eb1b6f64-5c9b-59d3-a4b1-a88e93c3ab20', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('85a26375-19bb-5552-92c4-f2926c6491a2', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'e882edb1-d785-5d3a-bdae-770136166922', '2464e787-76e2-551f-8158-d453cde3cdc8', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Task (bus_task)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f30b7c6c-152a-5fc5-9dee-87b566ee2ed7', 'Task', 'Maintain Task records', 'Create, find and maintain Task records. The list shows every Task you have access to — select a row to open it, or use New to add one. Each row is a single Task, described by 12 fields.
+
+Id is unique: no two Task records may share the same value, and a save that would duplicate one is rejected. Code, Name, Task Type, Status and Priority must be filled in before the record can be saved.
+
+Every Task points at Organization. Choose the linked record from the lookup on those fields rather than typing an identifier.
+
+Every save starts as a Draft. The business rules and workflows attached to Task then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Task with no rules or workflows attached is marked Final immediately.', 'list-checks', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a806ffae-a4fa-52ac-a279-5215b426b85b', 'bus_task', 'Task', 'Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.', 'list-checks', 'A', FALSE, FALSE, FALSE, TRUE, 'f30b7c6c-152a-5fc5-9dee-87b566ee2ed7', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e6c23b0a-e904-50a0-a922-609ab7e773a0', 'f30b7c6c-152a-5fc5-9dee-87b566ee2ed7', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'Task', 'Shows one Task at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 5 fields marked with a red asterisk (*) must have a value before Save will accept the record. Organization is a lookup — search the linked records instead of entering an identifier by hand. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('bcfaef08-b3ce-5386-9ecf-68ba7bbf22a5', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'id', 'Id', 'Identifies the task record associated with this Task. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('26f9a210-a2a3-5f01-bf8f-3e898cabe475', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'code', 'Code', 'A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2a54e137-ed9b-5569-b1a0-a115510ccefe', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'name', 'Name', 'The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9defbd2c-547b-5494-a7fd-b7f4dd935121', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'description', 'Description', 'A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 10, 2000, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2e938914-f44c-505a-8ae4-caf698e7aef5', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'task_type', 'Task Type', 'Captures the business meaning of task type for the Task. It is interpreted together with the entity''s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the user state or classification in the context of Task. Represents the system state or classification in the context of Task. Represents the approval state or classification in the context of Task. Represents the decision state or classification in the context of Task. Represents the notification state or classification in the context of Task. Represents the script state or classification in the context of Task. Represents the other state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 1045, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('603ffbd2-607c-5ef5-bad0-dd49889c6037', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'status', 'Status', 'The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the created state or classification in the context of Task. Represents the ready state or classification in the context of Task. Represents the assigned state or classification in the context of Task. Represents the in progress state or classification in the context of Task. Represents the blocked state or classification in the context of Task. Represents the completed state or classification in the context of Task. Represents the cancelled state or classification in the context of Task. Represents the failed state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 1044, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1ffaca16-76fb-5303-82fe-43950bffd1dd', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'priority', 'Priority', 'Captures the business meaning of priority for the Task. It is interpreted together with the entity''s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the low state or classification in the context of Task. Represents the normal state or classification in the context of Task. Represents the high state or classification in the context of Task. Represents the critical state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.', 1043, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 70, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('17a3c6ae-077e-552e-83fb-3c09c056c970', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'due_at', 'Due At', 'Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 80, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a50c823d-43d7-547e-af39-8f6527cf8e16', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'started_at', 'Started At', 'Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 90, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('5fea1a72-1329-573f-8547-71d76e67f1e6', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'completed_at', 'Completed At', 'Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 16, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 100, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('343636ea-0b44-554e-90ae-0f755d5aad1a', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'assignee_id', 'Assignee', 'Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 110, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cb825e37-9eb5-55f2-8503-f7bf9456c892', 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'organization_id', 'Organization', 'Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.', 19, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 120, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+UPDATE sys_column SET ref_table_name = 'bus_party' WHERE sys_column_id = '343636ea-0b44-554e-90ae-0f755d5aad1a';
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1c574373-1450-5391-ae70-78566c282ac4', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', 'bcfaef08-b3ce-5386-9ecf-68ba7bbf22a5', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'Identifies the task record associated with this Task. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Must be unique: a save is rejected if another Task already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('414e8b5f-b846-5924-b1f6-cedef9bdd3e6', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '26f9a210-a2a3-5f01-bf8f-3e898cabe475', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Required — the record cannot be saved while this is empty. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('644554a9-668e-5bff-b333-82d08f5be28b', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '2a54e137-ed9b-5569-b1a0-a115510ccefe', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Required — the record cannot be saved while this is empty. Up to 300 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4f676e0e-648d-54f8-bbaa-a8f6580990bf', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '9defbd2c-547b-5494-a7fd-b7f4dd935121', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Description', 'A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable. Up to 2000 characters.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b51a53ef-5825-5e1a-8af4-470cb4c28531', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '2e938914-f44c-505a-8ae4-caf698e7aef5', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Task Type', 'Captures the business meaning of task type for the Task. It is interpreted together with the entity''s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the user state or classification in the context of Task. Represents the system state or classification in the context of Task. Represents the approval state or classification in the context of Task. Represents the decision state or classification in the context of Task. Represents the notification state or classification in the context of Task. Represents the script state or classification in the context of Task. Represents the other state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f197fb7e-80b9-596b-bde7-f5df9dc83d3b', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '603ffbd2-607c-5ef5-bad0-dd49889c6037', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Status', 'The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the created state or classification in the context of Task. Represents the ready state or classification in the context of Task. Represents the assigned state or classification in the context of Task. Represents the in progress state or classification in the context of Task. Represents the blocked state or classification in the context of Task. Represents the completed state or classification in the context of Task. Represents the cancelled state or classification in the context of Task. Represents the failed state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('036728dc-cbb7-58b7-9094-98ba24a432b1', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '1ffaca16-76fb-5303-82fe-43950bffd1dd', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Priority', 'Captures the business meaning of priority for the Task. It is interpreted together with the entity''s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the low state or classification in the context of Task. Represents the normal state or classification in the context of Task. Represents the high state or classification in the context of Task. Represents the critical state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value. Required — the record cannot be saved while this is empty.', 70, 70, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a6d09834-f603-51dd-8d45-a25f40d9200a', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '17a3c6ae-077e-552e-83fb-3c09c056c970', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Due At', 'Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 80, 80, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('02e8022a-7f27-5c5d-924c-d1d7e39c2d33', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', 'a50c823d-43d7-547e-af39-8f6527cf8e16', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Started At', 'Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 90, 90, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4c72c909-e125-57ae-8ed7-da02c6b87d8f', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '5fea1a72-1329-573f-8547-71d76e67f1e6', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Completed At', 'Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity''s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.', 100, 100, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b426960a-26da-5494-be08-39c539d5bd1a', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', '343636ea-0b44-554e-90ae-0f755d5aad1a', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Assignee', 'Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.', 110, 110, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7741a124-f2e8-512e-9674-878d45f5bcb1', 'e6c23b0a-e904-50a0-a922-609ab7e773a0', 'cb825e37-9eb5-55f2-8503-f7bf9456c892', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Organization', 'Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.', 120, 120, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f0a77b79-4dab-5e97-a2f6-c1d7e551773c', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'f30b7c6c-152a-5fc5-9dee-87b566ee2ed7', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2aa51ebe-7ba8-5294-8fba-5ad83a9f47b4', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), 'a806ffae-a4fa-52ac-a279-5215b426b85b', 'f30b7c6c-152a-5fc5-9dee-87b566ee2ed7', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -1971,7 +2254,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('d4abd288-c21d-5953-b46a-a74621f30a28', '945a702e-2633-5a27-a8df-233bf1391c84', 'id', 'Id', 'The product id of the product: an identifier the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product''s other fields and its relationships; it is not meaningful on its own. Required: a product cannot be understood without its product id.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('40c4e3cb-a381-5f83-a3c2-8736b25f7c1f', '945a702e-2633-5a27-a8df-233bf1391c84', 'code', 'Code', 'The code of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product''s other fields and its relationships; it is not meaningful on its own. Required: a product cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('40c4e3cb-a381-5f83-a3c2-8736b25f7c1f', '945a702e-2633-5a27-a8df-233bf1391c84', 'code', 'Code', 'The code of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product''s other fields and its relationships; it is not meaningful on its own. Required: a product cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('00bfc2d8-8966-543b-a2bd-8e9285ba7903', '945a702e-2633-5a27-a8df-233bf1391c84', 'name', 'Name', 'The name of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product''s other fields and its relationships; it is not meaningful on its own. Required: a product cannot be understood without its name.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2180,7 +2463,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('deb79052-3dcc-5e59-86b6-14a3cad367b5', 'fc2a2c98-d0a4-510b-bd24-5097e20dbe9b', 'id', 'Id', 'Stable identity of the payment-term policy. Referenced by Customer, Supplier, SalesOrder, PurchaseOrder, Invoice, and applicable contracts. Identifies the policy definition, not a particular invoice due date or payment event. Provides reusable settlement timing rules that are copied or resolved into transaction-level due-date calculations. Required for traceable commercial terms.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4705b606-19a1-5a6d-91c4-2800fa2429aa', 'fc2a2c98-d0a4-510b-bd24-5097e20dbe9b', 'code', 'Code', 'Business code for the payment-term policy, such as NET30 or DUE_ON_RECEIPT. Used in customer/supplier master data, order entry, procurement, invoices, reports, and integrations. Code identifies the reusable policy; it is not itself a due date. Provides a selectable default during commercial transaction creation. Required for operational identification.', 10, 50, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4705b606-19a1-5a6d-91c4-2800fa2429aa', 'fc2a2c98-d0a4-510b-bd24-5097e20dbe9b', 'code', 'Code', 'Business code for the payment-term policy, such as NET30 or DUE_ON_RECEIPT. Used in customer/supplier master data, order entry, procurement, invoices, reports, and integrations. Code identifies the reusable policy; it is not itself a due date. Provides a selectable default during commercial transaction creation. Required for operational identification.', 10, 50, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('fa638b1a-fc80-5bb7-8fb8-5f8c5796732b', 'fc2a2c98-d0a4-510b-bd24-5097e20dbe9b', 'name', 'Name', 'Human-readable name of the settlement-timing policy. Used in configuration, forms, documents, reporting, and user selection. Describes the policy represented by code and paymentTermId. Makes commercial settlement conditions understandable during order, procurement, and billing processes. Required for usable master data.', 10, 150, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2263,7 +2546,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('945b037a-1212-5e2e-bed9-5e7c7d8fa323', 'a3810dd9-8fb8-5472-b7dd-390becf37c9a', 'id', 'Id', 'The product category id of the product category: an identifier the business records on it. Entered or maintained when a product category is created or changed; shown on its form and available to search and reports. Read together with the product category''s other fields and its relationships; it is not meaningful on its own. Required: a product category cannot be understood without its product category id.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ecca796d-7c9f-53af-8e58-4f11867cdf76', 'a3810dd9-8fb8-5472-b7dd-390becf37c9a', 'code', 'Code', 'The code of the product category: a value the business records on it. Entered or maintained when a product category is created or changed; shown on its form and available to search and reports. Read together with the product category''s other fields and its relationships; it is not meaningful on its own. Required: a product category cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ecca796d-7c9f-53af-8e58-4f11867cdf76', 'a3810dd9-8fb8-5472-b7dd-390becf37c9a', 'code', 'Code', 'The code of the product category: a value the business records on it. Entered or maintained when a product category is created or changed; shown on its form and available to search and reports. Read together with the product category''s other fields and its relationships; it is not meaningful on its own. Required: a product category cannot be understood without its code.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('119590c5-2699-5f81-acff-dc1c4cf57ff3', 'a3810dd9-8fb8-5472-b7dd-390becf37c9a', 'name', 'Name', 'The name of the product category: a value the business records on it. Entered or maintained when a product category is created or changed; shown on its form and available to search and reports. Read together with the product category''s other fields and its relationships; it is not meaningful on its own. Required: a product category cannot be understood without its name.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2323,7 +2606,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('f17216b6-2bf7-53d8-8967-1d76a46c0b30', '6e18345a-ea71-5f2f-b228-944a901dde56', 'id', 'Id', 'Stable identity of the discount policy. Referenced by pricing, order, invoice, promotion, and contract workflows. Identifies the rule rather than a discount amount applied to a specific transaction. Provides auditable policy context for a transaction-level discount.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c9e3535f-03eb-502d-a65c-e5c94f256ff3', '6e18345a-ea71-5f2f-b228-944a901dde56', 'code', 'Code', 'Business identifier for the discount rule. Used in configuration, pricing, order entry, promotions, contracts, and integrations. Identifies the reusable rule, not its eventual transaction result. Allows a qualifying transaction to resolve the intended discount policy.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c9e3535f-03eb-502d-a65c-e5c94f256ff3', '6e18345a-ea71-5f2f-b228-944a901dde56', 'code', 'Code', 'Business identifier for the discount rule. Used in configuration, pricing, order entry, promotions, contracts, and integrations. Identifies the reusable rule, not its eventual transaction result. Allows a qualifying transaction to resolve the intended discount policy.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('d85dc523-121d-5125-800d-56959a2932d6', '6e18345a-ea71-5f2f-b228-944a901dde56', 'name', 'Name', 'Human-readable name of the discount rule. Used by business users when configuring or reviewing pricing. Describes the policy represented by the rule. Makes discount selection understandable during price determination.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2661,7 +2944,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('eb79a8d5-f29c-5bd0-a0bc-327a8e861b9d', '6239192d-6b77-55e0-81b0-b0614027ceaa', 'id', 'Id', 'Stable brand identity. Identifies the brand independently of display-name changes. PIM, catalog, commerce and reporting. Referenced by Products/Variants. Required.', 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('3952c2b5-7e16-5541-a3e2-9812ccb539b2', '6239192d-6b77-55e0-81b0-b0614027ceaa', 'code', 'Code', 'Governed brand code. Stable business/integration identifier. Catalog and integration. Unique in brand master. Required.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('3952c2b5-7e16-5541-a3e2-9812ccb539b2', '6239192d-6b77-55e0-81b0-b0614027ceaa', 'code', 'Code', 'Governed brand code. Stable business/integration identifier. Catalog and integration. Unique in brand master. Required.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('abaa9d82-07be-51ac-9f06-f92f38cbccd0', '6239192d-6b77-55e0-81b0-b0614027ceaa', 'name', 'Name', 'Brand display name. Customer/supplier-facing market identity. Catalog, documents, search and reporting. Presentation can change without changing brand identity. Required.', 10, 300, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2708,7 +2991,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('8cc93c38-e5dd-5246-ba53-1e2a76a4f1fa', 'b35dc66b-f75d-5619-9213-ee01d61b0ca3', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6656c845-1f73-5230-80f5-705fe78c53d0', 'b35dc66b-f75d-5619-9213-ee01d61b0ca3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('6656c845-1f73-5230-80f5-705fe78c53d0', 'b35dc66b-f75d-5619-9213-ee01d61b0ca3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('85c3278d-d5ef-54a9-9075-e97d8e30c727', 'b35dc66b-f75d-5619-9213-ee01d61b0ca3', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2767,7 +3050,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('de5e173d-d13c-579f-82a5-29666044bb60', 'b325566d-eb56-5b02-a2f5-b3fa7874e29b', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('95e71c3c-d698-5e54-a2ed-bee926b2c738', 'b325566d-eb56-5b02-a2f5-b3fa7874e29b', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('95e71c3c-d698-5e54-a2ed-bee926b2c738', 'b325566d-eb56-5b02-a2f5-b3fa7874e29b', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('7e3ae1dd-83ec-50fb-a6f4-4a5243bf926a', 'b325566d-eb56-5b02-a2f5-b3fa7874e29b', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2826,7 +3109,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('8cb3e5ff-7347-5060-9529-4365c7fd9d42', '7d4b4ed6-1c65-517a-abaa-647ed61ac7b0', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e5c85874-84c6-5a2b-9540-c1f694480234', '7d4b4ed6-1c65-517a-abaa-647ed61ac7b0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e5c85874-84c6-5a2b-9540-c1f694480234', '7d4b4ed6-1c65-517a-abaa-647ed61ac7b0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2c94d28b-6f41-565e-8909-8535d8a18968', '7d4b4ed6-1c65-517a-abaa-647ed61ac7b0', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2885,7 +3168,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('71a2da3c-4add-51a4-b15b-de6f80378de3', 'ef574c36-35fc-52d1-9ba5-2d5874999611', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dc2753ee-451d-58f1-81bb-dbe069b750c1', 'ef574c36-35fc-52d1-9ba5-2d5874999611', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('dc2753ee-451d-58f1-81bb-dbe069b750c1', 'ef574c36-35fc-52d1-9ba5-2d5874999611', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9800387a-8fac-5029-8e3e-702b11623dea', 'ef574c36-35fc-52d1-9ba5-2d5874999611', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -2944,7 +3227,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('eaada46c-35b4-5173-934f-0e3df227ab3a', '95af6cdf-0d7f-57c0-a9c1-2d118656cb36', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e408bdb0-ac0a-501b-8eca-8797693623bb', '95af6cdf-0d7f-57c0-a9c1-2d118656cb36', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e408bdb0-ac0a-501b-8eca-8797693623bb', '95af6cdf-0d7f-57c0-a9c1-2d118656cb36', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('dd2b038d-8598-5a32-8610-cf737c849d4b', '95af6cdf-0d7f-57c0-a9c1-2d118656cb36', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3003,7 +3286,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('7cab416d-3d46-5ae4-bbff-19532c59eedd', '13bdb719-c4b1-5f37-bfa0-2fbc0f16e072', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ca85c9ac-d80a-5d1c-8a26-59fa44bb7745', '13bdb719-c4b1-5f37-bfa0-2fbc0f16e072', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ca85c9ac-d80a-5d1c-8a26-59fa44bb7745', '13bdb719-c4b1-5f37-bfa0-2fbc0f16e072', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('8727bed2-697a-5495-89aa-4541d11b8982', '13bdb719-c4b1-5f37-bfa0-2fbc0f16e072', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3062,7 +3345,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5e1b19ad-a756-51b5-85fe-bcedf7651394', '77b2afd0-67be-5aa8-b71b-13f151fdd87c', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ce4bf521-2211-5c02-a5ec-d161c4211f71', '77b2afd0-67be-5aa8-b71b-13f151fdd87c', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ce4bf521-2211-5c02-a5ec-d161c4211f71', '77b2afd0-67be-5aa8-b71b-13f151fdd87c', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('013b1ff2-0453-52bc-b20a-d306f624ecfc', '77b2afd0-67be-5aa8-b71b-13f151fdd87c', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3121,7 +3404,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('bf31ec0e-36b3-5952-bff0-a4463b7312b4', '04534477-4ffd-5a8c-878d-68bda1a76b67', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ea294a16-c5bc-5c8c-bc23-437bfae9c93e', '04534477-4ffd-5a8c-878d-68bda1a76b67', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ea294a16-c5bc-5c8c-bc23-437bfae9c93e', '04534477-4ffd-5a8c-878d-68bda1a76b67', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e0968f5e-3309-50d0-a871-d5596eb261af', '04534477-4ffd-5a8c-878d-68bda1a76b67', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3180,7 +3463,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('a4b20c65-6b21-5d32-959f-fdc6aad361b1', '5e210ef6-0224-54af-b3db-22e225ad64b3', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('644936f5-e268-5ae6-9881-f9c50ff5b711', '5e210ef6-0224-54af-b3db-22e225ad64b3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('644936f5-e268-5ae6-9881-f9c50ff5b711', '5e210ef6-0224-54af-b3db-22e225ad64b3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('95c16b3d-48d4-5390-83b0-370927298c95', '5e210ef6-0224-54af-b3db-22e225ad64b3', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3239,7 +3522,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('77385636-3510-5b0c-99d4-710588030156', 'f9d16a54-5fe6-5c1b-a57b-ca21fb25471e', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('8f7edf62-37f5-5b74-8a25-16a9bb22c2f2', 'f9d16a54-5fe6-5c1b-a57b-ca21fb25471e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('8f7edf62-37f5-5b74-8a25-16a9bb22c2f2', 'f9d16a54-5fe6-5c1b-a57b-ca21fb25471e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e48cdd47-357d-5c09-b7fc-043dea67f9dc', 'f9d16a54-5fe6-5c1b-a57b-ca21fb25471e', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3298,7 +3581,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('03e3ea35-340c-568b-860a-a4cb201a80ad', 'b92a4fa0-0686-5a4e-bfcb-43ccb87287d4', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('90bda492-426b-5924-89e0-1c5f8a4ea50d', 'b92a4fa0-0686-5a4e-bfcb-43ccb87287d4', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('90bda492-426b-5924-89e0-1c5f8a4ea50d', 'b92a4fa0-0686-5a4e-bfcb-43ccb87287d4', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('13feeca7-48f5-5529-9246-60438a33d859', 'b92a4fa0-0686-5a4e-bfcb-43ccb87287d4', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3357,7 +3640,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('49337f72-2ce9-54c7-91a5-bc2a745bd008', '8cdb6b94-17b1-5758-92aa-34a03eed52fa', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('73e3c4e0-7170-5d2f-a98e-31a0cf28a29c', '8cdb6b94-17b1-5758-92aa-34a03eed52fa', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('73e3c4e0-7170-5d2f-a98e-31a0cf28a29c', '8cdb6b94-17b1-5758-92aa-34a03eed52fa', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('4afd23ae-29c3-5ac6-8c82-cf8080cb6dd1', '8cdb6b94-17b1-5758-92aa-34a03eed52fa', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3416,7 +3699,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5e8e294a-655e-5869-8821-d2791c48a469', '24f6c24b-5ba2-59f3-98fd-04ee85c7ada0', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ace5fa87-0ed3-5f33-965d-786c4de5cb66', '24f6c24b-5ba2-59f3-98fd-04ee85c7ada0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ace5fa87-0ed3-5f33-965d-786c4de5cb66', '24f6c24b-5ba2-59f3-98fd-04ee85c7ada0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('b213dc76-50b8-56dd-b716-bbd05f6c76fe', '24f6c24b-5ba2-59f3-98fd-04ee85c7ada0', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3475,7 +3758,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('666d7bfb-8749-53c8-bf11-278779991592', '363ff13b-b25b-584b-8ab7-df5647c00273', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e847a096-9eb5-52c3-9305-7334d42a7b03', '363ff13b-b25b-584b-8ab7-df5647c00273', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e847a096-9eb5-52c3-9305-7334d42a7b03', '363ff13b-b25b-584b-8ab7-df5647c00273', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2f6bf47e-3afa-52f9-825a-971543fcf920', '363ff13b-b25b-584b-8ab7-df5647c00273', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3534,7 +3817,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('0907aacc-4cb8-5193-89d7-3ba84bc5caca', '21809e01-3250-56ed-8594-d54977b0e613', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('52b25d6e-926c-538c-8f89-74bda953f766', '21809e01-3250-56ed-8594-d54977b0e613', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('52b25d6e-926c-538c-8f89-74bda953f766', '21809e01-3250-56ed-8594-d54977b0e613', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('34e03eda-2e7a-5ded-ac40-49c36a3c5bcc', '21809e01-3250-56ed-8594-d54977b0e613', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3593,7 +3876,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('7fe98b6f-7d3c-588b-b7c2-67d2ae291372', '0788f9e1-1a46-56f9-b84a-3a384ae7ea97', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ea5c8c1a-c209-52a1-96e3-3571ab6b6331', '0788f9e1-1a46-56f9-b84a-3a384ae7ea97', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ea5c8c1a-c209-52a1-96e3-3571ab6b6331', '0788f9e1-1a46-56f9-b84a-3a384ae7ea97', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('8cc0af04-8f8b-5ae3-9c62-9ea5619cc92c', '0788f9e1-1a46-56f9-b84a-3a384ae7ea97', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3652,7 +3935,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('ffe982fc-a1fe-532e-b42b-4a35a7cdeb65', 'bdc4f9a8-a7fd-568b-aedc-eb61fd362ca3', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('fe7c2009-a5df-5a6a-9f73-3e2690c69b83', 'bdc4f9a8-a7fd-568b-aedc-eb61fd362ca3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('fe7c2009-a5df-5a6a-9f73-3e2690c69b83', 'bdc4f9a8-a7fd-568b-aedc-eb61fd362ca3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('fcf68c71-d458-5b17-bf16-f0002975e549', 'bdc4f9a8-a7fd-568b-aedc-eb61fd362ca3', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3711,7 +3994,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('076f58d9-1ae7-5902-9f1e-0fb397e8fca1', 'd221623e-d789-5636-a8a6-de2244b56d03', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9aefd1e2-a5d1-5c0b-b705-e4471516fb06', 'd221623e-d789-5636-a8a6-de2244b56d03', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9aefd1e2-a5d1-5c0b-b705-e4471516fb06', 'd221623e-d789-5636-a8a6-de2244b56d03', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ada13494-5781-55c5-b10e-654aea93b19e', 'd221623e-d789-5636-a8a6-de2244b56d03', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3770,7 +4053,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('dc1e1589-680d-5f63-aaa0-2952840019d6', '75eee2be-4964-5a1d-b7c1-f24c75f933e5', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('71ccf609-87bd-5d66-81f5-59639456afdd', '75eee2be-4964-5a1d-b7c1-f24c75f933e5', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('71ccf609-87bd-5d66-81f5-59639456afdd', '75eee2be-4964-5a1d-b7c1-f24c75f933e5', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('91dcb4fd-6200-5ff9-9420-b367eeb8ceaf', '75eee2be-4964-5a1d-b7c1-f24c75f933e5', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3810,6 +4093,183 @@ VALUES ('e6d0ca4a-0722-599e-a5ad-8e7cefcf167c', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
+-- Task Task Type (bus_task_task_type)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b3e09048-9029-5627-b0ee-5b103a7fd1f2', 'Task Task Type', 'Maintain Task Task Type records', 'Create, find and maintain Task Task Type records. The list shows every Task Task Type you have access to — select a row to open it, or use New to add one. Each row is a single Task Task Type, described by 6 fields.
+
+Id and Code are unique: no two Task Task Type records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Task Task Type then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Task Task Type with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('934776cf-0f52-5be2-9099-86eed45c4808', 'bus_task_task_type', 'Task Task Type', 'The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, 'b3e09048-9029-5627-b0ee-5b103a7fd1f2', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6fb7b24a-20ca-56e6-9739-14249765b96e', 'b3e09048-9029-5627-b0ee-5b103a7fd1f2', '934776cf-0f52-5be2-9099-86eed45c4808', 'Task Task Type', 'Shows one Task Task Type at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9dcb4a09-609f-50f0-8922-cf0c1516d073', '934776cf-0f52-5be2-9099-86eed45c4808', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b7b82e35-8091-5831-9f49-1cef487df630', '934776cf-0f52-5be2-9099-86eed45c4808', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('08b0fb27-8812-56de-b043-7fbc6d80c06b', '934776cf-0f52-5be2-9099-86eed45c4808', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cbe42a55-eed9-50be-9abf-282bdf3786a1', '934776cf-0f52-5be2-9099-86eed45c4808', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('14859b1b-ac90-559f-83bd-273967e1639e', '934776cf-0f52-5be2-9099-86eed45c4808', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('ce215420-8d03-582e-beab-2205b4e32733', '934776cf-0f52-5be2-9099-86eed45c4808', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('50b93f8f-7d9c-5dba-8582-5b8abb8852ce', '6fb7b24a-20ca-56e6-9739-14249765b96e', '9dcb4a09-609f-50f0-8922-cf0c1516d073', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'The id of this Task Task Type. Must be unique: a save is rejected if another Task Task Type already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('efe02f24-352a-5385-88a3-35ddd1f75e2a', '6fb7b24a-20ca-56e6-9739-14249765b96e', 'b7b82e35-8091-5831-9f49-1cef487df630', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Task Task Type already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4a1edffa-a704-564c-8957-edebc4f0375b', '6fb7b24a-20ca-56e6-9739-14249765b96e', '08b0fb27-8812-56de-b043-7fbc6d80c06b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4eecfab3-8626-5549-aa19-06d3729f22c8', '6fb7b24a-20ca-56e6-9739-14249765b96e', 'cbe42a55-eed9-50be-9abf-282bdf3786a1', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('893e9dd1-1c00-571f-bdcb-9a3c00775b43', '6fb7b24a-20ca-56e6-9739-14249765b96e', '14859b1b-ac90-559f-83bd-273967e1639e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('00e6acaa-bafd-5dda-adc8-9b56739ca0eb', '6fb7b24a-20ca-56e6-9739-14249765b96e', 'ce215420-8d03-582e-beab-2205b4e32733', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('e381b032-b601-55ad-8520-20c78430bda6', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '934776cf-0f52-5be2-9099-86eed45c4808', 'b3e09048-9029-5627-b0ee-5b103a7fd1f2', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('63877ab9-150e-56c1-a53d-8e38868617c5', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '934776cf-0f52-5be2-9099-86eed45c4808', 'b3e09048-9029-5627-b0ee-5b103a7fd1f2', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Task Status (bus_task_status)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('827a48e8-bd59-5436-a276-0d60713e5b56', 'Task Status', 'Maintain Task Status records', 'Create, find and maintain Task Status records. The list shows every Task Status you have access to — select a row to open it, or use New to add one. Each row is a single Task Status, described by 6 fields.
+
+Id and Code are unique: no two Task Status records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Task Status then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Task Status with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('95a478e2-c7fd-5a53-9281-409c08c4cd99', 'bus_task_status', 'Task Status', 'The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '827a48e8-bd59-5436-a276-0d60713e5b56', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('98b90efa-63d1-59d3-97e1-f6845076c27b', '827a48e8-bd59-5436-a276-0d60713e5b56', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'Task Status', 'Shows one Task Status at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7e86d8d3-a055-5162-9068-267bf0094d3b', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cf9e6cb0-16b9-5591-811b-eab7fadaec8e', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cb7c6ba3-a6fd-5422-8886-1c1a914a3d84', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('44f22e48-c5d2-58c9-8906-1d8be4cbc061', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d38bda77-d57f-52fa-be9a-4aa29554d313', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('a7a3288c-780a-5302-b98d-2309247e701e', '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3f51dc03-5865-5bfd-8889-60d25a3a5366', '98b90efa-63d1-59d3-97e1-f6845076c27b', '7e86d8d3-a055-5162-9068-267bf0094d3b', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'The id of this Task Status. Must be unique: a save is rejected if another Task Status already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('b1fae45b-0703-534c-a4ef-49854790025d', '98b90efa-63d1-59d3-97e1-f6845076c27b', 'cf9e6cb0-16b9-5591-811b-eab7fadaec8e', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Task Status already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1d275a1a-737b-50bc-9a44-8a85c71c1431', '98b90efa-63d1-59d3-97e1-f6845076c27b', 'cb7c6ba3-a6fd-5422-8886-1c1a914a3d84', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1936c853-30c0-5759-ae35-f3308c81cdd6', '98b90efa-63d1-59d3-97e1-f6845076c27b', '44f22e48-c5d2-58c9-8906-1d8be4cbc061', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('46f99f84-9e3e-5070-ae86-db6581c47cfb', '98b90efa-63d1-59d3-97e1-f6845076c27b', 'd38bda77-d57f-52fa-be9a-4aa29554d313', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6dcbfea2-9ca5-5090-b1bb-97942d850211', '98b90efa-63d1-59d3-97e1-f6845076c27b', 'a7a3288c-780a-5302-b98d-2309247e701e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('1521ab73-e135-5064-ad1a-e03981c0deb4', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '95a478e2-c7fd-5a53-9281-409c08c4cd99', '827a48e8-bd59-5436-a276-0d60713e5b56', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('367d9ab4-a64a-5045-9d81-6067a532dc6f', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '95a478e2-c7fd-5a53-9281-409c08c4cd99', '827a48e8-bd59-5436-a276-0d60713e5b56', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Task Priority (bus_task_priority)
+-- --------------------------------------------------------------------------
+INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('7270576d-5cb6-54b0-91a0-eec7d49b08f5', 'Task Priority', 'Maintain Task Priority records', 'Create, find and maintain Task Priority records. The list shows every Task Priority you have access to — select a row to open it, or use New to add one. Each row is a single Task Priority, described by 6 fields.
+
+Id and Code are unique: no two Task Priority records may share the same value, and a save that would duplicate one is rejected. Code, Name, Sequence and Is Active must be filled in before the record can be saved.
+
+Every save starts as a Draft. The business rules and workflows attached to Task Priority then run together in a single transaction: if all of them succeed the record becomes Final; if any of them fails, nothing they changed is kept — the record stays Draft and the reason is written onto it so you can fix the cause and retry. A Task Priority with no rules or workflows attached is marked Final immediately.', 'list', 'M', FALSE, TRUE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_table (sys_table_id, table_name, name, description, icon, access_level, is_view, is_document, is_high_volume, is_changelog, sys_window_id, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'bus_task_priority', 'Task Priority', 'The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.', 'list', 'A', FALSE, FALSE, FALSE, TRUE, '7270576d-5cb6-54b0-91a0-eec7d49b08f5', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_tab (sys_tab_id, sys_window_id, sys_table_id, name, help, tab_level, seq_no, is_single_row, has_tree, is_info_tab, is_translation_tab, is_read_only, is_insert_record, is_advanced_tab, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '7270576d-5cb6-54b0-91a0-eec7d49b08f5', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'Task Priority', 'Shows one Task Priority at a time. Fields are grouped: General carries the identifying fields and Details carries the rest. 4 fields marked with a red asterisk (*) must have a value before Save will accept the record. Any field showing a ? beside its label has help of its own; click it for the rules that apply there.', 0, 10, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('cdaea739-5bfc-5cb8-8774-2d731fa8ebf1', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('2d4dc64a-6d77-5a5d-9338-cf384bcb5bad', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9e2c3be3-b398-5c2d-87c6-91dc0c7279ef', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('909bfd1f-a04f-5646-92c4-b8cf4d6f0f2e', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'description', 'Description', 'What the value means to the business.', 14, NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 40, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('8e04e88a-3eba-546b-b522-eebf1c9f676c', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'sequence', 'Sequence', 'The position of the value in a dropdown, lowest first.', 11, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 50, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('98b9c6be-9ef1-5737-86b5-35606713fa86', '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', 'is_active', 'Is Active', 'Whether the value is offered on new records.', 20, NULL, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, 60, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6b12f54a-e972-5666-877a-3381f650d305', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', 'cdaea739-5bfc-5cb8-8774-2d731fa8ebf1', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Id', 'The id of this Task Priority. Must be unique: a save is rejected if another Task Priority already uses this value.', 10, 10, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('9ac45296-d147-5c5d-9b67-0bc40368c511', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '2d4dc64a-6d77-5a5d-9338-cf384bcb5bad', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Code', 'The value stored on every record that uses this list. Fixed once created. Required — the record cannot be saved while this is empty. Must be unique: a save is rejected if another Task Priority already uses this value. Up to 100 characters.', 20, 20, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('4e6873e4-1b11-5c17-9243-27274c7b7d06', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '9e2c3be3-b398-5c2d-87c6-91dc0c7279ef', '0b0c39c8-2eea-545a-b2a9-d9593d5a7b5a', 'Name', 'What a person reads in the dropdown and on a record. Required — the record cannot be saved while this is empty. Up to 200 characters.', 30, 30, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('f0c7737f-e656-556e-b881-c45ba7f79e56', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '909bfd1f-a04f-5646-92c4-b8cf4d6f0f2e', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Description', 'What the value means to the business.', 40, 40, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('440332cb-a357-5fce-b21c-246c1c88c58f', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '8e04e88a-3eba-546b-b522-eebf1c9f676c', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Sequence', 'The position of the value in a dropdown, lowest first. Required — the record cannot be saved while this is empty.', 50, 50, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_field (sys_field_id, sys_tab_id, sys_column_id, sys_field_group_id, name, help, seq_no, seq_no_grid, is_displayed, is_displayed_grid, is_read_only, is_encrypted, is_same_line, is_heading, is_field_only, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('57f6dd4d-0c50-5bd6-a445-785e748583a9', '0258bb67-fc66-5175-bb2b-cc2f38a3bb02', '98b9c6be-9ef1-5737-86b5-35606713fa86', 'ae488805-a94b-563a-a32d-bcadd652e9ac', 'Is Active', 'Whether the value is offered on new records. Required — the record cannot be saved while this is empty.', 60, 60, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('3b0b1d57-ca16-504e-81d8-e7d36450dce3', (SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'), '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', '7270576d-5cb6-54b0-91a0-eec7d49b08f5', 'W', FALSE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('10810094-c64a-5e67-be39-93c7be4256ec', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', '7270576d-5cb6-54b0-91a0-eec7d49b08f5', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
 -- Customer Customer Type (bus_customer_customer_type)
 -- --------------------------------------------------------------------------
 INSERT INTO sys_window (sys_window_id, name, description, help, icon, window_type, is_sales_transaction, is_default, entity_type, is_active, created_by, updated_by, created_at, updated_at)
@@ -3829,7 +4289,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('a4c68c79-2f55-5dd8-8758-2861e59f2733', '9d485a2d-f508-51b4-ac86-be20e19da53e', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b31557a7-dc41-5eb7-b09b-88c5c4ef0c04', '9d485a2d-f508-51b4-ac86-be20e19da53e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b31557a7-dc41-5eb7-b09b-88c5c4ef0c04', '9d485a2d-f508-51b4-ac86-be20e19da53e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ec6f0081-ca68-5651-8ea0-22fec87b5d44', '9d485a2d-f508-51b4-ac86-be20e19da53e', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3888,7 +4348,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('befca25a-365c-52f4-885c-d0fe645bc5ed', 'f6bd1722-d5b3-5055-84ab-1d392748e219', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7dee5d65-86be-54cd-9ee6-96d7d50e1604', 'f6bd1722-d5b3-5055-84ab-1d392748e219', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7dee5d65-86be-54cd-9ee6-96d7d50e1604', 'f6bd1722-d5b3-5055-84ab-1d392748e219', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e685b0b0-fd70-52e2-b77a-f45eb4ce6285', 'f6bd1722-d5b3-5055-84ab-1d392748e219', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -3947,7 +4407,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('e13dbb36-7846-5388-800e-858815d472e0', 'cf2d5c0d-f336-5b0b-b2a1-165aaeae58e3', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a08d6146-5980-5fb6-ab05-a00f3c69931d', 'cf2d5c0d-f336-5b0b-b2a1-165aaeae58e3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a08d6146-5980-5fb6-ab05-a00f3c69931d', 'cf2d5c0d-f336-5b0b-b2a1-165aaeae58e3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('9b896d03-def1-55db-8d86-082a718aaf22', 'cf2d5c0d-f336-5b0b-b2a1-165aaeae58e3', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4006,7 +4466,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('a3ee396d-affa-5e85-8234-9b822997fd39', 'eb009916-b9a4-583c-a563-f65f106a81fc', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('a470cc99-3f44-5be6-af5f-01674ad561e3', 'eb009916-b9a4-583c-a563-f65f106a81fc', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('a470cc99-3f44-5be6-af5f-01674ad561e3', 'eb009916-b9a4-583c-a563-f65f106a81fc', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('fd122a52-8d9e-5440-b90e-7333afe1855d', 'eb009916-b9a4-583c-a563-f65f106a81fc', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4065,7 +4525,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('aa601ed2-0749-5229-80dd-0aa4642be7fc', '5f50c61d-ccac-5b43-80b3-85692e0826c0', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('c26cc24c-4061-5469-846d-55e3efe95c7d', '5f50c61d-ccac-5b43-80b3-85692e0826c0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('c26cc24c-4061-5469-846d-55e3efe95c7d', '5f50c61d-ccac-5b43-80b3-85692e0826c0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('494d986d-c75c-5fc3-a50d-08500285b8b1', '5f50c61d-ccac-5b43-80b3-85692e0826c0', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4124,7 +4584,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('473a768c-c010-5e08-86a3-1485d7321d7a', '44492c74-8b36-5b59-8a40-b25a93059355', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7a672c73-4ff3-56d4-aaa7-9d39934c751d', '44492c74-8b36-5b59-8a40-b25a93059355', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7a672c73-4ff3-56d4-aaa7-9d39934c751d', '44492c74-8b36-5b59-8a40-b25a93059355', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('466ebf70-b5e9-5d2a-b079-83b2d5ea7102', '44492c74-8b36-5b59-8a40-b25a93059355', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4183,7 +4643,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('3a3a2c0d-b9aa-572e-bcc7-9f52440b249d', 'fc59628a-666b-5180-81a9-fcbbaeb5d585', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('346188ba-edcc-5679-a1f1-085d841e9545', 'fc59628a-666b-5180-81a9-fcbbaeb5d585', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('346188ba-edcc-5679-a1f1-085d841e9545', 'fc59628a-666b-5180-81a9-fcbbaeb5d585', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0a19074b-c602-5f77-95f4-8269f30e363e', 'fc59628a-666b-5180-81a9-fcbbaeb5d585', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4242,7 +4702,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('6aff8866-597b-595d-9c32-7d06f01a6134', 'ec8d2c99-9bcb-5eb8-bae3-258b198b35d3', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('1c7de187-fb02-5f8d-b82c-68572d5aa30a', 'ec8d2c99-9bcb-5eb8-bae3-258b198b35d3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('1c7de187-fb02-5f8d-b82c-68572d5aa30a', 'ec8d2c99-9bcb-5eb8-bae3-258b198b35d3', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('cb22397b-f3d9-5b0f-b50b-a2b204194311', 'ec8d2c99-9bcb-5eb8-bae3-258b198b35d3', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4301,7 +4761,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('363b810a-d68e-5eb9-abfc-558c2b87567d', '21050870-a423-5cb3-b905-367525aedc34', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('48d71759-9fcb-5093-9efb-35771e94e064', '21050870-a423-5cb3-b905-367525aedc34', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('48d71759-9fcb-5093-9efb-35771e94e064', '21050870-a423-5cb3-b905-367525aedc34', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('c02da107-15b9-5198-bd88-2565390ecd76', '21050870-a423-5cb3-b905-367525aedc34', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4360,7 +4820,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('54f84bfa-617f-5504-93cc-d54bbbbefcdd', '2bbd79d6-f9c5-5d26-9e9e-71e4434b7c82', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('51b67817-077a-5181-8ae8-7079e97335fd', '2bbd79d6-f9c5-5d26-9e9e-71e4434b7c82', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('51b67817-077a-5181-8ae8-7079e97335fd', '2bbd79d6-f9c5-5d26-9e9e-71e4434b7c82', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('afbb1b56-fe85-57bb-810e-0118c8f7254d', '2bbd79d6-f9c5-5d26-9e9e-71e4434b7c82', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4419,7 +4879,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('ee632245-5285-54f9-ad94-3318453cf4e2', '3170bff0-b555-5fe4-8bf3-a025e313cae1', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b1312afe-ebc3-54f7-b06a-2ad3732b637c', '3170bff0-b555-5fe4-8bf3-a025e313cae1', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b1312afe-ebc3-54f7-b06a-2ad3732b637c', '3170bff0-b555-5fe4-8bf3-a025e313cae1', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('83ded7a7-d5da-55d7-bba4-2457470ec1f3', '3170bff0-b555-5fe4-8bf3-a025e313cae1', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4478,7 +4938,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('f3e7b3b4-25f2-5d01-a196-553aad2b8dc3', '07f6df63-0aa1-57e8-83d2-318b8736f031', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('ca7523ad-f626-57b8-801d-6e815f81e9db', '07f6df63-0aa1-57e8-83d2-318b8736f031', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('ca7523ad-f626-57b8-801d-6e815f81e9db', '07f6df63-0aa1-57e8-83d2-318b8736f031', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0c4c2cff-ae88-536a-a223-908d7231ff93', '07f6df63-0aa1-57e8-83d2-318b8736f031', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4537,7 +4997,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('2b6e91e3-ce6b-5995-ba44-0e2b17bb277e', 'c87ffdf2-83c6-5c8b-b8e0-761778378ddc', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('4ff606c9-7f0a-5418-9a18-00ebe5f31c09', 'c87ffdf2-83c6-5c8b-b8e0-761778378ddc', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('4ff606c9-7f0a-5418-9a18-00ebe5f31c09', 'c87ffdf2-83c6-5c8b-b8e0-761778378ddc', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('2fdd62d4-d5f7-5bd3-9fb4-123479052845', 'c87ffdf2-83c6-5c8b-b8e0-761778378ddc', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4596,7 +5056,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5f272188-10a1-52d4-b3a9-69fb45134b7a', '6cd27be1-a8e8-54ca-b43f-9a6089d1d317', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('00c02e2c-c3a9-5ac3-b089-3d7764753620', '6cd27be1-a8e8-54ca-b43f-9a6089d1d317', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('00c02e2c-c3a9-5ac3-b089-3d7764753620', '6cd27be1-a8e8-54ca-b43f-9a6089d1d317', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('40cf77f0-628a-5f04-81e1-35abfa34bf53', '6cd27be1-a8e8-54ca-b43f-9a6089d1d317', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4655,7 +5115,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('3144f29c-ebdc-5712-b866-1bfe042129e8', 'b96777b8-8dd5-52c7-9396-3d600ea03539', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('9006d7f2-e3bd-5519-84c9-cdb501d370b4', 'b96777b8-8dd5-52c7-9396-3d600ea03539', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('9006d7f2-e3bd-5519-84c9-cdb501d370b4', 'b96777b8-8dd5-52c7-9396-3d600ea03539', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0c7bd39e-a00f-5b36-8d78-855f34d15f85', 'b96777b8-8dd5-52c7-9396-3d600ea03539', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4714,7 +5174,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('e0aad53a-828f-5ee7-8a3a-2fe4b7557889', '41be0eda-51db-5b39-a62f-2de3bf33261d', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('e60ebddb-dfd4-5f4e-b4dd-6b59e044c3de', '41be0eda-51db-5b39-a62f-2de3bf33261d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('e60ebddb-dfd4-5f4e-b4dd-6b59e044c3de', '41be0eda-51db-5b39-a62f-2de3bf33261d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('0941b844-f2e5-57c5-93df-94419218e1aa', '41be0eda-51db-5b39-a62f-2de3bf33261d', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4773,7 +5233,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('324ea497-d96b-5018-b268-686738e2c0bb', '0684d7e5-1158-54a3-b17c-b8689e7af2c4', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('2b0f43d1-f36b-5eae-9b2f-f822aea15677', '0684d7e5-1158-54a3-b17c-b8689e7af2c4', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('2b0f43d1-f36b-5eae-9b2f-f822aea15677', '0684d7e5-1158-54a3-b17c-b8689e7af2c4', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('45bfc555-aaff-5d9f-a2e0-89ca84348057', '0684d7e5-1158-54a3-b17c-b8689e7af2c4', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4832,7 +5292,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('68bfc283-aa39-5c92-8ad9-69c3ed8c8514', '33cf8c70-1fcd-56ed-9ae2-89974a12cb1d', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('72857f90-9a56-5fe0-ad31-ddf68b772636', '33cf8c70-1fcd-56ed-9ae2-89974a12cb1d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('72857f90-9a56-5fe0-ad31-ddf68b772636', '33cf8c70-1fcd-56ed-9ae2-89974a12cb1d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('1a7128d8-491a-5618-a50a-a3b3b42b2e02', '33cf8c70-1fcd-56ed-9ae2-89974a12cb1d', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4891,7 +5351,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('7d43207b-1cf1-5bad-9ef5-61a311af3480', '56cd9528-f204-5d44-b2a3-783b407caeff', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('b0e48006-7877-5db7-a4c0-8d0c8654b085', '56cd9528-f204-5d44-b2a3-783b407caeff', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('b0e48006-7877-5db7-a4c0-8d0c8654b085', '56cd9528-f204-5d44-b2a3-783b407caeff', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('1f9691b3-356e-5fe7-a635-67830287188d', '56cd9528-f204-5d44-b2a3-783b407caeff', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -4950,7 +5410,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('5b65442d-2c00-5284-b3ef-299c95e6aaae', '0ae608a5-cbbd-57fd-8084-fc9f9aa5646e', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('d9c2c256-1731-5259-8ba3-6c02f968119c', '0ae608a5-cbbd-57fd-8084-fc9f9aa5646e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('d9c2c256-1731-5259-8ba3-6c02f968119c', '0ae608a5-cbbd-57fd-8084-fc9f9aa5646e', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('4358f478-63dc-5392-a0f3-f4f929125c5f', '0ae608a5-cbbd-57fd-8084-fc9f9aa5646e', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5009,7 +5469,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('a1f62a72-0937-52cd-b4a6-59afd9c23853', '78a2aab7-5275-55a3-a05d-67b2c548e4b2', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7afddc98-c8f1-5425-8f15-b9abd6335e73', '78a2aab7-5275-55a3-a05d-67b2c548e4b2', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7afddc98-c8f1-5425-8f15-b9abd6335e73', '78a2aab7-5275-55a3-a05d-67b2c548e4b2', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e726c280-5435-5ebf-843c-987b73e41f79', '78a2aab7-5275-55a3-a05d-67b2c548e4b2', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5068,7 +5528,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('bfd1269d-8d0c-50ce-9464-cebce24fc953', 'd487b1d8-e182-54d1-8594-54038dfc5f80', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('30f0092c-dcda-5f55-8c12-7c333a3380c8', 'd487b1d8-e182-54d1-8594-54038dfc5f80', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('30f0092c-dcda-5f55-8c12-7c333a3380c8', 'd487b1d8-e182-54d1-8594-54038dfc5f80', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('bc3c79ef-cfa1-56c3-b05e-ec7473207433', 'd487b1d8-e182-54d1-8594-54038dfc5f80', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5127,7 +5587,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('d0b6389c-626e-5ea4-8529-b09ccb8505ca', 'fe779528-e0c5-5a15-a6ce-5aa010becd1d', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('7c0df632-2068-568b-b745-cb2bd782f284', 'fe779528-e0c5-5a15-a6ce-5aa010becd1d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('7c0df632-2068-568b-b745-cb2bd782f284', 'fe779528-e0c5-5a15-a6ce-5aa010becd1d', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ad13a89a-2b07-52e5-b38b-6e7d9bdef7a1', 'fe779528-e0c5-5a15-a6ce-5aa010becd1d', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5186,7 +5646,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('c0145acb-f771-5297-8cfd-10ad3ec369e0', '741a9577-6625-5d06-8aa0-e236f8e521ce', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('169433c8-2e9b-530c-971d-76f535d29219', '741a9577-6625-5d06-8aa0-e236f8e521ce', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('169433c8-2e9b-530c-971d-76f535d29219', '741a9577-6625-5d06-8aa0-e236f8e521ce', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('ff6fc771-f868-54b3-b559-5b12b90ee77a', '741a9577-6625-5d06-8aa0-e236f8e521ce', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5245,7 +5705,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('c892a3c1-5e45-5bd9-89da-9c9cdef33ea7', 'ef4cc9b0-6d47-5383-b5e5-3de64a797a67', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('29c0bae3-f448-598e-9f39-168a36adcf68', 'ef4cc9b0-6d47-5383-b5e5-3de64a797a67', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('29c0bae3-f448-598e-9f39-168a36adcf68', 'ef4cc9b0-6d47-5383-b5e5-3de64a797a67', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('981e71cd-d7b9-5dbe-aa4f-be522b46789a', 'ef4cc9b0-6d47-5383-b5e5-3de64a797a67', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5304,7 +5764,7 @@ INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, descript
 VALUES ('0d95f346-a966-561a-b880-dcc3a7b42fc6', 'e30c2299-560b-571d-972d-82eb5432d6a0', 'id', 'Id', NULL, 13, NULL, NULL, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, 10, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('46e5bba6-39e1-5976-8f52-4bd63e81973a', 'e30c2299-560b-571d-972d-82eb5432d6a0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('46e5bba6-39e1-5976-8f52-4bd63e81973a', 'e30c2299-560b-571d-972d-82eb5432d6a0', 'code', 'Code', 'The value stored on every record that uses this list. Fixed once created.', 10, 100, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 20, 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_column (sys_column_id, sys_table_id, column_name, name, description, sys_reference_id, field_length, default_value, is_key, is_parent, is_mandatory, is_updateable, is_identifier, is_selection_column, is_translated, is_encrypted, is_allow_logging, is_allow_copy, seq_no, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('f9367cf9-68e3-53ff-b34e-460713550c85', 'e30c2299-560b-571d-972d-82eb5432d6a0', 'name', 'Name', 'What a person reads in the dropdown and on a record.', 10, 200, NULL, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, 30, 'U', TRUE, 'system', 'system', NOW(), NOW())
@@ -5715,6 +6175,7894 @@ VALUES ('0936bd14-de5b-58d4-bdf7-6a71eb2129ce', (SELECT sys_role_id FROM sys_rol
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_access (sys_access_id, sys_role_id, sys_table_id, sys_window_id, access_type_table, is_read_only, is_exclude, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('41aa4452-a02e-5afb-af1c-32f44fb85e89', (SELECT sys_role_id FROM sys_role WHERE name = 'User'), '758fa933-52cf-51ce-ba65-d591ca9f52f3', 'd531139a-3660-5f8e-8d4c-0eaba7bc70d9', 'R', TRUE, FALSE, 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- --------------------------------------------------------------------------
+-- Reference data (shared by every application of the common specification)
+-- --------------------------------------------------------------------------
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('91eebd4a-5776-5658-b93b-814af62db62c', 'AED', 'UAE Dirham', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f9a37b62-db88-5986-bdea-2851c4511020', 'AFN', 'Afghani', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8fb99a71-2cff-5af0-9bff-68dab9444d80', 'ALL', 'Lek', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('066e7180-a949-5c08-8110-f3d5124ba8f2', 'AMD', 'Armenian Dram', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('d192a3a9-d527-5eda-b26a-53e0080545fd', 'AOA', 'Kwanza', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ab79d38b-597e-5eb4-8d06-3736c5a63b01', 'ARS', 'Argentine Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('29df0fd8-07a3-53ae-9286-7ab0df538ad2', 'AUD', 'Australian Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3a4a379d-7a6f-55da-8ce9-64eb002e441d', 'AWG', 'Aruban Florin', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f89c62e4-0d8b-5eb6-b6b0-927a702b4649', 'AZN', 'Azerbaijan Manat', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a0d02326-6bbc-5fe6-a5b3-b159647e56fe', 'BAM', 'Convertible Mark', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8be22d34-eed4-558f-97d3-32e8672516bf', 'BBD', 'Barbados Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3ebe0ccb-fce7-5b9d-9719-96e906c44cd7', 'BDT', 'Taka', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1858f427-8949-5b20-959e-fc6a0683fae3', 'BHD', 'Bahraini Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('d0f3f68b-fdb8-58b1-8759-9754e1d3a8b0', 'BIF', 'Burundi Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('05a6a27d-cc36-5c01-bfa3-5ddaa4e76cba', 'BMD', 'Bermudian Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('686eaa67-4e04-5687-a2e1-69ae99334057', 'BND', 'Brunei Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('2cfdace6-a8d7-51d2-9fc8-8ac1d615dcf8', 'BOB', 'Boliviano', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5227fd01-b26b-50de-84f8-dcc12b10d9d2', 'BOV', 'Mvdol', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('991b05cd-4c6e-515f-a69f-232024303486', 'BRL', 'Brazilian Real', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b3e8f7b3-b80b-5c54-ae1d-666d8096ee8f', 'BSD', 'Bahamian Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c0150d6f-6c4c-5e94-b922-c4ae74721c39', 'BTN', 'Ngultrum', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('cd425afa-0bb2-54ff-a7f2-bebde27610b1', 'BWP', 'Pula', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f8d3d88d-caaf-5928-804e-3fdbcb675730', 'BYN', 'Belarusian Ruble', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('773dc4d2-74f9-5c2e-947a-bf2ebd0a7210', 'BZD', 'Belize Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('15533410-0042-5be5-b2b8-e7e1b10e4a88', 'CAD', 'Canadian Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ace4e0d5-b118-5e89-8f1e-ed4ea7556164', 'CDF', 'Congolese Franc', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('2c956089-141d-5926-a270-47e1c0c9f76a', 'CHE', 'WIR Euro', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('19a1563a-befe-5879-b6e1-16560966afa1', 'CHF', 'Swiss Franc', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('539c9162-650e-55bb-9d31-8d9e713573d3', 'CHW', 'WIR Franc', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('67318604-db07-520b-8712-352e6dbb87d7', 'CLF', 'Unidad de Fomento', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('979055dc-c4d1-5d21-8e3e-1cf3bcee7bdc', 'CLP', 'Chilean Peso', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4c3bf577-6a12-5388-9f8e-d95eb21b4d5f', 'CNY', 'Yuan Renminbi', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9acdb594-09cf-54c3-835e-d5b966d36eef', 'COP', 'Colombian Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8d1fe17b-8933-5cb2-a9c1-9c0b05eed84f', 'COU', 'Unidad de Valor Real', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9678ecfc-a995-5dfe-9c68-b15af81182f0', 'CRC', 'Costa Rican Colon', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1782c19d-f5ad-579f-91a1-9f36e3b87475', 'CUP', 'Cuban Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0d55f80f-c8ea-5158-ab82-ffb3ebf5c22b', 'CVE', 'Cabo Verde Escudo', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('6962f860-85de-599a-824b-9b165fc783f4', 'CZK', 'Czech Koruna', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('6876fa3f-ea74-5353-abd3-3a5733df5b47', 'DJF', 'Djibouti Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3bf0eeab-235c-5c61-80cd-c8edc170fe72', 'DKK', 'Danish Krone', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('25f9fa5a-427e-5827-9b38-8ad56b0b0e05', 'DOP', 'Dominican Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a3cd58c9-ed6c-5d74-baff-f5a870422310', 'DZD', 'Algerian Dinar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('69fc6417-bfc1-5fad-91fd-d2639bd75db5', 'EGP', 'Egyptian Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4c7607c1-851f-58a3-9916-253a92188e77', 'ERN', 'Nakfa', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('99aa49c4-0f86-5b8c-92b8-4647758139c4', 'ETB', 'Ethiopian Birr', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e55577e4-405f-5d51-b310-a8e24a1957e1', 'EUR', 'Euro', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b243ead2-8c27-50b4-9574-14bbf818ba60', 'FJD', 'Fiji Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0871964f-1f3e-5443-ae0e-e31fd104be34', 'FKP', 'Falkland Islands Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e8782d55-5f40-5c2a-b299-2a7f4f2d6a12', 'GBP', 'Pound Sterling', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('972ae386-20bd-51fe-9d50-575b189191e1', 'GEL', 'Lari', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b3d5f942-19d1-597d-9f6c-fda89c41ff91', 'GHS', 'Ghana Cedi', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('29de11f3-7cea-51b9-b6bc-01ff92c8ba9b', 'GIP', 'Gibraltar Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9cedd00f-4931-5d90-b5cc-eb934c02fa24', 'GMD', 'Dalasi', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('44898e97-9a49-5131-a62f-a09c8f3510a4', 'GNF', 'Guinean Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('508c347e-1154-5915-8761-7fb1437471f6', 'GTQ', 'Quetzal', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4dd0597d-277c-5625-9ff1-6aa075045c3a', 'GYD', 'Guyana Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('12cfd0e1-200c-5454-b7d2-febf2cd6b254', 'HKD', 'Hong Kong Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0700936e-fb32-5320-b76e-d924eb5bbd26', 'HNL', 'Lempira', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('fd334099-1cf0-5f49-abc5-de5341ee5f1d', 'HTG', 'Gourde', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('82e0d2bb-3441-581b-a652-31295cd5a712', 'HUF', 'Forint', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a7fe69e5-d239-5e32-a4f6-58522ecb86de', 'IDR', 'Rupiah', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e722695e-f5ac-5497-9e70-bdb7fcf90d79', 'ILS', 'New Israeli Sheqel', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('60b3c089-735c-50bb-8681-39932c8a2723', 'INR', 'Indian Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('961ead41-b58b-56b0-b2f3-5a61365c8f58', 'IQD', 'Iraqi Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('643e03a8-8244-5223-8e12-78ccd3f09334', 'IRR', 'Iranian Rial', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1437d1a8-17d7-58a2-82bf-a1f303c85cb6', 'ISK', 'Iceland Krona', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c31a47e5-9aa2-5e1b-90ab-2998e8a33af4', 'JMD', 'Jamaican Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c9f7c859-4c22-56f8-9ca1-299158e8c437', 'JOD', 'Jordanian Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('fdbf17fe-7590-560c-8d42-43f8031c1191', 'JPY', 'Yen', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8679d4c0-4e57-52cd-9c6b-08d403c65c41', 'KES', 'Kenyan Shilling', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('708ebe7e-da2b-56ec-bc1d-e5844b0b61ec', 'KGS', 'Som', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('852c9afe-6de0-5c4a-a68b-98185d4bc388', 'KHR', 'Riel', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ac3724c5-d28b-56ea-abbb-8eb41a09ad77', 'KMF', 'Comorian Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8ed2bc80-0811-5951-9854-d77da60d1db8', 'KPW', 'North Korean Won', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a9ff2e25-8fb8-56f1-8551-e86c811a3292', 'KRW', 'Won', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('29c6dfe6-1922-5927-9ac2-e2e1ae3075e4', 'KWD', 'Kuwaiti Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ff826d31-bd13-5513-91e9-e848e59a6364', 'KYD', 'Cayman Islands Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('dd24dec5-ed11-51d8-950a-76650b1dfb92', 'KZT', 'Tenge', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('44a3a8e8-79de-5974-8e2e-fb84ba2d2d7d', 'LAK', 'Lao Kip', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0b686aac-0463-5b82-9b84-614cafaf2227', 'LBP', 'Lebanese Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8d71cc26-2dfd-584d-bd80-d465705f41bb', 'LKR', 'Sri Lanka Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5724c5c3-8827-5277-acd4-ab56f3dc515e', 'LRD', 'Liberian Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4a47e45c-819d-5c68-bc71-7fb352524cbf', 'LSL', 'Loti', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1ce9eb45-6e8b-5ddc-b40b-39629594f31f', 'LYD', 'Libyan Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5bd1c06c-a414-5929-8eb9-a20ac86ac36d', 'MAD', 'Moroccan Dirham', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('38227ff9-257f-551f-9a98-da02a41fe09b', 'MDL', 'Moldovan Leu', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('99fc8b0c-fdee-5f54-bb3d-ff31abb603dc', 'MGA', 'Malagasy Ariary', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3281ed9a-e7d5-5ab4-91f0-3eb4cc20c1ce', 'MKD', 'Denar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('21f4ca61-75af-5a98-a62c-d9aaa1a9c093', 'MMK', 'Kyat', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('46f4fa83-70be-5123-8da2-d3efa250939d', 'MNT', 'Tugrik', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9f7c9bc6-b367-5842-962d-51d5b6dfc557', 'MOP', 'Pataca', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('08bd681f-adcc-5192-be19-d37dd85d8085', 'MRU', 'Ouguiya', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f241255d-260c-58a5-bea3-bc24e1caf85b', 'MUR', 'Mauritius Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b39f7474-af6a-5965-a2ad-d06865716f4c', 'MVR', 'Rufiyaa', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c01b553a-0238-5dde-af4c-6ae9eb524a2c', 'MWK', 'Malawi Kwacha', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1d4c4fc8-ec21-5557-ad37-9158ca92b631', 'MXN', 'Mexican Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('48a5e088-fb1d-5e66-9f0e-335a51bba549', 'MXV', 'Mexican Unidad de Inversion (UDI)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('dd2a3a1f-00d5-5a83-be17-af44ad5c3b12', 'MYR', 'Malaysian Ringgit', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a84aeec8-b75e-56d0-8ae9-984e4a504989', 'MZN', 'Mozambique Metical', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a2f7d29d-3ceb-5b98-b430-587c9ac60605', 'NAD', 'Namibia Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('05ad38a8-3777-5590-8af4-8144be3630a2', 'NGN', 'Naira', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5a7eae3b-b8d9-58b6-9bee-80a4a9a23091', 'NIO', 'Cordoba Oro', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('fae43c60-a78a-59c1-bac7-2e477f0b8156', 'NOK', 'Norwegian Krone', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c4bdfb80-9371-5af2-8fa6-f5501632b464', 'NPR', 'Nepalese Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('562841b1-5204-5bc5-a056-27aa905fee0e', 'NZD', 'New Zealand Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5573fd27-2642-5587-873d-93fe1a680cd1', 'OMR', 'Rial Omani', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('d3663a2c-a399-503b-b9ac-376de197b83b', 'PAB', 'Balboa', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('64389f20-55a7-5e8f-95b5-621fba56b067', 'PEN', 'Sol', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('133d18d7-38aa-595e-897e-00929cc7360c', 'PGK', 'Kina', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9885697f-bcd1-56e5-b6b9-0a753f277d47', 'PHP', 'Philippine Peso', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('797083c1-b376-5548-9f78-055832d81b81', 'PKR', 'Pakistan Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('78b15cfa-a48b-5467-ad03-596b7a95d7d1', 'PLN', 'Zloty', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b0fc8bc2-6ee6-57e7-98b0-e54e0884dce1', 'PYG', 'Guarani', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4c33581c-6598-54ca-99c7-6ed9aee7e80f', 'QAR', 'Qatari Rial', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3056a8ac-7a83-54d2-946d-3cccd73434f1', 'RON', 'Romanian Leu', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('aca00d91-f430-5072-a18e-fae43e1f7fda', 'RSD', 'Serbian Dinar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('936d84a9-9d87-50b2-b250-4e2ce35fb558', 'RUB', 'Russian Ruble', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('fade197c-0a16-5c72-bef6-7b67de365b5c', 'RWF', 'Rwanda Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('4c2cbf27-87a4-5bbd-990a-dc246e71e960', 'SAR', 'Saudi Riyal', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('da0f4c1e-309f-5c81-bc2e-1aa61ed28efb', 'SBD', 'Solomon Islands Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('d26022e7-ecaf-5d85-8da5-e5c076ba697a', 'SCR', 'Seychelles Rupee', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('a446dbb0-39f9-51f0-8f76-53cc1baefcb0', 'SDG', 'Sudanese Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f0741afa-de9e-5bf5-80cc-10422a46a065', 'SEK', 'Swedish Krona', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('44cc51c6-8f70-5f12-a9cc-ee9120a5bf97', 'SGD', 'Singapore Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('bf99ae33-bda5-5551-83cc-834bf9bcc416', 'SHP', 'Saint Helena Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b5fc0cd7-6a66-5f15-9a2c-220811f72b3a', 'SLE', 'Leone', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1b207536-84cc-53a2-8967-1f3482b0f220', 'SOS', 'Somali Shilling', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('82391a4e-03a3-57b5-8043-3c57135887a6', 'SRD', 'Surinam Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('79e9df87-02a0-5c5e-9410-ef0e03c84c75', 'SSP', 'South Sudanese Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0f38e3d2-46fe-5c97-b2ea-c3be48caaefd', 'STN', 'Dobra', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('9aac3dcd-14ed-5484-bf43-13561b5d780e', 'SVC', 'El Salvador Colon', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c84d08be-b28d-5d1a-8487-3530185cf53a', 'SYP', 'Syrian Pound', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('1877bea6-ae45-535e-97b6-527781208e9c', 'SZL', 'Lilangeni', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('0115686d-154e-5fd2-bbae-6efa45881658', 'THB', 'Baht', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('992354ad-b44d-5aeb-9132-4bca5cd8cb2e', 'TJS', 'Somoni', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('17980cfc-bc77-5179-af00-d66b6ec525df', 'TMT', 'Turkmenistan New Manat', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f6d1a1b9-482b-5060-a499-8f7af45c8204', 'TND', 'Tunisian Dinar', 3, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('5ae4f7f4-ac57-5669-a184-2b109fe9e85b', 'TOP', 'Pa’anga', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('118ccecb-3db7-5d4e-848d-cca787cc01b6', 'TRY', 'Turkish Lira', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('367cd503-f4d0-5734-91d2-245c3637232d', 'TTD', 'Trinidad and Tobago Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c57f8bf0-d3d7-5755-9953-34d994337ffa', 'TWD', 'New Taiwan Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('3f920e8d-bd9a-5e57-8f78-2e8db4d3c98c', 'TZS', 'Tanzanian Shilling', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ccee90b8-e074-55de-9776-350790fe6d51', 'UAH', 'Hryvnia', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b41181db-9727-5e28-8731-8ee7a8804c39', 'UGX', 'Uganda Shilling', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('411e684e-071a-566e-a950-75ebdba3bfea', 'USD', 'US Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('ab7b7282-098e-5e58-a8b7-158effced4e8', 'USN', 'US Dollar (Next day)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('cc89dbef-a826-59fc-8eca-7397bbc0c5d7', 'UYI', 'Uruguay Peso en Unidades Indexadas (UI)', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('24e700e2-fec8-5152-bd96-2809ea621cdd', 'UYU', 'Peso Uruguayo', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('abce4a72-9798-5368-ae3a-aac6cb3b6a1b', 'UYW', 'Unidad Previsional', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b8170795-92f6-5d79-ac88-36a7b628e55a', 'UZS', 'Uzbekistan Sum', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8344556c-4fdc-52ca-9e0d-e37bf386b35f', 'VED', 'Bolívar Soberano', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('685b010f-00b7-542c-b0ab-f5f0119d2ca1', 'VES', 'Bolívar Soberano', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('6ca9a750-9a76-5a4d-8c0e-59348a016a22', 'VND', 'Dong', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('57c475e4-24eb-5397-bbea-661850790414', 'VUV', 'Vatu', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('98743acb-fe5a-59f0-bd9f-2c30e7fc157e', 'WST', 'Tala', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c2f71c1b-fded-5146-be5d-d4db26dfe533', 'XAD', 'Arab Accounting Dinar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('2f274d9b-f630-5025-ae52-efe9554af8f0', 'XAF', 'CFA Franc BEAC', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('7aabbcf9-8f20-5dfa-9d10-df8b79889f4c', 'XAG', 'Silver', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('568e355c-04b0-54ef-b21d-bb4ebb5a8a22', 'XAU', 'Gold', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('78f2f3ba-193b-57d7-b8b8-7a63f4deb727', 'XBA', 'Bond Markets Unit European Composite Unit (EURCO)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('40927045-c7be-5214-b24e-850c441e5242', 'XBB', 'Bond Markets Unit European Monetary Unit (E.M.U.-6)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c0e8cf02-4326-5673-b87f-21bf513bba97', 'XBC', 'Bond Markets Unit European Unit of Account 9 (E.U.A.-9)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('24c6a7ed-3ca9-57a3-8299-ae78d681e73f', 'XBD', 'Bond Markets Unit European Unit of Account 17 (E.U.A.-17)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('11efd526-653f-52d6-b997-09b320c12557', 'XCD', 'East Caribbean Dollar', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8dae677d-1137-5cce-980a-b1c9624f503d', 'XCG', 'Caribbean Guilder', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('8c6e5a12-0a9a-57e8-873d-b628e510bb40', 'XDR', 'SDR (Special Drawing Right)', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e89aa77b-73f8-5124-8718-1c9fd947785f', 'XOF', 'CFA Franc BCEAO', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c56aba2f-f81b-5079-af75-5f551d068748', 'XPD', 'Palladium', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('35f8adec-1373-554b-a5eb-04c1b3352cd8', 'XPF', 'CFP Franc', 0, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('c7e89cd3-ff62-53f7-84c0-b7ca1c6462a5', 'XPT', 'Platinum', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('41e7d8a1-8f0c-5700-947c-5e793dd6a7ca', 'XSU', 'Sucre', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('eabcc5a3-54d4-5e12-90ac-3556d2e32071', 'XTS', 'Codes specifically reserved for testing purposes', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('38ed4b5e-6394-5164-a362-03703b9ede45', 'XUA', 'ADB Unit of Account', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('b103d58e-cd4a-5356-b335-8334909aeae0', 'XXX', 'The codes assigned for transactions where no currency is involved', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('52188cfe-ad8b-53ba-b9e2-961fe4e12d0e', 'YER', 'Yemeni Rial', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e7cf5b5a-c6b7-5e9d-bf05-f1811a26ad66', 'ZAR', 'Rand', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('e98d3e9b-ad37-5416-aa79-6078eacbec86', 'ZMW', 'Zambian Kwacha', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_currency (id, code, name, decimal_places, status)
+VALUES ('f99e99a0-3000-5c98-af51-0064a3a37724', 'ZWG', 'Zimbabwe Gold', 2, 'ACTIVE')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0fe69daf-a7a5-50f2-af12-66b9450ce967', 'AD', 'AND', '020', 'Andorra', '376', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('31d3b768-f67a-5738-a18b-3f430befff89', 'AE', 'ARE', '784', 'United Arab Emirates', '971', '91eebd4a-5776-5658-b93b-814af62db62c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('21d496e3-4cc7-5d9e-97c3-0a0a4a235a46', 'AF', 'AFG', '004', 'Afghanistan', '93', 'f9a37b62-db88-5986-bdea-2851c4511020')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('fb704c6e-adab-5742-9ca7-aa5fa1639752', 'AG', 'ATG', '028', 'Antigua and Barbuda', '+1-268', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d75f2169-2e2f-52e5-a458-aa4a42a30543', 'AI', 'AIA', '660', 'Anguilla', '+1-264', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('974084a7-3e0f-5667-9dee-db1900e23068', 'AL', 'ALB', '008', 'Albania', '355', '8fb99a71-2cff-5af0-9bff-68dab9444d80')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a34a81d0-d18b-5e55-b506-67f1d83de8cd', 'AM', 'ARM', '051', 'Armenia', '374', '066e7180-a949-5c08-8110-f3d5124ba8f2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f4fd177a-a182-572e-a7cf-761b37952782', 'AO', 'AGO', '024', 'Angola', '244', 'd192a3a9-d527-5eda-b26a-53e0080545fd')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name)
+VALUES ('17854f23-1ab0-58c5-b079-d2ce344d9fb8', 'AQ', 'ATA', '010', 'Antarctica')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ec6abf87-7650-5f33-82fa-d0841c7b02bb', 'AR', 'ARG', '032', 'Argentina', '54', 'ab79d38b-597e-5eb4-8d06-3736c5a63b01')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('73871764-09c9-5d37-ac52-02403c6bf673', 'AS', 'ASM', '016', 'American Samoa', '+1-684', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('547a0809-e913-5c92-8cff-e646350306d9', 'AT', 'AUT', '040', 'Austria', '43', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('2573552d-b80d-58c8-98d5-7e85146e8270', 'AU', 'AUS', '036', 'Australia', '61', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('622e81ef-ce5f-5d8a-909d-5042a41a1df9', 'AW', 'ABW', '533', 'Aruba', '297', '3a4a379d-7a6f-55da-8ce9-64eb002e441d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('809b43a9-624b-5c59-a720-52416b8a88e8', 'AX', 'ALA', '248', 'Åland Islands', '+358-18', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e45b5460-6b29-5e1f-b4e9-0f6611e7836d', 'AZ', 'AZE', '031', 'Azerbaijan', '994', 'f89c62e4-0d8b-5eb6-b6b0-927a702b4649')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('185bc645-6fce-5195-a478-cb0f3ad0917d', 'BA', 'BIH', '070', 'Bosnia and Herzegovina', '387', 'a0d02326-6bbc-5fe6-a5b3-b159647e56fe')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('73144aa2-62ac-548f-b1e0-8ac0fc1ef005', 'BB', 'BRB', '052', 'Barbados', '+1-246', '8be22d34-eed4-558f-97d3-32e8672516bf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6eb9c83a-ee5c-5375-a708-084341463216', 'BD', 'BGD', '050', 'Bangladesh', '880', '3ebe0ccb-fce7-5b9d-9719-96e906c44cd7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d1b9e2ce-1243-5f42-8b3c-81b661ea7614', 'BE', 'BEL', '056', 'Belgium', '32', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f069f7a8-ca2f-5560-a995-0f73174a2b2f', 'BF', 'BFA', '854', 'Burkina Faso', '226', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code)
+VALUES ('5f167343-ca3d-5abc-b6bd-596b0e6e2f3f', 'BG', 'BGR', '100', 'Bulgaria', '359')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('884202a7-f174-5ed0-b6d9-c53e4264bce1', 'BH', 'BHR', '048', 'Bahrain', '973', '1858f427-8949-5b20-959e-fc6a0683fae3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('333976cb-fcd6-53ed-a684-6e368d52702d', 'BI', 'BDI', '108', 'Burundi', '257', 'd0f3f68b-fdb8-58b1-8759-9754e1d3a8b0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b94ccb7c-b88e-5daa-ab21-a64efd64cc05', 'BJ', 'BEN', '204', 'Benin', '229', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('04e1af2a-e3e3-5ec9-8193-85def5ff84a1', 'BL', 'BLM', '652', 'Saint Barthélemy', '590', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('526e2435-a194-57ee-ab25-c49de2f36568', 'BM', 'BMU', '060', 'Bermuda', '+1-441', '05a6a27d-cc36-5c01-bfa3-5ddaa4e76cba')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4016aecf-8d0d-5bef-a879-11986d0f4646', 'BN', 'BRN', '096', 'Brunei Darussalam', '673', '686eaa67-4e04-5687-a2e1-69ae99334057')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('43c5cba2-06fb-5574-80fc-e41ab362b67d', 'BO', 'BOL', '068', 'Bolivia, Plurinational State of', '591', '2cfdace6-a8d7-51d2-9fc8-8ac1d615dcf8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b54a8bed-f856-58c3-bfa2-0b43dbed6d90', 'BQ', 'BES', '535', 'Bonaire, Sint Eustatius and Saba', '599', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 'BR', 'BRA', '076', 'Brazil', '55', '991b05cd-4c6e-515f-a69f-232024303486')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5227f815-8db1-59f9-9fd9-872832663f04', 'BS', 'BHS', '044', 'Bahamas', '+1-242', 'b3e8f7b3-b80b-5c54-ae1d-666d8096ee8f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('1cfba9ed-10bf-57f4-a3a2-02ecc6b77d0d', 'BT', 'BTN', '064', 'Bhutan', '975', 'c0150d6f-6c4c-5e94-b922-c4ae74721c39')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, currency_id)
+VALUES ('3307598b-6548-5dcd-9191-7094fa4502f8', 'BV', 'BVT', '074', 'Bouvet Island', 'fae43c60-a78a-59c1-bac7-2e477f0b8156')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4a90541c-ca31-5a86-a426-8b9295f44942', 'BW', 'BWA', '072', 'Botswana', '267', 'cd425afa-0bb2-54ff-a7f2-bebde27610b1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('64e0caf9-c980-5fca-b4cc-8aedcfee7d1d', 'BY', 'BLR', '112', 'Belarus', '375', 'f8d3d88d-caaf-5928-804e-3fdbcb675730')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6cad15f8-3584-502d-a6a9-48dc20fd080f', 'BZ', 'BLZ', '084', 'Belize', '501', '773dc4d2-74f9-5c2e-947a-bf2ebd0a7210')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('61b4568f-6209-54a4-9b9a-665be7c3555e', 'CA', 'CAN', '124', 'Canada', '1', '15533410-0042-5be5-b2b8-e7e1b10e4a88')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bc27e115-3ee4-5c61-a90e-7c1348a7e038', 'CC', 'CCK', '166', 'Cocos (Keeling) Islands', '61', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('805df766-a45e-5e4f-83ab-995732d898e0', 'CD', 'COD', '180', 'Congo, The Democratic Republic of the', '243', 'ace4e0d5-b118-5e89-8f1e-ed4ea7556164')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('13a78653-bfa1-5633-b474-dec09689003c', 'CF', 'CAF', '140', 'Central African Republic', '236', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0a743ee6-da04-5871-b525-873b2dd2f2bc', 'CG', 'COG', '178', 'Congo', '242', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6', 'CH', 'CHE', '756', 'Switzerland', '41', '19a1563a-befe-5879-b6e1-16560966afa1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3c4cb061-ceea-5506-8443-d5e63f8d3ec7', 'CI', 'CIV', '384', 'Côte d''Ivoire', '225', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('415910c4-69b1-5f46-a05d-923ad872d343', 'CK', 'COK', '184', 'Cook Islands', '682', '562841b1-5204-5bc5-a056-27aa905fee0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e539073a-2155-5d55-962b-3cdcfa1ef067', 'CL', 'CHL', '152', 'Chile', '56', '979055dc-c4d1-5d21-8e3e-1cf3bcee7bdc')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4774d929-b1e7-5258-b216-4b7c14506abe', 'CM', 'CMR', '120', 'Cameroon', '237', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6003e15e-2c59-580c-b1c4-c1d38760c9ad', 'CN', 'CHN', '156', 'China', '86', '4c3bf577-6a12-5388-9f8e-d95eb21b4d5f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f571a687-c5fc-5d05-afe2-e2f0b00302ac', 'CO', 'COL', '170', 'Colombia', '57', '9acdb594-09cf-54c3-835e-d5b966d36eef')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0b32aaa4-426a-571b-b872-107a8bbd5b9b', 'CR', 'CRI', '188', 'Costa Rica', '506', '9678ecfc-a995-5dfe-9c68-b15af81182f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('00e92e78-f5e8-55aa-bae0-1d0ad5b63689', 'CU', 'CUB', '192', 'Cuba', '53', '1782c19d-f5ad-579f-91a1-9f36e3b87475')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4f2cb11b-16ee-56af-b66c-b3191ffd3d6a', 'CV', 'CPV', '132', 'Cabo Verde', '238', '0d55f80f-c8ea-5158-ab82-ffb3ebf5c22b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('07d29d9f-4ea8-5e6d-a463-72caafa1790f', 'CW', 'CUW', '531', 'Curaçao', '599', '8dae677d-1137-5cce-980a-b1c9624f503d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('884ff1a6-87ee-5802-81ad-c42274195672', 'CX', 'CXR', '162', 'Christmas Island', '61', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('cf60191c-9103-5e0d-8d9d-6abcf9fee0de', 'CY', 'CYP', '196', 'Cyprus', '357', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bd74d9fe-c52d-5131-8e7a-afd40eff3c41', 'CZ', 'CZE', '203', 'Czechia', '420', '6962f860-85de-599a-824b-9b165fc783f4')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e1ada94a-f819-5d6d-bfa0-2c25baea8999', 'DE', 'DEU', '276', 'Germany', '49', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6981a2a0-d0b1-5d66-8d5c-b50dcd4f59c0', 'DJ', 'DJI', '262', 'Djibouti', '253', '6876fa3f-ea74-5353-abd3-3a5733df5b47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('876d1a77-988a-5482-9d86-1ae1195e2236', 'DK', 'DNK', '208', 'Denmark', '45', '3bf0eeab-235c-5c61-80cd-c8edc170fe72')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('22b288d1-d514-5f01-9e51-b035212b5b23', 'DM', 'DMA', '212', 'Dominica', '+1-767', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('92e27dc5-c1fb-5f56-be18-e3d96bbf249b', 'DO', 'DOM', '214', 'Dominican Republic', '+1-809 and 1-829', '25f9fa5a-427e-5827-9b38-8ad56b0b0e05')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('782d8717-62ef-5ecd-b4df-2a8dcad01ec5', 'DZ', 'DZA', '012', 'Algeria', '213', 'a3cd58c9-ed6c-5d74-baff-f5a870422310')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('cf4ca0a0-004b-5280-b954-cc513a9c8148', 'EC', 'ECU', '218', 'Ecuador', '593', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('56f193f3-cf93-598c-9e17-a821292ad8fe', 'EE', 'EST', '233', 'Estonia', '372', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ebb66a53-0170-52aa-8620-172aaec0cf82', 'EG', 'EGY', '818', 'Egypt', '20', '69fc6417-bfc1-5fad-91fd-d2639bd75db5')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ab7568ee-8ea3-5c75-b4a6-ddd76cf657f2', 'EH', 'ESH', '732', 'Western Sahara', '212', '5bd1c06c-a414-5929-8eb9-a20ac86ac36d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f637acc8-eb65-5168-a644-baa6ca5eec7d', 'ER', 'ERI', '232', 'Eritrea', '291', '4c7607c1-851f-58a3-9916-253a92188e77')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b2139611-176f-58d7-800a-7f9dd16fed47', 'ES', 'ESP', '724', 'Spain', '34', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('193595cb-f8a4-597e-b776-dd6684145080', 'ET', 'ETH', '231', 'Ethiopia', '251', '99aa49c4-0f86-5b8c-92b8-4647758139c4')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3950851b-183e-5d34-ab8b-f3ca9457183b', 'FI', 'FIN', '246', 'Finland', '358', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d75248e3-f57b-521e-8e78-4da20ccd6345', 'FJ', 'FJI', '242', 'Fiji', '679', 'b243ead2-8c27-50b4-9574-14bbf818ba60')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9c02a483-6bf6-5fe2-a773-62949e83dc50', 'FK', 'FLK', '238', 'Falkland Islands (Malvinas)', '500', '0871964f-1f3e-5443-ae0e-e31fd104be34')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('282f9398-77dc-5af7-984e-3b08e63d0efe', 'FM', 'FSM', '583', 'Micronesia, Federated States of', '691', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3672b5fc-df55-5571-b8c2-ce104d8b0e97', 'FO', 'FRO', '234', 'Faroe Islands', '298', '3bf0eeab-235c-5c61-80cd-c8edc170fe72')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130', 'FR', 'FRA', '250', 'France', '33', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('00186529-5688-5549-91b5-5c7080eed1ba', 'GA', 'GAB', '266', 'Gabon', '241', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9e93e827-1d0d-5314-aa24-70dcb59b1910', 'GB', 'GBR', '826', 'United Kingdom', '44', 'e8782d55-5f40-5c2a-b299-2a7f4f2d6a12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('2fba9a68-ce60-5c9e-9a80-b8be2384173f', 'GD', 'GRD', '308', 'Grenada', '+1-473', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b14159fd-70d1-51b4-89cb-5771c9ed4734', 'GE', 'GEO', '268', 'Georgia', '995', '972ae386-20bd-51fe-9d50-575b189191e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6826df80-7142-5976-906b-bdbc367c3c64', 'GF', 'GUF', '254', 'French Guiana', '594', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bbbaf694-66a5-56ac-b3bf-ce44df04f8d7', 'GG', 'GGY', '831', 'Guernsey', '+44-1481', 'e8782d55-5f40-5c2a-b299-2a7f4f2d6a12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('514769ad-17fd-545d-a4da-7075d51a9dfa', 'GH', 'GHA', '288', 'Ghana', '233', 'b3d5f942-19d1-597d-9f6c-fda89c41ff91')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bd01b60f-22ef-5d0e-ba0d-ed1e21c7193a', 'GI', 'GIB', '292', 'Gibraltar', '350', '29de11f3-7cea-51b9-b6bc-01ff92c8ba9b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('60d1cfe0-8a10-528a-be10-2d4786dbdf41', 'GL', 'GRL', '304', 'Greenland', '299', '3bf0eeab-235c-5c61-80cd-c8edc170fe72')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a424171d-4ccb-5e5a-9f97-e31736157380', 'GM', 'GMB', '270', 'Gambia', '220', '9cedd00f-4931-5d90-b5cc-eb934c02fa24')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5485b46a-2664-5f62-ac24-e7af36160b4c', 'GN', 'GIN', '324', 'Guinea', '224', '44898e97-9a49-5131-a62f-a09c8f3510a4')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('16599592-bf28-55b5-9203-d6e0cf69d281', 'GP', 'GLP', '312', 'Guadeloupe', '590', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6fa4ca9a-cd71-508e-a1a9-aa5c5cc97e93', 'GQ', 'GNQ', '226', 'Equatorial Guinea', '240', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('1341f8d9-5faf-5047-a7bd-4a1635bfcb20', 'GR', 'GRC', '300', 'Greece', '30', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, currency_id)
+VALUES ('f039624d-18e9-5c78-b6bb-9630fe3a8e1d', 'GS', 'SGS', '239', 'South Georgia and the South Sandwich Islands', 'e8782d55-5f40-5c2a-b299-2a7f4f2d6a12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('1112ff7c-f094-5b61-b796-fcbfbc08ffdc', 'GT', 'GTM', '320', 'Guatemala', '502', '508c347e-1154-5915-8761-7fb1437471f6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c8c1fafd-5536-5986-abaa-06c30ecfb051', 'GU', 'GUM', '316', 'Guam', '+1-671', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8eb5706e-28dc-587c-af71-efffdd3c53c1', 'GW', 'GNB', '624', 'Guinea-Bissau', '245', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ea17a950-7775-54d6-b198-b01d024f58fe', 'GY', 'GUY', '328', 'Guyana', '592', '4dd0597d-277c-5625-9ff1-6aa075045c3a')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 'HK', 'HKG', '344', 'Hong Kong', '852', '12cfd0e1-200c-5454-b7d2-febf2cd6b254')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('74f129a2-ceaa-5a3a-8420-76280a36ca2e', 'HM', 'HMD', '334', 'Heard Island and McDonald Islands', '', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('de109bcf-3155-5efb-a4a4-42ff251296b5', 'HN', 'HND', '340', 'Honduras', '504', '0700936e-fb32-5320-b76e-d924eb5bbd26')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8d2e3698-8b51-5125-afcd-527fc8335b71', 'HR', 'HRV', '191', 'Croatia', '385', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('25c83366-e808-5ca3-aa89-aa0cb4848b3d', 'HT', 'HTI', '332', 'Haiti', '509', 'fd334099-1cf0-5f49-abc5-de5341ee5f1d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9633be3e-519e-5322-bdc5-83da78b5ea9b', 'HU', 'HUN', '348', 'Hungary', '36', '82e0d2bb-3441-581b-a652-31295cd5a712')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('338ff4a1-d3a3-5067-a750-e9597022d99d', 'ID', 'IDN', '360', 'Indonesia', '62', 'a7fe69e5-d239-5e32-a4f6-58522ecb86de')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d4fa6ad3-228d-5ee3-bce2-261c5276578c', 'IE', 'IRL', '372', 'Ireland', '353', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f72e58a6-6324-5c3e-bb38-5e76158735f8', 'IL', 'ISR', '376', 'Israel', '972', 'e722695e-f5ac-5497-9e70-bdb7fcf90d79')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('618349c0-d788-50a7-a16f-43bfdff412ac', 'IM', 'IMN', '833', 'Isle of Man', '+44-1624', 'e8782d55-5f40-5c2a-b299-2a7f4f2d6a12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 'IN', 'IND', '356', 'India', '91', '60b3c089-735c-50bb-8681-39932c8a2723')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f0f81589-1e7b-5e7a-ad60-e49f2f2f00b6', 'IO', 'IOT', '086', 'British Indian Ocean Territory', '246', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('900adc7f-49fd-5e4a-9594-07bb2623de06', 'IQ', 'IRQ', '368', 'Iraq', '964', '961ead41-b58b-56b0-b2f3-5a61365c8f58')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d6882749-51d8-534b-9bd8-756cdae37282', 'IR', 'IRN', '364', 'Iran, Islamic Republic of', '98', '643e03a8-8244-5223-8e12-78ccd3f09334')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('21442474-5762-5935-b158-0e3b133eda13', 'IS', 'ISL', '352', 'Iceland', '354', '1437d1a8-17d7-58a2-82bf-a1f303c85cb6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c26b076e-a0e4-5679-836b-fc3b06f6b6f8', 'IT', 'ITA', '380', 'Italy', '39', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7adbf6ea-2659-5598-b974-347a7afb8328', 'JE', 'JEY', '832', 'Jersey', '+44-1534', 'e8782d55-5f40-5c2a-b299-2a7f4f2d6a12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('06557abc-25db-545c-9757-581f99413fa7', 'JM', 'JAM', '388', 'Jamaica', '+1-876', 'c31a47e5-9aa2-5e1b-90ab-2998e8a33af4')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('77b44229-f18a-5d63-ad02-8b7cf3fd936f', 'JO', 'JOR', '400', 'Jordan', '962', 'c9f7c859-4c22-56f8-9ca1-299158e8c437')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f94081f6-d151-5a04-8973-84549f2a4edf', 'JP', 'JPN', '392', 'Japan', '81', 'fdbf17fe-7590-560c-8d42-43f8031c1191')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('82fd159c-5164-5667-b16c-88ef59642dd3', 'KE', 'KEN', '404', 'Kenya', '254', '8679d4c0-4e57-52cd-9c6b-08d403c65c41')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('501062d0-7277-56ba-bff4-e8eea605d21f', 'KG', 'KGZ', '417', 'Kyrgyzstan', '996', '708ebe7e-da2b-56ec-bc1d-e5844b0b61ec')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('60f8b32f-63cd-5cc4-8548-b4c471cd2cf3', 'KH', 'KHM', '116', 'Cambodia', '855', '852c9afe-6de0-5c4a-a68b-98185d4bc388')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d08c0249-8d3a-5b73-b82d-fec3b77f62d4', 'KI', 'KIR', '296', 'Kiribati', '686', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3cda5710-091a-5de3-b3a1-4799e20d3729', 'KM', 'COM', '174', 'Comoros', '269', 'ac3724c5-d28b-56ea-abbb-8eb41a09ad77')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('15593669-22e7-5334-b97f-fa98eef01576', 'KN', 'KNA', '659', 'Saint Kitts and Nevis', '+1-869', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('83389036-3ad4-5218-aeea-2eb945e2bbe9', 'KP', 'PRK', '408', 'Korea, Democratic People''s Republic of', '850', '8ed2bc80-0811-5951-9854-d77da60d1db8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 'KR', 'KOR', '410', 'Korea, Republic of', '82', 'a9ff2e25-8fb8-56f1-8551-e86c811a3292')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f2eb1178-6ecd-540a-8f30-96f2a722191a', 'KW', 'KWT', '414', 'Kuwait', '965', '29c6dfe6-1922-5927-9ac2-e2e1ae3075e4')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('deb11804-1119-5419-a0d9-a60486776458', 'KY', 'CYM', '136', 'Cayman Islands', '+1-345', 'ff826d31-bd13-5513-91e9-e848e59a6364')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('92543bdf-71b9-5196-b9df-260849f59ada', 'KZ', 'KAZ', '398', 'Kazakhstan', '7', 'dd24dec5-ed11-51d8-950a-76650b1dfb92')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('62182812-4f8e-53d0-9609-69cf0d02b82b', 'LA', 'LAO', '418', 'Lao People''s Democratic Republic', '856', '44a3a8e8-79de-5974-8e2e-fb84ba2d2d7d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7f42d88c-a9b0-5e92-afdb-67356d836a6e', 'LB', 'LBN', '422', 'Lebanon', '961', '0b686aac-0463-5b82-9b84-614cafaf2227')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b2b856dc-f7ef-5a15-a782-bd2573946f04', 'LC', 'LCA', '662', 'Saint Lucia', '+1-758', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4c6a0c49-896a-50ec-b18d-2e2cb41d96e8', 'LI', 'LIE', '438', 'Liechtenstein', '423', '19a1563a-befe-5879-b6e1-16560966afa1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('47d138d8-3791-5096-9ca5-e64665853de9', 'LK', 'LKA', '144', 'Sri Lanka', '94', '8d71cc26-2dfd-584d-bd80-d465705f41bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('47e57db4-2c4c-51cc-94a0-e4bfbc6020ff', 'LR', 'LBR', '430', 'Liberia', '231', '5724c5c3-8827-5277-acd4-ab56f3dc515e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f3e66971-c3b6-5055-8b0e-c43f62bd7b8d', 'LS', 'LSO', '426', 'Lesotho', '266', '4a47e45c-819d-5c68-bc71-7fb352524cbf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('2837b157-d00e-5e5c-b6ed-1bfa93c7ed6c', 'LT', 'LTU', '440', 'Lithuania', '370', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6bf08ee3-473d-50d6-b612-149ffddc54c2', 'LU', 'LUX', '442', 'Luxembourg', '352', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('de44c352-d62c-5f15-a4dd-3df7c0854f21', 'LV', 'LVA', '428', 'Latvia', '371', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a169e023-6cfa-53e3-8979-ba966d2b143c', 'LY', 'LBY', '434', 'Libya', '218', '1ce9eb45-6e8b-5ddc-b40b-39629594f31f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 'MA', 'MAR', '504', 'Morocco', '212', '5bd1c06c-a414-5929-8eb9-a20ac86ac36d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5f95cf54-48c9-545e-b113-af69e5c6a6ea', 'MC', 'MCO', '492', 'Monaco', '377', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9d8c1d6a-86b4-5985-9140-b3e34c41508d', 'MD', 'MDA', '498', 'Moldova, Republic of', '373', '38227ff9-257f-551f-9a98-da02a41fe09b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('93bd6170-cb97-57b0-bc36-f4dc265e02f9', 'ME', 'MNE', '499', 'Montenegro', '382', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('fc0e6216-acca-5257-930a-afb665a60496', 'MF', 'MAF', '663', 'Saint Martin (French part)', '590', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('54c3fe63-da1a-5325-8060-5865ea9cf553', 'MG', 'MDG', '450', 'Madagascar', '261', '99fc8b0c-fdee-5f54-bb3d-ff31abb603dc')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ceff9979-d0bd-59fe-9f02-d0ca06d62ce8', 'MH', 'MHL', '584', 'Marshall Islands', '692', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('151d6a27-d710-5a1e-a774-4c99ec6f1f78', 'MK', 'MKD', '807', 'North Macedonia', '389', '3281ed9a-e7d5-5ab4-91f0-3eb4cc20c1ce')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7304852d-79e8-5334-96fe-af727e92f48d', 'ML', 'MLI', '466', 'Mali', '223', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('64956e44-27a0-5bbe-baed-a250edf69dba', 'MM', 'MMR', '104', 'Myanmar', '95', '21f4ca61-75af-5a98-a62c-d9aaa1a9c093')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('14df6297-4e33-5942-a5b5-12431f0dbb1a', 'MN', 'MNG', '496', 'Mongolia', '976', '46f4fa83-70be-5123-8da2-d3efa250939d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('01c2d577-cb05-5e72-bc70-37ae19ae406b', 'MO', 'MAC', '446', 'Macao', '853', '9f7c9bc6-b367-5842-962d-51d5b6dfc557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ab024cc8-ce86-5905-8fa8-3e1ec26abd9a', 'MP', 'MNP', '580', 'Northern Mariana Islands', '+1-670', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('25bbde5a-2748-5f6e-9115-5f84e59ed665', 'MQ', 'MTQ', '474', 'Martinique', '596', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('728ad450-eee9-562d-b362-acec5b8012c4', 'MR', 'MRT', '478', 'Mauritania', '222', '08bd681f-adcc-5192-be19-d37dd85d8085')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('47fb0234-8c59-5f05-86d2-74a08c8cd06f', 'MS', 'MSR', '500', 'Montserrat', '+1-664', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9fef5bf7-71ed-57a9-a508-3f5985b7baff', 'MT', 'MLT', '470', 'Malta', '356', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7acfa64d-54a2-503c-886a-9f7468809e06', 'MU', 'MUS', '480', 'Mauritius', '230', 'f241255d-260c-58a5-bea3-bc24e1caf85b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9e99a085-196c-5c94-8c2e-8271a5cf4e7c', 'MV', 'MDV', '462', 'Maldives', '960', 'b39f7474-af6a-5965-a2ad-d06865716f4c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f6d8f7cd-efb8-584a-bf32-d1a06e52aeca', 'MW', 'MWI', '454', 'Malawi', '265', 'c01b553a-0238-5dde-af4c-6ae9eb524a2c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('2fed1477-bd69-5518-93e3-8dcabf05ad90', 'MX', 'MEX', '484', 'Mexico', '52', '1d4c4fc8-ec21-5557-ad37-9158ca92b631')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('6708eee6-1476-5a62-a45e-6218ea84271e', 'MY', 'MYS', '458', 'Malaysia', '60', 'dd2a3a1f-00d5-5a83-be17-af44ad5c3b12')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('01f34760-4b92-5fb0-9856-1d60fb1c7c1b', 'MZ', 'MOZ', '508', 'Mozambique', '258', 'a84aeec8-b75e-56d0-8ae9-984e4a504989')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bab59c3c-5e01-5547-9627-051fde3703ff', 'NA', 'NAM', '516', 'Namibia', '264', 'a2f7d29d-3ceb-5b98-b430-587c9ac60605')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('814c3bae-2f8a-5a48-95df-1c45904ae7ac', 'NC', 'NCL', '540', 'New Caledonia', '687', '35f8adec-1373-554b-a5eb-04c1b3352cd8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5f35e8ce-e510-55f4-b4ac-d6965b6d69e5', 'NE', 'NER', '562', 'Niger', '227', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('031de9b6-ff6a-5a91-8135-8a0da826638c', 'NF', 'NFK', '574', 'Norfolk Island', '672', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('afe159eb-3e2a-55e9-8eed-d53e8a82f927', 'NG', 'NGA', '566', 'Nigeria', '234', '05ad38a8-3777-5590-8af4-8144be3630a2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('25d10253-4c5a-5317-840c-899c98f7cfea', 'NI', 'NIC', '558', 'Nicaragua', '505', '5a7eae3b-b8d9-58b6-9bee-80a4a9a23091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5aaa090f-a721-5908-9db3-64d3f89367da', 'NL', 'NLD', '528', 'Netherlands', '31', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e3d37906-96ec-58ae-87e1-a100b8c6f03e', 'NO', 'NOR', '578', 'Norway', '47', 'fae43c60-a78a-59c1-bac7-2e477f0b8156')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b19370d9-926c-5569-82e0-f07621fd0f8a', 'NP', 'NPL', '524', 'Nepal', '977', 'c4bdfb80-9371-5af2-8fa6-f5501632b464')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8698d4a8-0bae-5602-ab77-86a9fa706dfe', 'NR', 'NRU', '520', 'Nauru', '674', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('25f3fe13-3871-5ffb-ae0b-9a60863c271b', 'NU', 'NIU', '570', 'Niue', '683', '562841b1-5204-5bc5-a056-27aa905fee0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e6a9578c-b80f-563e-b8ac-7b2e33dd941c', 'NZ', 'NZL', '554', 'New Zealand', '64', '562841b1-5204-5bc5-a056-27aa905fee0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('68b6af80-1e04-5e95-bd23-7e5001cd4480', 'OM', 'OMN', '512', 'Oman', '968', '5573fd27-2642-5587-873d-93fe1a680cd1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f44242c1-25c2-5a14-a691-44244dfd0f54', 'PA', 'PAN', '591', 'Panama', '507', 'd3663a2c-a399-503b-b9ac-376de197b83b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c93c8086-58b9-515f-b3fb-fada19ab7b5d', 'PE', 'PER', '604', 'Peru', '51', '64389f20-55a7-5e8f-95b5-621fba56b067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ea8eed37-5ddd-5f4d-929b-d8f6f13f06ef', 'PF', 'PYF', '258', 'French Polynesia', '689', '35f8adec-1373-554b-a5eb-04c1b3352cd8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('1625a9b5-2847-539d-88e5-f2bb1a9cb8d2', 'PG', 'PNG', '598', 'Papua New Guinea', '675', '133d18d7-38aa-595e-897e-00929cc7360c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('87499769-99f5-5e8a-a3bc-6dd7b188b972', 'PH', 'PHL', '608', 'Philippines', '63', '9885697f-bcd1-56e5-b6b9-0a753f277d47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7b37700f-bffc-5d58-b082-3824378a16b8', 'PK', 'PAK', '586', 'Pakistan', '92', '797083c1-b376-5548-9f78-055832d81b81')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0922bc07-02be-5d90-8d33-b47703808ff8', 'PL', 'POL', '616', 'Poland', '48', '78b15cfa-a48b-5467-ad03-596b7a95d7d1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('55a4eaef-1790-54df-a3fa-af5ca1e7ac14', 'PM', 'SPM', '666', 'Saint Pierre and Miquelon', '508', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9da80711-b870-5bdb-afb0-07045e388163', 'PN', 'PCN', '612', 'Pitcairn', '870', '562841b1-5204-5bc5-a056-27aa905fee0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4738df77-6412-544f-93e8-0eed5640b4de', 'PR', 'PRI', '630', 'Puerto Rico', '+1-787 and 1-939', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4d645baa-f80b-5607-8fe1-21fb112873a5', 'PS', 'PSE', '275', 'Palestine, State of', '970', 'e722695e-f5ac-5497-9e70-bdb7fcf90d79')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a937af9a-8e47-5ca8-a179-81f5dbc92f17', 'PT', 'PRT', '620', 'Portugal', '351', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('159b2280-a25f-5172-ae84-5474f06894a0', 'PW', 'PLW', '585', 'Palau', '680', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a94d9703-c4fe-56e0-b030-8500219f15a7', 'PY', 'PRY', '600', 'Paraguay', '595', 'b0fc8bc2-6ee6-57e7-98b0-e54e0884dce1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d58e5f58-3d5a-5ca0-9089-693c493e9c9a', 'QA', 'QAT', '634', 'Qatar', '974', '4c33581c-6598-54ca-99c7-6ed9aee7e80f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bfbb249b-207b-5681-b90e-0b1eddacdec3', 'RE', 'REU', '638', 'Réunion', '262', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b636d2e1-5d11-59c1-b3a8-303a1ba5d659', 'RO', 'ROU', '642', 'Romania', '40', '3056a8ac-7a83-54d2-946d-3cccd73434f1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('865f02c2-c033-551e-ac8d-f96365d413ef', 'RS', 'SRB', '688', 'Serbia', '381', 'aca00d91-f430-5072-a18e-fae43e1f7fda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 'RU', 'RUS', '643', 'Russian Federation', '7', '936d84a9-9d87-50b2-b250-4e2ce35fb558')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0d67577a-a048-5ebd-8eb3-fafe8d777b61', 'RW', 'RWA', '646', 'Rwanda', '250', 'fade197c-0a16-5c72-bef6-7b67de365b5c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a09a4e95-25fe-5ced-a17d-3807eed1cb00', 'SA', 'SAU', '682', 'Saudi Arabia', '966', '4c2cbf27-87a4-5bbd-990a-dc246e71e960')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8cfdec34-0d04-5389-805b-30a48ae5c66f', 'SB', 'SLB', '090', 'Solomon Islands', '677', 'da0f4c1e-309f-5c81-bc2e-1aa61ed28efb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('53f7d5e5-4dba-5525-96a1-4f33d6c2cd5b', 'SC', 'SYC', '690', 'Seychelles', '248', 'd26022e7-ecaf-5d85-8da5-e5c076ba697a')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('2a4c146f-eed0-5119-9980-5ecec3906666', 'SD', 'SDN', '729', 'Sudan', '249', 'a446dbb0-39f9-51f0-8f76-53cc1baefcb0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('86cc3cc2-ffd2-5ae1-b46d-04d45aee542b', 'SE', 'SWE', '752', 'Sweden', '46', 'f0741afa-de9e-5bf5-80cc-10422a46a065')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e6dc7aae-391c-5f02-b821-751809368f85', 'SG', 'SGP', '702', 'Singapore', '65', '44cc51c6-8f70-5f12-a9cc-ee9120a5bf97')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c2061bc0-e60e-537b-a41e-2d23d046cb26', 'SH', 'SHN', '654', 'Saint Helena, Ascension and Tristan da Cunha', '290', 'bf99ae33-bda5-5551-83cc-834bf9bcc416')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('12778f5b-32a7-59ab-875c-44179c8e1008', 'SI', 'SVN', '705', 'Slovenia', '386', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d71ada06-dcdc-5fcd-b16f-2e42ec9e8b2b', 'SJ', 'SJM', '744', 'Svalbard and Jan Mayen', '47', 'fae43c60-a78a-59c1-bac7-2e477f0b8156')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('74e41a7a-eb30-5a64-8266-441a25ddece9', 'SK', 'SVK', '703', 'Slovakia', '421', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('1bf30d41-590a-5ae8-8ac0-c05967a19bb3', 'SL', 'SLE', '694', 'Sierra Leone', '232', 'b5fc0cd7-6a66-5f15-9a2c-220811f72b3a')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('8097865d-7b90-59cf-8330-12ca0acbf7d1', 'SM', 'SMR', '674', 'San Marino', '378', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('20541fb5-c7b8-5331-9c43-ddb7517c804f', 'SN', 'SEN', '686', 'Senegal', '221', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('65d47c0f-903f-5496-ab9d-20fccab97970', 'SO', 'SOM', '706', 'Somalia', '252', '1b207536-84cc-53a2-8967-1f3482b0f220')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a42c9a07-2a55-595f-bc10-f6619d759858', 'SR', 'SUR', '740', 'Suriname', '597', '82391a4e-03a3-57b5-8043-3c57135887a6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3831705c-a9fd-5ceb-8cc2-4fdb5fb37501', 'SS', 'SSD', '728', 'South Sudan', '211', '79e9df87-02a0-5c5e-9410-ef0e03c84c75')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('495189ff-3bde-52b2-8615-93cc469385ee', 'ST', 'STP', '678', 'Sao Tome and Principe', '239', '0f38e3d2-46fe-5c97-b2ea-c3be48caaefd')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0c4272bd-cd6d-5616-b191-996f2ee0e901', 'SV', 'SLV', '222', 'El Salvador', '503', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('9282453a-99d6-5a4f-93b2-7a8dbb3e9b47', 'SX', 'SXM', '534', 'Sint Maarten (Dutch part)', '599', '8dae677d-1137-5cce-980a-b1c9624f503d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7c4f8ee1-492e-54dc-bf51-65a21add9598', 'SY', 'SYR', '760', 'Syrian Arab Republic', '963', 'c84d08be-b28d-5d1a-8487-3530185cf53a')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('4b8a1b95-bc45-56af-a30d-380eb476b730', 'SZ', 'SWZ', '748', 'Eswatini', '268', '1877bea6-ae45-535e-97b6-527781208e9c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('773bd79e-6a49-5e69-82d4-f2a3590c2bb9', 'TC', 'TCA', '796', 'Turks and Caicos Islands', '+1-649', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('596231b9-3512-594e-a6b0-27a2abae0bd0', 'TD', 'TCD', '148', 'Chad', '235', '2f274d9b-f630-5025-ae52-efe9554af8f0')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, currency_id)
+VALUES ('976fcb5d-1a2d-5e3b-addb-37a7a91a1ea5', 'TF', 'ATF', '260', 'French Southern Territories', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b3ee5c07-2caf-521a-b2ae-e1102406d34c', 'TG', 'TGO', '768', 'Togo', '228', 'e89aa77b-73f8-5124-8718-1c9fd947785f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3206bf97-fde7-5b0a-b688-fff45ddfbea2', 'TH', 'THA', '764', 'Thailand', '66', '0115686d-154e-5fd2-bbae-6efa45881658')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3b8deb30-c591-528c-a6ef-ee29a7a8eebc', 'TJ', 'TJK', '762', 'Tajikistan', '992', '992354ad-b44d-5aeb-9132-4bca5cd8cb2e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c7aa288f-d33d-5776-886f-8809b3cf93ff', 'TK', 'TKL', '772', 'Tokelau', '690', '562841b1-5204-5bc5-a056-27aa905fee0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7a2bacd8-bb8a-517d-9e2c-0eccd704047a', 'TL', 'TLS', '626', 'Timor-Leste', '670', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('d56bd58e-cd07-574b-bc9c-6bafdf43e19c', 'TM', 'TKM', '795', 'Turkmenistan', '993', '17980cfc-bc77-5179-af00-d66b6ec525df')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('31f7c3a9-755b-5f69-ae8c-dd876d7f8078', 'TN', 'TUN', '788', 'Tunisia', '216', 'f6d1a1b9-482b-5060-a499-8f7af45c8204')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('64636433-e059-5a5a-9459-0167e7cc4763', 'TO', 'TON', '776', 'Tonga', '676', '5ae4f7f4-ac57-5669-a184-2b109fe9e85b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('b110c790-c0bc-555b-be1d-ee711c556b3e', 'TR', 'TUR', '792', 'Türkiye', '90', '118ccecb-3db7-5d4e-848d-cca787cc01b6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('0c20c7db-df1f-585d-a2d5-fdd325aa6b70', 'TT', 'TTO', '780', 'Trinidad and Tobago', '+1-868', '367cd503-f4d0-5734-91d2-245c3637232d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('799b998b-20de-5175-8991-4182960f26a2', 'TV', 'TUV', '798', 'Tuvalu', '688', '29df0fd8-07a3-53ae-9286-7ab0df538ad2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('c886303b-7635-5c7f-af5f-70db99a08f6e', 'TW', 'TWN', '158', 'Taiwan, Province of China', '886', 'c57f8bf0-d3d7-5755-9953-34d994337ffa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('50dc5003-3d65-5d0f-b5b4-3a78383d59cf', 'TZ', 'TZA', '834', 'Tanzania, United Republic of', '255', '3f920e8d-bd9a-5e57-8f78-2e8db4d3c98c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 'UA', 'UKR', '804', 'Ukraine', '380', 'ccee90b8-e074-55de-9776-350790fe6d51')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f82fee3f-6239-50ef-a299-4cbfef5eb263', 'UG', 'UGA', '800', 'Uganda', '256', 'b41181db-9727-5e28-8731-8ee7a8804c39')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('7148579c-69ee-5e07-a0e3-32a90fc77db1', 'UM', 'UMI', '581', 'United States Minor Outlying Islands', '1', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('097b6118-b718-5a7d-b1e3-86f42df9a40c', 'US', 'USA', '840', 'United States', '1', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('ac8664ac-b5ca-54bd-923a-d10b3b17cfc4', 'UY', 'URY', '858', 'Uruguay', '598', '24e700e2-fec8-5152-bd96-2809ea621cdd')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('fd15dcc1-c80d-5427-9212-1e3108e0411c', 'UZ', 'UZB', '860', 'Uzbekistan', '998', 'b8170795-92f6-5d79-ac88-36a7b628e55a')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('edeb8b8c-f00a-5a45-8f93-047250ebf0bb', 'VA', 'VAT', '336', 'Holy See (Vatican City State)', '379', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('e4f77953-38cd-5ed3-8d8b-02b2a30ff192', 'VC', 'VCT', '670', 'Saint Vincent and the Grenadines', '+1-784', '11efd526-653f-52d6-b997-09b320c12557')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('148f908f-3bcb-5840-91aa-a966a45408a2', 'VE', 'VEN', '862', 'Venezuela, Bolivarian Republic of', '58', '685b010f-00b7-542c-b0ab-f5f0119d2ca1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('45af31d5-e161-5de8-91cf-d12d935f50f4', 'VG', 'VGB', '092', 'Virgin Islands, British', '+1-284', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('363df2c6-4b8f-567b-8a57-34f78fbe245e', 'VI', 'VIR', '850', 'Virgin Islands, U.S.', '+1-340', '411e684e-071a-566e-a950-75ebdba3bfea')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('bdf0e3ce-340b-5222-bc59-e2c203463e11', 'VN', 'VNM', '704', 'Viet Nam', '84', '6ca9a750-9a76-5a4d-8c0e-59348a016a22')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('5fa420a7-31f8-5000-85de-e96c72935e90', 'VU', 'VUT', '548', 'Vanuatu', '678', '57c475e4-24eb-5397-bbea-661850790414')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('29956b99-1386-5eab-b5fe-caa8ca35e2a8', 'WF', 'WLF', '876', 'Wallis and Futuna', '681', '35f8adec-1373-554b-a5eb-04c1b3352cd8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('90bf0b00-0fd8-5bc7-b6b2-c6218afce096', 'WS', 'WSM', '882', 'Samoa', '685', '98743acb-fe5a-59f0-bd9f-2c30e7fc157e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('f2af0056-9274-56c9-ae94-3b257c0861fc', 'YE', 'YEM', '887', 'Yemen', '967', '52188cfe-ad8b-53ba-b9e2-961fe4e12d0e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('dcd16f44-e1e8-5e60-aa44-108dd819f124', 'YT', 'MYT', '175', 'Mayotte', '262', 'e55577e4-405f-5d51-b310-a8e24a1957e1')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 'ZA', 'ZAF', '710', 'South Africa', '27', 'e7cf5b5a-c6b7-5e9d-bf05-f1811a26ad66')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('3c4b51a6-9098-5980-8b18-a05e51811f28', 'ZM', 'ZMB', '894', 'Zambia', '260', 'e98d3e9b-ad37-5416-aa79-6078eacbec86')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_country (id, code, alpha3, numeric_code, name, phone_code, currency_id)
+VALUES ('a26dda1d-8546-56e9-a36a-a0fc6e73b2a9', 'ZW', 'ZWE', '716', 'Zimbabwe', '263', 'f99e99a0-3000-5c98-af51-0064a3a37724')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('807ad94f-e2aa-5445-bb78-b3d05612e601', 'AE-AJ', '‘Ajmān', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('834ea7d0-6164-5d0b-aba7-e86bc0a899d6', 'AE-AZ', 'Abū Z̧aby', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('24d12217-5fb9-5e08-ae67-4c990094f406', 'AE-DU', 'Dubayy', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('332e6422-ec82-534b-81f4-ceac0fc87e7e', 'AE-FU', 'Al Fujayrah', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f75bb867-6446-54cd-9f1a-742369264162', 'AE-RK', 'Ra’s al Khaymah', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b5e7736e-e78e-59d7-b2dc-5fb14f962e66', 'AE-SH', 'Ash Shāriqah', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e7b5737b-ff2e-5de7-9753-f8db3b537752', 'AE-UQ', 'Umm al Qaywayn', 'Emirate', '31d3b768-f67a-5738-a18b-3f430befff89')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('74d8fbae-66bc-5753-a75c-ee290c9308ff', 'AR-A', 'Salta', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('616db330-b721-55bb-999b-84cb3ab76429', 'AR-B', 'Buenos Aires', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b67e8360-9c5f-5a70-bd7c-23a437f47c03', 'AR-C', 'Ciudad Autónoma de Buenos Aires', 'City', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f18909dc-9e16-5437-8ef0-219511fedc26', 'AR-D', 'San Luis', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('553f55ae-8f91-52c4-869a-aea3b2263f2f', 'AR-E', 'Entre Ríos', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a36133a2-7d0c-535b-95e1-b6ad8e27a0d6', 'AR-F', 'La Rioja', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d09e0d6d-7886-53b0-9b66-f064ed8c12f8', 'AR-G', 'Santiago del Estero', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6418cbd6-fe07-5e67-925a-addf30587237', 'AR-H', 'Chaco', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('acbe92ab-aa19-592e-b2a4-3a0d3156e233', 'AR-J', 'San Juan', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8049a9e7-a355-5f41-9071-dfd313e318c7', 'AR-K', 'Catamarca', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('03b6dfe6-4578-59a0-b660-0890d0a99ae4', 'AR-L', 'La Pampa', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a389cd99-f113-5a76-9918-52483c9380b0', 'AR-M', 'Mendoza', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('94d2e637-a248-5225-a549-8175b09f8dae', 'AR-N', 'Misiones', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('52f91fa8-f04d-554c-96bc-488112d77788', 'AR-P', 'Formosa', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2981de6e-0c9c-5952-9ea1-7f833792ecf5', 'AR-Q', 'Neuquén', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e4b8a3b1-7f44-5640-9335-cfafd47c5f39', 'AR-R', 'Río Negro', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f3089fff-6134-5003-9468-461f3a01febf', 'AR-S', 'Santa Fe', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e97744f3-4c5b-5434-9a22-d469e148e8b9', 'AR-T', 'Tucumán', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dbbdd011-2d57-5d06-af43-76484b8ae851', 'AR-U', 'Chubut', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1506fab1-e5e3-5abc-86ba-8d85b4e4c38f', 'AR-V', 'Tierra del Fuego', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4f70fdd3-0148-56ef-8de3-e923b57ff12c', 'AR-W', 'Corrientes', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a26f3474-47c6-5c9d-9c96-eec101723993', 'AR-X', 'Córdoba', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('39e36afb-7804-5a37-92a9-638f061e7ee1', 'AR-Y', 'Jujuy', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('df975ada-0a4d-5f1e-8f36-7d27f489bf02', 'AR-Z', 'Santa Cruz', 'Province', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5d801261-793d-5210-b649-f2d0503b8fec', 'AT-1', 'Burgenland', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f5f41f39-e68b-5267-8ae9-d3b2c9d0bab4', 'AT-2', 'Kärnten', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b9f0da20-41d2-59ba-83aa-ec87227610b8', 'AT-3', 'Niederösterreich', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cb68ec47-b049-5f04-a12b-db3c6e7a1963', 'AT-4', 'Oberösterreich', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ea363223-d7ae-5dc0-98ee-1cd86494282f', 'AT-5', 'Salzburg', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3d3d9e06-a5fd-580f-a33a-f227d1110217', 'AT-6', 'Steiermark', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3547c30b-f8e0-5d78-ae30-9986772130df', 'AT-7', 'Tirol', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('289426f9-9799-51a2-a1f0-46e0c1bf109d', 'AT-8', 'Vorarlberg', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c49fd690-9a65-5d32-a24f-7c1e007ac4bc', 'AT-9', 'Wien', 'State', '547a0809-e913-5c92-8cff-e646350306d9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('641b0a23-ee56-56a7-ae98-cfcce2c13683', 'AU-ACT', 'Australian Capital Territory', 'Territory', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d85c5db5-9cc6-5364-835a-01c0d23a978a', 'AU-NSW', 'New South Wales', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6c80333e-e75e-56d7-89ff-a055a1286f7e', 'AU-NT', 'Northern Territory', 'Territory', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('03524d6b-2422-56fc-810c-639f6dbd2634', 'AU-QLD', 'Queensland', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('39f2b236-1406-5c55-ad09-c11ace6209d7', 'AU-SA', 'South Australia', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e789489e-f14e-596b-ae91-b073d340be51', 'AU-TAS', 'Tasmania', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8c8e531f-ec6b-5644-87dd-4fb60576855b', 'AU-VIC', 'Victoria', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d0f6e94c-9a45-5bec-9c74-b44fef61a6ae', 'AU-WA', 'Western Australia', 'State', '2573552d-b80d-58c8-98d5-7e85146e8270')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0ec8b9e2-7494-56de-a0c5-7e1e01700424', 'BD-A', 'Barishal', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bb99089d-243c-5f06-88a5-ac7aa273a708', 'BD-B', 'Chattogram', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('89485de7-587c-5305-9a33-2e952662e78f', 'BD-C', 'Dhaka', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5999266e-f503-505f-b8f6-d9e2956fa07b', 'BD-D', 'Khulna', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8b023fe2-7efa-596f-99df-5aa0045409b3', 'BD-E', 'Rajshahi', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d96e1165-1e3b-563c-9ac1-6d0f4cfbc5ef', 'BD-F', 'Rangpur', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7727be8a-0cd8-59be-bc9f-d99a2491f61f', 'BD-G', 'Sylhet', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('14de433c-5095-56a7-b301-3e0e4a686589', 'BD-H', 'Mymensingh', 'Division', '6eb9c83a-ee5c-5375-a708-084341463216')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9604524e-1e49-5d6b-ac75-e8f605d91ea1', 'BE-BRU', 'Bruxelles-Capitale, Région de', 'Region', 'd1b9e2ce-1243-5f42-8b3c-81b661ea7614')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a851e7af-c94d-5aad-885b-2a391e77d6da', 'BE-VLG', 'Vlaams Gewest', 'Region', 'd1b9e2ce-1243-5f42-8b3c-81b661ea7614')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07bbe9e8-10bc-5877-850a-12205b4bac08', 'BE-WAL', 'wallonne, Région', 'Region', 'd1b9e2ce-1243-5f42-8b3c-81b661ea7614')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7ee0d066-368a-5f9c-91d5-1c2597ea26af', 'BR-AC', 'Acre', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('76c0e568-e22d-5227-a852-f061c333bde3', 'BR-AL', 'Alagoas', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('406c8e96-a942-5d80-b725-e47aaf06ad1c', 'BR-AM', 'Amazonas', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9f581f8d-ecad-5d40-befd-9222ad96ab37', 'BR-AP', 'Amapá', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0e6c6a4a-86a9-544a-a148-e30322b6927b', 'BR-BA', 'Bahia', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('26b06546-f94d-5969-a0b6-3e9cd08e1474', 'BR-CE', 'Ceará', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('96078e6e-1bb2-52f2-9b94-6d3076bb69bf', 'BR-DF', 'Distrito Federal', 'Federal district', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('66a89019-89f9-5f1e-a750-5ffb8b04c7e4', 'BR-ES', 'Espírito Santo', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d5d2493d-961d-543f-9bb0-4a91c4a79448', 'BR-GO', 'Goiás', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aa008e74-4a19-58c1-85c7-27d2d16ccc8b', 'BR-MA', 'Maranhão', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07129ddd-66b8-55cc-879c-ee5858a57742', 'BR-MG', 'Minas Gerais', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cc798a26-c4f1-5f09-b20c-952b019434ca', 'BR-MS', 'Mato Grosso do Sul', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4952ddb3-a87d-555a-b223-c7b2ceb05450', 'BR-MT', 'Mato Grosso', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('80f355ec-50ca-5716-96ba-b80a993faa3a', 'BR-PA', 'Pará', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1333846e-b3a9-568c-b23d-d980d16417aa', 'BR-PB', 'Paraíba', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d7b6c25-544c-5957-abd3-c947519efe04', 'BR-PE', 'Pernambuco', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c1880c50-4d1c-5f52-bf1f-b014809db28c', 'BR-PI', 'Piauí', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('99916ae6-ee28-5fa1-9890-1f85fd8f2c7b', 'BR-PR', 'Paraná', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a89a0d9c-0fb5-51d4-8797-3612f94b1f69', 'BR-RJ', 'Rio de Janeiro', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('21683156-7fdc-57a5-a5c1-2490cab2b6cb', 'BR-RN', 'Rio Grande do Norte', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0fcf47f4-4cec-5a12-bb1b-389cd7448054', 'BR-RO', 'Rondônia', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d07b7d89-1c34-545b-a431-068178e91e11', 'BR-RR', 'Roraima', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1f9d90a2-9a3d-5031-88f9-9784a7398a38', 'BR-RS', 'Rio Grande do Sul', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('792de50a-2d91-5662-a09f-72a55cc3adf9', 'BR-SC', 'Santa Catarina', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7913df68-ef53-5637-b56d-a39282cc8b7f', 'BR-SE', 'Sergipe', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('465760d3-4209-5fe8-b381-d54750ea2ff4', 'BR-SP', 'São Paulo', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3485b6c5-8f12-50cb-ba2e-66da76319fdf', 'BR-TO', 'Tocantins', 'State', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('60a16521-d70d-5114-a491-dcc870ed426f', 'CA-AB', 'Alberta', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0720f891-a10f-585a-b492-2b72d4a8764b', 'CA-BC', 'British Columbia', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f3af3ca8-69f7-54a8-a01e-852bf404b152', 'CA-MB', 'Manitoba', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c9f00e0-359b-57b5-8526-a48a9def9b67', 'CA-NB', 'New Brunswick', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a65ac426-1f35-5d16-9ea3-7961149bfa64', 'CA-NL', 'Newfoundland and Labrador', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bd99ef5a-12e2-5c7a-9600-81094c170e9e', 'CA-NS', 'Nova Scotia', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('498807d9-07d2-5b26-816d-cb8a00006069', 'CA-NT', 'Northwest Territories', 'Territory', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('603043d7-f92e-56e2-84ce-d71abc0573f3', 'CA-NU', 'Nunavut', 'Territory', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d1b10a6a-e97f-5421-a9f8-3f598e2e6286', 'CA-ON', 'Ontario', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c1b67d6c-8b4d-5105-9163-4d87ec5f2ee0', 'CA-PE', 'Prince Edward Island', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c48fb0a-7fd1-5e21-8ff0-e018a828e334', 'CA-QC', 'Quebec', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9fed64b6-8a77-5664-bc36-a36c5171d028', 'CA-SK', 'Saskatchewan', 'Province', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf5377c6-977c-552f-b706-e2142dc3d9fd', 'CA-YT', 'Yukon', 'Territory', '61b4568f-6209-54a4-9b9a-665be7c3555e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('288dd52b-84af-5e54-aa25-8dc76893cb2b', 'CH-AG', 'Aargau', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98d47646-001e-5132-9c77-b795b2834ecd', 'CH-AI', 'Appenzell Innerrhoden', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5b3fc50b-82bc-5864-95f0-b9451fb16908', 'CH-AR', 'Appenzell Ausserrhoden', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d8ab9e21-a6ed-511f-9fa7-3361f62e0440', 'CH-BE', 'Berne', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8af29bdc-058b-5e42-931c-5f2897003d8c', 'CH-BL', 'Basel-Landschaft', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('413aaf53-3811-5c04-ae4e-629f45d11cf0', 'CH-BS', 'Basel-Stadt', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ccabbb9-0d66-5973-9315-e1bb990f2246', 'CH-FR', 'Fribourg', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ea0a45d-2098-588f-86e8-3402384f2e86', 'CH-GE', 'Genève', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('26039b7c-5b6c-5014-91a1-f8374825bb49', 'CH-GL', 'Glarus', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b88945df-df00-54d6-971d-3501c0286460', 'CH-GR', 'Graubünden', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f443853-76dd-5f41-867d-4e1eca0a7efc', 'CH-JU', 'Jura', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a465a433-5450-55ca-b711-df2fdc67d648', 'CH-LU', 'Luzern', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('24e515e2-408f-528e-a152-78812eef1ed6', 'CH-NE', 'Neuchâtel', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dce1f7e4-dd60-51fc-9b22-da3e964a4ba0', 'CH-NW', 'Nidwalden', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fcd699ca-e82d-5dca-9854-382322c33032', 'CH-OW', 'Obwalden', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b9672fa4-1efa-5d9f-9545-b6e74ef15fcd', 'CH-SG', 'Sankt Gallen', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b893695f-fa18-5b01-b7d0-80282cbecd3b', 'CH-SH', 'Schaffhausen', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b1369a89-54f8-51a9-ae4d-e642373a8688', 'CH-SO', 'Solothurn', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('be1dd880-0c82-5175-9943-a5fe43cf0b23', 'CH-SZ', 'Schwyz', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5e99dc19-64cb-5571-99b7-cd3ebfd52a3e', 'CH-TG', 'Thurgau', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4686e768-30ef-5848-a257-de0ed3db643e', 'CH-TI', 'Ticino', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2fac9900-65b7-59cc-a6f3-57c21483bb28', 'CH-UR', 'Uri', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b77b9dea-2fe5-5a6a-9655-b7339adeffa6', 'CH-VD', 'Vaud', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd48648c-b2a6-521d-8008-ba4df0074bea', 'CH-VS', 'Valais', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4b72e138-4495-5df8-a9b0-86571b2e7b91', 'CH-ZG', 'Zug', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('88802918-0436-52c0-ad69-c73bee1d4f55', 'CH-ZH', 'Zürich', 'Canton', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5dc70d4d-5042-5b4c-b296-5cb933f2f03f', 'CL-AI', 'Aisén del General Carlos Ibañez del Campo', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6b323db7-1abc-53a7-ac42-b88114de2b85', 'CL-AN', 'Antofagasta', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('74188252-8b96-52ff-98fe-e9ee1de7bc4d', 'CL-AP', 'Arica y Parinacota', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('60b0d12b-e07c-5a7d-8144-92a62e300354', 'CL-AR', 'La Araucanía', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e79a56f2-36fa-5d9a-bc85-bc81da76abaf', 'CL-AT', 'Atacama', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0c14cecd-b794-5230-a478-312ef7b6fe51', 'CL-BI', 'Biobío', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9e5ca644-91cb-5469-8e9b-e797237087fa', 'CL-CO', 'Coquimbo', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d44e5eca-0e68-5303-ac97-008ab4a2d9cb', 'CL-LI', 'Libertador General Bernardo O''Higgins', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c87f4214-c596-5f1d-8148-a870c1646bad', 'CL-LL', 'Los Lagos', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff6c02ad-ae5a-5ed4-ba7b-55663f13cdf6', 'CL-LR', 'Los Ríos', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e2e9caea-4606-5f4b-8128-7cef526c6c73', 'CL-MA', 'Magallanes', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('16195d65-69d2-54f1-9162-cfdfe196362d', 'CL-ML', 'Maule', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('715596ee-4a4c-5e8b-886e-95bd23996a1c', 'CL-NB', 'Ñuble', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f1805497-13b6-548b-b54d-88e46afa75e4', 'CL-RM', 'Región Metropolitana de Santiago', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed3dec39-c054-5968-b5ac-c69677e77c59', 'CL-TA', 'Tarapacá', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d3e77aa3-059c-51b6-83f4-bbdc6933441b', 'CL-VS', 'Valparaíso', 'Region', 'e539073a-2155-5d55-962b-3cdcfa1ef067')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f96b52ab-5188-5522-beeb-2e17179ff2cd', 'CN-AH', 'Anhui Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1165c944-a41f-5cde-960b-fed66a26aaab', 'CN-BJ', 'Beijing Shi', 'Municipality', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9d5e83a6-2af8-5990-9889-5b5e3c673581', 'CN-CQ', 'Chongqing Shi', 'Municipality', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d97d1d58-3912-5d48-9030-986ac2bd7089', 'CN-FJ', 'Fujian Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ea23f0fc-9f66-55ef-bdd6-0db7ddf967eb', 'CN-GD', 'Guangdong Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9bc8d675-07d9-5154-902e-a46265e7e1be', 'CN-GS', 'Gansu Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f7ff108c-9dcf-5caf-b16d-e54e3a13aebe', 'CN-GX', 'Guangxi Zhuangzu Zizhiqu', 'Autonomous region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('46a729de-3151-5331-bfd1-c87e8d0e9d22', 'CN-GZ', 'Guizhou Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f790cde7-09c3-5c7e-b221-5632b9ce48ea', 'CN-HA', 'Henan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('720f51fd-a316-5099-9a4c-2ea2b7cd9338', 'CN-HB', 'Hubei Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6715f644-d1dc-5caf-ae71-09f75012d537', 'CN-HE', 'Hebei Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fc66123d-2eed-5177-a05e-640aaaed839b', 'CN-HI', 'Hainan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('915ab269-38c2-50e5-ae4e-863313200783', 'CN-HK', 'Hong Kong SAR', 'Special administrative region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b44b3e1e-1a22-5487-9e74-e9d76a7188e6', 'CN-HL', 'Heilongjiang Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('61ec2323-7301-5de3-884a-775b9f2e41d8', 'CN-HN', 'Hunan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8e43e7d3-5a3c-55e7-95f1-aa5bc6a6fd0d', 'CN-JL', 'Jilin Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d97ee4c9-c64b-55b1-a961-d83a20916548', 'CN-JS', 'Jiangsu Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98e611bd-b85a-55d4-b9dd-1d221b42c48e', 'CN-JX', 'Jiangxi Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1281afae-ea64-5356-87ec-c61c131a9d5e', 'CN-LN', 'Liaoning Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fb2eafc0-c578-5e6a-82f7-2fb3134d0878', 'CN-MO', 'Macao SAR', 'Special administrative region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6e1a6682-adf2-5fd5-b403-790eb319e576', 'CN-NM', 'Nei Mongol Zizhiqu', 'Autonomous region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a1990bb5-f71c-5cf0-a319-1a3beae08665', 'CN-NX', 'Ningxia Huizu Zizhiqu', 'Autonomous region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b3cb839f-2a05-54a5-9354-db881a88ebde', 'CN-QH', 'Qinghai Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9a28565b-571a-5b3c-ae78-f5991fb6c7e9', 'CN-SC', 'Sichuan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e396163f-af0f-5e8f-9fdd-e5e58692aee0', 'CN-SD', 'Shandong Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7a7782a3-109d-5487-a388-63dc48505aad', 'CN-SH', 'Shanghai Shi', 'Municipality', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4a0dce32-0f0e-5531-b147-c2e8f10be27a', 'CN-SN', 'Shaanxi Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f78dc6fc-0fc4-5c70-b571-415b93cc3efd', 'CN-SX', 'Shanxi Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e22e283b-3378-5a8c-ad5f-e5aae4d2bb20', 'CN-TJ', 'Tianjin Shi', 'Municipality', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f14e58a3-9cfa-57d2-aafb-8cceca12deb8', 'CN-TW', 'Taiwan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d52bcb71-44db-51df-b0a1-79dfdb9f765c', 'CN-XJ', 'Xinjiang Uygur Zizhiqu', 'Autonomous region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bd7b7c9c-d019-5404-9856-3fd7c47f9ced', 'CN-XZ', 'Xizang Zizhiqu', 'Autonomous region', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('730fee8a-9dc5-584f-bfcf-d1cdef43a51e', 'CN-YN', 'Yunnan Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('78a94f9a-d039-55c2-8b8a-dc96b8b027f8', 'CN-ZJ', 'Zhejiang Sheng', 'Province', '6003e15e-2c59-580c-b1c4-c1d38760c9ad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9247e402-692f-5896-b1e0-3bfc425dfb5f', 'CO-AMA', 'Amazonas', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('059defde-0a38-50d3-b3de-bc7102882609', 'CO-ANT', 'Antioquia', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('162a9ec5-8992-52d1-bd9b-78ce325fa84f', 'CO-ARA', 'Arauca', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4d5feccd-cec4-5b04-a7ec-37f9012e319b', 'CO-ATL', 'Atlántico', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('20705548-4cd8-5beb-a1fa-b43ee38831f1', 'CO-BOL', 'Bolívar', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9c5a3826-484c-5ec1-aa2e-089cb91d0d5f', 'CO-BOY', 'Boyacá', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('83368cdc-8b2c-51cb-a8c6-d337781d6df8', 'CO-CAL', 'Caldas', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ef2ff1d3-0808-5e3c-b157-b37812525f0c', 'CO-CAQ', 'Caquetá', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ceda626b-5e0a-51b4-91f0-192c46fbdb9b', 'CO-CAS', 'Casanare', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1f412769-393b-5349-a2be-2f5bddf445ac', 'CO-CAU', 'Cauca', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f8c47846-8da5-5ef7-aff5-2b5308d20587', 'CO-CES', 'Cesar', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d4860e5a-80e8-59f1-a537-790fc07fba7a', 'CO-CHO', 'Chocó', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2cac86d9-847f-579f-935d-d2162089215f', 'CO-COR', 'Córdoba', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af7de5a1-7dee-5d83-99b8-1dd50888aa55', 'CO-CUN', 'Cundinamarca', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6d1fd941-4eea-5ca6-9fd5-62e24b7a6d8c', 'CO-DC', 'Distrito Capital de Bogotá', 'Capital district', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a72b5575-2b51-518f-9497-fd3a967b3ada', 'CO-GUA', 'Guainía', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('47d95d11-c262-519d-8a5e-3cc1358c7e3c', 'CO-GUV', 'Guaviare', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('417c790c-5b26-55cc-9d86-9bb7ab8733d7', 'CO-HUI', 'Huila', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('062e4de7-23ee-539b-a620-7a6b60d5c19e', 'CO-LAG', 'La Guajira', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3d4cd72a-6127-5e5c-b5f8-a0fe90a4b507', 'CO-MAG', 'Magdalena', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e457ed5e-ee3e-55e8-9aae-cdae50b980a6', 'CO-MET', 'Meta', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1afab596-d3fa-5869-98f8-3f276a01a73c', 'CO-NAR', 'Nariño', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f6fbd7d4-f46f-5b2a-8d10-8bac59932dcc', 'CO-NSA', 'Norte de Santander', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('58d80226-60f1-510c-ab3e-99210e871eef', 'CO-PUT', 'Putumayo', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f76a6d04-f3ec-5218-b7dc-f6bc39d43c62', 'CO-QUI', 'Quindío', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('75dcd45c-e7e4-5151-bab8-5148896a1366', 'CO-RIS', 'Risaralda', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5a6cef2d-d17b-5766-b666-edb61f051ca7', 'CO-SAN', 'Santander', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1cc8d3ef-a310-5783-849a-aaf3ccdf1b86', 'CO-SAP', 'San Andrés, Providencia y Santa Catalina', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c7352ce2-39b4-5e5a-839b-5e576fc61e67', 'CO-SUC', 'Sucre', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a82ccbd5-db06-5076-905e-d7837626b024', 'CO-TOL', 'Tolima', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('55118940-7578-59e8-becb-a67d4d4e4578', 'CO-VAC', 'Valle del Cauca', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('78ed83c0-0b90-5b03-bfc8-79800c160913', 'CO-VAU', 'Vaupés', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e18c391c-4e04-5068-9f68-2d698eddca25', 'CO-VID', 'Vichada', 'Department', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e2e8a2fa-dbb1-5c66-a5e5-6d30262b70f0', 'DE-BB', 'Brandenburg', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3ee95a23-1610-5c98-aa82-1daa39d14bde', 'DE-BE', 'Berlin', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ad9e4dab-4847-58e9-ae63-0c856ccfed77', 'DE-BW', 'Baden-Württemberg', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('957c7388-1d5d-5545-bb25-085c71f42cce', 'DE-BY', 'Bayern', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('44b64813-f505-56e5-a8eb-c34a9657b976', 'DE-HB', 'Bremen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf02241f-eb5c-5e1d-a922-751dbc6f8342', 'DE-HE', 'Hessen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b51eee35-dd12-53d0-8f7c-c883a0eecdf7', 'DE-HH', 'Hamburg', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('485d3706-a31a-590a-ab3a-d71f029ee68a', 'DE-MV', 'Mecklenburg-Vorpommern', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5a0daca2-fbcd-5ad5-8eed-1cbae49b2478', 'DE-NI', 'Niedersachsen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2b0e2e40-1773-55e8-8ea6-f5dd8a596667', 'DE-NW', 'Nordrhein-Westfalen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aae3a721-bb19-562d-aac1-12671419e5ec', 'DE-RP', 'Rheinland-Pfalz', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2150a207-4f71-5c90-ac08-ebce3608e8b2', 'DE-SH', 'Schleswig-Holstein', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4fe801a8-12b8-5e90-aa0f-7f3b6c898e7a', 'DE-SL', 'Saarland', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('63f57f09-5922-526c-bda9-94dc59e6f954', 'DE-SN', 'Sachsen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4c4f7599-d1d5-5f34-ac22-1a22b4ca8bee', 'DE-ST', 'Sachsen-Anhalt', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4b018e5e-7ed3-5129-a060-0c2cc432220a', 'DE-TH', 'Thüringen', 'Land', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('86b42d90-8a5e-519e-abf6-861f755b65c5', 'DK-81', 'Nordjylland', 'Region', '876d1a77-988a-5482-9d86-1ae1195e2236')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cf5fa1c0-cfad-5699-8380-e3a2c60f9dc9', 'DK-82', 'Midtjylland', 'Region', '876d1a77-988a-5482-9d86-1ae1195e2236')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5d980f2a-f2be-5485-9cda-06391538dac2', 'DK-83', 'Syddanmark', 'Region', '876d1a77-988a-5482-9d86-1ae1195e2236')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('69829e9b-0472-5794-ab57-d286b3711844', 'DK-84', 'Hovedstaden', 'Region', '876d1a77-988a-5482-9d86-1ae1195e2236')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d6536ab7-9def-58cf-8303-ee006a2e90ea', 'DK-85', 'Sjælland', 'Region', '876d1a77-988a-5482-9d86-1ae1195e2236')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('785cb3cf-6886-5a8b-9a9a-9f524838f9a4', 'EG-ALX', 'Al Iskandarīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6dc5cd37-83f4-589a-952a-a51cff2e37b9', 'EG-ASN', 'Aswān', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('39d70102-5d65-550b-a92c-4cdd30acc387', 'EG-AST', 'Asyūţ', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('525cb474-8aa1-5d14-9783-0ede0e07461a', 'EG-BA', 'Al Baḩr al Aḩmar', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9d52339c-2beb-5ecd-a2c7-b0055b57903c', 'EG-BH', 'Al Buḩayrah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de7ff9f0-ce77-547c-b806-e4831fe5cc3d', 'EG-BNS', 'Banī Suwayf', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5b2dd40f-ca4c-54e1-bfec-d5e420e17293', 'EG-C', 'Al Qāhirah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('12e651e1-a2b9-5361-9b29-4e3b9cb080c2', 'EG-DK', 'Ad Daqahlīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf222950-358f-5843-bf72-7c9135e06a8f', 'EG-DT', 'Dumyāţ', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('be46d757-c54d-5533-94f5-dca13ee8e4d9', 'EG-FYM', 'Al Fayyūm', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('66b9e981-f34e-5ca9-afff-2e8687feaf8e', 'EG-GH', 'Al Gharbīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('69e87c3b-6d23-5c98-ae5e-972069566d17', 'EG-GZ', 'Al Jīzah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1545b473-5528-5536-9dd5-476764802636', 'EG-IS', 'Al Ismā''īlīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3b979554-51eb-55e5-b0ff-19580c300821', 'EG-JS', 'Janūb Sīnā''', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fcbd9276-9b03-5fda-9c7b-a1ad7c4bff30', 'EG-KB', 'Al Qalyūbīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9217b4e1-e4cb-5a27-a6b8-cff3e360d3d0', 'EG-KFS', 'Kafr ash Shaykh', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a5fd5371-ebb5-5519-80bf-b370905dd050', 'EG-KN', 'Qinā', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b0e119ec-cc21-5cf2-84b6-1fad3ebe8cd9', 'EG-LX', 'Al Uqşur', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b93a8d26-bf0f-5579-8075-feadf3fd681f', 'EG-MN', 'Al Minyā', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed1bab7d-e09b-5938-bd54-c7e92cfcaee0', 'EG-MNF', 'Al Minūfīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1bdc7c4b-919b-5060-bda4-a50066602399', 'EG-MT', 'Maţrūḩ', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6347c07a-ba44-54f9-8890-a2741a8356bd', 'EG-PTS', 'Būr Sa‘īd', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('378a3539-d594-538c-b3c7-8cc60be4f6ec', 'EG-SHG', 'Sūhāj', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f26d5cd4-15d8-5501-9c54-c1ecef834934', 'EG-SHR', 'Ash Sharqīyah', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('199dd68f-8c02-5bd6-ae55-70a37eec00e4', 'EG-SIN', 'Shamāl Sīnā''', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('75986915-1b58-5e63-ab5f-862ba5112915', 'EG-SUZ', 'As Suways', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf0963e7-e17f-58e6-b15a-5efde5416d4d', 'EG-WAD', 'Al Wādī al Jadīd', 'Governorate', 'ebb66a53-0170-52aa-8620-172aaec0cf82')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b9a5745c-6d12-5b34-92cd-3e85572877fe', 'ES-AN', 'Andalucía', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('82c504ca-80c6-5d1b-ba6b-2f7a48d19b85', 'ES-AR', 'Aragón', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6c700124-40e6-5b81-ad41-bb57ab82cd4a', 'ES-AS', 'Asturias, Principado de', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('665b2764-3e8b-5ee1-ab42-7a7ff4927f52', 'ES-CB', 'Cantabria', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c57e0e8c-408a-562c-baf5-8540443d8847', 'ES-CE', 'Ceuta', 'Autonomous city in north africa', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d736cbec-3ed8-522a-83b2-a02c37edc7e2', 'ES-CL', 'Castilla y León', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8c5d9610-6831-5237-a4e6-4c10969971c4', 'ES-CM', 'Castilla-La Mancha', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('80b890cb-0eea-5c7b-bb1a-4c9c686536ec', 'ES-CN', 'Canarias', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('69170762-473b-59d1-97e2-460b26f5e151', 'ES-CT', 'Catalunya [Cataluña]', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('87fc2753-778d-56e7-96bb-24c6d0d09a67', 'ES-EX', 'Extremadura', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fcc9d2bd-6256-50bb-81c2-4f6ba51dbff3', 'ES-GA', 'Galicia [Galicia]', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a9b383cf-1489-5648-a9e2-ebeea408fbf2', 'ES-IB', 'Illes Balears [Islas Baleares]', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c11cba06-e7a4-59b7-97c7-e29c5202741d', 'ES-MC', 'Murcia, Región de', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b12beb9e-18d1-5a5d-9ad2-169f25ad4f7d', 'ES-MD', 'Madrid, Comunidad de', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf4b9984-9a0b-5484-b8e1-aef27bbb8864', 'ES-ML', 'Melilla', 'Autonomous city in north africa', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d1f85d47-58a1-5477-b7fd-d0fad3eb897c', 'ES-NC', 'Navarra, Comunidad Foral de', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4e97a38e-e98d-5269-a0b7-4eca83b77422', 'ES-PV', 'País Vasco', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4e21a6dd-6a21-537f-aaf7-6fdc520493bd', 'ES-RI', 'La Rioja', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('33b50f2c-b768-5fac-8aea-83108b18102a', 'ES-VC', 'Valenciana, Comunidad', 'Autonomous community', 'b2139611-176f-58d7-800a-7f9dd16fed47')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dca48219-17d0-560a-a767-719404500e81', 'FI-01', 'Landskapet Åland', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c3d6557-f7ba-56ae-b434-137cad388337', 'FI-02', 'Etelä-Karjala', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5dd6cf17-b382-564b-9c5d-b3181284d0c4', 'FI-03', 'Etelä-Pohjanmaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7295aed6-fc22-5787-8a62-3660d59abc4f', 'FI-04', 'Etelä-Savo', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('948d9f71-ef84-5ab9-94b4-9dcca67bd885', 'FI-05', 'Kainuu', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2b781ed5-4b59-5072-b861-db57d21b7624', 'FI-06', 'Kanta-Häme', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('63c3fde4-69ac-543f-a9b5-50f171326d4d', 'FI-07', 'Keski-Pohjanmaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('350cf2af-37ad-544c-a0a1-9781877bd54a', 'FI-08', 'Keski-Suomi', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ad3abfe-6577-56d9-b7ac-b73a9c188bc4', 'FI-09', 'Kymenlaakso', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('49ef93f6-30ff-563c-9ef2-db96679527ee', 'FI-10', 'Lappi', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e504d27b-b6db-54be-894f-dd25be3bc1ac', 'FI-11', 'Pirkanmaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee4b4676-e567-55ae-a378-84cd1bce4a70', 'FI-12', 'Pohjanmaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e359cc5a-5e38-5a4a-845a-59ab0a4a4598', 'FI-13', 'Pohjois-Karjala', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b82bee6a-dd8a-5a5c-9404-86c29fa3e7b6', 'FI-14', 'Pohjois-Pohjanmaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9556cb66-9f56-5e32-aaef-56cfa1713cf4', 'FI-15', 'Pohjois-Savo', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a10c139b-2a71-594b-b978-376bbe607d56', 'FI-16', 'Päijät-Häme', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('145e683a-b8d0-5e30-bbda-da855c8d4beb', 'FI-17', 'Satakunta', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('15908899-239a-5bfa-8f9d-390e3950d51a', 'FI-18', 'Uusimaa', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f729bad3-73a5-5cb9-a8a2-99fce7de2a16', 'FI-19', 'Varsinais-Suomi', 'Region', '3950851b-183e-5d34-ab8b-f3ca9457183b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c009fe5a-15ab-56ea-9ed1-72af7c7dc6c3', 'FR-20R', 'Corse', 'Metropolitan collectivity with special status', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2c5c07ec-2ff4-5155-b575-d046ce011844', 'FR-971', 'Guadeloupe', 'Overseas departmental collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b53bc1b0-fae9-50d2-838e-2f082af005f3', 'FR-972', 'Martinique', 'Overseas unique territorial collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed1e0165-714e-5190-8735-6239c3138b74', 'FR-973', 'Guyane (française)', 'Overseas unique territorial collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fd8689f5-7808-5a4c-93f9-b72692c31a9c', 'FR-974', 'La Réunion', 'Overseas departmental collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('18b24626-fdb9-5668-82e0-b0660a107a14', 'FR-976', 'Mayotte', 'Overseas departmental collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07ded5df-3f39-5d59-8a20-1a1b46bc2fd6', 'FR-ARA', 'Auvergne-Rhône-Alpes', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('394512bb-f9cc-5989-814d-9720d4ffc13a', 'FR-BFC', 'Bourgogne-Franche-Comté', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('723ca205-cd0d-5abf-82dd-98e983230115', 'FR-BL', 'Saint-Barthélemy', 'Overseas collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8f88bfad-3969-546b-9b09-29d004c711bd', 'FR-BRE', 'Bretagne', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9da19b96-16a4-551d-8e7a-bc1c0a426d5a', 'FR-CP', 'Clipperton', 'Dependency', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('38dbde48-5f13-53be-8f76-4f871552fb16', 'FR-CVL', 'Centre-Val de Loire', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e7693289-b933-5792-9492-512328116c62', 'FR-GES', 'Grand-Est', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('61bb0591-ae10-5196-81b8-f2cbec476b87', 'FR-HDF', 'Hauts-de-France', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fb577a25-ad19-5269-8ab9-269455965306', 'FR-IDF', 'Île-de-France', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a10be598-9a43-5d4e-a6b1-601dcb692a92', 'FR-MF', 'Saint-Martin', 'Overseas collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('42ad9812-c4a9-520c-a5ea-ca2b259fbbc3', 'FR-NAQ', 'Nouvelle-Aquitaine', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8473bc25-92a1-53c7-98ba-6fff2ac43e47', 'FR-NC', 'Nouvelle-Calédonie', 'Overseas collectivity with special status', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('faa387a6-1bcc-5728-9e39-c2619cc3b8fc', 'FR-NOR', 'Normandie', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('87979aaa-5dde-5614-9f2c-3f1ab5506a37', 'FR-OCC', 'Occitanie', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f4b414cd-c828-5880-9cd5-969b60fee896', 'FR-PAC', 'Provence-Alpes-Côte-d’Azur', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('95da9f0b-2b38-5ef9-a800-f32cc9fcecfa', 'FR-PDL', 'Pays-de-la-Loire', 'Metropolitan region', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('688c3f82-d3d6-565c-a33b-ba5ed4df0d6e', 'FR-PF', 'Polynésie française', 'Overseas collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('42da3049-c8ec-5562-a7fa-0d28f0e0e62e', 'FR-PM', 'Saint-Pierre-et-Miquelon', 'Overseas collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6ff16a21-6a93-5c98-9233-06aad2fffb2d', 'FR-TF', 'Terres australes françaises', 'Overseas territory', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b0fb9a3a-9b6c-53bd-97f4-07255c6f9c10', 'FR-WF', 'Wallis-et-Futuna', 'Overseas collectivity', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bb0edc7a-90fe-530d-a06d-70887c33500b', 'GB-ENG', 'England', 'Country', '9e93e827-1d0d-5314-aa24-70dcb59b1910')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('49b0a22d-3872-51a2-85ab-77e509cc50ea', 'GB-NIR', 'Northern Ireland', 'Province', '9e93e827-1d0d-5314-aa24-70dcb59b1910')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d6e2d393-8236-5e11-86d1-cd841db398d8', 'GB-SCT', 'Scotland', 'Country', '9e93e827-1d0d-5314-aa24-70dcb59b1910')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1cc5a40d-aced-537e-ad75-274efb671799', 'GB-WLS', 'Wales [Cymru GB-CYM]', 'Country', '9e93e827-1d0d-5314-aa24-70dcb59b1910')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bbbe2bd1-fc2f-5e21-aaa2-5d7319a79c76', 'ID-JW', 'Jawa', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('23a5155f-b20f-52cc-ac98-6abdc8f5c5db', 'ID-KA', 'Kalimantan', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0572dfab-9057-5fe6-b1cd-ada9581fab3a', 'ID-ML', 'Maluku', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ebbb9340-7643-51e9-bd94-725517596038', 'ID-NU', 'Nusa Tenggara', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('eb4908e9-95f6-58a1-b371-befdb9587e25', 'ID-PP', 'Papua', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('df6ab86c-8fbb-5b0f-92a0-258f0ef3eb29', 'ID-SL', 'Sulawesi', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('93f75e5c-b911-5de0-a30a-26735504c107', 'ID-SM', 'Sumatera', 'Geographical unit', '338ff4a1-d3a3-5067-a750-e9597022d99d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0fe5d0ac-7b9d-5d39-b588-048131a31a84', 'IE-C', 'Connaught', 'Province', 'd4fa6ad3-228d-5ee3-bce2-261c5276578c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bff903e0-868d-5de8-9505-99c9e50f826a', 'IE-L', 'Leinster', 'Province', 'd4fa6ad3-228d-5ee3-bce2-261c5276578c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8b665373-947c-5dff-8044-617f40efac6a', 'IE-M', 'Munster', 'Province', 'd4fa6ad3-228d-5ee3-bce2-261c5276578c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3f57926f-aa98-5868-9258-6c32eed3d2d5', 'IE-U', 'Ulster', 'Province', 'd4fa6ad3-228d-5ee3-bce2-261c5276578c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3bba446f-d7fb-539c-aadd-f56d98c93674', 'IN-AN', 'Andaman and Nicobar Islands', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bb3c528f-8b8e-5298-a116-f2f22519ae53', 'IN-AP', 'Andhra Pradesh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f5487150-fc81-5638-8963-03af9c0f7c1d', 'IN-AR', 'Arunāchal Pradesh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f159f54d-174f-59bd-80e6-58f715273382', 'IN-AS', 'Assam', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('67e4a67a-9f08-5141-9313-cc549f41fbb8', 'IN-BR', 'Bihār', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f2678b01-3ddb-532e-9b6d-90a5dee68f00', 'IN-CG', 'Chhattīsgarh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7b643a3a-c3c0-5efa-bbcd-319332a5378c', 'IN-CH', 'Chandīgarh', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f3967ba0-6821-5cfc-bfd4-73ea0f3ca716', 'IN-DH', 'Dādra and Nagar Haveli and Damān and Diu', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8ceb084a-4ac0-550b-8b8b-71917aa52a85', 'IN-DL', 'Delhi', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('54cb0b57-0f69-58ae-89b5-d607f713f915', 'IN-GA', 'Goa', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('db00be4c-8d45-5e7b-9731-e3dcf8074fcd', 'IN-GJ', 'Gujarāt', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('84d147f7-d337-5bce-92b1-06510f258822', 'IN-HP', 'Himāchal Pradesh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a5b774fa-e65f-5b2a-901b-0c8707fbb1fc', 'IN-HR', 'Haryāna', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('50e06042-7735-5efa-8bcb-60c0d5cd043c', 'IN-JH', 'Jhārkhand', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d98cd82d-2f5a-5d7a-b1fe-a3a3317b53f1', 'IN-JK', 'Jammu and Kashmīr', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fcc5b47b-e0c1-5971-869c-04a79bc939d3', 'IN-KA', 'Karnātaka', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('425e07d6-3fa6-5ed3-bc7a-27f5c107d145', 'IN-KL', 'Kerala', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4329c7d0-2c88-5d0e-863d-d3cff543a2cd', 'IN-LA', 'Ladākh', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7dfe61ed-6f65-57e2-bd28-62656f147ea7', 'IN-LD', 'Lakshadweep', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b7444619-910e-5c41-af9e-cf43a3769d43', 'IN-MH', 'Mahārāshtra', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('23a3f12a-8881-5bc2-bb6c-ee12084c4b48', 'IN-ML', 'Meghālaya', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3f8874d4-00ed-5f20-b78c-d95c83ca0362', 'IN-MN', 'Manipur', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('190afa80-21db-5f88-a0a4-4dcea11370a4', 'IN-MP', 'Madhya Pradesh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9d7efc3a-0f69-5b39-a242-7534fcc0811c', 'IN-MZ', 'Mizoram', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff93913f-ddd8-5675-99a8-b62a767dedc4', 'IN-NL', 'Nāgāland', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ae2a13a8-c6b3-5b4c-9512-9de3e10d5b1d', 'IN-OD', 'Odisha', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('95521d4e-ad4e-5f62-8666-dfdcb9016d65', 'IN-PB', 'Punjab', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d20b6ea-9e56-532d-989c-debc84e362a6', 'IN-PY', 'Puducherry', 'Union territory', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d2a98295-ef96-5a00-810c-5271fae832c4', 'IN-RJ', 'Rājasthān', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d6cfd0a2-bdff-51e4-b9b4-9e452b639e92', 'IN-SK', 'Sikkim', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f6117628-e317-50db-ba9c-271f7dd504bc', 'IN-TN', 'Tamil Nādu', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e535100d-df58-5d1b-8fce-02a99aec826c', 'IN-TR', 'Tripura', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a04833d5-3424-5f1b-a66c-46b7f3e66849', 'IN-TS', 'Telangāna', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('05a224cf-a1ef-57d3-ace9-4f85b9cdaf70', 'IN-UK', 'Uttarākhand', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('17172f02-ba81-5e7c-8b9a-207e3748d237', 'IN-UP', 'Uttar Pradesh', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bfa0f65e-2505-5d23-bd89-656caffa93d7', 'IN-WB', 'West Bengal', 'State', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('119253bb-6e86-5a5f-adb9-e49778c99a0f', 'IT-21', 'Piemonte', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0d2d815f-963d-5059-b9b2-7d756dc9824c', 'IT-23', 'Valle d''Aosta', 'Autonomous region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('198c3ede-3a08-5744-8b88-6883e9c25147', 'IT-25', 'Lombardia', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('384a0fc7-25e1-521c-a0de-e0a5fed14135', 'IT-32', 'Trentino-Alto Adige', 'Autonomous region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ce77bb74-f7ed-5340-99be-6b4cdc77fc0e', 'IT-34', 'Veneto', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7796c58f-8097-506e-8967-036ca6eeb7d3', 'IT-36', 'Friuli Venezia Giulia', 'Autonomous region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b7c9ae34-8909-5ecb-95fb-4b41a59217a0', 'IT-42', 'Liguria', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5c979c91-65fa-5c87-a6e1-7d5a3018808d', 'IT-45', 'Emilia-Romagna', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('937517b2-725d-5b36-9299-5d273abdd92c', 'IT-52', 'Toscana', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0043ce67-e40d-5ac2-aa12-92a74b8e7ca6', 'IT-55', 'Umbria', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b3a4c214-b8c1-5b1a-8ac8-8c53841158db', 'IT-57', 'Marche', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3ba57b1f-c57a-5eb2-827f-466dbe416249', 'IT-62', 'Lazio', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('632232ca-a9b5-59d8-8da8-484d67498200', 'IT-65', 'Abruzzo', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d89e322b-1135-559d-ac5a-bb4de5623891', 'IT-67', 'Molise', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('65b40ce0-2481-5be0-9b04-17950adc7604', 'IT-72', 'Campania', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('818f3573-f129-5116-bf9a-d430c748ff28', 'IT-75', 'Puglia', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f6cbb273-b090-51c7-8e32-df5d1568325c', 'IT-77', 'Basilicata', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ecb10f35-bf61-56f7-9785-37dec4be83da', 'IT-78', 'Calabria', 'Region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b4b219f3-56ed-5cee-9de7-274ea6602eb8', 'IT-82', 'Sicilia', 'Autonomous region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c94a6a8e-9e34-5889-9215-319d58a88b27', 'IT-88', 'Sardegna', 'Autonomous region', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('27288949-a6a0-59d8-a3ef-969a50e8e7a0', 'JP-01', 'Hokkaido', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('97b7293f-b534-5979-88e2-10093448ee89', 'JP-02', 'Aomori', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('48304bf9-a968-5383-a984-785b897b8119', 'JP-03', 'Iwate', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d8406ca-97c4-581a-90e0-9d8afa6cc652', 'JP-04', 'Miyagi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5607ec48-a5af-5de7-8779-494d5e9a7ea4', 'JP-05', 'Akita', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('eb56eec8-449c-50e0-b068-b44120d86c90', 'JP-06', 'Yamagata', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('599fdc06-0631-5c08-a44d-d7600108257d', 'JP-07', 'Fukushima', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fb95924a-a6d7-5d68-9640-e0173fe452f3', 'JP-08', 'Ibaraki', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('61ef7d94-df19-5ac3-8fb2-d5089f833fd0', 'JP-09', 'Tochigi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d6db1b3e-94f3-5b7b-8971-61945ddc73a8', 'JP-10', 'Gunma', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('890b8e2b-35fe-575c-8f9c-6d6e0ed9e728', 'JP-11', 'Saitama', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8a2b304d-bbc2-5f56-8f13-dfc9a4e5e099', 'JP-12', 'Chiba', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('df53e701-7fb8-58d0-92f7-12a145054a56', 'JP-13', 'Tokyo', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('689cb8a5-8129-592a-ad23-c98de2058aa1', 'JP-14', 'Kanagawa', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c3c104fc-5691-5cb5-b163-b06d31c1c406', 'JP-15', 'Niigata', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4e592c26-9a1e-5476-8260-40aa0c0099aa', 'JP-16', 'Toyama', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('41bff9bc-3a10-5c40-a667-8a7cc59d8b42', 'JP-17', 'Ishikawa', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3ec9ce27-5363-56f5-882e-7a6406d5dafa', 'JP-18', 'Fukui', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f86e130b-26db-5bb0-8be4-61e7a770e47c', 'JP-19', 'Yamanashi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('173b7077-4746-55c5-aef3-6c17fe7937f5', 'JP-20', 'Nagano', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98f80552-be5a-5e7e-b764-4ddc0de2b888', 'JP-21', 'Gifu', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1f7fcd3f-9410-5eb1-a4cc-afb2b8add5b5', 'JP-22', 'Shizuoka', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0f91379d-ff34-5089-a2b6-97aa3296c01e', 'JP-23', 'Aichi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dafa5092-6a0b-57ae-9a0e-3f6a5c79013f', 'JP-24', 'Mie', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b2e2f60d-0bd5-5aaa-b6ff-57a264e09721', 'JP-25', 'Shiga', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('91fdc0aa-b8b4-5c0b-8c25-327dea4c042d', 'JP-26', 'Kyoto', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('eeb71683-1cc0-52e6-affa-39a7ae2c1138', 'JP-27', 'Osaka', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2623c811-55a0-5ca8-83a7-31f87fbe940b', 'JP-28', 'Hyogo', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('431b2561-40f3-5c44-bdfb-68db1038e66b', 'JP-29', 'Nara', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f9af66b4-db00-5bfe-822f-67c98db9c682', 'JP-30', 'Wakayama', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4a3ee132-86e8-568e-b263-ee0559917c37', 'JP-31', 'Tottori', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('82f0433f-f6e2-516e-ac12-68bc928fc3fe', 'JP-32', 'Shimane', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('932e4d00-395a-5ee7-a8d6-44a172691f5f', 'JP-33', 'Okayama', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2a6b042c-d656-5e2b-b7ee-b57b3dad557d', 'JP-34', 'Hiroshima', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b4eecdbe-b95d-5894-8db7-6c83752d6c87', 'JP-35', 'Yamaguchi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cf37f345-b2c2-5b70-9677-decd83583c35', 'JP-36', 'Tokushima', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('39522e0a-7eae-5927-8898-a8a342afdbb3', 'JP-37', 'Kagawa', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('873403c3-6bd6-52ec-bbbc-f014bf0fa82c', 'JP-38', 'Ehime', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('451596db-b2cb-5d8c-b98f-c11bcb6fd06f', 'JP-39', 'Kochi', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7ac75bca-c1fa-58e7-bd52-f4e8da119e80', 'JP-40', 'Fukuoka', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('90a7bfd7-5499-572a-8413-5553272abf4c', 'JP-41', 'Saga', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('06ee05d6-24a2-58e2-8da4-da4317345576', 'JP-42', 'Nagasaki', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('60b730dd-2075-5094-952f-eb63cc47fd59', 'JP-43', 'Kumamoto', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('64fa0f77-f327-5c4e-a2cd-34d5ec043d78', 'JP-44', 'Oita', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1da87366-9404-5d29-b99f-0d762eb303d0', 'JP-45', 'Miyazaki', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c63f7705-134f-5c50-bace-15c96e5173ed', 'JP-46', 'Kagoshima', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('087e761c-550d-53b4-b980-1993972a784e', 'JP-47', 'Okinawa', 'Prefecture', 'f94081f6-d151-5a04-8973-84549f2a4edf')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('70c8cb30-e12b-5a1c-8b6b-24f99b13e3ff', 'KE-01', 'Baringo', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a744063c-6674-5939-8c3d-0ae28626299b', 'KE-02', 'Bomet', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9bb734ad-9e18-543f-91a0-95556d1de7ef', 'KE-03', 'Bungoma', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af6cc5fd-11b4-5d59-87c3-6f190cc9f67c', 'KE-04', 'Busia', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('00c1b1c4-65a7-5d59-96c7-8616d3d8ffbe', 'KE-05', 'Elgeyo/Marakwet', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('55e83997-158d-5fd3-9462-fb64b9a6193d', 'KE-06', 'Embu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd7a2d97-6087-538a-9bc8-d51add0ba036', 'KE-07', 'Garissa', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e237ecad-7a01-5d6f-8d0e-913875eb2b2b', 'KE-08', 'Homa Bay', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('837aeb2c-a556-5c78-aa41-c14b6fe0eed9', 'KE-09', 'Isiolo', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bd69cefa-cdda-5e8a-a096-13c7a33b099f', 'KE-10', 'Kajiado', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8149f84-7b2d-52e6-82d9-077a69079a45', 'KE-11', 'Kakamega', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e4734a44-2e9c-5f45-9868-8d3420e46be4', 'KE-12', 'Kericho', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bc3d2369-c70a-54f3-addc-194685a58f29', 'KE-13', 'Kiambu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('20fde20e-f129-58aa-930d-45129a5c06ce', 'KE-14', 'Kilifi', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('afcedf52-3325-5581-81ae-0d080317469c', 'KE-15', 'Kirinyaga', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8bed859-4540-5162-aeb8-c3d9473e9617', 'KE-16', 'Kisii', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d94de7a9-2492-5037-a887-82eb0345856e', 'KE-17', 'Kisumu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a97f7322-05df-5f79-b76e-869fbbc39b53', 'KE-18', 'Kitui', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ae299006-eb29-5bfe-84b8-38ee1015ebad', 'KE-19', 'Kwale', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a8b2ad9a-f070-52f2-95f1-e28e76ca90a4', 'KE-20', 'Laikipia', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c74dfc7-7228-594e-8f3f-04656554a856', 'KE-21', 'Lamu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6878f8dc-48e3-5dc6-8ff8-3e1aa48aa4ad', 'KE-22', 'Machakos', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('912ea35d-0451-58bd-a6d2-89721dee005d', 'KE-23', 'Makueni', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('27db1ba4-be3b-5d68-95a6-3176669d6d61', 'KE-24', 'Mandera', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b910c045-3f63-55c5-b4c9-f6137d989641', 'KE-25', 'Marsabit', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee596273-8c31-5e07-a165-02c28e9f7fa0', 'KE-26', 'Meru', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('96f341ee-0b25-5c36-add3-6559d3f797f4', 'KE-27', 'Migori', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2feba5e3-d84c-5daf-b26c-9bd11e492db5', 'KE-28', 'Mombasa', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fa0b775c-da53-53fc-8b28-677f4f45261c', 'KE-29', 'Murang''a', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4b64f90b-8033-59b7-86bc-2ec67383d04a', 'KE-30', 'Nairobi City', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d159cbbf-c8f1-554b-bdeb-369a851750f5', 'KE-31', 'Nakuru', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1dc82d11-7009-5d27-9af5-cae4d86f63a3', 'KE-32', 'Nandi', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('58ca0940-8f90-5dd2-9269-543f3f1e9fe7', 'KE-33', 'Narok', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b26be717-446c-542e-a655-5b0b68b06ad7', 'KE-34', 'Nyamira', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('413f064a-fc9f-5a94-9d81-2184d6a3872b', 'KE-35', 'Nyandarua', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6d070898-1ea1-59db-b107-36ee28a27f07', 'KE-36', 'Nyeri', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8d16f9b-bc19-5f17-a802-0389bc230333', 'KE-37', 'Samburu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('08b411d5-d023-53c7-8883-64f04e698f85', 'KE-38', 'Siaya', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c9da2f0a-9855-5ac4-bcaf-5ca48c178839', 'KE-39', 'Taita/Taveta', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53a7b117-1b4f-538f-a81b-01b39a367f9c', 'KE-40', 'Tana River', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('60148402-35fa-58dd-b248-9cb5f9f38b53', 'KE-41', 'Tharaka-Nithi', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('25aacf1d-1fcf-5a9a-9c56-59f4262d3462', 'KE-42', 'Trans Nzoia', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3293e9e3-a251-58de-9dc9-891024973eab', 'KE-43', 'Turkana', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd33a5fa-bc9a-5ed9-a5c9-8d7f0a1d2adb', 'KE-44', 'Uasin Gishu', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2d56d215-1700-5777-88ad-948a9b6348c0', 'KE-45', 'Vihiga', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b17cbde9-be4d-58a4-a9e3-a8fbc6018a44', 'KE-46', 'Wajir', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bde79f0f-4fa1-5a3f-a1e9-237452c52996', 'KE-47', 'West Pokot', 'County', '82fd159c-5164-5667-b16c-88ef59642dd3')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e2d8015b-93fc-53fc-98d7-d45868f513e7', 'KR-11', 'Seoul-teukbyeolsi', 'Special city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f85a8743-87fe-5bec-a91e-b6d9a6c89d89', 'KR-26', 'Busan-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('045b7fe3-99ec-56c3-9122-e14b4c757995', 'KR-27', 'Daegu-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ca12edb-1681-52ad-96f5-02ab3faa19dd', 'KR-28', 'Incheon-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('778951ce-31f6-5166-8a90-0e8841d78e81', 'KR-29', 'Gwangju-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('573ba51d-7d02-5d2e-9b93-bcf7544a0511', 'KR-30', 'Daejeon-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7a32ec88-7e84-5f77-84d9-039f52095c01', 'KR-31', 'Ulsan-gwangyeoksi', 'Metropolitan city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c3f81d24-715e-5fbf-856c-60ffc367ea31', 'KR-41', 'Gyeonggi-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f630a3a0-affc-5c02-b230-8ec700f4ece6', 'KR-42', 'Gangwon-teukbyeoljachido', 'Special self-governing province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('54e4bd75-ef82-5645-a99b-400e08e8b662', 'KR-43', 'Chungcheongbuk-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3f6cad3a-e0bd-5318-abf9-2959634a8a7f', 'KR-44', 'Chungcheongnam-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a6009fb7-d61f-5678-bba1-0c63ebe65bb6', 'KR-45', 'Jeollabuk-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd9ac591-0f73-50cf-bd4a-ffe92cff7e2c', 'KR-46', 'Jeollanam-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff4f3b04-5a51-5737-ab01-8fda1905e74a', 'KR-47', 'Gyeongsangbuk-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f83aae1a-7d88-5340-8365-c5bc36b60d08', 'KR-48', 'Gyeongsangnam-do', 'Province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('08d0628c-6d98-5509-a80a-5878edb83b95', 'KR-49', 'Jeju-teukbyeoljachido', 'Special self-governing province', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d6078475-4923-54cf-8b88-0ffd67b0418d', 'KR-50', 'Sejong', 'Special self-governing city', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07e46ade-e4e1-5a9f-8bd8-4ca81504674f', 'MX-AGU', 'Aguascalientes', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8c302658-5509-5b07-8baa-eed1f6848678', 'MX-BCN', 'Baja California', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c5257075-eaed-5ccf-b82b-dbeb0985b8cf', 'MX-BCS', 'Baja California Sur', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a2c5527b-d35f-552e-97ca-719b70646f3f', 'MX-CAM', 'Campeche', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('83434e17-a586-53dd-b829-b6981f860bd1', 'MX-CHH', 'Chihuahua', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9efcf84a-c76a-52f1-a3d6-c58bcac6cf44', 'MX-CHP', 'Chiapas', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e7a68946-085c-59f6-8ed1-f43ec8401cf7', 'MX-CMX', 'Ciudad de México', 'Federal entity', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cf98fc4d-6c4b-5d22-a5a5-26fb70cf581b', 'MX-COA', 'Coahuila de Zaragoza', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d17350a-ec95-5acf-84ab-37890ab906f7', 'MX-COL', 'Colima', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2843565d-7e3d-5e27-9841-4468a3059418', 'MX-DUR', 'Durango', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fbf42794-46a8-59de-a48d-29f89851606b', 'MX-GRO', 'Guerrero', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9fc4e247-f8c5-50b3-86e3-4f0c02aef5f6', 'MX-GUA', 'Guanajuato', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1607e4be-5467-57e7-8f0c-67f0c97f6d5f', 'MX-HID', 'Hidalgo', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('95fd01bb-1e5a-514a-a9fb-87e6622e918f', 'MX-JAL', 'Jalisco', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7e070b62-6bcf-5539-9d4d-9c0276683f8d', 'MX-MEX', 'México', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('93652997-24f8-553f-a10e-dff4f39e537c', 'MX-MIC', 'Michoacán de Ocampo', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('34e054b5-c68c-52d6-99b0-71152b9ca745', 'MX-MOR', 'Morelos', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('56a0b861-55e5-5ccf-acf8-9b531924a422', 'MX-NAY', 'Nayarit', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('760a948e-8e90-5449-a4f4-4e9c482fb62c', 'MX-NLE', 'Nuevo León', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8006e6f6-f4af-587b-901a-7ae5540ea6db', 'MX-OAX', 'Oaxaca', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('62a2e7b7-59d5-5db0-9743-039bace036f0', 'MX-PUE', 'Puebla', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6af9899b-2f67-5d53-abbf-29abcd311673', 'MX-QUE', 'Querétaro', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6d29f808-61e9-5e67-958a-4435f05d68bb', 'MX-ROO', 'Quintana Roo', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6ff2d158-fe33-5475-a081-f62e1fbf046a', 'MX-SIN', 'Sinaloa', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('361c1dc9-8a7d-529b-a4f7-1d23d9ea146d', 'MX-SLP', 'San Luis Potosí', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7e2f3512-0867-5d4a-983f-532c78ff0415', 'MX-SON', 'Sonora', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8218dd09-da51-5c97-936e-cff40c394c65', 'MX-TAB', 'Tabasco', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4c199fe7-e6a1-5926-9e04-5a424ba3991d', 'MX-TAM', 'Tamaulipas', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ce8233e0-e3ef-5b16-8976-f126a258c0a6', 'MX-TLA', 'Tlaxcala', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b465ac02-e99d-5208-a9b7-84429f3c996a', 'MX-VER', 'Veracruz de Ignacio de la Llave', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f04fa01-baa1-58e0-9b1c-fdabb2bb452c', 'MX-YUC', 'Yucatán', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff15cd79-685b-5c52-8a5d-4f38b47052c0', 'MX-ZAC', 'Zacatecas', 'State', '2fed1477-bd69-5518-93e3-8dcabf05ad90')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d1dad420-c700-5438-b079-0199f63c0485', 'MY-01', 'Johor', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('81abe999-ef6e-5584-8e39-7985619c57e8', 'MY-02', 'Kedah', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('83ef63fe-7531-5d69-8391-9e57b4785da3', 'MY-03', 'Kelantan', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('66312ce1-2739-5d67-acf8-c694209484f1', 'MY-04', 'Melaka', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7c6e31fc-9ebd-5cfc-9aa4-9fe45b879eec', 'MY-05', 'Negeri Sembilan', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed7481e5-ba9f-5afe-940f-a7e7a812f621', 'MY-06', 'Pahang', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8bec0f56-3df3-52da-a9fa-0c8b69e1500e', 'MY-07', 'Pulau Pinang', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fda7ba7e-6e2e-5161-aeb4-33f66dbff305', 'MY-08', 'Perak', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7877d276-d16f-5820-bcf3-96b8abc4a7d2', 'MY-09', 'Perlis', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee4e9538-3ffd-5513-b7ff-e3cd6485562c', 'MY-10', 'Selangor', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('03217bb0-e5c4-5676-b6db-c6ec6c618f90', 'MY-11', 'Terengganu', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7694a959-b972-5b37-8d40-6ce1802b5961', 'MY-12', 'Sabah', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ea92a559-de79-5256-866f-7602ba43a4a4', 'MY-13', 'Sarawak', 'State', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d6fc639-aa62-5828-87a2-8ea442199c55', 'MY-14', 'Wilayah Persekutuan Kuala Lumpur', 'Federal territory', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('914b9344-4bfa-562f-a53f-22de40dfa0c1', 'MY-15', 'Wilayah Persekutuan Labuan', 'Federal territory', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('288773c6-6f13-5a9c-9d67-5a0f19cbd0b6', 'MY-16', 'Wilayah Persekutuan Putrajaya', 'Federal territory', '6708eee6-1476-5a62-a45e-6218ea84271e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a24e1815-b672-57de-a860-354acb423216', 'NG-AB', 'Abia', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('744faa46-d322-5bd2-801c-2c3dda0e67ff', 'NG-AD', 'Adamawa', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c896335-e72f-5492-bc46-a7bc1cdd4f95', 'NG-AK', 'Akwa Ibom', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('79917f30-49df-57df-affa-edc02d7e8de8', 'NG-AN', 'Anambra', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd2b1ad6-f25a-5f06-bc9d-07f012fd55b6', 'NG-BA', 'Bauchi', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ca7622cd-37bc-5ba5-aa4e-eb2c978d96f9', 'NG-BE', 'Benue', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a0f2d09c-bf67-5497-883d-c8d2ecc6010b', 'NG-BO', 'Borno', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cc1450f6-80c0-5f3c-ac6f-d956177699f8', 'NG-BY', 'Bayelsa', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('079bfa1e-feb8-5b25-9b12-23d3e649b4b2', 'NG-CR', 'Cross River', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('313b155b-1c00-53e1-9d1a-16941e9a8fb0', 'NG-DE', 'Delta', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('def18325-782c-51f1-8267-09e1592fa59a', 'NG-EB', 'Ebonyi', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2e02892d-cf02-54ea-b509-f84b979f486b', 'NG-ED', 'Edo', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1e1b4a3e-3e41-5cfa-9313-27b6924e2d01', 'NG-EK', 'Ekiti', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8ac538ac-b579-51dc-8074-50cf73ff37ae', 'NG-EN', 'Enugu', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('646b5ace-ba43-57b6-b03b-750edcd13719', 'NG-FC', 'Abuja Federal Capital Territory', 'Capital territory', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed555693-ede9-5e75-9a4f-9f8815d8cd40', 'NG-GO', 'Gombe', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('70ca3d05-1c33-517b-aa6f-2c1facaaff62', 'NG-IM', 'Imo', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('385f5630-0fd1-5159-8e4f-b58d91f3c6dc', 'NG-JI', 'Jigawa', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a31d4e9c-9d18-5fd5-a2fb-1b8d0eeb7930', 'NG-KD', 'Kaduna', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('77cfe744-271e-5957-9757-3c4462888dd7', 'NG-KE', 'Kebbi', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed979df0-7b4f-514b-bd16-632806bfed58', 'NG-KN', 'Kano', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e1e54457-3de8-58c5-bbd6-e26cfbb0fdbc', 'NG-KO', 'Kogi', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('839b51b4-30fd-5179-b87e-d69066a8435a', 'NG-KT', 'Katsina', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('060bf1a2-26dc-57f0-b203-c7bdc5262faa', 'NG-KW', 'Kwara', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1febdf02-1714-5e15-8682-b830e02dc875', 'NG-LA', 'Lagos', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c2828fdc-afe5-502e-b9a1-29bf7d14854e', 'NG-NA', 'Nasarawa', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0335fa66-23fb-566f-a400-bf52699aa75b', 'NG-NI', 'Niger', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6aa14d74-689b-54c9-b696-4924f54b40d0', 'NG-OG', 'Ogun', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f92d8045-b96d-5787-9db2-18c1f259e2c3', 'NG-ON', 'Ondo', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('928cc5e7-8735-50af-9c28-ff8a7d8c6a27', 'NG-OS', 'Osun', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a97db149-c68d-55e0-af42-3dbf3aac1235', 'NG-OY', 'Oyo', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('402e362f-af42-5658-b18f-f44ed578e8f5', 'NG-PL', 'Plateau', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('039ef16c-d1ea-51da-949f-c26be7e851b9', 'NG-RI', 'Rivers', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b76a9ef9-020b-511a-b6bd-eeb1cb508f42', 'NG-SO', 'Sokoto', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fff7aefd-d71f-5487-b20c-5c83d5260538', 'NG-TA', 'Taraba', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d135c29f-01b0-5fa2-9f7a-fdb9d58f4fd9', 'NG-YO', 'Yobe', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c17f5cbc-6c70-5d44-a5dc-9dad97751b9c', 'NG-ZA', 'Zamfara', 'State', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1020bad4-2e1d-54c8-8394-cb4675decf66', 'NL-AW', 'Aruba', 'Country', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('abfe7ba6-34d3-5626-aa50-09042b4e4a18', 'NL-BQ1', 'Bonaire', 'Special municipality', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f098edf3-e36c-5936-8d28-204f0cc67c37', 'NL-BQ2', 'Saba', 'Special municipality', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9232b2f0-b2e6-5a09-8e5f-47470c03bc66', 'NL-BQ3', 'Sint Eustatius', 'Special municipality', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9a59f165-c480-575d-90f5-a7e3d5ff99c7', 'NL-CW', 'Curaçao', 'Country', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('50ecd978-eba4-5546-8fa7-2d95f9551559', 'NL-DR', 'Drenthe', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09534770-8d9b-55bf-bb0b-7f6bfb05f66d', 'NL-FL', 'Flevoland', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b44ca47b-ddf7-50ce-9941-ec7560646f4c', 'NL-FR', 'Fryslân', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7cf98225-7ea4-5b6f-b5a1-e6794070f53e', 'NL-GE', 'Gelderland', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98855e22-e29a-528a-a259-19d0100328b9', 'NL-GR', 'Groningen', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('21b2717e-4ec0-59be-b67a-16d328654dd1', 'NL-LI', 'Limburg', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cc3efc62-cfa2-552d-a269-f6ba348e4257', 'NL-NB', 'Noord-Brabant', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5d0fcb18-226b-52c2-82ed-7efec2516c6b', 'NL-NH', 'Noord-Holland', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('42038bcd-f970-5187-8492-df713933a25f', 'NL-OV', 'Overijssel', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5783f4d1-d6fc-5906-ae7a-60a9b63dc103', 'NL-SX', 'Sint Maarten', 'Country', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('da45da0d-64d0-56d5-99c4-e5589febfb69', 'NL-UT', 'Utrecht', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0e8a1533-5c2a-5a9f-bdcc-653c9b9a7065', 'NL-ZE', 'Zeeland', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ac24e7cc-f492-50e2-a180-edd1e36793ac', 'NL-ZH', 'Zuid-Holland', 'Province', '5aaa090f-a721-5908-9db3-64d3f89367da')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0d9c00b6-51b7-571b-ba72-cb425d3daf8f', 'NO-03', 'Oslo', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('992aaa80-bba2-5168-b4bf-ded85166497f', 'NO-11', 'Rogaland', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d2d59992-01b1-5e9b-8a6f-74dfb1c9ac6a', 'NO-15', 'Møre og Romsdal', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0f7b1a64-01d3-591d-bab4-a8a62e57a935', 'NO-18', 'Nordland', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aebb649a-4afc-554d-9552-f6390c98596f', 'NO-21', 'Svalbard (Arctic Region)', 'Arctic region', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1a21521f-34ce-5a14-aa09-65789eafc561', 'NO-22', 'Jan Mayen (Arctic Region)', 'Arctic region', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3892d9b1-0a62-53c7-b1cc-7a05a67f285c', 'NO-30', 'Viken', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d61b6782-f9f8-5cff-9b47-ddf8b5675843', 'NO-34', 'Innlandet', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1bb72ae3-56dc-564c-ac19-d6ccfda7e6a5', 'NO-38', 'Vestfold og Telemark', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2e128b59-eeff-5d8e-8456-8189a2e5ff75', 'NO-42', 'Agder', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8baefd57-a0e9-5def-8518-0499c63c39cd', 'NO-46', 'Vestland', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('45bf7b8b-c66b-58f2-abde-31eefe2f1b2d', 'NO-50', 'Trøndelag', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fac91c72-bdf2-5a86-bc74-96ff8abed058', 'NO-54', 'Troms og Finnmark', 'County', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f1a044a4-ebbf-5cc8-9488-397a925cb496', 'NZ-AUK', 'Auckland', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de229a22-98aa-5cd4-b517-304f3ffe6450', 'NZ-BOP', 'Bay of Plenty', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2e1afb31-b858-58da-89a2-c6cdfb739d23', 'NZ-CAN', 'Canterbury', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e4fa1683-e104-553a-90f1-8359359f69f1', 'NZ-CIT', 'Chatham Islands Territory', 'Special island authority', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c412cb9b-f660-51c1-b2f5-b58699203ecf', 'NZ-GIS', 'Gisborne', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c54b4649-d0fd-5f99-8087-827510fc7e05', 'NZ-HKB', 'Hawke''s Bay', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fad203bb-5a3a-5118-af34-9eab806cbf9a', 'NZ-MBH', 'Marlborough', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c636b9aa-d668-50ec-93f0-918d39f73140', 'NZ-MWT', 'Manawatū-Whanganui', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('88ffd040-0580-51b1-a7c8-06a66fae8352', 'NZ-NSN', 'Nelson', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('21fdf787-ee1a-541c-8bee-f1c74269b1b1', 'NZ-NTL', 'Northland', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6c1c5e56-7018-5433-aac2-7b05cb283dbf', 'NZ-OTA', 'Otago', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('850f9f2c-c1d7-576c-aa85-79bd817132b1', 'NZ-STL', 'Southland', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aa8c29e4-54f5-5ddb-a363-a0dfa111809f', 'NZ-TAS', 'Tasman', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8cbcf525-d136-537d-9370-d8b97d847578', 'NZ-TKI', 'Taranaki', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('467e9ada-f9e9-5b95-80e5-ebb9d2cadef7', 'NZ-WGN', 'Greater Wellington', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8af27685-0304-5268-a0f7-951f99e135aa', 'NZ-WKO', 'Waikato', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1e0e4b5b-ef74-5a24-94e9-e2b6fae825b5', 'NZ-WTC', 'West Coast', 'Region', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2ac438a3-2bb2-57af-bda0-e8b9f297a5f4', 'PE-AMA', 'Amazonas', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('174d9ff5-b055-5bc8-b300-c09c38e7b5e0', 'PE-ANC', 'Ancash', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('90d0a0bf-ecab-55bc-9027-09cd7150a2a7', 'PE-APU', 'Apurímac', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8f1b4ce-09d6-593b-907d-a18323362908', 'PE-ARE', 'Arequipa', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de55091e-7b48-51a9-9b0f-b0ef6f8efc74', 'PE-AYA', 'Ayacucho', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5cc67b5d-2841-555a-9f05-80fd6fadc428', 'PE-CAJ', 'Cajamarca', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('245fb93c-6ea3-5ce1-85f8-a2f0d1d220cf', 'PE-CAL', 'El Callao', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1696b14f-e4ed-5299-ae82-1bb89110e15e', 'PE-CUS', 'Cusco', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5fd2cff6-7f05-5268-9900-4470f957b13c', 'PE-HUC', 'Huánuco', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af412f81-e974-525d-932b-05ee286e3e7a', 'PE-HUV', 'Huancavelica', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e12fa6af-f786-5857-a0d5-a1595cb7ca50', 'PE-ICA', 'Ica', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e7cefdbe-755c-5944-b8b4-746640d19ebe', 'PE-JUN', 'Junín', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8186e15-7c47-553e-ba81-c9d4c2b5494e', 'PE-LAL', 'La Libertad', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7a9f209f-dcc4-5456-a379-39a2fbda4d9a', 'PE-LAM', 'Lambayeque', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fcff650f-745d-5021-a8c5-3bf6e01d719d', 'PE-LIM', 'Lima', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3009dc06-6465-5c8e-9969-75b9c222ab98', 'PE-LMA', 'Municipalidad Metropolitana de Lima', 'Municipality', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c2ccb8a6-2e34-5acb-b42e-ea39ea13df5a', 'PE-LOR', 'Loreto', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('86417fc2-88b3-5cdd-b960-ea38c1dd4b71', 'PE-MDD', 'Madre de Dios', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a9f34c8d-3539-56d4-ac88-014df3899093', 'PE-MOQ', 'Moquegua', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('853e477c-a79b-5ab0-abfb-a5d06602165d', 'PE-PAS', 'Pasco', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ae517867-2647-573d-9d67-760c1b06ddf2', 'PE-PIU', 'Piura', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d1d6dd3d-eef9-560e-87d6-6018f0dd860a', 'PE-PUN', 'Puno', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c69f17d0-acb6-5cba-90a2-34c6650fc1af', 'PE-SAM', 'San Martín', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c8352813-552d-5ad5-8d8a-61e7f3206cac', 'PE-TAC', 'Tacna', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09062706-b48c-551b-b2c4-1c40e6e42df0', 'PE-TUM', 'Tumbes', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3d75e7cb-fd3b-59b5-8bd3-c8dc0740cd7e', 'PE-UCA', 'Ucayali', 'Region', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('43a8254a-d74f-5216-89d7-f295752042d8', 'PH-00', 'National Capital Region', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6c21a6f8-e124-5754-b6b4-81294e49bbdf', 'PH-01', 'Ilocos (Region I)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('025a4cc7-0693-53b9-a9ae-cd935c7d46fa', 'PH-02', 'Cagayan Valley (Region II)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e8b9cd17-22cc-5712-bcaa-0cf6a46305c1', 'PH-03', 'Central Luzon (Region III)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53b95d11-89c8-55e0-ae3c-e14f06da7c0b', 'PH-05', 'Bicol (Region V)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9338e20d-dd5f-504b-aadd-a526af482c63', 'PH-06', 'Western Visayas (Region VI)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('70c477f4-1244-5e03-a667-e4497ce7d8a9', 'PH-07', 'Central Visayas (Region VII)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('22c36258-473d-5752-946f-5e4b815fe8ad', 'PH-08', 'Eastern Visayas (Region VIII)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('66cd997a-5909-5973-bd0e-5e226e945761', 'PH-09', 'Zamboanga Peninsula (Region IX)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('31eafaa1-12a2-5cb6-8e58-b762e1436c41', 'PH-10', 'Northern Mindanao (Region X)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('939e7a1a-dafd-589b-9059-9bb25fdb21ec', 'PH-11', 'Davao (Region XI)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4390dbdb-ec68-508a-81be-d3cdc320c917', 'PH-12', 'Soccsksargen (Region XII)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af6e77c9-3620-50e6-9a76-441a263bd2ac', 'PH-13', 'Caraga (Region XIII)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9a8bd57e-4c5f-5983-b395-a6db3fc95fae', 'PH-14', 'Autonomous Region in Muslim Mindanao (ARMM)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5a39f0ea-816b-5d63-b462-d9da853f2152', 'PH-15', 'Cordillera Administrative Region (CAR)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('df34da34-1bbd-56cc-8491-715c06dfe593', 'PH-40', 'Calabarzon (Region IV-A)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98f58b48-56be-5db2-9eb3-da9b98b1ef26', 'PH-41', 'Mimaropa (Region IV-B)', 'Region', '87499769-99f5-5e8a-a3bc-6dd7b188b972')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5166934b-2110-5014-b15d-c39289b65630', 'PK-BA', 'Balochistan', 'Province', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e2d89ce4-ad92-518d-aef0-aac9433e5704', 'PK-GB', 'Gilgit-Baltistan', 'Pakistan administered area', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('64583972-61cb-5f23-8d65-9a7dc189199d', 'PK-IS', 'Islamabad', 'Federal capital territory', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('83b39da0-9598-5798-851c-34e86e4ccf0f', 'PK-JK', 'Azad Jammu and Kashmir', 'Pakistan administered area', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5c54cfe7-fb8a-5ae8-bb64-550f66e7e2cb', 'PK-KP', 'Khyber Pakhtunkhwa', 'Province', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2decb54f-b7a7-5bbf-a4a8-853bc2268a1e', 'PK-PB', 'Punjab', 'Province', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a57c5a07-312d-5640-967b-319cf8ccf9ef', 'PK-SD', 'Sindh', 'Province', '7b37700f-bffc-5d58-b082-3824378a16b8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('29b2df92-7c63-5639-af75-81e6444d14f1', 'PL-02', 'Dolnośląskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3c4fe5e3-ea9f-564e-840d-b2fbf2d7c48c', 'PL-04', 'Kujawsko-Pomorskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3f9338fd-d2e9-5ceb-8de9-f3fa9237ea54', 'PL-06', 'Lubelskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8f2cbd7f-f887-554b-81c8-26eb82001bbb', 'PL-08', 'Lubuskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('661158bc-dbf6-5bfb-a636-68e77b69e177', 'PL-10', 'Łódzkie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('536d0f68-5838-56ac-b3f7-6e65c20b3648', 'PL-12', 'Małopolskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0155d630-e828-59d1-829b-0fec9e4c80b0', 'PL-14', 'Mazowieckie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bbd4ebbc-0c96-5694-b0c1-35c24f19d1b5', 'PL-16', 'Opolskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dd92d0e1-925f-5c10-b595-10149e402b8a', 'PL-18', 'Podkarpackie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f247a1a6-aeb7-540d-9b0f-464967f35718', 'PL-20', 'Podlaskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('81e9ad2b-1880-5e86-b8c6-84890310e48d', 'PL-22', 'Pomorskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bbcab515-3b1c-553c-95e4-3aa5daa85ad4', 'PL-24', 'Śląskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6c561aa0-dc3e-51f5-917c-b6b4b770a489', 'PL-26', 'Świętokrzyskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('afc8563e-14b3-5a9c-8cd2-c9c2ab100569', 'PL-28', 'Warmińsko-Mazurskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4e82cb69-3959-53ed-91f1-54327a54da3c', 'PL-30', 'Wielkopolskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('76565f07-4238-53e1-b577-909cf48ed725', 'PL-32', 'Zachodniopomorskie', 'Voivodship', '0922bc07-02be-5d90-8d33-b47703808ff8')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('247aad9d-3093-588f-a9e2-1f58ba77364a', 'PT-01', 'Aveiro', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('713254e6-e31c-53a0-8383-4a4eae1bcc29', 'PT-02', 'Beja', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09e20995-fab9-589b-8ec8-d2ee31c347b6', 'PT-03', 'Braga', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0f1b6a96-5121-5c38-b8a3-eb28f792487e', 'PT-04', 'Bragança', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('00c3ed84-8a39-5214-a3f8-f0bb6e0746df', 'PT-05', 'Castelo Branco', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c9b71bac-ae9e-580d-96b7-9a769c541f21', 'PT-06', 'Coimbra', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d8a5f578-132b-58ba-8f58-cf623a5f77b3', 'PT-07', 'Évora', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c3600cf0-0c08-5618-bd2f-a10cf1e170c5', 'PT-08', 'Faro', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ad409df6-a0b3-5b18-9d46-7b839d1b5237', 'PT-09', 'Guarda', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('271e47e7-9e93-5217-95a3-70e0b26fb7b7', 'PT-10', 'Leiria', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ca8de9c3-dd7a-55f9-89be-9f69ef2f0b34', 'PT-11', 'Lisboa', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f72b073e-ba34-5a92-a93d-b337049074d9', 'PT-12', 'Portalegre', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('21e6d11a-43d9-507c-b818-3a9681693000', 'PT-13', 'Porto', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f3e2b9cb-38a6-57d1-a1c9-3295396249a9', 'PT-14', 'Santarém', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ad8e4ed4-4073-590f-9909-05990ea4b16b', 'PT-15', 'Setúbal', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aa9bc2b5-8762-5fee-b36e-0a7dc36e0c92', 'PT-16', 'Viana do Castelo', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a9c9f387-2e86-5c74-8ffc-aee6ff36100e', 'PT-17', 'Vila Real', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('197e2c78-51fb-5a6f-b776-3cf2c97ccf83', 'PT-18', 'Viseu', 'District', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('24226248-33b2-5d56-b0a5-b5d9d9b2133a', 'PT-20', 'Região Autónoma dos Açores', 'Autonomous region', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5b27b5d3-c947-5671-8549-934d6b65279d', 'PT-30', 'Região Autónoma da Madeira', 'Autonomous region', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fb78a2b0-4163-58c0-8681-78b2c26afa3f', 'RU-AD', 'Adygeya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7c903ba5-6bca-5643-911e-96d7ff7a6c0d', 'RU-AL', 'Altay, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d2f6f74f-816d-55c6-ba9b-d800f2853ccd', 'RU-ALT', 'Altayskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2094ae73-bc22-59b8-ac58-d5d062b33406', 'RU-AMU', 'Amurskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('aa2ab97c-5e48-58fe-9d44-ae7b32aab244', 'RU-ARK', 'Arkhangel''skaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e846493a-e2b2-55b0-b11f-37fb25b0a2ba', 'RU-AST', 'Astrakhanskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('14b90479-b2d4-5b6c-a6de-94dc3dfffc49', 'RU-BA', 'Bashkortostan, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a6c1c0a8-4ec0-5e5d-a0c1-9be187660560', 'RU-BEL', 'Belgorodskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1ca8d1ac-e1c2-5ee8-860b-45b245a614ab', 'RU-BRY', 'Bryanskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e56e71b9-0666-52f5-855b-3ec858d7ab99', 'RU-BU', 'Buryatiya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ebacd92a-6a81-569d-8327-05719c1d72cb', 'RU-CE', 'Chechenskaya Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3b4bd74f-bccc-5ffb-95a0-329353141797', 'RU-CHE', 'Chelyabinskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('02753238-9077-5f36-8285-a65d583b19d3', 'RU-CHU', 'Chukotskiy avtonomnyy okrug', 'Autonomous district', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a8546287-eec8-5e2d-8522-94b73b06cfce', 'RU-CU', 'Chuvashskaya Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cea92022-9fcd-57fc-a244-ab697ffe01e4', 'RU-DA', 'Dagestan, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98314e11-285c-5f73-a0f2-a6237bf234f2', 'RU-IN', 'Ingushetiya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de01a7d5-67fb-51e4-a19f-b8bb4f1f6ae1', 'RU-IRK', 'Irkutskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('00a21185-456e-5927-bbb4-8160e6418528', 'RU-IVA', 'Ivanovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3b0e707b-9a8f-5a53-8eb7-1981b352e3e0', 'RU-KAM', 'Kamchatskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('564c8aed-77ba-5bc4-94f8-aa71a06fc825', 'RU-KB', 'Kabardino-Balkarskaya Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b23aace8-d6f8-5c30-8bbf-658d1bdd5a16', 'RU-KC', 'Karachayevo-Cherkesskaya Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5ac9c1f0-300e-571f-b0ef-e39f04279dd7', 'RU-KDA', 'Krasnodarskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('665dd1ca-5290-5b1e-a252-4aff96f5a3a7', 'RU-KEM', 'Kemerovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fda17d40-db9b-54fe-8ef6-deafbc7139a5', 'RU-KGD', 'Kaliningradskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('05aa7459-13fa-575f-8941-48b8fc177de9', 'RU-KGN', 'Kurganskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f49f72a1-4734-5d4f-8112-5cc5a840cdae', 'RU-KHA', 'Khabarovskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3b6e3513-6317-5555-8c48-303e16e050e5', 'RU-KHM', 'Khanty-Mansiyskiy avtonomnyy okrug', 'Autonomous district', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a6275ff9-b5ea-557f-8741-2869f05d9e59', 'RU-KIR', 'Kirovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dbec4416-340f-5055-b78e-bda6ba01545b', 'RU-KK', 'Khakasiya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07ead03c-58a8-5cd5-b358-bdd5db4e9782', 'RU-KL', 'Kalmykiya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7022b0be-b40f-5b56-949f-d2abe7fbbcae', 'RU-KLU', 'Kaluzhskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dd9c47ea-c30d-56d4-95e9-283bf148b86d', 'RU-KO', 'Komi, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('17d4d3ee-dbc6-57ec-92ba-139b9481632f', 'RU-KOS', 'Kostromskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('54b93fda-89f0-5f1e-90e3-1efe356677e9', 'RU-KR', 'Kareliya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('871f915d-99f4-5302-ac60-e6afbb118083', 'RU-KRS', 'Kurskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e9d07eea-3a3b-5ab8-bde7-a15bdaaee1aa', 'RU-KYA', 'Krasnoyarskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('51ba510b-42b5-587c-8969-46afe2978985', 'RU-LEN', 'Leningradskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5c7b846d-e685-5b26-a2b0-997e81f1af07', 'RU-LIP', 'Lipetskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3c152c56-fdca-5960-b09a-83ff8ec56022', 'RU-MAG', 'Magadanskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1f06400c-3e1a-583d-b8df-de8f3410280a', 'RU-ME', 'Mariy El, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('32a01a2b-8940-5309-9d1e-c1c35bac4452', 'RU-MO', 'Mordoviya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f0ba270-2858-5960-9e1f-5a2d956acfc1', 'RU-MOS', 'Moskovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0de48ca9-8fd8-5ff8-9c06-7a3c91d5a7bf', 'RU-MOW', 'Moskva', 'Autonomous city', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('991966d0-d663-547a-ae06-2facd7a879dd', 'RU-MUR', 'Murmanskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('45f79932-39ca-5d17-81b5-b2d094888977', 'RU-NEN', 'Nenetskiy avtonomnyy okrug', 'Autonomous district', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cd9953b6-9bcd-5d1d-9609-3419adc66511', 'RU-NGR', 'Novgorodskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('506b3877-acaa-5bcc-bd9f-350e9adbccd5', 'RU-NIZ', 'Nizhegorodskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('22c8156a-ea52-584f-adbc-e406aaf02a0d', 'RU-NVS', 'Novosibirskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('64426ec4-4ef9-5bd7-9acb-a627aaa92c2a', 'RU-OMS', 'Omskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dfb06470-a0c3-5a89-b81c-9c6969bab64a', 'RU-ORE', 'Orenburgskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f14e5bc-f251-5e62-af5d-3b67009bf436', 'RU-ORL', 'Orlovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e7969955-0e05-5f4a-8d95-117d88586c2d', 'RU-PER', 'Permskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cdb11945-1a25-59bb-835b-96a1af96a319', 'RU-PNZ', 'Penzenskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('784f8c86-1d51-578b-8775-e88ae43f0f01', 'RU-PRI', 'Primorskiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4e910e9c-459e-5c66-bf21-cb4cfffc1a1b', 'RU-PSK', 'Pskovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a4063b5c-c11f-538c-941b-1fa62e6ca0d6', 'RU-ROS', 'Rostovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b176adf0-3e42-5975-8ab0-e742a9db948b', 'RU-RYA', 'Ryazanskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bb3f2955-fd81-5840-9974-d5225a8930e7', 'RU-SA', 'Saha, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('19bca320-1a84-5a4e-9446-2023e1335868', 'RU-SAK', 'Sakhalinskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff8abfb2-c39c-5af1-aa54-7d32b86f9395', 'RU-SAM', 'Samarskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('510ac9fc-ce4e-5b41-bc5e-91e61d60b37c', 'RU-SAR', 'Saratovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1d61909d-90d8-5c94-b0d6-c4ff5d14cdce', 'RU-SE', 'Severnaya Osetiya, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('079e176a-3be9-5526-a0ae-3f1715e293b8', 'RU-SMO', 'Smolenskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0baeb04d-39e0-5fc8-b883-17778d43d6c7', 'RU-SPE', 'Sankt-Peterburg', 'Autonomous city', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cc18db73-5d9f-50c8-9818-a7ad5ed0ffc1', 'RU-STA', 'Stavropol''skiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7eb4a119-3168-5aae-bd44-79a124596433', 'RU-SVE', 'Sverdlovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f2df485c-ba8d-59ce-a4e2-22d730a63c56', 'RU-TA', 'Tatarstan, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9f8968b6-4051-5c47-a2ee-ca354ef6ffb6', 'RU-TAM', 'Tambovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e61f289c-9e59-5cf1-a8d8-3a31e272aaf7', 'RU-TOM', 'Tomskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c6a41d54-f9e2-5f6d-9ba5-3b583e9ccf62', 'RU-TUL', 'Tul''skaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2e7e8b6d-6aa6-547a-9d39-ba375c288023', 'RU-TVE', 'Tverskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ad70eeb1-6b42-5f8f-b6f1-8dc5ebdd289d', 'RU-TY', 'Tyva, Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bfe3e392-48db-5933-89e9-425164fc9f76', 'RU-TYU', 'Tyumenskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7f8241da-d1a3-5f46-872d-77ad122daa81', 'RU-UD', 'Udmurtskaya Respublika', 'Republic', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3b91e64f-05e8-5ca1-b716-ca4256885f39', 'RU-ULY', 'Ul''yanovskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dc3d80ef-d72d-57ee-9033-94aeec69e7ea', 'RU-VGG', 'Volgogradskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee8b5ca7-509c-5b9c-baca-7a6546040a73', 'RU-VLA', 'Vladimirskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bac57bae-bbf5-58b5-ac21-84f1dfd10bd8', 'RU-VLG', 'Vologodskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a0cd72b7-4ff7-5b7e-b93b-0850e1f874c6', 'RU-VOR', 'Voronezhskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e04bca64-e6e7-57c5-bacd-bc0fe920f285', 'RU-YAN', 'Yamalo-Nenetskiy avtonomnyy okrug', 'Autonomous district', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a42b6230-2b5d-532e-ac6f-b10f0c53dcc0', 'RU-YAR', 'Yaroslavskaya oblast''', 'Administrative region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('92d7315c-8093-587d-94ff-fd4d3102b8b3', 'RU-YEV', 'Yevreyskaya avtonomnaya oblast''', 'Autonomous region', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f4b87d5c-497c-5597-aad9-2a96fa738855', 'RU-ZAB', 'Zabaykal''skiy kray', 'Administrative territory', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee715fea-dc5d-5cc5-837a-944ff4dfe7d5', 'SA-01', 'Ar Riyāḑ', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0b328b38-9be5-570b-a011-b541bf7429fa', 'SA-02', 'Makkah al Mukarramah', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b8fa1a0b-8248-58c5-a421-63ddd3e26f98', 'SA-03', 'Al Madīnah al Munawwarah', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('128999b3-1007-5b59-bc39-616719d879f4', 'SA-04', 'Ash Sharqīyah', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c2efcbb-78ab-50e6-969b-8571fec991ad', 'SA-05', 'Al Qaşīm', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7dc287a1-7c34-5788-be94-30b4746b49a5', 'SA-06', 'Ḩā''il', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('595625f6-b324-5419-bfba-d2686b2a02eb', 'SA-07', 'Tabūk', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bf34d9b1-df58-58e6-9d12-18167b38a7fa', 'SA-08', 'Al Ḩudūd ash Shamālīyah', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('90fcd3cb-436d-5640-990b-ffc9c6fbb452', 'SA-09', 'Jāzān', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('67b4a163-20c7-5a19-adde-ca8bb05732a1', 'SA-10', 'Najrān', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('410b3153-856a-5287-8565-29dde12047e9', 'SA-11', 'Al Bāḩah', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('921b3de8-1984-5c0f-8381-61e724a5b8eb', 'SA-12', 'Al Jawf', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('58fa88b0-2d24-5c52-b3e9-ac413e751361', 'SA-14', '''Asīr', 'Region', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b9d6e649-fe7b-5b8b-8822-613f92704169', 'SE-AB', 'Stockholms län [SE-01]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7592eee3-72f7-5203-b5f2-25fe5ea0e29d', 'SE-AC', 'Västerbottens län [SE-24]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('41c765da-1d60-5f77-917a-dc36376da0bb', 'SE-BD', 'Norrbottens län [SE-25]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8a7b68e5-db73-5e2c-9ee5-5c267801bf9b', 'SE-C', 'Uppsala län [SE-03]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2ce28f09-b6b7-5f0e-b398-8a4440fb63f8', 'SE-D', 'Södermanlands län [SE-04]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('72f5bf6d-bac1-52a3-a7cd-0e0595469684', 'SE-E', 'Östergötlands län [SE-05]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8450858e-85ed-5e43-8fdf-50321a00880d', 'SE-F', 'Jönköpings län [SE-06]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5adc1fd8-0bbd-51fa-80a4-4c926756b357', 'SE-G', 'Kronobergs län [SE-07]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e03a0094-366d-5b90-9220-8aace1043663', 'SE-H', 'Kalmar län [SE-08]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ead716b-cc1f-5c0e-9057-ad09df903d7d', 'SE-I', 'Gotlands län [SE-09]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ff285de8-99e3-50f5-b90e-05cf03d103bc', 'SE-K', 'Blekinge län [SE-10]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('23ed719b-266a-52e7-89a9-75e526dd516a', 'SE-M', 'Skåne län [SE-12]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3baadf8f-825a-5b2b-88a3-ee226aaa63d6', 'SE-N', 'Hallands län [SE-13]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('184dadfe-8585-5726-8964-0f619958e727', 'SE-O', 'Västra Götalands län [SE-14]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2662c20d-e525-5b39-88eb-2e82ff2cf8ea', 'SE-S', 'Värmlands län [SE-17]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('25dcc8ca-0921-5b93-bbc9-310164ca48da', 'SE-T', 'Örebro län [SE-18]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('360d0fec-197f-57a8-b13c-05d42336c8b6', 'SE-U', 'Västmanlands län [SE-19]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fda623b4-7f89-5c9e-82fe-1d337e259f3e', 'SE-W', 'Dalarnas län [SE-20]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('afa5214f-e04d-5b71-8466-d48f6fc65aac', 'SE-X', 'Gävleborgs län [SE-21]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f059d5e7-2d72-5e88-88af-024289dc3830', 'SE-Y', 'Västernorrlands län [SE-22]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2b763508-7262-5a4e-8ed1-6d3a77d3a214', 'SE-Z', 'Jämtlands län [SE-23]', 'County', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('021933ec-7932-5580-9353-7c5e27b97548', 'SG-01', 'Central Singapore', 'District', 'e6dc7aae-391c-5f02-b821-751809368f85')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53dc6657-b50a-53f6-9b6b-c4d35f73f4aa', 'SG-02', 'North East', 'District', 'e6dc7aae-391c-5f02-b821-751809368f85')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('85102159-f0c9-53eb-89a4-870b8e1b85c3', 'SG-03', 'North West', 'District', 'e6dc7aae-391c-5f02-b821-751809368f85')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4cb1f827-5ec2-596c-b70d-aaf6a48c4065', 'SG-04', 'South East', 'District', 'e6dc7aae-391c-5f02-b821-751809368f85')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('42757cf6-78d0-503a-8257-d8521bf33bf7', 'SG-05', 'South West', 'District', 'e6dc7aae-391c-5f02-b821-751809368f85')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0f9726e6-a793-5614-bb76-daf912e557dd', 'TH-10', 'Krung Thep Maha Nakhon', 'Metropolitan administration', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('79d62b03-41be-508a-a6be-d92cd2791117', 'TH-11', 'Samut Prakan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9d4e0025-5979-5850-8350-a8f89cfa1eb5', 'TH-12', 'Nonthaburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5c853ee3-74a6-5554-8e20-539e7840945c', 'TH-13', 'Pathum Thani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('12756878-d7c2-5e57-b5f4-ee17c1679560', 'TH-14', 'Phra Nakhon Si Ayutthaya', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7b37eca3-d9b0-5fb4-ac34-6b54d82d9cf8', 'TH-15', 'Ang Thong', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bb7b06ac-e694-56a5-b1f8-62abede85ad7', 'TH-16', 'Lop Buri', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3fab682c-5885-557c-9937-e64db188e61a', 'TH-17', 'Sing Buri', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('033af291-2836-5c09-a016-987c8b934c42', 'TH-18', 'Chai Nat', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('408d0269-0e3b-5d7e-b3e2-b399748f7658', 'TH-19', 'Saraburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('292aa5c7-dff0-58a8-9e6f-1f5155ef6cde', 'TH-20', 'Chon Buri', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('81dba056-0087-5d59-accd-e3851d13a8c7', 'TH-21', 'Rayong', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f4f70cdd-e902-5a8c-bc8e-91213257a0a8', 'TH-22', 'Chanthaburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8371259b-f33b-5413-aa5a-cb34ab8ffe49', 'TH-23', 'Trat', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('74b5eeea-0b31-51b1-839f-377a77314015', 'TH-24', 'Chachoengsao', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('db3f9fb8-e182-5a66-9ec7-8857e450017c', 'TH-25', 'Prachin Buri', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('df6bf01f-de25-5a14-a807-93a5e6169567', 'TH-26', 'Nakhon Nayok', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('001b619c-cb70-5f0f-8af5-a3e65a186152', 'TH-27', 'Sa Kaeo', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('13e5426f-756f-52d7-84b0-45cc94f19ab1', 'TH-30', 'Nakhon Ratchasima', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9c723b53-5786-58a3-8219-0330cccb88ad', 'TH-31', 'Buri Ram', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('10e05b68-71a7-5a1b-99d6-49c73aefcf5d', 'TH-32', 'Surin', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53b6db27-8c1e-5c3f-b9d7-79395a4d7e5a', 'TH-33', 'Si Sa Ket', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a8a046ce-3020-54bd-9dbf-581db0894d84', 'TH-34', 'Ubon Ratchathani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4570d6c7-65e0-5da1-9ff3-85fb6550a1e6', 'TH-35', 'Yasothon', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('68072a7c-5df5-5bff-8ad1-98706fb23389', 'TH-36', 'Chaiyaphum', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6e4e26c2-5591-5692-a6ea-408674f268fb', 'TH-37', 'Amnat Charoen', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5f18d81f-6f20-5c38-af9b-9f2eacb34054', 'TH-38', 'Bueng Kan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a8ca17cf-19af-5e49-b3f3-25e5becef44c', 'TH-39', 'Nong Bua Lam Phu', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('999be6aa-98f9-54c9-91a2-50f46aed3d6f', 'TH-40', 'Khon Kaen', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4094d07f-dacf-5296-881f-75290e0017a5', 'TH-41', 'Udon Thani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1fd1fe8b-d45c-583a-94b2-a9e6112562fd', 'TH-42', 'Loei', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('67ffe083-f885-5b95-9947-b7e29690d19e', 'TH-43', 'Nong Khai', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee276205-e0a9-5ba3-86ff-11f697711c26', 'TH-44', 'Maha Sarakham', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ffc447ed-3a65-5e9e-a5f9-40faccf37c2e', 'TH-45', 'Roi Et', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f3d1b134-89cc-538d-b172-1674e16c8ae2', 'TH-46', 'Kalasin', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1c03b800-ed4a-5e72-ac05-f70d9a5c4b40', 'TH-47', 'Sakon Nakhon', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9859c137-e95b-5d0f-b789-3a6147e766a7', 'TH-48', 'Nakhon Phanom', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1744560a-c3ed-5be5-a3e2-d3966664a571', 'TH-49', 'Mukdahan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('24dc8bf6-6a34-536d-8ffa-019eec8ea361', 'TH-50', 'Chiang Mai', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('745b4d81-37b8-5549-8e06-29dd29fb8c46', 'TH-51', 'Lamphun', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a31276f4-07ac-577e-8f27-deaa239d6744', 'TH-52', 'Lampang', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3327a09a-b9a1-525a-a573-5fbdc4c0981b', 'TH-53', 'Uttaradit', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fecc84f1-f714-5ec7-87b5-84ce7e8d58f0', 'TH-54', 'Phrae', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('72134e9f-54fc-5594-b964-c0ca40c8f57f', 'TH-55', 'Nan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8f5106be-92ee-5f3d-a10d-29cd16b081b0', 'TH-56', 'Phayao', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('24df514a-b2a1-5b9e-8e8b-b144e9b26c61', 'TH-57', 'Chiang Rai', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a6a4fb35-a4e8-54b2-8266-c41bb33a7d5f', 'TH-58', 'Mae Hong Son', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d4779d66-cd63-5d3f-b3fa-4723a26e334b', 'TH-60', 'Nakhon Sawan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1f453883-741b-5ed4-967f-fb7f3ca201e2', 'TH-61', 'Uthai Thani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1d3e78e6-7177-50f4-8421-f3d616867805', 'TH-62', 'Kamphaeng Phet', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f66c6189-0878-5d21-b191-bc9d5c4a8c57', 'TH-63', 'Tak', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ab43a233-53ae-5405-a479-7524a7780e9c', 'TH-64', 'Sukhothai', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6213f846-cc2c-56cd-912c-198f43d8d8c7', 'TH-65', 'Phitsanulok', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f2a10291-bb36-5cb2-aace-74cbb0fb3c36', 'TH-66', 'Phichit', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ec9938dd-a2e6-5d75-aa45-d65ab197c516', 'TH-67', 'Phetchabun', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3515596f-81c1-5751-b4fd-2e10047062a5', 'TH-70', 'Ratchaburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7fb0eeb9-60dc-533f-95f4-41e8e8d95494', 'TH-71', 'Kanchanaburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('310d08e3-4368-5cfd-a101-f2ff12fa61f7', 'TH-72', 'Suphan Buri', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d131fa25-08b9-5291-8cb5-9a2d8f0b30a8', 'TH-73', 'Nakhon Pathom', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8b247281-d5ab-542b-8fa4-f250fca3e927', 'TH-74', 'Samut Sakhon', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('62fd56b8-281f-5d3f-9696-b778e8cf2eeb', 'TH-75', 'Samut Songkhram', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a8e62632-d3e2-529d-b4fc-07fbe508cd94', 'TH-76', 'Phetchaburi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1fa5a195-9b56-5e3c-b0ac-65057b9158c3', 'TH-77', 'Prachuap Khiri Khan', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bbc38192-7614-5128-a256-42c16a692487', 'TH-80', 'Nakhon Si Thammarat', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('69901b1e-e701-56e1-b3c7-e6f95e3f7b80', 'TH-81', 'Krabi', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4589aa9c-c1fc-5793-89fb-185f6881ecba', 'TH-82', 'Phangnga', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('da6cbfa1-ae27-5623-a3a0-03d175cf324a', 'TH-83', 'Phuket', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('45d31e7e-551d-5195-acb8-3145f3436d18', 'TH-84', 'Surat Thani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cdff60b6-bf6c-5da4-8d1c-b23ede6e38e1', 'TH-85', 'Ranong', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1fb2951f-123f-5495-af6e-5d48f2f47cea', 'TH-86', 'Chumphon', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ece7cc6-5b90-5965-a496-95985337bf5b', 'TH-90', 'Songkhla', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('36a781b0-07b5-5232-a9a2-a734af4f5241', 'TH-91', 'Satun', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b20f9d13-9597-5aa7-b690-de1cc7cb6e3d', 'TH-92', 'Trang', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b6949b75-96d1-58d8-a0ba-db9bf9714915', 'TH-93', 'Phatthalung', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e3ce2e7d-0ba8-56db-8437-bdec428401f4', 'TH-94', 'Pattani', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d09accce-0c64-514c-ba31-8ec023be8230', 'TH-95', 'Yala', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4601a72e-397f-56bd-8580-084aed1b53ca', 'TH-96', 'Narathiwat', 'Province', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a1e743dd-cad9-5e3a-be85-f7356ca385cc', 'TH-S', 'Phatthaya', 'Special administrative city', '3206bf97-fde7-5b0a-b688-fff45ddfbea2')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6debadf7-6ef2-5765-876a-cc9b928bcb3e', 'TR-01', 'Adana', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6736b685-f33b-5c13-9ae0-918995a4a64b', 'TR-02', 'Adıyaman', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dc3fbd55-e409-55ff-9780-3d186c15d596', 'TR-03', 'Afyonkarahisar', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de47f9ac-317d-5240-ac2e-629bff5235a2', 'TR-04', 'Ağrı', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c821ab76-15db-50e5-969e-9061ce7fbadf', 'TR-05', 'Amasya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5ac07c26-8e62-58a0-a28a-df45404d91a4', 'TR-06', 'Ankara', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b43974ff-59e2-551c-867e-82c85970e36b', 'TR-07', 'Antalya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('88411cd0-b8a8-5926-9d7a-737c8664ee52', 'TR-08', 'Artvin', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4269ae90-11f2-565b-8ccc-ac9b7319f7cf', 'TR-09', 'Aydın', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4d4812af-6c80-5a35-945d-3fe8cfc90370', 'TR-10', 'Balıkesir', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b002b248-a3d9-5c1b-bd6c-ea90db9c62f6', 'TR-11', 'Bilecik', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('749164c7-3b79-561d-ad1a-03faca3452de', 'TR-12', 'Bingöl', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a0b0aa42-a91e-5230-8f7c-ed0cfea0520c', 'TR-13', 'Bitlis', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9fa2d43e-5535-593f-b8b3-8f0f14443ce1', 'TR-14', 'Bolu', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('69a31d6e-4f27-55b9-95bf-f91294915be4', 'TR-15', 'Burdur', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('74d24686-3b4c-503b-80a8-37fdabedea82', 'TR-16', 'Bursa', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f07bc4dc-f088-576e-ad44-2e60ad9ff384', 'TR-17', 'Çanakkale', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b58367d2-107b-5f8e-86fb-03c497e27421', 'TR-18', 'Çankırı', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0a4254dd-daf2-586a-99c7-32b1f4e41e44', 'TR-19', 'Çorum', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fe71c4cb-8b47-5ed6-b2b4-8b0935229ec3', 'TR-20', 'Denizli', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c6634dc9-0537-5d3d-a1ad-bb85fa7e6de8', 'TR-21', 'Diyarbakır', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9417e39c-4099-5ead-814e-d9891da96348', 'TR-22', 'Edirne', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8094a873-fc4e-5dd3-9460-90d3d0d214b0', 'TR-23', 'Elazığ', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9973f26a-a3eb-54a3-974a-d63e5d073728', 'TR-24', 'Erzincan', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c68ec0b2-fa6b-5d3d-8aa3-b8c4eeaa471b', 'TR-25', 'Erzurum', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('be5da2be-c094-52c7-913e-84bb7d947ec7', 'TR-26', 'Eskişehir', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('46e352b5-6fb6-5150-87ba-2924b3ae0b88', 'TR-27', 'Gaziantep', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('57993146-95e2-562b-891e-9c26a638f62d', 'TR-28', 'Giresun', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bfc9498c-7990-5183-a910-81cb2b4b514b', 'TR-29', 'Gümüşhane', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e88797ad-44a9-5148-a580-9e7e00e231c5', 'TR-30', 'Hakkâri', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('21349489-1582-5a2f-8c26-76eae86b3560', 'TR-31', 'Hatay', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e12d39ff-339b-5de2-bbc7-bf71f68cead9', 'TR-32', 'Isparta', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7487cfd9-f536-550c-a33e-78d19ef5b4c9', 'TR-33', 'Mersin', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a57e455b-9772-5785-8857-c366b97a3848', 'TR-34', 'İstanbul', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('68661260-1e40-5e5f-bb11-69be232285ab', 'TR-35', 'İzmir', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('61eb4efe-94db-573f-84e2-3e6a19ab11e2', 'TR-36', 'Kars', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ef3ca124-efe6-5b02-8426-4b471cb04d83', 'TR-37', 'Kastamonu', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('43217689-396f-5ced-8d44-806a56dd948b', 'TR-38', 'Kayseri', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('11104b45-b179-5af9-acc2-fa4774335e49', 'TR-39', 'Kırklareli', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7a5ce6a3-2cc6-5a45-825b-e5102a18d3b9', 'TR-40', 'Kırşehir', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('29055876-d8ad-5540-a225-9394d27b87a9', 'TR-41', 'Kocaeli', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b4e6448e-04d4-5999-8234-6bb89b4ecaaf', 'TR-42', 'Konya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7f0244ff-3d84-5bb8-8227-76503700602b', 'TR-43', 'Kütahya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('00e62622-04f5-5216-8b0a-de0de2ecc566', 'TR-44', 'Malatya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5d226658-6b8f-5ec7-8b1b-82a053d0936a', 'TR-45', 'Manisa', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8d10d407-234e-5de4-8d63-649328e8cc3d', 'TR-46', 'Kahramanmaraş', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cf786b06-5826-50f4-80ae-51cb156cb2ab', 'TR-47', 'Mardin', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4830a6d8-6d2a-516e-875e-848e5ced96ae', 'TR-48', 'Muğla', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0bea52ea-d8d7-589c-b951-887f118877f5', 'TR-49', 'Muş', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f7cedd5c-23ff-57e1-80e5-fe0077d9dbef', 'TR-50', 'Nevşehir', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('97f4954a-330a-53b6-9ed0-c54d1aed7e65', 'TR-51', 'Niğde', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('716e87b1-f311-5754-8b46-7c7e6ac79bea', 'TR-52', 'Ordu', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fe3336b7-5769-587c-8f6b-33f3be67d24d', 'TR-53', 'Rize', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dd7a86eb-a013-5378-9172-547186b2092c', 'TR-54', 'Sakarya', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e0a92184-66bd-5978-bdbd-4b407c9d8345', 'TR-55', 'Samsun', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53de46ec-203f-5d92-b223-737972f741bb', 'TR-56', 'Siirt', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ec371a34-eb40-5bba-96a9-db19d989fa5b', 'TR-57', 'Sinop', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ae77b498-d2bf-5b73-b626-aea5d768f918', 'TR-58', 'Sivas', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d9928113-10c5-53fd-b277-703123c6c433', 'TR-59', 'Tekirdağ', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f48084b8-8453-5455-a1ca-cba9b80ce2ed', 'TR-60', 'Tokat', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1e241ea4-29ac-58a7-9220-7f3d5643b03e', 'TR-61', 'Trabzon', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dd64d3b0-37ae-576d-905c-07e420d05136', 'TR-62', 'Tunceli', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0ae1b79a-003f-56b6-ab80-484ead531a59', 'TR-63', 'Şanlıurfa', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('93ea6250-d914-5801-9992-10f4212c29bc', 'TR-64', 'Uşak', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9537c9d7-5e29-5c0e-9894-fe6ef77d5b2b', 'TR-65', 'Van', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7e67d7c4-07b5-5c17-81e0-833c2a1fa4e6', 'TR-66', 'Yozgat', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3dadb578-3533-5a8f-93c5-f8490cca6a90', 'TR-67', 'Zonguldak', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('717cac9f-79e4-5481-8c7f-0cf04dd9627e', 'TR-68', 'Aksaray', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5f035c84-4560-5f47-a775-025afa7e8509', 'TR-69', 'Bayburt', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b77253cd-891a-5768-8a19-4cdb0b05e9bf', 'TR-70', 'Karaman', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4bc7423b-52e4-547e-bcc0-1564ef66b658', 'TR-71', 'Kırıkkale', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('06254887-48d6-592d-a33e-5bc6077b4080', 'TR-72', 'Batman', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9127fc71-c6af-5c28-b094-8fe3dcb75334', 'TR-73', 'Şırnak', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09fffa91-5819-5ef3-b11d-053081280b17', 'TR-74', 'Bartın', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('96374068-5e89-5a47-a0b6-7be7f09662ee', 'TR-75', 'Ardahan', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('162ef401-6337-5eea-a3d6-77577cbfc337', 'TR-76', 'Iğdır', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53bea12d-3b17-5125-91ae-279fd8b0ed89', 'TR-77', 'Yalova', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af7fd89e-5dda-5d66-addf-55f34d0c6737', 'TR-78', 'Karabük', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6ba3fc08-44d1-52c9-a485-55dfffe89dae', 'TR-79', 'Kilis', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ee007c6d-9645-5b13-9fba-7f743578dd25', 'TR-80', 'Osmaniye', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('17a7de40-4ac4-5ecc-a631-791478ad358d', 'TR-81', 'Düzce', 'Province', 'b110c790-c0bc-555b-be1d-ee711c556b3e')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ae163e73-a540-5008-b929-63577a091a02', 'UA-05', 'Vinnytska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('98b4ec9c-810a-5784-8a59-b95fa6804a0c', 'UA-07', 'Volynska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('934c5117-cae7-5df8-aecd-ca6af368fdf0', 'UA-09', 'Luhanska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7571fce5-8a4d-5031-93bd-6715f8d52399', 'UA-12', 'Dnipropetrovska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c221b4f4-f79e-554a-949f-2f79c47caed2', 'UA-14', 'Donetska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4ef26e13-b05c-592e-8534-14c74754bcdb', 'UA-18', 'Zhytomyrska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('af5583c1-158e-5b69-87d5-5fc83339bc85', 'UA-21', 'Zakarpatska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09ce7aff-c90e-53e9-b27a-50f21da102de', 'UA-23', 'Zaporizka oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('de5f6765-04b3-5223-807f-f932fc08ce16', 'UA-26', 'Ivano-Frankivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fad90154-5899-5dfa-b6e8-870dff56cde8', 'UA-30', 'Kyiv', 'City', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4b85a7ee-4554-5d15-a38c-796bd97b6453', 'UA-32', 'Kyivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c7b98c79-f45f-5e41-bdc5-278c39cebe93', 'UA-35', 'Kirovohradska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7128d437-9f09-598f-83ff-4f833efb3826', 'UA-40', 'Sevastopol', 'City', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b138df15-6bed-5d7f-bc41-f190156a7a6c', 'UA-43', 'Avtonomna Respublika Krym', 'Republic', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('920b1a40-d8e5-5c44-a8d7-86c6f0613c7c', 'UA-46', 'Lvivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2e3b1b8e-85a9-5052-97e6-8f939e745fbd', 'UA-48', 'Mykolaivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('89666dd8-98b3-52cb-8fae-4b2ab74f6116', 'UA-51', 'Odeska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f586404d-8015-5ee0-af17-7d25100280e5', 'UA-53', 'Poltavska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('92e04608-29f7-5853-9100-e4f05f4442b0', 'UA-56', 'Rivnenska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7df4a6f7-b4c6-5dc2-8a54-4817f2140833', 'UA-59', 'Sumska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e6fd0898-bb72-53f5-b124-9e80cad2790f', 'UA-61', 'Ternopilska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f0d50e8-eb9e-5957-810d-e1eed875ab71', 'UA-63', 'Kharkivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7920d278-fd06-56db-888b-0d623e0d4c2d', 'UA-65', 'Khersonska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('55895fc7-e6a1-59c1-becf-77f9cbabad1b', 'UA-68', 'Khmelnytska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8eb4b4ff-0274-5d5d-8710-e64b61d18abc', 'UA-71', 'Cherkaska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fff9b70d-1a84-5e6f-bffa-686bcd2f8c4a', 'UA-74', 'Chernihivska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2ad7b97c-72b6-5e7e-960a-1353a774dffd', 'UA-77', 'Chernivetska oblast', 'Region', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d58edb3f-952c-5ec6-a10f-7254fb931a62', 'US-AK', 'Alaska', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ead001bc-7d68-5aac-92d3-58dc0023ee6b', 'US-AL', 'Alabama', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a9078e43-a029-5b31-9a4f-afda29e22988', 'US-AR', 'Arkansas', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cfdf5973-02c8-5cf1-8219-684a92b13265', 'US-AS', 'American Samoa', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('859d26c0-ab28-5ffe-8eb0-044b619bae33', 'US-AZ', 'Arizona', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('45e1707f-24b5-5980-b818-61f6ce29c21b', 'US-CA', 'California', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5eddc2f0-ce9a-5b79-b50d-90141dcc1bfd', 'US-CO', 'Colorado', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5cfb8be2-bcff-5bc5-b1a1-5d1192b5c3f0', 'US-CT', 'Connecticut', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('411e0365-59b5-5c89-b1f4-573217b56e11', 'US-DC', 'District of Columbia', 'District', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ed21e0d6-1c78-5a18-a695-7120962cb179', 'US-DE', 'Delaware', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a349655d-634b-572d-9609-a8b63fddc083', 'US-FL', 'Florida', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1116d96a-425b-5fca-b4d8-fd5549db7e46', 'US-GA', 'Georgia', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('70822809-c169-51fd-807c-ab98c7df782c', 'US-GU', 'Guam', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('20a7cf10-8a67-5466-b4c5-f1e16835e125', 'US-HI', 'Hawaii', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c8a072e2-c5b8-5362-8415-adb2c80a7a27', 'US-IA', 'Iowa', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('dc6fc4f2-5a61-5e92-9cb5-c8ba15433a39', 'US-ID', 'Idaho', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('081a9f0f-27d9-5c0b-b041-47574c4978c9', 'US-IL', 'Illinois', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('52410e24-5170-5d2e-92cf-5e8f168d51ac', 'US-IN', 'Indiana', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('79e0b992-818c-5942-8b6b-ee2c5d5b514a', 'US-KS', 'Kansas', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ab3ce138-889e-5784-ac69-a50bc846df04', 'US-KY', 'Kentucky', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('40ca6b9e-dacc-5654-913a-d7f878b9e1a0', 'US-LA', 'Louisiana', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b644cd2a-b9b8-5512-8947-0f5b0cb99449', 'US-MA', 'Massachusetts', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a7d32095-2383-599c-9a92-0c2e873cf1ef', 'US-MD', 'Maryland', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('031c034e-f894-5116-ba7f-cb8e9eea4528', 'US-ME', 'Maine', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f61f6fec-095c-5f0b-abc3-15e6cb2b4ac0', 'US-MI', 'Michigan', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('62fab3cd-8865-52eb-967c-31c5a5f65932', 'US-MN', 'Minnesota', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5108e591-fdf2-5675-a386-66f4e93b82ab', 'US-MO', 'Missouri', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d122cd36-63b2-5459-a72b-5c79ea075017', 'US-MP', 'Northern Mariana Islands', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e551150b-6c61-5d64-baa5-50348547fce2', 'US-MS', 'Mississippi', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4dfbfe67-d76d-57ec-b876-20cd4848a76a', 'US-MT', 'Montana', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1241ddf2-35fb-5eca-a89e-796f128ccc83', 'US-NC', 'North Carolina', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('03be0012-89e0-5981-8007-f47c82cf6f1a', 'US-ND', 'North Dakota', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c2c3f605-1b0d-59e7-b0e1-b9b97ec0a1f1', 'US-NE', 'Nebraska', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ba6926b8-5e61-51f6-8628-b849b0929c50', 'US-NH', 'New Hampshire', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('029190d7-17c3-53bd-9aa8-8a8ccf4b5847', 'US-NJ', 'New Jersey', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b3302cfb-1c9b-5251-861d-176b210a996e', 'US-NM', 'New Mexico', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('90fe85ef-84a8-5aed-bac2-0eb527be64ff', 'US-NV', 'Nevada', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 'US-NY', 'New York', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('db140f4c-0395-562a-b3ed-7dfd75b1096f', 'US-OH', 'Ohio', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e71ccb96-92d3-575f-8c19-7d05869521c6', 'US-OK', 'Oklahoma', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('33939e42-7ec1-5404-a75c-4a21fc6be4ea', 'US-OR', 'Oregon', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d158da10-450e-5688-8757-e257401015b0', 'US-PA', 'Pennsylvania', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6aa34d70-3e39-5a6f-a434-9e23d21284be', 'US-PR', 'Puerto Rico', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('703cac53-2145-5eb6-a081-66b9517c85a1', 'US-RI', 'Rhode Island', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9ea8d93d-7ebd-5eab-96cf-ccd9db690740', 'US-SC', 'South Carolina', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e337f7bf-efa1-5e21-8153-841e9ed1e4e2', 'US-SD', 'South Dakota', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f24da69b-fb60-5d9b-afe1-9be81963fa74', 'US-TN', 'Tennessee', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('bc60c38a-14e2-5791-b550-457282483f20', 'US-TX', 'Texas', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4afc1f98-b6ce-5288-a07c-ca6363ff67fe', 'US-UM', 'United States Minor Outlying Islands', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1732b4d1-41ba-5f8a-b385-607888576161', 'US-UT', 'Utah', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('07230ef0-2ae9-5ccf-946a-892e5fa68ab5', 'US-VA', 'Virginia', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4668c0c3-aa5b-5fd9-b5a4-e0366b4ae600', 'US-VI', 'Virgin Islands, U.S.', 'Outlying area', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('95574559-f9d2-5618-9654-2a8d470bf3cb', 'US-VT', 'Vermont', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ddddd9cb-0707-54aa-83fd-685f0c5e8dac', 'US-WA', 'Washington', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f0696834-3d46-5b6f-a86e-636161dac513', 'US-WI', 'Wisconsin', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6503af92-82eb-5b53-83e0-54fe7fcd98fa', 'US-WV', 'West Virginia', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('afa2d4c6-44d8-5709-8920-89dd357b3e2a', 'US-WY', 'Wyoming', 'State', '097b6118-b718-5a7d-b1e3-86f42df9a40c')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e063e88e-fddc-5631-8074-7747d3f83400', 'VN-01', 'Lai Châu', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('48f95539-751b-591c-aef5-ed4f6c07ddf4', 'VN-02', 'Lào Cai', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('fdee5d01-df35-584c-ba6f-260b57cd0158', 'VN-03', 'Hà Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7d1316c7-0935-525b-a38e-1928a88d3bb6', 'VN-04', 'Cao Bằng', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d27ccdea-ef59-53c4-a949-cbdffa4f0c05', 'VN-05', 'Sơn La', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d16f90fe-27f8-5852-8fe3-58c55354671e', 'VN-06', 'Yên Bái', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0ed98847-81e3-5ca4-8465-12d5888d3fc0', 'VN-07', 'Tuyên Quang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9d7d11cf-0e9b-5df2-86b3-fced9714d06f', 'VN-09', 'Lạng Sơn', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e5adcd5e-bec4-5fe6-82ca-c0f9203223b7', 'VN-13', 'Quảng Ninh', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('da8148d1-cbec-5d54-bfba-b46baea41e88', 'VN-14', 'Hòa Bình', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('0724f450-7fdd-5bd1-8fbb-37ce7395af32', 'VN-18', 'Ninh Bình', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f36da44f-fb3f-50e8-85f8-798dc90bc553', 'VN-20', 'Thái Bình', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('36afa6a7-c16b-5c31-bf85-84ea4ba0c31f', 'VN-21', 'Thanh Hóa', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1798d428-866d-5872-b765-db0278b08675', 'VN-22', 'Nghệ An', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('73063d44-b8b1-5545-a3c4-d3037ce0e387', 'VN-23', 'Hà Tĩnh', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('22ca8d20-f7b8-57fc-95ab-be557935863b', 'VN-24', 'Quảng Bình', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f2e69452-2502-5eb2-86ba-fa8dc54edced', 'VN-25', 'Quảng Trị', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5a4405e2-5c54-5938-8978-4919020471ad', 'VN-26', 'Thừa Thiên-Huế', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('c300d9a9-723e-5d3e-adf0-b8d028405512', 'VN-27', 'Quảng Nam', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('85637e58-f6a6-5a90-9561-37d41bb55f61', 'VN-28', 'Kon Tum', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('997a962e-2e6c-5752-a6ed-d792e6289fca', 'VN-29', 'Quảng Ngãi', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e3dd5393-b727-5894-8f5b-95abd2c44b55', 'VN-30', 'Gia Lai', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d8527f9d-7fe0-5d24-baff-c8100308ea98', 'VN-31', 'Bình Định', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('71cdfa84-b9fc-5366-9112-bf9ea08815ea', 'VN-32', 'Phú Yên', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7a2ff560-bf9b-5434-b775-8311da2cc965', 'VN-33', 'Đắk Lắk', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('458d519f-c040-59d3-bd98-32a6ea3e89b9', 'VN-34', 'Khánh Hòa', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('affc36f2-90c1-50d2-8367-179cae040d71', 'VN-35', 'Lâm Đồng', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('f8eacf59-b081-5f91-8183-ac5ecd353aa9', 'VN-36', 'Ninh Thuận', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('868deaf8-6a7d-5f85-b9d8-19e5b121882d', 'VN-37', 'Tây Ninh', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5a0962a5-e38b-576d-841e-3275f7d9eccc', 'VN-39', 'Đồng Nai', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('e5d3ef81-02ea-537d-b95b-514e6c22dbb8', 'VN-40', 'Bình Thuận', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5e9f76b1-de16-59e5-8581-c068bd631bcb', 'VN-41', 'Long An', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('96f6dcea-4e71-5205-84fb-66f5a55e64fc', 'VN-43', 'Bà Rịa - Vũng Tàu', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('cff5649e-a33f-579b-9e40-2bbebb64d204', 'VN-44', 'An Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ba863ddf-6547-5df7-b431-2093b864cf1a', 'VN-45', 'Đồng Tháp', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('15e6c435-040e-5009-8d5e-606f53efd468', 'VN-46', 'Tiền Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7ab53769-69b5-5ab2-9842-0e17aedcd9cd', 'VN-47', 'Kiến Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ec490274-b7d7-540d-a861-271327c4af52', 'VN-49', 'Vĩnh Long', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('01e92c4d-1f54-5ee0-b04a-c98bb042eb5a', 'VN-50', 'Bến Tre', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8fc75c4c-ef4d-5d33-a038-16eab8daf38b', 'VN-51', 'Trà Vinh', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('3bdc4b88-e8f9-55c2-958c-670ba3f10fc3', 'VN-52', 'Sóc Trăng', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1690724a-6f07-5fbe-9703-01bbb5e70d5b', 'VN-53', 'Bắc Kạn', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('46baa735-aa9e-5536-94ca-9c34e18c57ac', 'VN-54', 'Bắc Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('5593e705-6fdc-57da-ba09-0f14d10542eb', 'VN-55', 'Bạc Liêu', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('4977c3c7-eb78-5468-8363-8e133f343db5', 'VN-56', 'Bắc Ninh', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ec67f4b0-cabd-5431-8d7a-25bd64053cb8', 'VN-57', 'Bình Dương', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('09d2728c-5787-5250-844f-5607c217e048', 'VN-58', 'Bình Phước', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('703b93d9-5c25-5d56-932a-50558fa75f5b', 'VN-59', 'Cà Mau', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('2380e9cb-9543-5b69-88e7-be970eaa60ac', 'VN-61', 'Hải Dương', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('a5f2fcd4-b283-5a76-88cc-fc25162f1ac1', 'VN-63', 'Hà Nam', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6706167b-0964-515a-99e3-62fdaa1a2ed1', 'VN-66', 'Hưng Yên', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9889260b-6931-5925-9b05-6a2850a81bdf', 'VN-67', 'Nam Định', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8e1c65ea-aa7d-55f2-bbc2-960adcaf8d21', 'VN-68', 'Phú Thọ', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('1014d173-1a49-54da-92da-40ddc186ad17', 'VN-69', 'Thái Nguyên', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('eb55a7f7-5a61-50c3-ba11-c1d3cd78a27e', 'VN-70', 'Vĩnh Phúc', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('314d3d7c-75d0-51a1-aec2-a2bf1d8ea5a6', 'VN-71', 'Điện Biên', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6b20bbfb-d5f5-5829-aa09-6e4822c44646', 'VN-72', 'Đắk Nông', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('9c99e535-4caa-52bf-89d8-abe0a4b7d354', 'VN-73', 'Hậu Giang', 'Province', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('594c32a1-06ee-5e20-a27d-0776919044a2', 'VN-CT', 'Cần Thơ', 'Municipality', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('d459dff2-77c4-51c9-82f4-2275cf77e875', 'VN-DN', 'Đà Nẵng', 'Municipality', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('7895894e-41fc-5fbe-b9ca-7c86b2d622b7', 'VN-HN', 'Hà Nội', 'Municipality', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('ac7e3f59-3527-5922-9f05-34d312d53fa4', 'VN-HP', 'Hải Phòng', 'Municipality', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('490e63e0-1a68-556f-9177-409af88c324f', 'VN-SG', 'Hồ Chí Minh', 'Municipality', 'bdf0e3ce-340b-5222-bc59-e2c203463e11')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('da9cfb04-0dcd-5ada-bba7-387e33e02895', 'ZA-EC', 'Eastern Cape', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('56060df0-26c0-5dbc-93ce-816c2c05b4c5', 'ZA-FS', 'Free State', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('6f731cfa-2cf8-5e02-b71c-5d2cc607323f', 'ZA-GP', 'Gauteng', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('89613033-a7c7-55d3-b933-5eca353dd31e', 'ZA-KZN', 'Kwazulu-Natal', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('8f0fec01-a99e-541c-b2b7-fb6a8bf14431', 'ZA-LP', 'Limpopo', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('b0d3509d-c9e6-5e47-9c98-8f1c47450ca2', 'ZA-MP', 'Mpumalanga', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('53539cae-a209-5de2-9618-b625e898cf64', 'ZA-NC', 'Northern Cape', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('abfacd57-a50a-5ce0-982b-e80c3118d6fc', 'ZA-NW', 'North-West', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_state_province (id, code, name, subdivision_type, country_id)
+VALUES ('72bd1b08-babd-5112-b0ad-dfe6a563a7eb', 'ZA-WC', 'Western Cape', 'Province', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('78129dd5-4561-5021-ac2d-f6ec3f559d3c', 'AD-ANDORRA-LA-VELLA', 'Andorra la Vella', '0fe69daf-a7a5-50f2-af12-66b9450ce967', 20430, 42.5078, 1.5211, 'Europe/Andorra', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('13d2d99b-0cd6-5ff9-9792-6cc2c5884576', 'AE-ABU-DHABI', 'Abu Dhabi', '31d3b768-f67a-5738-a18b-3f430befff89', 1807000, 24.4512, 54.397, 'Asia/Dubai', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2597e8a6-bcb0-5e80-98f4-787e6695c5f3', 'AE-AL-AIN-CITY', 'Al Ain City', '31d3b768-f67a-5738-a18b-3f430befff89', 846747, 24.1917, 55.7606, 'Asia/Dubai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6b17edf8-ae85-573a-9622-0304a6a2ad6b', 'AE-DUBAI', 'Dubai', '31d3b768-f67a-5738-a18b-3f430befff89', 3790000, 25.0772, 55.3093, 'Asia/Dubai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2ed5d8d7-a0ca-54c5-b21b-9261f7d78d56', 'AE-SHARJAH', 'Sharjah', '31d3b768-f67a-5738-a18b-3f430befff89', 1800000, 25.3342, 55.4122, 'Asia/Dubai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1cc41e97-85e7-5f35-b5c1-0e6718ee5184', 'AF-KABUL', 'Kabul', '21d496e3-4cc7-5d9e-97c3-0a0a4a235a46', 4434550, 34.5281, 69.1723, 'Asia/Kabul', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('fa6eb465-220f-5f32-975d-b58fc1fc8ff1', 'AI-THE-VALLEY', 'The Valley', 'd75f2169-2e2f-52e5-a458-aa4a42a30543', 2035, 18.217, -63.0578, 'America/Anguilla', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('35c4417a-d5d0-556c-8242-28e4ed915a9e', 'AL-TIRANA', 'Tirana', '974084a7-3e0f-5667-9dee-db1900e23068', 418495, 41.3274, 19.8187, 'Europe/Tirane', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('cc87dcff-bfe5-5528-ad53-ab1bb2d6ee12', 'AM-YEREVAN', 'Yerevan', 'a34a81d0-d18b-5e55-b506-67f1d83de8cd', 1144700, 40.1776, 44.5126, 'Asia/Yerevan', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c116ea24-14a7-5a2c-a92c-e03dce0489f6', 'AO-LUANDA', 'Luanda', 'f4fd177a-a182-572e-a7cf-761b37952782', 2776168, -8.8368, 13.2343, 'Africa/Luanda', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d0d33497-89f8-575f-a213-cdf569008eea', 'AO-MULENVOS', 'Mulenvos', 'f4fd177a-a182-572e-a7cf-761b37952782', 882014, -8.8669, 13.3344, 'Africa/Luanda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('43b24c65-732c-5aa3-a402-ece49d4f6628', 'AO-VIANA', 'Viana', 'f4fd177a-a182-572e-a7cf-761b37952782', 865863, -8.9055, 13.375, 'Africa/Luanda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c4124ea7-2f6d-5194-860b-dcc1d7e67702', 'AR-BUENOS-AIRES', 'Buenos Aires', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb', 2891082, -34.6131, -58.3772, 'America/Argentina/Buenos_Aires', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c9bdb107-1a4e-50ff-abb0-e2dbfa2b4ae5', 'AR-CORDOBA', 'Córdoba', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb', 2106734, -31.4065, -64.1885, 'America/Argentina/Cordoba')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f0884870-46cf-5745-9715-6b029f34c9b9', 'AR-ROSARIO', 'Rosario', 'ec6abf87-7650-5f33-82fa-d0841c7b02bb', 948312, -32.9468, -60.6393, 'America/Argentina/Cordoba')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('3ca48c41-b11c-55d9-ae8b-efa408639bda', 'AS-PAGO-PAGO', 'Pago Pago', '73871764-09c9-5d37-ac52-02403c6bf673', 11500, -14.2781, -170.7025, 'Pacific/Pago_Pago', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('474aa06f-646e-5efa-b7b1-deecbefcbe6b', 'AT-VIENNA', 'Vienna', '547a0809-e913-5c92-8cff-e646350306d9', 1691468, 48.2085, 16.3721, 'Europe/Vienna', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('13d87f30-2997-55db-a4ac-fd89f4ba68b2', 'AU-ADELAIDE', 'Adelaide', '2573552d-b80d-58c8-98d5-7e85146e8270', 1469163, -34.9287, 138.5986, 'Australia/Adelaide')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9c0d3e1a-af27-5896-9305-9ae12cb6e10a', 'AU-BRISBANE', 'Brisbane', '2573552d-b80d-58c8-98d5-7e85146e8270', 2780063, -27.4679, 153.0281, 'Australia/Brisbane')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1281577b-50a0-52fa-b9bb-232a14e50dca', 'AU-CANBERRA', 'Canberra', '2573552d-b80d-58c8-98d5-7e85146e8270', 367752, -35.2835, 149.1281, 'Australia/Sydney', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2268bfba-bf1c-569b-9c50-5ba24a78c278', 'AU-MELBOURNE', 'Melbourne', '2573552d-b80d-58c8-98d5-7e85146e8270', 5435590, -37.814, 144.9633, 'Australia/Melbourne')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6a27a123-16b2-566c-9a80-88e4044bafda', 'AU-PERTH', 'Perth', '2573552d-b80d-58c8-98d5-7e85146e8270', 2384371, -31.9522, 115.8614, 'Australia/Perth')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c1eb186a-37ed-56c8-81b8-136062f55be5', 'AU-SYDNEY', 'Sydney', '2573552d-b80d-58c8-98d5-7e85146e8270', 5638830, -33.8678, 151.2073, 'Australia/Sydney')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('205f31a8-8865-583a-9438-151601e9d04b', 'AW-ORANJESTAD', 'Oranjestad', '622e81ef-ce5f-5d8a-909d-5042a41a1df9', 29998, 12.524, -70.027, 'America/Aruba', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('868bda46-a0a6-5add-b6e9-422ee78f2b2e', 'AX-MARIEHAMN', 'Mariehamn', '809b43a9-624b-5c59-a720-52416b8a88e8', 10682, 60.0973, 19.9348, 'Europe/Mariehamn', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1106b87b-f268-54f4-9f31-f1b7d04ae061', 'AZ-BAKU', 'Baku', 'e45b5460-6b29-5e1f-b4e9-0f6611e7836d', 2351300, 40.3777, 49.892, 'Asia/Baku', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('520ac26a-2f52-577e-8f5b-2b04f71da36f', 'BA-SARAJEVO', 'Sarajevo', '185bc645-6fce-5195-a478-cb0f3ad0917d', 696731, 43.8486, 18.3564, 'Europe/Sarajevo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('4e3da876-d18d-5318-be07-4c869eb88ee6', 'BB-BRIDGETOWN', 'Bridgetown', '73144aa2-62ac-548f-b1e0-8ac0fc1ef005', 98511, 13.1073, -59.6202, 'America/Barbados', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9efc5745-1c4e-548d-976b-f1f620a223b3', 'BD-CHATTOGRAM', 'Chattogram', '6eb9c83a-ee5c-5375-a708-084341463216', 3920222, 22.3384, 91.8317, 'Asia/Dhaka')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('234ae4d8-5c19-58c5-be35-db429902b8c8', 'BD-DHAKA', 'Dhaka', '6eb9c83a-ee5c-5375-a708-084341463216', 10356500, 23.7104, 90.4074, 'Asia/Dhaka', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c691fa1c-48d3-5e5f-84de-ccf6f89d5a04', 'BD-GAZIPUR', 'Gazipur', '6eb9c83a-ee5c-5375-a708-084341463216', 2674697, 23.9984, 90.4223, 'Asia/Dhaka')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b7b1371f-ae36-52fe-9495-20ac31e9d726', 'BD-KHULNA', 'Khulna', '6eb9c83a-ee5c-5375-a708-084341463216', 1500689, 22.8098, 89.5644, 'Asia/Dhaka')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e5004a17-a86b-5631-9c24-33adb801816f', 'BD-RAJSHAHI', 'Rajshahi', '6eb9c83a-ee5c-5375-a708-084341463216', 763580, 24.374, 88.6011, 'Asia/Dhaka')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1f7bedf1-dc97-56b2-99f7-3395bceaa52d', 'BD-RANGPUR', 'Rangpur', '6eb9c83a-ee5c-5375-a708-084341463216', 1031388, 25.7466, 89.2517, 'Asia/Dhaka')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('8120585c-924c-55c7-8d26-7b4c78952e43', 'BE-BRUSSELS', 'Brussels', 'd1b9e2ce-1243-5f42-8b3c-81b661ea7614', 1019022, 50.8505, 4.3488, 'Europe/Brussels', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('badd9d79-cd02-5ef6-a5b6-d0f2d4460126', 'BF-BOBO-DIOULASSO', 'Bobo-Dioulasso', 'f069f7a8-ca2f-5560-a995-0f73174a2b2f', 904920, 11.1806, -4.2949, 'Africa/Ouagadougou')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6326b610-97e9-5c29-a951-7bb2deea7d2d', 'BF-OUAGADOUGOU', 'Ouagadougou', 'f069f7a8-ca2f-5560-a995-0f73174a2b2f', 2415266, 12.3657, -1.5339, 'Africa/Ouagadougou', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('11a77bb9-e538-5e57-9150-89b1c7428552', 'BG-SOFIA', 'Sofia', '5f167343-ca3d-5abc-b6bd-596b0e6e2f3f', 1152556, 42.6975, 23.3241, 'Europe/Sofia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a943b25b-9ec0-500e-9d8d-206cb8d82134', 'BH-MANAMA', 'Manama', '884202a7-f174-5ed0-b6d9-c53e4264bce1', 147074, 26.2279, 50.5857, 'Asia/Bahrain', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e65eb878-52e4-5580-a08e-6feab4c12534', 'BI-BUJUMBURA', 'Bujumbura', '333976cb-fcd6-53ed-a684-6e368d52702d', 769317, -3.3819, 29.3614, 'Africa/Bujumbura')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ba258ea3-0604-5e6b-9050-dd69e89a75a1', 'BI-GITEGA', 'Gitega', '333976cb-fcd6-53ed-a684-6e368d52702d', 64904, -3.4271, 29.9246, 'Africa/Bujumbura', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6d789c20-421b-5d62-b0b7-e0a700ee8565', 'BJ-PORTO-NOVO', 'Porto-Novo', 'b94ccb7c-b88e-5daa-ab21-a64efd64cc05', 264320, 6.4965, 2.6036, 'Africa/Porto-Novo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ab334f2e-27d4-510b-9ee7-af684020b6f9', 'BL-GUSTAVIA', 'Gustavia', '04e1af2a-e3e3-5ec9-8193-85def5ff84a1', 5988, 17.8962, -62.8498, 'America/St_Barthelemy', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1639497c-e33e-5639-b618-4364140beb5e', 'BM-HAMILTON', 'Hamilton', '526e2435-a194-57ee-ab25-c49de2f36568', 902, 32.2949, -64.783, 'Atlantic/Bermuda', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('582dcb97-fde6-5cf5-bf41-e418f035372f', 'BN-BANDAR-SERI-BEGAWAN', 'Bandar Seri Begawan', '4016aecf-8d0d-5bef-a879-11986d0f4646', 64409, 4.8903, 114.9401, 'Asia/Brunei', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('032b4e97-fac2-54de-8ff9-713aa69bbc75', 'BO-COCHABAMBA', 'Cochabamba', '43c5cba2-06fb-5574-80fc-e41ab362b67d', 841276, -17.3819, -66.1599, 'America/La_Paz')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3023278b-ad59-5dca-8090-ac217af34e6f', 'BO-LA-PAZ', 'La Paz', '43c5cba2-06fb-5574-80fc-e41ab362b67d', 2004652, -16.5, -68.15, 'America/La_Paz')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dc9280d7-21ef-52d1-8a6a-8bacdd928548', 'BO-SANTA-CRUZ-DE-LA-SIERRA', 'Santa Cruz de la Sierra', '43c5cba2-06fb-5574-80fc-e41ab362b67d', 1831434, -17.7863, -63.1812, 'America/La_Paz')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('5f2cbe0f-296d-5571-ae82-831f495ed8b0', 'BO-SUCRE', 'Sucre', '43c5cba2-06fb-5574-80fc-e41ab362b67d', 224838, -19.0333, -65.2627, 'America/La_Paz', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('da43e187-7ce1-5ed6-850d-acb0664a28de', 'BR-BELO-HORIZONTE', 'Belo Horizonte', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 2721564, -19.9208, -43.9378, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ddbf0d7c-5ff2-5741-bd79-c1dafb0c7e32', 'BR-BELEM', 'Belém', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1499641, -1.4558, -48.5044, 'America/Belem')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d35a43fb-ec40-5436-bf6b-6788d60fc60e', 'BR-BRASILIA', 'Brasília', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 2207718, -15.7797, -47.9297, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('58a5c40c-b1e5-5209-a34d-058bb1a1a356', 'BR-CAMPINAS', 'Campinas', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1031554, -22.9056, -47.0608, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ce5de32a-dc17-568e-9815-7fa15c412ef2', 'BR-CAMPO-GRANDE', 'Campo Grande', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 906092, -20.4428, -54.6464, 'America/Campo_Grande')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5045362e-8754-5f67-97da-699643b38deb', 'BR-CURITIBA', 'Curitiba', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1948626, -25.4278, -49.2731, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('30dff15e-57b4-5504-8443-32d1397eaea4', 'BR-DUQUE-DE-CAXIAS', 'Duque de Caxias', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 818329, -22.7856, -43.3117, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('08135ba1-2899-5902-ad7b-1851567402a8', 'BR-FORTALEZA', 'Fortaleza', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 2400000, -3.7172, -38.5431, 'America/Fortaleza')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c1ca87eb-333d-5f54-a113-9dca04375f7c', 'BR-GOIANIA', 'Goiânia', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1536097, -16.6786, -49.2539, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('818099a2-b8e9-55cb-834d-09d19238dd80', 'BR-GUARULHOS', 'Guarulhos', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1169577, -23.4628, -46.5333, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('83a10d77-f15b-5a03-8419-eee5b8c6d8dc', 'BR-JOAO-PESSOA', 'João Pessoa', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 817511, -7.115, -34.8631, 'America/Fortaleza')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8e80e9fe-0fb3-5580-bca7-7636daa1a5de', 'BR-MACEIO', 'Maceió', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1031597, -9.6658, -35.7353, 'America/Maceio')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e2fbd416-9fc4-5849-bce2-cefcfcaf391d', 'BR-MANAUS', 'Manaus', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 2219580, -3.1019, -60.025, 'America/Manaus')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('72d2ff3f-ccba-5376-9447-8e31510cedb2', 'BR-NATAL', 'Natal', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 896708, -5.795, -35.2094, 'America/Fortaleza')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c20c8b9a-fde2-5725-81fb-dd841d071b8d', 'BR-NOVA-IGUACU', 'Nova Iguaçu', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 843046, -22.7592, -43.4511, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f748c91a-05ce-5de8-890c-6ca32396789a', 'BR-PORTO-ALEGRE', 'Porto Alegre', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1488252, -30.0328, -51.2302, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('00e7788a-dd6b-5500-b872-d276ad7b1186', 'BR-RECIFE', 'Recife', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 1653461, -8.0539, -34.8811, 'America/Recife')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dd223081-aead-5e31-9a53-66c249bb7dcb', 'BR-RIO-DE-JANEIRO', 'Rio de Janeiro', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 6747815, -22.9064, -43.1822, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('53918483-f34c-519a-9a43-64c1ab043f50', 'BR-SALVADOR', 'Salvador', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 2711840, -12.9756, -38.491, 'America/Bahia')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('497ae69d-6d38-5b2a-874d-53e614f24c32', 'BR-SOROCABA', 'Sorocaba', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 762172, -23.5017, -47.4581, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2713855c-9b68-51a5-89f2-aac1e970c5cd', 'BR-SAO-LUIS', 'São Luís', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 917237, -2.5297, -44.3028, 'America/Fortaleza')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('509b6347-9e1c-56fd-a348-efac05b79a8a', 'BR-SAO-PAULO', 'São Paulo', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 12400232, -23.5475, -46.6361, 'America/Sao_Paulo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3114f9ea-e321-556e-b3ad-40f183a7e346', 'BR-TERESINA', 'Teresina', '5ce851a7-0054-5f4c-a4c4-9cd76c5f7091', 871126, -5.0892, -42.8019, 'America/Fortaleza')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('53636c89-92c3-5295-b033-473678f5bdc0', 'BS-NASSAU', 'Nassau', '5227f815-8db1-59f9-9fd9-872832663f04', 227940, 25.0582, -77.3431, 'America/Nassau', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('48084170-5117-581f-9e07-a6aeef427203', 'BT-THIMPHU', 'Thimphu', '1cfba9ed-10bf-57f4-a3a2-02ecc6b77d0d', 98676, 27.4661, 89.6419, 'Asia/Thimphu', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2d34ff81-838f-5697-91ad-dec5806d6649', 'BW-GABORONE', 'Gaborone', '4a90541c-ca31-5a86-a426-8b9295f44942', 246325, -24.6545, 25.9086, 'Africa/Gaborone', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1edf2014-1ce7-50d0-9e4a-b4b7856168f3', 'BY-MINSK', 'Minsk', '64e0caf9-c980-5fca-b4cc-8aedcfee7d1d', 1742124, 53.9002, 27.5665, 'Europe/Minsk', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('fa606ff2-2a8a-58df-b7af-901d5d2411ef', 'BZ-BELMOPAN', 'Belmopan', '6cad15f8-3584-502d-a6a9-48dc20fd080f', 13381, 17.2538, -88.764, 'America/Belize', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('48d6d7cb-73f4-5308-853e-cbea6ebd9822', 'CA-CALGARY', 'Calgary', '61b4568f-6209-54a4-9b9a-665be7c3555e', '60a16521-d70d-5114-a491-dcc870ed426f', 1306784, 51.0501, -114.0853, 'America/Edmonton')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('799b9e5d-4c50-515a-a610-68a3ba6887ac', 'CA-EDMONTON', 'Edmonton', '61b4568f-6209-54a4-9b9a-665be7c3555e', '60a16521-d70d-5114-a491-dcc870ed426f', 1010899, 53.5501, -113.4687, 'America/Edmonton')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('1be4f115-ae48-50de-a143-0d5acda136d9', 'CA-MONTREAL', 'Montréal', '61b4568f-6209-54a4-9b9a-665be7c3555e', '1c48fb0a-7fd1-5e21-8ff0-e018a828e334', 1762949, 45.5088, -73.5878, 'America/Toronto')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f7dfb33e-edba-5769-bcd7-fc8793b4fd3f', 'CA-OTTAWA', 'Ottawa', '61b4568f-6209-54a4-9b9a-665be7c3555e', 'd1b10a6a-e97f-5421-a9f8-3f598e2e6286', 1017449, 45.4112, -75.6981, 'America/Toronto', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('00c33c41-0a63-58ca-989e-deab3c183991', 'CA-TORONTO', 'Toronto', '61b4568f-6209-54a4-9b9a-665be7c3555e', 'd1b10a6a-e97f-5421-a9f8-3f598e2e6286', 2794356, 43.7064, -79.3986, 'America/Toronto')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9dc29d47-310e-503d-9e56-96a9b4ace607', 'CC-WEST-ISLAND', 'West Island', 'bc27e115-3ee4-5c61-a90e-7c1348a7e038', 120, -12.1568, 96.8225, 'Indian/Cocos', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dd28a7f4-bda2-504f-b402-3521bd67f925', 'CD-BUKAVU', 'Bukavu', '805df766-a45e-5e4f-83ab-995732d898e0', 816811, -2.4908, 28.8428, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ef324172-078b-530c-bb57-048d95f6c12c', 'CD-KANANGA', 'Kananga', '805df766-a45e-5e4f-83ab-995732d898e0', 1247168, -5.8962, 22.4166, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f9d9383a-301a-597c-a1f9-70c5279687d3', 'CD-KINSHASA', 'Kinshasa', '805df766-a45e-5e4f-83ab-995732d898e0', 16000000, -4.3276, 15.3136, 'Africa/Kinshasa', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2ecd78fd-fdd1-54ea-b789-6139e027c183', 'CD-KISANGANI', 'Kisangani', '805df766-a45e-5e4f-83ab-995732d898e0', 1181788, 0.5153, 25.191, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e25544d5-eaf9-5977-ac21-74149614ae5a', 'CD-KOLWEZI', 'Kolwezi', '805df766-a45e-5e4f-83ab-995732d898e0', 790248, -10.7148, 25.4667, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6dc3c2c1-ecde-524b-8b89-c4a8c7ec719a', 'CD-LUBUMBASHI', 'Lubumbashi', '805df766-a45e-5e4f-83ab-995732d898e0', 2221925, -11.6609, 27.4794, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3478fe51-2aee-5587-bc92-81c5065505cb', 'CD-MBUJI-MAYI', 'Mbuji-Mayi', '805df766-a45e-5e4f-83ab-995732d898e0', 2101332, -6.136, 23.5898, 'Africa/Lubumbashi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ca81c52a-c27a-5305-93aa-8284e8192a63', 'CF-BANGUI', 'Bangui', '13a78653-bfa1-5633-b474-dec09689003c', 812407, 4.3612, 18.555, 'Africa/Bangui', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('27f44a70-2bed-5d11-93d1-8c790ed120ce', 'CG-BRAZZAVILLE', 'Brazzaville', '0a743ee6-da04-5871-b525-873b2dd2f2bc', 1982000, -4.2661, 15.2832, 'Africa/Brazzaville', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f2c9200d-79dd-505c-a901-25402787ddb8', 'CG-POINTE-NOIRE', 'Pointe-Noire', '0a743ee6-da04-5871-b525-873b2dd2f2bc', 1032000, -4.7761, 11.8635, 'Africa/Brazzaville')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0001ceba-1602-586d-ae35-ecebcbc50f5b', 'CH-BERN', 'Bern', '8d7317c1-b3e0-5832-96d7-e5bbba5a5ba6', 121631, 46.9481, 7.4474, 'Europe/Zurich', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6f9807a7-e464-5f52-8930-043d639f4c26', 'CI-ABIDJAN', 'Abidjan', '3c4cb061-ceea-5506-8443-d5e63f8d3ec7', 6321017, 5.3544, -4.0017, 'Africa/Abidjan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('37e714a4-cef3-59e7-b658-01b44bd6c853', 'CI-ABOBO', 'Abobo', '3c4cb061-ceea-5506-8443-d5e63f8d3ec7', 1340083, 5.4161, -4.0159, 'Africa/Abidjan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('baf7b9dd-c68f-5f48-901d-da7406c4fc95', 'CI-BOUAKE', 'Bouaké', '3c4cb061-ceea-5506-8443-d5e63f8d3ec7', 832371, 7.6939, -5.0303, 'Africa/Abidjan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d7efa52e-efbd-54f0-b170-b59b83e00147', 'CI-YAMOUSSOUKRO', 'Yamoussoukro', '3c4cb061-ceea-5506-8443-d5e63f8d3ec7', 275686, 6.8205, -5.2767, 'Africa/Abidjan', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1c80f1df-893c-5142-a6eb-75f9bcb2ce79', 'CK-AVARUA', 'Avarua', '415910c4-69b1-5f46-a05d-923ad872d343', 13373, -21.2075, -159.7755, 'Pacific/Rarotonga', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c31b499b-42f9-58e1-ba7c-3086e0771836', 'CL-SANTIAGO', 'Santiago', 'e539073a-2155-5d55-962b-3cdcfa1ef067', 4837295, -33.4569, -70.6483, 'America/Santiago', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3d897814-e0b1-5fd1-81ec-0893fae84ff6', 'CM-DOUALA', 'Douala', '4774d929-b1e7-5258-b216-4b7c14506abe', 1338082, 4.0483, 9.7043, 'Africa/Douala')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6dfabe7f-fdf7-5107-b7a3-9de510049ef0', 'CM-YAOUNDE', 'Yaoundé', '4774d929-b1e7-5258-b216-4b7c14506abe', 1299369, 3.8667, 11.5167, 'Africa/Douala')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8a49d8da-8771-5347-8302-7ee47d5e22c2', 'CN-ANKANG', 'Ankang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 870126, 32.68, 109.0172, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('33d5c27b-758d-544b-915a-ae38eca0ce1b', 'CN-ANQING', 'Anqing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 804493, 30.5136, 117.0472, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5eaaf178-6a96-5605-b12a-bb5d70e52732', 'CN-ANSHAN', 'Anshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1450000, 41.1236, 122.99, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a579cad4-f3ed-5773-9188-4e7d915d8e2c', 'CN-ANSHUN', 'Anshun', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 765313, 26.25, 105.9333, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ceeecb88-bccd-5307-9cdf-3fd6b29dba6e', 'CN-ANYANG', 'Anyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1146839, 36.096, 114.3828, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8385bea8-f19a-5a7f-ae97-b57c34b9bfb7', 'CN-BAO-AN', 'Bao''an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4476554, 22.5521, 113.8829, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c37b83e6-a946-5cb6-a40b-6a3fa8837c52', 'CN-BAODING', 'Baoding', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2739887, 38.8729, 115.4625, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d13c8912-56e6-508e-89c1-d62a42755040', 'CN-BAOJI', 'Baoji', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1437802, 34.3678, 107.237, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('071447ac-bdb3-5502-a550-7021e03a1ca9', 'CN-BAOSHAN', 'Baoshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2265900, 31.4084, 121.4896, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('14d3199d-0f87-551f-abd5-a60674896127', 'CN-BAOTOU', 'Baotou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2150000, 40.6516, 109.8439, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('69cf2dae-aede-507d-8430-8eec4508089f', 'CN-BAYAN-NUR', 'Bayan Nur', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1760000, 40.7414, 107.386, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d543ea84-eb3d-5980-b3be-ff2c9926dd5f', 'CN-BAZHONG', 'Bazhong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2712894, 31.8694, 106.7443, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('95d5b1de-b9a8-598b-9e42-b42270f37715', 'CN-BEIJING', 'Beijing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 18960744, 39.9075, 116.3972, 'Asia/Shanghai', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('164ee515-7e04-5636-ae44-f52fef33bfaa', 'CN-BENGBU', 'Bengbu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 972784, 32.9408, 117.3608, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('daccd63c-2b2f-58f2-9b7f-9f3552f59373', 'CN-BENXI', 'Benxi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 987717, 41.2886, 123.765, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5754fe2b-f628-5beb-b7e7-a59ae24e5090', 'CN-BIJIE', 'Bijie', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1137383, 27.3019, 105.2863, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('55caf82c-d900-5b6b-9c14-2ea43bb3e21b', 'CN-BOZHOU', 'Bozhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1409436, 33.8772, 115.7703, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('43f1a281-2fb7-5078-96e8-6308035678a4', 'CN-CHANGCHUN', 'Changchun', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4714996, 43.88, 125.3228, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('42eee65e-7f6b-5b07-b59d-9a5e57995d7b', 'CN-CHANGDE', 'Changde', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1457419, 29.0321, 111.6984, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3381048e-0f3d-5783-9c06-8b008729b0b6', 'CN-CHANGSHA', 'Changsha', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3093980, 28.1987, 112.9709, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dbd6979a-7cff-542b-9642-ab05fde81798', 'CN-CHANGSHU', 'Changshu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1677050, 31.6461, 120.7422, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0c267345-ba94-5710-9e35-474d5d4150b4', 'CN-CHANGZHI', 'Changzhi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1214940, 36.1839, 113.1053, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ab762e23-14a0-5b80-8260-40dda2d8638f', 'CN-CHANGZHOU', 'Changzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3290918, 31.7736, 119.954, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ebdc81fc-a4ec-5ddf-b6fd-e561278433b1', 'CN-CHAOZHOU', 'Chaozhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1750945, 23.654, 116.6226, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a5f80874-0066-568a-964b-e37102b3c65e', 'CN-CHENGDU', 'Chengdu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 13568357, 30.6667, 104.0667, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1e803d30-77c6-5760-b305-820514d452c8', 'CN-CHENZHOU', 'Chenzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 822534, 25.8, 113.0333, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('da5e79cb-93f6-5459-8bb8-a15f2c793704', 'CN-CHONGQING', 'Chongqing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 7457599, 29.5603, 106.5577, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cfa5fc94-d852-5a15-ba04-560d18aaf526', 'CN-CHUZHOU', 'Chuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 782671, 32.3219, 118.2978, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6df4f19a-de74-51c9-b0f1-7eb5a27583d4', 'CN-CIXI', 'Cixi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1457510, 30.1764, 121.2457, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('352a54ad-48a6-5285-b913-95091083ffcd', 'CN-DALIAN', 'Dalian', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4913879, 38.9122, 121.6022, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('53fa563d-76f9-509b-9864-93304e3520b0', 'CN-DAQING', 'Daqing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1604027, 46.5833, 125, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b8701d0d-d287-5d88-9c5e-e5adc3759e3e', 'CN-DATONG', 'Datong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1850000, 40.0936, 113.2914, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1da64ae1-24da-5a02-9bdf-a6e4ed0ee105', 'CN-DAZHOU', 'Dazhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1589435, 31.2106, 107.4631, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cbad2c97-3825-5ba1-a77d-bedafb1d9152', 'CN-DONGGUAN', 'Dongguan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 9644871, 23.018, 113.7487, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fbaeb3cb-fc5b-5c5d-903f-541a63748b2a', 'CN-DONGYING', 'Dongying', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 998968, 37.4627, 118.4917, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('60f68e4d-b434-5da1-a30b-1e5488c87f06', 'CN-FENGXIANG', 'Fengxiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1140872, 30.8584, 121.4678, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7421d16a-9fa7-56c7-832f-0cbeceb036f6', 'CN-FOSHAN', 'Foshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 9042509, 23.0268, 113.1315, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5f46bbbb-5520-5e60-8b02-d79d1488daac', 'CN-FUSHUN', 'Fushun', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1400646, 41.8867, 123.9436, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b8ff7e7d-8d55-5402-ae5f-efd87f7bc50e', 'CN-FUYANG', 'Fuyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1768947, 32.9, 115.8167, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35185ec8-f281-555b-8dde-230c8e07becf', 'CN-FUZHOU', 'Fuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3740000, 26.0614, 119.3061, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('38d8d318-b1ac-5587-a38d-997cc08e97fe', 'CN-GANZHOU', 'Ganzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1977253, 25.8466, 114.9326, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('95e40c83-6f1c-5dd7-a683-4715133e6c45', 'CN-GUANGZHOU', 'Guangzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 16096724, 23.1167, 113.25, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eccf96c7-a649-59f4-a5a5-889b12d9231a', 'CN-GUANGAN', 'Guang’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 858159, 30.4741, 106.637, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb07fbdb-4a24-5943-9e77-2323b68599e7', 'CN-GUANKOU', 'Guankou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1380000, 28.1586, 113.6271, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9eaeb3c9-b782-51a1-b749-e3b1608afc44', 'CN-GUIGANG', 'Guigang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1086327, 23.116, 109.5947, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2ff9bf7e-6a8a-5b6d-9b73-8c40b0aaea32', 'CN-GUILIN', 'Guilin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1572300, 25.2802, 110.2964, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b54366b7-3cf2-5a77-89e5-f4c848643511', 'CN-GUIYANG', 'Guiyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3037159, 26.5833, 106.7167, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('64b1d430-1602-52de-850b-e29d2a097ccc', 'CN-HAIKOU', 'Haikou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2873358, 20.0342, 110.3465, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('39364c82-bd6a-528a-a507-a3610df7abea', 'CN-HANDAN', 'Handan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1358318, 36.61, 114.4876, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b6c05d49-b2c0-51e3-a40b-9328db2b0576', 'CN-HANGZHOU', 'Hangzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 9236032, 30.2936, 120.1614, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1e578e1d-9fc8-5fdf-ab9e-cfd7c8b72c21', 'CN-HANZHONG', 'Hanzhong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1006557, 33.0751, 107.0221, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a511e106-8b37-5ee1-a112-a49dde21887a', 'CN-HARBIN', 'Harbin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 5242897, 45.75, 126.65, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5e705ec2-f331-52db-8f0b-0a526b052ed8', 'CN-HEFEI', 'Hefei', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 5050000, 31.8639, 117.2808, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f840d83c-ae87-5ae5-a18a-73cf437e0f9c', 'CN-HENGYANG', 'Hengyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1075516, 26.8895, 112.6189, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c501fb56-2118-5c32-8eda-c6f08e619348', 'CN-HESHAN', 'Heshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1249807, 28.5694, 112.3473, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4ee3db74-84c9-5a14-8f4f-d011aafa222d', 'CN-HEZE', 'Heze', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1346717, 35.2393, 115.4736, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dd32cc73-7590-5353-bac1-3b929e1c09e1', 'CN-HEZHOU', 'Hezhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1005490, 24.4036, 111.5667, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb82323a-ead3-5cc1-a26e-50108ed8727e', 'CN-HOHHOT', 'Hohhot', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2350000, 40.8106, 111.6522, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('400bf8c4-7a64-5132-a3ae-c958253e3f76', 'CN-HUAI-AN', 'Huai''an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2494013, 33.5886, 119.0192, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b403efd5-14f5-5004-a576-26f582a9610c', 'CN-HUAIBEI', 'Huaibei', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1113321, 33.9744, 116.7917, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('07484841-c9c4-5d9d-ad55-bb0fbc5c4cd3', 'CN-HUAINAN', 'Huainan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1666826, 32.6264, 116.9969, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35e9d4e6-a9c9-525f-8f98-4f5553212f24', 'CN-HUIZHOU', 'Huizhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2900113, 23.1115, 114.4152, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e3c9f804-b3ac-5d80-9a4d-4bb4b5f90012', 'CN-HULUDAO', 'Huludao', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 944495, 40.7524, 120.8355, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4c9eca54-5b9b-5bf9-bf1f-7f4f2891f82f', 'CN-HUZHOU', 'Huzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1015937, 30.8703, 120.0933, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3f6a92c7-d51a-5e10-b7b8-76241af83280', 'CN-JIADING', 'Jiading', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1886100, 31.3858, 121.2446, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4e601d13-55df-51b4-b9d1-9472b380b5b6', 'CN-JIANGMEN', 'Jiangmen', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1795459, 22.5833, 113.0833, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1b69c311-31c8-5843-9818-f8207c0eb197', 'CN-JIANGYIN', 'Jiangyin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1779515, 31.911, 120.263, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f1591052-f3b7-50fc-b9a5-41a2ba0a8202', 'CN-JIAOZUO', 'Jiaozuo', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 865413, 35.2392, 113.2391, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f9c0eff4-65c7-5518-a288-2e510c4ad09b', 'CN-JIAXING', 'Jiaxing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1180000, 30.7522, 120.75, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('439a3b02-579a-5117-9558-fcc819cb23e9', 'CN-JIEYANG', 'Jieyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1899394, 23.5418, 116.3658, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('07d536f6-e874-5757-99d1-e2adb4f8a790', 'CN-JILIN', 'Jilin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1895865, 43.8465, 126.5608, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('26a41f53-e2d6-5005-a48d-002b8de21bf5', 'CN-JINAN', 'Jinan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4335989, 36.6683, 116.9972, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb4620ad-a210-5655-8f9f-58290d9522c3', 'CN-JINGZHOU', 'Jingzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1052282, 30.3503, 112.1903, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('58dd2f8a-08b6-589a-85e8-ff1d87e440d0', 'CN-JINGAN', 'Jing’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 936500, 31.22, 121.4158, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8cd1f1b8-bb80-5041-a129-e4e2dc48839c', 'CN-JINHUA', 'Jinhua', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1463990, 29.1068, 119.6442, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5d95dbba-d482-595b-ad24-0a79b52f7a4b', 'CN-JINING', 'Jining', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1241012, 35.405, 116.5814, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f52c9db3-5670-539c-adbb-00689ffccd66', 'CN-JINJIANG', 'Jinjiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1416151, 24.8198, 118.5742, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7c291d5f-10c4-56a7-8049-e5788301009e', 'CN-JINSHAN', 'Jinshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 822776, 30.8356, 121.2937, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('924ff1cb-05e0-5e77-a49c-2edc63684efb', 'CN-JINZHONG', 'Jinzhong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1226617, 37.684, 112.7547, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('bb562775-c51e-59bd-9232-ea250bb4b34d', 'CN-JIUJIANG', 'Jiujiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1164268, 29.7048, 116.0021, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('adc1f1ee-ab0c-539d-9ea3-b1d31fc991a6', 'CN-KAIFENG', 'Kaifeng', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1451741, 34.7986, 114.3074, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6b74e609-be02-5520-aa57-282d0c4be3bf', 'CN-KUNMING', 'Kunming', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3855346, 25.0389, 102.7183, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a7bb3d02-6fbc-5fc8-bb87-a6779befb5c4', 'CN-KUNSHAN', 'Kunshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2092496, 31.3776, 120.9543, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a859d4de-b22a-5810-848c-61b979043d76', 'CN-LAIBIN', 'Laibin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 910282, 23.7474, 109.2222, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ea3eb64d-71cf-53cf-8259-009daff2d7e4', 'CN-LAIWU', 'Laiwu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 989535, 36.1928, 117.6569, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('72883de8-1cb8-5a1d-b1e3-b888c06e662c', 'CN-LANGFANG', 'Langfang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 868066, 39.5208, 116.7147, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a7c7dca1-eb3a-506f-a422-cc4cc89d660b', 'CN-LANZHOU', 'Lanzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3000000, 36.057, 103.8399, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c713f854-d082-579d-adfe-242c8d978933', 'CN-LIANYUNGANG', 'Lianyungang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2001009, 34.5984, 119.2156, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8f9bfc6a-59e9-5e24-8400-43e0d5fca2c5', 'CN-LIAOCHENG', 'Liaocheng', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1229768, 36.4506, 116.0025, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('98bc58c1-7be3-5365-84c0-f409a066e800', 'CN-LINFEN', 'Linfen', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 959198, 36.0889, 111.5189, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6b9a308c-33ab-51af-a7e4-2b00010021c8', 'CN-LINYI', 'Linyi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2743843, 35.0631, 118.3428, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e5ca3687-9274-5fc9-b35d-3aa423b22c06', 'CN-LIUPANSHUI', 'Liupanshui', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1320825, 26.5944, 104.8333, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c4c99803-1f69-5a54-bac3-d4e998f2e4f3', 'CN-LIUZHOU', 'Liuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1436599, 24.324, 109.407, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('70c48ef9-b144-5ff2-ac98-865be81a76b4', 'CN-LONGYAN', 'Longyan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1025087, 25.0749, 117.0178, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('73274a1b-b624-5f95-a547-112025817efb', 'CN-LUOHE', 'Luohe', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1294974, 33.5742, 114.0326, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8dd1c6ba-ed04-5333-8dd8-45de45611a1a', 'CN-LUOHU-DISTRICT', 'Luohu District', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1143801, 22.5472, 114.1315, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c45fb316-7d6b-504f-b7af-338b86e3dcda', 'CN-LUOYANG', 'Luoyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1390581, 34.6735, 112.4368, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0e7ee098-430a-5ed0-81b7-84c98761a377', 'CN-LUZHOU', 'Luzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 998900, 28.8903, 105.4257, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('981ca066-7504-546b-a19b-5091ed0a5b1b', 'CN-LUAN', 'Lu’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1644344, 31.7356, 116.5169, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('10da81bb-59d4-56e1-acaf-82056b2deb97', 'CN-LULIANG', 'Lüliang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3346500, 37.5192, 111.1444, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8421a3a3-db96-5326-8bc6-17c6492f43a9', 'CN-MAOMING', 'Maoming', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1307802, 21.6663, 110.9136, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0af49454-cc70-5a96-b456-8c717308b9dd', 'CN-MEISHAN', 'Meishan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1107742, 30.0439, 103.837, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35913bab-e16e-5138-9a7c-a12cb7912654', 'CN-MEIZHOU', 'Meizhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 992351, 24.2886, 116.1177, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('02b0e69a-586e-5fe3-86e2-ccc7d45a9e11', 'CN-MIANYANG', 'Mianyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1550000, 31.4678, 104.6817, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('747e0e1f-47e5-5441-9c8e-9727aef82900', 'CN-MINHANG', 'Minhang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2716600, 31.1088, 121.3747, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9fb01b38-6063-5a98-bcb9-44d5123b6861', 'CN-NANCHANG', 'Nanchang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2357839, 28.684, 115.8531, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5f20b699-223c-52a8-94c2-600f13f221ac', 'CN-NANCHONG', 'Nanchong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1858875, 30.7951, 106.0847, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d887cd5d-33d1-5e92-a5be-287754d12696', 'CN-NANJING', 'Nanjing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 9314685, 32.0617, 118.7778, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b702196f-d5a1-5792-bf4c-bcc658ee6acf', 'CN-NANNING', 'Nanning', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3839800, 22.8167, 108.3167, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('23290908-457e-57f4-b78b-feeca46c60f8', 'CN-NANTONG', 'Nantong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2273326, 32.0303, 120.8747, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5105f024-38e1-5c8e-8e8d-004ad906ff28', 'CN-NANYANG', 'Nanyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1811812, 33.0052, 112.5466, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b82ef6c4-57a6-5dc1-ae2c-219dce3d8d74', 'CN-NEIJIANG', 'Neijiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1251095, 29.5835, 105.0622, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4b3d4ea0-422c-5e12-bcc4-f5a95cb20d1c', 'CN-NINGBO', 'Ningbo', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3731203, 29.8782, 121.5494, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('995fd34e-6382-5d2d-87eb-2df74406814c', 'CN-ORDOS', 'Ordos', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1940653, 39.6086, 109.7816, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eb825459-56ab-592f-87e2-2549b7e142bb', 'CN-PANJIN', 'Panjin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1166481, 41.121, 122.0739, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8e25494b-dd04-5fe0-b5d1-da98aaa97ecd', 'CN-PANZHIHUA', 'Panzhihua', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 787177, 26.5851, 101.7128, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d8474184-c42f-5b5e-92b7-587dcca0a237', 'CN-PINGDINGSHAN', 'Pingdingshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 979130, 33.7309, 113.3155, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('01fdb17b-cfc7-5436-9882-d6ef402a8726', 'CN-PINGXIANG', 'Pingxiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 893550, 27.6167, 113.8535, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('204cdd4a-b626-5d87-b001-914039e45f03', 'CN-PUDONG', 'Pudong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 5681512, 31.24, 121.5009, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8a3f633b-53ce-53ef-b7de-ba2ea1a1987c', 'CN-PUNING', 'Puning', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 874954, 23.3107, 116.1687, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a8f5f423-b3b3-5cbb-8b41-dc6e6fe82391', 'CN-PUTIAN', 'Putian', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1539389, 25.4394, 119.0103, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('92e2d4f8-cec6-5534-be64-379fd68285df', 'CN-PUTUO', 'Putuo', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1239100, 31.251, 121.3897, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('89af8503-e85f-5992-8d8d-0fdb4fc22c06', 'CN-PUXI', 'Puxi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 6683712, 31.2441, 121.4659, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('648b4984-7f06-572a-af43-dafb6f0b4104', 'CN-PUYANG', 'Puyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3590000, 29.4568, 119.8887, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('159b00ff-94a4-5c6a-ba79-710868b001c8', 'CN-QINGDAO', 'Qingdao', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 7172451, 36.0649, 120.3804, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('abe20538-4631-52e1-8e86-08d524d3f6c4', 'CN-QINGPU', 'Qingpu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1271424, 31.1539, 121.1141, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c3e66faf-afda-519b-891e-3142625e3603', 'CN-QINGYANG', 'Qingyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2125400, 35.7098, 107.6445, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1fa1b3b7-33ea-5c7a-9927-4d8b034d7750', 'CN-QINGYUAN', 'Qingyuan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1738424, 23.7, 113.0333, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5936be69-9c3a-5375-b44a-e47353c54209', 'CN-QINHUANGDAO', 'Qinhuangdao', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 759718, 39.941, 119.5894, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('677a2c82-7597-5e5a-9768-974d63841bd2', 'CN-QINZHOU', 'Qinzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1296300, 21.9825, 108.6506, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb3a9632-23ab-5dd5-9287-d3a151ba5b5d', 'CN-QIQIHAR', 'Qiqihar', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 882364, 47.3392, 123.9615, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9d0eb868-5cd6-5668-960d-5f161d938626', 'CN-QUANZHOU', 'Quanzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1469157, 24.9139, 118.5858, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ad6cfc2d-12ff-5bbe-844f-58130fd4ed25', 'CN-QUJING', 'Qujing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1408500, 25.4833, 103.7833, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('888992bd-5de3-5c79-8620-801bbfc80b3f', 'CN-QUZHOU', 'Quzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 902767, 28.9594, 118.8686, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8608046a-cdf0-5039-9a6a-71216a565885', 'CN-RUIAN', 'Rui’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 927383, 27.7761, 120.6586, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('50b7f5e6-cac9-57e3-a0db-438ebf3c9567', 'CN-SANHE', 'Sanhe', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 965075, 39.9805, 117.0689, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('19696828-e276-5c5a-b208-384d3f63a6f3', 'CN-SANYA', 'Sanya', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1031396, 18.2543, 109.5095, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d08e3d89-6705-5385-987d-ea818e954733', 'CN-SHANGHAI', 'Shanghai', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 24874500, 31.2222, 121.4581, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('57c5144b-d40e-5cc8-a760-dc8d688fb9d9', 'CN-SHANGQIU', 'Shangqiu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1859723, 34.4143, 115.6561, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b2622c1a-245f-52cc-bb34-f02240fac246', 'CN-SHANGRAO', 'Shangrao', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1116486, 28.4518, 117.9429, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0f7b92b0-0a4e-5536-9e77-9c338e4e3a86', 'CN-SHANGYU', 'Shangyu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 770000, 30.0156, 120.8711, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2d9f53c6-c467-53e6-98d9-9f8730de840b', 'CN-SHANTOU', 'Shantou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3838900, 23.3549, 116.6788, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('db343830-36ab-5a41-aadd-1f8799ba7618', 'CN-SHAOGUAN', 'Shaoguan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1028460, 24.8, 113.5833, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8fac3f37-237c-5f56-8f9e-86a34407939a', 'CN-SHAOXING', 'Shaoxing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2300000, 30.0024, 120.5786, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('360b5a8f-c487-53a1-9f1b-c27fdab3be5a', 'CN-SHAOYANG', 'Shaoyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 753194, 27.2382, 111.4621, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ff5d0537-0fa0-5a89-a480-1319cc09dda6', 'CN-SHENYANG', 'Shenyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 7050000, 41.7922, 123.4328, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b1da9d79-bd64-5d41-9aad-8e8cee82561a', 'CN-SHENZHEN', 'Shenzhen', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 17494398, 22.5455, 114.0683, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('43f6c186-dd4a-5249-b5cd-0f608419daa5', 'CN-SHIJIAZHUANG', 'Shijiazhuang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3938513, 38.0414, 114.4786, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('10af68c8-e4bd-5b29-8a85-0fed22e82b7e', 'CN-SHIYAN', 'Shiyan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3460000, 32.6475, 110.7781, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('73b1cedd-db65-5d2b-b96a-eb2ec4832e23', 'CN-SONGJIANG', 'Songjiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1973500, 31.0344, 121.2233, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1268b3dd-d908-54bb-b3c3-71797f016a23', 'CN-SUQIAN', 'Suqian', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1437685, 33.9492, 118.2958, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('66d6b1f2-f589-5023-b49b-9cf04d3309d5', 'CN-SUZHOU', 'Suzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 6715559, 31.3041, 120.5954, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dde03349-7b42-56e0-9659-619e0845cfe4', 'CN-TAICANG', 'Taicang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 831113, 31.4478, 121.0939, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('06f2ae2e-207e-5217-9247-c8f3dee52296', 'CN-TAIYUAN', 'Taiyuan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4303673, 37.8694, 112.5603, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('50dc265c-0d7a-5e48-99d4-852eb9523391', 'CN-TAIZHOU', 'Taizhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1607108, 32.4907, 119.9081, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6db92bf9-1a0a-56c6-9dcc-a247cb89bd22', 'CN-TAIAN', 'Tai’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1735425, 36.1853, 117.12, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ab7d5f9c-9c93-5981-a04a-95577af9d695', 'CN-TANGSHAN', 'Tangshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3372102, 39.6438, 118.1832, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('387dbba3-6130-5202-a562-173aeefee521', 'CN-TIANJIN', 'Tianjin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 11090314, 39.1422, 117.1767, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8d4716bc-69b5-58ef-ad9b-b7c16cc43b49', 'CN-TIANSHUI', 'Tianshui', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1212791, 34.5795, 105.7424, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0759ab67-815e-502d-b528-9b260bf3b648', 'CN-WANXIAN', 'Wanxian', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 859662, 30.816, 108.3741, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a39f8b43-f5de-55e9-9dc0-dd21cebc4e4d', 'CN-WANZHOU', 'Wanzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1545900, 30.7645, 108.3959, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('53099b0f-bccc-54a2-97c9-018a0908af43', 'CN-WEIFANG', 'Weifang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2044028, 36.71, 119.1019, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('41e94a7b-a5bd-5eeb-bbec-63ecd4117894', 'CN-WEIHAI', 'Weihai', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 844310, 37.5091, 122.1136, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('07a6e25a-9874-5f83-b2ed-9d30394d66c4', 'CN-WEINAN', 'Weinan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1199290, 34.5035, 109.5089, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b7553582-26bc-5abd-acc6-6f72896e9634', 'CN-WENZHOU', 'Wenzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2650000, 27.9994, 120.6668, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d642c8f8-165f-5e76-a7ec-ac2eefd19208', 'CN-WUHAN', 'Wuhan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 10392693, 30.5833, 114.2667, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('798f33f3-f3da-541b-94ad-3654f6d74b48', 'CN-WUHU', 'Wuhu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1598165, 31.3526, 118.4295, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2755d722-c56d-5a52-9ec1-3f10cbb670d2', 'CN-WUWEI', 'Wuwei', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1010295, 37.9267, 102.632, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c0606b7a-f47e-54c8-a330-6fcb9b744b98', 'CN-WUXI', 'Wuxi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4396835, 31.5689, 120.2886, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c32ae5d9-a1cc-52c1-a396-52db4d92575a', 'CN-WUZHONG', 'Wuzhong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 7202654, 37.9867, 106.201, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('36920c5c-ade4-5b1d-8a6d-3e31edd9f55d', 'CN-WUZHOU', 'Wuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 761948, 23.4805, 111.2885, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('af8b110a-b748-5d50-8298-059b133c10f4', 'CN-XIAMEN', 'Xiamen', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4617251, 24.4798, 118.0819, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2098b8af-bf27-5284-b7a4-613a77555b95', 'CN-XIANGTAN', 'Xiangtan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 959303, 27.85, 112.9, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('36792daa-bc2a-562c-8817-500121a17f81', 'CN-XIANGYANG', 'Xiangyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1294733, 32.0422, 112.1448, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('907cb13c-f30d-5335-ac7a-a01aaa666c66', 'CN-XIANYANG', 'Xianyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1034081, 34.3378, 108.7026, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('efe6fd95-f08d-5e9a-a5c8-eebdb7426470', 'CN-XIAOGAN', 'Xiaogan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 908266, 30.9269, 113.9222, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6d36a08b-d055-5d1a-b822-b0e31522e1f8', 'CN-XINGTAI', 'Xingtai', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 798770, 37.0622, 114.4927, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f06b4bcc-978c-5dfc-b7ff-b29ce416a7e6', 'CN-XINING', 'Xining', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1677177, 36.6255, 101.7574, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('89beeb03-888d-5b08-8b05-0c7e465ab170', 'CN-XINXIANG', 'Xinxiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1047088, 35.1903, 113.8015, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cd685538-f1e1-5cd8-8df3-780c999d0885', 'CN-XINYANG', 'Xinyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1230042, 32.1228, 114.0656, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9f667d21-d8e3-5037-9c63-1b4984eee6cc', 'CN-XINYU', 'Xinyu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 839488, 27.8043, 114.9334, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('34eb90a9-6f47-507c-b31f-ad3b80bcdf7c', 'CN-XIAN', 'Xi’an', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 9600000, 34.2583, 108.9286, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eefd8aff-a984-5492-b9ae-394e6184f38e', 'CN-XUANCHENG', 'Xuancheng', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 774332, 30.9525, 118.7553, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f0108a93-3379-511b-b4bc-e2ffbba7867b', 'CN-XUCHANG', 'Xuchang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1265536, 34.0319, 113.863, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('69812dbb-14d5-5045-87ef-a182722e5914', 'CN-XUHUI', 'Xuhui', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1109800, 31.1959, 121.4471, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6f2b4613-afe9-5b09-95f3-2502cbb4e2c1', 'CN-XUZHOU', 'Xuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1253991, 34.2044, 117.2839, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6e104e58-9b02-5829-ae11-939f96971345', 'CN-YANCHENG', 'Yancheng', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1615717, 33.3575, 120.1573, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('000177d4-0b34-5c48-889a-9f4d5a63e472', 'CN-YANGJIANG', 'Yangjiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1292987, 21.8556, 111.9627, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('da7ca24e-4f28-5f96-9a9f-8d47be0a8b1d', 'CN-YANGPU', 'Yangpu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1210800, 31.2619, 121.519, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4166e846-4a7f-50d6-bbf5-80e1f3ebc4a7', 'CN-YANGZHOU', 'Yangzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1584237, 32.3972, 119.4358, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3926619d-770c-58cf-a03e-2fb88f08e128', 'CN-YANTAI', 'Yantai', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2227733, 37.4765, 121.4408, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9dce3ca2-e6bb-5e52-b7d0-5bf2fe836a58', 'CN-YIBIN', 'Yibin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 836340, 28.7593, 104.6399, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7857df69-260f-5f0f-a1a0-ee76b09ca138', 'CN-YICHANG', 'Yichang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1350150, 30.7144, 111.2847, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('97a3387a-8c0d-5939-8d16-68960d0d2243', 'CN-YICHUN', 'Yichun', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1045952, 27.8333, 114.4, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6faac60e-615a-5817-9503-a361f4aa40c1', 'CN-YINCHUAN', 'Yinchuan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1487579, 38.4681, 106.2731, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35a2d602-1bc8-5768-b591-b17f0ff78da3', 'CN-YIWU', 'Yiwu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1481384, 29.3151, 120.0768, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1d844315-b8b2-5855-bfe0-1a909be11448', 'CN-YIXING', 'Yixing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1285785, 31.3606, 119.8202, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('be8734d1-e4b7-5f2e-b957-71e3aa2a887b', 'CN-YONGZHOU', 'Yongzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1020715, 26.4239, 111.6131, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0cc8377c-9efa-53a9-b867-ee46ffc4a44b', 'CN-YUEYANG', 'Yueyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 991465, 29.3745, 113.0948, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2641b446-c659-555b-971a-e42bf7242aa3', 'CN-YULIN', 'Yulin', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1056743, 22.6305, 110.1469, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a46a5a08-b93f-59ef-b5c8-db5e125952a0', 'CN-YUNFU', 'Yunfu', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2612800, 22.9279, 112.0381, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('45b4c9dc-b6be-5df4-a492-11ca94dd5fc1', 'CN-ZAOZHUANG', 'Zaozhuang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 899753, 34.8647, 117.5542, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e2edb4c4-f2dc-5f75-a74a-b7b4fd17bcfe', 'CN-ZHABEI', 'Zhabei', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 840000, 31.2586, 121.4597, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8460308d-eb5c-5860-ae49-843060a10306', 'CN-ZHANGJIAGANG', 'Zhangjiagang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1432044, 31.865, 120.5389, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('39bd5f28-d074-5dbe-8b4b-8743e8afbf37', 'CN-ZHANJIANG', 'Zhanjiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1400709, 21.2339, 110.3875, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8004fa98-8735-5ee9-a6d6-a98f2675b904', 'CN-ZHAOQING', 'Zhaoqing', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1553109, 23.0489, 112.4609, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('68b618f4-6492-5b66-b420-bd204176dab5', 'CN-ZHAOTONG', 'Zhaotong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 787845, 27.3167, 103.7167, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('00666f67-2c94-5dd9-9b5b-e96f5834ea54', 'CN-ZHENGZHOU', 'Zhengzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 4253913, 34.7578, 113.6486, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('09d5bddc-58a6-5b63-ac02-37bae62df4a6', 'CN-ZHENJIANG', 'Zhenjiang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 950516, 32.2109, 119.4551, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c87b0213-5d79-5d93-92cb-ea80dea478cf', 'CN-ZHONGSHAN', 'Zhongshan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3841873, 22.5231, 113.3791, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('92337c40-1c15-5f0f-b8ab-272cb5b4836b', 'CN-ZHONGWEI', 'Zhongwei', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1174600, 37.5113, 105.1907, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c652f86e-f8b3-5e17-83ee-49e82919b47d', 'CN-ZHOUSHAN', 'Zhoushan', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 882932, 29.9887, 122.2049, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('96c071da-3d2f-5541-9e53-8596672d5955', 'CN-ZHU-CHENG-CITY', 'Zhu Cheng City', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1000000, 35.995, 119.4026, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9e7e8d52-047a-5d77-bf4a-0c4c78a02072', 'CN-ZHUHAI', 'Zhuhai', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2207090, 22.2769, 113.5678, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('21f4c46c-be5c-51db-9478-8b03f0c0eccd', 'CN-ZHUZHOU', 'Zhuzhou', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1129687, 27.8333, 113.15, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('62cd00c4-3d51-5353-a142-32798ddc4f88', 'CN-ZIBO', 'Zibo', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3129228, 36.7906, 118.0633, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('09408480-f1f3-5392-a4b2-b877c8e69346', 'CN-ZIGONG', 'Zigong', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 1262064, 29.3416, 104.7769, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('23720d4a-6ba2-5ee5-aa76-222462b991a3', 'CN-ZIYANG', 'Ziyang', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 905729, 30.1211, 104.6481, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6c34a5ee-4a47-5ea9-a9c2-719e78d924b3', 'CN-ZUNYI', 'Zunyi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 2037775, 27.6867, 106.9072, 'Asia/Shanghai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('321f19a3-5c4d-5296-8ea2-04c5985dd1f9', 'CN-URUMQI', 'Ürümqi', '6003e15e-2c59-580c-b1c4-c1d38760c9ad', 3029372, 43.801, 87.6005, 'Asia/Urumqi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5783ecd0-d053-57ca-836a-1e34822f4399', 'CO-BARRANQUILLA', 'Barranquilla', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 1206319, 10.9685, -74.7813, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('119c2f34-eb51-51fa-9992-f25c407c5b03', 'CO-BOGOTA', 'Bogotá', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 7674366, 4.6097, -74.0817, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4a8206d1-24dc-57cf-88f7-87b8be774912', 'CO-CALI', 'Cali', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 2392877, 3.4305, -76.5199, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9ba4e1b7-604e-5ce1-a274-9e49aaee08e9', 'CO-CARTAGENA', 'Cartagena', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 914552, 10.3982, -75.4933, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('75b3c9d6-4296-5868-955f-f38464c1ac5c', 'CO-CUCUTA', 'Cúcuta', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 777106, 7.9074, -72.5049, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8f918d95-f4f6-59d1-bb90-0819dd8400c0', 'CO-KENNEDY', 'Kennedy', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 979914, 4.6165, -74.146, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6e893021-5672-56bf-aeb1-bcfa6e8ec361', 'CO-MEDELLIN', 'Medellín', 'f571a687-c5fc-5d05-afe2-e2f0b00302ac', 1999979, 6.245, -75.5715, 'America/Bogota')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f65437d7-7cca-5c8a-a4db-c42b499963c2', 'CU-HAVANA', 'Havana', '00e92e78-f5e8-55aa-bae0-1d0ad5b63689', 2163824, 23.133, -82.383, 'America/Havana', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f6ca7d35-39cf-5285-9c09-e7752d647577', 'CV-PRAIA', 'Praia', '4f2cb11b-16ee-56af-b66c-b3191ffd3d6a', 137868, 14.9315, -23.5125, 'Atlantic/Cape_Verde', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('4f18365f-c92d-5489-aab8-30d8b7d5a459', 'CX-FLYING-FISH-COVE', 'Flying Fish Cove', '884ff1a6-87ee-5802-81ad-c42274195672', 500, -10.4217, 105.6791, 'Indian/Christmas', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bb0c7913-e031-5ce3-9ec0-ab58ad897c00', 'CY-NICOSIA', 'Nicosia', 'cf60191c-9103-5e0d-8d9d-6abcf9fee0de', 200452, 35.1728, 33.354, 'Asia/Nicosia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('3e0a3f6b-8a73-523a-bf25-8688970a9f89', 'CZ-PRAGUE', 'Prague', 'bd74d9fe-c52d-5131-8e7a-afd40eff3c41', 1165581, 50.088, 14.4208, 'Europe/Prague', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('17d5f275-5f13-54ec-8906-8106e3aae447', 'DE-BERLIN', 'Berlin', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999', 3426354, 52.5244, 13.4105, 'Europe/Berlin', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('275dbca8-e22a-5552-9fba-52e34423f089', 'DE-HAMBURG', 'Hamburg', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999', 1973896, 53.5507, 9.993, 'Europe/Berlin')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('42b674fc-0e92-5806-9866-4f5c4e9a7895', 'DE-KOLN', 'Köln', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999', 1024621, 50.9333, 6.95, 'Europe/Berlin')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cc3ee61a-e736-5b32-938b-dd9cc7f5b8c8', 'DE-MUNICH', 'Munich', 'e1ada94a-f819-5d6d-bfa0-2c25baea8999', 1505005, 48.1374, 11.5755, 'Europe/Berlin')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d1314f68-b427-54a4-8df8-4d17d8f43333', 'DJ-DJIBOUTI', 'Djibouti', '6981a2a0-d0b1-5d66-8d5c-b50dcd4f59c0', 626512, 11.589, 43.145, 'Africa/Djibouti', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('43227623-5982-530b-8bd9-da7ba094336e', 'DK-COPENHAGEN', 'Copenhagen', '876d1a77-988a-5482-9d86-1ae1195e2236', 1153615, 55.6759, 12.5655, 'Europe/Copenhagen', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('4a202c54-9e02-57ca-8cb2-50ce6bdd0f9b', 'DM-ROSEAU', 'Roseau', '22b288d1-d514-5f01-9e51-b035212b5b23', 16571, 15.3017, -61.3881, 'America/Dominica', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0471397a-d147-5a37-b9e0-406963a4ba23', 'DO-SANTIAGO-DE-LOS-CABALLEROS', 'Santiago de los Caballeros', '92e27dc5-c1fb-5f56-be18-e3d96bbf249b', 1200000, 19.4504, -70.6908, 'America/Santo_Domingo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('65fe85a2-452d-5f1e-b5a9-a4dc8a3cbfa6', 'DO-SANTO-DOMINGO', 'Santo Domingo', '92e27dc5-c1fb-5f56-be18-e3d96bbf249b', 2201941, 18.4719, -69.8923, 'America/Santo_Domingo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1dc48072-be04-5547-b221-d72f0f04b589', 'DZ-ALGIERS', 'Algiers', '782d8717-62ef-5ecd-b4df-2a8dcad01ec5', 2364230, 36.7323, 3.0875, 'Africa/Algiers', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6c1967ba-02fa-5c5c-a393-e5af2c7083c4', 'DZ-ORAN', 'Oran', '782d8717-62ef-5ecd-b4df-2a8dcad01ec5', 803329, 35.6991, -0.6359, 'Africa/Algiers')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eb1d73ee-4600-5b83-a40e-bda9ad3cfaff', 'EC-GUAYAQUIL', 'Guayaquil', 'cf4ca0a0-004b-5280-b954-cc513a9c8148', 2723665, -2.1962, -79.8862, 'America/Guayaquil')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('df24636d-ae44-5568-8eb9-a138619e4800', 'EC-QUITO', 'Quito', 'cf4ca0a0-004b-5280-b954-cc513a9c8148', 2781641, -0.2298, -78.525, 'America/Guayaquil', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('98821716-9f30-562d-8375-4a9b6ea71337', 'EE-TALLINN', 'Tallinn', '56f193f3-cf93-598c-9e17-a821292ad8fe', 394024, 59.437, 24.7535, 'Europe/Tallinn', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('377dfa50-d528-5bcb-93a8-3b47f7941561', 'EG-ALEXANDRIA', 'Alexandria', 'ebb66a53-0170-52aa-8620-172aaec0cf82', 5263542, 31.2018, 29.9158, 'Africa/Cairo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('39ad271a-b76d-590d-928e-c1193fb4f818', 'EG-CAIRO', 'Cairo', 'ebb66a53-0170-52aa-8620-172aaec0cf82', 9606916, 30.0626, 31.2497, 'Africa/Cairo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6f9fa28d-6eaf-588f-9dd1-e978cd7da07c', 'EG-GIZA', 'Giza', 'ebb66a53-0170-52aa-8620-172aaec0cf82', 4367343, 30.0094, 31.2086, 'Africa/Cairo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fa61a4cf-c7cc-5002-8bbf-742cb893dbd8', 'EG-PORT-SAID', 'Port Said', 'ebb66a53-0170-52aa-8620-172aaec0cf82', 780515, 31.2653, 32.3019, 'Africa/Cairo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('866aa0d6-8872-5fcf-bb3d-3c32e510ca0d', 'EG-SHUBRA-AL-KHAYMAH', 'Shubrā al Khaymah', 'ebb66a53-0170-52aa-8620-172aaec0cf82', 1240289, 30.1251, 31.2505, 'Africa/Cairo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0c0e69d9-c02b-5d4c-b49e-57ee6e5fc9c2', 'ER-ASMARA', 'Asmara', 'f637acc8-eb65-5168-a644-baa6ca5eec7d', 563930, 15.3381, 38.9318, 'Africa/Asmara', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eac9ef2a-8026-5867-94ec-b7bda979862e', 'ES-BARCELONA', 'Barcelona', 'b2139611-176f-58d7-800a-7f9dd16fed47', 1686208, 41.3888, 2.159, 'Europe/Madrid')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ffd742b5-6f83-53c6-8780-516b97d55d05', 'ES-MADRID', 'Madrid', 'b2139611-176f-58d7-800a-7f9dd16fed47', 3255944, 40.4165, -3.7026, 'Europe/Madrid', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('566eefea-a298-51d3-9c54-68e66f07bfda', 'ES-VALENCIA', 'Valencia', 'b2139611-176f-58d7-800a-7f9dd16fed47', 824340, 39.4739, -0.3797, 'Europe/Madrid')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('505a17fa-6c16-5e43-861c-208c73b69654', 'ET-ADDIS-ABABA', 'Addis Ababa', '193595cb-f8a4-597e-b776-dd6684145080', 3860000, 9.025, 38.7469, 'Africa/Addis_Ababa', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('05836de9-162f-57f4-98ca-9eb2577d0fa4', 'FI-HELSINKI', 'Helsinki', '3950851b-183e-5d34-ab8b-f3ca9457183b', 658864, 60.1695, 24.9354, 'Europe/Helsinki', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('5364fc41-5615-5e4a-9cdf-8e529a5e252a', 'FJ-SUVA', 'Suva', 'd75248e3-f57b-521e-8e78-4da20ccd6345', 77366, -18.1368, 178.4253, 'Pacific/Fiji', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('75fce9e9-6365-57df-8ac2-f5d80283602b', 'FK-STANLEY', 'Stanley', '9c02a483-6bf6-5fe2-a773-62949e83dc50', 2213, -51.6938, -57.857, 'Atlantic/Stanley', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bd67e8ad-f711-5c05-b3d7-34b55f0412a5', 'FM-PALIKIR', 'Palikir', '282f9398-77dc-5af7-984e-3b08e63d0efe', 6942, 6.9248, 158.1611, 'Pacific/Pohnpei', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('04bdac72-14e5-528b-a5f5-2f2c073b1271', 'FR-MARSEILLE', 'Marseille', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130', 877215, 43.297, 5.3811, 'Europe/Paris')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c6442fe8-102b-5a79-8793-861519934505', 'FR-PARIS', 'Paris', 'c095ea3d-8d2b-52ca-9ca4-a3cf5c3c6130', 2138551, 48.8534, 2.3488, 'Europe/Paris', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('53ab9f30-9fa9-586a-95a6-296903e85ad4', 'GA-LIBREVILLE', 'Libreville', '00186529-5688-5549-91b5-5c7080eed1ba', 846090, 0.3924, 9.4536, 'Africa/Libreville', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35c2c516-e0b1-5185-8544-81fb01aadea6', 'GB-BIRMINGHAM', 'Birmingham', '9e93e827-1d0d-5314-aa24-70dcb59b1910', 1157603, 52.4814, -1.8998, 'Europe/London')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1a9af77c-a0a8-5057-a128-78c769adbeeb', 'GB-LONDON', 'London', '9e93e827-1d0d-5314-aa24-70dcb59b1910', 8961989, 51.5085, -0.1257, 'Europe/London', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('29485bc3-1c85-5db8-a719-c1f523a6b42f', 'GE-TBILISI', 'Tbilisi', 'b14159fd-70d1-51b4-89cb-5771c9ed4734', 1049498, 41.6914, 44.8341, 'Asia/Tbilisi', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bb8f834d-5e8e-5303-89cc-71aec3225556', 'GF-CAYENNE', 'Cayenne', '6826df80-7142-5976-906b-bdbc367c3c64', 61550, 4.9381, -52.3346, 'America/Cayenne', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e1ffb242-1c36-5a81-897e-b61b7d9d78f2', 'GH-ACCRA', 'Accra', '514769ad-17fd-545d-a4da-7075d51a9dfa', 1963264, 5.556, -0.1969, 'Africa/Accra', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('66dc758d-bad1-5822-a8cc-3d24f48e8915', 'GH-KUMASI', 'Kumasi', '514769ad-17fd-545d-a4da-7075d51a9dfa', 2544530, 6.6885, -1.6244, 'Africa/Accra')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a5edd2c5-3d5f-543c-b5cf-8091ad8f580e', 'GI-GIBRALTAR', 'Gibraltar', 'bd01b60f-22ef-5d0e-ba0d-ed1e21c7193a', 26544, 36.1447, -5.3526, 'Europe/Gibraltar', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d43d6b68-7c20-5e00-8c4b-40f8529358b2', 'GL-NUUK', 'Nuuk', '60d1cfe0-8a10-528a-be10-2d4786dbdf41', 14798, 64.1835, -51.7216, 'America/Nuuk', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f0b1d95c-6781-561d-91a9-d631b3a65018', 'GM-BANJUL', 'Banjul', 'a424171d-4ccb-5e5a-9f97-e31736157380', 37274, 13.4527, -16.578, 'Africa/Banjul', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ee669833-d19c-5ca2-81bc-e77146e2a322', 'GN-CAMAYENNE', 'Camayenne', '5485b46a-2664-5f62-ac24-e7af36160b4c', 1871242, 9.535, -13.6878, 'Africa/Conakry')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a2688541-4d7b-57a0-b9f0-4d31f10a0342', 'GN-CONAKRY', 'Conakry', '5485b46a-2664-5f62-ac24-e7af36160b4c', 1928389, 9.538, -13.6773, 'Africa/Conakry', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a8032304-2ead-5051-bef8-4198c5b9e8b0', 'GP-BASSE-TERRE', 'Basse-Terre', '16599592-bf28-55b5-9203-d6e0cf69d281', 11472, 15.9971, -61.7321, 'America/Guadeloupe', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7d1cec40-3f9f-50c2-b2ca-318b263aeb4d', 'GQ-CIUDAD-DE-LA-PAZ', 'Ciudad de la Paz', '6fa4ca9a-cd71-508e-a1a9-aa5c5cc97e93', 2000, 1.5925, 10.8236, 'Africa/Malabo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0f5d4a0c-d88e-5eba-ad6b-11126a898adf', 'GR-ATHENS', 'Athens', '1341f8d9-5faf-5047-a7bd-4a1635bfcb20', 664046, 37.9838, 23.7278, 'Europe/Athens', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2220774d-4512-5271-b94b-96d4a1a9e37f', 'GS-GRYTVIKEN', 'Grytviken', 'f039624d-18e9-5c78-b6bb-9630fe3a8e1d', 2, -54.2811, -36.5092, 'Atlantic/South_Georgia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6d5151ba-dd9a-551b-94df-9337a4aad77b', 'GT-GUATEMALA-CITY', 'Guatemala City', '1112ff7c-f094-5b61-b796-fcbfbc08ffdc', 994938, 14.6407, -90.5133, 'America/Guatemala', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ccf9d6d5-b6c1-546d-98c1-ac1a065a8349', 'GW-BISSAU', 'Bissau', '8eb5706e-28dc-587c-af71-efffdd3c53c1', 439704, 11.8636, -15.5977, 'Africa/Bissau', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f0b8db7c-c003-5bee-b2e0-b2a225453355', 'GY-GEORGETOWN', 'Georgetown', 'ea17a950-7775-54d6-b198-b01d024f58fe', 235017, 6.8045, -58.1553, 'America/Guyana', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ad2863a6-2307-523b-9e2f-385cb7be30c4', 'HK-HONG-KONG', 'Hong Kong', '6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 7396076, 22.2783, 114.1747, 'Asia/Hong_Kong', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d22e8de1-b4ad-5b12-a16b-7bc62589d6f2', 'HK-HONG-KONG-ISLAND', 'Hong Kong Island', '6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 1195529, 22.263, 114.1842, 'Asia/Hong_Kong')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6833fd04-a815-55cc-8b21-5c94fc8968a0', 'HK-KOWLOON', 'Kowloon', '6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 2232339, 22.3167, 114.1833, 'Asia/Hong_Kong')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('aff0ac9a-fadb-55e3-bdb9-1e7515622a64', 'HK-NEW-TERRITORIES', 'New Territories', '6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 3984077, 22.4244, 114.111, 'Asia/Hong_Kong')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fe2bcc03-d527-5f68-acd1-de281bd41e7b', 'HK-VICTORIA', 'Victoria', '6d0d5f34-801f-5882-a7cb-2fba9c9149b2', 956800, 22.2875, 114.1442, 'Asia/Hong_Kong')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('08d22e11-8e14-5409-8eff-86e61e4e897a', 'HN-SAN-PEDRO-SULA', 'San Pedro Sula', 'de109bcf-3155-5efb-a4a4-42ff251296b5', 801259, 15.5059, -88.0259, 'America/Tegucigalpa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('14b611d8-9a4e-5065-9914-687b5c05e53c', 'HN-TEGUCIGALPA', 'Tegucigalpa', 'de109bcf-3155-5efb-a4a4-42ff251296b5', 850848, 14.0818, -87.2068, 'America/Tegucigalpa', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a5154573-59c3-53de-bf61-30f4ddeb6f8b', 'HR-ZAGREB', 'Zagreb', '8d2e3698-8b51-5125-afcd-527fc8335b71', 663592, 45.8144, 15.978, 'Europe/Zagreb', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('420d1fdf-4149-54e9-9709-c770c29a8ae9', 'HT-PORT-AU-PRINCE', 'Port-au-Prince', '25c83366-e808-5ca3-aa89-aa0cb4848b3d', 1234742, 18.5435, -72.3388, 'America/Port-au-Prince', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('88bdf89f-25b5-5da0-880b-bc68f4221415', 'HU-BUDAPEST', 'Budapest', '9633be3e-519e-5322-bdc5-83da78b5ea9b', 1741041, 47.4984, 19.0404, 'Europe/Budapest', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b5861810-70e6-5e66-9a5d-2323a10218d7', 'HU-PEST', 'Pest', '9633be3e-519e-5322-bdc5-83da78b5ea9b', 1001748, 47.5, 19.0833, 'Europe/Budapest')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('951eb54b-d666-5f0d-9a7a-dd13103bd829', 'ID-BANDAR-LAMPUNG', 'Bandar Lampung', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1166066, -5.4292, 105.2611, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('51b220b4-be50-5c26-964a-b3336167a077', 'ID-BANDUNG', 'Bandung', '338ff4a1-d3a3-5067-a750-e9597022d99d', 2528163, -6.9222, 107.6069, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('28844ca2-f18c-555d-b86e-dcc35b8a79ab', 'ID-BATAM', 'Batam', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1296960, 1.1494, 104.0249, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('133d59fd-6d37-524d-b9b6-726cd9564e4e', 'ID-BEKASI', 'Bekasi', '338ff4a1-d3a3-5067-a750-e9597022d99d', 2648272, -6.2349, 106.9896, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('bcc2dcbb-060d-56fc-b476-40621155d307', 'ID-BOGOR', 'Bogor', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1078351, -6.5944, 106.7892, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f4a7e04d-ee22-5204-a476-3ae0e4684926', 'ID-DEPOK', 'Depok', '338ff4a1-d3a3-5067-a750-e9597022d99d', 2163635, -6.4, 106.8186, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('4c938605-d5f7-5c92-a55f-48786dd5954a', 'ID-JAKARTA', 'Jakarta', '338ff4a1-d3a3-5067-a750-e9597022d99d', 8540121, -6.2146, 106.8451, 'Asia/Jakarta', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7ccdc2f4-32d9-560d-8914-669810d2318e', 'ID-JEPARA', 'Jepara', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1257912, -6.5924, 110.671, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0e3b2fa8-bc1c-52da-ae51-31e542c5d2f6', 'ID-MAKASSAR', 'Makassar', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1474393, -5.1486, 119.4319, 'Asia/Makassar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4776fc8b-4909-5eae-8f6e-1eeaa6754fee', 'ID-MALANG', 'Malang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 889359, -7.9797, 112.6304, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7b22144d-2515-5c13-b995-b9452d731806', 'ID-MEDAN', 'Medan', '338ff4a1-d3a3-5067-a750-e9597022d99d', 2486283, 3.5833, 98.6667, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c301fa6b-524d-5989-b5b2-776c90e1f255', 'ID-PADANG', 'Padang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 942938, -0.9492, 100.3543, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('83716e9b-1720-5cbb-8a24-f818251283e7', 'ID-PALEMBANG', 'Palembang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1801367, -2.9167, 104.7458, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('10cb8cfb-6750-5737-b563-69709c826370', 'ID-PEKANBARU', 'Pekanbaru', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1167599, 0.5167, 101.4417, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7e2b3e77-36d2-56f1-80c8-f8633c17f0fb', 'ID-SAMARINDA', 'Samarinda', '338ff4a1-d3a3-5067-a750-e9597022d99d', 865306, -0.4917, 117.1458, 'Asia/Makassar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f9fd61ad-dc98-586b-80c7-a2825dd7b330', 'ID-SEMARANG', 'Semarang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1694740, -6.9931, 110.4208, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eb52945e-c4ed-5c9c-adb5-3476adad451a', 'ID-SOUTH-TANGERANG', 'South Tangerang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1429529, -6.2886, 106.7179, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0f633132-4f1a-5555-8d8d-0d5e2880121f', 'ID-SURABAYA', 'Surabaya', '338ff4a1-d3a3-5067-a750-e9597022d99d', 3018022, -7.2492, 112.7508, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ae7fdb11-e002-58cc-aff9-def0a180ef6e', 'ID-TANGERANG', 'Tangerang', '338ff4a1-d3a3-5067-a750-e9597022d99d', 1927815, -6.1781, 106.63, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f022a74f-5b3d-5312-a7f9-477321f33d46', 'ID-TASIKMALAYA', 'Tasikmalaya', '338ff4a1-d3a3-5067-a750-e9597022d99d', 770839, -7.3274, 108.2207, 'Asia/Jakarta')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e22244d1-8bb8-50c4-998a-a03418218bed', 'IE-DUBLIN', 'Dublin', 'd4fa6ad3-228d-5ee3-bce2-261c5276578c', 1024027, 53.3331, -6.2489, 'Europe/Dublin', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2047a880-ae90-5a03-8f5c-42ad555bc6f5', 'IL-JERUSALEM', 'Jerusalem', 'f72e58a6-6324-5c3e-bb38-5e76158735f8', 971800, 31.769, 35.2163, 'Asia/Jerusalem', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0596092b-6777-5d8e-993d-1657d43ece70', 'IM-DOUGLAS', 'Douglas', '618349c0-d788-50a7-a16f-43bfdff412ac', 26218, 54.15, -4.4833, 'Europe/Isle_of_Man', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ad94690b-3a2e-57cd-ae5e-a07503807c97', 'IN-AGRA', 'Agra', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1430055, 27.1833, 78.0167, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4bee4aac-ad80-556d-9764-333be13016b7', 'IN-AHMEDABAD', 'Ahmedabad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 6357693, 23.0258, 72.5873, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8af14180-1f35-5af7-888f-f8a8bb07937a', 'IN-ALIGARH', 'Alīgarh', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 753207, 27.8815, 78.0746, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('20d46a44-7580-57ca-b358-5809af1ac0d3', 'IN-AMRITSAR', 'Amritsar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1159227, 31.6223, 74.8753, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('798fce6b-bc88-5a51-a40d-551d3ab3b8a7', 'IN-AURANGABAD', 'Aurangabad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1175116, 19.8776, 75.3423, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9de93ac6-5eab-5a97-897d-9bdde175e3af', 'IN-BENGALURU', 'Bengaluru', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 8495492, 12.9719, 77.5937, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('24439f3c-5d9a-56dd-b128-f663dc9f9322', 'IN-BHAYANDAR', 'Bhayandar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 809378, 19.3016, 72.8511, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5151e435-0354-53aa-9d42-d43df11d4e6e', 'IN-BHIWANDI', 'Bhiwandi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 874032, 19.3002, 73.0588, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b954bfa3-790a-580e-820a-c4a5a9207468', 'IN-BHOPAL', 'Bhopal', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1798218, 23.2547, 77.4029, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9d19521a-26d6-5d63-a6be-895f7380139b', 'IN-BHUBANESWAR', 'Bhubaneswar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 885363, 20.2724, 85.8338, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('aed65c07-6b12-50dd-8be1-77c2e5fef0f2', 'IN-CHANDIGARH', 'Chandigarh', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 970602, 30.7363, 76.7884, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7b90c978-397b-57e8-8edd-dc24fb4f2877', 'IN-CHENNAI', 'Chennai', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 4681087, 13.0878, 80.2785, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f8f802b9-b3f9-5f3d-bda8-58c8c2429fba', 'IN-COIMBATORE', 'Coimbatore', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 2136916, 11.0055, 76.9661, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0934727e-1191-5582-9d51-880e835fb82b', 'IN-DELHI', 'Delhi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 11034555, 28.6519, 77.2315, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('065952a0-d08d-5293-909e-e7ca7cfb4b18', 'IN-DHANBAD', 'Dhanbad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1196214, 23.7976, 86.4299, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e0d04397-3df5-5fe1-8b48-2994a6e7a190', 'IN-DOMBIVALI', 'Dombivali', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1247327, 19.2167, 73.0833, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ce5fdb8a-3966-5bd1-960d-577ef3ea5d1b', 'IN-FARIDABAD', 'Faridabad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1414050, 28.4112, 77.3132, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5f7fe18c-958b-5606-bda7-66d074c03558', 'IN-GHAZIABAD', 'Ghāziābād', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1199191, 28.6654, 77.4391, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a4a54585-2c8d-516f-ab2c-f3764796e085', 'IN-GORAKHPUR', 'Gorakhpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1324570, 29.4477, 75.6721, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6a8ab75a-858a-52fc-9dda-806548b6abf0', 'IN-GURUGRAM', 'Gurugram', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 886519, 28.4601, 77.0263, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('27fd8b9d-6747-58c7-9f5e-eacb52356346', 'IN-GUWAHATI', 'Guwahati', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 962334, 26.1844, 91.7458, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8198f1c6-25a0-5af7-a924-c03360919bb6', 'IN-GWALIOR', 'Gwalior', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1054420, 26.2298, 78.1734, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a8513d84-e181-59fa-ba31-11ed062b0a6e', 'IN-HOWRAH', 'Howrah', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1027672, 22.5769, 88.3186, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6d7e2d86-b0b1-515b-91b7-403f070715d1', 'IN-HUBBALLI', 'Hubballi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 943788, 15.3478, 75.1338, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a196edeb-97c5-5ff1-b154-dc45015f1d37', 'IN-HYDERABAD', 'Hyderabad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 6993262, 17.384, 78.4564, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c78bc52b-cc3b-5643-8a72-547070d7d8d4', 'IN-INDORE', 'Indore', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1994397, 22.7179, 75.8333, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d3fa57ac-b39c-5c86-aa0d-a020dd7f827d', 'IN-JABALPUR', 'Jabalpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1081677, 23.167, 79.9501, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5bd0d439-0d6a-5d05-8132-c9c6d171b3ee', 'IN-JAIPUR', 'Jaipur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 3046163, 26.9196, 75.7878, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d5aabd29-5092-533f-8a00-01294df5c0c4', 'IN-JALANDHAR', 'Jalandhar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 868929, 31.3256, 75.5792, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1dc9650b-ed51-55e3-b8c7-8c3e812d44fc', 'IN-JAMSHEDPUR', 'Jamshedpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1339438, 22.8028, 86.1855, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eb1fad9a-ac36-5737-9bb2-8e87a752a437', 'IN-JODHPUR', 'Jodhpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1056191, 26.2684, 73.0059, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ae322fe0-7f72-586b-9569-ea778f862bb5', 'IN-KALLAKURICHI', 'Kallakurichi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1682687, 11.7338, 78.9592, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('086f4a97-bae0-5a14-b78d-0b86f1a54630', 'IN-KALYAN', 'Kalyān', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1262255, 19.2437, 73.1355, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6780b61e-def7-525b-93e8-e710dbeeabfd', 'IN-KANAYANNUR', 'Kanayannur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 851406, 9.9667, 76.2667, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('df40f494-7c0d-5801-a123-76c20957f866', 'IN-KANPUR', 'Kanpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 2823249, 26.4652, 80.3498, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f31c4e2c-ca12-53b4-abfa-5ac95b2aa18a', 'IN-KOLKATA', 'Kolkata', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 4631392, 22.5626, 88.363, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('201faf8e-6a0a-5438-9498-2ead0d254dc5', 'IN-KOTA', 'Kota', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1001694, 25.1825, 75.8391, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb133613-261b-53de-b34a-202c8f3d02c3', 'IN-LUCKNOW', 'Lucknow', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 2472011, 26.8393, 80.9231, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('780262a4-5469-5102-a5cc-9504271df4e3', 'IN-LUDHIANA', 'Ludhiana', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1618879, 30.912, 75.8538, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b392cf60-b018-5020-a4eb-bc022603a3de', 'IN-MADURAI', 'Madurai', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1465625, 9.919, 78.1195, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0a488dae-a8a0-5206-a25e-767866ab63c4', 'IN-MEERUT', 'Meerut', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1223184, 28.98, 77.7064, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3e7e9cee-6be9-5c0f-a701-b3a269acf21d', 'IN-MUMBAI', 'Mumbai', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 12691836, 19.0728, 72.8826, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('915fd884-7043-5983-b282-8129b5973e2d', 'IN-MYSURU', 'Mysuru', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 920550, 12.2979, 76.6393, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f3c56b3e-aaff-5a11-88a6-5f682f9c946d', 'IN-NAGPUR', 'Nagpur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 2405665, 21.1463, 79.0849, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3e010f43-6709-5bce-847f-3b5b104f5ea8', 'IN-NAJAFGARH', 'Najafgarh', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1365000, 28.6092, 76.9798, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('94c28ef6-aa14-5a0f-baef-8e17b32f7e5a', 'IN-NARELA', 'Narela', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 800000, 28.8527, 77.0929, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c8745831-634f-590e-a9d2-0820f68c1a8e', 'IN-NASHIK', 'Nashik', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1486053, 19.9973, 73.791, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fa68f14b-937b-5cfa-9299-9afdf71468db', 'IN-NAVI-MUMBAI', 'Navi Mumbai', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 2600000, 19.0368, 73.0158, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2b36c417-2710-5529-b788-c8be14db8218', 'IN-NEW-DELHI', 'New Delhi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 317797, 28.6214, 77.2148, 'Asia/Kolkata', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9b894111-2d5e-5eb4-85f2-1eb358b058f8', 'IN-NOWRANGAPUR', 'Nowrangapur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1220946, 19.2311, 82.5483, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c2b3cc41-9b4b-565c-8c99-8e541bb8fc48', 'IN-PATNA', 'Patna', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1684297, 25.5941, 85.1356, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4cee7132-6dda-5bc1-a1ef-4af488142065', 'IN-PIMPRI', 'Pimpri', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1284606, 18.6229, 73.807, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2f9b531b-fc72-5868-9f56-a5b18b3eddd1', 'IN-PIMPRI-CHINCHWAD', 'Pimpri-Chinchwad', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1727692, 18.6187, 73.8037, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5b8847a3-bacc-5021-bf27-d4ae3fc8d70c', 'IN-PRAYAGRAJ', 'Prayagraj', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1073438, 25.4448, 81.8432, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e4f5e6f5-d696-53ed-8811-139cb499faa8', 'IN-PUNE', 'Pune', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 3124458, 18.5196, 73.8554, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f373ff8b-c255-5ac2-b56b-cd82073aed49', 'IN-RAIPUR', 'Raipur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1027264, 21.2333, 81.6333, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ae27d334-7109-5b29-b28e-1952fe8893ad', 'IN-RANCHI', 'Ranchi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1120374, 23.3432, 85.3094, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b6482df8-ff02-5d4d-b382-d114d835a419', 'IN-RASAPUDIPALEM', 'Rasapūdipalem', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1728128, 17.7331, 83.3162, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2034fba2-e4f8-5f37-aa06-59b1dfd10e37', 'IN-ROHINI', 'Rohini', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 860000, 28.7432, 77.0678, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('27216af2-ceb4-5af6-bae1-99b93ca4fc9a', 'IN-RAJKOT', 'Rājkot', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1390640, 22.2916, 70.7932, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d82a1d65-32f2-531c-9725-bd2b9c002582', 'IN-SALEM', 'Salem', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 917414, 11.6538, 78.1554, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5889f2f4-71e6-5b1a-ba36-33a6fff2e5b2', 'IN-SHIVAJI-NAGAR', 'Shivaji Nagar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1000000, 18.5302, 73.8526, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d0f0563c-a6c2-570e-99af-058e5d527d7c', 'IN-SHOLAPUR', 'Sholapur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 997281, 17.6715, 75.9104, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b8d633f7-8027-50eb-8312-5a5b518488a7', 'IN-SRINAGAR', 'Srinagar', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1206419, 34.0857, 74.8055, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f96458d2-c95c-5652-9db1-d4505a6d5e29', 'IN-SURAT', 'Surat', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 4591246, 21.1959, 72.8302, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('34f65332-2d14-51a0-8204-0343eeb022a7', 'IN-TENI', 'Teni', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1034724, 10.0112, 77.4777, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d94d4f19-c304-5383-b93c-da18ed25ed5f', 'IN-THIRUVANANTHAPURAM', 'Thiruvananthapuram', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 788271, 8.4855, 76.9492, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fd41edba-971c-59bc-b584-3b69e8dbef24', 'IN-THANE', 'Thāne', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1841488, 19.197, 72.9635, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7e0fb217-3323-5dbf-a1bd-13f15daee95d', 'IN-TIRUCHIRAPPALLI', 'Tiruchirappalli', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1022518, 10.8155, 78.6965, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f974137e-6d3e-504a-8d22-a04eec74f97b', 'IN-TIRUNELVELI', 'Tirunelveli', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1435844, 8.7274, 77.6838, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('17462cf3-3531-5ece-a8d0-f9ee80804f0d', 'IN-TIRUPPUR', 'Tiruppur', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 963173, 11.1154, 77.3546, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c92bff77-9602-5deb-8474-2dbd975f2ca3', 'IN-VADODARA', 'Vadodara', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1822221, 22.2994, 73.2081, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d482a357-2f4d-5e9c-800b-1d45f8ceee46', 'IN-VARANASI', 'Varanasi', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1164404, 25.3167, 83.0104, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0029de94-f4ec-509c-a8e1-01370c09e2e8', 'IN-VIJAYAWADA', 'Vijayawada', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1143232, 16.5074, 80.6466, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4a348310-0e59-50a0-899d-396a762ee1bf', 'IN-VIRAR', 'Virār', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1222390, 19.4559, 72.8114, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('9be981e5-b8cb-5de6-b3bd-ce79a6d22d9b', 'IN-VISAKHAPATNAM', 'Visakhapatnam', '9e1f790d-c4bd-587d-ad3e-e4698fedaedb', 1063178, 17.6801, 83.2016, 'Asia/Kolkata')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('931ea9c4-8491-5790-8c62-f1520a159c45', 'IQ-ABU-GHURAYB', 'Abū Ghurayb', '900adc7f-49fd-5e4a-9594-07bb2623de06', 900000, 33.3056, 44.1848, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e300bfa2-9c19-526a-b451-bb96c95d5050', 'IQ-AL-BASRAH-AL-QADIMAH', 'Al Başrah al Qadīmah', '900adc7f-49fd-5e4a-9594-07bb2623de06', 2015483, 30.5032, 47.8151, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('65fa91b5-1fb6-565d-99b5-d64c5b99d24f', 'IQ-AL-MAWSIL-AL-JADIDAH', 'Al Mawşil al Jadīdah', '900adc7f-49fd-5e4a-9594-07bb2623de06', 2065597, 36.3327, 43.1056, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('88836d04-8dd7-5fa3-9a0b-54c15a63cd11', 'IQ-BAGHDAD', 'Baghdad', '900adc7f-49fd-5e4a-9594-07bb2623de06', 7216000, 33.3406, 44.4009, 'Asia/Baghdad', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('15be7246-2d5b-552e-817f-1e5e21c58ebd', 'IQ-BASRAH', 'Basrah', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1326564, 30.5085, 47.7804, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7dc7f6d5-935e-56de-8a41-0a36997ad433', 'IQ-ERBIL', 'Erbil', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1612700, 36.1912, 44.0094, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a7a776c2-432f-51cf-85cf-3246a1a19f3d', 'IQ-KARBALA', 'Karbala', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1218732, 32.616, 44.0249, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('36977dc0-3db9-5c45-82bd-d40cf587132c', 'IQ-KIRKUK', 'Kirkuk', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1031000, 35.4681, 44.3922, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('75d5ce30-62fc-540f-9cf7-fdbd2aa2968d', 'IQ-MOSUL', 'Mosul', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1683000, 36.335, 43.1189, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('703ad4dd-7c8c-5f4c-967d-acc9aaef7167', 'IQ-SADR-CITY', 'Sadr City', '900adc7f-49fd-5e4a-9594-07bb2623de06', 1211849, 33.3889, 44.4583, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('25ea7f87-8710-5473-86b8-3ec89621762c', 'IQ-SULAYMANIYAH', 'Sulaymaniyah', '900adc7f-49fd-5e4a-9594-07bb2623de06', 878146, 35.565, 45.4329, 'Asia/Baghdad')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ea45f159-0bc6-5557-937b-f251d3f5dd9f', 'IR-AHVAZ', 'Ahvaz', 'd6882749-51d8-534b-9bd8-756cdae37282', 841145, 31.319, 48.6842, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fc1fe70a-5658-5f16-aac1-0b1d1ba443b8', 'IR-ISFAHAN', 'Isfahan', 'd6882749-51d8-534b-9bd8-756cdae37282', 1547164, 32.6525, 51.6746, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b38394d1-2b1b-580d-9857-103579662a8b', 'IR-KARAJ', 'Karaj', 'd6882749-51d8-534b-9bd8-756cdae37282', 1448075, 35.8327, 50.9915, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5fb383f3-709a-5730-bcff-1c2546e967f9', 'IR-MASHHAD', 'Mashhad', 'd6882749-51d8-534b-9bd8-756cdae37282', 2307177, 36.2981, 59.6057, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('63e6a840-1464-509f-829d-84d3fc0a699c', 'IR-QOM', 'Qom', 'd6882749-51d8-534b-9bd8-756cdae37282', 900000, 34.6401, 50.8764, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2d461d26-a355-5cd9-b2b2-f09bd3fea963', 'IR-SHIRAZ', 'Shiraz', 'd6882749-51d8-534b-9bd8-756cdae37282', 1249942, 29.6103, 52.5311, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ae879272-7e59-5eac-a1d8-438841311aaf', 'IR-TABRIZ', 'Tabriz', 'd6882749-51d8-534b-9bd8-756cdae37282', 1424641, 38.08, 46.2919, 'Asia/Tehran')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7faa8528-6592-5b45-b145-c5dc9b6ce13c', 'IR-TEHRAN', 'Tehran', 'd6882749-51d8-534b-9bd8-756cdae37282', 7153309, 35.6944, 51.4215, 'Asia/Tehran', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d7d6c789-af03-5f08-88a2-6799e01a1e8c', 'IT-MILAN', 'Milan', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8', 1371498, 45.4643, 9.1895, 'Europe/Rome')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('26820b17-32e8-5ad4-8d73-e0bb11f80a0b', 'IT-NAPLES', 'Naples', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8', 909048, 40.8522, 14.2681, 'Europe/Rome')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2ca97e6e-fc8f-54b3-b6f3-ebc1d387439b', 'IT-ROME', 'Rome', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8', 2318895, 41.8919, 12.5113, 'Europe/Rome', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c0770251-a95e-5ce2-9822-7fb9337b5522', 'IT-TURIN', 'Turin', 'c26b076e-a0e4-5679-836b-fc3b06f6b6f8', 847287, 45.0705, 7.6868, 'Europe/Rome')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e41a2af0-0edb-5ebc-9bd9-ffe3431d59ca', 'JE-SAINT-HELIER', 'Saint Helier', '7adbf6ea-2659-5598-b974-347a7afb8328', 28000, 49.188, -2.1049, 'Europe/Jersey', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b6a1275f-f113-566c-9959-72ae972c1333', 'JM-KINGSTON', 'Kingston', '06557abc-25db-545c-9757-581f99413fa7', 937700, 17.997, -76.7936, 'America/Jamaica', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c03a63fa-2544-5182-8eb3-2698a4974b34', 'JO-AMMAN', 'Amman', '77b44229-f18a-5d63-ad02-8b7cf3fd936f', 1275857, 31.9552, 35.945, 'Asia/Amman', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0d20782a-7e7f-5e0b-8c02-aa4d8759bbe7', 'JO-ZARQA', 'Zarqa', '77b44229-f18a-5d63-ad02-8b7cf3fd936f', 792665, 32.0727, 36.088, 'Asia/Amman')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3e4ec259-c305-58b7-b068-2d9115489ea0', 'JP-CHIBA', 'Chiba', 'f94081f6-d151-5a04-8973-84549f2a4edf', 979768, 35.6, 140.1167, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a3dda0f0-4f27-5acf-b9fa-228221f284cf', 'JP-FUKUOKA', 'Fukuoka', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1612392, 33.6, 130.4167, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('958453c5-daab-5852-a1fa-aeb84eba02bf', 'JP-HAMAMATSU', 'Hamamatsu', 'f94081f6-d151-5a04-8973-84549f2a4edf', 791707, 34.7, 137.7333, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8e3e5d26-4a4c-556f-90a2-20a88fc9e4b6', 'JP-HIROSHIMA', 'Hiroshima', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1200754, 34.4, 132.45, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4a584f5c-037b-52f3-a023-045202121b05', 'JP-KAWASAKI', 'Kawasaki', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1538262, 35.5206, 139.7172, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('33c671d7-63b5-507b-b1f4-59c8806f8b5c', 'JP-KITAKYUSHU', 'Kitakyushu', 'f94081f6-d151-5a04-8973-84549f2a4edf', 940978, 33.8518, 130.8503, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('805b4f05-e39b-52e8-8712-10b80e0c0aad', 'JP-KOBE', 'Kobe', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1525152, 34.6913, 135.183, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c08e6d50-175c-5512-8f61-8873cbb99e22', 'JP-KYOTO', 'Kyoto', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1463723, 35.0211, 135.7538, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('13518131-164e-5206-b46b-a6e109238966', 'JP-NAGOYA', 'Nagoya', 'f94081f6-d151-5a04-8973-84549f2a4edf', 2332176, 35.1815, 136.9064, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('02eb0508-0075-57c5-81d6-a2886af46ddf', 'JP-NIIGATA', 'Niigata', 'f94081f6-d151-5a04-8973-84549f2a4edf', 797591, 37.9226, 139.0412, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('83e04dfc-fa78-51a1-9df4-5daa3fbbbdc7', 'JP-OSAKA', 'Osaka', 'f94081f6-d151-5a04-8973-84549f2a4edf', 2753862, 34.6938, 135.5011, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1bb6072b-3c88-5c98-963b-58a53e542d40', 'JP-SAITAMA', 'Saitama', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1324854, 35.9081, 139.6566, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f072083e-b33b-5532-850c-db8f4855e528', 'JP-SAKAI', 'Sakai', 'f94081f6-d151-5a04-8973-84549f2a4edf', 826161, 34.5822, 135.4665, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ebf35e5f-73ec-5a1d-97f7-d43ee131b716', 'JP-SAPPORO', 'Sapporo', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1973832, 43.0667, 141.35, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5e87dfe0-82d0-5cb2-8fb5-86e339a6e418', 'JP-SENDAI', 'Sendai', 'f94081f6-d151-5a04-8973-84549f2a4edf', 1096704, 38.2667, 140.8667, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f1baca0c-ea77-5206-b936-276189b8df98', 'JP-SETAGAYA', 'Setagaya', 'f94081f6-d151-5a04-8973-84549f2a4edf', 940071, 35.6419, 139.6472, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('80045cef-fd0d-5312-ab99-c61a1a4c07a4', 'JP-TOKYO', 'Tokyo', 'f94081f6-d151-5a04-8973-84549f2a4edf', 9733276, 35.6895, 139.6917, 'Asia/Tokyo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dcd52fba-4d3a-523a-89bf-6989e628ba3a', 'JP-YOKOHAMA', 'Yokohama', 'f94081f6-d151-5a04-8973-84549f2a4edf', 3777491, 35.4333, 139.65, 'Asia/Tokyo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('85fb8578-e8d5-58bc-8ab3-a32d9c8ae954', 'KE-KAKAMEGA', 'Kakamega', '82fd159c-5164-5667-b16c-88ef59642dd3', 1867579, 0.2842, 34.7523, 'Africa/Nairobi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb8e9267-241c-5e30-83b1-5cfcf0a70247', 'KE-MOMBASA', 'Mombasa', '82fd159c-5164-5667-b16c-88ef59642dd3', 1208333, -4.0547, 39.6636, 'Africa/Nairobi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1ccff0db-57d6-5106-813b-b59a7b3fc8ea', 'KE-NAIROBI', 'Nairobi', '82fd159c-5164-5667-b16c-88ef59642dd3', 4397073, -1.2833, 36.8167, 'Africa/Nairobi', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a5ad8d95-46b0-54f4-96aa-28de5353ab11', 'KG-BISHKEK', 'Bishkek', '501062d0-7277-56ba-bff4-e8eea605d21f', 900000, 42.87, 74.59, 'Asia/Bishkek', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('edc647e7-c834-54f1-8183-1f2184601f6e', 'KH-PHNOM-PENH', 'Phnom Penh', '60f8b32f-63cd-5cc4-8548-b4c471cd2cf3', 1573544, 11.5625, 104.916, 'Asia/Phnom_Penh', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e57d6e87-c8ba-519c-8c85-8ed4bd2605ac', 'KH-TAKEO', 'Takeo', '60f8b32f-63cd-5cc4-8548-b4c471cd2cf3', 843931, 10.9908, 104.785, 'Asia/Phnom_Penh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ec48a5bf-3097-58a7-9994-b66e4683290b', 'KI-TARAWA', 'Tarawa', 'd08c0249-8d3a-5b73-b82d-fec3b77f62d4', 40311, 1.3278, 172.977, 'Pacific/Tarawa', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7cabda5b-7571-5150-990a-d3f3d9058f91', 'KM-MORONI', 'Moroni', '3cda5710-091a-5de3-b3a1-4799e20d3729', 74749, -11.7022, 43.2551, 'Indian/Comoro', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('5080b7a6-c753-5875-ab54-b4fff7005aa6', 'KN-BASSETERRE', 'Basseterre', '15593669-22e7-5334-b97f-fa98eef01576', 12920, 17.2955, -62.725, 'America/St_Kitts', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c30d3d9f-8ef9-5f89-aa0f-9858524fc343', 'KP-PYONGYANG', 'Pyongyang', '83389036-3ad4-5218-aeea-2eb945e2bbe9', 3222000, 39.0339, 125.7543, 'Asia/Pyongyang', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dbc36204-c7d5-5db4-8803-8a242265194b', 'KR-BUCHEON-SI', 'Bucheon-si', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 850731, 37.4989, 126.7831, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cc9dc363-1070-50de-a537-747f0a0b0dac', 'KR-BUSAN', 'Busan', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 3285147, 35.1017, 129.03, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0f13429c-80a1-50eb-9508-26cce944e433', 'KR-CHANGWON', 'Changwon', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1025702, 35.2281, 128.6811, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a34eb1c0-b16e-569d-93f2-36a3b4059662', 'KR-CHEONGJU-SI', 'Cheongju-si', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 852147, 36.6372, 127.4897, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8ad48483-7226-5b1c-afda-30b29d694f10', 'KR-DAEGU', 'Daegu', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 2365523, 35.8703, 128.5911, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b0553d6c-6c20-5add-9d07-9ea60da8d791', 'KR-DAEJEON', 'Daejeon', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1441203, 36.3491, 127.3849, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('469b6b53-e8ad-550a-9474-cc9e7faa5b3a', 'KR-GOYANG-SI', 'Goyang-si', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1061752, 37.6564, 126.835, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b65dd14a-1b4f-580e-8e06-cf7b4436459c', 'KR-GWANGJU', 'Gwangju', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1401235, 35.1547, 126.9156, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('16352596-8d36-5a27-8c97-bf15b5fa5e8e', 'KR-INCHEON', 'Incheon', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 3015482, 37.4565, 126.7052, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b878a298-1242-538b-82c5-2498b48653e9', 'KR-SEONGNAM-SI', 'Seongnam-si', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 914832, 37.4386, 127.1378, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2bd474b6-bcbe-5881-b394-0cb89ecf93c2', 'KR-SEOUL', 'Seoul', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 10349312, 37.566, 126.9784, 'Asia/Seoul', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('58377384-6e59-59dd-9c74-5666c2e5350b', 'KR-SUWON', 'Suwon', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1234582, 37.2911, 127.0089, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('98842735-2e85-5268-a306-097519d7c893', 'KR-ULSAN', 'Ulsan', '7b2cc71b-1e8d-5b56-9b4d-ff6bf40af864', 1098421, 35.5372, 129.3167, 'Asia/Seoul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('308d41f1-08a9-550d-bbcd-2bf3bf0973b0', 'KW-KUWAIT-CITY', 'Kuwait City', 'f2eb1178-6ecd-540a-8f30-96f2a722191a', 60064, 29.367, 47.9743, 'Asia/Kuwait', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ac19cdd7-9c29-5f32-a51a-e434bf2d10ca', 'KY-GEORGE-TOWN', 'George Town', 'deb11804-1119-5419-a0d9-a60486776458', 29370, 19.2866, -81.3744, 'America/Cayman', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cdc85771-d32e-53df-8751-3fb4dffea071', 'KZ-ALMATY', 'Almaty', '92543bdf-71b9-5196-b9df-260849f59ada', 1977011, 43.2525, 76.9115, 'Asia/Almaty')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('cfeb11ca-1315-5894-83a9-28b04516594c', 'KZ-ASTANA', 'Astana', '92543bdf-71b9-5196-b9df-260849f59ada', 1544142, 51.1801, 71.446, 'Asia/Almaty')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8a524d70-05ce-51f1-967d-15c7a0f4aebc', 'KZ-SHYMKENT', 'Shymkent', '92543bdf-71b9-5196-b9df-260849f59ada', 1200000, 42.3099, 69.6004, 'Asia/Almaty')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bdcbcf4d-d9ca-542a-887a-4f3a6d6f0017', 'LA-VIENTIANE', 'Vientiane', '62182812-4f8e-53d0-9609-69cf0d02b82b', 840940, 17.9667, 102.6, 'Asia/Vientiane', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c6d5f9da-1572-5a54-9e07-1a5aea695a7e', 'LB-BEIRUT', 'Beirut', '7f42d88c-a9b0-5e92-afdb-67356d836a6e', 1916100, 33.8933, 35.5016, 'Asia/Beirut', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fa80a26e-9ae8-5c77-b401-f9d7d5f66949', 'LB-RAS-BAYRUT', 'Ra’s Bayrūt', '7f42d88c-a9b0-5e92-afdb-67356d836a6e', 1251739, 33.9, 35.4833, 'Asia/Beirut')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('86e4057d-8ccd-5375-a392-97653564ec96', 'LC-CASTRIES', 'Castries', 'b2b856dc-f7ef-5a15-a782-bd2573946f04', 20000, 13.9957, -61.0061, 'America/St_Lucia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('af6d8703-b4a7-5b2b-9bf7-ecf57b273a63', 'LI-VADUZ', 'Vaduz', '4c6a0c49-896a-50ec-b18d-2e2cb41d96e8', 5197, 47.1415, 9.5215, 'Europe/Vaduz', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('58a740f4-baa8-5612-8f1e-6370a6d4ecaa', 'LK-COLOMBO', 'Colombo', '47d138d8-3791-5096-9ca5-e64665853de9', 648034, 6.9355, 79.8487, 'Asia/Colombo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('755417ee-6dc1-5f13-80e6-1db99f2a6cc5', 'LR-MONROVIA', 'Monrovia', '47e57db4-2c4c-51cc-94a0-e4bfbc6020ff', 1542549, 6.3005, -10.7969, 'Africa/Monrovia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9e176737-163e-57d4-9771-77f11d356a2d', 'LS-MASERU', 'Maseru', 'f3e66971-c3b6-5055-8b0e-c43f62bd7b8d', 359753, -29.3167, 27.4833, 'Africa/Maseru', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0e416abe-a89a-5fdc-8e47-82a0c6fb671e', 'LT-VILNIUS', 'Vilnius', '2837b157-d00e-5e5c-b6ed-1bfa93c7ed6c', 542366, 54.6892, 25.2798, 'Europe/Vilnius', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0e7b2d15-bc9d-5e23-aade-6bffef1815e8', 'LU-LUXEMBOURG', 'Luxembourg', '6bf08ee3-473d-50d6-b612-149ffddc54c2', 76684, 49.6098, 6.1327, 'Europe/Luxembourg', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f5c76dff-9662-534c-b5b4-0a8e2b710a05', 'LV-RIGA', 'Riga', 'de44c352-d62c-5f15-a4dd-3df7c0854f21', 742572, 56.946, 24.1059, 'Europe/Riga', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('436dd033-420e-51d3-99eb-904a9b96baca', 'LY-BENGHAZI', 'Benghazi', 'a169e023-6cfa-53e3-8979-ba966d2b143c', 757490, 32.1149, 20.0686, 'Africa/Tripoli')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b243c12f-6d32-5d05-96a9-6ba31b9c66c6', 'LY-TRIPOLI', 'Tripoli', 'a169e023-6cfa-53e3-8979-ba966d2b143c', 1302947, 32.8874, 13.1873, 'Africa/Tripoli', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e1be0abb-cbbf-5d2a-b202-1905d9ae27a9', 'MA-CASABLANCA', 'Casablanca', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 3665954, 33.5883, -7.6114, 'Africa/Casablanca')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('49ad41d2-e74f-595c-a079-d07c02ea3568', 'MA-FES', 'Fes', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 1191905, 34.0331, -5.0003, 'Africa/Casablanca')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8f5297f2-5aee-5f22-a952-0d1a501ed33a', 'MA-MARRAKESH', 'Marrakesh', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 995871, 31.6342, -7.9999, 'Africa/Casablanca')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('3f874b07-38a9-5e87-80e5-abd4e0499d91', 'MA-RABAT', 'Rabat', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 1655753, 34.0132, -6.8326, 'Africa/Casablanca', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5bebb14c-a3de-52fd-bf11-cc0b4ab3b7f8', 'MA-SALE', 'Salé', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 972299, 34.0531, -6.7985, 'Africa/Casablanca')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ff7b717c-533b-5552-ac56-bc9aab853b9c', 'MA-TANGIER', 'Tangier', 'f28a5cf2-4221-5f9b-be29-cdf72cabfe3f', 1035141, 35.7673, -5.7998, 'Africa/Casablanca')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6ec003eb-a210-5028-9b2b-9e183006a084', 'MC-MONACO', 'Monaco', '5f95cf54-48c9-545e-b113-af69e5c6a6ea', 32965, 43.7372, 7.4215, 'Europe/Monaco', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('51ec7a48-14bf-56f2-bf62-2ae702ed3d37', 'MD-CHISINAU', 'Chisinau', '9d8c1d6a-86b4-5985-9140-b3e34c41508d', 635994, 47.009, 28.8594, 'Europe/Chisinau', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6ab3e841-3e4f-5f65-bac9-36dcceae8db3', 'ME-PODGORICA', 'Podgorica', '93bd6170-cb97-57b0-bc36-f4dc265e02f9', 236852, 42.4412, 19.2631, 'Europe/Podgorica', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7b67301c-c824-5693-9eeb-39f26eae1b16', 'MF-MARIGOT', 'Marigot', 'fc0e6216-acca-5257-930a-afb665a60496', 5700, 18.0682, -63.083, 'America/Marigot', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('1af9a874-4799-5b62-bad9-50e74747e722', 'MG-ANTANANARIVO', 'Antananarivo', '54c3fe63-da1a-5325-8060-5865ea9cf553', 1349501, -18.9137, 47.5361, 'Indian/Antananarivo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e0e87e3a-892e-5362-86a5-9d01921d0b12', 'MH-MAJURO', 'Majuro', 'ceff9979-d0bd-59fe-9f02-d0ca06d62ce8', 25400, 7.0897, 171.3803, 'Pacific/Majuro', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f31c03af-4281-57d6-8b00-f8af92ce0344', 'MK-SKOPJE', 'Skopje', '151d6a27-d710-5a1e-a774-4c99ec6f1f78', 474889, 41.9965, 21.4314, 'Europe/Skopje', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('74b7b64a-521e-550c-bc1c-063796017f0c', 'ML-BAMAKO', 'Bamako', '7304852d-79e8-5334-96fe-af727e92f48d', 4227569, 12.6091, -7.9752, 'Africa/Bamako', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5f71f5c6-c45c-581d-9c0d-4f6d8f037d95', 'MM-MANDALAY', 'Mandalay', '64956e44-27a0-5bbe-baed-a250edf69dba', 1208099, 21.9747, 96.0836, 'Asia/Yangon')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('cc523ceb-f596-5dd4-96e3-eed5beaec5a5', 'MM-NAY-PYI-TAW', 'Nay Pyi Taw', '64956e44-27a0-5bbe-baed-a250edf69dba', 925000, 19.745, 96.1297, 'Asia/Yangon', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3beec15f-034b-5402-9aea-7c7511149ec3', 'MM-YANGON', 'Yangon', '64956e44-27a0-5bbe-baed-a250edf69dba', 4477638, 16.8053, 96.1561, 'Asia/Yangon')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e5ec69e3-58b8-5930-ba9d-343919207e47', 'MN-ULAN-BATOR', 'Ulan Bator', '14df6297-4e33-5942-a5b5-12431f0dbb1a', 844818, 47.9077, 106.8832, 'Asia/Ulaanbaatar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a042e212-f64e-54a5-acd7-09975ccf8a3c', 'MP-SAIPAN', 'Saipan', 'ab024cc8-ce86-5905-8fa8-3e1ec26abd9a', 48220, 15.2123, 145.7545, 'Pacific/Saipan', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9ad71d44-e09e-5963-a270-cffd19da6296', 'MQ-FORT-DE-FRANCE', 'Fort-de-France', '25bbde5a-2748-5f6e-9115-5f84e59ed665', 89995, 14.6037, -61.0742, 'America/Martinique', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d70cfc8d-a808-533a-9f68-9ea921b70405', 'MR-NOUAKCHOTT', 'Nouakchott', '728ad450-eee9-562d-b362-acec5b8012c4', 1184530, 18.0858, -15.9785, 'Africa/Nouakchott', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6592e80b-21e6-5005-b6b7-7a7f7900c2de', 'MS-PLYMOUTH', 'Plymouth', '47fb0234-8c59-5f05-86d2-74a08c8cd06f', 0, 16.7055, -62.2129, 'America/Montserrat', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7750a6f4-40c7-554b-bac3-d0a62a977e86', 'MT-VALLETTA', 'Valletta', '9fef5bf7-71ed-57a9-a508-3f5985b7baff', 6794, 35.8997, 14.5148, 'Europe/Malta', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f83088c7-f8e8-5a28-8cf7-b8339882ea4d', 'MU-PORT-LOUIS', 'Port Louis', '7acfa64d-54a2-503c-886a-9f7468809e06', 155226, -20.1619, 57.4989, 'Indian/Mauritius', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9fcd5a8b-f420-5d72-b860-31127d145cbd', 'MV-MALE', 'Male', '9e99a085-196c-5c94-8c2e-8271a5cf4e7c', 103693, 4.1752, 73.5092, 'Indian/Maldives', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e94c97fc-d772-5b1f-be49-5eb61f0ed573', 'MW-BLANTYRE', 'Blantyre', 'f6d8f7cd-efb8-584a-bf32-d1a06e52aeca', 902588, -15.785, 35.0085, 'Africa/Blantyre')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7033abbe-3b44-547b-bfac-9d048c6fc025', 'MW-LILONGWE', 'Lilongwe', 'f6d8f7cd-efb8-584a-bf32-d1a06e52aeca', 1115815, -13.9669, 33.7873, 'Africa/Blantyre', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f6e048a9-e86f-539c-b2d7-541b0cb15ecb', 'MX-CANCUN', 'Cancún', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 888797, 21.1743, -86.8466, 'America/Cancun')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('96508f65-5d42-5083-a374-ef38b6e5334e', 'MX-CHIHUAHUA', 'Chihuahua', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 925762, 28.6353, -106.0889, 'America/Chihuahua')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('56f4571d-5f1d-55a4-a8c4-c09c2b4f8dd1', 'MX-CIUDAD-JUAREZ', 'Ciudad Juárez', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1512450, 31.7202, -106.4608, 'America/Ciudad_Juarez')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('69fc1e06-98fd-57ef-ab7d-91008ebd62d3', 'MX-CIUDAD-NEZAHUALCOYOTL', 'Ciudad Nezahualcoyotl', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1077208, 19.4006, -99.0148, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('624a4dde-656a-5d5f-a31f-113650462200', 'MX-CULIACAN', 'Culiacán', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 808416, 24.8021, -107.3942, 'America/Mazatlan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('30983cbd-adb9-519e-a4ba-1ecfca4e5b66', 'MX-ECATEPEC-DE-MORELOS', 'Ecatepec de Morelos', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1645352, 19.6049, -99.0606, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('443f3a13-86a4-50b3-ad88-a17135f5b884', 'MX-GUADALAJARA', 'Guadalajara', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1385629, 20.6774, -103.3475, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a0e86f29-a8e8-5f9e-9e17-11612c1cc469', 'MX-GUSTAVO-ADOLFO-MADERO', 'Gustavo Adolfo Madero', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1185772, 19.4939, -99.1107, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0cb40adf-0d6c-50ac-b643-26a5d2f31e70', 'MX-HERMOSILLO', 'Hermosillo', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 812229, 29.0887, -110.9668, 'America/Hermosillo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c7c10ef8-6416-5d3a-b237-41352aa046d9', 'MX-IZTAPALAPA', 'Iztapalapa', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1835486, 19.3553, -99.0622, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('87ec4b5c-ce59-59a7-b3ea-171f04f31ad1', 'MX-LEON-DE-LOS-ALDAMA', 'León de los Aldama', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1579803, 21.1218, -101.6825, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f5c09e8e-0c11-5d92-9905-de4e4ffd9426', 'MX-MEXICALI', 'Mexicali', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1032686, 32.6278, -115.4545, 'America/Tijuana')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('374c1e5b-4bc0-5188-af3c-ee77bbf2137d', 'MX-MEXICO-CITY', 'Mexico City', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 12294193, 19.4285, -99.1277, 'America/Mexico_City', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('faf91313-16d2-5af1-b5b9-7e3dc48ef153', 'MX-MONTERREY', 'Monterrey', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1135512, 25.6843, -100.3172, 'America/Monterrey')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f5d8e519-525b-580a-93f8-86e3fa96e886', 'MX-MERIDA', 'Mérida', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1201000, 20.967, -89.6232, 'America/Merida')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('214b8592-2576-55f6-a674-1a72a8c17cb3', 'MX-NAUCALPAN-DE-JUAREZ', 'Naucalpan de Juárez', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 834434, 19.4785, -99.2396, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c3b24eaa-08a7-555f-a5df-0d850d86325d', 'MX-PUEBLA', 'Puebla', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1692181, 19.0478, -98.2072, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('64d31734-acf1-53de-a533-a36d228cfacc', 'MX-SANTIAGO-DE-QUERETARO', 'Santiago de Querétaro', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1594212, 20.5881, -100.3881, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('640f8064-b90b-55d2-ad92-511a279939c9', 'MX-TIJUANA', 'Tijuana', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1922523, 32.5027, -117.0037, 'America/Tijuana')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('687323f0-6e0a-593f-b341-237bee7673a5', 'MX-ZAPOPAN', 'Zapopan', '2fed1477-bd69-5518-93e3-8dcabf05ad90', 1476491, 20.7211, -103.3874, 'America/Mexico_City')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('09f4db7c-8c68-55e1-b33d-c221066bbe0a', 'MY-IPOH', 'Ipoh', '6708eee6-1476-5a62-a45e-6218ea84271e', 759952, 4.5841, 101.0829, 'Asia/Kuala_Lumpur')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('155107f0-a8ec-555f-9178-f01325ad13a3', 'MY-JOHOR-BAHRU', 'Johor Bahru', '6708eee6-1476-5a62-a45e-6218ea84271e', 858118, 1.4655, 103.7578, 'Asia/Kuala_Lumpur')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f5824d13-1bb4-5aa0-a062-d509ed18760f', 'MY-KAMPUNG-BARU-SUBANG', 'Kampung Baru Subang', '6708eee6-1476-5a62-a45e-6218ea84271e', 833571, 3.15, 101.5333, 'Asia/Kuala_Lumpur')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b2fd4bf8-a17a-54ca-aae8-9103346c4ae0', 'MY-KUALA-LUMPUR', 'Kuala Lumpur', '6708eee6-1476-5a62-a45e-6218ea84271e', 1453975, 3.1412, 101.6865, 'Asia/Kuala_Lumpur', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1b174b82-6797-5f21-8f7c-c592df8460a2', 'MY-PETALING-JAYA', 'Petaling Jaya', '6708eee6-1476-5a62-a45e-6218ea84271e', 807879, 3.1073, 101.6067, 'Asia/Kuala_Lumpur')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('10bf3b20-b0e4-5f3e-b3c3-a3a04af8b152', 'MZ-MAPUTO', 'Maputo', '01f34760-4b92-5fb0-9856-1d60fb1c7c1b', 1254837, -25.9655, 32.5832, 'Africa/Maputo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('10b2bf51-1355-57c5-a4ac-89d04a008c86', 'MZ-MATOLA', 'Matola', '01f34760-4b92-5fb0-9856-1d60fb1c7c1b', 1198988, -25.9622, 32.4589, 'Africa/Maputo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d9a6f3f9-37e4-560f-bdd3-90d38019e274', 'MZ-NAMPULA', 'Nampula', '01f34760-4b92-5fb0-9856-1d60fb1c7c1b', 770379, -15.1165, 39.2666, 'Africa/Maputo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('5bf7e846-ed9c-555f-a1ae-3d9bb6f267b8', 'NA-WINDHOEK', 'Windhoek', 'bab59c3c-5e01-5547-9627-051fde3703ff', 386219, -22.5594, 17.0832, 'Africa/Windhoek', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('46e3cf16-67c9-5cf9-96ba-8f48a91ebe5f', 'NE-NIAMEY', 'Niamey', '5f35e8ce-e510-55f4-b4ac-d6965b6d69e5', 1323691, 13.5137, 2.1098, 'Africa/Niamey', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e450559a-54e8-5dd5-a91e-d06cc818e949', 'NF-KINGSTON', 'Kingston', '031de9b6-ff6a-5a91-8135-8a0da826638c', 880, -29.0546, 167.9663, 'Pacific/Norfolk', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('456804e6-c37b-5236-9f8c-98ae4328d8a6', 'NG-ABA', 'Aba', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1160000, 5.1066, 7.3667, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2e87c9df-cc08-51e1-8038-790a0831b7a3', 'NG-ABUJA', 'Abuja', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 2690000, 9.0579, 7.4951, 'Africa/Lagos', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('37fa9b48-587f-5d25-81c6-fa8363945630', 'NG-BENIN-CITY', 'Benin City', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1782000, 6.3381, 5.6258, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('49bad87d-a712-5f20-a268-2697bc64e0c7', 'NG-ENUGU', 'Enugu', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 950000, 6.4413, 7.4988, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b735c0b3-2b97-55f1-a874-b88b3069961f', 'NG-IBADAN', 'Ibadan', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 3649000, 7.3776, 3.9059, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5462ed15-fa0b-5c66-82f9-8d707c08d102', 'NG-ILORIN', 'Ilorin', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1080000, 8.4966, 4.5421, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('96e20038-fe27-5d68-994b-fc2d6c9ff54d', 'NG-JOS', 'Jos', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1040000, 9.9285, 8.8921, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d5669112-7a54-54e7-82ab-b8f465ba214b', 'NG-KADUNA', 'Kaduna', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1850000, 10.5264, 7.4388, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4845bd19-7795-5f5e-8a3b-1702b32ed036', 'NG-KANO', 'Kano', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 4910000, 12.0001, 8.5167, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3f933cf7-f00e-5fcc-955b-5f7385d0b341', 'NG-LAGOS', 'Lagos', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 15388000, 6.4541, 3.3947, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3625efe7-5788-5336-a422-940834b05b42', 'NG-MAIDUGURI', 'Maiduguri', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1110000, 11.8469, 13.1571, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b68a83bb-1596-5c27-bfb6-1013df8d53d0', 'NG-ONITSHA', 'Onitsha', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1553000, 6.1498, 6.7857, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a63d8518-7aa1-57fb-8b5a-42d52f603138', 'NG-PORT-HARCOURT', 'Port Harcourt', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 2120000, 4.7774, 7.0134, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('66295ca8-e917-5271-861b-ecdf1d6f2fc2', 'NG-SOKOTO', 'Sokoto', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 1040000, 13.0627, 5.2432, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('14f7668e-ef33-538b-9b55-2e4330843cf5', 'NG-WARRI', 'Warri', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 910000, 5.5174, 5.7501, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d0f63aa5-f1a6-5978-8f8a-88f46c64360a', 'NG-ZARIA', 'Zaria', 'afe159eb-3e2a-55e9-8eed-d53e8a82f927', 980000, 11.1113, 7.7227, 'Africa/Lagos')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('071e8cfd-0028-5b9e-8564-bd8a42eb0533', 'NI-MANAGUA', 'Managua', '25d10253-4c5a-5317-840c-899c98f7cfea', 973087, 12.1328, -86.2504, 'America/Managua', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c3e5907c-2c9e-5ad6-88b3-ca4958f75ec0', 'NL-AMSTERDAM', 'Amsterdam', '5aaa090f-a721-5908-9db3-64d3f89367da', 741636, 52.374, 4.8897, 'Europe/Amsterdam', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('33bd996d-7726-50d7-b0b5-3a1baa9852de', 'NL-ROTTERDAM', 'Rotterdam', '5aaa090f-a721-5908-9db3-64d3f89367da', 868135, 51.9225, 4.4792, 'Europe/Amsterdam')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9a3887db-9b5b-5f5f-a548-2b063b2cdd4d', 'NO-OSLO', 'Oslo', 'e3d37906-96ec-58ae-87e1-a100b8c6f03e', 1082575, 59.9127, 10.7461, 'Europe/Oslo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e8931a51-eade-5fc0-8565-792973146c03', 'NP-KATHMANDU', 'Kathmandu', 'b19370d9-926c-5569-82e0-f07621fd0f8a', 1442271, 27.7017, 85.3206, 'Asia/Kathmandu', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('458c4bbd-66ae-53da-a662-b4d3b5d105b9', 'NR-YAREN', 'Yaren', '8698d4a8-0bae-5602-ab77-86a9fa706dfe', 1100, -0.5508, 166.9252, 'Pacific/Nauru', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e7c29bf3-12cb-57de-83fb-6bab5efd88e7', 'NU-ALOFI', 'Alofi', '25f3fe13-3871-5ffb-ae0b-9a60863c271b', 624, -19.0529, -169.9196, 'Pacific/Niue', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('785d6820-ffa8-5b5c-a0fe-fee42d335fbc', 'NZ-AUCKLAND', 'Auckland', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c', 1547200, -36.8485, 174.7635, 'Pacific/Auckland')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('10ba5889-2dc9-5404-971a-e54c260d0601', 'NZ-WELLINGTON', 'Wellington', 'e6a9578c-b80f-563e-b8ac-7b2e33dd941c', 381900, -41.2866, 174.7756, 'Pacific/Auckland', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ae930b39-29c2-5e58-b6ee-e4bea5d47db1', 'OM-MUSCAT', 'Muscat', '68b6af80-1e04-5e95-bd23-7e5001cd4480', 797000, 23.5841, 58.4078, 'Asia/Muscat', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ae1d84a0-aa89-5c5a-9862-63cfbdc11ceb', 'PA-PANAMA-CITY', 'Panama City', 'f44242c1-25c2-5a14-a691-44244dfd0f54', 408168, 8.9936, -79.5197, 'America/Panama', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6c711aa3-728f-5e48-a353-5dc57e064740', 'PE-AREQUIPA', 'Arequipa', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d', 1195700, -16.399, -71.5375, 'America/Lima')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('80bd4525-3f52-567e-a284-92629f7547c2', 'PE-CALLAO', 'Callao', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d', 1226200, -12.0516, -77.1345, 'America/Lima')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('35c51910-7eaf-532c-a9d2-11538c5ada89', 'PE-LIMA', 'Lima', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d', 7737002, -12.0432, -77.0282, 'America/Lima', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5de442e6-d3d2-5bd9-97ac-25237cb2e10a', 'PE-TRUJILLO', 'Trujillo', 'c93c8086-58b9-515f-b3fb-fada19ab7b5d', 1067700, -8.116, -79.03, 'America/Lima')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6dc3b32b-9764-5a23-8f8c-5d8de8760eb8', 'PF-PAPEETE', 'Papeete', 'ea8eed37-5ddd-5f4d-929b-d8f6f13f06ef', 26357, -17.5347, -149.5684, 'Pacific/Tahiti', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('4c4c80f9-89d5-522e-adf2-2c6c13d78186', 'PG-PORT-MORESBY', 'Port Moresby', '1625a9b5-2847-539d-88e5-f2bb1a9cb8d2', 283733, -9.4772, 147.1509, 'Pacific/Port_Moresby', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c33abbc2-f367-5652-aa6b-f1fc5356abc3', 'PH-ANTIPOLO', 'Antipolo', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 913712, 14.6258, 121.1225, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c40dc6a7-d0f8-5217-ad6f-37d83cfdd5e9', 'PH-BUDTA', 'Budta', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1273715, 7.2042, 124.4397, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('623eb5ff-031e-5459-9704-f1a87b2fb4b8', 'PH-CALOOCAN', 'Caloocan', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1712945, 14.6495, 120.9679, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4be73a50-9550-5ec4-a85d-197836f58d3d', 'PH-CEBU-CITY', 'Cebu City', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 965332, 10.3167, 123.8907, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('853b3f91-66cd-5831-a447-ab80cbb63659', 'PH-DAVAO', 'Davao', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1848947, 7.0731, 125.6128, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6492837c-c8af-5131-a91b-0e21e9e8566b', 'PH-MALINGAO', 'Malingao', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1121974, 7.1608, 124.475, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2836b7a1-5a4b-5fa2-8f2b-4fb2b520f3ac', 'PH-MANILA', 'Manila', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1600000, 14.6042, 120.9822, 'Asia/Manila', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8a8448be-eeb0-5a82-9811-bae0905adb40', 'PH-PASIG-CITY', 'Pasig City', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 853050, 14.5869, 121.0614, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ee5d33c4-9c54-546d-8b9d-1d5d332da1ad', 'PH-QUEZON-CITY', 'Quezon City', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 3084270, 14.6488, 121.0509, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a2f928d4-8ac3-54f4-b949-050a32a6e7a8', 'PH-TAGUIG', 'Taguig', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1308085, 14.5243, 121.0792, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7b05228a-3f2c-5779-988f-92b43dc63d7c', 'PH-ZAMBOANGA', 'Zamboanga', '87499769-99f5-5e8a-a3bc-6dd7b188b972', 1018849, 6.9103, 122.0739, 'Asia/Manila')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('63b33585-2957-5a35-88d2-930cc9fbe6f3', 'PK-ARIFWALA', 'Arifwala', '7b37700f-bffc-5d58-b082-3824378a16b8', 854462, 30.2906, 73.0657, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7607c476-48e8-53eb-b0ec-c9c73b464a16', 'PK-BAHAWALPUR', 'Bahawalpur', '7b37700f-bffc-5d58-b082-3824378a16b8', 903795, 29.3978, 71.6752, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b6cd1479-c5da-5011-8cb3-129495293e2f', 'PK-BANNU', 'Bannu', '7b37700f-bffc-5d58-b082-3824378a16b8', 1357890, 32.9853, 70.604, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('89cd8bb5-a140-53f9-929b-c4d46a892f94', 'PK-DERA-ISMAIL-KHAN', 'Dera Ismail Khan', '7b37700f-bffc-5d58-b082-3824378a16b8', 763195, 31.8313, 70.9017, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5a3ef505-c700-5fa9-87e5-6b1a7933331d', 'PK-FAISALABAD', 'Faisalabad', '7b37700f-bffc-5d58-b082-3824378a16b8', 3800193, 31.4155, 73.0897, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('220007af-758c-5ba4-abd1-728d7c55c8e1', 'PK-GUJRANWALA', 'Gujranwala', '7b37700f-bffc-5d58-b082-3824378a16b8', 2511118, 32.1557, 74.187, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('667391ad-e909-513c-8d31-0750b7e39717', 'PK-HYDERABAD', 'Hyderabad', '7b37700f-bffc-5d58-b082-3824378a16b8', 1921275, 25.3969, 68.3772, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('eb27b25c-74d2-5c84-84cb-4b26f2e6fb1e', 'PK-ISLAMABAD', 'Islamabad', '7b37700f-bffc-5d58-b082-3824378a16b8', 601600, 33.7215, 73.0433, 'Asia/Karachi', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c3a9f81c-5d2a-561e-b796-c1cacf9288d6', 'PK-KARACHI', 'Karachi', '7b37700f-bffc-5d58-b082-3824378a16b8', 11624219, 24.8608, 67.0104, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ef30e9c9-ef9c-5760-a959-8c498fdcf40d', 'PK-LAHORE', 'Lahore', '7b37700f-bffc-5d58-b082-3824378a16b8', 13004135, 31.558, 74.3507, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('62d6bc56-f9fd-563e-8ac2-740a7c6ad80f', 'PK-MULTAN', 'Multan', '7b37700f-bffc-5d58-b082-3824378a16b8', 2169915, 30.1968, 71.4782, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d553bd99-a69c-5f5d-8801-7581d0c0f1f5', 'PK-PESHAWAR', 'Peshawar', '7b37700f-bffc-5d58-b082-3824378a16b8', 4758762, 34.008, 71.5785, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a66ff01b-6866-5b55-8b65-471db17b7483', 'PK-QUETTA', 'Quetta', '7b37700f-bffc-5d58-b082-3824378a16b8', 1565546, 30.1841, 67.0014, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8f3338bc-26ba-5a41-8365-775af127c924', 'PK-RAWALPINDI', 'Rawalpindi', '7b37700f-bffc-5d58-b082-3824378a16b8', 3357612, 33.5973, 73.0479, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c7883c66-6932-5ca2-a8a4-895cb8ad6711', 'PK-SARGODHA', 'Sargodha', '7b37700f-bffc-5d58-b082-3824378a16b8', 975886, 32.0859, 72.6742, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('eeb08cbf-da3e-5995-bd02-1f4fbe127dd9', 'PK-SIALKOT', 'Sialkot', '7b37700f-bffc-5d58-b082-3824378a16b8', 911817, 32.4927, 74.5313, 'Asia/Karachi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d5cb2de5-4e99-5002-a99a-aa3bed8aa963', 'PL-KRAKOW', 'Kraków', '0922bc07-02be-5d90-8d33-b47703808ff8', 816614, 50.0614, 19.9366, 'Europe/Warsaw')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ce428fff-cb52-5894-8332-f0d1b991b05b', 'PL-WARSAW', 'Warsaw', '0922bc07-02be-5d90-8d33-b47703808ff8', 1702139, 52.2298, 21.0118, 'Europe/Warsaw', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('afd33b11-3cc6-5e2a-9001-b61696acaad8', 'PM-SAINT-PIERRE', 'Saint-Pierre', '55a4eaef-1790-54df-a3fa-af5ca1e7ac14', 6200, 46.7791, -56.1773, 'America/Miquelon', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('51b2039b-90b7-5477-9e9d-d39d215ae396', 'PN-ADAMSTOWN', 'Adamstown', '9da80711-b870-5bdb-afb0-07045e388163', 46, -25.066, -130.1015, 'Pacific/Pitcairn', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('31b7653a-dd30-525b-8197-c3c4ec46e2f4', 'PR-SAN-JUAN', 'San Juan', '4738df77-6412-544f-93e8-0eed5640b4de', 418140, 18.4663, -66.1057, 'America/Puerto_Rico', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c97a01fd-0e7f-58dc-b788-09d5b7ecbe53', 'PS-EAST-JERUSALEM', 'East Jerusalem', '4d645baa-f80b-5607-8fe1-21fb112873a5', 428304, 31.7834, 35.2339, 'Asia/Hebron', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('54d1fc03-b20f-5414-bd9c-f7980410c7ac', 'PT-LISBON', 'Lisbon', 'a937af9a-8e47-5ca8-a179-81f5dbc92f17', 517802, 38.7251, -9.1498, 'Europe/Lisbon', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3d292689-b4bf-54f0-89b4-0a70a69c22e2', 'PY-ASUNCION', 'Asunción', 'a94d9703-c4fe-56e0-b030-8500219f15a7', 1482200, -25.2865, -57.647, 'America/Asuncion')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b2e0233f-6d28-5f8b-acf0-63f7449de16c', 'QA-DOHA', 'Doha', 'd58e5f58-3d5a-5ca0-9089-693c493e9c9a', 344939, 25.2855, 51.531, 'Asia/Qatar', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('58414fb9-45f2-5cb3-b110-921cc558c4b4', 'RE-SAINT-DENIS', 'Saint-Denis', 'bfbb249b-207b-5681-b90e-0b1eddacdec3', 154765, -20.8823, 55.4504, 'Indian/Reunion', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f081bd36-616e-551e-a57e-c8c1decf9fe4', 'RO-BUCHAREST', 'Bucharest', 'b636d2e1-5d11-59c1-b3a8-303a1ba5d659', 1877155, 44.4323, 26.1063, 'Europe/Bucharest', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9b0c2ea7-3913-52d2-8672-672f84259136', 'RS-BELGRADE', 'Belgrade', '865f02c2-c033-551e-ac8d-f96365d413ef', 1273651, 44.804, 20.4651, 'Europe/Belgrade', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ff476b53-e143-5c9a-9d72-e2b9d5ffe59a', 'RU-CHELYABINSK', 'Chelyabinsk', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1202371, 55.1611, 61.4288, 'Asia/Yekaterinburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('5ef142a6-ac3b-5ac9-9827-acfda7409a9c', 'RU-KAZAN', 'Kazan', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1243500, 55.7887, 49.1221, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b11a8d19-1c9d-5c17-ad83-645d6b688cf9', 'RU-KRASNODAR', 'Krasnodar', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 899541, 45.0453, 38.9818, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f99f2908-7d6b-56bb-9a3d-702d48efa22b', 'RU-KRASNOYARSK', 'Krasnoyarsk', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1090811, 56.0374, 92.9314, 'Asia/Krasnoyarsk')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('73f7e86f-6b61-5799-a234-1ae00b3e5605', 'RU-MOSCOW', 'Moscow', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 10381222, 55.752, 37.6178, 'Europe/Moscow', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('268f2473-bea5-599b-8515-aeb1d5b2a064', 'RU-NIZHNIY-NOVGOROD', 'Nizhniy Novgorod', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1259013, 56.3287, 44.002, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('db5c5b45-fc7d-5c96-af70-401bc86c2d1c', 'RU-NOVOSIBIRSK', 'Novosibirsk', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1612833, 55.0226, 82.9317, 'Asia/Novosibirsk')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('54a844b4-fbd1-5c37-863f-984577b27cab', 'RU-OMSK', 'Omsk', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1172070, 54.9924, 73.3686, 'Asia/Omsk')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('95692a97-b6f1-5041-a8ac-7f4b910be322', 'RU-PERM', 'Perm', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 982419, 58.0105, 56.2502, 'Asia/Yekaterinburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b535ce75-aeee-50d2-8eb0-e6b6fcc3f638', 'RU-ROSTOV-ON-DON', 'Rostov-on-Don', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1130305, 47.22, 39.7077, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a15fd323-77bb-56aa-838b-6f7ad72a5c10', 'RU-SAINT-PETERSBURG', 'Saint Petersburg', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 5351935, 59.9386, 30.3141, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4499058e-1ed6-55c6-b9be-7c4af73f0d7e', 'RU-SAMARA', 'Samara', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1163399, 53.2077, 50.1355, 'Europe/Samara')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b9072ea5-53d3-5024-abe3-1a9365372c61', 'RU-SARATOV', 'Saratov', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 844858, 51.5405, 45.9901, 'Europe/Saratov')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('16080bb8-c093-5650-b55a-210e97f5937d', 'RU-TYUMEN', 'Tyumen', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 768358, 57.1522, 65.5272, 'Asia/Yekaterinburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2648fed3-0bfc-5ec1-8675-847e834b23b1', 'RU-UFA', 'Ufa', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1120547, 54.7431, 55.9678, 'Asia/Yekaterinburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e9680845-2b90-5cec-baf9-b1b14bea804b', 'RU-VOLGOGRAD', 'Volgograd', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1013533, 48.7138, 44.4976, 'Europe/Volgograd')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('109fdf23-9390-5632-a6af-6ff6b379082d', 'RU-VORONEZH', 'Voronezh', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1047549, 51.6683, 39.192, 'Europe/Moscow')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('861895fb-85b6-52df-9786-1fdbac7f936e', 'RU-YEKATERINBURG', 'Yekaterinburg', 'c2c8e6c8-ad6f-5312-8db7-bc8edae6ccc7', 1495066, 56.8573, 60.6153, 'Asia/Yekaterinburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('90b4a638-9c24-56ea-8489-0ec64b1c71ed', 'RW-KIGALI', 'Kigali', '0d67577a-a048-5ebd-8eb3-fafe8d777b61', 1132686, -1.95, 30.0588, 'Africa/Kigali', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('dd879089-5ff7-570e-8584-cf13bddb0dbf', 'SA-DAMMAM', 'Dammam', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 1252523, 26.4344, 50.1033, 'Asia/Riyadh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('31fd5d2a-4198-57d1-acab-4c23c99c8437', 'SA-JEDDAH', 'Jeddah', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 4697000, 21.4901, 39.1862, 'Asia/Riyadh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e32c4b6d-65b3-52a3-84ea-3107b91f71e1', 'SA-MADINAH', 'Madinah', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 1300000, 24.4686, 39.6142, 'Asia/Riyadh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4c006e4f-c16e-5823-aedc-4acc66571ebe', 'SA-MAKKAH', 'Makkah', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 1578722, 21.4266, 39.8256, 'Asia/Riyadh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2fe24344-b399-52c6-9408-255d1f08067d', 'SA-RIYADH', 'Riyadh', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 4205961, 24.6877, 46.7219, 'Asia/Riyadh', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('773450f0-14d6-5c03-9d1c-669d3c7158e7', 'SA-SULTANAH', 'Sulţānah', 'a09a4e95-25fe-5ced-a17d-3807eed1cb00', 946697, 24.4926, 39.5857, 'Asia/Riyadh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('db54bf1a-733e-56f7-914c-e6a008b025d9', 'SB-HONIARA', 'Honiara', '8cfdec34-0d04-5389-805b-30a48ae5c66f', 56298, -9.4333, 159.95, 'Pacific/Guadalcanal', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('ca5d4999-0f10-55cc-9da0-fc6d530dde9b', 'SC-VICTORIA', 'Victoria', '53f7d5e5-4dba-5525-96a1-4f33d6c2cd5b', 22881, -4.62, 55.455, 'Indian/Mahe', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b0bd68e3-3a49-5e41-bdf4-d3a08267c5dd', 'SD-KHARTOUM', 'Khartoum', '2a4c146f-eed0-5119-9980-5ecec3906666', 1974647, 15.5518, 32.5324, 'Africa/Khartoum', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('750ae0bc-852a-5779-bc06-d5e534c32351', 'SD-KHARTOUM-NORTH', 'Khartoum North', '2a4c146f-eed0-5119-9980-5ecec3906666', 1012211, 15.6493, 32.5346, 'Africa/Khartoum')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d78e64ef-5d3b-5f52-93aa-2730f0366372', 'SD-OMDURMAN', 'Omdurman', '2a4c146f-eed0-5119-9980-5ecec3906666', 1849659, 15.6445, 32.4777, 'Africa/Khartoum')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('08b463ad-74af-5992-82ee-7a4baf7e9bd1', 'SE-STOCKHOLM', 'Stockholm', '86cc3cc2-ffd2-5ae1-b46d-04d45aee542b', 1515017, 59.3294, 18.0687, 'Europe/Stockholm', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c0f0c85c-2723-57fe-a12c-2b6450585fb4', 'SG-SINGAPORE', 'Singapore', 'e6dc7aae-391c-5f02-b821-751809368f85', 5638700, 1.2897, 103.8501, 'Asia/Singapore', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6606dd9b-bd85-5ce9-8114-b3b6f600eaf3', 'SH-JAMESTOWN', 'Jamestown', 'c2061bc0-e60e-537b-a41e-2d23d046cb26', 637, -15.9249, -5.7182, 'Atlantic/St_Helena', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('872c975a-5475-5f47-b7be-a2fb0c9e6c12', 'SI-LJUBLJANA', 'Ljubljana', '12778f5b-32a7-59ab-875c-44179c8e1008', 272220, 46.0511, 14.5051, 'Europe/Ljubljana', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d1348228-beb9-562a-9067-c2e4c38b593f', 'SJ-LONGYEARBYEN', 'Longyearbyen', 'd71ada06-dcdc-5fcd-b16f-2e42ec9e8b2b', 2368, 78.2233, 15.6469, 'Arctic/Longyearbyen', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('87133dc6-29ca-5fbd-8032-dda4919f7120', 'SK-BRATISLAVA', 'Bratislava', '74e41a7a-eb30-5a64-8266-441a25ddece9', 423737, 48.1482, 17.1067, 'Europe/Bratislava', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('222e1163-d827-5a09-b76d-fc038ae1a473', 'SL-FREETOWN', 'Freetown', '1bf30d41-590a-5ae8-8ac0-c05967a19bb3', 802639, 8.4871, -13.2356, 'Africa/Freetown', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('2c3a63ce-d1d5-5a9f-9dc2-6b23f2f358cc', 'SM-SAN-MARINO', 'San Marino', '8097865d-7b90-59cf-8330-12ca0acbf7d1', 4500, 43.9367, 12.4464, 'Europe/San_Marino', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e00e7135-b971-509d-ad51-6181aeb11c7a', 'SN-DAKAR', 'Dakar', '20541fb5-c7b8-5331-9c43-ddb7517c804f', 2646503, 14.6937, -17.4441, 'Africa/Dakar', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('55550ad7-5a3d-5481-b234-078b916b82e2', 'SN-PIKINE', 'Pikine', '20541fb5-c7b8-5331-9c43-ddb7517c804f', 1170791, 14.7646, -17.3907, 'Africa/Dakar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('30dbd870-efc9-5db9-bb1d-605dea0d5622', 'SN-TOUBA', 'Touba', '20541fb5-c7b8-5331-9c43-ddb7517c804f', 1120824, 14.8623, -15.8753, 'Africa/Dakar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('784723f2-221c-5cc1-9468-2c496fcc9b7c', 'SO-MOGADISHU', 'Mogadishu', '65d47c0f-903f-5496-ab9d-20fccab97970', 2587183, 2.0371, 45.3438, 'Africa/Mogadishu', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d893a202-df0c-5dde-94bc-3c77fae797ad', 'SR-PARAMARIBO', 'Paramaribo', 'a42c9a07-2a55-595f-bc10-f6619d759858', 223757, 5.8664, -55.1668, 'America/Paramaribo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0bb6c421-a36d-5b77-a367-864501541c86', 'SS-JUBA', 'Juba', '3831705c-a9fd-5ceb-8cc2-4fdb5fb37501', 450000, 4.8517, 31.5825, 'Africa/Juba', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('959738ea-c361-5fa4-a097-c224df10af20', 'SV-SAN-SALVADOR', 'San Salvador', '0c4272bd-cd6d-5616-b191-996f2ee0e901', 525990, 13.6893, -89.1872, 'America/El_Salvador', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('7d5dcb0b-ca0b-574f-aaf9-af79a14aeac0', 'SX-PHILIPSBURG', 'Philipsburg', '9282453a-99d6-5a4f-93b2-7a8dbb3e9b47', 1400, 18.026, -63.0458, 'America/Lower_Princes', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('39dda906-f36e-5f29-83c1-94aff47d38e1', 'SY-ALEPPO', 'Aleppo', '7c4f8ee1-492e-54dc-bf51-65a21add9598', 2098210, 36.2012, 37.1612, 'Asia/Damascus')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bb1f3f9a-a310-5da8-b562-3cd5c0d3ed85', 'SY-DAMASCUS', 'Damascus', '7c4f8ee1-492e-54dc-bf51-65a21add9598', 1569394, 33.5102, 36.2913, 'Asia/Damascus', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('400732ad-499b-582a-96d4-3f7e263d2f7f', 'SY-HOMS', 'Homs', '7c4f8ee1-492e-54dc-bf51-65a21add9598', 775404, 34.724, 36.7256, 'Asia/Damascus')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('cd16f5be-2c22-58b3-8987-cc6bf56b924a', 'SZ-MBABANE', 'Mbabane', '4b8a1b95-bc45-56af-a30d-380eb476b730', 76218, -26.3167, 31.1333, 'Africa/Mbabane', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('bd07c968-0940-5af9-9edb-edb45fc7a392', 'TC-COCKBURN-TOWN', 'Cockburn Town', '773bd79e-6a49-5e69-82d4-f2a3590c2bb9', 3720, 21.4612, -71.1419, 'America/Grand_Turk', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0bde9cba-76a2-5a46-8127-2a4e78446628', 'TD-N-DJAMENA', 'N''Djamena', '596231b9-3512-594e-a6b0-27a2abae0bd0', 1359526, 12.1067, 15.0444, 'Africa/Ndjamena', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6b62be84-24d8-5c14-9c2e-3492011afb38', 'TG-LOME', 'Lomé', 'b3ee5c07-2caf-521a-b2ae-e1102406d34c', 2188376, 6.1287, 1.2215, 'Africa/Lome')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('01091114-6c9d-5b7e-b253-420fcd6bec50', 'TH-BANGKOK', 'Bangkok', '3206bf97-fde7-5b0a-b688-fff45ddfbea2', 5104476, 13.754, 100.5014, 'Asia/Bangkok', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('46c03eb0-23f6-514f-96c3-1ac1b4b7be8e', 'TJ-DUSHANBE', 'Dushanbe', '3b8deb30-c591-528c-a6ef-ee29a7a8eebc', 679400, 38.5358, 68.779, 'Asia/Dushanbe', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('49f13f6c-d6d7-543b-add5-73faac21b64b', 'TL-DILI', 'Dili', '7a2bacd8-bb8a-517d-9e2c-0eccd704047a', 150000, -8.5586, 125.5736, 'Asia/Dili', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6832ff53-b2d9-5880-9b2b-af2d14b7bbfa', 'TM-ASHGABAT', 'Ashgabat', 'd56bd58e-cd07-574b-bc9c-6bafdf43e19c', 1030063, 37.95, 58.3833, 'Asia/Ashgabat', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('b733eaa6-1646-5e28-a68d-ab66c89aa8ba', 'TN-TUNIS', 'Tunis', '31f7c3a9-755b-5f69-ae8c-dd876d7f8078', 693210, 36.819, 10.1658, 'Africa/Tunis', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('0493102a-b905-5eea-9894-6a1816d00344', 'TR-ADANA', 'Adana', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 1816750, 36.9862, 35.3253, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('14c49ad7-12dc-5f5a-bd49-47c75632d43f', 'TR-ANKARA', 'Ankara', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 3517182, 39.9199, 32.8543, 'Europe/Istanbul', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('a80513c7-ac75-58d4-a92a-5c8888a6b44b', 'TR-ANTALYA', 'Antalya', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 1335002, 36.9081, 30.6956, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ed96e204-daa3-5e2f-a06f-cf03951ca421', 'TR-BURSA', 'Bursa', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 3101833, 40.1956, 29.0601, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b351982d-559c-502f-9653-3136a6c00b5e', 'TR-DIYARBAKR', 'Diyarbakır', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 1833684, 37.9136, 40.2172, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('218baffc-cab9-55dc-978e-5491ece3f915', 'TR-ERZURUM', 'Erzurum', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 767848, 39.9086, 41.2769, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('2f8ba9ab-d007-5a46-8fd5-2edc56ea4c74', 'TR-ESENYURT', 'Esenyurt', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 983571, 41.027, 28.6773, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('188f60aa-3ac8-50b1-a508-a6d9ae1d8087', 'TR-ESKISEHIR', 'Eskişehir', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 921630, 39.7767, 30.5206, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('25cde082-739f-5b46-8223-aa056567c978', 'TR-GAZIANTEP', 'Gaziantep', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 2222415, 37.0594, 37.3825, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c6e09ee9-1bc8-5569-8f9d-dbd91e88902c', 'TR-ISTANBUL', 'Istanbul', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 15701602, 41.0138, 28.9497, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('62c600ca-a2ce-5b2d-9c86-3fbb462d9040', 'TR-KAYSERI', 'Kayseri', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 1452458, 38.7322, 35.4853, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fb563eff-f50e-5ddf-81b2-e1fca28aaf1b', 'TR-KONYA', 'Konya', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 1433861, 37.8713, 32.4846, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('02332a45-c605-52d8-8b82-459a7fbd58a8', 'TR-KUCUKCEKMECE', 'Küçükçekmece', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 792030, 40.991, 28.7712, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('17fe4ee6-5511-587f-8ad6-0f71b536b677', 'TR-MALATYA', 'Malatya', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 750491, 38.3502, 38.3167, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('ee303151-7b26-5a00-8259-b0fdf775292a', 'TR-CANKAYA', 'Çankaya', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 792189, 39.9179, 32.8627, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f3f9bc57-a5f3-56e3-8a51-c16e6cbd0ec5', 'TR-IZMIR', 'İzmir', 'b110c790-c0bc-555b-be1d-ee711c556b3e', 2938292, 38.4127, 27.1384, 'Europe/Istanbul')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c36736b6-8a6c-5f13-98e6-f8e974aaaebc', 'TT-PORT-OF-SPAIN', 'Port of Spain', '0c20c7db-df1f-585d-a2d5-fdd325aa6b70', 49031, 10.6667, -61.5189, 'America/Port_of_Spain', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('d01039b2-d18f-5214-8065-15cb687eac40', 'TV-FUNAFUTI', 'Funafuti', '799b998b-20de-5175-8991-4182960f26a2', 6320, -8.5243, 179.1942, 'Pacific/Funafuti', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1cd30bdf-6688-5838-8a59-4ac1fca8d4ff', 'TW-KAOHSIUNG', 'Kaohsiung', 'c886303b-7635-5c7f-af5f-70db99a08f6e', 2737660, 22.6163, 120.3133, 'Asia/Taipei')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3fb503c3-a08c-5233-9843-636f8b2ff337', 'TW-NEW-TAIPEI-CITY', 'New Taipei City', 'c886303b-7635-5c7f-af5f-70db99a08f6e', 4004367, 25.062, 121.457, 'Asia/Taipei')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('40723909-bc5f-5b56-90ba-595d79686f49', 'TW-TAICHUNG', 'Taichung', 'c886303b-7635-5c7f-af5f-70db99a08f6e', 2850285, 24.1469, 120.6839, 'Asia/Taipei')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c51ce561-0732-5505-a9df-fe009cf3f6d7', 'TW-TAINAN', 'Tainan', 'c886303b-7635-5c7f-af5f-70db99a08f6e', 1856642, 22.9908, 120.2133, 'Asia/Taipei')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('74100c15-0b9d-542e-9ec3-31250483b2f4', 'TW-TAIPEI', 'Taipei', 'c886303b-7635-5c7f-af5f-70db99a08f6e', 7871900, 25.0531, 121.5264, 'Asia/Taipei', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('35d9c8a1-1aa4-5878-85e1-138d89750c58', 'TZ-DAR-ES-SALAAM', 'Dar es Salaam', '50dc5003-3d65-5d0f-b5b4-3a78383d59cf', 5383728, -6.8235, 39.2695, 'Africa/Dar_es_Salaam')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('df45682e-20df-584f-b98f-1a9b0d06102e', 'TZ-DODOMA', 'Dodoma', '50dc5003-3d65-5d0f-b5b4-3a78383d59cf', 765179, -6.1722, 35.7395, 'Africa/Dar_es_Salaam', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('3626a699-996f-5d07-a493-7b235e612751', 'TZ-MWANZA', 'Mwanza', '50dc5003-3d65-5d0f-b5b4-3a78383d59cf', 1104521, -2.5167, 32.9, 'Africa/Dar_es_Salaam')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f52bfde2-879c-5ddd-bd32-ffcccdff3640', 'UA-DNIPRO', 'Dnipro', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 968502, 48.4666, 35.0407, 'Europe/Kyiv')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8af1b178-53d7-5d43-8410-4233cbdfa1b7', 'UA-DONETSK', 'Donetsk', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 901645, 48.023, 37.8022, 'Europe/Kyiv')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('33c03665-07d5-5282-97b4-821e45b0d03b', 'UA-KHARKIV', 'Kharkiv', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 1421125, 49.9818, 36.2548, 'Europe/Kyiv')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('87231842-724d-54e6-851e-2729a84d20ee', 'UA-KYIV', 'Kyiv', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 2952301, 50.4547, 30.5238, 'Europe/Kyiv', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('4624482b-4cad-50ad-a6a1-886604268ec4', 'UA-ODESA', 'Odesa', '31071e94-6270-5ad9-b9a1-2ddbbd935aa9', 1010537, 46.4857, 30.7438, 'Europe/Kyiv')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('132e7f60-7e6d-552c-91cf-c29e1c3c602b', 'UG-KAMPALA', 'Kampala', 'f82fee3f-6239-50ef-a299-4cbfef5eb263', 1680600, 0.3163, 32.5822, 'Africa/Kampala', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('8b905dfa-9d3f-5c2c-aea5-4418680295c6', 'US-AUSTIN', 'Austin', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'bc60c38a-14e2-5791-b550-457282483f20', 974447, 30.2672, -97.7431, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('55ccdc2f-1ce5-534d-ac9e-a9292aa26fc7', 'US-BROOKLYN', 'Brooklyn', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 2736074, 40.6501, -73.9496, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('e3df61e6-5fc7-5326-8c64-d09c5b0b27c8', 'US-CHARLOTTE', 'Charlotte', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '1241ddf2-35fb-5eca-a89e-796f128ccc83', 911311, 35.2271, -80.8431, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('912f3958-228b-5eaa-836d-3cfb25506120', 'US-CHICAGO', 'Chicago', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '081a9f0f-27d9-5c0b-b041-47574c4978c9', 2664452, 41.85, -87.65, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('2b9cbff5-a880-5754-8ab5-b9ecc82a6871', 'US-COLUMBUS', 'Columbus', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'db140f4c-0395-562a-b3ed-7dfd75b1096f', 913175, 39.9612, -82.9988, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('ede34ca2-9f20-503b-8517-1bfde6f754d6', 'US-DALLAS', 'Dallas', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'bc60c38a-14e2-5791-b550-457282483f20', 1326087, 32.7831, -96.8067, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('bb6eee9a-bf1b-53b9-95d8-bea32c536791', 'US-FORT-WORTH', 'Fort Worth', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'bc60c38a-14e2-5791-b550-457282483f20', 1008106, 32.7254, -97.3208, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('648111cb-23c7-5ec5-b1a6-0165d49b12c9', 'US-HOUSTON', 'Houston', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'bc60c38a-14e2-5791-b550-457282483f20', 2314157, 29.7633, -95.3633, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('5fef573d-311a-5060-ac1f-ffef2a848f7e', 'US-INDIANAPOLIS', 'Indianapolis', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '52410e24-5170-5d2e-92cf-5e8f168d51ac', 887642, 39.7684, -86.158, 'America/Indiana/Indianapolis')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('147258e6-e327-5015-902e-f26717f7bd68', 'US-JACKSONVILLE', 'Jacksonville', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'a349655d-634b-572d-9609-a8b63fddc083', 1009833, 30.3322, -81.6556, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('4e3c5994-6d88-5ac6-bc16-ea80b99673bb', 'US-LOS-ANGELES', 'Los Angeles', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '45e1707f-24b5-5980-b818-61f6ce29c21b', 3820914, 34.0522, -118.2437, 'America/Los_Angeles')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('addedd42-a9ad-5d85-bc73-1aac13ae5144', 'US-MANHATTAN', 'Manhattan', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 1487536, 40.7834, -73.9663, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('ec01477b-a5e8-5001-afe2-ef582e238002', 'US-NEW-YORK-CITY', 'New York City', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 8804190, 40.7143, -74.006, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('4331a383-5947-544f-9adc-3e6103a495ec', 'US-PHILADELPHIA', 'Philadelphia', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'd158da10-450e-5688-8757-e257401015b0', 1573916, 39.9524, -75.1636, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('294f214f-2d6c-53bd-9a44-d73dec97ba87', 'US-PHOENIX', 'Phoenix', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '859d26c0-ab28-5ffe-8eb0-044b619bae33', 1650070, 33.4484, -112.074, 'America/Phoenix')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('b5f56dc9-f0ee-5bcc-b655-38bf1fafa528', 'US-QUEENS', 'Queens', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 2316841, 40.6815, -73.8365, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('090b2122-f5a7-5389-ae92-677dcb0b934a', 'US-SAN-ANTONIO', 'San Antonio', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'bc60c38a-14e2-5791-b550-457282483f20', 1526656, 29.4241, -98.4936, 'America/Chicago')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('93ef343a-59da-5115-9a4c-0655686c7c7e', 'US-SAN-DIEGO', 'San Diego', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '45e1707f-24b5-5980-b818-61f6ce29c21b', 1404452, 32.7157, -117.1647, 'America/Los_Angeles')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('39906174-80c6-5ac3-8344-1e56fadab896', 'US-SAN-FRANCISCO', 'San Francisco', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '45e1707f-24b5-5980-b818-61f6ce29c21b', 827526, 37.7749, -122.4194, 'America/Los_Angeles')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('0ee5de95-1ed7-5c21-8764-ca27ad5d3528', 'US-SAN-JOSE', 'San Jose', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '45e1707f-24b5-5980-b818-61f6ce29c21b', 997368, 37.3394, -121.895, 'America/Los_Angeles')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('d4e461d3-5382-565a-93bc-20ba524393ad', 'US-SEATTLE', 'Seattle', '097b6118-b718-5a7d-b1e3-86f42df9a40c', 'ddddd9cb-0707-54aa-83fd-685f0c5e8dac', 780995, 47.6062, -122.3321, 'America/Los_Angeles')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone)
+VALUES ('0ac27d5d-8812-55d4-8812-d2e557e24833', 'US-THE-BRONX', 'The Bronx', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '2112233b-3dcc-5c6f-a34c-d0e2bf9b2a01', 1385108, 40.8499, -73.8664, 'America/New_York')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, state_province_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f56b38c3-f632-5229-8c9c-f165b925b937', 'US-WASHINGTON', 'Washington', '097b6118-b718-5a7d-b1e3-86f42df9a40c', '411e0365-59b5-5c89-b1f4-573217b56e11', 689545, 38.8951, -77.0364, 'America/New_York', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('6683fed8-96b2-5137-a73d-56ce93b00e14', 'UY-MONTEVIDEO', 'Montevideo', 'ac8664ac-b5ca-54bd-923a-d10b3b17cfc4', 1270737, -34.9033, -56.1882, 'America/Montevideo', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('79ff416b-6b91-5b08-ab8a-1cec133d0508', 'UZ-TASHKENT', 'Tashkent', 'fd15dcc1-c80d-5427-9212-1e3108e0411c', 1978028, 41.2647, 69.2163, 'Asia/Tashkent', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('87e01cca-1a57-5a9f-babc-6633d8ad672a', 'VA-VATICAN-CITY', 'Vatican City', 'edeb8b8c-f00a-5a45-8f93-047250ebf0bb', 829, 41.9027, 12.4541, 'Europe/Vatican', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('257923ac-11f6-5fdf-acf0-2542eb3e5d9d', 'VC-KINGSTOWN', 'Kingstown', 'e4f77953-38cd-5ed3-8d8b-02b2a30ff192', 24518, 13.1553, -61.2274, 'America/St_Vincent', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c8585ac5-bb2f-5e41-a296-44b30c4f5ab0', 'VE-BARCELONA', 'Barcelona', '148f908f-3bcb-5840-91aa-a966a45408a2', 815141, 10.1384, -64.6877, 'America/Caracas')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e4eda598-1435-523b-a3a9-4e39c2244eca', 'VE-BARQUISIMETO', 'Barquisimeto', '148f908f-3bcb-5840-91aa-a966a45408a2', 1240714, 10.0647, -69.357, 'America/Caracas')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('a6d0ae96-7606-5073-b446-05530e14e660', 'VE-CARACAS', 'Caracas', '148f908f-3bcb-5840-91aa-a966a45408a2', 3000000, 10.488, -66.8792, 'America/Caracas', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('1fddeb60-a9a0-535c-a3ab-cf850fc3985f', 'VE-CIUDAD-GUAYANA', 'Ciudad Guayana', '148f908f-3bcb-5840-91aa-a966a45408a2', 978202, 8.3512, -62.641, 'America/Caracas')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c5057e10-0992-5c77-bc0a-fd3658b59780', 'VE-MARACAIBO', 'Maracaibo', '148f908f-3bcb-5840-91aa-a966a45408a2', 1752602, 10.6423, -71.6109, 'America/Caracas')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('91da2e96-0bf9-59db-bf01-55e8e4e72215', 'VE-VALENCIA', 'Valencia', '148f908f-3bcb-5840-91aa-a966a45408a2', 1619470, 10.1615, -68.0004, 'America/Caracas')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('9e13c369-3779-54c8-9835-2954bcc1710a', 'VG-ROAD-TOWN', 'Road Town', '45af31d5-e161-5de8-91cf-d12d935f50f4', 8449, 18.4269, -64.6208, 'America/Tortola', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('651764b9-1c84-52e2-bfd7-fa2a272b702e', 'VI-CHARLOTTE-AMALIE', 'Charlotte Amalie', '363df2c6-4b8f-567b-8a57-34f78fbe245e', 20000, 18.3419, -64.9307, 'America/St_Thomas', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('36f8bdde-b2b0-50aa-b987-075a07882633', 'VN-BIEN-HOA', 'Biên Hòa', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 1272235, 10.9447, 106.8243, 'Asia/Ho_Chi_Minh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('e8520ff9-cf38-5b07-8055-6c5cd60a53e9', 'VN-CAN-THO', 'Cần Thơ', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 1507187, 10.0371, 105.7883, 'Asia/Ho_Chi_Minh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('6af5a59a-a080-5788-b4b4-553576d1a828', 'VN-DA-NANG', 'Da Nang', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 1276000, 16.0678, 108.2208, 'Asia/Ho_Chi_Minh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f8f254d8-3dca-5c1b-b923-2348c8ce9988', 'VN-HAIPHONG', 'Haiphong', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 2625200, 20.8648, 106.6834, 'Asia/Bangkok')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('0e9a073b-f243-502e-b66b-a38d69846554', 'VN-HANOI', 'Hanoi', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 8053663, 21.0245, 105.8412, 'Asia/Bangkok', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8090d7a7-c3f3-500d-9145-817bc74363db', 'VN-HO-CHI-MINH-CITY', 'Ho Chi Minh City', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 14002598, 10.823, 106.6296, 'Asia/Ho_Chi_Minh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('8da032f4-4fc2-5d9d-a288-3dba2b1aa6f0', 'VN-HUE', 'Huế', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 1380000, 16.4619, 107.5955, 'Asia/Bangkok')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('d5bf972f-363e-5723-a549-2db3dff06f98', 'VN-THANH-HOA', 'Thanh Hóa', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 850000, 19.8, 105.7667, 'Asia/Bangkok')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('87a360ef-7ca6-5a5d-b70b-135591421f59', 'VN-VINH', 'Vinh', 'bdf0e3ce-340b-5222-bc59-e2c203463e11', 790000, 18.6734, 105.6923, 'Asia/Bangkok')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('45e7d6c7-b105-554e-a9db-4b2a433450f8', 'WS-APIA', 'Apia', '90bf0b00-0fd8-5bc7-b6b2-c6218afce096', 40407, -13.8333, -171.7667, 'Pacific/Apia', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('f3d393e3-89be-572e-a184-aec8375ad94a', 'YE-ADEN', 'Aden', 'f2af0056-9274-56c9-ae94-3b257c0861fc', 1079670, 12.7796, 45.0385, 'Asia/Aden')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('7261fb37-b2cd-5c76-be31-e6823655845f', 'YE-IBB', 'Ibb', 'f2af0056-9274-56c9-ae94-3b257c0861fc', 771514, 13.9667, 44.1833, 'Asia/Aden')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('c6b8a43d-65cc-5f8e-b54e-e1c5094f8952', 'YE-SANAA', 'Sanaa', 'f2af0056-9274-56c9-ae94-3b257c0861fc', 1937451, 15.3545, 44.2065, 'Asia/Aden', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c5c3629e-4b90-527d-864a-41a6a154d625', 'YE-TAIZ', 'Taiz', 'f2af0056-9274-56c9-ae94-3b257c0861fc', 940600, 13.5795, 44.0209, 'Asia/Aden')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f432c51d-5cc5-5308-8630-1158fc306b44', 'YT-MAMOUDZOU', 'Mamoudzou', 'dcd16f44-e1e8-5e60-aa44-108dd819f124', 54831, -12.7823, 45.2288, 'Indian/Mayotte', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('99973081-73c8-52dd-82d0-47a987928f2d', 'ZA-CAPE-TOWN', 'Cape Town', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 4772846, -33.9258, 18.4232, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b956bf3a-eed3-5afc-9f3f-68fb5ee47c73', 'ZA-DURBAN', 'Durban', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 3338026, -29.8579, 31.0292, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('c5f46389-6a9e-5859-a44b-44ea0f14166e', 'ZA-GQEBERHA', 'Gqeberha', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 1050078, -33.9611, 25.6149, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('fc5d79d5-4318-515a-acc9-acceeda866f8', 'ZA-JOHANNESBURG', 'Johannesburg', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 9418183, -26.2023, 28.0436, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('388b07b1-1a8c-50e7-89b7-7e3977084369', 'ZA-PIETERMARITZBURG', 'Pietermaritzburg', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 839327, -29.6168, 30.3928, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('5810a85b-a697-54f3-a7fa-8a1f45058cb6', 'ZA-PRETORIA', 'Pretoria', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 2112693, -25.7449, 28.1878, 'Africa/Johannesburg', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('b507a841-f964-5ffd-b718-a09d8e6d6e25', 'ZA-SOSHANGUVE', 'Soshanguve', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 872309, -25.4729, 28.0992, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone)
+VALUES ('15fb4806-7dd7-5924-9914-a60dc39a9dc1', 'ZA-SOWETO', 'Soweto', '94b2ddd7-58f8-5339-b22d-2ec106bb0b4f', 1695047, -26.2678, 27.8585, 'Africa/Johannesburg')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('e86c5b6d-d811-5bf3-80ce-304f691c0bdf', 'ZM-LUSAKA', 'Lusaka', '3c4b51a6-9098-5980-8b18-a05e51811f28', 2212301, -15.4067, 28.2871, 'Africa/Lusaka', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_city (id, code, name, country_id, population, latitude, longitude, timezone, is_capital)
+VALUES ('f4e06eba-0c1d-5e4f-b900-d67e8b325cca', 'ZW-HARARE', 'Harare', 'a26dda1d-8546-56e9-a36a-a0fc6e73b2a9', 1542813, -17.8277, 31.0534, 'Africa/Harare', TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1ad97fa2-8cb9-5039-9d9a-f46156c974cc', 'aa', 'Afar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('998d2441-5c14-595f-a478-951adbc55d71', 'ab', 'Abkhazian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('858efe03-ef87-56a1-a0f2-a1bcd227c5d7', 'ae', 'Avestan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('815c0e31-bae5-5823-aa0b-9b979eac09a2', 'af', 'Afrikaans')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0adc526a-20c9-5744-8b83-aa88f673a4eb', 'ak', 'Akan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a31bec0c-674b-5ce3-a661-0928a352e2b0', 'am', 'Amharic')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7c277a6d-34b8-52ad-b7e1-b1f9b3d9b680', 'an', 'Aragonese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('814ebb48-dde2-5ae5-8789-828346041c54', 'ar', 'Arabic')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1d903d4b-2618-558f-a5f9-0cbc0bc9ba46', 'as', 'Assamese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('d703e32d-9aaf-5979-bc83-ffda0b414b28', 'av', 'Avaric')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('18cd6950-559b-5a33-b0e1-b9f177551b70', 'ay', 'Aymara')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2edce9b4-20aa-5af4-b32b-73a130941765', 'az', 'Azerbaijani')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('c0f5c70b-0cd7-5c59-a1a5-8ff0101b305e', 'ba', 'Bashkir')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0253041a-cd23-51c4-9107-2f28c258d45f', 'be', 'Belarusian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('bb558efb-3a13-534d-b768-ab51867e9a6b', 'bg', 'Bulgarian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f954d587-235a-55f6-85e0-dc0f20326ef7', 'bi', 'Bislama')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1fa0a7c8-2941-5b23-8f1e-c63e22335eee', 'bm', 'Bambara')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('6cc05f6f-a6a4-51d3-bc20-12c94e9a212f', 'bn', 'Bengali')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('27fde1bd-75ef-5feb-8164-aa7ad3323213', 'bo', 'Tibetan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('3ed5b8ef-c4c2-53b2-b0f6-3020141f9445', 'br', 'Breton')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('8db99b49-94d6-5b25-80cc-23c1a19c1bdb', 'bs', 'Bosnian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('33d17dff-a5ba-5f2d-b76a-1ca2a8b330b3', 'ca', 'Catalan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a24f4c04-92b3-580b-a1a0-f7bc03a39ccc', 'ce', 'Chechen')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('95b85d72-88b8-5d19-bc54-74a26794e208', 'ch', 'Chamorro')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ddc59bb5-21c9-50f5-a132-230b413b183d', 'co', 'Corsican')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5fdc12cc-1aca-5a18-a0e2-aa845f2b6500', 'cr', 'Cree')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e8bc2d5f-3c7a-5b70-8008-efc2018cb112', 'cs', 'Czech')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('db651f35-f28e-59bb-863c-e4a4175f6453', 'cu', 'Church Slavic')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('98f8b1a5-1e1e-51e4-9a46-5ae794144d9d', 'cv', 'Chuvash')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('425b8a80-68ef-559c-b8a2-a97f12ecfcd2', 'cy', 'Welsh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('d44a7e62-92ec-5944-b31d-7a432847805e', 'da', 'Danish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('9d776d19-4cf2-54fc-801c-823140031a8b', 'de', 'German')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('72387d14-1b7e-59fc-bec2-f8a6073402b8', 'dv', 'Divehi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('999f3beb-57bd-55e1-a49e-188e0d59e4fd', 'dz', 'Dzongkha')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('23e7376c-8762-5844-9712-96b420ae54cb', 'ee', 'Ewe')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e6cfac85-a5d3-53ce-80c2-353760a118dd', 'el', 'Modern Greek (1453-)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('42390c62-283e-53d5-a239-836717a7b109', 'en', 'English')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ae7913e7-9972-53fa-83de-dc740766a772', 'eo', 'Esperanto')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('634ff041-e12e-5f25-b581-bf4aadf76f8d', 'es', 'Spanish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f3a2c26c-3a18-53f3-84d5-e28ab05c88a3', 'et', 'Estonian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1c39d167-6d90-5239-ad5d-300a8db67a60', 'eu', 'Basque')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a203a85a-4016-5203-950b-7fd9a648f302', 'fa', 'Persian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b10719b7-f751-59ff-8341-00c08f1b1977', 'ff', 'Fulah')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('8ebddc19-8b32-50fb-b3cd-8a41096241dd', 'fi', 'Finnish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ab768997-4c62-50fe-b169-f024ed471f19', 'fj', 'Fijian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1ce303f8-1cce-5bdb-ba11-16b20dd322a0', 'fo', 'Faroese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('c829bca1-2c28-5ac6-a805-9acd0d55bc6c', 'fr', 'French')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('079bcc73-c7ea-5b87-a6e8-5b56a4814c1b', 'fy', 'Western Frisian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2120c208-a835-52d0-becb-ac135f4dadea', 'ga', 'Irish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('bed4cc3a-0343-55ba-96c9-2d47c4d5af3d', 'gd', 'Scottish Gaelic')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0b489b86-89e5-5ba4-be54-1aa697655fc1', 'gl', 'Galician')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e682c3c6-1a83-507d-b55f-3143919dd15b', 'gn', 'Guarani')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('717cc469-de63-50be-a845-3a35e1678c58', 'gu', 'Gujarati')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7dde5e0b-6468-55a0-8e60-274ef2bff468', 'gv', 'Manx')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('51f18d72-116b-5472-8361-e8e4fd878b8a', 'ha', 'Hausa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('eb0a975a-59d5-55f2-a706-66f4d8b00640', 'he', 'Hebrew')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('de58812d-0c51-5249-86d1-34b54921e5cf', 'hi', 'Hindi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('9345636a-9319-5cd0-9d59-2afd191d306a', 'ho', 'Hiri Motu')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ddd83179-faf8-55ed-a480-a215f4196c9f', 'hr', 'Croatian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('670204b4-2507-5beb-b8dc-9edcaeb923eb', 'ht', 'Haitian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('02e8fa90-3cc2-561e-9e2f-48595d335dfe', 'hu', 'Hungarian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('c29cf0ee-6ab1-55ff-b50b-aea16016b21e', 'hy', 'Armenian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('269526ea-ac3f-5eaf-baf2-a746a41e712d', 'hz', 'Herero')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('9da1d1b2-1e13-54a7-b3ae-d9443fb77a3d', 'ia', 'Interlingua (International Auxiliary Language Association)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a73fc2b0-9987-51e8-96dd-82eb2f2fd8fe', 'id', 'Indonesian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2b2791c1-9c76-5be1-9e9f-bd2220cad5c0', 'ie', 'Interlingue')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('349ce9f5-5461-5418-a193-dca968b687b1', 'ig', 'Igbo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('914838dd-43a5-5ecf-9bdf-eb72874e0e0d', 'ii', 'Sichuan Yi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('23343751-20a5-5684-acb0-d9807c93acc3', 'ik', 'Inupiaq')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('40fd0d00-90cb-59d0-a3a5-a62c76a3c57a', 'io', 'Ido')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('54788de6-a771-5cec-9af5-0b45a7906dcb', 'is', 'Icelandic')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7f9a4768-de44-5655-9f75-8cff4d0e93d5', 'it', 'Italian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b051b0c7-47d6-5ecf-9df5-94b19ea63add', 'iu', 'Inuktitut')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b50384f4-2f4b-5f70-aa9a-61d5cd23eb34', 'ja', 'Japanese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('77177e56-f1be-5fc7-8519-b2468c59b22b', 'jv', 'Javanese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a752c5b5-39ac-5201-bcf7-73208c4032c6', 'ka', 'Georgian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('86492cad-ce47-541e-8348-b178d74592a1', 'kg', 'Kongo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('10da2b86-d73f-53b1-9c35-50cc84aad2da', 'ki', 'Kikuyu')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f65438b0-1f0a-5401-8926-136026fa5ba1', 'kj', 'Kuanyama')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('3e12dbdc-0231-51b8-ad40-0a2302326839', 'kk', 'Kazakh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b2fc996e-0291-5986-8285-b0256ad63553', 'kl', 'Kalaallisut')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('fe4ab36d-d313-55b5-a1a0-10a376a075fa', 'km', 'Khmer')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7113a3c5-8f74-5351-a12f-023e1e149f62', 'kn', 'Kannada')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('78186bcf-78bb-5a93-a504-fa42c33fe9f5', 'ko', 'Korean')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0154bb2b-99c5-5ab7-b5fa-e145d8e7cd8c', 'kr', 'Kanuri')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7b3894a8-b261-5f43-8417-c905ab9bd673', 'ks', 'Kashmiri')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('233bd29f-d597-58a0-95ca-85821a2dde7c', 'ku', 'Kurdish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('bd577d25-f088-564c-9671-96ed7319bced', 'kv', 'Komi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e88627c4-82ee-5398-8b32-c07d90d8f5d0', 'kw', 'Cornish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('72ad932e-c1fd-55de-bc33-fabae90a22a4', 'ky', 'Kirghiz')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('01e7cfa0-84f0-529d-a7fb-fe33caec0fd6', 'la', 'Latin')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('464da396-854d-5e97-be34-b903c1630681', 'lb', 'Luxembourgish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b8ef1a57-4da5-50c6-903f-c520a5a98d48', 'lg', 'Ganda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f506d072-95ec-51ba-bc90-e1fc45dec12e', 'li', 'Limburgan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('3265ef36-91d9-54c4-b2fc-bea1ce1833dc', 'ln', 'Lingala')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('08d61849-dddf-5d45-8d75-eef291126b0d', 'lo', 'Lao')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a3e1252b-4a8a-5c15-ab54-a74c5d92e641', 'lt', 'Lithuanian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ee9c66fb-9e3a-53c4-9a1b-9cc0ea22e77b', 'lu', 'Luba-Katanga')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('4391386b-f36e-5faf-b58f-9bd94fe60621', 'lv', 'Latvian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0fc01d49-a2fc-5bdf-bc7e-d651cc411552', 'mg', 'Malagasy')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b0e1458d-9e96-5fea-9a70-5628440d718e', 'mh', 'Marshallese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5b4c7af7-d28c-5753-b04b-71ce71b05090', 'mi', 'Maori')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('08ac5c85-177e-5452-a91b-a225e3be6279', 'mk', 'Macedonian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0b259199-40d9-56ca-9f40-cf5a06093801', 'ml', 'Malayalam')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('690481b4-18a8-5603-881a-e0bb5c67fe09', 'mn', 'Mongolian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('29476ec2-fc7f-5095-9a15-0dd1599af177', 'mr', 'Marathi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e27bb863-ecc4-50fc-a197-927dc54c93f6', 'ms', 'Malay (macrolanguage)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('fd81153a-78f9-5ccb-8727-7739b8523e1b', 'mt', 'Maltese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f8d63f8b-9b7b-5f3b-b4eb-56bf37f13765', 'my', 'Burmese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('84bf0b5f-cb20-5279-a034-b6e564e5a8ff', 'na', 'Nauru')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('27e45a8a-f066-5aa4-8be8-bdaf1b5df752', 'nb', 'Norwegian Bokmål')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('c51382b2-380c-5e3a-a454-549f96d45e9d', 'nd', 'North Ndebele')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('aa9eba5b-bc25-56bb-a25b-0af2a6de2c6b', 'ne', 'Nepali (macrolanguage)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('88b8f0dd-03a2-54a6-83a8-803bf16e2827', 'ng', 'Ndonga')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('334e6624-892f-5f97-97ab-60ed8aeec9ac', 'nl', 'Dutch')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('cfedd965-6486-578f-94e3-62b97bc1f3b0', 'nn', 'Norwegian Nynorsk')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0fa9a02e-241b-52e4-bfbc-e4ca81650cc4', 'no', 'Norwegian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('09356fa7-3100-5058-b34c-85c54814166b', 'nr', 'South Ndebele')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5ffb1791-8357-583d-9f8e-cc3202053644', 'nv', 'Navajo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2434c7f9-af4e-58d7-9c1f-428bb9e6f33c', 'ny', 'Chichewa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('3fc9e9c4-2e87-5f5c-bce7-080efdfeed96', 'oc', 'Occitan (post 1500)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('8c8a8dbc-6bb2-51f9-ba0b-d83f3d511797', 'oj', 'Ojibwa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2426dceb-59cb-5369-9ea6-a09906d3f947', 'om', 'Oromo')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('42ac3d25-7e98-5c94-a4f9-553f6da9da85', 'or', 'Oriya (macrolanguage)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('739b8bd1-51f9-571a-b546-718e51f21b88', 'os', 'Ossetian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a5f8ded4-b653-5f3e-bd84-de087ca90b22', 'pa', 'Panjabi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('3450b63f-1d6c-53b1-b2bd-9fd6670fae36', 'pi', 'Pali')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('80a73860-79a9-5297-a251-0ab830b70c60', 'pl', 'Polish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e6ac077e-3c5b-548c-b429-cdd8196ebd80', 'ps', 'Pushto')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('bdf91ece-1ab2-507e-a7b5-a5f12e26c223', 'pt', 'Portuguese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('9ce56346-9355-576f-ab22-0fd81bd90bcf', 'qu', 'Quechua')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('03ef887a-eeab-5481-9048-e28f515efec9', 'rm', 'Romansh')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('2d1d47bd-9e8f-5f53-8d9e-29c726da1acb', 'rn', 'Rundi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0f2e39a6-c45e-5f98-b491-d1a0d1115de6', 'ro', 'Romanian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1099b356-5c5e-5d1a-bc30-08b2e74cd117', 'ru', 'Russian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('84b1eb1d-c86b-5d18-b141-ced3ffafe803', 'rw', 'Kinyarwanda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('152c405f-2e9f-5341-a713-0c815d77e3a9', 'sa', 'Sanskrit')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('076bbace-da8d-5a65-9bbf-f1ccb862c89d', 'sc', 'Sardinian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('4b4b7b77-2cf5-5f44-b7b0-10380a576241', 'sd', 'Sindhi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e3a606c9-5ece-5ffb-84c7-81773e4cee17', 'se', 'Northern Sami')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('6870735e-0a1a-5a22-add9-55cc0f2b38a4', 'sg', 'Sango')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('25c5ab4e-3511-51bb-82c3-e7d3f70acce7', 'sh', 'Serbo-Croatian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('59288e88-2e22-537f-8935-524a07a9e929', 'si', 'Sinhala')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('cf5dfcca-d865-5cc4-9324-cd8bc73bcad9', 'sk', 'Slovak')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('1d2510ae-009e-5b57-8015-3a148f444977', 'sl', 'Slovenian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('dca054ca-a584-5abb-b576-47fb6e236c7c', 'sm', 'Samoan')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5dc2dc3a-53a3-5895-9d6f-f2aea3252466', 'sn', 'Shona')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7c43c51b-c435-57aa-b0ee-0c93381e2055', 'so', 'Somali')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('0e14e853-aca0-5004-9af2-dca624db1f00', 'sq', 'Albanian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('842926b6-c208-521c-82db-5b743de1ea87', 'sr', 'Serbian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('d0d1dc22-a5ef-5554-b2cc-fd8aa09b590b', 'ss', 'Swati')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('005599b7-f8f6-5673-904a-ba5320a9f7a1', 'st', 'Southern Sotho')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('10ee88bc-e8d5-5d30-b0c8-be2cb3a55995', 'su', 'Sundanese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f1520c69-9053-516b-8918-bb355d122941', 'sv', 'Swedish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('12033f31-822b-5631-afd6-e9cdc9455538', 'sw', 'Swahili (macrolanguage)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('aeda46eb-6597-5c6c-88ec-3e14311715ee', 'ta', 'Tamil')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7c60794d-714b-517a-ad3f-fe23276a50bf', 'te', 'Telugu')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('51dd172a-7c25-50ba-9c12-d8cfb35d4ff0', 'tg', 'Tajik')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a9c9e2a9-6bcd-583c-b1d4-db10047c0d8c', 'th', 'Thai')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('499b6f10-2ec3-5d8f-aa67-5fb1e02866c6', 'ti', 'Tigrinya')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('046eee75-ac4e-5750-8146-c3c56e1a3513', 'tk', 'Turkmen')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('658840f8-5455-5024-860b-1909794d1808', 'tl', 'Tagalog')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ac6b9905-51d6-55aa-a8c7-bae55f1479e4', 'tn', 'Tswana')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('c22d7f0e-de0f-54ca-8074-2a567b41d1bd', 'to', 'Tonga (Tonga Islands)')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('39840e3c-a9e1-562e-8bc1-e3fabc13e9af', 'tr', 'Turkish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('97a4a7c6-9112-5296-acc4-69670b11a161', 'ts', 'Tsonga')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('8e162254-80fb-5fcf-83ae-d7d7bc85b757', 'tt', 'Tatar')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('68617dcf-c9f5-5110-964c-7cd46edff7f6', 'tw', 'Twi')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('b5c65ae7-faf3-5f01-9780-5d2f36dad968', 'ty', 'Tahitian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5b94f6e9-94c4-54d4-809d-be917712474d', 'ug', 'Uighur')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('8d693793-e41d-5898-9d36-f23e61dcaa71', 'uk', 'Ukrainian')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('4bf7bf91-4a0a-5ef6-b578-06a2e6b933b8', 'ur', 'Urdu')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('5d7ebc3a-3ec4-5230-82f8-7308dafc2d70', 'uz', 'Uzbek')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7ed5c204-1ccc-51bd-9477-5e7b065850a6', 've', 'Venda')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('29594d49-588b-5767-8491-474e2b3449dc', 'vi', 'Vietnamese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('6d9a1711-785a-52b4-9bdf-ae2d7774acca', 'vo', 'Volapük')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('505d4806-f2d3-5852-b5c7-e34c2270e1e4', 'wa', 'Walloon')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f0844af7-6479-5e21-86e5-6011ca7709c7', 'wo', 'Wolof')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('f3411769-6bcf-5215-a302-3a875d59aa36', 'xh', 'Xhosa')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('ba32b23b-e9de-5e2c-b91b-bf4d243f9842', 'yi', 'Yiddish')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('7dd591c5-3fa5-55af-ab7d-9bace282967a', 'yo', 'Yoruba')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('038f57ae-c8c2-5680-a47d-0006dd842379', 'za', 'Zhuang')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('e4278185-b1be-59a0-b191-75eac4c7a93d', 'zh', 'Chinese')
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_language (id, code, name)
+VALUES ('a42c250d-4832-56bb-8bc4-e0d5b5af7a4b', 'zu', 'Zulu')
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -6527,6 +14875,72 @@ ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
 VALUES ('e4680992-dbd9-5098-ab9c-24ac365f771d', 1042, '6cd27be1-a8e8-54ca-b43f-9a6089d1d317', '00c02e2c-c3a9-5ac3-b089-3d7764753620', '40cf77f0-628a-5f04-81e1-35abfa34bf53', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
+VALUES ('063881c3-e03c-5fa1-9365-05cca4ece368', 'LOW', 'Low', 'Represents the low state or classification in the context of Task.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
+VALUES ('1bc18d2d-6279-5067-b5ff-40c7e8082780', 'NORMAL', 'Normal', 'Represents the normal state or classification in the context of Task.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
+VALUES ('f62028f8-d206-57b8-ab7b-d8bd3489e5f6', 'HIGH', 'High', 'Represents the high state or classification in the context of Task.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_priority (id, code, name, description, sequence, is_active)
+VALUES ('c8cae8a5-e2d1-5c38-974d-7f0ca5004dc6', 'CRITICAL', 'Critical', 'Represents the critical state or classification in the context of Task.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('dcd1ee9f-84c1-5db2-95d4-8abba475eaa7', 1043, '88463d30-f1bf-5d78-93f3-d77cd91a7d7c', '2d4dc64a-6d77-5a5d-9338-cf384bcb5bad', '9e2c3be3-b398-5c2d-87c6-91dc0c7279ef', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('11b17793-f12a-5b53-bf31-c9a3559dce60', 'CREATED', 'Created', 'Represents the created state or classification in the context of Task.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('e4462371-aa2e-5dd8-b39a-0c274ef99845', 'READY', 'Ready', 'Represents the ready state or classification in the context of Task.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('6e404714-9ea7-5377-8db8-3f141fa859ad', 'ASSIGNED', 'Assigned', 'Represents the assigned state or classification in the context of Task.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('31054341-f1c8-5a10-82c1-c21c76a962e6', 'IN_PROGRESS', 'In Progress', 'Represents the in progress state or classification in the context of Task.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('f8a73d07-f247-57fc-867d-1ab7c0d18a91', 'BLOCKED', 'Blocked', 'Represents the blocked state or classification in the context of Task.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('0a8188d3-6392-54e7-86ef-6879af5a5c4a', 'COMPLETED', 'Completed', 'Represents the completed state or classification in the context of Task.', 60, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('31f7f621-068d-5106-9eaa-0b30e933ad1d', 'CANCELLED', 'Cancelled', 'Represents the cancelled state or classification in the context of Task.', 70, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_status (id, code, name, description, sequence, is_active)
+VALUES ('3bc53f76-2e52-53ed-9816-2ea08fa41dfb', 'FAILED', 'Failed', 'Represents the failed state or classification in the context of Task.', 80, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('6b89b527-2fb6-5a72-b7cb-77fd8796e4ce', 1044, '95a478e2-c7fd-5a53-9281-409c08c4cd99', 'cf9e6cb0-16b9-5591-811b-eab7fadaec8e', 'cb7c6ba3-a6fd-5422-8886-1c1a914a3d84', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('e95ebe59-3102-5b45-b4d4-17ad2a7321fa', 'USER', 'User', 'Represents the user state or classification in the context of Task.', 10, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('66d38acd-fde4-58da-9ab5-3c6411122bf8', 'SYSTEM', 'System', 'Represents the system state or classification in the context of Task.', 20, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('57123cbb-e5f3-5a17-aa24-7b0aeee6c879', 'APPROVAL', 'Approval', 'Represents the approval state or classification in the context of Task.', 30, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('fc259a5c-e67d-5070-8bf7-530ad18ab196', 'DECISION', 'Decision', 'Represents the decision state or classification in the context of Task.', 40, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('d9ddae2b-e640-596c-9512-e706a90a3474', 'NOTIFICATION', 'Notification', 'Represents the notification state or classification in the context of Task.', 50, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('e5b21502-b34f-557e-9cf2-0a439e24f138', 'SCRIPT', 'Script', 'Represents the script state or classification in the context of Task.', 60, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_task_task_type (id, code, name, description, sequence, is_active)
+VALUES ('87406eda-ac17-5b97-88f4-4b798243ffb4', 'OTHER', 'Other', 'Represents the other state or classification in the context of Task.', 70, TRUE)
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('d3e143ce-d76c-5c13-9ff7-3bc6e61ba0c8', 1045, '934776cf-0f52-5be2-9099-86eed45c4808', 'b7b82e35-8091-5831-9f49-1cef487df630', '08b0fb27-8812-56de-b043-7fbc6d80c06b', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure_category (id, code, name, description, sequence, is_active)
 VALUES ('cde3a788-e2f7-5d34-9528-049e0bc6955a', 'QUANTITY', 'Quantity', 'The category of the unit of measure is quantity; set it when that is what the business means for this record.', 10, TRUE)
 ON CONFLICT DO NOTHING;
@@ -6555,7 +14969,7 @@ INSERT INTO bus_unit_of_measure_category (id, code, name, description, sequence,
 VALUES ('4cc5be01-8bbf-5174-b454-5bf400e0ce6c', 'OTHER', 'Other', 'The category of the unit of measure is other; set it when that is what the business means for this record.', 90, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('dcd1ee9f-84c1-5db2-95d4-8abba475eaa7', 1043, 'd221623e-d789-5636-a8a6-de2244b56d03', '9aefd1e2-a5d1-5c0b-b705-e4471516fb06', 'ada13494-5781-55c5-b10e-654aea93b19e', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('0700bfa6-e072-53f4-9e6e-c010c709b3ba', 1046, 'd221623e-d789-5636-a8a6-de2244b56d03', '9aefd1e2-a5d1-5c0b-b705-e4471516fb06', 'ada13494-5781-55c5-b10e-654aea93b19e', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_unit_of_measure_status (id, code, name, description, sequence, is_active)
 VALUES ('b05fdb01-dc3c-5b95-9537-81fcc500dedb', 'ACTIVE', 'Active', 'The status of the unit of measure is active; set it when that is what the business means for this record.', 10, TRUE)
@@ -6567,7 +14981,7 @@ INSERT INTO bus_unit_of_measure_status (id, code, name, description, sequence, i
 VALUES ('a03af95f-2b5d-5e38-a5b3-387bb718695c', 'RETIRED', 'Retired', 'The status of the unit of measure is retired; set it when that is what the business means for this record.', 30, TRUE)
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_ref_table (sys_ref_table_id, sys_reference_id, sys_table_id, key_column_id, display_column_id, is_value_displayed, order_by_clause, where_clause, entity_type, is_active, created_by, updated_by, created_at, updated_at)
-VALUES ('6b89b527-2fb6-5a72-b7cb-77fd8796e4ce', 1044, '75eee2be-4964-5a1d-b7c1-f24c75f933e5', '71ccf609-87bd-5d66-81f5-59639456afdd', '91dcb4fd-6200-5ff9-9420-b367eeb8ceaf', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
+VALUES ('94ac655c-ef27-50cf-b282-88d01c1190b6', 1047, '75eee2be-4964-5a1d-b7c1-f24c75f933e5', '71ccf609-87bd-5d66-81f5-59639456afdd', '91dcb4fd-6200-5ff9-9420-b367eeb8ceaf', FALSE, 'sequence', 'is_active = true', 'U', TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- --------------------------------------------------------------------------
@@ -6654,11 +15068,11 @@ INSERT INTO sys_category (sys_category_id, name, code, description, icon, color,
 VALUES ('6ed99d31-7acb-5c72-b16f-b950ae121538', 'Reference Data', 'reference-data', NULL, 'list', NULL, 6, FALSE, TRUE, 'system', 'system', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 UPDATE sys_category SET name = 'Reference Data', description = NULL, icon = 'list', color = NULL, seq_no = 6, is_default = FALSE, updated_at = NOW(), updated_by = 'system' WHERE code = 'reference-data';
-UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE table_name IN ('bus_party', 'bus_person', 'bus_organization', 'bus_party_role', 'bus_party_relationship', 'bus_legal_entity', 'bus_business_unit', 'bus_department', 'bus_address', 'bus_contact_point', 'bus_location', 'bus_country', 'bus_language', 'bus_currency', 'bus_exchange_rate', 'bus_unit_of_measure', 'bus_calendar', 'bus_attachment', 'bus_sales_order_line', 'bus_purchase_order_line', 'bus_quotation_line', 'bus_customer_return_line');
+UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE table_name IN ('bus_party', 'bus_person', 'bus_organization', 'bus_party_role', 'bus_party_relationship', 'bus_legal_entity', 'bus_business_unit', 'bus_department', 'bus_address', 'bus_contact_point', 'bus_location', 'bus_country', 'bus_state_province', 'bus_city', 'bus_language', 'bus_currency', 'bus_exchange_rate', 'bus_unit_of_measure', 'bus_calendar', 'bus_attachment', 'bus_task', 'bus_sales_order_line', 'bus_purchase_order_line', 'bus_quotation_line', 'bus_customer_return_line');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'sales') WHERE table_name IN ('bus_customer', 'bus_lead', 'bus_opportunity', 'bus_quotation', 'bus_sales_order');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'order-management') WHERE table_name IN ('bus_purchase_order');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'pricing-and-commercial-terms') WHERE table_name IN ('bus_product', 'bus_supplier', 'bus_payment_term');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'product-and-service-management') WHERE table_name IN ('bus_product_category');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'sales-and-order-management-records') WHERE table_name IN ('bus_discount_rule', 'bus_pricing', 'bus_promotion', 'bus_campaign', 'bus_prospect', 'bus_contact', 'bus_customer_return', 'bus_brand');
-UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'reference-data') WHERE table_name IN ('bus_party_party_type', 'bus_party_status', 'bus_person_gender', 'bus_person_party_type', 'bus_person_status', 'bus_organization_organization_type', 'bus_organization_status', 'bus_organization_party_type', 'bus_party_role_role_type', 'bus_party_role_status', 'bus_address_address_type', 'bus_address_status', 'bus_location_location_type', 'bus_location_status', 'bus_currency_status', 'bus_exchange_rate_rate_type', 'bus_exchange_rate_status', 'bus_unit_of_measure_category', 'bus_unit_of_measure_status', 'bus_customer_customer_type', 'bus_customer_credit_status', 'bus_customer_status', 'bus_customer_role_type', 'bus_lead_status', 'bus_opportunity_stage', 'bus_quotation_status', 'bus_sales_order_status', 'bus_sales_order_line_price_source', 'bus_purchase_order_status', 'bus_purchase_order_line_price_source', 'bus_product_product_type', 'bus_product_status', 'bus_supplier_supplier_type', 'bus_supplier_qualification_status', 'bus_supplier_status', 'bus_supplier_role_type', 'bus_payment_term_due_date_basis', 'bus_payment_term_status', 'bus_product_category_status', 'bus_quotation_line_price_source', 'bus_discount_rule_method', 'bus_discount_rule_status', 'bus_customer_return_status', 'bus_customer_return_line_disposition', 'bus_brand_status');
+UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'reference-data') WHERE table_name IN ('bus_party_party_type', 'bus_party_status', 'bus_person_gender', 'bus_person_party_type', 'bus_person_status', 'bus_organization_organization_type', 'bus_organization_status', 'bus_organization_party_type', 'bus_party_role_role_type', 'bus_party_role_status', 'bus_address_address_type', 'bus_address_status', 'bus_location_location_type', 'bus_location_status', 'bus_currency_status', 'bus_exchange_rate_rate_type', 'bus_exchange_rate_status', 'bus_unit_of_measure_category', 'bus_unit_of_measure_status', 'bus_task_task_type', 'bus_task_status', 'bus_task_priority', 'bus_customer_customer_type', 'bus_customer_credit_status', 'bus_customer_status', 'bus_customer_role_type', 'bus_lead_status', 'bus_opportunity_stage', 'bus_quotation_status', 'bus_sales_order_status', 'bus_sales_order_line_price_source', 'bus_purchase_order_status', 'bus_purchase_order_line_price_source', 'bus_product_product_type', 'bus_product_status', 'bus_supplier_supplier_type', 'bus_supplier_qualification_status', 'bus_supplier_status', 'bus_supplier_role_type', 'bus_payment_term_due_date_basis', 'bus_payment_term_status', 'bus_product_category_status', 'bus_quotation_line_price_source', 'bus_discount_rule_method', 'bus_discount_rule_status', 'bus_customer_return_status', 'bus_customer_return_line_disposition', 'bus_brand_status');
 UPDATE sys_table SET sys_category_id = (SELECT sys_category_id FROM sys_category WHERE code = 'foundation') WHERE sys_category_id IS NULL AND table_name LIKE 'bus\_%';

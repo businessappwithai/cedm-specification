@@ -23,7 +23,7 @@
  * on the critical path, and nothing in the bundle output says so — the entry
  * chunk simply grows.
  *
- * Generated: 2026-10-01T05:18:55.725Z
+ * Generated: 2026-10-01T09:33:51.978Z
  * Project: professional-services
  */
 

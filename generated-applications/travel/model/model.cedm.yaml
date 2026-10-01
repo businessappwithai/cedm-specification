@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Travel and Tourism, built on the CEDM common foundation.
   domain: travel
+  enumerationTables: true
 imports:
   - module: common
   - entity: Flight

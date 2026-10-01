@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T05:17:09.866Z">2026-10-01T05:17:09.866Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T09:31:07.303Z">2026-10-01T09:31:07.303Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -102,26 +102,54 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li><a href="#entities">The records it keeps</a>
             <ul>
               <li><a href="#entity-address">Address</a></li>
+              <li><a href="#entity-address-address-type">Address Address Type</a></li>
+              <li><a href="#entity-address-status">Address Status</a></li>
               <li><a href="#entity-attachment">Attachment</a></li>
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
+              <li><a href="#entity-city">City</a></li>
               <li><a href="#entity-contact-point">Contact Point</a></li>
               <li><a href="#entity-country">Country</a></li>
               <li><a href="#entity-currency">Currency</a></li>
+              <li><a href="#entity-currency-status">Currency Status</a></li>
               <li><a href="#entity-department">Department</a></li>
               <li><a href="#entity-exchange-rate">Exchange Rate</a></li>
+              <li><a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a></li>
+              <li><a href="#entity-exchange-rate-status">Exchange Rate Status</a></li>
               <li><a href="#entity-language">Language</a></li>
               <li><a href="#entity-legal-entity">Legal Entity</a></li>
               <li><a href="#entity-location">Location</a></li>
+              <li><a href="#entity-location-location-type">Location Location Type</a></li>
+              <li><a href="#entity-location-status">Location Status</a></li>
               <li><a href="#entity-organization">Organization</a></li>
+              <li><a href="#entity-organization-organization-type">Organization Organization Type</a></li>
+              <li><a href="#entity-organization-party-type">Organization Party Type</a></li>
+              <li><a href="#entity-organization-status">Organization Status</a></li>
               <li><a href="#entity-party">Party</a></li>
+              <li><a href="#entity-party-party-type">Party Party Type</a></li>
               <li><a href="#entity-party-relationship">Party Relationship</a></li>
               <li><a href="#entity-party-role">Party Role</a></li>
+              <li><a href="#entity-party-role-role-type">Party Role Role Type</a></li>
+              <li><a href="#entity-party-role-status">Party Role Status</a></li>
+              <li><a href="#entity-party-status">Party Status</a></li>
               <li><a href="#entity-person">Person</a></li>
+              <li><a href="#entity-person-gender">Person Gender</a></li>
+              <li><a href="#entity-person-party-type">Person Party Type</a></li>
+              <li><a href="#entity-person-status">Person Status</a></li>
+              <li><a href="#entity-state-province">State Province</a></li>
+              <li><a href="#entity-task">Task</a></li>
+              <li><a href="#entity-task-priority">Task Priority</a></li>
+              <li><a href="#entity-task-status">Task Status</a></li>
+              <li><a href="#entity-task-task-type">Task Task Type</a></li>
               <li><a href="#entity-unit-of-measure">Unit Of Measure</a></li>
+              <li><a href="#entity-unit-of-measure-category">Unit Of Measure Category</a></li>
+              <li><a href="#entity-unit-of-measure-status">Unit Of Measure Status</a></li>
               <li><a href="#entity-vehicle-model">Vehicle Model</a></li>
+              <li><a href="#entity-vehicle-model-status">Vehicle Model Status</a></li>
             </ul>
           </li>
+          <li><a href="#rules">The decisions it makes</a></li>
+          <li><a href="#processes">The processes it runs</a></li>
           <li><a href="#how-it-was-built">How this application was built</a></li>
         </ol>
       </nav>
@@ -129,13 +157,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Automotive, built on the CEDM common foundation.</p></div>
-    <p>automotive keeps 19 kinds of records, grouped into 2 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>automotive keeps 45 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a></td></tr>
         <tr><td>Automotive</td><td><a href="#entity-vehicle-model">Vehicle Model</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-vehicle-model-status">Vehicle Model Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -147,8 +176,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 19</td></tr>
-        <tr><td>User</td><td><code>user@automotive.example.com</code></td><td>19 of 19</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 45</td></tr>
+        <tr><td>User</td><td><code>user@automotive.example.com</code></td><td>45 of 45</td></tr>
       </tbody>
     </table>
 
@@ -172,79 +201,67 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The address id of the address: an identifier the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address id.</td>
         </tr>
         <tr>
           <td><code>address_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>RESIDENTIAL</code>, <code>BUSINESS</code>, <code>BILLING</code>, <code>SHIPPING</code>, <code>REGISTERED</code>, <code>POSTAL</code>, <code>OTHER</code></div></td>
+          <td>The address type of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address type. The address type of the address is residential; set it when that is what the business means for this record. The address type of the address is business; set it when that is what the business means for this record. The address type of the address is billing; set it when that is what the business means for this record. The address type of the address is shipping; set it when that is what the business means for this record. The address type of the address is registered; set it when that is what the business means for this record. The address type of the address is postal; set it when that is what the business means for this record. The address type of the address is other; set it when that is what the business means for this record.<div class="detail">One of: <code>RESIDENTIAL</code>, <code>BUSINESS</code>, <code>BILLING</code>, <code>SHIPPING</code>, <code>REGISTERED</code>, <code>POSTAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>line1</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The line1 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its line1.</td>
         </tr>
         <tr>
           <td><code>line2</code></td>
           <td>Text</td>
           <td><span class="tag">max 200</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The line2 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
           <td><code>line3</code></td>
           <td>Text</td>
           <td><span class="tag">max 200</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
-          <td><code>city</code></td>
-          <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td><span class="unset">&mdash;</span></td>
-        </tr>
-        <tr>
-          <td><code>state_or_province</code></td>
+          <td><code>city_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.</td>
         </tr>
         <tr>
           <td><code>postal_code</code></td>
           <td>Text</td>
           <td><span class="tag">max 30</span></td>
-          <td><span class="unset">&mdash;</span></td>
-        </tr>
-        <tr>
-          <td><code>country_code</code></td>
-          <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 2</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
           <td><code>latitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
           <td><code>longitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
           <td><code>is_primary</code></td>
           <td>Yes / No</td>
           <td><span class="tag">required</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>party_id</code></td>
@@ -264,10 +281,28 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>The Organization this Address belongs to.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
+        <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        <tr>
+          <td><code>state_province_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address&#39;s own country.<div class="detail">Points at <b>State Province</b></div></td>
+        </tr>
+        <tr>
+          <td><code>city_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address&#39;s own country, and of its state or province where one is stated.<div class="detail">Points at <b>City</b></div></td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 16 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 17 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -312,19 +347,11 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>city</code></td>
-            <td>City</td>
+            <td><code>city_name</code></td>
+            <td>City Name</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>60</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>state_or_province</code></td>
-            <td>State Or Province</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>70</td>
             <td>No</td>
           </tr>
           <tr>
@@ -332,23 +359,15 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Postal Code</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>80</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>country_code</code></td>
-            <td>Country Code</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>90</td>
+            <td>70</td>
             <td>No</td>
           </tr>
           <tr>
             <td><code>latitude</code></td>
             <td>Latitude</td>
             <td>Yes</td>
-            <td>No</td>
-            <td>100</td>
+            <td>Yes</td>
+            <td>80</td>
             <td>No</td>
           </tr>
           <tr>
@@ -356,7 +375,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Longitude</td>
             <td>Yes</td>
             <td>No</td>
-            <td>110</td>
+            <td>90</td>
             <td>No</td>
           </tr>
           <tr>
@@ -364,7 +383,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Is Primary</td>
             <td>Yes</td>
             <td>No</td>
-            <td>120</td>
+            <td>100</td>
             <td>No</td>
           </tr>
           <tr>
@@ -372,7 +391,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Status</td>
             <td>Yes</td>
             <td>No</td>
-            <td>130</td>
+            <td>110</td>
             <td>No</td>
           </tr>
           <tr>
@@ -380,7 +399,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Party</td>
             <td>Yes</td>
             <td>No</td>
-            <td>140</td>
+            <td>120</td>
             <td>No</td>
           </tr>
           <tr>
@@ -388,7 +407,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Person</td>
             <td>Yes</td>
             <td>No</td>
-            <td>150</td>
+            <td>130</td>
             <td>No</td>
           </tr>
           <tr>
@@ -396,7 +415,31 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Organization</td>
             <td>Yes</td>
             <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>150</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>state_province_id</code></td>
+            <td>State Province</td>
+            <td>Yes</td>
+            <td>No</td>
             <td>160</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>city_id</code></td>
+            <td>City</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>170</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -406,8 +449,240 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Address</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-state-province">State Province</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-city">City</a>.</li>
           <li>Each <b>Address</b> has one <a href="#entity-location">Location</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; AddressLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>addressInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>addressInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-address-address-type" class="entity">
+      <h3>Address Address Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of address address type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_address_address_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Address Address Type</b> window, on the <b>Address Address Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-address-status" class="entity">
+      <h3>Address Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of address status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_address_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Address Status</b> window, on the <b>Address Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -604,6 +879,173 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-city" class="entity">
+      <h3>City <span class="group">Foundation</span></h3>
+      <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
+      <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of City. Cross-domain reference, integration and audit. Used wherever this City is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 80</span></td>
+          <td>The city&#39;s code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>The city&#39;s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.</td>
+        </tr>
+        <tr>
+          <td><code>population</code></td>
+          <td>Whole number</td>
+          <td>&mdash;</td>
+          <td>The registry&#39;s population figure. Ordering and sizing; not a current census count. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>latitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Latitude in degrees, north positive. Maps and distance. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>longitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Longitude in degrees, east positive. Maps and distance. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>timezone</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 64</span></td>
+          <td>The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>is_capital</code></td>
+          <td>Yes / No</td>
+          <td>&mdash;</td>
+          <td>Whether the city is its country&#39;s capital. Highlighting the capital in lists. At most one capital per country in this list.</td>
+        </tr>
+        <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        <tr>
+          <td><code>state_province_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state of a city must be a division of the city&#39;s own country.<div class="detail">Points at <b>State Province</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>City</b> window, on the <b>City</b> tab. These are its 10 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>population</code></td>
+            <td>Population</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>latitude</code></td>
+            <td>Latitude</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>longitude</code></td>
+            <td>Longitude</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>timezone</code></td>
+            <td>Timezone</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_capital</code></td>
+            <td>Is Capital</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>state_province_id</code></td>
+            <td>State Province</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>City</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>City</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>City</b> belongs to one <a href="#entity-state-province">State Province</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-contact-point" class="entity">
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
@@ -687,7 +1129,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-country" class="entity">
       <h3>Country <span class="group">Foundation</span></h3>
-      <p class="lede">A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -698,24 +1140,48 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.</td>
+          <td>Stable identity of Country. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.</td>
         </tr>
         <tr>
           <td><code>code</code></td>
           <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
-          <td>Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 2</span></td>
+          <td>The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.</td>
+        </tr>
+        <tr>
+          <td><code>alpha3</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 3</span></td>
+          <td>The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.</td>
+        </tr>
+        <tr>
+          <td><code>numeric_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 3</span></td>
+          <td>The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+          <td>The country&#39;s short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.</td>
+        </tr>
+        <tr>
+          <td><code>phone_code</code></td>
+          <td>Telephone</td>
+          <td><span class="tag">max 20</span></td>
+          <td>The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.</td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency follow the country chosen on an address.<div class="detail">Points at <b>Currency</b></div></td>
         </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Country</b> window, on the <b>Country</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Country</b> window, on the <b>Country</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -736,15 +1202,54 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>name</code></td>
-            <td>Name</td>
+            <td><code>alpha3</code></td>
+            <td>Alpha3</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>30</td>
             <td>No</td>
           </tr>
+          <tr>
+            <td><code>numeric_code</code></td>
+            <td>Numeric Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>phone_code</code></td>
+            <td>Phone Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
         </tbody>
       </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Country</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Country</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Country</b> has many <a href="#entity-state-province">State Province</a> records.</li>
+          <li>Each <b>Country</b> has many <a href="#entity-city">City</a> records.</li>
+      </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -852,11 +1357,128 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Related records</h4>
       <ul class="plain">
+          <li>Each <b>Currency</b> has many <a href="#entity-country">Country</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-currency-status" class="entity">
+      <h3>Currency Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of currency status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_currency_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Currency Status</b> window, on the <b>Currency Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1002,7 +1624,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>EXPIRED</code>, <code>CANCELLED</code></div></td>
+          <td>Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection. The status of the exchange rate is draft; set it when that is what the business means for this record. The status of the exchange rate is active; set it when that is what the business means for this record. The status of the exchange rate is expired; set it when that is what the business means for this record. The status of the exchange rate is cancelled; set it when that is what the business means for this record.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>EXPIRED</code>, <code>CANCELLED</code></div></td>
         </tr>
         </tbody>
       </table>
@@ -1092,6 +1714,237 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
           <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; ExchangeRateLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>exchangeRateInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-exchange-rate-follow-up-required">ExchangeRateFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-exchange-rate-rate-type" class="entity">
+      <h3>Exchange Rate Rate Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of exchange rate rate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_exchange_rate_rate_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Exchange Rate Rate Type</b> window, on the <b>Exchange Rate Rate Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-exchange-rate-status" class="entity">
+      <h3>Exchange Rate Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_exchange_rate_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Exchange Rate Status</b> window, on the <b>Exchange Rate Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1113,7 +1966,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr>
           <td><code>code</code></td>
           <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 2</span></td>
           <td>Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
         </tr>
         <tr>
@@ -1220,49 +2073,49 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The location id of the location: an identifier the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its location id.</td>
         </tr>
         <tr>
           <td><code>code</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its code.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td><span class="unset">&mdash;</span></td>
+          <td>The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its name.</td>
         </tr>
         <tr>
           <td><code>location_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
+          <td>The location type of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its location type. The location type of the location is site; set it when that is what the business means for this record. The location type of the location is warehouse; set it when that is what the business means for this record. The location type of the location is store; set it when that is what the business means for this record. The location type of the location is office; set it when that is what the business means for this record. The location type of the location is factory; set it when that is what the business means for this record. The location type of the location is yard; set it when that is what the business means for this record. The location type of the location is port; set it when that is what the business means for this record. The location type of the location is depot; set it when that is what the business means for this record. The location type of the location is virtual; set it when that is what the business means for this record. The location type of the location is other; set it when that is what the business means for this record.<div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
+          <td>The status of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its status. The status of the location is planned; set it when that is what the business means for this record. The status of the location is active; set it when that is what the business means for this record. The status of the location is inactive; set it when that is what the business means for this record. The status of the location is closed; set it when that is what the business means for this record. The status of the location is retired; set it when that is what the business means for this record.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>address_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td><span class="unset">&mdash;</span><div class="detail">Points at <b>Address</b></div></td>
+          <td>The address id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own.<div class="detail">Points at <b>Address</b></div></td>
         </tr>
         <tr>
           <td><code>parent_location_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td><span class="unset">&mdash;</span><div class="detail">Points at <b>Parent Location</b></div></td>
+          <td>The parent location id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location&#39;s other fields and its relationships; it is not meaningful on its own.<div class="detail">Points at <b>Parent Location</b></div></td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>The Organization this Location refers to.<div class="detail">Points at <b>Organization</b></div></td>
+          <td>Links a location to organization, the organization it relates to. Chosen from the existing organization records when the location is created or edited. A location has at most one organization in this role. Lets the location be found from, and reported with, its organization.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         </tbody>
       </table>
@@ -1343,6 +2196,230 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Location</b> has one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-location">Location</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; LocationLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CLOSED</code></td><td><code>close</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>PLANNED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-location-location-type" class="entity">
+      <h3>Location Location Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of location location type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_location_location_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Location Location Type</b> window, on the <b>Location Location Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-location-status" class="entity">
+      <h3>Location Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_location_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Location Status</b> window, on the <b>Location Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1383,13 +2460,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>organization_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
+          <td>Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation. The organization type of the organization is enterprise; set it when that is what the business means for this record. The organization type of the organization is company; set it when that is what the business means for this record. The organization type of the organization is business unit; set it when that is what the business means for this record. The organization type of the organization is division; set it when that is what the business means for this record. The organization type of the organization is department; set it when that is what the business means for this record. The organization type of the organization is branch; set it when that is what the business means for this record. The organization type of the organization is subsidiary; set it when that is what the business means for this record. The organization type of the organization is other; set it when that is what the business means for this record.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks. The status of the organization is draft; set it when that is what the business means for this record. The status of the organization is active; set it when that is what the business means for this record. The status of the organization is inactive; set it when that is what the business means for this record. The status of the organization is retired; set it when that is what the business means for this record.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>legal_name</code></td>
@@ -1570,7 +2647,336 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Organization</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-business-unit">Business Unit</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-department">Department</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-task">Task</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; OrganizationLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-organization-organization-type" class="entity">
+      <h3>Organization Organization Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of organization organization type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_organization_organization_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Organization Organization Type</b> window, on the <b>Organization Organization Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-organization-party-type" class="entity">
+      <h3>Organization Party Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of organization party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_organization_party_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Organization Party Type</b> window, on the <b>Organization Party Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-organization-status" class="entity">
+      <h3>Organization Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of organization status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_organization_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Organization Status</b> window, on the <b>Organization Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1670,7 +3076,135 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-party-relationship">Party Relationship</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-contact-point">Contact Point</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-task">Task</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; PartyLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ACTIVE</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>partyWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-party-exception-raised">PartyExceptionRaised</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-party-type" class="entity">
+      <h3>Party Party Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_party_party_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Party Type</b> window, on the <b>Party Party Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1780,7 +3314,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>role_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
+          <td>Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation. The role type of the party role is customer; set it when that is what the business means for this record. The role type of the party role is supplier; set it when that is what the business means for this record. The role type of the party role is employee; set it when that is what the business means for this record. The role type of the party role is partner; set it when that is what the business means for this record. The role type of the party role is carrier; set it when that is what the business means for this record. The role type of the party role is agent; set it when that is what the business means for this record. The role type of the party role is contractor; set it when that is what the business means for this record. The role type of the party role is owner; set it when that is what the business means for this record. The role type of the party role is investor; set it when that is what the business means for this record. The role type of the party role is other; set it when that is what the business means for this record.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -1804,7 +3338,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
+          <td>Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions. The status of the party role is active; set it when that is what the business means for this record. The status of the party role is inactive; set it when that is what the business means for this record. The status of the party role is expired; set it when that is what the business means for this record.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
         </tr>
         <tr>
           <td><code>person_id</code></td>
@@ -1905,6 +3439,340 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party Role</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Party Role</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; PartyRoleLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>EXPIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>partyRoleInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>partyRoleInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-role-role-type" class="entity">
+      <h3>Party Role Role Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of party role role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_party_role_role_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Role Role Type</b> window, on the <b>Party Role Role Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-role-status" class="entity">
+      <h3>Party Role Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of party role status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_party_role_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Role Status</b> window, on the <b>Party Role Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-status" class="entity">
+      <h3>Party Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_party_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Status</b> window, on the <b>Party Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1969,13 +3837,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>gender</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
+          <td>Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for this record. The gender of the person is male; set it when that is what the business means for this record. The gender of the person is non binary; set it when that is what the business means for this record. The gender of the person is other; set it when that is what the business means for this record. The gender of the person is unspecified; set it when that is what the business means for this record.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
         </tr>
         <tr>
-          <td><code>nationality</code></td>
-          <td>Text</td>
-          <td><span class="tag">max 2</span></td>
-          <td>Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.</td>
+          <td><code>nationality_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.<div class="detail">Points at <b>Nationality</b></div></td>
         </tr>
         <tr>
           <td><code>party_type</code></td>
@@ -2081,7 +3949,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>nationality</code></td>
+            <td><code>nationality_id</code></td>
             <td>Nationality</td>
             <td>Yes</td>
             <td>No</td>
@@ -2132,6 +4000,961 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-person-gender" class="entity">
+      <h3>Person Gender <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of person gender, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_person_gender</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Person Gender</b> window, on the <b>Person Gender</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-person-party-type" class="entity">
+      <h3>Person Party Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of person party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_person_party_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Person Party Type</b> window, on the <b>Person Party Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-person-status" class="entity">
+      <h3>Person Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of person status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_person_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Person Status</b> window, on the <b>Person Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-state-province" class="entity">
+      <h3>State Province <span class="group">Foundation</span></h3>
+      <p class="lede">A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
+      <p class="meta">Stored as <code>bus_state_province</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of StateProvince. Cross-domain reference, integration and audit. Used wherever this StateProvince is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 10</span></td>
+          <td>The ISO 3166-2 code, the country code and the division&#39;s own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>The division&#39;s name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.</td>
+        </tr>
+        <tr>
+          <td><code>subdivision_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 100</span></td>
+          <td>What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.</td>
+        </tr>
+        <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>State Province</b> window, on the <b>State Province</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>subdivision_type</code></td>
+            <td>Subdivision Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>State Province</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>State Province</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>State Province</b> has many <a href="#entity-city">City</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task" class="entity">
+      <h3>Task <span class="group">Foundation</span></h3>
+      <p class="lede">Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
+      <p class="meta">Stored as <code>bus_task</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Identifies the task record associated with this Task. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 2000</span></td>
+          <td>A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>task_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Captures the business meaning of task type for the Task. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the user state or classification in the context of Task. Represents the system state or classification in the context of Task. Represents the approval state or classification in the context of Task. Represents the decision state or classification in the context of Task. Represents the notification state or classification in the context of Task. Represents the script state or classification in the context of Task. Represents the other state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>USER</code>, <code>SYSTEM</code>, <code>APPROVAL</code>, <code>DECISION</code>, <code>NOTIFICATION</code>, <code>SCRIPT</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the created state or classification in the context of Task. Represents the ready state or classification in the context of Task. Represents the assigned state or classification in the context of Task. Represents the in progress state or classification in the context of Task. Represents the blocked state or classification in the context of Task. Represents the completed state or classification in the context of Task. Represents the cancelled state or classification in the context of Task. Represents the failed state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>priority</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Captures the business meaning of priority for the Task. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the low state or classification in the context of Task. Represents the normal state or classification in the context of Task. Represents the high state or classification in the context of Task. Represents the critical state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
+        </tr>
+        <tr>
+          <td><code>due_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>started_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>completed_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>assignee_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Assignee</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task</b> window, on the <b>Task</b> tab. These are its 12 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>task_type</code></td>
+            <td>Task Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>priority</code></td>
+            <td>Priority</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>due_at</code></td>
+            <td>Due At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>started_at</code></td>
+            <td>Started At</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>completed_at</code></td>
+            <td>Completed At</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assignee_id</code></td>
+            <td>Assignee</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Task</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Task</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; TaskLifecycle</h4>
+      <p>A record starts at <code>CREATED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>FAILED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>CREATED</code></td><td><code>READY</code></td><td><code>mark_ready</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>ASSIGNED</code></td><td><code>assign</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>IN_PROGRESS</code></td><td><code>start</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>READY</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ASSIGNED</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>IN_PROGRESS</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>CREATED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>taskInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>taskInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-priority" class="entity">
+      <h3>Task Priority <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_priority</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Priority</b> window, on the <b>Task Priority</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-status" class="entity">
+      <h3>Task Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Status</b> window, on the <b>Task Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-task-type" class="entity">
+      <h3>Task Task Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_task_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Task Type</b> window, on the <b>Task Task Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-unit-of-measure" class="entity">
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
@@ -2169,7 +4992,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>category</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility.<div class="detail">One of: <code>QUANTITY</code>, <code>LENGTH</code>, <code>AREA</code>, <code>VOLUME</code>, <code>MASS</code>, <code>TIME</code>, <code>COUNT</code>, <code>CURRENCY</code>, <code>OTHER</code></div></td>
+          <td>Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility. The category of the unit of measure is quantity; set it when that is what the business means for this record. The category of the unit of measure is length; set it when that is what the business means for this record. The category of the unit of measure is area; set it when that is what the business means for this record. The category of the unit of measure is volume; set it when that is what the business means for this record. The category of the unit of measure is mass; set it when that is what the business means for this record. The category of the unit of measure is time; set it when that is what the business means for this record. The category of the unit of measure is count; set it when that is what the business means for this record. The category of the unit of measure is currency; set it when that is what the business means for this record. The category of the unit of measure is other; set it when that is what the business means for this record.<div class="detail">One of: <code>QUANTITY</code>, <code>LENGTH</code>, <code>AREA</code>, <code>VOLUME</code>, <code>MASS</code>, <code>TIME</code>, <code>COUNT</code>, <code>CURRENCY</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>conversion_factor</code></td>
@@ -2187,7 +5010,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility. The status of the unit of measure is active; set it when that is what the business means for this record. The status of the unit of measure is inactive; set it when that is what the business means for this record. The status of the unit of measure is retired; set it when that is what the business means for this record.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         </tbody>
       </table>
@@ -2267,6 +5090,227 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-unit-of-measure-category" class="entity">
+      <h3>Unit Of Measure Category <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of unit of measure category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_unit_of_measure_category</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Unit Of Measure Category</b> window, on the <b>Unit Of Measure Category</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-unit-of-measure-status" class="entity">
+      <h3>Unit Of Measure Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of unit of measure status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_unit_of_measure_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Unit Of Measure Status</b> window, on the <b>Unit Of Measure Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -2372,13 +5416,165 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           </tr>
         </tbody>
       </table>
+      <h4>Lifecycle &mdash; VehicleModelLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>DISCONTINUED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>PLANNED</code></td><td><code>DISCONTINUED</code></td><td><code>discontinue</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>DISCONTINUED</code></td><td><code>discontinue</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-vehicle-model-status" class="entity">
+      <h3>Vehicle Model Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of vehicle model status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_vehicle_model_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Vehicle Model Status</b> window, on the <b>Vehicle Model Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
   </section>
 
+  <section id="rules">
+    <h2>The decisions it makes</h2>
+    <p>Each of these is a decision table the application evaluates when a record is written. A rule that refuses a write refuses it for everyone, including an administrator &mdash; it is a statement about the business, not about permissions.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>Applies to</th><th>Runs on</th></tr></thead>
+      <tbody>
+        <tr><td><code>partyRoleInvariantsBeforeCreate</code></td><td><a href="#entity-party-role">Party Role</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>partyRoleInvariantsBeforeUpdate</code></td><td><a href="#entity-party-role">Party Role</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>addressInvariantsBeforeCreate</code></td><td><a href="#entity-address">Address</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>addressInvariantsBeforeUpdate</code></td><td><a href="#entity-address">Address</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>exchangeRateInvariantsBeforeCreate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
 
-
-
+  <section id="processes">
+    <h2>The processes it runs</h2>
+    <p>A process spans more than one record. Its steps run in order and stop at the first failure.</p>
+    <div id="process-party-exception-raised" class="process">
+      <h3>PartyExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-party">Party</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-exchange-rate-follow-up-required" class="process">
+      <h3>ExchangeRateFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-exchange-rate">Exchange Rate</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
 
   <section id="how-it-was-built">
     <h2>How this application was built</h2>
@@ -2389,7 +5585,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    automotive 1.0.0 &middot; 19 record types &middot; 0 rules &middot; 0 processes
+    automotive 1.0.0 &middot; 45 record types &middot; 10 rules &middot; 12 processes
   </footer>
 </div>
 </body>

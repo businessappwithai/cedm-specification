@@ -17,7 +17,7 @@
  *   bun run run.ts --only crud     # substring filter on suite file names
  *   bun run run.ts --no-server     # attach to an already-running backend
  *
- * Generated: 2026-10-01T05:19:49.503Z
+ * Generated: 2026-10-01T09:35:10.825Z
  * Project: trade
  */
 

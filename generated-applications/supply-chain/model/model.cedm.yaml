@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Supply Chain Planning, built on the CEDM common foundation.
   domain: supply-chain
+  enumerationTables: true
 imports:
   - module: common
   - entity: SupplyPlan

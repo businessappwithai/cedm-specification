@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: ai_runtime_entity
   description: A recorded output produced by an AI model for a specific input and execution context.
+  ui:
+    icon: table
   identity:
     key: aiPredictionId
     type: uuid

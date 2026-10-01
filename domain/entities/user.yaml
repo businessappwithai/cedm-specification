@@ -101,6 +101,22 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: User Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, LOCKED, DISABLED, RETIRED]
+    initial: PENDING
+    terminal: [RETIRED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: LOCKED, action: lock}
+      - {from: LOCKED, to: ACTIVE, action: unlock}
+      - {from: ACTIVE, to: DISABLED, action: disable}
+      - {from: DISABLED, to: ACTIVE, action: enable}
+      - {from: PENDING, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: LOCKED, to: RETIRED, action: retire}
+      - {from: DISABLED, to: RETIRED, action: retire}
   help:
     summary: Represents a identity entity called User within the CEDM business model.
     businessMeaning: User is a business concept with its own identity and lifecycle. It captures information that must remain

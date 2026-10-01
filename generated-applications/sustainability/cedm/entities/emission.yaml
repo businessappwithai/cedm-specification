@@ -4,6 +4,8 @@ entity:
   kind: sustainability_entity
   description: A measured or calculated release of greenhouse gases or other environmental pollutants associated with a business
     activity or source.
+  ui:
+    icon: table
   identity:
     key: emissionId
     type: uuid
@@ -143,6 +145,7 @@ entity:
   invariants:
   - id: EMISSION-001
     rule: quantity must be zero or greater.
+  - {id: EMISSION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Represents a sustainability entity called Emission within the CEDM business model.
     businessMeaning: Emission is a business concept with its own identity and lifecycle. It captures information that must

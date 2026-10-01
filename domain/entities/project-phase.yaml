@@ -21,5 +21,35 @@ entity:
   invariants:
   - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
   - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
+  lifecycle:
+    title: Project Phase Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a project phase is ended"
+      description: "When a project phase is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-PHASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on project phase {{name}}"
+              description: "Project phase {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

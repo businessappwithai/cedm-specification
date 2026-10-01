@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: hospitality_transaction
   description: A reservation for accommodation or hospitality services.
+  ui:
+    icon: calendar-check
   identity:
     key: hotelReservationId
     type: uuid
@@ -134,6 +136,60 @@ entity:
   invariants:
   - id: HOTEL-RESERVATION-001
     rule: checkOut must be later than checkIn.
+  lifecycle:
+    title: Hotel Reservation Lifecycle
+    attribute: status
+    states: [REQUESTED, RESERVED, CHECKED_IN, CHECKED_OUT, CANCELLED, NO_SHOW]
+    initial: REQUESTED
+    terminal: [CANCELLED, NO_SHOW]
+    transitions:
+      - {from: REQUESTED, to: RESERVED, action: reserve}
+      - {from: RESERVED, to: CHECKED_IN, action: mark_checked_in}
+      - {from: CHECKED_IN, to: CHECKED_OUT, action: mark_checked_out}
+      - {from: REQUESTED, to: CANCELLED, action: cancel}
+      - {from: RESERVED, to: CANCELLED, action: cancel}
+      - {from: CHECKED_IN, to: CANCELLED, action: cancel}
+      - {from: CHECKED_OUT, to: CANCELLED, action: cancel}
+      - {from: RESERVED, to: NO_SHOW, action: mark_no_show}
+      - {from: CHECKED_IN, to: NO_SHOW, action: mark_no_show}
+      - {from: CHECKED_OUT, to: NO_SHOW, action: mark_no_show}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a hotel reservation is put forward"
+      description: "When a hotel reservation is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HOTEL-RESERVATION-APPROVAL-{{id}}"
+              name: "Decide on hotel reservation {{reservation_number}}"
+              description: "Hotel reservation {{reservation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a hotel reservation is ended"
+      description: "When a hotel reservation is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HOTEL-RESERVATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on hotel reservation {{reservation_number}}"
+              description: "Hotel reservation {{reservation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a hospitality transaction called HotelReservation within the CEDM business model.
     businessMeaning: HotelReservation is a business concept with its own identity and lifecycle. It captures information that

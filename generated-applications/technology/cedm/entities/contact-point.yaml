@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: party_contact_master
   description: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
+  ui:
+    icon: database
   identity: {key: contactPointId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContactPoint., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this ContactPoint is referenced., requiredMeaning: Required.}}

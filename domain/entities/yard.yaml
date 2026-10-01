@@ -95,6 +95,17 @@ entity:
     rule: SUSPENDED or CLOSED yards must not accept new normal inbound allocations or movements unless an explicit exception workflow permits them.
   - id: YARD-004
     rule: Changing Yard status must not delete historical container positions or movement records.
+  lifecycle:
+    title: Yard Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+    initial: PLANNED
+    terminal: [CLOSED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
     summary: Represents the facility-level operational boundary for container storage and handling.
     businessMeaning: Yard is the physical and operational context in which containers enter, occupy storage positions, move between positions, undergo inspection or repair, and eventually leave the facility. It is more specific than Location but broader than a YardBlock or YardSlot.

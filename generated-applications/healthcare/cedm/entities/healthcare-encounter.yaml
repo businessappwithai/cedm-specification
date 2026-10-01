@@ -4,6 +4,8 @@ entity:
   kind: healthcare_transaction
   description: A recorded interaction between a patient and healthcare provider or facility for evaluation, treatment, or
     service.
+  ui:
+    icon: file-text
   identity:
     key: encounterId
     type: uuid
@@ -161,6 +163,54 @@ entity:
   invariants:
   - id: ENCOUNTER-001
     rule: endAt must not precede startAt.
+  lifecycle:
+    title: Healthcare Encounter Lifecycle
+    attribute: status
+    states: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a healthcare encounter is ended"
+      description: "When a healthcare encounter is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HEALTHCARE-ENCOUNTER-FOLLOW-UP-{{id}}"
+              name: "Follow up on healthcare encounter {{id}}"
+              description: "Healthcare encounter {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a healthcare encounter is done"
+      description: "When a healthcare encounter is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HEALTHCARE-ENCOUNTER-COMPLETED-{{id}}"
+              name: "Confirm healthcare encounter {{id}}"
+              description: "Healthcare encounter {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents a healthcare transaction called HealthcareEncounter within the CEDM business model.
     businessMeaning: HealthcareEncounter is a business concept with its own identity and lifecycle. It captures information

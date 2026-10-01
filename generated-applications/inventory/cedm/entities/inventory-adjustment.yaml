@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_control_transaction
   description: A governed authorization to correct an evidenced inventory discrepancy, with actual quantity correction represented by attributable InventoryMovement adjustment events.
+  ui:
+    icon: boxes
   identity: {key: inventoryAdjustmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: inventoryAdjustmentId, type: uuid, required: true, immutable: true, help: {summary: Stable adjustment identity., businessMeaning: Identifies one approved stock correction independently of ledger posting., usage: "Cycle count, damage, reconciliation and audit.", relationshipContext: Groups adjustment evidence and movement., requiredMeaning: Required.}}

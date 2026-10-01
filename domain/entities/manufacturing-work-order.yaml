@@ -28,11 +28,64 @@ entity:
   - {name: productionReceipts, target: ProductionReceipt, cardinality: "0..*", ownership: reference, help: {summary: Accepted output receipts attributable to this order., businessMeaning: Records actual produced quantity entering controlled inventory., usage: "Completion, inventory, costing, genealogy and quality.", cardinalityMeaning: Partial production may create many receipts., workflowRole: Posted receipts increase inventory through InventoryMovement.}}
   - {name: scrapTransactions, target: Scrap, cardinality: "0..*", ownership: reference, help: {summary: Governed rejected or lost production quantities., businessMeaning: Separates scrap from accepted output and unexplained variance., usage: "Yield, costing, inventory, quality and continuous improvement.", cardinalityMeaning: Zero or many scrap events., workflowRole: Inventory-affecting scrap must reconcile to attributable InventoryMovement.}}
   invariants:
-  - {id: MWO-001, rule: plannedEnd must not precede plannedStart.}
-  - {id: MWO-002, rule: quantity must be greater than zero.}
-  - {id: MWO-003, rule: RELEASED work must preserve the effective BillOfMaterial and Routing versions used for execution and audit.}
-  - {id: MWO-004, rule: "MaterialIssue, ProductionReceipt and inventory-affecting Scrap postings must reconcile to this work order and be idempotent."}
-  - {id: MWO-005, rule: "COMPLETED or CLOSED requires governed reconciliation of planned quantity, accepted output, scrap, material consumption, required operations and quality gates."}
+  - {id: MFG-WO-001, rule: plannedEnd must not precede plannedStart.}
+  - {id: MFG-WO-002, rule: quantity must be greater than zero.}
+  - {id: MFG-WO-003, rule: RELEASED work must preserve the effective BillOfMaterial and Routing versions used for execution and audit.}
+  - {id: MFG-WO-004, rule: "MaterialIssue, ProductionReceipt and inventory-affecting Scrap postings must reconcile to this work order and be idempotent."}
+  - {id: MFG-WO-005, rule: "COMPLETED or CLOSED requires governed reconciliation of planned quantity, accepted output, scrap, material consumption, required operations and quality gates."}
+  - {id: MANUFACTURING-WORK-ORDER-EXE-001, rule: "Planned End must not be earlier than planned start.", violatedWhen: "planned_start != null and planned_end != null and planned_end < planned_start", message: "Planned End cannot be earlier than planned start."}
+  - {id: MANUFACTURING-WORK-ORDER-EXE-002, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  lifecycle:
+    title: Manufacturing Work Order Lifecycle
+    attribute: status
+    states: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CLOSED, CANCELLED]
+    initial: PLANNED
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: RELEASED, action: release}
+      - {from: RELEASED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: COMPLETED, to: CLOSED, action: close}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: RELEASED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a manufacturing work order is ended"
+      description: "When a manufacturing work order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MANUFACTURING-WORK-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on manufacturing work order {{order_number}}"
+              description: "Manufacturing work order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a manufacturing work order is done"
+      description: "When a manufacturing work order is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MANUFACTURING-WORK-ORDER-COMPLETED-{{id}}"
+              name: "Confirm manufacturing work order {{order_number}}"
+              description: "Manufacturing work order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Canonical CEDM production-order transaction.
     businessMeaning: ManufacturingWorkOrder authorizes production; BOM defines material expectations; Routing defines process expectations; execution transactions preserve actual material, output and scrap evidence.

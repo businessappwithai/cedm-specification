@@ -8,11 +8,11 @@ application:
   version: 1.0.0
   description: Workflow and Business Process Management, built on the CEDM common foundation.
   domain: workflow
+  enumerationTables: true
 imports:
   - module: common
   - entity: BusinessProcess
   - entity: Workflow
-  - entity: Task
   - entity: ProcessDefinition
   - entity: ProcessInstance
 ui:

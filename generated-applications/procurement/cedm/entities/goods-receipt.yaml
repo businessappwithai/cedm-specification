@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: procurement_fulfillment_transaction
   description: A controlled record confirming physical or service fulfillment received against a PurchaseOrder, with line-level evidence of quantities received, accepted, rejected, pending inspection, and later eligible supplier returns. Header state and totals are projections of line-level receipt disposition and downstream posting state.
+  ui:
+    icon: file-text
   identity: {key: goodsReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: goodsReceiptId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt., businessMeaning: Identifies the historical receiving event independently of later supplier returns or corrections., usage: "Receiving, inventory, procurement, audit and reconciliation.", relationshipContext: SupplierReturn references eligible receipt evidence without rewriting this identity., workflowRole: Stable root reference for receipt lifecycle and downstream traceability., requiredMeaning: Required.}}
@@ -12,8 +14,30 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
-    help: {summary: Controlled receiving-document lifecycle state., businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory., usage: Controls receiving progression and authorized corrections., relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status., workflowRole: Controls receiving progression and authorized corrections.}
+    values:
+    - DRAFT
+    - RECEIVED
+    - INSPECTION_PENDING
+    - ACCEPTED
+    - PARTIALLY_ACCEPTED
+    - REJECTED
+    - CANCELLED
+    help:
+      summary: Controlled receiving-document lifecycle state.
+      businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory.
+      usage: Controls receiving progression and authorized corrections.
+      relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status.
+      workflowRole: Controls receiving progression and authorized corrections.
+      valueSemantics:
+        DRAFT: The status of the goods receipt is draft; set it when that is what the business means for this record.
+        RECEIVED: The status of the goods receipt is received; set it when that is what the business means for this record.
+        INSPECTION_PENDING: The status of the goods receipt is inspection pending; set it when that is what the business means
+          for this record.
+        ACCEPTED: The status of the goods receipt is accepted; set it when that is what the business means for this record.
+        PARTIALLY_ACCEPTED: The status of the goods receipt is partially accepted; set it when that is what the business means
+          for this record.
+        REJECTED: The status of the goods receipt is rejected; set it when that is what the business means for this record.
+        CANCELLED: The status of the goods receipt is cancelled; set it when that is what the business means for this record.
   - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Total quantity physically recorded as received., businessMeaning: Sum of line received quantities., usage: Receiving and audit., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis., requiredMeaning: Required.}}
   - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity accepted after receiving controls., businessMeaning: Sum of line accepted quantities that may become inventory., usage: "Inventory posting, PO fulfillment and invoice matching.", relationshipContext: SupplierReturnLine eligibility is normally based on accepted quantity and subsequent prior returns., workflowRole: Provides authoritative accepted receipt basis for later supplier returns., requiredMeaning: Required.}}
   - {name: notes, type: string, required: false, maxLength: 2000, help: {summary: Receiving notes and operational context., businessMeaning: Human-readable context for receipt exceptions or inspection., usage: Operations and audit., relationshipContext: Does not replace structured disposition or return evidence., workflowRole: Supports review., optionalMeaning: Optional.}}
@@ -66,6 +90,53 @@ entity:
   - {id: GOODS-RECEIPT-015, rule: "Changes to PurchaseOrder, Supplier, Product, UnitOfMeasure, Warehouse or InventoryLocation affecting an open receipt require revalidation."}
   - {id: GOODS-RECEIPT-016, rule: "SupplierReturn eligibility must be derived from accepted GoodsReceiptLine evidence after subtracting quantities already returned through posted SupplierReturnLine records, except authorized exceptions."}
   - {id: GOODS-RECEIPT-017, rule: A SupplierReturn must not change receivedQuantity or acceptedQuantity on the historical receipt; physical reduction is represented by attributable InventoryMovement events.}
+  - {id: GOODS-RECEIPT-EXE-001, rule: "Received Quantity cannot be negative.", violatedWhen: "received_quantity != null and received_quantity < 0", message: "Received Quantity cannot be negative."}
+  - {id: GOODS-RECEIPT-EXE-002, rule: "Accepted Quantity cannot be negative.", violatedWhen: "accepted_quantity != null and accepted_quantity < 0", message: "Accepted Quantity cannot be negative."}
+  lifecycle:
+    title: Goods Receipt Lifecycle
+    attribute: status
+    states: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
+    initial: DRAFT
+    terminal: [REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: RECEIVED, action: receive}
+      - {from: RECEIVED, to: ACCEPTED, action: accept}
+      - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
+      - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
+      - {from: ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: ACCEPTED, action: resume}
+      - {from: PARTIALLY_ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+      - {from: INSPECTION_PENDING, to: PARTIALLY_ACCEPTED, action: resume}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: RECEIVED, to: REJECTED, action: reject}
+      - {from: ACCEPTED, to: REJECTED, action: reject}
+      - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
+      - {from: INSPECTION_PENDING, to: REJECTED, action: reject}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: RECEIVED, to: CANCELLED, action: cancel}
+      - {from: ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a goods receipt is ended"
+      description: "When a goods receipt is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GOODS-RECEIPT-FOLLOW-UP-{{id}}"
+              name: "Follow up on goods receipt {{receipt_number}}"
+              description: "Goods receipt {{receipt_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Controlled receiving document whose line evidence establishes original fulfillment and eligible basis for later supplier returns.
     businessMeaning: GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. SupplierReturn is a later reverse-procurement event that consumes eligible accepted receipt evidence without rewriting it.

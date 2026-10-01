@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_plan
   description: A governed financial plan defining approved or proposed monetary limits and targets for an organization, period, scenario, and accounting dimensions.
+  ui:
+    icon: piggy-bank
   identity: {key: budgetId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}
@@ -22,5 +24,39 @@ entity:
   - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
   - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
   - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
+  lifecycle:
+    title: Budget Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, APPROVED, ACTIVE, SUPERSEDED, CLOSED]
+    initial: DRAFT
+    terminal: [CLOSED, SUPERSEDED]
+    transitions:
+      - {from: DRAFT, to: SUBMITTED, action: submit}
+      - {from: SUBMITTED, to: APPROVED, action: approve}
+      - {from: APPROVED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+      - {from: SUBMITTED, to: SUPERSEDED, action: mark_superseded}
+      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+      - {from: ACTIVE, to: SUPERSEDED, action: mark_superseded}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a budget is put forward"
+      description: "When a budget is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "BUDGET-APPROVAL-{{id}}"
+              name: "Decide on budget {{code}}"
+              description: "Budget {{code}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
   help: {summary: Governed financial planning baseline., businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting., usage: "Planning, spending control and variance reporting.", relationshipContext: "BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions.", lifecycle: Draft to submitted to approved/active to superseded/closed.}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET}

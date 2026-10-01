@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Analytics and Data Management, built on the CEDM common foundation.
   domain: analytics
+  enumerationTables: true
 imports:
   - module: common
   - entity: Dataset

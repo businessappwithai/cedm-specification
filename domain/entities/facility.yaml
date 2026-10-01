@@ -137,6 +137,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Facility Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, INACTIVE, CLOSED]
+    initial: PLANNED
+    terminal: [CLOSED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
     summary: Represents a facilities entity called Facility within the CEDM business model.
     businessMeaning: Facility is a business concept with its own identity and lifecycle. It captures information that must

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: treasury_snapshot
   description: A point-in-time treasury view of available, restricted, pending, and forecast cash for a BankAccount and Currency, derived from authoritative bank and internal settlement evidence rather than acting as a cash ledger.
+  ui:
+    icon: briefcase
   identity: {key: cashPositionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: cashPositionId, type: uuid, required: true, immutable: true, help: {summary: Stable snapshot identity., businessMeaning: Identifies one reproducible treasury position., usage: "Liquidity, forecasting and audit.", relationshipContext: Derived from BankAccount and cash evidence., requiredMeaning: Required.}}

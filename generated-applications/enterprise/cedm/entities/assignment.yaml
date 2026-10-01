@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workflow_assignment
   description: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
+  ui:
+    icon: table
   identity: {key: assignmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Assignment., businessMeaning: Identifies one governed Assignment record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
@@ -14,6 +16,36 @@ entity:
   relationships: []
   invariants:
   - {id: ASSIGNMENT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  lifecycle:
+    title: Assignment Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a assignment is ended"
+      description: "When a assignment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSIGNMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on assignment {{id}}"
+              description: "Assignment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
     purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.

@@ -97,6 +97,7 @@ entity:
     rule: lineNumber must be unique within its PurchaseRequisition.
   - id: PR-LINE-003
     rule: A requestedDate, when supplied, must represent a date on or after the requisition date unless an authorized historical correction is being recorded.
+  - {id: PURCHASE-REQUISITION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Represents one measurable internal procurement demand before it becomes an external supplier commitment.
     businessMeaning: PurchaseRequisitionLine is where a business need becomes specific enough for procurement to source, approve, compare, and eventually order. It is demand, not yet a purchase obligation.

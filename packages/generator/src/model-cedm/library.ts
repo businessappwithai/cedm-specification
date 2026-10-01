@@ -87,6 +87,15 @@ function libraryEntities(root: string): Map<string, { file: string; entity: Cedm
     }
     const entity = (document as { entity?: CedmEntity } | null)?.entity;
     if (entity && typeof entity.name === "string") {
+      // Reference data is a file of its own beside the entity; the entity is
+      // handed out with the rows inlined, so nothing downstream reads a file.
+      if (entity.referenceData !== undefined) {
+        const rows = parse(readFileSync(path.join(root, "domain", entity.referenceData), "utf-8")) as {
+          referenceData?: { key: string; rows: NonNullable<CedmEntity["data"]>["rows"] };
+        };
+        if (rows.referenceData) entity.data = { key: rows.referenceData.key, rows: rows.referenceData.rows };
+        delete entity.referenceData;
+      }
       entities.set(entity.name, { file: path.join("domain", "entities", file), entity });
     }
   }

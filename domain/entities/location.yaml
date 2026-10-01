@@ -159,6 +159,20 @@ entity:
     rule: Changing parentLocation must preserve hierarchy integrity and must not create a cycle.
   - id: LOCATION-007
     rule: If an operational Location references an Address, the referenced Address must be active and usable when the Location becomes effective unless an explicitly supported historical/legacy exception applies.
+  lifecycle:
+    title: Location Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
+    initial: PLANNED
+    terminal: [CLOSED, RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
     businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."

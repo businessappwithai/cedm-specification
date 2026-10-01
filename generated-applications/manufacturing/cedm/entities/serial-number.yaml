@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_traceability_master
   description: A governed unique identity for an individually traceable unit of a Product across receipt, inventory, shipment, installation, maintenance, return, and disposal workflows.
+  ui:
+    icon: database
   identity: {key: serialNumberId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: serialNumberId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the serialized unit., businessMeaning: Identifies the unit independently of its printed serial code., usage: "Inventory, service, warranty, asset, recall, and audit.", relationshipContext: One serialized identity represents one governed physical unit., requiredMeaning: Required.}}
@@ -23,6 +25,55 @@ entity:
   - {id: SERIAL-003, rule: Quantity-bearing movement of an individually serialized unit must reconcile to exactly one unit per serial identity unless the product serialization policy explicitly models another measure.}
   - {id: SERIAL-004, rule: Serial identity and Product association referenced by posted evidence are immutable.}
   - {id: SERIAL-005, rule: "Status transitions must reconcile to inventory, shipment, installation, return, maintenance, or disposal evidence and retries must be idempotent."}
+  lifecycle:
+    title: Serial Number Lifecycle
+    attribute: status
+    states: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
+    initial: EXPECTED
+    terminal: [RETURNED, SCRAPPED, RETIRED]
+    transitions:
+      - {from: EXPECTED, to: AVAILABLE, action: mark_available}
+      - {from: AVAILABLE, to: RESERVED, action: reserve}
+      - {from: RESERVED, to: IN_TRANSIT, action: mark_in_transit}
+      - {from: IN_TRANSIT, to: INSTALLED, action: mark_installed}
+      - {from: INSTALLED, to: CONSUMED, action: consume}
+      - {from: CONSUMED, to: RETURNED, action: mark_returned}
+      - {from: AVAILABLE, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: AVAILABLE, action: release}
+      - {from: RESERVED, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: RESERVED, action: release}
+      - {from: IN_TRANSIT, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: IN_TRANSIT, action: release}
+      - {from: AVAILABLE, to: SCRAPPED, action: mark_scrapped}
+      - {from: RESERVED, to: SCRAPPED, action: mark_scrapped}
+      - {from: IN_TRANSIT, to: SCRAPPED, action: mark_scrapped}
+      - {from: QUARANTINED, to: SCRAPPED, action: mark_scrapped}
+      - {from: EXPECTED, to: RETIRED, action: retire}
+      - {from: AVAILABLE, to: RETIRED, action: retire}
+      - {from: RESERVED, to: RETIRED, action: retire}
+      - {from: IN_TRANSIT, to: RETIRED, action: retire}
+      - {from: QUARANTINED, to: RETIRED, action: retire}
+      - {from: INSTALLED, to: RETIRED, action: retire}
+      - {from: CONSUMED, to: RETIRED, action: retire}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a serial number is stopped"
+      description: "When a serial number is quarantined, a high-priority task asks someone to resolve it."
+      when: "status == \"QUARANTINED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SERIAL-NUMBER-EXCEPTION-{{id}}"
+              name: "Resolve serial number {{id}}"
+              description: "Serial number {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Unit-level identity and custody traceability for serialized products.
     businessMeaning: Product identifies the type, Lot identifies a batch, and SerialNumber identifies one physical unit.

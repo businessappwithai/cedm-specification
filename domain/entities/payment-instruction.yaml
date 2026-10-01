@@ -18,6 +18,36 @@ entity:
   - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}
   invariants:
   - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  lifecycle:
+    title: Payment Instruction Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a payment instruction is ended"
+      description: "When a payment instruction is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PAYMENT-INSTRUCTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on payment instruction {{id}}"
+              description: "Payment instruction {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
     purpose: Provide canonical enterprise semantics for PaymentInstruction while keeping planning, operational, financial and evidential responsibilities separated.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_master
   description: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
+  ui:
+    icon: percent
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
@@ -15,6 +17,36 @@ entity:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:
   - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  lifecycle:
+    title: Tax Registration Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a tax registration is ended"
+      description: "When a tax registration is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TAX-REGISTRATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on tax registration {{id}}"
+              description: "Tax registration {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
     purpose: Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated.

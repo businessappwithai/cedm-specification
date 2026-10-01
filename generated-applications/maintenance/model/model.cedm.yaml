@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Asset Maintenance and Reliability, built on the CEDM common foundation.
   domain: maintenance
+  enumerationTables: true
 imports:
   - module: common
   - entity: Asset

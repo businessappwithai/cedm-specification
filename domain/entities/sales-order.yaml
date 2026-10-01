@@ -151,6 +151,59 @@ entity:
   - {id: SALES-ORDER-012, rule: "Changes to Customer, Product, UOM, Price, DiscountRule, TaxRule, Currency, DeliveryLocation or requested delivery date that affect an executable order require controlled revalidation and, where applicable, repricing/reallocation/rescheduling workflows."}
   - {id: SALES-ORDER-013, rule: Invoice creation does not make an order FULFILLED and shipment delivery does not make an invoice PAID; each lifecycle is governed by its authoritative evidence.}
   - {id: SALES-ORDER-014, rule: Order-level derived totals and status must be recalculated atomically or through an idempotent recoverable workflow whenever a dependent line/reservation/fulfillment event changes.}
+  - {id: SALES-ORDER-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Sales Order Lifecycle
+    attribute: status
+    states: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
+    initial: DRAFT
+    terminal: [FULFILLED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: CONFIRMED, action: confirm}
+      - {from: CONFIRMED, to: ALLOCATED, action: mark_allocated}
+      - {from: ALLOCATED, to: PARTIALLY_FULFILLED, action: mark_partially_fulfilled}
+      - {from: PARTIALLY_FULFILLED, to: FULFILLED, action: fulfil}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: CONFIRMED, to: CANCELLED, action: cancel}
+      - {from: ALLOCATED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_FULFILLED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a sales order is ended"
+      description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a sales order is done"
+      description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
+      when: "status == \"FULFILLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-COMPLETED-{{id}}"
+              name: "Confirm sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
     businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.

@@ -1232,6 +1232,32 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
   prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
   round trip rewraps every folded line in the library).
+- **Reference data comes from the common specification.** Country, StateProvince,
+  City, Currency and Language are library entities whose rows live in
+  `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639
+  and GeoNames) and are named by the entity's `referenceData` key. The library
+  inlines them as `data`; lowering turns attribute names into columns (`CEDM180/181`);
+  the dictionary seed writes them as application data with UUIDv5 ids over the
+  natural key; the business seed skips them and points records at them. An address
+  holds relationships to Country, StateProvince and City, never typed codes.
+  Contract: `specification/reference-data.yaml`.
+- **A lookup can be narrowed, and the backend does it.** `narrowedBy` on a reference
+  (CEDM relationship or attribute; `narrowedBy` on the document attribute) becomes
+  `sys_column.narrowed_by` (m0019) as `[{by, on}]`. `GET /api/bus/{entity}/lookup/{column}`
+  returns the target's rows filtered by the values the record passes, and
+  `verify_narrowing` in `bus.rs` refuses a write naming a row outside the set — on
+  create, and on update against the stored row with the request laid over it.
+  The generated form passes control values and clears a choice that no longer
+  belongs. A grid reads labels by `filter.id=in:…` for the page's own ids, not a
+  500-row page of the target — states and cities outnumber that.
+- **A unique `code` beside a `name` identifies a record as both** (`identifierColumnNames`
+  in core, `identifier_column_names` in `bus.rs`): "USD · US Dollar". A `code` that is
+  not unique is technical and does not qualify.
+- **A refused update leaves nothing behind.** Rules run after the write, so a
+  `validation-error` used to keep the refused value in the record and refuse every
+  later edit; `bus.rs` `restore_columns` puts the replaced values back. Rules also
+  see `_previous_<column>` on an update, so `status != _previous_status` fires on
+  *entering* a state, which is what the entity workflows use.
 - **One application per domain.** `domains/application-catalog.yaml` →
   `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
   holds them in sync) → `scripts/generate-domain-applications.sh` →

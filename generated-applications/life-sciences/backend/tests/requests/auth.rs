@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-01T05:18:24.511Z
+//! Generated: 2026-10-01T09:33:00.661Z
 //! Project: life-sciences
 
 use serde_json::{json, Value};

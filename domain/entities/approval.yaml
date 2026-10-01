@@ -16,6 +16,17 @@ entity:
   relationships: []
   invariants:
   - {id: APPROVAL-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  lifecycle:
+    title: Approval Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    initial: PENDING
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
   help:
     summary: A governed approval decision or approval request associated with a business object, process, task, or controlled change.
     purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.

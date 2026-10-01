@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_output_transaction
   description: An auditable manufacturing output receipt recording accepted quantity produced by a ManufacturingWorkOrder, with inventory increase represented by attributable InventoryMovement and output genealogy preserved by Lot/SerialNumber.
+  ui:
+    icon: package
   identity: {key: productionReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productionReceiptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of production receipt., businessMeaning: Identifies one governed output posting., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Connects work-order output to stock event., requiredMeaning: Required.}}
@@ -21,6 +23,7 @@ entity:
   - {id: PRODUCTION-RECEIPT-002, rule: Accepted cumulative output must not exceed authorized work-order quantity except by explicit overproduction policy.}
   - {id: PRODUCTION-RECEIPT-003, rule: Required quality inspection must be complete before unrestricted release.}
   - {id: PRODUCTION-RECEIPT-004, rule: Executed receipt must post inventory exactly once; correction uses compensating events.}
+  - {id: PRODUCTION-RECEIPT-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Accepted manufacturing output transaction with inventory and genealogy evidence.
     businessMeaning: ProductionReceipt explains why finished/semi-finished stock increased; InventoryMovement records the stock consequence.

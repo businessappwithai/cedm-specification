@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: agriculture_entity
   description: A managed agricultural operation consisting of land, facilities, resources, and production activities.
+  ui:
+    icon: table
   identity:
     key: farmId
     type: uuid
@@ -131,6 +133,19 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Farm Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, INACTIVE, RETIRED]
+    initial: PLANNED
+    terminal: [RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a agriculture entity called Farm within the CEDM business model.
     businessMeaning: Farm is a business concept with its own identity and lifecycle. It captures information that must remain

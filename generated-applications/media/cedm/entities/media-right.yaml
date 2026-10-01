@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: media_legal_entity
   description: A right, license, restriction, or usage entitlement associated with media content.
+  ui:
+    icon: image
   identity:
     key: mediaRightId
     type: uuid
@@ -123,6 +125,19 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  invariants:
+  - {id: MEDIA-RIGHT-EXE-001, rule: "Valid To must not be earlier than valid from.", violatedWhen: "valid_from != null and valid_to != null and valid_to < valid_from", message: "Valid To cannot be earlier than valid from."}
+  lifecycle:
+    title: Media Right Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, EXPIRED, REVOKED]
+    initial: PENDING
+    terminal: [EXPIRED, REVOKED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: PENDING, to: REVOKED, action: revoke}
+      - {from: ACTIVE, to: REVOKED, action: revoke}
   help:
     summary: Represents a media legal entity called MediaRight within the CEDM business model.
     businessMeaning: MediaRight is a business concept with its own identity and lifecycle. It captures information that must

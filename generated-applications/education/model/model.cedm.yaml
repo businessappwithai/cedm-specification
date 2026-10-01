@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Education, built on the CEDM common foundation.
   domain: education
+  enumerationTables: true
 imports:
   - module: common
   - entity: EducationProgram

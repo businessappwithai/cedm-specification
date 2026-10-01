@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Food and Beverage, built on the CEDM common foundation.
   domain: food
+  enumerationTables: true
 imports:
   - module: common
   - entity: FoodBatch

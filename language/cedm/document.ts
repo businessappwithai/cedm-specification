@@ -54,6 +54,8 @@ export interface CedmIdentity {
 export interface CedmAttribute {
   /** camelCase, as CEDM writes it. */
   name: string;
+  /** For a reference: other references of this entity that narrow its choices. */
+  narrowedBy?: string[];
   /**
    * The physical column. Defaults to the snake_case of `name`, and to `id` for
    * the identity key; written only when it differs.
@@ -114,6 +116,11 @@ export interface CedmRelationship {
    * created when none exists; `false` says the key is declared elsewhere.
    */
   foreignKey?: string | false;
+  /**
+   * Other relationships or reference attributes of this entity that narrow the
+   * choices of this one, most specific first (a city: `[stateProvince, country]`).
+   */
+  narrowedBy?: string[];
   help?: CedmHelp;
   description?: string;
   condition?: string;
@@ -164,6 +171,31 @@ export interface CedmIndex {
   unique?: boolean;
 }
 
+/** One step of an entity workflow: a saga step, with `fields` allowed as an object. */
+export interface CedmWorkflowStep {
+  id: string;
+  type: string;
+  label?: string;
+  properties?: Record<string, string | Record<string, unknown>>;
+}
+
+/**
+ * A workflow an entity starts: when `when` holds of a record written to it, the
+ * steps run. It lowers to a saga plus a rule that triggers it.
+ */
+export interface CedmWorkflow {
+  name: string;
+  title?: string;
+  description?: string;
+  /** A condition over the record, in the rules engine's expression language. */
+  when: string;
+  /** The write event the rule is filed under. Defaults to `afterUpdate`. */
+  event?: string;
+  /** What the rule says when it fires. */
+  message?: string;
+  steps: CedmWorkflowStep[];
+}
+
 export interface CedmEntity {
   name: string;
   namespace?: string;
@@ -176,6 +208,16 @@ export interface CedmEntity {
   relationships?: CedmRelationship[];
   lifecycle?: CedmLifecycle | CedmLifecycle[];
   invariants?: CedmInvariant[];
+  /**
+   * Rows the entity ships with, keyed by attribute (or relationship) name; a
+   * reference holds the natural key of the row it points at. A library entity
+   * names a file under `domain/` in `referenceData`, and the library inlines it
+   * here when it hands the entity out.
+   */
+  data?: { key: string; rows: Array<Record<string, string | number | boolean | null>> };
+  referenceData?: string;
+  /** Workflows the entity starts when a record meets a condition. */
+  workflows?: CedmWorkflow[];
   audit?: Record<string, unknown>;
   help?: CedmHelp;
   /** Application profile: how the entity is presented. */

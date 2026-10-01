@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: party_relationship
   description: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
+  ui:
+    icon: users
   identity: {key: partyRelationshipId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: partyRelationshipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PartyRelationship., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this PartyRelationship is referenced., requiredMeaning: Required.}}

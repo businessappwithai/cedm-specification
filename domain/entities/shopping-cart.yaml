@@ -94,6 +94,17 @@ entity:
   invariants:
   - id: CART-001
     rule: a CHECKED_OUT cart cannot be modified.
+  lifecycle:
+    title: Shopping Cart Lifecycle
+    attribute: status
+    states: [ACTIVE, CHECKED_OUT, ABANDONED, EXPIRED]
+    initial: ACTIVE
+    terminal: [EXPIRED]
+    transitions:
+      - {from: ACTIVE, to: CHECKED_OUT, action: mark_checked_out}
+      - {from: CHECKED_OUT, to: ABANDONED, action: mark_abandoned}
+      - {from: CHECKED_OUT, to: EXPIRED, action: expire}
+      - {from: ABANDONED, to: EXPIRED, action: expire}
   help:
     summary: Represents a ecommerce entity called ShoppingCart within the CEDM business model.
     businessMeaning: ShoppingCart is a business concept with its own identity and lifecycle. It captures information that

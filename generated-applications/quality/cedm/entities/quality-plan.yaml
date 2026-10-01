@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_definition
   description: A defined set of inspections, tests, sampling rules, quality characteristics, and acceptance criteria governing how a product or process is evaluated.
+  ui:
+    icon: badge-check
   identity:
     key: qualityPlanId
     type: uuid
@@ -65,6 +67,19 @@ entity:
   - {id: QUALITY-PLAN-004, rule: "Material changes to characteristics, acceptance criteria, or sampling policies must not silently change the interpretation of completed QualityInspections or QualityMeasurements; use controlled versioning or replacement semantics."}
   - {id: QUALITY-PLAN-005, rule: "Changes to product applicability, characteristic configuration, sampling configuration, status, or acceptance criteria must trigger impact analysis across open QualityInspections, QualityMeasurements, SamplingPlan/SamplingRule execution, InspectionSample, Nonconformance, disposition, supplier-quality, and reporting workflows."}
   - {id: QUALITY-PLAN-006, rule: Plan configuration changes must be idempotent and auditable.}
+  lifecycle:
+    title: Quality Plan Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Governed definition of how a product or process is inspected.
     businessMeaning: QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements, reusable SamplingPlan policies, and QualityInspection execution. Reusable quality meaning belongs to QualityCharacteristic and reusable sample selection belongs to SamplingPlan rather than being duplicated in every inspection.

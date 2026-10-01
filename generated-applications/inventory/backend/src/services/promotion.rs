@@ -164,6 +164,7 @@ impl PromotionService {
         row: &Value,
         operation: RuleOperation,
         jdms: &[String],
+        previous: Option<&Value>,
     ) -> AppResult<PromotionOutcome> {
         if jdms.is_empty() {
             // No rules configured for this entity: nothing can block it.
@@ -171,10 +172,21 @@ impl PromotionService {
                 .await;
         }
 
-        let data: Map<String, Value> = row
+        let mut data: Map<String, Value> = row
             .as_object()
             .cloned()
             .unwrap_or_default();
+
+        // On an update the rules also see the record as it was, under
+        // `_previous_<column>`. A condition that says "when the record *enters*
+        // a state" — `status == "SUBMITTED" and _previous_status != "SUBMITTED"`
+        // — needs it; without it a rule can only say "while in the state", and
+        // fires on every edit made there.
+        if let Some(Value::Object(before)) = previous {
+            for (column, value) in before {
+                data.insert(format!("_previous_{column}"), value.clone());
+            }
+        }
 
         // Each document is a decision graph in its own right, so they are
         // evaluated independently and their verdicts pooled. One rule matching

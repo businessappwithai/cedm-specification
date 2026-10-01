@@ -17,6 +17,36 @@ entity:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:
   - {id: TAX-CODE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  lifecycle:
+    title: Tax Code Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a tax code is ended"
+      description: "When a tax code is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TAX-CODE-FOLLOW-UP-{{id}}"
+              name: "Follow up on tax code {{id}}"
+              description: "Tax code {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
     purpose: Provide canonical enterprise semantics for TaxCode while keeping planning, operational, financial and evidential responsibilities separated.

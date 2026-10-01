@@ -115,6 +115,22 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Aircraft Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, MAINTENANCE, GROUNDED, RETIRED]
+    initial: PLANNED
+    terminal: [RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
+      - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: GROUNDED, action: mark_grounded}
+      - {from: GROUNDED, to: ACTIVE, action: return_to_service}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: MAINTENANCE, to: RETIRED, action: retire}
+      - {from: GROUNDED, to: RETIRED, action: retire}
   help:
     summary: Represents a aerospace asset called Aircraft within the CEDM business model.
     businessMeaning: Aircraft is a business concept with its own identity and lifecycle. It captures information that must

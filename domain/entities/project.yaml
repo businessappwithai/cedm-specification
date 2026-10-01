@@ -172,6 +172,63 @@ entity:
   invariants:
   - id: PROJECT-001
     rule: endDate must not precede startDate.
+  - {id: PROJECT-EXE-001, rule: "Budget Amount cannot be negative.", violatedWhen: "budget_amount != null and budget_amount < 0", message: "Budget Amount cannot be negative."}
+  lifecycle:
+    title: Project Lifecycle
+    attribute: status
+    states: [DRAFT, PLANNED, ACTIVE, ON_HOLD, COMPLETED, CANCELLED, CLOSED]
+    initial: DRAFT
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: PLANNED, action: plan}
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: COMPLETED, to: CLOSED, action: close}
+      - {from: PLANNED, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: PLANNED, action: resume}
+      - {from: ACTIVE, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: ON_HOLD, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a project is stopped"
+      description: "When a project is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-EXCEPTION-{{id}}"
+              name: "Resolve project {{name}}"
+              description: "Project {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a project is ended"
+      description: "When a project is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROJECT-FOLLOW-UP-{{id}}"
+              name: "Follow up on project {{name}}"
+              description: "Project {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a project management entity called Project within the CEDM business model.
     businessMeaning: Project is a business concept with its own identity and lifecycle. It captures information that must

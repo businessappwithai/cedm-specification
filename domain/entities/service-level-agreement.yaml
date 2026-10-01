@@ -23,5 +23,18 @@ entity:
   - {id: SLA-001, rule: At least one governed service target must be defined for an ACTIVE SLA.}
   - {id: SLA-002, rule: Target durations must be positive when supplied.}
   - {id: SLA-003, rule: SLA version/target changes must preserve the terms applied to already completed service work.}
+  lifecycle:
+    title: Service Level Agreement Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help: {summary: Governed measurable service commitment., businessMeaning: "SLA defines service targets; service transactions provide actual timestamps/outcomes used to measure compliance.", usage: "Customer service, support, maintenance and contractual service.", relationshipContext: "ServiceRequest consumes SLA; Contract may establish commercial/legal basis.", lifecycle: Draft to active/suspended to retired with historical versions retained.}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-LEVEL-AGREEMENT}

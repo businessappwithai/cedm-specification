@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_event
   description: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
+  ui:
+    icon: truck
   identity: {key: deliveryId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Delivery., businessMeaning: Identifies one governed Delivery record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

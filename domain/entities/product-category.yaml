@@ -92,6 +92,17 @@ entity:
     - {id: PRODUCT-CATEGORY-005, rule: Category changes must not rewrite historical transaction classification evidence where the transaction or document requires reproducibility.}
     - {id: PRODUCT-CATEGORY-006, rule: Moving a category in the hierarchy must preserve hierarchy integrity and must not silently alter historical reporting classifications that were effective at transaction time.}
     - {id: PRODUCT-CATEGORY-007, rule: "If Product classification drives tax, pricing, sourcing, inventory, reporting, or eligibility rules in a consuming application, those dependent workflows must be revalidated before the classification change is activated."}
+  lifecycle:
+    title: Product Category Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents one governed node in the Product classification hierarchy.
     businessMeaning: ProductCategory provides taxonomy rather than operational state. It groups Products so people and systems can navigate, report, analyze, and govern the portfolio consistently.

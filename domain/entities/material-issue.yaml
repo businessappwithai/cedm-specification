@@ -23,6 +23,7 @@ entity:
   - {id: MATERIAL-ISSUE-002, rule: Executed material issue must have exactly one attributable posted inventory effect and retries must not duplicate consumption.}
   - {id: MATERIAL-ISSUE-003, rule: Lot and serial identities must belong to the issued Product and be eligible at the source location.}
   - {id: MATERIAL-ISSUE-004, rule: Posted consumption is immutable; correction uses reversal or compensating issue/return.}
+  - {id: MATERIAL-ISSUE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
     summary: Production material-consumption transaction with full inventory and genealogy provenance.
     businessMeaning: MaterialIssue explains why material was consumed; InventoryMovement records the physical stock consequence.

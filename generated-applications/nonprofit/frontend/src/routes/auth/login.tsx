@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T05:18:47.325Z
+ * Generated: 2026-10-01T09:33:38.979Z
  * Project: nonprofit
  */
 

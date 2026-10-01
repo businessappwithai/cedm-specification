@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: accounting_control_master
   description: A governed accounting time interval controlling when financial transactions may be posted, adjusted, closed, or reported for an Organization.
+  ui:
+    icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}
@@ -24,6 +26,18 @@ entity:
   - {id: FISCAL-PERIOD-003, rule: POSTED JournalEntry requires an eligible FiscalPeriod containing entryDate.}
   - {id: FISCAL-PERIOD-004, rule: CLOSED or LOCKED period rejects ordinary new posting; corrections require governed reopen or permitted adjustment-period treatment.}
   - {id: FISCAL-PERIOD-005, rule: Period close never rewrites posted journal history.}
+  lifecycle:
+    title: Fiscal Period Lifecycle
+    attribute: status
+    states: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
+    initial: FUTURE
+    terminal: [CLOSED]
+    transitions:
+      - {from: FUTURE, to: OPEN, action: open}
+      - {from: OPEN, to: SOFT_CLOSED, action: mark_soft_closed}
+      - {from: SOFT_CLOSED, to: CLOSED, action: close}
+      - {from: OPEN, to: LOCKED, action: lock}
+      - {from: LOCKED, to: OPEN, action: unlock}
   help:
     summary: Accounting-period control for posting, close and reporting.
     businessMeaning: FiscalPeriod determines whether an accounting date is currently eligible for recognition; it does not replace JournalEntry.

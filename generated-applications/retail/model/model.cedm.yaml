@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Retail, built on the CEDM common foundation.
   domain: retail
+  enumerationTables: true
 imports:
   - module: common
   - entity: Store

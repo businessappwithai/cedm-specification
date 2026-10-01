@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: warehouse_structure_master
   description: A governed operational subdivision of a Warehouse grouping InventoryLocations by storage, handling, temperature, security, process, or fulfillment purpose.
+  ui:
+    icon: warehouse
   identity: {key: warehouseZoneId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: warehouseZoneId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of warehouse zone., businessMeaning: Identifies an operational storage/handling area., usage: "Putaway, picking, replenishment, capacity and controls.", relationshipContext: Groups InventoryLocations within one Warehouse., requiredMeaning: Required.}}

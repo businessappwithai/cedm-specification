@@ -142,6 +142,7 @@ entity:
     rule: netBookValue should reconcile with the applicable depreciable basis, accumulated depreciation, and accounting adjustments.
   - id: DEPRECIATION-005
     rule: netBookValue must not fall below applicable salvageValue unless an authorized impairment, write-off, or other accounting adjustment explicitly permits it.
+  - {id: ASSET-DEPRECIATION-EXE-001, rule: "Depreciation Rate cannot be negative.", violatedWhen: "depreciation_rate != null and depreciation_rate < 0", message: "Depreciation Rate cannot be negative."}
   help:
     summary: Represents the financial measurement of how an Asset's depreciable value is consumed over time or usage.
     businessMeaning: AssetDepreciation translates an asset's economic consumption into an accounting measure. It is not a description of physical condition; an asset can be heavily depreciated while remaining operational, or have a high book value while requiring significant repair.

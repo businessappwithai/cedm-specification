@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_plan_line
   description: A dimensional allocation of planned money within a Budget.
+  ui:
+    icon: piggy-bank
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: Stable line identity., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget., requiredMeaning: Required.}}
@@ -15,5 +17,6 @@ entity:
   invariants:
   - {id: BUDGET-LINE-001, rule: Line dimensions must form a valid unique planning intersection under Budget policy.}
   - {id: BUDGET-LINE-002, rule: Approved line correction uses governed budget revision and does not alter actual accounting.}
+  - {id: BUDGET-LINE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   help: {summary: Detailed dimensional budget allocation., businessMeaning: Defines planned money at an account/responsibility intersection., usage: Budgeting and variance analysis., relationshipContext: Budget governs; Account/CostCenter/ProfitCenter classify.}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET-LINE}

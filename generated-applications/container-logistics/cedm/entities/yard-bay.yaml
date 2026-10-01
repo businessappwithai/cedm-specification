@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: A longitudinal storage lane within a YardBlock that groups the vertical stack positions used to store containers and provides an intermediate planning level between the block and an individual YardSlot.
+  ui:
+    icon: table
   identity:
     key: yardBayId
     type: uuid
@@ -82,6 +84,35 @@ entity:
     rule: Changing bay status must not silently remove or invalidate containers already assigned to subordinate slots; required relocation must be represented by explicit ContainerMovement records.
   - id: YARD-BAY-004
     rule: The complete physical address of a container position must be resolved through YardBlock, YardBay, YardTier, and YardSlot rather than bayNumber alone.
+  lifecycle:
+    title: Yard Bay Lifecycle
+    attribute: status
+    states: [ACTIVE, BLOCKED, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a yard bay is stopped"
+      description: "When a yard bay is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "YARD-BAY-EXCEPTION-{{id}}"
+              name: "Resolve yard bay {{code}}"
+              description: "Yard bay {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents the longitudinal storage lane between a yard block and the vertical stacking levels used for container storage.
     businessMeaning: YardBay is a physical and operational addressing level. It groups a sequence of vertically stacked positions and provides a useful unit for capacity planning, traffic analysis, container allocation, and rehandling optimization.

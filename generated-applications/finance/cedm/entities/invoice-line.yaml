@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_transaction_line
   description: A billed product, service, quantity, tax, credit, debit, or adjustment line on an Invoice, retaining immutable transaction-time monetary, pricing, tax, unit, and matching evidence needed to reproduce the financial claim. Later credits reference this line without rewriting its historical values.
+  ui:
+    icon: receipt
   identity: {key: invoiceLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: invoiceLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the original invoice line, businessMeaning: Identifies the historical billed detail independently of later credits or corrections., usage: "Used for billing, audit, matching, credit and reconciliation.", relationshipContext: CreditNoteLine and SupplierCreditNoteLine may reference this identity as source evidence., workflowRole: Stable root reference for the line lifecycle., requiredMeaning: Required for financial traceability.}}
@@ -59,6 +61,13 @@ entity:
       usage: Used for accounts payable controls and reconciliation.
       relationshipContext: Independent from CreditNote and SupplierCreditNote status; a credit may correct a posted line after matching.
       workflowRole: Controls matching approval before posting.
+      valueSemantics:
+        NOT_APPLICABLE: The matching status of the invoice line is not applicable; set it when that is what the business means for this record.
+        UNMATCHED: The matching status of the invoice line is unmatched; set it when that is what the business means for this record.
+        MATCHED: The matching status of the invoice line is matched; set it when that is what the business means for this record.
+        PARTIALLY_MATCHED: The matching status of the invoice line is partially matched; set it when that is what the business means for this record.
+        EXCEPTION: The matching status of the invoice line is exception; set it when that is what the business means for this record.
+        WAIVED: The matching status of the invoice line is waived; set it when that is what the business means for this record.
   relationships:
   - name: invoice
     target: Invoice
@@ -118,6 +127,12 @@ entity:
   - {id: INVOICE-LINE-010, rule: "Posted InvoiceLine corrections require controlled CreditNote, SupplierCreditNote, debit or other authorized adjustment workflows rather than destructive mutation."}
   - {id: INVOICE-LINE-011, rule: "A CreditNoteLine or SupplierCreditNoteLine linked to this InvoiceLine must remain within eligible source quantity/value and applicable return, pricing, tax and approval policy."}
   - {id: INVOICE-LINE-012, rule: "Posting either customer or supplier credit adjustment never changes this line's historical quantity, unit price, discount, tax or net amount."}
+  - {id: INVOICE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: INVOICE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: INVOICE-LINE-EXE-003, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   help:
     summary: Represents one immutable financial claim line with reproducible calculation evidence and explicit customer and supplier adjustment references.
     businessMeaning: InvoiceLine is the historical financial result. Current Product, DiscountRule, TaxRule, UOM and pricing master data are inputs to future transactions, not live dependencies of a posted line. CreditNoteLine and SupplierCreditNoteLine record later reductions separately.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: scientific_research_entity
   description: A structured scientific research initiative with defined objectives, resources, experiments, and outcomes.
+  ui:
+    icon: folder-kanban
   identity:
     key: researchProjectId
     type: uuid
@@ -129,6 +131,40 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Research Project Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, COMPLETED, SUSPENDED, CANCELLED, ARCHIVED]
+    initial: PLANNED
+    terminal: [ARCHIVED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: COMPLETED, to: ARCHIVED, action: archive}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a research project is ended"
+      description: "When a research project is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RESEARCH-PROJECT-FOLLOW-UP-{{id}}"
+              name: "Follow up on research project {{title}}"
+              description: "Research project {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a scientific research entity called ResearchProject within the CEDM business model.
     businessMeaning: ResearchProject is a business concept with its own identity and lifecycle. It captures information that

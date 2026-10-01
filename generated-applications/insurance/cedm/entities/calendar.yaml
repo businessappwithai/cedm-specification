@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reference_data
   description: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes.
+  ui:
+    icon: calendar
   identity: {key: calendarId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Calendar., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Calendar is referenced., requiredMeaning: Required.}}

@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Telecommunications, built on the CEDM common foundation.
   domain: telecommunications
+  enumerationTables: true
 imports:
   - module: common
   - entity: TelecomService

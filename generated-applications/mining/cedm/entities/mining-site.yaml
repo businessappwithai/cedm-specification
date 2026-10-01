@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: mining_entity
   description: A geographic site at which mineral or natural-resource extraction activities occur.
+  ui:
+    icon: table
   identity:
     key: miningSiteId
     type: uuid
@@ -117,6 +119,20 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Mining Site Lifecycle
+    attribute: status
+    states: [EXPLORATION, DEVELOPMENT, ACTIVE, SUSPENDED, CLOSED]
+    initial: DEVELOPMENT
+    terminal: [CLOSED]
+    transitions:
+      - {from: DEVELOPMENT, to: EXPLORATION, action: mark_exploration}
+      - {from: EXPLORATION, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: EXPLORATION, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: EXPLORATION, action: resume}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
     summary: Represents a mining entity called MiningSite within the CEDM business model.
     businessMeaning: MiningSite is a business concept with its own identity and lifecycle. It captures information that must

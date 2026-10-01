@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: planning_reference
   description: A governed planning assumption set used to distinguish alternative budgets and forecasts without altering actual business transactions.
+  ui:
+    icon: list
   identity: {key: scenarioId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: scenarioId, type: uuid, required: true, immutable: true, help: {summary: Stable scenario identity., businessMeaning: Identifies one planning assumption set., usage: Budget/forecast comparison., relationshipContext: Referenced by planning artifacts., requiredMeaning: Required.}}
@@ -14,5 +16,14 @@ entity:
     help: {summary: Scenario lifecycle., businessMeaning: Controls new planning use., usage: Planning governance., relationshipContext: Historical plans retain scenario reference., valueSemantics: {DRAFT: Being prepared., ACTIVE: Available for plans., ARCHIVED: Closed to new normal use.}, requiredMeaning: Required.}
   invariants:
   - {id: SCENARIO-001, rule: Scenario assumptions must not directly mutate actual transactions or accounting.}
+  lifecycle:
+    title: Scenario Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, ARCHIVED]
+    initial: DRAFT
+    terminal: [ARCHIVED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: ARCHIVED, action: archive}
   help: {summary: Alternative planning assumption context., businessMeaning: Separates hypothetical plans from actual outcomes., usage: "Budgeting, forecasting and sensitivity analysis.", relationshipContext: Budget and Forecast may reference it.}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SCENARIO}

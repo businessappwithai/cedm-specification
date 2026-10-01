@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_detail_entity
   description: A component line within a bill of material defining a required product or material quantity.
+  ui:
+    icon: table
   identity:
     key: bomComponentId
     type: uuid
@@ -99,6 +101,8 @@ entity:
     rule: quantity must be greater than zero.
   - id: BOM-COMPONENT-002
     rule: scrapPercent must be zero or greater.
+  - {id: BOM-COMPONENT-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: BOM-COMPONENT-EXE-002, rule: "Scrap Percent is a percentage between 0 and 100.", violatedWhen: "scrap_percent != null and (scrap_percent < 0 or scrap_percent > 100)", message: "Scrap Percent must be between 0 and 100."}
   help:
     summary: Represents a manufacturing detail entity called BOMComponent within the CEDM business model.
     businessMeaning: BOMComponent is a business concept with its own identity and lifecycle. It captures information that

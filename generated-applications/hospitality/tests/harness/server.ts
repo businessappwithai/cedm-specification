@@ -5,7 +5,7 @@
  * already listening. Either way the suites do not begin until /api/me/health
  * answers.
  *
- * Generated: 2026-10-01T05:18:06.680Z
+ * Generated: 2026-10-01T09:32:32.730Z
  * Project: hospitality
  */
 

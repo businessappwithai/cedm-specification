@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_entity
   description: A potential event or condition that may affect achievement of business objectives.
+  ui:
+    icon: alert-triangle
   identity:
     key: riskId
     type: uuid
@@ -182,6 +184,21 @@ entity:
   invariants:
   - id: RISK-001
     rule: likelihood and impact must be assigned before a risk is ASSESSED.
+  lifecycle:
+    title: Risk Lifecycle
+    attribute: status
+    states: [IDENTIFIED, ASSESSED, MITIGATING, ACCEPTED, CLOSED, MATERIALIZED]
+    initial: IDENTIFIED
+    terminal: [CLOSED, MATERIALIZED]
+    transitions:
+      - {from: IDENTIFIED, to: ASSESSED, action: mark_assessed}
+      - {from: ASSESSED, to: MITIGATING, action: mark_mitigating}
+      - {from: MITIGATING, to: ACCEPTED, action: accept}
+      - {from: ACCEPTED, to: CLOSED, action: close}
+      - {from: IDENTIFIED, to: MATERIALIZED, action: mark_materialized}
+      - {from: ASSESSED, to: MATERIALIZED, action: mark_materialized}
+      - {from: MITIGATING, to: MATERIALIZED, action: mark_materialized}
+      - {from: ACCEPTED, to: MATERIALIZED, action: mark_materialized}
   help:
     summary: Represents a governance entity called Risk within the CEDM business model.
     businessMeaning: Risk is a business concept with its own identity and lifecycle. It captures information that must remain

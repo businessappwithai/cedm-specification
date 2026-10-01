@@ -28,6 +28,40 @@ entity:
   - {id: COA-003, rule: "Issuance does not itself change inventory, inspection, receipt, shipment, or financial state."}
   - {id: COA-004, rule: "Corrections after issuance create a controlled replacement, supersession, or void history rather than destructive rewriting."}
   - {id: COA-005, rule: "Product, receipt, shipment, inspection, and measurement contexts must reconcile before issuance."}
+  lifecycle:
+    title: Certificate Of Analysis Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, ISSUED, SUPERSEDED, VOID]
+    initial: DRAFT
+    terminal: [SUPERSEDED, VOID]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: ISSUED, action: issue}
+      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+      - {from: ISSUED, to: SUPERSEDED, action: mark_superseded}
+      - {from: DRAFT, to: VOID, action: void}
+      - {from: APPROVED, to: VOID, action: void}
+      - {from: ISSUED, to: VOID, action: void}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a certificate of analysis is ended"
+      description: "When a certificate of analysis is void, a task asks someone to settle what depended on it."
+      when: "status == \"VOID\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CERTIFICATE-OF-ANALYSIS-FOLLOW-UP-{{id}}"
+              name: "Follow up on certificate of analysis {{certificate_number}}"
+              description: "Certificate of analysis {{certificate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Controlled certificate presenting quality evidence for governed material.
     businessMeaning: CertificateOfAnalysis is a released representation of underlying evidence, not a substitute for QualityInspection or QualityMeasurement.

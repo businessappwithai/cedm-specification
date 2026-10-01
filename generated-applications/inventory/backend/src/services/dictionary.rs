@@ -51,6 +51,16 @@ impl std::fmt::Display for TableName {
 
 /// Column metadata as the dictionary describes it. Field names mirror
 /// `sys_column` so the JSON the metadata endpoints return is unchanged.
+/// One way a lookup's choices are narrowed by another column of the same record:
+/// the lookup lists the target rows whose `on` column equals the record's `by`
+/// column. A state is narrowed by its country (`{by: country_id, on: country_id}`),
+/// a city by its state and its country. `sys_column.narrowed_by` holds the list.
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct Narrowing {
+    pub by: String,
+    pub on: String,
+}
+
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct ColumnMeta {
     pub column_name: String,
@@ -63,6 +73,8 @@ pub struct ColumnMeta {
     pub default_value: Option<String>,
     pub ref_table_name: Option<String>,
     pub seq_no: Option<i32>,
+    /// What narrows this lookup's choices; empty for a column that offers every row.
+    pub narrowed_by: Vec<Narrowing>,
 }
 
 #[derive(Clone, Debug, serde::Serialize)]
@@ -203,7 +215,7 @@ impl DictionaryCache {
         let columns = sqlx::query_as::<_, ColumnRow>(
             r"SELECT c.column_name, c.name, c.sys_reference_id, c.is_mandatory,
                      c.is_updateable, c.is_key, c.field_length, c.default_value,
-                     c.seq_no, c.ref_table_name
+                     c.seq_no, c.ref_table_name, c.narrowed_by
                 FROM sys_column c
                 JOIN sys_table t ON t.sys_table_id = c.sys_table_id
                WHERE t.table_name = $1 AND c.is_active = true
@@ -373,6 +385,7 @@ struct ColumnRow {
     default_value: Option<String>,
     seq_no: Option<i32>,
     ref_table_name: Option<String>,
+    narrowed_by: Option<String>,
 }
 
 impl From<ColumnRow> for ColumnMeta {
@@ -393,6 +406,11 @@ impl From<ColumnRow> for ColumnMeta {
             ),
             column_name,
             seq_no: row.seq_no,
+            narrowed_by: row
+                .narrowed_by
+                .as_deref()
+                .and_then(|json| serde_json::from_str(json).ok())
+                .unwrap_or_default(),
         }
     }
 }

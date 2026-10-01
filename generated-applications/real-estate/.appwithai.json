@@ -21,19 +21,51 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "Property",
     "Lease",
-    "Facility"
+    "Facility",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "PropertyPropertyType",
+    "PropertyStatus",
+    "LeaseLeaseType",
+    "LeaseStatus",
+    "FacilityFacilityType",
+    "FacilityStatus"
   ],
   "categories": [
     "Foundation",
-    "Real Estate and Property Management"
+    "Real Estate and Property Management",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -59,10 +91,17 @@
     "PersonStatus (4)",
     "PropertyPropertyType (8)",
     "PropertyStatus (6)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "LeaseFollowUpRequired on Lease (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:19:11.434Z"
+  "generatedAt": "2026-10-01T09:34:14.834Z"
 }

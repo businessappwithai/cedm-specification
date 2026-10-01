@@ -16,10 +16,10 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::Deserialize;
 
 use crate::records::{
-    AttributeDeclaration, CategoryDeclaration, EntityDeclaration, EnumDetails, ErdRecords,
-    HookDeclaration, IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration,
-    ReportDeclaration, RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration,
-    SagaStepDeclaration, StateMachineDeclaration, StateTransitionDeclaration,
+    AttributeDeclaration, CategoryDeclaration, EntityData, EntityDeclaration, EnumDetails,
+    ErdRecords, HookDeclaration, IndexDeclaration, ModelRecords, RbacDeclaration,
+    RelationshipDeclaration, ReportDeclaration, RuleAction, RuleDeclaration, RuleEdge, RuleNode,
+    SagaDeclaration, SagaStepDeclaration, StateMachineDeclaration, StateTransitionDeclaration,
 };
 
 /// `language/yaml/eml.schema.json`, as this binary was built with it.
@@ -147,6 +147,14 @@ struct EntityDocument {
     attributes: Vec<AttributeDocument>,
     #[serde(default)]
     indexes: Vec<IndexDocument>,
+    data: Option<EntityDataDocument>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct EntityDataDocument {
+    key: String,
+    rows: Vec<serde_json::Map<String, serde_json::Value>>,
 }
 
 #[derive(Deserialize)]
@@ -170,6 +178,8 @@ struct AttributeDocument {
     /// The entity a foreign key points at, where its name does not say: a CEDM
     /// reference such as `deliveryLocation → Location`.
     references: Option<String>,
+    #[serde(rename = "narrowedBy")]
+    narrowed_by: Option<Vec<String>>,
     help: Option<String>,
     /// `ui`, `default`, `min`, `max`, `format`: validated and carried, not
     /// compiled by either application generator yet. `min`/`max` are a number
@@ -441,6 +451,7 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
                         name: attribute.name.clone(),
                         modifiers,
                         references: attribute.references.clone(),
+                        narrowed_by: attribute.narrowed_by.clone(),
                     }
                 })
                 .collect(),
@@ -450,6 +461,15 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
         }
         if let Some(icon) = entity.icon {
             erd.entity_icons.push((name.clone(), icon));
+        }
+        if let Some(data) = entity.data {
+            erd.entity_data.push((
+                name.clone(),
+                EntityData {
+                    key: data.key,
+                    rows: data.rows,
+                },
+            ));
         }
         if let Some(parent) = entity.parent {
             erd.entity_parents.push((name.clone(), parent));

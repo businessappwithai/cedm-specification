@@ -21,17 +21,44 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
-    "ProfessionalEngagement"
+    "Task",
+    "ProfessionalEngagement",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "ProfessionalEngagementStatus"
   ],
   "categories": [
     "Foundation",
-    "Professional Services"
+    "Professional Services",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -52,10 +79,19 @@
     "PersonPartyType (2)",
     "PersonStatus (4)",
     "ProfessionalEngagementStatus (5)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "ProfessionalEngagementApprovalRequested on ProfessionalEngagement (1 steps, rule)",
+    "ProfessionalEngagementExceptionRaised on ProfessionalEngagement (1 steps, rule)",
+    "ProfessionalEngagementFollowUpRequired on ProfessionalEngagement (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:18:56.180Z"
+  "generatedAt": "2026-10-01T09:33:52.738Z"
 }

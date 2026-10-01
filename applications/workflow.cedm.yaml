@@ -13,7 +13,6 @@ imports:
   - module: common
   - entity: BusinessProcess
   - entity: Workflow
-  - entity: Task
   - entity: ProcessDefinition
   - entity: ProcessInstance
 ui:

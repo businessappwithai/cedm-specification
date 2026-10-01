@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_commercial_entity
   description: A specific obligation, commitment, deliverable, or condition arising from a contract.
+  ui:
+    icon: file-check
   identity:
     key: contractObligationId
     type: uuid
@@ -136,6 +138,57 @@ entity:
   invariants:
   - id: CONTRACT-OBLIGATION-001
     rule: a FULFILLED obligation must have evidence or fulfillment reference where required by policy.
+  lifecycle:
+    title: Contract Obligation Lifecycle
+    attribute: status
+    states: [OPEN, IN_PROGRESS, FULFILLED, BREACHED, WAIVED, CANCELLED]
+    initial: OPEN
+    terminal: [FULFILLED, BREACHED, WAIVED, CANCELLED]
+    transitions:
+      - {from: OPEN, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: FULFILLED, action: fulfil}
+      - {from: IN_PROGRESS, to: BREACHED, action: mark_breached}
+      - {from: OPEN, to: WAIVED, action: mark_waived}
+      - {from: IN_PROGRESS, to: WAIVED, action: mark_waived}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a contract obligation is stopped"
+      description: "When a contract obligation is breached, a high-priority task asks someone to resolve it."
+      when: "status == \"BREACHED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTRACT-OBLIGATION-EXCEPTION-{{id}}"
+              name: "Resolve contract obligation {{code}}"
+              description: "Contract obligation {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a contract obligation is ended"
+      description: "When a contract obligation is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTRACT-OBLIGATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on contract obligation {{code}}"
+              description: "Contract obligation {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a legal commercial entity called ContractObligation within the CEDM business model.
     businessMeaning: ContractObligation is a business concept with its own identity and lifecycle. It captures information

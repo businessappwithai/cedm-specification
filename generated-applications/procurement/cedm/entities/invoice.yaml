@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_commercial_transaction
   description: A formal commercial document that records a financial claim for supplied goods, services, credits, debits, or adjustments and establishes the amount owed and settlement conditions. Credit notes and debit adjustments reduce or increase eligible claims through explicit financial adjustment evidence without mutating the original invoice history.
+  ui:
+    icon: receipt
   identity: {key: invoiceId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: invoiceId
@@ -59,6 +61,11 @@ entity:
         relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote or SupplierDebitNote is preferred for explicit financial adjustments.
         workflowRole: Controls which party, matching, tax, and settlement processes apply.
         requiredMeaning: Required for correct financial treatment.
+        valueSemantics:
+          SALES: The invoice type of the invoice is sales; set it when that is what the business means for this record.
+          PURCHASE: The invoice type of the invoice is purchase; set it when that is what the business means for this record.
+          CREDIT_NOTE: The invoice type of the invoice is credit note; set it when that is what the business means for this record.
+          DEBIT_NOTE: The invoice type of the invoice is debit note; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
@@ -321,6 +328,70 @@ entity:
     - {id: INVOICE-011, rule: "Issued monetary results must preserve applicable pricing, discount, tax, currency, exchange-rate, and rounding evidence required for historical reproducibility."}
     - {id: INVOICE-012, rule: "Original Invoice and InvoiceLine values remain immutable after posting; returns, corrections and concessions use explicit CreditNote, SupplierCreditNote, SupplierDebitNote, or other authorized adjustment documents."}
     - {id: INVOICE-013, rule: Active SupplierCreditNoteApplication and SupplierDebitNoteApplication records must be validated against eligible PURCHASE invoice exposure and must not create duplicate claim-level settlement effects.}
+    - {id: INVOICE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+    - {id: INVOICE-EXE-002, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+    - {id: INVOICE-EXE-003, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+    - {id: INVOICE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+    - {id: INVOICE-EXE-005, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Invoice Lifecycle
+    attribute: status
+    states: [DRAFT, ISSUED, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED, VOID]
+    initial: DRAFT
+    terminal: [PAID, CANCELLED, VOID]
+    transitions:
+      - {from: DRAFT, to: ISSUED, action: issue}
+      - {from: ISSUED, to: PARTIALLY_PAID, action: mark_partially_paid}
+      - {from: PARTIALLY_PAID, to: PAID, action: pay}
+      - {from: ISSUED, to: OVERDUE, action: mark_overdue}
+      - {from: OVERDUE, to: ISSUED, action: resume}
+      - {from: PARTIALLY_PAID, to: OVERDUE, action: mark_overdue}
+      - {from: OVERDUE, to: PARTIALLY_PAID, action: resume}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ISSUED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_PAID, to: CANCELLED, action: cancel}
+      - {from: OVERDUE, to: CANCELLED, action: cancel}
+      - {from: DRAFT, to: VOID, action: void}
+      - {from: ISSUED, to: VOID, action: void}
+      - {from: PARTIALLY_PAID, to: VOID, action: void}
+      - {from: OVERDUE, to: VOID, action: void}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a invoice is stopped"
+      description: "When a invoice is overdue, a high-priority task asks someone to resolve it."
+      when: "status == \"OVERDUE\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVOICE-EXCEPTION-{{id}}"
+              name: "Resolve invoice {{invoice_number}}"
+              description: "Invoice {{invoice_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a invoice is ended"
+      description: "When a invoice is cancelled or void, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"VOID\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVOICE-FOLLOW-UP-{{id}}"
+              name: "Follow up on invoice {{invoice_number}}"
+              description: "Invoice {{invoice_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a formal financial claim and its controlled settlement and adjustment state.
     businessMeaning: Invoice records what was originally claimed. Payment records money moved. PaymentAllocation records how money is applied. CreditNote, SupplierCreditNote, and SupplierDebitNote record separate authorized financial adjustments; their application entities record claim-level consumption.

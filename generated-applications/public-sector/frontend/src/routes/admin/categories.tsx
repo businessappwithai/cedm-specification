@@ -4,7 +4,7 @@
  * Maintains the categories the dashboard groups business entities by, and lets
  * an administrator move entities between them.
  *
- * Generated: 2026-10-01T05:19:03.511Z
+ * Generated: 2026-10-01T09:34:02.590Z
  * Project: public-sector
  */
 

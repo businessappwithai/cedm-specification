@@ -117,6 +117,16 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Vehicle Model Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, DISCONTINUED]
+    initial: PLANNED
+    terminal: [DISCONTINUED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: PLANNED, to: DISCONTINUED, action: discontinue}
+      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
   help:
     summary: Represents a automotive master entity called VehicleModel within the CEDM business model.
     businessMeaning: VehicleModel is a business concept with its own identity and lifecycle. It captures information that

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supplier_performance_management_transaction
   description: A controlled assessment of a supplier's performance over a defined evaluation period, using procurement, delivery, quality, commercial, service and recovery evidence to support supplier governance and improvement decisions.
+  ui:
+    icon: factory
   identity: {key: supplierPerformanceAssessmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierPerformanceAssessmentId
@@ -32,8 +34,34 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, IN_REVIEW, APPROVED, PUBLISHED, SUPERSEDED, CANCELLED]
-    help: {summary: Lifecycle state of the supplier performance assessment., businessMeaning: "Separates calculation, review, approval, publication and replacement of scorecard results.", usage: Controls whether the assessment may be changed or consumed by supplier governance., relationshipContext: "Does not change the status of Supplier, PurchaseOrder, GoodsReceipt, Invoice or SupplierClaim records.", workflowRole: "PUBLISHED makes the assessment an approved historical scorecard; corrections use a replacement or superseding assessment.", requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - IN_REVIEW
+    - APPROVED
+    - PUBLISHED
+    - SUPERSEDED
+    - CANCELLED
+    help:
+      summary: Lifecycle state of the supplier performance assessment.
+      businessMeaning: Separates calculation, review, approval, publication and replacement of scorecard results.
+      usage: Controls whether the assessment may be changed or consumed by supplier governance.
+      relationshipContext: Does not change the status of Supplier, PurchaseOrder, GoodsReceipt, Invoice or SupplierClaim records.
+      workflowRole: PUBLISHED makes the assessment an approved historical scorecard; corrections use a replacement or superseding
+        assessment.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the supplier performance assessment is draft; set it when that is what the business means for this
+          record.
+        IN_REVIEW: The status of the supplier performance assessment is in review; set it when that is what the business means
+          for this record.
+        APPROVED: The status of the supplier performance assessment is approved; set it when that is what the business means
+          for this record.
+        PUBLISHED: The status of the supplier performance assessment is published; set it when that is what the business means
+          for this record.
+        SUPERSEDED: The status of the supplier performance assessment is superseded; set it when that is what the business means
+          for this record.
+        CANCELLED: The status of the supplier performance assessment is cancelled; set it when that is what the business means
+          for this record.
   - name: overallScore
     type: decimal
     required: false
@@ -43,8 +71,31 @@ entity:
   - name: rating
     type: enum
     required: false
-    values: [EXCELLENT, GOOD, ACCEPTABLE, NEEDS_IMPROVEMENT, UNSATISFACTORY]
-    help: {summary: Interpreted supplier performance rating., businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category., usage: "Supplier segmentation, review cadence and improvement decisions.", relationshipContext: "Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence.", workflowRole: Supports governance actions and escalation., optionalMeaning: Optional until the assessment is evaluated.}
+    values:
+    - EXCELLENT
+    - GOOD
+    - ACCEPTABLE
+    - NEEDS_IMPROVEMENT
+    - UNSATISFACTORY
+    help:
+      summary: Interpreted supplier performance rating.
+      businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category.
+      usage: Supplier segmentation, review cadence and improvement decisions.
+      relationshipContext: Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or
+        commercial evidence.
+      workflowRole: Supports governance actions and escalation.
+      optionalMeaning: Optional until the assessment is evaluated.
+      valueSemantics:
+        EXCELLENT: The rating of the supplier performance assessment is excellent; set it when that is what the business means
+          for this record.
+        GOOD: The rating of the supplier performance assessment is good; set it when that is what the business means for this
+          record.
+        ACCEPTABLE: The rating of the supplier performance assessment is acceptable; set it when that is what the business means
+          for this record.
+        NEEDS_IMPROVEMENT: The rating of the supplier performance assessment is needs improvement; set it when that is what
+          the business means for this record.
+        UNSATISFACTORY: The rating of the supplier performance assessment is unsatisfactory; set it when that is what the business
+          means for this record.
   - name: notes
     type: string
     required: false
@@ -100,6 +151,44 @@ entity:
   - {id: SUPPLIER-PERFORMANCE-006, rule: Evidence included in an assessment must remain traceable to its source transaction and evaluation period or an explicitly documented exception.}
   - {id: SUPPLIER-PERFORMANCE-007, rule: PUBLISHED assessment results are immutable historical governance evidence; corrections require a superseding or replacement assessment.}
   - {id: SUPPLIER-PERFORMANCE-008, rule: Assessment publication must be idempotent and must not create duplicate scorecards for the same assessment identity.}
+  - {id: SUPPLIER-PERFORMANCE-ASSESSMENT-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
+  lifecycle:
+    title: Supplier Performance Assessment Lifecycle
+    attribute: status
+    states: [DRAFT, IN_REVIEW, APPROVED, PUBLISHED, SUPERSEDED, CANCELLED]
+    initial: DRAFT
+    terminal: [SUPERSEDED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: IN_REVIEW, action: mark_in_review}
+      - {from: IN_REVIEW, to: APPROVED, action: approve}
+      - {from: APPROVED, to: PUBLISHED, action: publish}
+      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+      - {from: IN_REVIEW, to: SUPERSEDED, action: mark_superseded}
+      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+      - {from: PUBLISHED, to: SUPERSEDED, action: mark_superseded}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: IN_REVIEW, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: PUBLISHED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier performance assessment is ended"
+      description: "When a supplier performance assessment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-PERFORMANCE-ASSESSMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier performance assessment {{assessment_number}}"
+              description: "Supplier performance assessment {{assessment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides a governed supplier scorecard that converts procurement, receipt, quality, claim, return and corrective-action evidence into an auditable performance assessment.
     businessMeaning: Supplier remains the master relationship; operational transactions provide evidence; SupplierPerformanceAssessment interprets that evidence for governance without rewriting the underlying facts.

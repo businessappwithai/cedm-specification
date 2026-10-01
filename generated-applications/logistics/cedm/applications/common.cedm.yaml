@@ -5,6 +5,7 @@ cedm: "1.0"
 application:
   name: CEDM Common Foundation
   description: The parties, organisations, places, units and reference data every domain application shares.
+  enumerationTables: true
 imports:
   - entity: Party
   - entity: Person
@@ -18,16 +19,19 @@ imports:
   - entity: ContactPoint
   - entity: Location
   - entity: Country
+  - entity: StateProvince
+  - entity: City
   - entity: Language
   - entity: Currency
   - entity: ExchangeRate
   - entity: UnitOfMeasure
   - entity: Calendar
   - entity: Attachment
+  - entity: Task
 ui:
   categories:
     - name: Foundation
       description: Parties, places, units and reference data every domain shares
       icon: Library
       default: true
-      entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment]
+      entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]

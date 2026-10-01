@@ -187,6 +187,16 @@ table, so a value reworded or retired there is what a form offers. `labels` and
 `descriptions` map a value to its dropdown label and its meaning. A CEDM model
 gets all of this from `application.enumerationTables` (see `language/cedm/README.md`).
 
+Entity `data` — `{ key, rows }` — is reference data the application ships with:
+rows keyed by physical column, a foreign key column holding the natural key of the row
+it points at, `key` naming the column that is this entity's own natural key. The
+dictionary seed writes them as application data, parents first; the business seed
+leaves them alone and points its records at them. An attribute's `narrowedBy: [col, …]`
+(requires `fk`) says which other foreign keys of the entity narrow this lookup's
+choices — a state by its country, a city by its state then its country — and the
+backend applies it where it supplies the choices (`GET /api/bus/{entity}/lookup/{column}`)
+and when it accepts a write.
+
 `categories`: **`name`**, `code` (derived from the name when omitted; categories
 sharing a code merge), `description`, `icon`, `color`, `seq`, `default` (the
 category that receives entities placed in no other), `entities`. A model with no

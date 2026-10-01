@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: integration_master
   description: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
+  ui:
+    icon: database
   identity: {key: integrationEndpointId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of IntegrationEndpoint., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}

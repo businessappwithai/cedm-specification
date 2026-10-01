@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_traceability_master
   description: A governed batch or lot identity grouping a quantity of one Product with common production, receipt, quality, expiry, or provenance characteristics for inventory traceability.
+  ui:
+    icon: database
   identity: {key: lotId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the lot., businessMeaning: Identifies the traceability group independently of printed lot number., usage: "Inventory, quality, recall, manufacturing, receiving, shipping, and audit.", relationshipContext: Groups quantities of one Product across locations and movements., requiredMeaning: Required.}}
@@ -25,6 +27,65 @@ entity:
   - {id: LOT-003, rule: "HOLD, QUARANTINED, EXPIRED, or REJECTED lots must not enter unrestricted allocation without an authorized release or exception."}
   - {id: LOT-004, rule: Lot identity and provenance referenced by posted inventory or quality evidence are immutable; correction uses controlled genealogy or compensating records.}
   - {id: LOT-005, rule: Lot quantity across balances must reconcile to posted lot-attributed InventoryMovement events.}
+  lifecycle:
+    title: Lot Lifecycle
+    attribute: status
+    states: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
+    initial: ACTIVE
+    terminal: [CONSUMED, EXPIRED, REJECTED]
+    transitions:
+      - {from: ACTIVE, to: HOLD, action: mark_hold}
+      - {from: HOLD, to: RELEASED, action: release}
+      - {from: RELEASED, to: CLOSED, action: close}
+      - {from: CLOSED, to: CONSUMED, action: consume}
+      - {from: HOLD, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: HOLD, action: release}
+      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: QUARANTINED, to: RELEASED, action: release}
+      - {from: HOLD, to: EXPIRED, action: expire}
+      - {from: RELEASED, to: EXPIRED, action: expire}
+      - {from: QUARANTINED, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: REJECTED, action: reject}
+      - {from: HOLD, to: REJECTED, action: reject}
+      - {from: RELEASED, to: REJECTED, action: reject}
+      - {from: QUARANTINED, to: REJECTED, action: reject}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a lot is stopped"
+      description: "When a lot is quarantined, a high-priority task asks someone to resolve it."
+      when: "status == \"QUARANTINED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LOT-EXCEPTION-{{id}}"
+              name: "Resolve lot {{lot_number}}"
+              description: "Lot {{lot_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a lot is ended"
+      description: "When a lot is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LOT-FOLLOW-UP-{{id}}"
+              name: "Follow up on lot {{lot_number}}"
+              description: "Lot {{lot_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Batch-level inventory identity for end-to-end genealogy and recall.
     businessMeaning: Product identifies what an item is; Lot identifies which production or receipt batch a quantity belongs to.

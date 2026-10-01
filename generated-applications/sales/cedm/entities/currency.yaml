@@ -5,6 +5,7 @@ entity:
   description: A recognized monetary denomination used to give financial amounts their currency context across pricing, orders, invoices, payments, banking, settlements, and accounting.
   ui:
     icon: coins
+  referenceData: reference-data/currency.yaml
   identity:
     key: currencyId
     type: uuid
@@ -172,6 +173,17 @@ entity:
     rule: Monetary amounts in different currencies must not be directly compared, summed, allocated, or reconciled without an explicit approved exchange-rate/conversion context.
   - id: CURRENCY-005
     rule: PaymentAllocation between a Payment and Invoice in different currencies requires an explicit ExchangeRate, effective timestamp, rate source, and rounding policy when permitted.
+  lifecycle:
+    title: Currency Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Defines the monetary denomination that gives financial amounts their business meaning.
     businessMeaning: Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting.

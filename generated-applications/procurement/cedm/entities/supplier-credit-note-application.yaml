@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_settlement_adjustment
   description: An explicit application of a posted SupplierCreditNote against one eligible supplier Invoice payable claim, preserving the amount, currency, timing and reversal evidence used to reduce payable exposure without rewriting the original invoice.
+  ui:
+    icon: factory
   identity: {key: supplierCreditNoteApplicationId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: supplierCreditNoteApplicationId
@@ -33,8 +35,27 @@ entity:
       type: enum
       required: true
       default: ACTIVE
-      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
-      help: {summary: Lifecycle state of the supplier credit application., businessMeaning: Indicates whether the application currently reduces payable exposure., usage: Controls SupplierCreditNote and Invoice projections., relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts., workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event., requiredMeaning: Required.}
+      values:
+      - DRAFT
+      - ACTIVE
+      - REVERSED
+      - CANCELLED
+      help:
+        summary: Lifecycle state of the supplier credit application.
+        businessMeaning: Indicates whether the application currently reduces payable exposure.
+        usage: Controls SupplierCreditNote and Invoice projections.
+        relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts.
+        workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event.
+        requiredMeaning: Required.
+        valueSemantics:
+          DRAFT: The status of the supplier credit note application is draft; set it when that is what the business means for
+            this record.
+          ACTIVE: The status of the supplier credit note application is active; set it when that is what the business means for
+            this record.
+          REVERSED: The status of the supplier credit note application is reversed; set it when that is what the business means
+            for this record.
+          CANCELLED: The status of the supplier credit note application is cancelled; set it when that is what the business means
+            for this record.
     - name: reversalOfApplicationId
       type: reference
       target: SupplierCreditNoteApplication
@@ -67,6 +88,37 @@ entity:
     - {id: SUPPLIER-CREDIT-APPLICATION-007, rule: Reversal creates compensating history and must not mutate the original application.}
     - {id: SUPPLIER-CREDIT-APPLICATION-008, rule: "Payable exposure projections must be derived from active applications and other authorized adjustment evidence, not independently editable facts."}
     - {id: SUPPLIER-CREDIT-APPLICATION-009, rule: Application activation must be idempotent and protected against concurrent duplicate effects.}
+    - {id: SUPPLIER-CREDIT-NOTE-APPLICATION-EXE-001, rule: "Invoice Amount cannot be negative.", violatedWhen: "invoice_amount != null and invoice_amount < 0", message: "Invoice Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Credit Note Application Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+    initial: DRAFT
+    terminal: [REVERSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: REVERSED, action: reverse}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier credit note application is ended"
+      description: "When a supplier credit note application is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CREDIT-NOTE-APPLICATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier credit note application {{id}}"
+              description: "Supplier credit note application {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides the auditable bridge by which a posted SupplierCreditNote is consumed against a purchase Invoice.
     businessMeaning: SupplierCreditNote establishes the authorized payable reduction; Invoice remains the original claim; SupplierCreditNoteApplication records exactly where and how much of the credit was used.

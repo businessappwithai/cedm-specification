@@ -196,6 +196,11 @@ entity:
   - {id: SALES-ORDER-LINE-016, rule: "A fulfilled or financially posted line cannot be destructively reduced or deleted; corrections require explicit return, credit, debit or adjustment workflows."}
   - {id: SALES-ORDER-LINE-017, rule: "Every material quantity change must be attributable to an authoritative reservation, release, fulfillment, return, reversal or approved correction event."}
   - {id: SALES-ORDER-LINE-018, rule: Line-derived status and SalesOrder status must be recalculated atomically or through an idempotent recoverable workflow after dependent quantity events.}
+  - {id: SALES-ORDER-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: SALES-ORDER-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: SALES-ORDER-LINE-EXE-003, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+  - {id: SALES-ORDER-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+  - {id: SALES-ORDER-LINE-EXE-005, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
     summary: Authoritative commercial commitment at product/quantity level, reconciling transaction pricing with allocation, fulfillment and billing evidence.
     businessMeaning: The line states what the customer agreed to buy and how it is priced. Reservations state committed stock, shipment/fulfillment events state what was delivered, and InvoiceLines state what was billed.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_transaction
   description: A controlled instruction and execution record for inspecting, maintaining, correcting, or repairing an Asset, including the work required, responsible party, planned timing, and completion outcome.
+  ui:
+    icon: shopping-cart
   identity: {key: maintenanceWorkOrderId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: maintenanceWorkOrderId
@@ -167,8 +169,82 @@ entity:
     - {id: MWO-004, rule: scheduledAt must not precede requestedAt.}
     - {id: MWO-005, rule: "A REPAIR work order created from RepairEstimate must reference an APPROVED, non-CANCELLED estimate with disposition REPAIR."}
     - {id: MWO-006, rule: "A completed REPAIR work order does not by itself change the Asset or Container lifecycle state; the applicable inspection, acceptance, and return-to-service workflow must confirm that transition."}
+    - {id: MAINTENANCE-WORK-ORDER-EXE-001, rule: "A maintenance work order that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the maintenance work order is completed."}
   lifecycle:
     states: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: OPEN, action: open}
+      - {from: OPEN, to: ASSIGNED, action: assign}
+      - {from: ASSIGNED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: OPEN, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: OPEN, action: resume}
+      - {from: ASSIGNED, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: ASSIGNED, action: resume}
+      - {from: IN_PROGRESS, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: IN_PROGRESS, action: resume}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: ASSIGNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: ON_HOLD, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a maintenance work order is stopped"
+      description: "When a maintenance work order is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MAINTENANCE-WORK-ORDER-EXCEPTION-{{id}}"
+              name: "Resolve maintenance work order {{work_order_number}}"
+              description: "Maintenance work order {{work_order_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a maintenance work order is ended"
+      description: "When a maintenance work order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MAINTENANCE-WORK-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on maintenance work order {{work_order_number}}"
+              description: "Maintenance work order {{work_order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a maintenance work order is done"
+      description: "When a maintenance work order is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MAINTENANCE-WORK-ORDER-COMPLETED-{{id}}"
+              name: "Confirm maintenance work order {{work_order_number}}"
+              description: "Maintenance work order {{work_order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents one controlled maintenance intervention from reported need through planning, assignment, execution, and completion or cancellation.
     businessMeaning: MaintenanceWorkOrder is the executable maintenance record that turns an identified need into accountable work. It provides the bridge between Asset condition or maintenance policy and the technicians, contractors, parts, estimates, costs, physical movements, and completion evidence needed to restore or preserve asset capability.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_asset
   description: A reusable intermodal freight container identified and managed as a physical equipment asset across terminals, depots, vessels, rail, road, customer operations, maintenance, leasing, and commercial disposition.
+  ui:
+    icon: database
   identity:
     key: containerId
     type: uuid
@@ -165,6 +167,27 @@ entity:
     rule: currentSlot and the referenced YardSlot.container relationship must remain mutually consistent.
   - id: CONTAINER-004
     rule: SOLD, SCRAPPED, and RETIRED containers must not normally be assigned to new operational shipments or yard movements.
+  - {id: CONTAINER-EXE-001, rule: "Tare Weight cannot be negative.", violatedWhen: "tare_weight != null and tare_weight < 0", message: "Tare Weight cannot be negative."}
+  - {id: CONTAINER-EXE-002, rule: "Max Gross Weight cannot be negative.", violatedWhen: "max_gross_weight != null and max_gross_weight < 0", message: "Max Gross Weight cannot be negative."}
+  lifecycle:
+    title: Container Lifecycle
+    attribute: status
+    states: [ACTIVE, IN_REPAIR, DAMAGED, SOLD, SCRAPPED, LOST, RETIRED]
+    initial: ACTIVE
+    terminal: [SOLD, SCRAPPED, LOST, RETIRED]
+    transitions:
+      - {from: ACTIVE, to: IN_REPAIR, action: mark_in_repair}
+      - {from: IN_REPAIR, to: DAMAGED, action: mark_damaged}
+      - {from: ACTIVE, to: SOLD, action: mark_sold}
+      - {from: IN_REPAIR, to: SOLD, action: mark_sold}
+      - {from: DAMAGED, to: SOLD, action: mark_sold}
+      - {from: IN_REPAIR, to: SCRAPPED, action: mark_scrapped}
+      - {from: DAMAGED, to: SCRAPPED, action: mark_scrapped}
+      - {from: IN_REPAIR, to: LOST, action: mark_lost}
+      - {from: DAMAGED, to: LOST, action: mark_lost}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: IN_REPAIR, to: RETIRED, action: retire}
+      - {from: DAMAGED, to: RETIRED, action: retire}
   help:
     summary: Represents a reusable intermodal freight container as a continuously identifiable physical logistics asset.
     businessMeaning: Container is the equipment anchor connecting transport, depot, terminal, yard, maintenance, leasing, ownership, inventory, shipment, interchange, and commercial disposition processes.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: asset_transaction
   description: A governed event recognizing acquisition and capitalization context for an Asset while keeping accounting posting in JournalEntry.
+  ui:
+    icon: box
   identity: {key: assetAcquisitionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assetAcquisitionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetAcquisition., businessMeaning: Identifies one governed AssetAcquisition record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}

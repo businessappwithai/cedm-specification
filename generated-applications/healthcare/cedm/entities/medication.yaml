@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_pharmaceutical_entity
   description: A medicinal product or therapeutic substance used or prescribed for a patient.
+  ui:
+    icon: table
   identity:
     key: medicationId
     type: uuid
@@ -124,6 +126,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Medication Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a healthcare pharmaceutical entity called Medication within the CEDM business model.
     businessMeaning: Medication is a business concept with its own identity and lifecycle. It captures information that must

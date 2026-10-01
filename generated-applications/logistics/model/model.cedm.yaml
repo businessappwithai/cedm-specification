@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Transportation and Logistics, built on the CEDM common foundation.
   domain: logistics
+  enumerationTables: true
 imports:
   - module: common
   - entity: Shipment

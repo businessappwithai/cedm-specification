@@ -9,11 +9,11 @@ application:
   version: 1.0.0
   description: Customer Service and CRM, built on the CEDM common foundation.
   domain: customer-service
+  enumerationTables: true
 imports:
   - module: common
   - entity: Customer
   - entity: ServiceRequest
-  - entity: Task
   - entity: Incident
   - entity: Escalation
   - entity: ServiceLevelAgreement
@@ -21,6 +21,6 @@ ui:
   categories:
     - name: Customer Service
       icon: headphones
-      entities: [Customer, ServiceRequest, Task]
+      entities: [Customer, ServiceRequest]
     - name: Customer Service and CRM records
       entities: [Incident, Escalation, ServiceLevelAgreement]

@@ -23,6 +23,17 @@ entity:
   - {id: BRAND-001, rule: code must be unique.}
   - {id: BRAND-002, rule: RETIRED brand must not be newly assigned without governed reinstatement or migration.}
   - {id: BRAND-003, rule: Brand rename/status changes must preserve historical transaction and catalog evidence where point-in-time reproduction is required.}
+  lifecycle:
+    title: Brand Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Governed product brand reference master.
     businessMeaning: Brand describes commercial/manufacturer identity; it is distinct from ProductCategory taxonomy and Product identity.

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supply_chain_entity
   description: A planned quantity for a product at a location and time within a supply plan.
+  ui:
+    icon: table
   identity:
     key: supplyPlanLineId
     type: uuid
@@ -118,6 +120,38 @@ entity:
   invariants:
   - id: SUPPLY-PLAN-LINE-001
     rule: plannedQuantity must not be negative.
+  - {id: SUPPLY-PLAN-LINE-EXE-001, rule: "Planned Quantity cannot be negative.", violatedWhen: "planned_quantity != null and planned_quantity < 0", message: "Planned Quantity cannot be negative."}
+  - {id: SUPPLY-PLAN-LINE-EXE-002, rule: "Safety Stock Quantity cannot be negative.", violatedWhen: "safety_stock_quantity != null and safety_stock_quantity < 0", message: "Safety Stock Quantity cannot be negative."}
+  lifecycle:
+    title: Supply Plan Line Lifecycle
+    attribute: status
+    states: [PLANNED, RELEASED, FULFILLED, CANCELLED]
+    initial: PLANNED
+    terminal: [FULFILLED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: RELEASED, action: release}
+      - {from: RELEASED, to: FULFILLED, action: fulfil}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: RELEASED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supply plan line is ended"
+      description: "When a supply plan line is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLY-PLAN-LINE-FOLLOW-UP-{{id}}"
+              name: "Follow up on supply plan line {{id}}"
+              description: "Supply plan line {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a supply chain entity called SupplyPlanLine within the CEDM business model.
     businessMeaning: SupplyPlanLine is a business concept with its own identity and lifecycle. It captures information that

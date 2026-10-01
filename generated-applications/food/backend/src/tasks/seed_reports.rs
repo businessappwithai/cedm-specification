@@ -15,7 +15,7 @@
 //! ordering matters only so the reports have something to answer with when
 //! somebody opens one.
 //!
-//! Generated: 2026-10-01T05:17:57.978Z
+//! Generated: 2026-10-01T09:32:18.175Z
 //! Project: food
 
 use loco_rs::prelude::*;

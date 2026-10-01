@@ -141,6 +141,75 @@ entity:
   invariants:
   - id: ENGAGEMENT-001
     rule: endDate must not precede startDate.
+  lifecycle:
+    title: Professional Engagement Lifecycle
+    attribute: status
+    states: [PROPOSED, ACTIVE, ON_HOLD, COMPLETED, CANCELLED]
+    initial: PROPOSED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: PROPOSED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: ACTIVE, to: ON_HOLD, action: hold}
+      - {from: ON_HOLD, to: ACTIVE, action: resume}
+      - {from: PROPOSED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: ON_HOLD, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a professional engagement is put forward"
+      description: "When a professional engagement is proposed, a task asks someone to decide on it."
+      when: "status == \"PROPOSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROFESSIONAL-ENGAGEMENT-APPROVAL-{{id}}"
+              name: "Decide on professional engagement {{name}}"
+              description: "Professional engagement {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: ExceptionRaised
+      title: "Raise a task when a professional engagement is stopped"
+      description: "When a professional engagement is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROFESSIONAL-ENGAGEMENT-EXCEPTION-{{id}}"
+              name: "Resolve professional engagement {{name}}"
+              description: "Professional engagement {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a professional engagement is ended"
+      description: "When a professional engagement is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PROFESSIONAL-ENGAGEMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on professional engagement {{name}}"
+              description: "Professional engagement {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a professional services entity called ProfessionalEngagement within the CEDM business model.
     businessMeaning: ProfessionalEngagement is a business concept with its own identity and lifecycle. It captures information

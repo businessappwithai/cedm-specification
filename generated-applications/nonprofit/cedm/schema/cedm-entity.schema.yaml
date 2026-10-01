@@ -1,6 +1,6 @@
 schema:
   name: CEDM Entity Schema
-  version: 0.2.0
+  version: 0.4.0
 
 help:
   required: [summary, businessMeaning, usage, relationshipContext]
@@ -12,6 +12,7 @@ help:
     lifecycle: {type: string}
     example: {type: string}
     valueSemantics: {type: object}
+    valueLabels: {type: object, description: One short label per enumerated value}
     requiredMeaning: {type: string}
     optionalMeaning: {type: string}
 
@@ -31,6 +32,15 @@ entity:
         relationshipContext: {type: string}
         lifecycle: {type: string}
         example: {type: string}
+    ui:
+      description: How the entity is presented. Every slot has a derivation rule in specification/dictionary-mapping.yaml; only icon is required.
+      required: [icon]
+      properties:
+        icon: {type: string, description: A lucide 0.312 icon id (tools/lucide-icons.txt)}
+        label: {type: string, description: Window title; derived from the name when absent}
+        group: {type: string, description: One of the field groups in dictionary-mapping.yaml}
+        recordLabel: {type: array, description: Attributes that identify one record; derived when absent}
+        highVolume: {type: boolean}
     extends: {type: string}
     identity:
       required: [key, type]

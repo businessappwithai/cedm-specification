@@ -12,7 +12,7 @@
 //! because those need no network at all. Between the two, the only untested
 //! path is a live completion, which no CI run should depend on.
 //!
-//! Generated: 2026-10-01T05:18:31.757Z
+//! Generated: 2026-10-01T09:33:13.012Z
 //! Project: maintenance
 
 use serial_test::serial;

@@ -117,6 +117,38 @@ entity:
   invariants:
   - id: PRODUCTION-001
     rule: quantity must be greater than zero.
+  - {id: PRODUCTION-RECORD-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  lifecycle:
+    title: Production Record Lifecycle
+    attribute: status
+    states: [PLANNED, RECORDED, VERIFIED, REJECTED]
+    initial: RECORDED
+    terminal: [REJECTED]
+    transitions:
+      - {from: RECORDED, to: PLANNED, action: plan}
+      - {from: PLANNED, to: VERIFIED, action: verify}
+      - {from: RECORDED, to: REJECTED, action: reject}
+      - {from: PLANNED, to: REJECTED, action: reject}
+      - {from: VERIFIED, to: REJECTED, action: reject}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a production record is ended"
+      description: "When a production record is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PRODUCTION-RECORD-FOLLOW-UP-{{id}}"
+              name: "Follow up on production record {{id}}"
+              description: "Production record {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a industrial transaction called ProductionRecord within the CEDM business model.
     businessMeaning: ProductionRecord is a business concept with its own identity and lifecycle. It captures information that

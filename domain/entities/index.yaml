@@ -49,6 +49,7 @@ registry:
     - CertificateOfAnalysis
     - Charge
     - ChemicalBatch
+    - City
     - Classification
     - Collateral
     - ComplianceRequirement
@@ -263,6 +264,7 @@ registry:
     - ShoppingCartLine
     - Signature
     - SparePart
+    - StateProvince
     - Store
     - Subscription
     - SubscriptionPlan
@@ -320,4 +322,3 @@ registry:
     lifecycle: State transitions are expressed under lifecycle or invariants when required.
     businessRules: Rules are expressed as invariants and remain implementation-neutral.
     audit: System-managed timestamps and actors are declared explicitly where applicable.
-    workflowReconciliation: Every entity create or update must reconcile all workflows, lifecycle transitions, business rules, aggregate boundaries, and dependent entity definitions affected by the change.

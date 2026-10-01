@@ -140,6 +140,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "migration/src/m0018_sys_column_ref_table.rs.hbs",
         "migration/src/m0018_sys_column_ref_table.rs",
     ),
+    (
+        "migration/src/m0019_sys_column_narrowed_by.rs.hbs",
+        "migration/src/m0019_sys_column_narrowed_by.rs",
+    ),
     ("src/lib.rs.hbs", "src/lib.rs"),
     ("src/bin/main.rs.hbs", "src/bin/main.rs"),
     ("src/app.rs.hbs", "src/app.rs"),

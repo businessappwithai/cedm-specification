@@ -104,6 +104,22 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Hotel Room Lifecycle
+    attribute: status
+    states: [AVAILABLE, OCCUPIED, RESERVED, CLEANING, OUT_OF_SERVICE]
+    initial: AVAILABLE
+    transitions:
+      - {from: AVAILABLE, to: OCCUPIED, action: mark_occupied}
+      - {from: OCCUPIED, to: RESERVED, action: reserve}
+      - {from: OCCUPIED, to: CLEANING, action: mark_cleaning}
+      - {from: CLEANING, to: OCCUPIED, action: finish_cleaning}
+      - {from: RESERVED, to: CLEANING, action: mark_cleaning}
+      - {from: CLEANING, to: RESERVED, action: finish_cleaning}
+      - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
+      - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
   help:
     summary: Represents a hospitality asset called HotelRoom within the CEDM business model.
     businessMeaning: HotelRoom is a business concept with its own identity and lifecycle. It captures information that must

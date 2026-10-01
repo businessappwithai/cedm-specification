@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T05:19:52.052Z
+//! Generated: 2026-10-01T09:35:14.596Z
 //! Project: travel
 
 use serde_json::Value;

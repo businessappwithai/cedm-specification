@@ -151,6 +151,44 @@ entity:
   - {id: SUPPLIER-PERFORMANCE-006, rule: Evidence included in an assessment must remain traceable to its source transaction and evaluation period or an explicitly documented exception.}
   - {id: SUPPLIER-PERFORMANCE-007, rule: PUBLISHED assessment results are immutable historical governance evidence; corrections require a superseding or replacement assessment.}
   - {id: SUPPLIER-PERFORMANCE-008, rule: Assessment publication must be idempotent and must not create duplicate scorecards for the same assessment identity.}
+  - {id: SUPPLIER-PERFORMANCE-ASSESSMENT-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
+  lifecycle:
+    title: Supplier Performance Assessment Lifecycle
+    attribute: status
+    states: [DRAFT, IN_REVIEW, APPROVED, PUBLISHED, SUPERSEDED, CANCELLED]
+    initial: DRAFT
+    terminal: [SUPERSEDED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: IN_REVIEW, action: mark_in_review}
+      - {from: IN_REVIEW, to: APPROVED, action: approve}
+      - {from: APPROVED, to: PUBLISHED, action: publish}
+      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+      - {from: IN_REVIEW, to: SUPERSEDED, action: mark_superseded}
+      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+      - {from: PUBLISHED, to: SUPERSEDED, action: mark_superseded}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: IN_REVIEW, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: PUBLISHED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier performance assessment is ended"
+      description: "When a supplier performance assessment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-PERFORMANCE-ASSESSMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier performance assessment {{assessment_number}}"
+              description: "Supplier performance assessment {{assessment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides a governed supplier scorecard that converts procurement, receipt, quality, claim, return and corrective-action evidence into an auditable performance assessment.
     businessMeaning: Supplier remains the master relationship; operational transactions provide evidence; SupplierPerformanceAssessment interprets that evidence for governance without rewriting the underlying facts.

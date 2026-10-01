@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-01T05:17:44.648Z
+//! Generated: 2026-10-01T09:31:57.312Z
 //! Project: energy
 
 #![allow(dead_code)]

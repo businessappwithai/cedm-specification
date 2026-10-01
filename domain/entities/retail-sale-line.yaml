@@ -126,6 +126,11 @@ entity:
   invariants:
   - id: RETAIL-SALE-LINE-001
     rule: quantity must be greater than zero.
+  - {id: RETAIL-SALE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: RETAIL-SALE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: RETAIL-SALE-LINE-EXE-003, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+  - {id: RETAIL-SALE-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+  - {id: RETAIL-SALE-LINE-EXE-005, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
     summary: Represents a retail transaction line called RetailSaleLine within the CEDM business model.
     businessMeaning: RetailSaleLine is a business concept with its own identity and lifecycle. It captures information that

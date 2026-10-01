@@ -204,6 +204,25 @@ pub async fn list(
     let spec = lookup(&segment)?;
     let pool = ctx.db.get_postgres_connection_pool();
 
+    // A Table reference — an enumeration with a business table — has no rows in
+    // `sys_ref_list`: its values are the table's, so a value reworded or retired
+    // there is what the dropdown offers on the next request.
+    if spec.table == "sys_ref_list" {
+        if let Some(reference_id) = params
+            .get("sys_reference_id")
+            .and_then(|value| value.parse::<i32>().ok())
+        {
+            if let Some(items) = table_reference_values(pool, reference_id).await? {
+                let total = items.len();
+                return Ok(Json(json!({
+                    "data": items,
+                    "meta": { "total": total, "page": 1, "limit": total, "totalPages": 1 }
+                }))
+                .into_response());
+            }
+        }
+    }
+
     let conditions = conditions_from(pool, spec, &params).await?;
     let (limit, page, offset) = pagination_from(&params);
 
@@ -251,6 +270,110 @@ pub async fn list(
         }
     }))
     .into_response())
+}
+
+/// A name that may be written into SQL: lower-case words joined by underscores.
+/// Table and column names reach this handler from the dictionary, which an
+/// administrator can write, so they are checked rather than trusted.
+fn is_safe_identifier(name: &str) -> bool {
+    !name.is_empty()
+        && name.starts_with(|c: char| c.is_ascii_lowercase())
+        && name
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+}
+
+/// An `ORDER BY` the dictionary may state: one column, optionally `asc`/`desc`.
+fn safe_order_by(clause: &str) -> Option<String> {
+    let mut parts = clause.split_whitespace();
+    let column = parts.next()?;
+    let direction = parts.next().map(str::to_ascii_lowercase);
+    let valid_direction = matches!(direction.as_deref(), None | Some("asc") | Some("desc"));
+    (is_safe_identifier(column) && valid_direction && parts.next().is_none()).then(|| {
+        match direction {
+            Some(direction) => format!("{column} {direction}"),
+            None => column.to_string(),
+        }
+    })
+}
+
+/// The values of a Table reference, shaped like `sys_ref_list` rows, or `None`
+/// when the reference is not a Table one.
+///
+/// Only a filter of the form `<column> = true|false` is honoured from
+/// `where_clause` — the enumeration contract's `is_active = true` — because the
+/// clause is text an administrator wrote and is not run as SQL.
+async fn table_reference_values(pool: &PgPool, reference_id: i32) -> AppResult<Option<Vec<Value>>> {
+    let definition = sqlx::query(
+        "SELECT t.table_name, k.column_name AS key_column, d.column_name AS display_column, \
+                rt.order_by_clause, rt.where_clause \
+           FROM sys_ref_table rt \
+           JOIN sys_table t ON t.sys_table_id = rt.sys_table_id \
+           JOIN sys_column k ON k.sys_column_id = rt.key_column_id \
+           JOIN sys_column d ON d.sys_column_id = rt.display_column_id \
+          WHERE rt.sys_reference_id = $1 AND rt.is_active \
+          LIMIT 1",
+    )
+    .bind(reference_id)
+    .fetch_optional(pool)
+    .await?;
+    let Some(definition) = definition else {
+        return Ok(None);
+    };
+    let table: String = definition.try_get("table_name")?;
+    let key: String = definition.try_get("key_column")?;
+    let display: String = definition.try_get("display_column")?;
+    let order: Option<String> = definition.try_get("order_by_clause")?;
+    let filter: Option<String> = definition.try_get("where_clause")?;
+    if ![&table, &key, &display].iter().all(|name| is_safe_identifier(name)) {
+        return Err(AppError::BadRequest(format!(
+            "Reference {reference_id} names a table or column that is not a plain identifier"
+        )));
+    }
+
+    let has_description: bool = sqlx::query_scalar(
+        "SELECT EXISTS (SELECT 1 FROM information_schema.columns \
+                         WHERE table_name = $1 AND column_name = 'description')",
+    )
+    .bind(&table)
+    .fetch_one(pool)
+    .await?;
+    let description = if has_description { "description::text" } else { "NULL::text" };
+
+    let mut sql = format!(
+        "SELECT {key}::text AS value, {display}::text AS name, {description} AS description FROM {table}"
+    );
+    if let Some(clause) = filter.as_deref() {
+        let mut words = clause.split_whitespace();
+        if let (Some(column), Some("="), Some(flag), None) =
+            (words.next(), words.next(), words.next(), words.next())
+        {
+            if is_safe_identifier(column) && matches!(flag, "true" | "false") {
+                sql.push_str(&format!(" WHERE {column} = {flag}"));
+            }
+        }
+    }
+    sql.push_str(&format!(
+        " ORDER BY {}, {key} LIMIT 1000",
+        order.as_deref().and_then(safe_order_by).unwrap_or_else(|| display.clone())
+    ));
+
+    let rows = sqlx::query(AssertSqlSafe(sql)).fetch_all(pool).await?;
+    let items = rows
+        .iter()
+        .map(|row| {
+            let value: String = row.try_get("value").unwrap_or_default();
+            json!({
+                "sys_ref_list_id": value,
+                "sys_reference_id": reference_id,
+                "value": value,
+                "name": row.try_get::<String, _>("name").unwrap_or_default(),
+                "description": row.try_get::<Option<String>, _>("description").unwrap_or(None),
+                "is_active": true,
+            })
+        })
+        .collect();
+    Ok(Some(items))
 }
 
 /// `GET /api/sys/{fields|columns}/{form|grid}` — the field layout for one

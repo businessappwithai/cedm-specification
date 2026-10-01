@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_governance_transaction
   description: A governed effective-dated record of Product lifecycle transitions used to preserve why, when, and under whose authority product eligibility changed.
+  ui:
+    icon: package
   identity: {key: productLifecycleId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: Stable lifecycle-event identity., businessMeaning: Identifies one governed product state transition., usage: PIM governance and audit., relationshipContext: Supplements current Product.status with historical evidence., requiredMeaning: Required.}}

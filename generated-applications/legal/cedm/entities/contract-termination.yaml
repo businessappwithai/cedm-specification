@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: contract_lifecycle
   description: A governed event ending a Contract or selected obligations under authorized termination terms.
+  ui:
+    icon: file-check
   identity: {key: contractTerminationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractTermination., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

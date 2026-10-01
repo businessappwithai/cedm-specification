@@ -127,6 +127,12 @@ entity:
   - {id: INVOICE-LINE-010, rule: "Posted InvoiceLine corrections require controlled CreditNote, SupplierCreditNote, debit or other authorized adjustment workflows rather than destructive mutation."}
   - {id: INVOICE-LINE-011, rule: "A CreditNoteLine or SupplierCreditNoteLine linked to this InvoiceLine must remain within eligible source quantity/value and applicable return, pricing, tax and approval policy."}
   - {id: INVOICE-LINE-012, rule: "Posting either customer or supplier credit adjustment never changes this line's historical quantity, unit price, discount, tax or net amount."}
+  - {id: INVOICE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: INVOICE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: INVOICE-LINE-EXE-003, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+  - {id: INVOICE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   help:
     summary: Represents one immutable financial claim line with reproducible calculation evidence and explicit customer and supplier adjustment references.
     businessMeaning: InvoiceLine is the historical financial result. Current Product, DiscountRule, TaxRule, UOM and pricing master data are inputs to future transactions, not live dependencies of a posted line. CreditNoteLine and SupplierCreditNoteLine record later reductions separately.

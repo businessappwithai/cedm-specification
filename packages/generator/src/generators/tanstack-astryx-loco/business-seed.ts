@@ -80,9 +80,21 @@ export function buildBusinessSeedSql(options: BusinessSeedOptions): string {
   const enumerationTables = new Set(
     (options.modelEnums ?? []).filter((declared) => declared.table).map((declared) => declared.name)
   );
-  const entities = options.entities.filter((entity) => !enumerationTables.has(entity.name));
+  // Nor do reference-data entities (countries, cities, currencies…): their rows
+  // are the common specification's, written by the dictionary seed. A record that
+  // points at one points at one of those rows.
+  const entities = options.entities.filter(
+    (entity) => !enumerationTables.has(entity.name) && !entity.data
+  );
+  const dataKeys = new Map(
+    options.entities.flatMap((entity) =>
+      entity.data
+        ? [[entity.tableName, entity.data.rows.map((row) => row[entity.data?.key as string])] as const]
+        : []
+    )
+  );
   const rows = options.rowsPerEntity ?? DEFAULT_ROWS;
-  const tables = new Set(entities.map((entity) => entity.tableName));
+  const tables = new Set(options.entities.map((entity) => entity.tableName));
 
   const out: string[] = [];
   out.push(`-- Demonstration records for ${projectName}.`);
@@ -114,8 +126,13 @@ export function buildBusinessSeedSql(options: BusinessSeedOptions): string {
   );
 
   /** `bus_compound` row 2 → its id. Deterministic, so re-running is a no-op. */
-  const rowId = (tableName: string, index: number) =>
-    uuidv5(`${projectName}:business:${tableName}:${index}`);
+  const rowId = (tableName: string, index: number) => {
+    const keys = dataKeys.get(tableName);
+    if (keys?.length) {
+      return uuidv5(`${projectName}:data:${tableName}:${keys[index % keys.length]}`);
+    }
+    return uuidv5(`${projectName}:business:${tableName}:${index}`);
+  };
 
   for (const entity of ordered) {
     out.push("");

@@ -7,4 +7,872 @@
 -- presents them read-only so a regeneration cannot quietly discard an edit
 -- someone made in the UI.
 
--- The model declares no sagas.
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('PartyExceptionRaised', 'bus_party', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_PartyExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_PartyExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_PartyExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_PartyExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PARTY-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve party {{display_name}}&quot;,&quot;description&quot;:&quot;Party {{display_name}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_PartyExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_PartyExceptionRaised_flow_0" sourceRef="Process_PartyExceptionRaised_start" targetRef="Process_PartyExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_PartyExceptionRaised_flow_1" sourceRef="Process_PartyExceptionRaised_S1" targetRef="Process_PartyExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_PartyExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_PartyExceptionRaised" bpmnElement="Process_PartyExceptionRaised">
+      <bpmndi:BPMNShape id="Process_PartyExceptionRaised_start_di" bpmnElement="Process_PartyExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_PartyExceptionRaised_S1_di" bpmnElement="Process_PartyExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_PartyExceptionRaised_end_di" bpmnElement="Process_PartyExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_PartyExceptionRaised_flow_0_di" bpmnElement="Process_PartyExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_PartyExceptionRaised_flow_1_di" bpmnElement="Process_PartyExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a party is blocked, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ExchangeRateFollowUpRequired', 'bus_exchange_rate', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ExchangeRateFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ExchangeRateFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ExchangeRateFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ExchangeRateFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;EXCHANGE-RATE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on exchange rate {{id}}&quot;,&quot;description&quot;:&quot;Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ExchangeRateFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ExchangeRateFollowUpRequired_flow_0" sourceRef="Process_ExchangeRateFollowUpRequired_start" targetRef="Process_ExchangeRateFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ExchangeRateFollowUpRequired_flow_1" sourceRef="Process_ExchangeRateFollowUpRequired_S1" targetRef="Process_ExchangeRateFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ExchangeRateFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ExchangeRateFollowUpRequired" bpmnElement="Process_ExchangeRateFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ExchangeRateFollowUpRequired_start_di" bpmnElement="Process_ExchangeRateFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ExchangeRateFollowUpRequired_S1_di" bpmnElement="Process_ExchangeRateFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ExchangeRateFollowUpRequired_end_di" bpmnElement="Process_ExchangeRateFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ExchangeRateFollowUpRequired_flow_0_di" bpmnElement="Process_ExchangeRateFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ExchangeRateFollowUpRequired_flow_1_di" bpmnElement="Process_ExchangeRateFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a exchange rate is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectExceptionRaised', 'bus_project', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_ProjectExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve project {{name}}&quot;,&quot;description&quot;:&quot;Project {{name}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectExceptionRaised_flow_0" sourceRef="Process_ProjectExceptionRaised_start" targetRef="Process_ProjectExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectExceptionRaised_flow_1" sourceRef="Process_ProjectExceptionRaised_S1" targetRef="Process_ProjectExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectExceptionRaised" bpmnElement="Process_ProjectExceptionRaised">
+      <bpmndi:BPMNShape id="Process_ProjectExceptionRaised_start_di" bpmnElement="Process_ProjectExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectExceptionRaised_S1_di" bpmnElement="Process_ProjectExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectExceptionRaised_end_di" bpmnElement="Process_ProjectExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectExceptionRaised_flow_0_di" bpmnElement="Process_ProjectExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectExceptionRaised_flow_1_di" bpmnElement="Process_ProjectExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project is on hold, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectFollowUpRequired', 'bus_project', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ProjectFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on project {{name}}&quot;,&quot;description&quot;:&quot;Project {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectFollowUpRequired_flow_0" sourceRef="Process_ProjectFollowUpRequired_start" targetRef="Process_ProjectFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectFollowUpRequired_flow_1" sourceRef="Process_ProjectFollowUpRequired_S1" targetRef="Process_ProjectFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectFollowUpRequired" bpmnElement="Process_ProjectFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ProjectFollowUpRequired_start_di" bpmnElement="Process_ProjectFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectFollowUpRequired_S1_di" bpmnElement="Process_ProjectFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectFollowUpRequired_end_di" bpmnElement="Process_ProjectFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectFollowUpRequired_flow_0_di" bpmnElement="Process_ProjectFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectFollowUpRequired_flow_1_di" bpmnElement="Process_ProjectFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectPhaseFollowUpRequired', 'bus_project_phase', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectPhaseFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectPhaseFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectPhaseFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ProjectPhaseFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-PHASE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on project phase {{name}}&quot;,&quot;description&quot;:&quot;Project phase {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectPhaseFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectPhaseFollowUpRequired_flow_0" sourceRef="Process_ProjectPhaseFollowUpRequired_start" targetRef="Process_ProjectPhaseFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectPhaseFollowUpRequired_flow_1" sourceRef="Process_ProjectPhaseFollowUpRequired_S1" targetRef="Process_ProjectPhaseFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectPhaseFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectPhaseFollowUpRequired" bpmnElement="Process_ProjectPhaseFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ProjectPhaseFollowUpRequired_start_di" bpmnElement="Process_ProjectPhaseFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectPhaseFollowUpRequired_S1_di" bpmnElement="Process_ProjectPhaseFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectPhaseFollowUpRequired_end_di" bpmnElement="Process_ProjectPhaseFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectPhaseFollowUpRequired_flow_0_di" bpmnElement="Process_ProjectPhaseFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectPhaseFollowUpRequired_flow_1_di" bpmnElement="Process_ProjectPhaseFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project phase is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectTaskExceptionRaised', 'bus_project_task', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectTaskExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectTaskExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectTaskExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_ProjectTaskExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-TASK-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve project task {{name}}&quot;,&quot;description&quot;:&quot;Project task {{name}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectTaskExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectTaskExceptionRaised_flow_0" sourceRef="Process_ProjectTaskExceptionRaised_start" targetRef="Process_ProjectTaskExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectTaskExceptionRaised_flow_1" sourceRef="Process_ProjectTaskExceptionRaised_S1" targetRef="Process_ProjectTaskExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectTaskExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectTaskExceptionRaised" bpmnElement="Process_ProjectTaskExceptionRaised">
+      <bpmndi:BPMNShape id="Process_ProjectTaskExceptionRaised_start_di" bpmnElement="Process_ProjectTaskExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectTaskExceptionRaised_S1_di" bpmnElement="Process_ProjectTaskExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectTaskExceptionRaised_end_di" bpmnElement="Process_ProjectTaskExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectTaskExceptionRaised_flow_0_di" bpmnElement="Process_ProjectTaskExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectTaskExceptionRaised_flow_1_di" bpmnElement="Process_ProjectTaskExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project task is blocked, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProjectTaskFollowUpRequired', 'bus_project_task', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProjectTaskFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProjectTaskFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ProjectTaskFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ProjectTaskFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROJECT-TASK-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on project task {{name}}&quot;,&quot;description&quot;:&quot;Project task {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProjectTaskFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ProjectTaskFollowUpRequired_flow_0" sourceRef="Process_ProjectTaskFollowUpRequired_start" targetRef="Process_ProjectTaskFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ProjectTaskFollowUpRequired_flow_1" sourceRef="Process_ProjectTaskFollowUpRequired_S1" targetRef="Process_ProjectTaskFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProjectTaskFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProjectTaskFollowUpRequired" bpmnElement="Process_ProjectTaskFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ProjectTaskFollowUpRequired_start_di" bpmnElement="Process_ProjectTaskFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectTaskFollowUpRequired_S1_di" bpmnElement="Process_ProjectTaskFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProjectTaskFollowUpRequired_end_di" bpmnElement="Process_ProjectTaskFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProjectTaskFollowUpRequired_flow_0_di" bpmnElement="Process_ProjectTaskFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProjectTaskFollowUpRequired_flow_1_di" bpmnElement="Process_ProjectTaskFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a project task is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('MilestoneFollowUpRequired', 'bus_milestone', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_MilestoneFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_MilestoneFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_MilestoneFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_MilestoneFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;MILESTONE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on milestone {{name}}&quot;,&quot;description&quot;:&quot;Milestone {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_MilestoneFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_MilestoneFollowUpRequired_flow_0" sourceRef="Process_MilestoneFollowUpRequired_start" targetRef="Process_MilestoneFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_MilestoneFollowUpRequired_flow_1" sourceRef="Process_MilestoneFollowUpRequired_S1" targetRef="Process_MilestoneFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_MilestoneFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_MilestoneFollowUpRequired" bpmnElement="Process_MilestoneFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_MilestoneFollowUpRequired_start_di" bpmnElement="Process_MilestoneFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MilestoneFollowUpRequired_S1_di" bpmnElement="Process_MilestoneFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_MilestoneFollowUpRequired_end_di" bpmnElement="Process_MilestoneFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_MilestoneFollowUpRequired_flow_0_di" bpmnElement="Process_MilestoneFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_MilestoneFollowUpRequired_flow_1_di" bpmnElement="Process_MilestoneFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a milestone is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ResourceAssignmentFollowUpRequired', 'bus_resource_assignment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ResourceAssignmentFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ResourceAssignmentFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ResourceAssignmentFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ResourceAssignmentFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;RESOURCE-ASSIGNMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on resource assignment {{id}}&quot;,&quot;description&quot;:&quot;Resource assignment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ResourceAssignmentFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ResourceAssignmentFollowUpRequired_flow_0" sourceRef="Process_ResourceAssignmentFollowUpRequired_start" targetRef="Process_ResourceAssignmentFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ResourceAssignmentFollowUpRequired_flow_1" sourceRef="Process_ResourceAssignmentFollowUpRequired_S1" targetRef="Process_ResourceAssignmentFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ResourceAssignmentFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ResourceAssignmentFollowUpRequired" bpmnElement="Process_ResourceAssignmentFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentFollowUpRequired_start_di" bpmnElement="Process_ResourceAssignmentFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentFollowUpRequired_S1_di" bpmnElement="Process_ResourceAssignmentFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentFollowUpRequired_end_di" bpmnElement="Process_ResourceAssignmentFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ResourceAssignmentFollowUpRequired_flow_0_di" bpmnElement="Process_ResourceAssignmentFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ResourceAssignmentFollowUpRequired_flow_1_di" bpmnElement="Process_ResourceAssignmentFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a resource assignment is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ResourceAssignmentCompletionConfirmed', 'bus_resource_assignment', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ResourceAssignmentCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ResourceAssignmentCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_ResourceAssignmentCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_ResourceAssignmentCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;RESOURCE-ASSIGNMENT-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm resource assignment {{id}}&quot;,&quot;description&quot;:&quot;Resource assignment {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ResourceAssignmentCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_ResourceAssignmentCompletionConfirmed_flow_0" sourceRef="Process_ResourceAssignmentCompletionConfirmed_start" targetRef="Process_ResourceAssignmentCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_ResourceAssignmentCompletionConfirmed_flow_1" sourceRef="Process_ResourceAssignmentCompletionConfirmed_S1" targetRef="Process_ResourceAssignmentCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ResourceAssignmentCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ResourceAssignmentCompletionConfirmed" bpmnElement="Process_ResourceAssignmentCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentCompletionConfirmed_start_di" bpmnElement="Process_ResourceAssignmentCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentCompletionConfirmed_S1_di" bpmnElement="Process_ResourceAssignmentCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ResourceAssignmentCompletionConfirmed_end_di" bpmnElement="Process_ResourceAssignmentCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ResourceAssignmentCompletionConfirmed_flow_0_di" bpmnElement="Process_ResourceAssignmentCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ResourceAssignmentCompletionConfirmed_flow_1_di" bpmnElement="Process_ResourceAssignmentCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a resource assignment is completed, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('TimesheetFollowUpRequired', 'bus_timesheet', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_TimesheetFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_TimesheetFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_TimesheetFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_TimesheetFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;TIMESHEET-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on timesheet {{id}}&quot;,&quot;description&quot;:&quot;Timesheet {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_TimesheetFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_TimesheetFollowUpRequired_flow_0" sourceRef="Process_TimesheetFollowUpRequired_start" targetRef="Process_TimesheetFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_TimesheetFollowUpRequired_flow_1" sourceRef="Process_TimesheetFollowUpRequired_S1" targetRef="Process_TimesheetFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_TimesheetFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_TimesheetFollowUpRequired" bpmnElement="Process_TimesheetFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_TimesheetFollowUpRequired_start_di" bpmnElement="Process_TimesheetFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TimesheetFollowUpRequired_S1_di" bpmnElement="Process_TimesheetFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TimesheetFollowUpRequired_end_di" bpmnElement="Process_TimesheetFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_TimesheetFollowUpRequired_flow_0_di" bpmnElement="Process_TimesheetFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_TimesheetFollowUpRequired_flow_1_di" bpmnElement="Process_TimesheetFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a timesheet is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('TimesheetCompletionConfirmed', 'bus_timesheet', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_TimesheetCompletionConfirmed"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_TimesheetCompletionConfirmed" isExecutable="true">
+    <bpmn:startEvent id="Process_TimesheetCompletionConfirmed_start"/>
+    <bpmn:serviceTask id="Process_TimesheetCompletionConfirmed_S1" name="Raise a task: confirm">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;TIMESHEET-COMPLETED-{{id}}&quot;,&quot;name&quot;:&quot;Confirm timesheet {{id}}&quot;,&quot;description&quot;:&quot;Timesheet {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;LOW&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_TimesheetCompletionConfirmed_end"/>
+    <bpmn:sequenceFlow id="Process_TimesheetCompletionConfirmed_flow_0" sourceRef="Process_TimesheetCompletionConfirmed_start" targetRef="Process_TimesheetCompletionConfirmed_S1"/>
+    <bpmn:sequenceFlow id="Process_TimesheetCompletionConfirmed_flow_1" sourceRef="Process_TimesheetCompletionConfirmed_S1" targetRef="Process_TimesheetCompletionConfirmed_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_TimesheetCompletionConfirmed">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_TimesheetCompletionConfirmed" bpmnElement="Process_TimesheetCompletionConfirmed">
+      <bpmndi:BPMNShape id="Process_TimesheetCompletionConfirmed_start_di" bpmnElement="Process_TimesheetCompletionConfirmed_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TimesheetCompletionConfirmed_S1_di" bpmnElement="Process_TimesheetCompletionConfirmed_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_TimesheetCompletionConfirmed_end_di" bpmnElement="Process_TimesheetCompletionConfirmed_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_TimesheetCompletionConfirmed_flow_0_di" bpmnElement="Process_TimesheetCompletionConfirmed_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_TimesheetCompletionConfirmed_flow_1_di" bpmnElement="Process_TimesheetCompletionConfirmed_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a timesheet is completed, a task asks someone to confirm the outcome.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProfessionalEngagementApprovalRequested', 'bus_professional_engagement', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProfessionalEngagementApprovalRequested"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProfessionalEngagementApprovalRequested" isExecutable="true">
+    <bpmn:startEvent id="Process_ProfessionalEngagementApprovalRequested_start"/>
+    <bpmn:serviceTask id="Process_ProfessionalEngagementApprovalRequested_S1" name="Raise a task: decide on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROFESSIONAL-ENGAGEMENT-APPROVAL-{{id}}&quot;,&quot;name&quot;:&quot;Decide on professional engagement {{name}}&quot;,&quot;description&quot;:&quot;Professional engagement {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record.&quot;,&quot;task_type&quot;:&quot;APPROVAL&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProfessionalEngagementApprovalRequested_end"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementApprovalRequested_flow_0" sourceRef="Process_ProfessionalEngagementApprovalRequested_start" targetRef="Process_ProfessionalEngagementApprovalRequested_S1"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementApprovalRequested_flow_1" sourceRef="Process_ProfessionalEngagementApprovalRequested_S1" targetRef="Process_ProfessionalEngagementApprovalRequested_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProfessionalEngagementApprovalRequested">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProfessionalEngagementApprovalRequested" bpmnElement="Process_ProfessionalEngagementApprovalRequested">
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementApprovalRequested_start_di" bpmnElement="Process_ProfessionalEngagementApprovalRequested_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementApprovalRequested_S1_di" bpmnElement="Process_ProfessionalEngagementApprovalRequested_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementApprovalRequested_end_di" bpmnElement="Process_ProfessionalEngagementApprovalRequested_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementApprovalRequested_flow_0_di" bpmnElement="Process_ProfessionalEngagementApprovalRequested_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementApprovalRequested_flow_1_di" bpmnElement="Process_ProfessionalEngagementApprovalRequested_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a professional engagement is proposed, a task asks someone to decide on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProfessionalEngagementExceptionRaised', 'bus_professional_engagement', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProfessionalEngagementExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProfessionalEngagementExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_ProfessionalEngagementExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_ProfessionalEngagementExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROFESSIONAL-ENGAGEMENT-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve professional engagement {{name}}&quot;,&quot;description&quot;:&quot;Professional engagement {{name}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProfessionalEngagementExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementExceptionRaised_flow_0" sourceRef="Process_ProfessionalEngagementExceptionRaised_start" targetRef="Process_ProfessionalEngagementExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementExceptionRaised_flow_1" sourceRef="Process_ProfessionalEngagementExceptionRaised_S1" targetRef="Process_ProfessionalEngagementExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProfessionalEngagementExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProfessionalEngagementExceptionRaised" bpmnElement="Process_ProfessionalEngagementExceptionRaised">
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementExceptionRaised_start_di" bpmnElement="Process_ProfessionalEngagementExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementExceptionRaised_S1_di" bpmnElement="Process_ProfessionalEngagementExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementExceptionRaised_end_di" bpmnElement="Process_ProfessionalEngagementExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementExceptionRaised_flow_0_di" bpmnElement="Process_ProfessionalEngagementExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementExceptionRaised_flow_1_di" bpmnElement="Process_ProfessionalEngagementExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a professional engagement is on hold, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ProfessionalEngagementFollowUpRequired', 'bus_professional_engagement', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ProfessionalEngagementFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ProfessionalEngagementFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ProfessionalEngagementFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ProfessionalEngagementFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;PROFESSIONAL-ENGAGEMENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on professional engagement {{name}}&quot;,&quot;description&quot;:&quot;Professional engagement {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ProfessionalEngagementFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementFollowUpRequired_flow_0" sourceRef="Process_ProfessionalEngagementFollowUpRequired_start" targetRef="Process_ProfessionalEngagementFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ProfessionalEngagementFollowUpRequired_flow_1" sourceRef="Process_ProfessionalEngagementFollowUpRequired_S1" targetRef="Process_ProfessionalEngagementFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ProfessionalEngagementFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ProfessionalEngagementFollowUpRequired" bpmnElement="Process_ProfessionalEngagementFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementFollowUpRequired_start_di" bpmnElement="Process_ProfessionalEngagementFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementFollowUpRequired_S1_di" bpmnElement="Process_ProfessionalEngagementFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ProfessionalEngagementFollowUpRequired_end_di" bpmnElement="Process_ProfessionalEngagementFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementFollowUpRequired_flow_0_di" bpmnElement="Process_ProfessionalEngagementFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ProfessionalEngagementFollowUpRequired_flow_1_di" bpmnElement="Process_ProfessionalEngagementFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a professional engagement is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();

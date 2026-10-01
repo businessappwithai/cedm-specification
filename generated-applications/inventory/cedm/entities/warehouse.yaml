@@ -4,6 +4,8 @@ entity:
   kind: location_specialization
   extends: Location
   description: A managed physical or operational facility in which inventory is received, stored, controlled, picked, consolidated, and dispatched under defined warehouse processes.
+  ui:
+    icon: warehouse
   identity:
     key: warehouseId
     type: uuid
@@ -116,6 +118,18 @@ entity:
     rule: A CLOSED warehouse must not accept new normal receiving, put-away, or shipping transactions unless an explicit closure workflow permits them.
   - id: WAREHOUSE-004
     rule: Capacity values must be non-negative when supplied and must have an explicitly defined measurement convention.
+  - {id: WAREHOUSE-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
+  lifecycle:
+    title: Warehouse Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+    initial: PLANNED
+    terminal: [CLOSED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
     summary: Represents a managed facility where inventory is physically or operationally received, stored, controlled, fulfilled, and dispatched.
     businessMeaning: "Warehouse is more than an address: it is an operational capability with storage structure, inventory processes, capacity constraints, and an operating lifecycle. It provides the facility context in which InventoryLocation and InventoryMovement events occur."

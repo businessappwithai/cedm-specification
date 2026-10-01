@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: document_version
   description: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
+  ui:
+    icon: file-text
   identity: {key: documentVersionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentVersion., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

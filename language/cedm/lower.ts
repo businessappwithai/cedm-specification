@@ -28,6 +28,8 @@ import type {
   RelationshipDocument,
   RelationshipEnd,
   RuleDocument,
+  SagaDocument,
+  SagaStepDocument,
   StateMachineDocument,
 } from "../yaml/document";
 import type {
@@ -37,6 +39,8 @@ import type {
   CedmLifecycle,
   CedmModelDocument,
   CedmRelationship,
+  CedmWorkflow,
+  CedmWorkflowStep,
 } from "./document";
 import { derivedReferenceTable, lowerFirst, pascalCase, snakeCase, tableOf } from "./naming";
 
@@ -737,6 +741,50 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     }
   });
 
+  /* ---- entity workflows -------------------------------------------------- */
+  const entitySagas: SagaDocument[] = [];
+  states.forEach((state) => {
+    const declared = state.source.workflows ?? [];
+    if (!declared.length) return;
+    const event = (workflow: CedmWorkflow) => workflow.event ?? "afterUpdate";
+    const byEvent = new Map<string, CedmWorkflow[]>();
+    for (const workflow of declared) {
+      const sagaName = `${state.source.name}${workflow.name}`;
+      entitySagas.push({
+        name: sagaName,
+        ...(workflow.title !== undefined ? { title: workflow.title } : {}),
+        entity: state.source.name,
+        operation: "UPDATE",
+        trigger: "rule",
+        ...(workflow.description !== undefined ? { description: workflow.description } : {}),
+        steps: workflow.steps.map((step) => lowerWorkflowStep(step, entityNames)),
+      });
+      byEvent.set(event(workflow), [...(byEvent.get(event(workflow)) ?? []), workflow]);
+    }
+    for (const [eventName, group] of byEvent) {
+      rules.push({
+        name: `${lowerFirst(state.source.name)}Workflows${pascalCase(eventName)}`,
+        title: `${state.source.name} workflows (${eventName})`,
+        entity: state.source.name,
+        event: eventName,
+        nodes: [
+          { id: "S", label: `Start: ${state.source.name} ${eventName}`, type: "start" },
+          { id: "E", label: "End: workflows started", type: "end" },
+        ],
+        edges: [{ from: "S", to: "E" }],
+        actions: group.map((workflow) => ({
+          name: workflow.name,
+          type: "trigger-workflow",
+          when: workflow.when,
+          props: {
+            workflow: `${state.source.name}${workflow.name}`,
+            ...(workflow.message !== undefined ? { message: workflow.message } : {}),
+          },
+        })),
+      });
+    }
+  });
+
   /* ---- authorization ---------------------------------------------------- */
   const rbac: RbacDocument[] = [];
   (cedm.authorization?.permissions ?? []).forEach((permission, index) => {
@@ -767,6 +815,75 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     });
   });
 
+  /* ---- narrowed lookups: names become the columns that hold the references ---- */
+  states.forEach((state) => {
+    const physical = new Set(state.document.attributes.map((attribute) => attribute.name));
+    const relationshipNames = new Set((state.source.relationships ?? []).map((r) => r.name));
+    const columnOf = (name: string): string | undefined => {
+      const declared = state.columns.get(name);
+      if (declared !== undefined && physical.has(declared)) return declared;
+      const key = `${snakeCase(name)}_id`;
+      return relationshipNames.has(name) && physical.has(key) ? key : undefined;
+    };
+    const apply = (holder: string, names: string[]) => {
+      const column = columnOf(holder);
+      const target = state.document.attributes.find((attribute) => attribute.name === column);
+      const columns = names.map(columnOf);
+      if (!target || columns.some((name) => name === undefined)) {
+        note(
+          "error",
+          "CEDM182",
+          `${state.source.name}.${holder} is narrowed by ${names.join(", ")}, which are not all references of the entity.`,
+          ["entities", state.index]
+        );
+        return;
+      }
+      target.narrowedBy = columns as string[];
+    };
+    for (const relationship of state.source.relationships ?? []) {
+      if (relationship.narrowedBy?.length) apply(relationship.name, relationship.narrowedBy);
+    }
+    for (const attribute of state.source.attributes ?? []) {
+      if (attribute.narrowedBy?.length) apply(attribute.name, attribute.narrowedBy);
+    }
+  });
+
+  /* ---- reference data: rows keyed by attribute become rows keyed by column --- */
+  states.forEach((state) => {
+    const data = state.source.data;
+    if (!data) return;
+    const physical = new Set(state.document.attributes.map((attribute) => attribute.name));
+    const columnOf = (name: string): string | undefined => {
+      const declared = state.columns.get(name);
+      if (declared !== undefined) return declared;
+      const key = `${snakeCase(name)}_id`;
+      return (state.source.relationships ?? []).some((relationship) => relationship.name === name) &&
+        physical.has(key)
+        ? key
+        : physical.has(snakeCase(name))
+          ? snakeCase(name)
+          : undefined;
+    };
+    const keyColumn = columnOf(data.key);
+    if (keyColumn === undefined) {
+      note("error", "CEDM180", `${state.source.name} data names the key "${data.key}", which is not one of its columns.`, ["entities", state.index]);
+      return;
+    }
+    const rows = data.rows.map((row) => {
+      const lowered: Record<string, string | number | boolean | null> = {};
+      for (const [name, value] of Object.entries(row)) {
+        const column = columnOf(name);
+        if (column === undefined) {
+          note("error", "CEDM181", `${state.source.name} data has a value for "${name}", which is not one of its columns.`, ["entities", state.index]);
+          continue;
+        }
+        lowered[column] = value;
+      }
+      return lowered;
+    });
+    state.document.data = { key: keyColumn, rows };
+  });
+
   /* ---- the document ------------------------------------------------------- */
   const document: ModelDocument = { eml: "1.0", entities: states.map((state) => state.document) };
   if (cedm.application?.name !== undefined) document.name = cedm.application.name;
@@ -794,6 +911,7 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
   if (rules.length) document.rules = rules;
   if (stateMachines.length) document.stateMachines = stateMachines;
   passThrough("sagas", cedm.processes, ["processes"]);
+  if (entitySagas.length) document.sagas = [...(document.sagas ?? []), ...entitySagas];
 
   // Hook fields name columns; accept the attribute names CEDM writes.
   if (document.hooks) {
@@ -907,6 +1025,29 @@ function addEnumerationTables(
 /** `SalesOrderStatus` → `sales order status`. */
 function wordsOf(name: string): string {
   return name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2").toLowerCase();
+}
+
+/**
+ * A workflow step as a saga step. An entity named by its CEDM name is written as
+ * its table (`Task` → `bus_task`), and `fields` given as an object is the JSON
+ * text the executor reads. Mirrored by `lower_workflow_step` in
+ * `crates/appwithai-gen/src/cedm.rs`.
+ */
+function lowerWorkflowStep(step: CedmWorkflowStep, entityNames: Set<string>): SagaStepDocument {
+  const properties: Record<string, string> = {};
+  for (const [name, value] of Object.entries(step.properties ?? {})) {
+    if (typeof value === "string") {
+      properties[name] = name === "entity" && entityNames.has(value) ? tableOf(value) : value;
+    } else {
+      properties[name] = JSON.stringify(value);
+    }
+  }
+  return {
+    id: step.id,
+    type: step.type,
+    ...(step.label !== undefined ? { label: step.label } : {}),
+    ...(Object.keys(properties).length ? { properties } : {}),
+  };
 }
 
 function lowerAttribute(

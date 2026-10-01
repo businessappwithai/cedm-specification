@@ -159,6 +159,83 @@ entity:
   - {id: SUPPLIER-RETURN-009, rule: "Changes to Supplier, PurchaseOrderLine, GoodsReceiptLine, Product, UnitOfMeasure or Invoice affecting an open return require controlled revalidation."}
   - {id: SUPPLIER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory reductions or supplier credits.}
   - {id: SUPPLIER-RETURN-011, rule: "Where return policy requires quality inspection, completion cannot bypass an unresolved required QualityInspection result or disposition."}
+  lifecycle:
+    title: Supplier Return Lifecycle
+    attribute: status
+    states: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED_BY_SUPPLIER, COMPLETED, CANCELLED, EXCEPTION]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: AUTHORIZED, action: authorize}
+      - {from: AUTHORIZED, to: IN_TRANSIT, action: mark_in_transit}
+      - {from: IN_TRANSIT, to: RECEIVED_BY_SUPPLIER, action: mark_received_by_supplier}
+      - {from: RECEIVED_BY_SUPPLIER, to: COMPLETED, action: complete}
+      - {from: AUTHORIZED, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: AUTHORIZED, action: resolve_exception}
+      - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
+      - {from: RECEIVED_BY_SUPPLIER, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: RECEIVED_BY_SUPPLIER, action: resolve_exception}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: AUTHORIZED, to: CANCELLED, action: cancel}
+      - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
+      - {from: RECEIVED_BY_SUPPLIER, to: CANCELLED, action: cancel}
+      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a supplier return is stopped"
+      description: "When a supplier return is exception, a high-priority task asks someone to resolve it."
+      when: "status == \"EXCEPTION\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-RETURN-EXCEPTION-{{id}}"
+              name: "Resolve supplier return {{return_number}}"
+              description: "Supplier return {{return_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a supplier return is ended"
+      description: "When a supplier return is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-RETURN-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier return {{return_number}}"
+              description: "Supplier return {{return_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a supplier return is done"
+      description: "When a supplier return is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-RETURN-COMPLETED-{{id}}"
+              name: "Confirm supplier return {{return_number}}"
+              description: "Supplier return {{return_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Coordinates the controlled reversal of accepted procurement fulfillment while preserving original purchasing, receiving, inventory, quality and financial history.
     businessMeaning: A supplier return is a new reverse-procurement event; it does not delete or rewrite the original PurchaseOrder, GoodsReceipt or Invoice.

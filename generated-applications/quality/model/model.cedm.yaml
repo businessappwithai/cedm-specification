@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Quality Management, built on the CEDM common foundation.
   domain: quality
+  enumerationTables: true
 imports:
   - module: common
   - entity: QualityCharacteristic

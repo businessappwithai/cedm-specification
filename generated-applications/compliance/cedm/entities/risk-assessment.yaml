@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: risk_assessment
   description: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
+  ui:
+    icon: alert-triangle
   identity: {key: riskAssessmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: riskAssessmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of RiskAssessment., businessMeaning: Identifies one governed RiskAssessment record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

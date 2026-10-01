@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_test_definition
   description: A governed reusable procedure for producing quality observations, including method identity, lifecycle, instructions, and applicability.
+  ui:
+    icon: flask-conical
   identity: {key: testMethodId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the governed test method., businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence., requiredMeaning: Required.}}
@@ -23,6 +25,19 @@ entity:
   - {id: TEST-METHOD-002, rule: Only ACTIVE methods may be newly assigned to governed quality execution except through an authorized exception.}
   - {id: TEST-METHOD-003, rule: Suspending or retiring a method triggers impact analysis for active plan characteristics and open inspections.}
   - {id: TEST-METHOD-004, rule: Historical measurements must retain the method identity applicable when executed and must not be silently reinterpreted by later method changes.}
+  lifecycle:
+    title: Test Method Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Reusable governed procedure for producing quality evidence.
     businessMeaning: TestMethod separates how an observation is produced from what QualityCharacteristic is observed and what QualityPlanCharacteristic criteria apply.

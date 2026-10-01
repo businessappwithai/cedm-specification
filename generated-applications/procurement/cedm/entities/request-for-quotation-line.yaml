@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: sourcing_request_line
   description: A line-level sourcing requirement within a RequestForQuotation that preserves traceability to approved internal demand and defines the quantity and requirement suppliers are invited to quote.
+  ui:
+    icon: list
   identity: {key: requestForQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: requestForQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one RFQ requirement line., businessMeaning: Identifies the sourced requirement independently of demand and supplier responses., usage: "Sourcing comparison, award, conversion, and audit.", relationshipContext: Bridges requisition demand to supplier quotation lines., requiredMeaning: Required.}}
@@ -20,6 +22,7 @@ entity:
   - {id: RFQ-LINE-002, rule: lineNumber must be unique within RequestForQuotation.}
   - {id: RFQ-LINE-003, rule: "When requisitionLine is present, product, unit and sourced quantity must reconcile with eligible approved demand and any prior sourcing allocations."}
   - {id: RFQ-LINE-004, rule: RFQ line changes after issue require controlled amendment and revalidation of affected supplier responses.}
+  - {id: REQUEST-FOR-QUOTATION-LINE-EXE-001, rule: "Requested Quantity cannot be negative.", violatedWhen: "requested_quantity != null and requested_quantity < 0", message: "Requested Quantity cannot be negative."}
   help:
     summary: Line-level bridge from approved procurement demand to comparable supplier offers.
     businessMeaning: The RFQ header controls the sourcing event; this line defines exactly what is being sourced.

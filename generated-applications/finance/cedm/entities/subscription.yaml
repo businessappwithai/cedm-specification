@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: subscription_contract
   description: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
+  ui:
+    icon: repeat
   identity: {key: subscriptionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: subscriptionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Subscription., businessMeaning: Identifies one governed Subscription record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
@@ -15,6 +17,36 @@ entity:
   - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
   invariants:
   - {id: SUBSCRIPTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  lifecycle:
+    title: Subscription Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    initial: DRAFT
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a subscription is ended"
+      description: "When a subscription is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUBSCRIPTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on subscription {{id}}"
+              description: "Subscription {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
     purpose: Provide canonical enterprise semantics for Subscription while keeping planning, operational, financial and evidential responsibilities separated.

@@ -132,6 +132,58 @@ entity:
   - {id: RETURN-DISPOSITION-009, rule: Executed disposition quantities must reconcile with attributable InventoryMovement quantities where a physical effect is required.}
   - {id: RETURN-DISPOSITION-010, rule: Corrections after execution create compensating disposition or reversal evidence and do not rewrite historical decisions.}
   - {id: RETURN-DISPOSITION-011, rule: Execution must be idempotent and protected against duplicate inventory effects.}
+  - {id: RETURN-DISPOSITION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  lifecycle:
+    title: Return Disposition Lifecycle
+    attribute: status
+    states: [DRAFT, AUTHORIZED, EXECUTED, CANCELLED, EXCEPTION]
+    initial: DRAFT
+    terminal: [EXECUTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: AUTHORIZED, action: authorize}
+      - {from: AUTHORIZED, to: EXECUTED, action: mark_executed}
+      - {from: AUTHORIZED, to: EXCEPTION, action: mark_exception}
+      - {from: EXCEPTION, to: AUTHORIZED, action: resolve_exception}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: AUTHORIZED, to: CANCELLED, action: cancel}
+      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a return disposition is stopped"
+      description: "When a return disposition is exception, a high-priority task asks someone to resolve it."
+      when: "status == \"EXCEPTION\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RETURN-DISPOSITION-EXCEPTION-{{id}}"
+              name: "Resolve return disposition {{id}}"
+              description: "Return disposition {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a return disposition is ended"
+      description: "When a return disposition is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RETURN-DISPOSITION-FOLLOW-UP-{{id}}"
+              name: "Follow up on return disposition {{id}}"
+              description: "Return disposition {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides the controlled bridge between a returned quantity, its operational outcome, quality evidence and the physical inventory execution.
     businessMeaning: ReturnDisposition decides what happens to returned material. InventoryMovement records what physically happened. CreditNote or SupplierCreditNote records any separate financial consequence.

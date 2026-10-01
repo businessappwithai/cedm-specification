@@ -110,6 +110,19 @@ entity:
     rule: Historical sample selections must retain the sampling-plan and rule context applicable when they were created.
   - id: SAMPLING-PLAN-006
     rule: Sampling-plan changes must be auditable and idempotent.
+  lifecycle:
+    title: Sampling Plan Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Reusable governed definition for selecting inspection samples.
     businessMeaning: SamplingPlan separates the statistical or operational selection policy from the QualityInspection transaction that executes it.

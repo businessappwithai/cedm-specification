@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: education_entity
   description: A learner enrolled or eligible for enrollment in an educational institution or program.
+  ui:
+    icon: graduation-cap
   identity:
     key: studentId
     type: uuid
@@ -108,6 +110,27 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Education Student Lifecycle
+    attribute: status
+    states: [APPLICANT, ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN, ALUMNI]
+    initial: APPLICANT
+    terminal: [WITHDRAWN]
+    transitions:
+      - {from: APPLICANT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: GRADUATED, action: mark_graduated}
+      - {from: GRADUATED, to: ALUMNI, action: mark_alumni}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: GRADUATED, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: GRADUATED, action: resume}
+      - {from: ALUMNI, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ALUMNI, action: resume}
+      - {from: APPLICANT, to: WITHDRAWN, action: withdraw}
+      - {from: ACTIVE, to: WITHDRAWN, action: withdraw}
+      - {from: GRADUATED, to: WITHDRAWN, action: withdraw}
+      - {from: ALUMNI, to: WITHDRAWN, action: withdraw}
+      - {from: SUSPENDED, to: WITHDRAWN, action: withdraw}
   help:
     summary: Represents a education entity called EducationStudent within the CEDM business model.
     businessMeaning: EducationStudent is a business concept with its own identity and lifecycle. It captures information that

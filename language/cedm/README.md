@@ -102,6 +102,9 @@ hooks: []
 | `identity.key` | the primary key, stored as `id` for a single key |
 | `type` | kept when it is a model-language token (`uuid`, `string`, `decimal`, `money`, `date`, `datetime`, `boolean`, `object`, `text`, `email`, …); `enum` → `string` with a value list; `reference` → a foreign key (`keyType`, default `string`); `currency_code` → `string(3)`, `country_code` → `string(2)`, `locale` → `string(35)`, `timezone` → `string(64)`, `value_object` → `json`; `maxLength` → `string(n)` |
 | `values` | a value list named `<Entity><Attribute>` (or `enumName`), rendered as a dropdown; shared lists live in `enums` and are named with `enum:`. With `application.enumerationTables: true` each list also gets a business table (an entity of that name under *Reference Data*), and the dropdown reads it; `help.valueLabels` and `help.valueSemantics` become its rows' name and description |
+| entity `referenceData` / `data` | rows the entity ships with (`domain/reference-data/*.yaml`), inlined by the library; attributes and relationships name the columns, a reference holds the natural key of its target row |
+| relationship / reference `narrowedBy: [..]` | the lookup's choices are narrowed by the named references of the same record, applied by the backend that supplies them and checked on write |
+| entity `workflows` | each lowers to a saga plus a rule that triggers it when `when` holds of a written record; `_previous_<column>` is the column as it was |
 | relationship `1` / `0..1` | a foreign key on the source, `<name>_id`, unless an attribute already holds it — its target written explicitly where the name would not resolve to it (`delivery_location_id` → Location) |
 | relationship `0..*` / `1..*` | the other half of a to-one on the target; two relationships naming each other (`inverse`), or the only two between a pair, are one |
 | `n..*` (n > 1) | enforced as `1..*`, reported |

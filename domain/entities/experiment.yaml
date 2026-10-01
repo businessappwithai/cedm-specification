@@ -147,6 +147,57 @@ entity:
   invariants:
   - id: EXPERIMENT-001
     rule: completedAt must not precede startedAt.
+  - {id: EXPERIMENT-EXE-001, rule: "A experiment that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the experiment is completed."}
+  lifecycle:
+    title: Experiment Lifecycle
+    attribute: status
+    states: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED, ARCHIVED]
+    initial: PLANNED
+    terminal: [ARCHIVED, FAILED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: RUNNING, action: mark_running}
+      - {from: RUNNING, to: COMPLETED, action: complete}
+      - {from: COMPLETED, to: ARCHIVED, action: archive}
+      - {from: RUNNING, to: FAILED, action: fail}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: RUNNING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a experiment is stopped"
+      description: "When a experiment is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "EXPERIMENT-EXCEPTION-{{id}}"
+              name: "Resolve experiment {{title}}"
+              description: "Experiment {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a experiment is ended"
+      description: "When a experiment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "EXPERIMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on experiment {{title}}"
+              description: "Experiment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a research entity called Experiment within the CEDM business model.
     businessMeaning: Experiment is a business concept with its own identity and lifecycle. It captures information that must

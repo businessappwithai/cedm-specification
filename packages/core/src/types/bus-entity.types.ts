@@ -270,6 +270,14 @@ export function identifierColumnNames(
   const names = new Set(attributes.map((attribute) => attribute.name));
   const has = (name: string) => names.has(name);
 
+  /* A unique `code` beside a `name`: the pair people quote ("USD · US Dollar").
+     The code alone is a key and the name alone is not unique, so a lookup that
+     offered either would be ambiguous or unreadable. A `code` that is not unique
+     is a technical value, not a key, and does not qualify. */
+  if (has("name") && attributes.some((attribute) => attribute.name === "code" && attribute.unique)) {
+    return ["code", "name"];
+  }
+
   /* One column that names the record outright. */
   for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
     if (has(candidate)) return [candidate];

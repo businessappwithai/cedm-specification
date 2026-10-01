@@ -8,7 +8,9 @@ use serde::Serialize;
 
 use crate::language::Language;
 use crate::naming::{add_bus_prefix, snake_case};
-use crate::records::{AttributeDeclaration, EnumDetails, ErdRecords, RelationshipDeclaration};
+use crate::records::{
+    AttributeDeclaration, EntityData, EnumDetails, ErdRecords, RelationshipDeclaration,
+};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Serialize)]
@@ -38,6 +40,10 @@ pub struct Attribute {
     /// resolve elsewhere — a CEDM reference. Absent for every other column.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<String>,
+    /// Foreign-key columns of the entity that narrow this lookup's choices, most
+    /// specific first: a state is narrowed by `country_id`.
+    #[serde(rename = "narrowedBy", skip_serializing_if = "Option::is_none")]
+    pub narrowed_by: Option<Vec<String>>,
     /// Name of the enum this column is bound to, by its `enum` key.
     #[serde(rename = "enumRef", skip_serializing_if = "Option::is_none")]
     pub enum_ref: Option<String>,
@@ -117,6 +123,9 @@ pub struct Entity {
     /// Compiled to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// Rows the entity ships with (reference data), from `data`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<EntityData>,
 }
 
 impl Entity {
@@ -220,6 +229,14 @@ pub fn compile_erd(records: &ErdRecords, lang: &Language) -> Model {
         }
     }
     attach_parents(&mut entities, &last_wins(&records.entity_parents));
+    for (name, data) in &records.entity_data {
+        if let Some(entity) = entities
+            .iter_mut()
+            .find(|candidate| candidate.name == *name)
+        {
+            entity.data = Some(data.clone());
+        }
+    }
     let enums = attach_enums(
         &mut entities,
         &declared_enums,
@@ -513,6 +530,7 @@ pub fn attribute_from_declaration(
         is_foreign_key,
         is_primary_key,
         references: declaration.references.clone().filter(|_| is_foreign_key),
+        narrowed_by: declaration.narrowed_by.clone().filter(|_| is_foreign_key),
         enum_ref: None,
         enum_values: None,
         enum_reference_id: None,
@@ -549,6 +567,9 @@ fn merge_duplicate_attributes(attributes: Vec<Attribute>) -> Vec<Attribute> {
         }
         if existing.references.is_none() {
             existing.references = attribute.references;
+        }
+        if existing.narrowed_by.is_none() {
+            existing.narrowed_by = attribute.narrowed_by;
         }
         // Anything the first line did not say, a later one may still supply.
         if existing.max_length.is_none() {
@@ -587,6 +608,7 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
                 is_foreign_key: false,
                 is_primary_key: true,
                 references: None,
+                narrowed_by: None,
                 enum_ref: None,
                 enum_values: None,
                 enum_reference_id: None,
@@ -611,6 +633,7 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
         parent_entity: None,
         parent_link_column: None,
         icon: None,
+        data: None,
     }
 }
 

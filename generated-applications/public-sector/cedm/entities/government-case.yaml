@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: public_sector_entity
   description: A government case representing an application, request, investigation, benefit, permit, or public-service matter.
+  ui:
+    icon: briefcase
   identity:
     key: governmentCaseId
     type: uuid
@@ -145,6 +147,63 @@ entity:
   invariants:
   - id: GOV-CASE-001
     rule: closedAt must not precede openedAt.
+  - {id: GOVERNMENT-CASE-EXE-001, rule: "A government case that is closed states when (closed at).", violatedWhen: "status == \"CLOSED\" and closed_at == null", message: "Record closed at when the government case is closed."}
+  lifecycle:
+    title: Government Case Lifecycle
+    attribute: status
+    states: [DRAFT, OPEN, UNDER_REVIEW, APPROVED, DENIED, CLOSED, CANCELLED]
+    initial: DRAFT
+    terminal: [CLOSED, DENIED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: OPEN, action: open}
+      - {from: OPEN, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: APPROVED, action: approve}
+      - {from: APPROVED, to: CLOSED, action: close}
+      - {from: DRAFT, to: DENIED, action: deny}
+      - {from: OPEN, to: DENIED, action: deny}
+      - {from: UNDER_REVIEW, to: DENIED, action: deny}
+      - {from: APPROVED, to: DENIED, action: deny}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: UNDER_REVIEW, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a government case is put forward"
+      description: "When a government case is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GOVERNMENT-CASE-APPROVAL-{{id}}"
+              name: "Decide on government case {{case_number}}"
+              description: "Government case {{case_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a government case is ended"
+      description: "When a government case is cancelled or denied, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"DENIED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "GOVERNMENT-CASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on government case {{case_number}}"
+              description: "Government case {{case_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a public sector entity called GovernmentCase within the CEDM business model.
     businessMeaning: GovernmentCase is a business concept with its own identity and lifecycle. It captures information that

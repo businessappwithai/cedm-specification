@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: procurement_transaction
   description: A formal procurement commitment issued by a buying organization to a Supplier for specified goods or services under agreed commercial and delivery conditions.
+  ui:
+    icon: shopping-cart
   identity: {key: purchaseOrderId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: purchaseOrderId
@@ -104,6 +106,43 @@ entity:
   - {id: PURCHASE-ORDER-005, rule: Order fulfillment quantities must be derived from accepted GoodsReceipt quantities rather than invoice quantities.}
   - {id: PURCHASE-ORDER-006, rule: SupplierReturn eligibility must be derived from previously accepted GoodsReceipt evidence and applicable return policy; PurchaseOrder quantity alone is insufficient.}
   - {id: PURCHASE-ORDER-007, rule: Supplier returns must not silently reduce the historical ordered quantity or rewrite approved PurchaseOrderLine commercial evidence.}
+  - {id: PURCHASE-ORDER-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Purchase Order Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
+    initial: DRAFT
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: APPROVED, to: SENT, action: mark_sent}
+      - {from: SENT, to: PARTIALLY_RECEIVED, action: mark_partially_received}
+      - {from: PARTIALLY_RECEIVED, to: RECEIVED, action: receive}
+      - {from: RECEIVED, to: CLOSED, action: close}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: SENT, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_RECEIVED, to: CANCELLED, action: cancel}
+      - {from: RECEIVED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a purchase order is ended"
+      description: "When a purchase order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PURCHASE-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on purchase order {{order_number}}"
+              description: "Purchase order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents the formal commercial procurement commitment between a buying organization and a Supplier.
     businessMeaning: PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that goods arrived or that later returns occurred.

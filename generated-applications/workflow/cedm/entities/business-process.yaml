@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: process_definition_entity
   description: A defined sequence of business activities, decisions, events, and outcomes that accomplishes a business objective.
+  ui:
+    icon: settings
   identity:
     key: businessProcessId
     type: uuid
@@ -164,6 +166,20 @@ entity:
   - id: PROCESS-002
     rule: Only one active version may be effective for a given process code and effective period unless explicitly configured
       for parallel versions.
+  - {id: BUSINESS-PROCESS-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Business Process Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Represents a process definition entity called BusinessProcess within the CEDM business model.
     businessMeaning: BusinessProcess is a business concept with its own identity and lifecycle. It captures information that

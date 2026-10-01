@@ -110,6 +110,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Hotel Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, CLOSED, RETIRED]
+    initial: PLANNED
+    terminal: [CLOSED, RETIRED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: PLANNED, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a hospitality entity called Hotel within the CEDM business model.
     businessMeaning: Hotel is a business concept with its own identity and lifecycle. It captures information that must remain

@@ -8,7 +8,7 @@
  * jar carries the session for every later request on the same client and the
  * token is there for anything that would rather send a bearer header.
  *
- * Generated: 2026-10-01T05:18:55.958Z
+ * Generated: 2026-10-01T09:33:52.196Z
  * Project: professional-services
  */
 

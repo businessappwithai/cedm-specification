@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: process_runtime_entity
   description: A discrete unit of business work performed by a person, organization, system, or workflow participant.
+  ui:
+    icon: list-checks
   identity:
     key: taskId
     type: uuid
@@ -210,6 +212,33 @@ entity:
     rule: completedAt must not precede startedAt.
   - id: TASK-003
     rule: A USER or APPROVAL task should have an assignee before entering IN_PROGRESS unless explicitly configured otherwise.
+  - {id: TASK-EXE-001, rule: "A task that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the task is completed."}
+  lifecycle:
+    title: Task Lifecycle
+    attribute: status
+    states: [CREATED, READY, ASSIGNED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED, FAILED]
+    initial: CREATED
+    terminal: [COMPLETED, CANCELLED, FAILED]
+    transitions:
+      - {from: CREATED, to: READY, action: mark_ready}
+      - {from: READY, to: ASSIGNED, action: assign}
+      - {from: ASSIGNED, to: IN_PROGRESS, action: start}
+      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+      - {from: READY, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: READY, action: unblock}
+      - {from: ASSIGNED, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ASSIGNED, action: unblock}
+      - {from: IN_PROGRESS, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: IN_PROGRESS, action: unblock}
+      - {from: CREATED, to: CANCELLED, action: cancel}
+      - {from: READY, to: CANCELLED, action: cancel}
+      - {from: ASSIGNED, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: BLOCKED, to: CANCELLED, action: cancel}
+      - {from: READY, to: FAILED, action: fail}
+      - {from: ASSIGNED, to: FAILED, action: fail}
+      - {from: IN_PROGRESS, to: FAILED, action: fail}
+      - {from: BLOCKED, to: FAILED, action: fail}
   help:
     summary: Represents a process runtime entity called Task within the CEDM business model.
     businessMeaning: Task is a business concept with its own identity and lifecycle. It captures information that must remain

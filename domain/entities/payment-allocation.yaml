@@ -166,6 +166,38 @@ entity:
     - {id: PAYMENT-ALLOCATION-008, rule: Reversal must create controlled historical evidence and must not mutate the original allocation record.}
     - {id: PAYMENT-ALLOCATION-009, rule: "Invoice amountSettled and amountOutstanding must be projections of active allocations and authorized adjustments, not independently editable settlement facts."}
     - {id: PAYMENT-ALLOCATION-010, rule: "Cross-currency allocation must preserve ExchangeRate, effective context, rounding adjustment, and resulting target amount for historical reproducibility."}
+    - {id: PAYMENT-ALLOCATION-EXE-001, rule: "Payment Amount cannot be negative.", violatedWhen: "payment_amount != null and payment_amount < 0", message: "Payment Amount cannot be negative."}
+    - {id: PAYMENT-ALLOCATION-EXE-002, rule: "Invoice Amount cannot be negative.", violatedWhen: "invoice_amount != null and invoice_amount < 0", message: "Invoice Amount cannot be negative."}
+  lifecycle:
+    title: Payment Allocation Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+    initial: DRAFT
+    terminal: [REVERSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: REVERSED, action: reverse}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a payment allocation is ended"
+      description: "When a payment allocation is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "PAYMENT-ALLOCATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on payment allocation {{id}}"
+              description: "Payment allocation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides the controlled bridge between a Payment event and an Invoice claim.
     businessMeaning: Payment says money moved; Invoice says money is owed; PaymentAllocation says exactly how much of that payment satisfies that claim.

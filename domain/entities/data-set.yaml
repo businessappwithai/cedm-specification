@@ -145,6 +145,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Dataset Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, ARCHIVED, RETIRED]
+    initial: DRAFT
+    terminal: [ARCHIVED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: ARCHIVED, action: archive}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a data entity called Dataset within the CEDM business model.
     businessMeaning: Dataset is a business concept with its own identity and lifecycle. It captures information that must

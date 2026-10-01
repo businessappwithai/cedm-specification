@@ -4,6 +4,8 @@ entity:
   kind: cross_domain_event
   description: A significant occurrence that can trigger business processing, notifications, workflows, integrations, or audit
     activity.
+  ui:
+    icon: activity
   identity:
     key: eventId
     type: uuid

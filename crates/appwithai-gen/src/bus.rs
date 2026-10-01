@@ -82,6 +82,9 @@ pub struct BusAttribute {
     pub references: Option<String>,
     #[serde(rename = "referencesTable", skip_serializing_if = "Option::is_none")]
     pub references_table: Option<String>,
+    /// Foreign-key columns of the entity that narrow this lookup's choices.
+    #[serde(rename = "narrowedBy", skip_serializing_if = "Option::is_none")]
+    pub narrowed_by: Option<Vec<String>>,
     /// The column's `help`, as the author wrote it.
     ///
     /// The only text in a generated application that carries *domain*
@@ -122,6 +125,9 @@ pub struct BusEntity {
     /// The entity's `icon`, carried through to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// Rows the entity ships with (reference data).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<crate::records::EntityData>,
 }
 
 impl BusEntity {
@@ -198,6 +204,7 @@ pub fn entity_to_bus_entity(entity: &Entity, declared: &HashMap<String, String>)
         // its `parent` made it a line item, in which case the
         // parent's — a child has no window of its own.
         icon: entity.icon.clone(),
+        data: entity.data.clone(),
         window_owner: entity
             .parent_entity
             .clone()
@@ -232,6 +239,14 @@ fn with_identifiers(mut attributes: Vec<BusAttribute>, primary_key: &str) -> Vec
 /// Returns the names in the order they should be concatenated.
 fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Vec<String> {
     let has = |name: &str| attributes.iter().any(|a| a.name == name);
+
+    // A unique `code` beside a `name`: the pair people quote ("USD · US Dollar").
+    // The code alone is a key and the name alone is not unique, so a lookup that
+    // offered either would be ambiguous or unreadable. A `code` that is not unique
+    // is a technical value, not a key, and does not qualify.
+    if has("name") && attributes.iter().any(|a| a.name == "code" && a.unique) {
+        return vec!["code".to_string(), "name".to_string()];
+    }
 
     // One column that names the record outright.
     for candidate in [
@@ -415,6 +430,7 @@ pub fn attribute_to_bus_attribute(
             .as_deref()
             .filter(|_| attr.is_foreign_key)
             .map(|entity| format!("{BUS_TABLE_PREFIX}{}", snake_case(entity))),
+        narrowed_by: attr.narrowed_by.clone().filter(|_| attr.is_foreign_key),
     }
 }
 
@@ -764,6 +780,7 @@ entities:
             is_foreign_key: true,
             is_primary_key: false,
             references: None,
+            narrowed_by: None,
             enum_ref: None,
             enum_values: None,
             enum_reference_id: None,

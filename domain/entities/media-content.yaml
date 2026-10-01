@@ -137,6 +137,19 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Media Content Lifecycle
+    attribute: status
+    states: [DRAFT, PRODUCED, PUBLISHED, ARCHIVED, RETIRED]
+    initial: DRAFT
+    terminal: [ARCHIVED, RETIRED]
+    transitions:
+      - {from: DRAFT, to: PRODUCED, action: mark_produced}
+      - {from: PRODUCED, to: PUBLISHED, action: publish}
+      - {from: PUBLISHED, to: ARCHIVED, action: archive}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: PRODUCED, to: RETIRED, action: retire}
+      - {from: PUBLISHED, to: RETIRED, action: retire}
   help:
     summary: Represents a media entity called MediaContent within the CEDM business model.
     businessMeaning: MediaContent is a business concept with its own identity and lifecycle. It captures information that

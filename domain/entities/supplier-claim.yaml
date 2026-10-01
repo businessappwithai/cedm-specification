@@ -144,6 +144,70 @@ entity:
   - {id: SUPPLIER-CLAIM-008, rule: "Closed claims retain links to all physical, quality, resolution and financial evidence."}
   - {id: SUPPLIER-CLAIM-009, rule: "Corrections after closure use explicit amendment, reopening or compensating evidence according to policy and do not erase claim history."}
   - {id: SUPPLIER-CLAIM-010, rule: Claim creation and resolution workflows must be idempotent so retries cannot duplicate returns or financial adjustments.}
+  - {id: SUPPLIER-CLAIM-EXE-001, rule: "Claimed Amount cannot be negative.", violatedWhen: "claimed_amount != null and claimed_amount < 0", message: "Claimed Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Claim Lifecycle
+    attribute: status
+    states: [DRAFT, OPEN, UNDER_REVIEW, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, RESOLVED, CLOSED, CANCELLED, ESCALATED]
+    initial: DRAFT
+    terminal: [CLOSED, REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: OPEN, action: open}
+      - {from: OPEN, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: ACCEPTED, action: accept}
+      - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
+      - {from: PARTIALLY_ACCEPTED, to: ESCALATED, action: mark_escalated}
+      - {from: ESCALATED, to: RESOLVED, action: resolve}
+      - {from: RESOLVED, to: CLOSED, action: close}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: OPEN, to: REJECTED, action: reject}
+      - {from: UNDER_REVIEW, to: REJECTED, action: reject}
+      - {from: ACCEPTED, to: REJECTED, action: reject}
+      - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
+      - {from: ESCALATED, to: REJECTED, action: reject}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: UNDER_REVIEW, to: CANCELLED, action: cancel}
+      - {from: ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: ESCALATED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a supplier claim is put forward"
+      description: "When a supplier claim is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-APPROVAL-{{id}}"
+              name: "Decide on supplier claim {{claim_number}}"
+              description: "Supplier claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a supplier claim is ended"
+      description: "When a supplier claim is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier claim {{claim_number}}"
+              description: "Supplier claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides a formal auditable case for supplier-related quality or commercial recovery while keeping the decision and physical/financial consequences as separate controlled records.
     businessMeaning: SupplierClaim explains what went wrong and what recovery was requested or agreed. SupplierClaimResolution records the authorized remedy. SupplierReturn handles physical reversal; SupplierCreditNote or SupplierDebitNote handles financial adjustment; Payment handles cash movement.

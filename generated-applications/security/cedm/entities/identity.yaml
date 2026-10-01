@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: security_identity_entity
   description: An authentication identity or credential-bearing representation associated with a user or principal.
+  ui:
+    icon: table
   identity:
     key: identityId
     type: uuid
@@ -115,6 +117,19 @@ entity:
   invariants:
   - id: IDENTITY-001
     rule: expiresAt must not precede issuedAt.
+  lifecycle:
+    title: Identity Lifecycle
+    attribute: status
+    states: [ACTIVE, SUSPENDED, REVOKED, EXPIRED]
+    initial: ACTIVE
+    terminal: [REVOKED, EXPIRED]
+    transitions:
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: REVOKED, action: revoke}
+      - {from: SUSPENDED, to: REVOKED, action: revoke}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
   help:
     summary: Represents a security identity entity called Identity within the CEDM business model.
     businessMeaning: Identity is a business concept with its own identity and lifecycle. It captures information that must

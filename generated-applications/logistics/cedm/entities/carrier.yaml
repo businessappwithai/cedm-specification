@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_party
   description: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
+  ui:
+    icon: truck
   identity: {key: carrierId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: carrierId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Carrier., businessMeaning: Identifies one governed Carrier record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

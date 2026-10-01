@@ -21,19 +21,48 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "Hotel",
     "HotelRoom",
-    "HotelReservation"
+    "HotelReservation",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "HotelStatus",
+    "HotelRoomStatus",
+    "HotelReservationStatus"
   ],
   "categories": [
     "Foundation",
-    "Hospitality"
+    "Hospitality",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -56,10 +85,18 @@
     "PersonGender (5)",
     "PersonPartyType (2)",
     "PersonStatus (4)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "HotelReservationApprovalRequested on HotelReservation (1 steps, rule)",
+    "HotelReservationFollowUpRequired on HotelReservation (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:18:06.883Z"
+  "generatedAt": "2026-10-01T09:32:33.349Z"
 }

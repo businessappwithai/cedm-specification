@@ -165,6 +165,18 @@ entity:
   invariants:
   - id: SECURITY-INCIDENT-001
     rule: resolvedAt must not precede detectedAt.
+  lifecycle:
+    title: Security Incident Lifecycle
+    attribute: status
+    states: [OPEN, INVESTIGATING, CONTAINED, RESOLVED, CLOSED]
+    initial: OPEN
+    terminal: [CLOSED]
+    transitions:
+      - {from: OPEN, to: INVESTIGATING, action: mark_investigating}
+      - {from: INVESTIGATING, to: RESOLVED, action: resolve}
+      - {from: RESOLVED, to: CLOSED, action: close}
+      - {from: INVESTIGATING, to: CONTAINED, action: mark_contained}
+      - {from: CONTAINED, to: INVESTIGATING, action: resume}
   help:
     summary: Represents a security entity called SecurityIncident within the CEDM business model.
     businessMeaning: SecurityIncident is a business concept with its own identity and lifecycle. It captures information that

@@ -82,6 +82,35 @@ entity:
     rule: A BLOCKED or CLOSED block must not receive new normal placement allocations unless an explicit exception process permits them.
   - id: YARD-BLOCK-003
     rule: Blocking or closing a block must account for containers already occupying subordinate slots; status changes must not silently invalidate existing physical positions.
+  lifecycle:
+    title: Yard Block Lifecycle
+    attribute: status
+    states: [ACTIVE, BLOCKED, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: ACTIVE, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: ACTIVE, action: unblock}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a yard block is stopped"
+      description: "When a yard block is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "YARD-BLOCK-EXCEPTION-{{id}}"
+              name: "Resolve yard block {{name}}"
+              description: "Yard block {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Represents a major storage subdivision within a container yard and the planning boundary above individual bays and slots.
     businessMeaning: YardBlock organizes physical capacity into a manageable operational area, commonly grouping bays that share layout, equipment, traffic, cargo, container-type, or handling characteristics. It is a zoning and planning concept as well as a physical hierarchy element.

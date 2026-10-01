@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_requirement
   description: A governed legal, regulatory, contractual, policy, or standards requirement against which enterprise controls and evidence are assessed.
+  ui:
+    icon: table
   identity: {key: complianceRequirementId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: complianceRequirementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ComplianceRequirement., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

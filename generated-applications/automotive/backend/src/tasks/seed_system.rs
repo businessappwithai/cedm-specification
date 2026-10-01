@@ -10,7 +10,7 @@
 //! so regenerating an application never discards a value somebody set through
 //! the admin screen — which is the whole point of the table.
 //!
-//! Generated: 2026-10-01T05:17:08.576Z
+//! Generated: 2026-10-01T09:31:04.940Z
 //! Project: automotive
 
 use loco_rs::prelude::*;

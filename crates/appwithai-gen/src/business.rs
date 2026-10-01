@@ -79,17 +79,38 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
     let without_enumeration_tables: Vec<BusEntity> = entities
         .iter()
         .filter(|entity| {
-            !model_enums
-                .iter()
-                .any(|declared| declared.table && declared.name == entity.name)
+            entity.data.is_none()
+                && !model_enums
+                    .iter()
+                    .any(|declared| declared.table && declared.name == entity.name)
         })
         .cloned()
         .collect();
-    let entities = &without_enumeration_tables[..];
+    // Nor do reference-data entities: their rows are the common specification's,
+    // written by the dictionary seed, and a record that points at one points at
+    // one of those rows.
+    let data_keys: HashMap<String, Vec<String>> = entities
+        .iter()
+        .filter_map(|entity| {
+            let data = entity.data.as_ref()?;
+            Some((
+                entity.table_name.clone(),
+                data.rows
+                    .iter()
+                    .map(|row| match row.get(&data.key) {
+                        Some(serde_json::Value::String(s)) => s.clone(),
+                        Some(other) => other.to_string(),
+                        None => String::new(),
+                    })
+                    .collect(),
+            ))
+        })
+        .collect();
     let tables: HashSet<String> = entities
         .iter()
         .map(|entity| entity.table_name.clone())
         .collect();
+    let entities = &without_enumeration_tables[..];
 
     let mut out: Vec<String> = Vec::new();
     out.push(format!("-- Demonstration records for {project_name}."));
@@ -142,7 +163,13 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
         .collect();
 
     let row_id = |table_name: &str, index: usize| -> String {
-        let name = format!("{project_name}:business:{table_name}:{index}");
+        let name = match data_keys.get(table_name).filter(|keys| !keys.is_empty()) {
+            Some(keys) => format!(
+                "{project_name}:data:{table_name}:{}",
+                keys[index % keys.len()]
+            ),
+            None => format!("{project_name}:business:{table_name}:{index}"),
+        };
         Uuid::new_v5(&NAMESPACE, name.as_bytes()).to_string()
     };
 

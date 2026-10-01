@@ -28,6 +28,10 @@ entity:
   - {id: SUPPLIER-DEBIT-LINE-005, rule: Quantity-based valuation must preserve sufficient original InvoiceLine or other source evidence for reproducibility.}
   - {id: SUPPLIER-DEBIT-LINE-006, rule: Posted line values are immutable except through explicit reversal or compensating adjustment workflows.}
   - {id: SUPPLIER-DEBIT-LINE-007, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize DEBIT_ADJUSTMENT and the line must remain within the approved recovery amount."}
+  - {id: SUPPLIER-DEBIT-NOTE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: SUPPLIER-DEBIT-NOTE-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: SUPPLIER-DEBIT-NOTE-LINE-EXE-003, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
+  - {id: SUPPLIER-DEBIT-NOTE-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   help:
     summary: Provides the auditable financial detail supporting one component of a SupplierDebitNote.
     businessMeaning: The line explains exactly how a supplier recovery amount was calculated; it does not replace the original invoice supplier claim or claim resolution.

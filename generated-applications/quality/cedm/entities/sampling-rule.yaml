@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_sampling_configuration
   description: A conditional rule within a SamplingPlan that determines eligible population ranges, sample quantity, and acceptance or rejection thresholds for a governed inspection scope.
+  ui:
+    icon: settings
   identity:
     key: samplingRuleId
     type: uuid
@@ -127,6 +129,16 @@ entity:
     rule: Rule changes must trigger revalidation of open inspections whose required sampling has not yet been executed.
   - id: SAMPLING-RULE-008
     rule: Rule selection and sample-size calculation must be deterministic and idempotent for the same governed input and execution context.
+  lifecycle:
+    title: Sampling Rule Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Conditional sampling configuration that translates a SamplingPlan into a deterministic sample size and acceptance threshold.
     businessMeaning: SamplingRule answers how many units to inspect for a qualifying population and, where applicable, how many failures are permitted before rejection.

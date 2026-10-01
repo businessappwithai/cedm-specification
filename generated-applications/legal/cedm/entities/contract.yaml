@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_commercial_entity
   description: A legally or commercially binding agreement between parties defining rights, obligations, terms, and conditions.
+  ui:
+    icon: file-check
   identity:
     key: contractId
     type: uuid
@@ -176,6 +178,56 @@ entity:
     rule: effectiveTo must not precede effectiveFrom.
   - id: CONTRACT-002
     rule: an ACTIVE contract must have at least two parties.
+  - {id: CONTRACT-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  lifecycle:
+    title: Contract Lifecycle
+    attribute: status
+    states: [DRAFT, NEGOTIATION, APPROVAL, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXPIRED, TERMINATED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVAL, action: mark_approval}
+      - {from: APPROVAL, to: ACTIVE, action: activate}
+      - {from: APPROVAL, to: NEGOTIATION, action: mark_negotiation}
+      - {from: NEGOTIATION, to: APPROVAL, action: resume}
+      - {from: ACTIVE, to: NEGOTIATION, action: mark_negotiation}
+      - {from: NEGOTIATION, to: ACTIVE, action: resume}
+      - {from: APPROVAL, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: APPROVAL, action: resume}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: APPROVAL, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: NEGOTIATION, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
+      - {from: APPROVAL, to: TERMINATED, action: terminate}
+      - {from: ACTIVE, to: TERMINATED, action: terminate}
+      - {from: NEGOTIATION, to: TERMINATED, action: terminate}
+      - {from: SUSPENDED, to: TERMINATED, action: terminate}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVAL, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: NEGOTIATION, to: CANCELLED, action: cancel}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a contract is ended"
+      description: "When a contract is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTRACT-FOLLOW-UP-{{id}}"
+              name: "Follow up on contract {{title}}"
+              description: "Contract {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a legal commercial entity called Contract within the CEDM business model.
     businessMeaning: Contract is a business concept with its own identity and lifecycle. It captures information that must

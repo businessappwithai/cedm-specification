@@ -144,6 +144,36 @@ entity:
   invariants:
   - id: RETAIL-SALE-001
     rule: a COMPLETED sale must contain at least one line.
+  - {id: RETAIL-SALE-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  lifecycle:
+    title: Retail Sale Lifecycle
+    attribute: status
+    states: [OPEN, COMPLETED, VOIDED, REFUNDED]
+    initial: OPEN
+    terminal: [COMPLETED, REFUNDED]
+    transitions:
+      - {from: OPEN, to: VOIDED, action: mark_voided}
+      - {from: VOIDED, to: COMPLETED, action: complete}
+      - {from: VOIDED, to: REFUNDED, action: refund}
+  workflows:
+    - name: CompletionConfirmed
+      title: "Confirm when a retail sale is done"
+      description: "When a retail sale is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RETAIL-SALE-COMPLETED-{{id}}"
+              name: "Confirm retail sale {{receipt_number}}"
+              description: "Retail sale {{receipt_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents a retail transaction called RetailSale within the CEDM business model.
     businessMeaning: RetailSale is a business concept with its own identity and lifecycle. It captures information that must

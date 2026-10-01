@@ -157,6 +157,64 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  lifecycle:
+    title: Trade Declaration Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, ACCEPTED, UNDER_REVIEW, RELEASED, REJECTED, CANCELLED]
+    initial: DRAFT
+    terminal: [REJECTED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: SUBMITTED, action: submit}
+      - {from: SUBMITTED, to: ACCEPTED, action: accept}
+      - {from: ACCEPTED, to: UNDER_REVIEW, action: review}
+      - {from: UNDER_REVIEW, to: RELEASED, action: release}
+      - {from: DRAFT, to: REJECTED, action: reject}
+      - {from: SUBMITTED, to: REJECTED, action: reject}
+      - {from: ACCEPTED, to: REJECTED, action: reject}
+      - {from: UNDER_REVIEW, to: REJECTED, action: reject}
+      - {from: RELEASED, to: REJECTED, action: reject}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: SUBMITTED, to: CANCELLED, action: cancel}
+      - {from: ACCEPTED, to: CANCELLED, action: cancel}
+      - {from: UNDER_REVIEW, to: CANCELLED, action: cancel}
+      - {from: RELEASED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a trade declaration is put forward"
+      description: "When a trade declaration is submitted or under review, a task asks someone to decide on it."
+      when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TRADE-DECLARATION-APPROVAL-{{id}}"
+              name: "Decide on trade declaration {{declaration_number}}"
+              description: "Trade declaration {{declaration_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a trade declaration is ended"
+      description: "When a trade declaration is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TRADE-DECLARATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on trade declaration {{declaration_number}}"
+              description: "Trade declaration {{declaration_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a international trade entity called TradeDeclaration within the CEDM business model.
     businessMeaning: TradeDeclaration is a business concept with its own identity and lifecycle. It captures information that

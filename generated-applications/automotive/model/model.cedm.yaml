@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Automotive, built on the CEDM common foundation.
   domain: automotive
+  enumerationTables: true
 imports:
   - module: common
   - entity: VehicleModel

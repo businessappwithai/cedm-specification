@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: organization_structure
   description: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
+  ui:
+    icon: table
   identity: {key: businessUnitId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: businessUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessUnit., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this BusinessUnit is referenced., requiredMeaning: Required.}}

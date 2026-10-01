@@ -163,6 +163,43 @@ entity:
   - {id: INVENTORY-RESERVATION-008, rule: "An InventoryLocation becoming BLOCKED or INACTIVE must not leave an active reservation silently available for allocation; it must be transferred, released, or explicitly excepted."}
   - {id: INVENTORY-RESERVATION-009, rule: "Reservation lifecycle changes must update InventoryBalance.quantityReserved and quantityAvailable through the authoritative reservation workflow, not by direct balance edits."}
   - {id: INVENTORY-RESERVATION-010, rule: Historical consumed/released reservation evidence must remain auditable even after the reservation reaches a terminal status.}
+  lifecycle:
+    title: Inventory Reservation Lifecycle
+    attribute: status
+    states: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
+    initial: PENDING
+    terminal: [CONSUMED, CANCELLED, EXPIRED]
+    transitions:
+      - {from: PENDING, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: PARTIALLY_CONSUMED, action: mark_partially_consumed}
+      - {from: PARTIALLY_CONSUMED, to: RELEASED, action: release}
+      - {from: RELEASED, to: CONSUMED, action: consume}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: PARTIALLY_CONSUMED, to: CANCELLED, action: cancel}
+      - {from: RELEASED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: PARTIALLY_CONSUMED, to: EXPIRED, action: expire}
+      - {from: RELEASED, to: EXPIRED, action: expire}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a inventory reservation is ended"
+      description: "When a inventory reservation is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-RESERVATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on inventory reservation {{id}}"
+              description: "Inventory reservation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement.
     businessMeaning: Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it.

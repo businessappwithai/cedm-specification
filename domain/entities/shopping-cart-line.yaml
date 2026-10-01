@@ -73,6 +73,8 @@ entity:
   invariants:
   - id: CART-LINE-001
     rule: quantity must be greater than zero.
+  - {id: SHOPPING-CART-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: SHOPPING-CART-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   help:
     summary: Represents a ecommerce detail entity called ShoppingCartLine within the CEDM business model.
     businessMeaning: ShoppingCartLine is a business concept with its own identity and lifecycle. It captures information that

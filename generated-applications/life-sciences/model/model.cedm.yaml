@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Life Sciences and Drug Discovery, built on the CEDM common foundation.
   domain: life-sciences
+  enumerationTables: true
 imports:
   - module: common
   - entity: Compound

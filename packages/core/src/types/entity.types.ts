@@ -33,6 +33,14 @@ export interface EntityAttribute {
    * CEDM has — so the stored target is written only where it is needed.
    */
   references?: string;
+  /**
+   * Foreign-key columns of the same entity that narrow this lookup's choices,
+   * most specific first: a state is narrowed by `country_id`, a city by
+   * `state_province_id` then `country_id`. The lookup offers only the target rows
+   * that belong to the values the record holds, and a write naming any other is
+   * refused. See `specification/reference-data.yaml`.
+   */
+  narrowedBy?: string[];
   /** Name of the enum this column is bound to, by the attribute's `enum` key. */
   enumRef?: string;
   /** The enum's values, in declaration order. */
@@ -112,6 +120,12 @@ export interface Entity {
    * holds both — so the model sets the starting point, not the final answer.
    */
   icon?: string;
+  /**
+   * Rows the application ships with (`data` of the entity document). Keys are
+   * physical columns; a foreign key column holds the natural key of its target
+   * row, and `key` names the column that is this entity's own natural key.
+   */
+  data?: { key: string; rows: Array<Record<string, string | number | boolean | null>> };
 }
 
 export interface Relationship {
@@ -145,6 +159,7 @@ export const EntityAttributeSchema = z.object({
   minLength: z.number().optional(),
   pattern: z.string().optional(),
   references: z.string().optional(),
+  narrowedBy: z.array(z.string()).optional(),
 });
 
 export const EntitySchema = z.object({

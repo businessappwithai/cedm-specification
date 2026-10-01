@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_settlement_adjustment
   description: An explicit application of a posted SupplierDebitNote against one eligible supplier Invoice payable claim. It records how a buyer-issued debit reduces the remaining payable exposure without mutating the original invoice history.
+  ui:
+    icon: factory
   identity: {key: supplierDebitNoteApplicationId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierDebitNoteApplicationId
@@ -33,8 +35,27 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
-    help: {summary: Lifecycle state of the debit application., businessMeaning: Separates preparation from effective application and later reversal., usage: Controls payable projections and remaining debit balance., relationshipContext: Application status does not replace SupplierDebitNote or Invoice status., workflowRole: ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence., requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - ACTIVE
+    - REVERSED
+    - CANCELLED
+    help:
+      summary: Lifecycle state of the debit application.
+      businessMeaning: Separates preparation from effective application and later reversal.
+      usage: Controls payable projections and remaining debit balance.
+      relationshipContext: Application status does not replace SupplierDebitNote or Invoice status.
+      workflowRole: ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the supplier debit note application is draft; set it when that is what the business means for this
+          record.
+        ACTIVE: The status of the supplier debit note application is active; set it when that is what the business means for
+          this record.
+        REVERSED: The status of the supplier debit note application is reversed; set it when that is what the business means
+          for this record.
+        CANCELLED: The status of the supplier debit note application is cancelled; set it when that is what the business means
+          for this record.
   - name: reversalOfApplicationId
     type: reference
     target: SupplierDebitNoteApplication
@@ -54,6 +75,37 @@ entity:
   - {id: SUPPLIER-DEBIT-APPLICATION-006, rule: REVERSED or CANCELLED applications must not remain active in settlement projections.}
   - {id: SUPPLIER-DEBIT-APPLICATION-007, rule: Original Invoice and InvoiceLine values remain immutable; correction uses explicit reversal and compensating application evidence.}
   - {id: SUPPLIER-DEBIT-APPLICATION-008, rule: Application creation and activation must be idempotent so retries cannot duplicate payable reduction.}
+  - {id: SUPPLIER-DEBIT-NOTE-APPLICATION-EXE-001, rule: "Invoice Amount cannot be negative.", violatedWhen: "invoice_amount != null and invoice_amount < 0", message: "Invoice Amount cannot be negative."}
+  lifecycle:
+    title: Supplier Debit Note Application Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+    initial: DRAFT
+    terminal: [REVERSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: REVERSED, action: reverse}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a supplier debit note application is ended"
+      description: "When a supplier debit note application is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-DEBIT-NOTE-APPLICATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier debit note application {{id}}"
+              description: "Supplier debit note application {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Records the controlled application of a posted SupplierDebitNote against a specific supplier invoice payable claim.
     businessMeaning: SupplierDebitNote establishes the financial adjustment; this entity records where that adjustment is consumed. It is not a Payment and does not rewrite the original Invoice.

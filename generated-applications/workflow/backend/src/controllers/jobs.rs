@@ -1,6 +1,6 @@
 //! Background jobs — enqueue one, see what the queue holds, cancel a kind.
 //!
-//! Generated: 2026-10-01T05:19:55.750Z
+//! Generated: 2026-10-01T09:35:20.109Z
 //! Project: workflow
 //!
 //! `app.rs` has always registered three workers — email, report, sync — and

@@ -42,7 +42,7 @@
 //! and an orchestrator polling it every second must not consume the budget of
 //! whoever shares its address.
 //!
-//! Generated: 2026-10-01T05:19:09.936Z
+//! Generated: 2026-10-01T09:34:12.450Z
 //! Project: real-estate
 
 use std::{

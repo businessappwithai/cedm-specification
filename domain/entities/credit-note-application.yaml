@@ -86,6 +86,37 @@ entity:
     - {id: CREDIT-APPLICATION-007, rule: Reversal creates compensating history and must not mutate the original application.}
     - {id: CREDIT-APPLICATION-008, rule: Invoice amountCredited and amountOutstanding must be projections of active applications and other authorized adjustment evidence.}
     - {id: CREDIT-APPLICATION-009, rule: Application activation must be idempotent and protected against concurrent duplicate effects.}
+    - {id: CREDIT-NOTE-APPLICATION-EXE-001, rule: "Invoice Amount cannot be negative.", violatedWhen: "invoice_amount != null and invoice_amount < 0", message: "Invoice Amount cannot be negative."}
+  lifecycle:
+    title: Credit Note Application Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, REVERSED, CANCELLED]
+    initial: DRAFT
+    terminal: [REVERSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: REVERSED, action: reverse}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a credit note application is ended"
+      description: "When a credit note application is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CREDIT-NOTE-APPLICATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on credit note application {{id}}"
+              description: "Credit note application {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides the auditable bridge by which a posted customer CreditNote is consumed against an Invoice.
     businessMeaning: CreditNote establishes the authorized financial reduction; Invoice remains the original claim; CreditNoteApplication records exactly where and how much of the credit was used.

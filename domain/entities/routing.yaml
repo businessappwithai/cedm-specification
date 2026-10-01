@@ -23,6 +23,19 @@ entity:
   - {id: ROUTING-001, rule: code and version must be unique within the applicable manufacturing context.}
   - {id: ROUTING-002, rule: ACTIVE routing must contain at least one valid ordered Operation.}
   - {id: ROUTING-003, rule: Released production must preserve the effective routing version and must not be silently changed by later master-data revisions.}
+  lifecycle:
+    title: Routing Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
+    initial: DRAFT
+    terminal: [OBSOLETE]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: DRAFT, to: OBSOLETE, action: mark_obsolete}
+      - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
+      - {from: SUSPENDED, to: OBSOLETE, action: mark_obsolete}
   help:
     summary: Versioned definition of manufacturing process sequence.
     businessMeaning: BillOfMaterial defines what materials are required; Routing defines how the output is produced.

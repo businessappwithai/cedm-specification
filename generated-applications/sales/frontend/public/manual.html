@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T07:38:53.972Z">2026-10-01T07:38:53.972Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T09:34:37.211Z">2026-10-01T09:34:37.211Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -110,6 +110,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
               <li><a href="#entity-campaign">Campaign</a></li>
+              <li><a href="#entity-city">City</a></li>
               <li><a href="#entity-contact">Contact</a></li>
               <li><a href="#entity-contact-point">Contact Point</a></li>
               <li><a href="#entity-country">Country</a></li>
@@ -178,16 +179,23 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-sales-order-line">Sales Order Line</a></li>
               <li><a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a></li>
               <li><a href="#entity-sales-order-status">Sales Order Status</a></li>
+              <li><a href="#entity-state-province">State Province</a></li>
               <li><a href="#entity-supplier">Supplier</a></li>
               <li><a href="#entity-supplier-qualification-status">Supplier Qualification Status</a></li>
               <li><a href="#entity-supplier-role-type">Supplier Role Type</a></li>
               <li><a href="#entity-supplier-status">Supplier Status</a></li>
               <li><a href="#entity-supplier-supplier-type">Supplier Supplier Type</a></li>
+              <li><a href="#entity-task">Task</a></li>
+              <li><a href="#entity-task-priority">Task Priority</a></li>
+              <li><a href="#entity-task-status">Task Status</a></li>
+              <li><a href="#entity-task-task-type">Task Task Type</a></li>
               <li><a href="#entity-unit-of-measure">Unit Of Measure</a></li>
               <li><a href="#entity-unit-of-measure-category">Unit Of Measure Category</a></li>
               <li><a href="#entity-unit-of-measure-status">Unit Of Measure Status</a></li>
             </ul>
           </li>
+          <li><a href="#rules">The decisions it makes</a></li>
+          <li><a href="#processes">The processes it runs</a></li>
           <li><a href="#how-it-was-built">How this application was built</a></li>
         </ol>
       </nav>
@@ -195,18 +203,18 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Sales and Order Management, built on the CEDM common foundation.</p></div>
-    <p>sales keeps 85 kinds of records, grouped into 7 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>sales keeps 91 kinds of records, grouped into 7 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-sales-order-line">Sales Order Line</a>, <a href="#entity-purchase-order-line">Purchase Order Line</a>, <a href="#entity-quotation-line">Quotation Line</a>, <a href="#entity-customer-return-line">Customer Return Line</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-sales-order-line">Sales Order Line</a>, <a href="#entity-purchase-order-line">Purchase Order Line</a>, <a href="#entity-quotation-line">Quotation Line</a>, <a href="#entity-customer-return-line">Customer Return Line</a></td></tr>
         <tr><td>Sales</td><td><a href="#entity-customer">Customer</a>, <a href="#entity-lead">Lead</a>, <a href="#entity-opportunity">Opportunity</a>, <a href="#entity-quotation">Quotation</a>, <a href="#entity-sales-order">Sales Order</a></td></tr>
         <tr><td>Order Management</td><td><a href="#entity-purchase-order">Purchase Order</a></td></tr>
         <tr><td>Pricing and Commercial Terms</td><td><a href="#entity-product">Product</a>, <a href="#entity-supplier">Supplier</a>, <a href="#entity-payment-term">Payment Term</a></td></tr>
         <tr><td>Product and Service Management</td><td><a href="#entity-product-category">Product Category</a></td></tr>
         <tr><td>Sales and Order Management records</td><td><a href="#entity-discount-rule">Discount Rule</a>, <a href="#entity-pricing">Pricing</a>, <a href="#entity-promotion">Promotion</a>, <a href="#entity-campaign">Campaign</a>, <a href="#entity-prospect">Prospect</a>, <a href="#entity-contact">Contact</a>, <a href="#entity-customer-return">Customer Return</a>, <a href="#entity-brand">Brand</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-lead-status">Lead Status</a>, <a href="#entity-opportunity-stage">Opportunity Stage</a>, <a href="#entity-quotation-status">Quotation Status</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-purchase-order-status">Purchase Order Status</a>, <a href="#entity-purchase-order-line-price-source">Purchase Order Line Price Source</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a>, <a href="#entity-supplier-supplier-type">Supplier Supplier Type</a>, <a href="#entity-supplier-qualification-status">Supplier Qualification Status</a>, <a href="#entity-supplier-status">Supplier Status</a>, <a href="#entity-supplier-role-type">Supplier Role Type</a>, <a href="#entity-payment-term-due-date-basis">Payment Term Due Date Basis</a>, <a href="#entity-payment-term-status">Payment Term Status</a>, <a href="#entity-product-category-status">Product Category Status</a>, <a href="#entity-quotation-line-price-source">Quotation Line Price Source</a>, <a href="#entity-discount-rule-method">Discount Rule Method</a>, <a href="#entity-discount-rule-status">Discount Rule Status</a>, <a href="#entity-customer-return-status">Customer Return Status</a>, <a href="#entity-customer-return-line-disposition">Customer Return Line Disposition</a>, <a href="#entity-brand-status">Brand Status</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-lead-status">Lead Status</a>, <a href="#entity-opportunity-stage">Opportunity Stage</a>, <a href="#entity-quotation-status">Quotation Status</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-purchase-order-status">Purchase Order Status</a>, <a href="#entity-purchase-order-line-price-source">Purchase Order Line Price Source</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a>, <a href="#entity-supplier-supplier-type">Supplier Supplier Type</a>, <a href="#entity-supplier-qualification-status">Supplier Qualification Status</a>, <a href="#entity-supplier-status">Supplier Status</a>, <a href="#entity-supplier-role-type">Supplier Role Type</a>, <a href="#entity-payment-term-due-date-basis">Payment Term Due Date Basis</a>, <a href="#entity-payment-term-status">Payment Term Status</a>, <a href="#entity-product-category-status">Product Category Status</a>, <a href="#entity-quotation-line-price-source">Quotation Line Price Source</a>, <a href="#entity-discount-rule-method">Discount Rule Method</a>, <a href="#entity-discount-rule-status">Discount Rule Status</a>, <a href="#entity-customer-return-status">Customer Return Status</a>, <a href="#entity-customer-return-line-disposition">Customer Return Line Disposition</a>, <a href="#entity-brand-status">Brand Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -218,8 +226,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 85</td></tr>
-        <tr><td>User</td><td><code>user@sales.example.com</code></td><td>85 of 85</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 91</td></tr>
+        <tr><td>User</td><td><code>user@sales.example.com</code></td><td>91 of 91</td></tr>
       </tbody>
     </table>
 
@@ -270,28 +278,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
         </tr>
         <tr>
-          <td><code>city</code></td>
-          <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td>The city of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its city.</td>
-        </tr>
-        <tr>
-          <td><code>state_or_province</code></td>
+          <td><code>city_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td>The state or province of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
+          <td>The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.</td>
         </tr>
         <tr>
           <td><code>postal_code</code></td>
           <td>Text</td>
           <td><span class="tag">max 30</span></td>
           <td>The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own.</td>
-        </tr>
-        <tr>
-          <td><code>country_code</code></td>
-          <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 2</span></td>
-          <td>The country code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address&#39;s other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its country code.</td>
         </tr>
         <tr>
           <td><code>latitude</code></td>
@@ -336,6 +332,24 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The Organization this Address belongs to.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        <tr>
+          <td><code>state_province_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address&#39;s own country.<div class="detail">Points at <b>State Province</b></div></td>
+        </tr>
+        <tr>
+          <td><code>city_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address&#39;s own country, and of its state or province where one is stated.<div class="detail">Points at <b>City</b></div></td>
+        </tr>
+        <tr>
           <td><code>customer_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -350,7 +364,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 18 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 19 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -395,19 +409,11 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>city</code></td>
-            <td>City</td>
+            <td><code>city_name</code></td>
+            <td>City Name</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>60</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>state_or_province</code></td>
-            <td>State Or Province</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>70</td>
             <td>No</td>
           </tr>
           <tr>
@@ -415,23 +421,15 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Postal Code</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>80</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>country_code</code></td>
-            <td>Country Code</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>90</td>
+            <td>70</td>
             <td>No</td>
           </tr>
           <tr>
             <td><code>latitude</code></td>
             <td>Latitude</td>
             <td>Yes</td>
-            <td>No</td>
-            <td>100</td>
+            <td>Yes</td>
+            <td>80</td>
             <td>No</td>
           </tr>
           <tr>
@@ -439,7 +437,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Longitude</td>
             <td>Yes</td>
             <td>No</td>
-            <td>110</td>
+            <td>90</td>
             <td>No</td>
           </tr>
           <tr>
@@ -447,7 +445,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Is Primary</td>
             <td>Yes</td>
             <td>No</td>
-            <td>120</td>
+            <td>100</td>
             <td>No</td>
           </tr>
           <tr>
@@ -455,7 +453,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Status</td>
             <td>Yes</td>
             <td>No</td>
-            <td>130</td>
+            <td>110</td>
             <td>No</td>
           </tr>
           <tr>
@@ -463,7 +461,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Party</td>
             <td>Yes</td>
             <td>No</td>
-            <td>140</td>
+            <td>120</td>
             <td>No</td>
           </tr>
           <tr>
@@ -471,7 +469,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Person</td>
             <td>Yes</td>
             <td>No</td>
-            <td>150</td>
+            <td>130</td>
             <td>No</td>
           </tr>
           <tr>
@@ -479,7 +477,31 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Organization</td>
             <td>Yes</td>
             <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>150</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>state_province_id</code></td>
+            <td>State Province</td>
+            <td>Yes</td>
+            <td>No</td>
             <td>160</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>city_id</code></td>
+            <td>City</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>170</td>
             <td>No</td>
           </tr>
           <tr>
@@ -487,7 +509,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Customer</td>
             <td>Yes</td>
             <td>No</td>
-            <td>170</td>
+            <td>180</td>
             <td>No</td>
           </tr>
           <tr>
@@ -495,7 +517,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Supplier</td>
             <td>Yes</td>
             <td>No</td>
-            <td>180</td>
+            <td>190</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -505,10 +527,32 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Address</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-state-province">State Province</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-city">City</a>.</li>
           <li>Each <b>Address</b> has one <a href="#entity-location">Location</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-customer">Customer</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-supplier">Supplier</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; AddressLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>addressInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>addressInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -849,6 +893,17 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Brand</b> has many <a href="#entity-product">Product</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; BrandLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1150,6 +1205,173 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-city" class="entity">
+      <h3>City <span class="group">Foundation</span></h3>
+      <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
+      <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of City. Cross-domain reference, integration and audit. Used wherever this City is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 80</span></td>
+          <td>The city&#39;s code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>The city&#39;s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.</td>
+        </tr>
+        <tr>
+          <td><code>population</code></td>
+          <td>Whole number</td>
+          <td>&mdash;</td>
+          <td>The registry&#39;s population figure. Ordering and sizing; not a current census count. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>latitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Latitude in degrees, north positive. Maps and distance. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>longitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Longitude in degrees, east positive. Maps and distance. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>timezone</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 64</span></td>
+          <td>The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.</td>
+        </tr>
+        <tr>
+          <td><code>is_capital</code></td>
+          <td>Yes / No</td>
+          <td>&mdash;</td>
+          <td>Whether the city is its country&#39;s capital. Highlighting the capital in lists. At most one capital per country in this list.</td>
+        </tr>
+        <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        <tr>
+          <td><code>state_province_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state of a city must be a division of the city&#39;s own country.<div class="detail">Points at <b>State Province</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>City</b> window, on the <b>City</b> tab. These are its 10 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>population</code></td>
+            <td>Population</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>latitude</code></td>
+            <td>Latitude</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>longitude</code></td>
+            <td>Longitude</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>timezone</code></td>
+            <td>Timezone</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_capital</code></td>
+            <td>Is Capital</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>state_province_id</code></td>
+            <td>State Province</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>City</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>City</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>City</b> belongs to one <a href="#entity-state-province">State Province</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-contact" class="entity">
       <h3>Contact <span class="group">Sales and Order Management records</span></h3>
       <p class="lede">A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context. Provide canonical implementation-neutral semantics for Contact across enterprise applications. A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
@@ -1300,7 +1522,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-country" class="entity">
       <h3>Country <span class="group">Foundation</span></h3>
-      <p class="lede">A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -1311,24 +1533,48 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.</td>
+          <td>Stable identity of Country. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.</td>
         </tr>
         <tr>
           <td><code>code</code></td>
           <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
-          <td>Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 2</span></td>
+          <td>The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.</td>
+        </tr>
+        <tr>
+          <td><code>alpha3</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 3</span></td>
+          <td>The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.</td>
+        </tr>
+        <tr>
+          <td><code>numeric_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 3</span></td>
+          <td>The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+          <td>The country&#39;s short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.</td>
+        </tr>
+        <tr>
+          <td><code>phone_code</code></td>
+          <td>Telephone</td>
+          <td><span class="tag">max 20</span></td>
+          <td>The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.</td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency follow the country chosen on an address.<div class="detail">Points at <b>Currency</b></div></td>
         </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Country</b> window, on the <b>Country</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Country</b> window, on the <b>Country</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -1349,15 +1595,54 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>name</code></td>
-            <td>Name</td>
+            <td><code>alpha3</code></td>
+            <td>Alpha3</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>30</td>
             <td>No</td>
           </tr>
+          <tr>
+            <td><code>numeric_code</code></td>
+            <td>Numeric Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>phone_code</code></td>
+            <td>Phone Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
         </tbody>
       </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Country</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Country</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Country</b> has many <a href="#entity-state-province">State Province</a> records.</li>
+          <li>Each <b>Country</b> has many <a href="#entity-city">City</a> records.</li>
+      </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1465,6 +1750,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Related records</h4>
       <ul class="plain">
+          <li>Each <b>Currency</b> has many <a href="#entity-country">Country</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-product">Product</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
@@ -1473,6 +1759,17 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-discount-rule">Discount Rule</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1808,6 +2105,28 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Customer</b> belongs to one <a href="#entity-payment-term">Payment Term</a>.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-customer-return">Customer Return</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; CustomerLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ACTIVE</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>customerWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-customer-exception-raised">CustomerExceptionRaised</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -2157,6 +2476,44 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Customer Return</b> belongs to one <a href="#entity-sales-order">Sales Order</a>.</li>
           <li>Each <b>Customer Return</b> has many <a href="#entity-customer-return-line">Customer Return Line</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; CustomerReturnLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>DISPOSITIONED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>AUTHORIZED</code></td><td><code>authorize</code></td></tr>
+          <tr><td><code>AUTHORIZED</code></td><td><code>IN_TRANSIT</code></td><td><code>mark_in_transit</code></td></tr>
+          <tr><td><code>IN_TRANSIT</code></td><td><code>RECEIVED</code></td><td><code>receive</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>COMPLETED</code></td><td><code>DISPOSITIONED</code></td><td><code>mark_dispositioned</code></td></tr>
+          <tr><td><code>AUTHORIZED</code></td><td><code>INSPECTION_PENDING</code></td><td><code>mark_inspection_pending</code></td></tr>
+          <tr><td><code>INSPECTION_PENDING</code></td><td><code>AUTHORIZED</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>IN_TRANSIT</code></td><td><code>INSPECTION_PENDING</code></td><td><code>mark_inspection_pending</code></td></tr>
+          <tr><td><code>INSPECTION_PENDING</code></td><td><code>IN_TRANSIT</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>INSPECTION_PENDING</code></td><td><code>mark_inspection_pending</code></td></tr>
+          <tr><td><code>INSPECTION_PENDING</code></td><td><code>RECEIVED</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>AUTHORIZED</code></td><td><code>EXCEPTION</code></td><td><code>mark_exception</code></td></tr>
+          <tr><td><code>EXCEPTION</code></td><td><code>AUTHORIZED</code></td><td><code>resolve_exception</code></td></tr>
+          <tr><td><code>IN_TRANSIT</code></td><td><code>EXCEPTION</code></td><td><code>mark_exception</code></td></tr>
+          <tr><td><code>EXCEPTION</code></td><td><code>IN_TRANSIT</code></td><td><code>resolve_exception</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>EXCEPTION</code></td><td><code>mark_exception</code></td></tr>
+          <tr><td><code>EXCEPTION</code></td><td><code>RECEIVED</code></td><td><code>resolve_exception</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>AUTHORIZED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>IN_TRANSIT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>INSPECTION_PENDING</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>EXCEPTION</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>customerReturnWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-customer-return-exception-raised">CustomerReturnExceptionRaised</a>, <a href="#process-customer-return-follow-up-required">CustomerReturnFollowUpRequired</a>, <a href="#process-customer-return-completion-confirmed">CustomerReturnCompletionConfirmed</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -2975,6 +3332,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Discount Rule</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; DiscountRuleLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -3339,6 +3709,27 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
           <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; ExchangeRateLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>exchangeRateInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-exchange-rate-follow-up-required">ExchangeRateFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -3570,7 +3961,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr>
           <td><code>code</code></td>
           <td>Text</td>
-          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 2</span></td>
           <td>Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
         </tr>
         <tr>
@@ -3752,6 +4143,21 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Lead</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Lead</b> has one <a href="#entity-opportunity">Opportunity</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; LeadLifecycle</h4>
+      <p>A record starts at <code>NEW</code> and finishes at <code>LOST</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>NEW</code></td><td><code>QUALIFYING</code></td><td><code>mark_qualifying</code></td></tr>
+          <tr><td><code>QUALIFYING</code></td><td><code>QUALIFIED</code></td><td><code>mark_qualified</code></td></tr>
+          <tr><td><code>QUALIFIED</code></td><td><code>DISQUALIFIED</code></td><td><code>mark_disqualified</code></td></tr>
+          <tr><td><code>DISQUALIFIED</code></td><td><code>CONVERTED</code></td><td><code>mark_converted</code></td></tr>
+          <tr><td><code>QUALIFYING</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>QUALIFIED</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>DISQUALIFIED</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>CONVERTED</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -4062,6 +4468,20 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Location</b> has many <a href="#entity-purchase-order">Purchase Order</a> records.</li>
           <li>Each <b>Location</b> belongs to one <a href="#entity-product">Product</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; LocationLifecycle</h4>
+      <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLANNED</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CLOSED</code></td><td><code>close</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>PLANNED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -4441,6 +4861,26 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Opportunity</b> belongs to one <a href="#entity-sales-order">Sales Order</a>.</li>
           <li>Each <b>Opportunity</b> has many <a href="#entity-quotation">Quotation</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; OpportunityLifecycle</h4>
+      <p>A record starts at <code>QUALIFICATION</code> and finishes at <code>LOST</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>QUALIFICATION</code></td><td><code>DISCOVERY</code></td><td><code>mark_discovery</code></td></tr>
+          <tr><td><code>DISCOVERY</code></td><td><code>PROPOSAL</code></td><td><code>mark_proposal</code></td></tr>
+          <tr><td><code>PROPOSAL</code></td><td><code>WON</code></td><td><code>mark_won</code></td></tr>
+          <tr><td><code>DISCOVERY</code></td><td><code>NEGOTIATION</code></td><td><code>mark_negotiation</code></td></tr>
+          <tr><td><code>NEGOTIATION</code></td><td><code>DISCOVERY</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>PROPOSAL</code></td><td><code>NEGOTIATION</code></td><td><code>mark_negotiation</code></td></tr>
+          <tr><td><code>NEGOTIATION</code></td><td><code>PROPOSAL</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>WON</code></td><td><code>NEGOTIATION</code></td><td><code>mark_negotiation</code></td></tr>
+          <tr><td><code>NEGOTIATION</code></td><td><code>WON</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>DISCOVERY</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>PROPOSAL</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>WON</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+          <tr><td><code>NEGOTIATION</code></td><td><code>LOST</code></td><td><code>mark_lost</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -4773,11 +5213,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Organization</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-business-unit">Business Unit</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-department">Department</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-task">Task</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-customer">Customer</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-purchase-order">Purchase Order</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-supplier">Supplier</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; OrganizationLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -5192,6 +5646,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-party-relationship">Party Relationship</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-contact-point">Contact Point</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-task">Task</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-customer">Customer</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-lead">Lead</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-lead">Lead</a> records.</li>
@@ -5199,6 +5654,28 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-supplier">Supplier</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-prospect">Prospect</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; PartyLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ACTIVE</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>partyWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-party-exception-raised">PartyExceptionRaised</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -5540,6 +6017,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party Role</b> has one <a href="#entity-customer">Customer</a>.</li>
           <li>Each <b>Party Role</b> has one <a href="#entity-supplier">Supplier</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; PartyRoleLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>EXPIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>partyRoleInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>partyRoleInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6024,6 +6520,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Payment Term</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Payment Term</b> has many <a href="#entity-purchase-order">Purchase Order</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; PaymentTermLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>paymentTermInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>paymentTermInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6301,10 +6816,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for this record. The gender of the person is male; set it when that is what the business means for this record. The gender of the person is non binary; set it when that is what the business means for this record. The gender of the person is other; set it when that is what the business means for this record. The gender of the person is unspecified; set it when that is what the business means for this record.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
         </tr>
         <tr>
-          <td><code>nationality</code></td>
-          <td>Text</td>
-          <td><span class="tag">max 2</span></td>
-          <td>Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.</td>
+          <td><code>nationality_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.<div class="detail">Points at <b>Nationality</b></div></td>
         </tr>
         <tr>
           <td><code>party_type</code></td>
@@ -6410,7 +6925,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>nationality</code></td>
+            <td><code>nationality_id</code></td>
             <td>Nationality</td>
             <td>Yes</td>
             <td>No</td>
@@ -7038,6 +7553,32 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Product</b> belongs to one <a href="#entity-brand">Brand</a>.</li>
           <li>Each <b>Product</b> has many <a href="#entity-quotation-line">Quotation Line</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; ProductLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>DISCONTINUED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ACTIVE</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>DISCONTINUED</code></td><td><code>discontinue</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>DISCONTINUED</code></td><td><code>discontinue</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>DISCONTINUED</code></td><td><code>discontinue</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>productInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>productInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>productWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-product-exception-raised">ProductExceptionRaised</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -7148,6 +7689,17 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Product Category</b> has many <a href="#entity-product">Product</a> records.</li>
           <li>Each <b>Product Category</b> has many <a href="#entity-product-category">Product Category</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; ProductCategoryLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -7762,6 +8314,33 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Purchase Order</b> belongs to one <a href="#entity-location">Location</a>.</li>
           <li>Each <b>Purchase Order</b> belongs to one <a href="#entity-payment-term">Payment Term</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; PurchaseOrderLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>CLOSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>APPROVED</code></td><td><code>approve</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>SENT</code></td><td><code>mark_sent</code></td></tr>
+          <tr><td><code>SENT</code></td><td><code>PARTIALLY_RECEIVED</code></td><td><code>mark_partially_received</code></td></tr>
+          <tr><td><code>PARTIALLY_RECEIVED</code></td><td><code>RECEIVED</code></td><td><code>receive</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>CLOSED</code></td><td><code>close</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>SENT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>PARTIALLY_RECEIVED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>RECEIVED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>purchaseOrderInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>purchaseOrderInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>purchaseOrderWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-purchase-order-follow-up-required">PurchaseOrderFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -7985,6 +8564,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Purchase Order Line</b> belongs to one <a href="#entity-purchase-order">Purchase Order</a>.</li>
           <li>Each <b>Purchase Order Line</b> belongs to one <a href="#entity-product">Product</a>.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>purchaseOrderLineInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>purchaseOrderLineInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8363,6 +8950,33 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Quotation</b> has many <a href="#entity-quotation-line">Quotation Line</a> records.</li>
           <li>Each <b>Quotation</b> belongs to one <a href="#entity-payment-term">Payment Term</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; QuotationLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>REJECTED</code> or <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>SUBMITTED</code></td><td><code>submit</code></td></tr>
+          <tr><td><code>SUBMITTED</code></td><td><code>ACCEPTED</code></td><td><code>accept</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>REJECTED</code></td><td><code>reject</code></td></tr>
+          <tr><td><code>SUBMITTED</code></td><td><code>REJECTED</code></td><td><code>reject</code></td></tr>
+          <tr><td><code>ACCEPTED</code></td><td><code>REJECTED</code></td><td><code>reject</code></td></tr>
+          <tr><td><code>SUBMITTED</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>ACCEPTED</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>SUBMITTED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACCEPTED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>quotationInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>quotationInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>quotationWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-quotation-approval-requested">QuotationApprovalRequested</a>, <a href="#process-quotation-follow-up-required">QuotationFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8558,6 +9172,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Quotation Line</b> belongs to one <a href="#entity-product">Product</a>.</li>
           <li>Each <b>Quotation Line</b> belongs to one <a href="#entity-unit-of-measure">Unit Of Measure</a>.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>quotationLineInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>quotationLineInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8954,6 +9576,31 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Sales Order</b> belongs to one <a href="#entity-payment-term">Payment Term</a>.</li>
           <li>Each <b>Sales Order</b> has many <a href="#entity-customer-return">Customer Return</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; SalesOrderLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>FULFILLED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>CONFIRMED</code></td><td><code>confirm</code></td></tr>
+          <tr><td><code>CONFIRMED</code></td><td><code>ALLOCATED</code></td><td><code>mark_allocated</code></td></tr>
+          <tr><td><code>ALLOCATED</code></td><td><code>PARTIALLY_FULFILLED</code></td><td><code>mark_partially_fulfilled</code></td></tr>
+          <tr><td><code>PARTIALLY_FULFILLED</code></td><td><code>FULFILLED</code></td><td><code>fulfil</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>CONFIRMED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ALLOCATED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>PARTIALLY_FULFILLED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>salesOrderInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>salesOrderInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>salesOrderWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-sales-order-follow-up-required">SalesOrderFollowUpRequired</a>, <a href="#process-sales-order-completion-confirmed">SalesOrderCompletionConfirmed</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -9178,6 +9825,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Sales Order Line</b> belongs to one <a href="#entity-product">Product</a>.</li>
           <li>Each <b>Sales Order Line</b> has many <a href="#entity-customer-return-line">Customer Return Line</a> records.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>salesOrderLineInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>salesOrderLineInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -9391,6 +10046,103 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-state-province" class="entity">
+      <h3>State Province <span class="group">Foundation</span></h3>
+      <p class="lede">A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
+      <p class="meta">Stored as <code>bus_state_province</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of StateProvince. Cross-domain reference, integration and audit. Used wherever this StateProvince is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 10</span></td>
+          <td>The ISO 3166-2 code, the country code and the division&#39;s own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>The division&#39;s name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.</td>
+        </tr>
+        <tr>
+          <td><code>subdivision_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 100</span></td>
+          <td>What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.</td>
+        </tr>
+        <tr>
+          <td><code>country_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.<div class="detail">Points at <b>Country</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>State Province</b> window, on the <b>State Province</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>subdivision_type</code></td>
+            <td>Subdivision Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_id</code></td>
+            <td>Country</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>State Province</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>State Province</b> belongs to one <a href="#entity-country">Country</a>.</li>
+          <li>Each <b>State Province</b> has many <a href="#entity-city">City</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-supplier" class="entity">
       <h3>Supplier <span class="group">Pricing and Commercial Terms</span></h3>
       <p class="lede">Represents the procurement-facing role of a Party that supplies business inputs and participates in reverse procurement, supplier claims, financial recovery and performance governance. Party provides identity, PartyRole provides the role, and Supplier adds procurement-specific qualification, terms and transaction history. SupplierClaim captures the case; SupplierClaimResolution captures the remedy; downstream transactions execute it; SupplierPerformanceAssessment interprets accumulated evidence for governance. Central to source-to-pay, sourcing, procurement, receiving, supplier returns, quality claims, accounts payable, supplier qualification, recovery and performance management. Supplier connects PartyRole to PurchaseOrder, GoodsReceipt, Invoice, Payment, SupplierReturn, SupplierCreditNote, SupplierDebitNote, SupplierClaim, SupplierClaimResolution, SupplierPerformanceAssessment, Product and PaymentTerm. Supplier qualification/status → PurchaseOrder → GoodsReceipt → Invoice matching → Payment; issue detection → SupplierClaim → SupplierClaimResolution → SupplierReturn and/or SupplierCreditNote/SupplierDebitNote/Payment → reconciliation; periodic evidence aggregation → SupplierPerformanceAssessment → governance/improvement decision. Onboard → qualify → active → suspend/block/inactive → retire. State changes constrain future activity without rewriting historical evidence. A supplier&#39;s quarterly assessment combines delivery receipts, inspection failures, claims and returns into an approved scorecard. The result informs qualification and improvement decisions while the underlying transactions remain unchanged.</p>
@@ -9601,6 +10353,28 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Supplier</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Supplier</b> belongs to one <a href="#entity-payment-term">Payment Term</a>.</li>
       </ul>
+      <h4>Lifecycle &mdash; SupplierLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ACTIVE</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>supplierWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-supplier-exception-raised">SupplierExceptionRaised</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -10024,6 +10798,549 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-task" class="entity">
+      <h3>Task <span class="group">Foundation</span></h3>
+      <p class="lede">Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
+      <p class="meta">Stored as <code>bus_task</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Identifies the task record associated with this Task. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 2000</span></td>
+          <td>A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>task_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Captures the business meaning of task type for the Task. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the user state or classification in the context of Task. Represents the system state or classification in the context of Task. Represents the approval state or classification in the context of Task. Represents the decision state or classification in the context of Task. Represents the notification state or classification in the context of Task. Represents the script state or classification in the context of Task. Represents the other state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>USER</code>, <code>SYSTEM</code>, <code>APPROVAL</code>, <code>DECISION</code>, <code>NOTIFICATION</code>, <code>SCRIPT</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the created state or classification in the context of Task. Represents the ready state or classification in the context of Task. Represents the assigned state or classification in the context of Task. Represents the in progress state or classification in the context of Task. Represents the blocked state or classification in the context of Task. Represents the completed state or classification in the context of Task. Represents the cancelled state or classification in the context of Task. Represents the failed state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>priority</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Captures the business meaning of priority for the Task. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the low state or classification in the context of Task. Represents the normal state or classification in the context of Task. Represents the high state or classification in the context of Task. Represents the critical state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
+        </tr>
+        <tr>
+          <td><code>due_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>started_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>completed_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>assignee_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Assignee</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task</b> window, on the <b>Task</b> tab. These are its 12 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>task_type</code></td>
+            <td>Task Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>priority</code></td>
+            <td>Priority</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>due_at</code></td>
+            <td>Due At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>started_at</code></td>
+            <td>Started At</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>completed_at</code></td>
+            <td>Completed At</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assignee_id</code></td>
+            <td>Assignee</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Task</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Task</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; TaskLifecycle</h4>
+      <p>A record starts at <code>CREATED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>FAILED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>CREATED</code></td><td><code>READY</code></td><td><code>mark_ready</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>ASSIGNED</code></td><td><code>assign</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>IN_PROGRESS</code></td><td><code>start</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>READY</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>ASSIGNED</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>BLOCKED</code></td><td><code>block</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>IN_PROGRESS</code></td><td><code>unblock</code></td></tr>
+          <tr><td><code>CREATED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>READY</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>ASSIGNED</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+          <tr><td><code>BLOCKED</code></td><td><code>FAILED</code></td><td><code>fail</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>taskInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>taskInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-priority" class="entity">
+      <h3>Task Priority <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_priority</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Priority</b> window, on the <b>Task Priority</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-status" class="entity">
+      <h3>Task Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Status</b> window, on the <b>Task Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-task-task-type" class="entity">
+      <h3>Task Task Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_task_task_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Task Task Type</b> window, on the <b>Task Task Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-unit-of-measure" class="entity">
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
@@ -10163,6 +11480,17 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-purchase-order-line">Purchase Order Line</a> records.</li>
           <li>Each <b>Unit Of Measure</b> has many <a href="#entity-quotation-line">Quotation Line</a> records.</li>
       </ul>
+      <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -10377,9 +11705,146 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     </section>
   </section>
 
+  <section id="rules">
+    <h2>The decisions it makes</h2>
+    <p>Each of these is a decision table the application evaluates when a record is written. A rule that refuses a write refuses it for everyone, including an administrator &mdash; it is a statement about the business, not about permissions.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>Applies to</th><th>Runs on</th></tr></thead>
+      <tbody>
+        <tr><td><code>partyRoleInvariantsBeforeCreate</code></td><td><a href="#entity-party-role">Party Role</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>partyRoleInvariantsBeforeUpdate</code></td><td><a href="#entity-party-role">Party Role</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>addressInvariantsBeforeCreate</code></td><td><a href="#entity-address">Address</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>addressInvariantsBeforeUpdate</code></td><td><a href="#entity-address">Address</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>exchangeRateInvariantsBeforeCreate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>quotationInvariantsBeforeCreate</code></td><td><a href="#entity-quotation">Quotation</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>quotationInvariantsBeforeUpdate</code></td><td><a href="#entity-quotation">Quotation</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>salesOrderInvariantsBeforeCreate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>salesOrderInvariantsBeforeUpdate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>salesOrderLineInvariantsBeforeCreate</code></td><td><a href="#entity-sales-order-line">Sales Order Line</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>salesOrderLineInvariantsBeforeUpdate</code></td><td><a href="#entity-sales-order-line">Sales Order Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>purchaseOrderInvariantsBeforeCreate</code></td><td><a href="#entity-purchase-order">Purchase Order</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>purchaseOrderInvariantsBeforeUpdate</code></td><td><a href="#entity-purchase-order">Purchase Order</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>purchaseOrderLineInvariantsBeforeCreate</code></td><td><a href="#entity-purchase-order-line">Purchase Order Line</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>purchaseOrderLineInvariantsBeforeUpdate</code></td><td><a href="#entity-purchase-order-line">Purchase Order Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>productInvariantsBeforeCreate</code></td><td><a href="#entity-product">Product</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>productInvariantsBeforeUpdate</code></td><td><a href="#entity-product">Product</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>paymentTermInvariantsBeforeCreate</code></td><td><a href="#entity-payment-term">Payment Term</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>paymentTermInvariantsBeforeUpdate</code></td><td><a href="#entity-payment-term">Payment Term</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>quotationLineInvariantsBeforeCreate</code></td><td><a href="#entity-quotation-line">Quotation Line</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>quotationLineInvariantsBeforeUpdate</code></td><td><a href="#entity-quotation-line">Quotation Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>customerWorkflowsAfterUpdate</code></td><td><a href="#entity-customer">Customer</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>quotationWorkflowsAfterUpdate</code></td><td><a href="#entity-quotation">Quotation</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>salesOrderWorkflowsAfterUpdate</code></td><td><a href="#entity-sales-order">Sales Order</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>purchaseOrderWorkflowsAfterUpdate</code></td><td><a href="#entity-purchase-order">Purchase Order</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>productWorkflowsAfterUpdate</code></td><td><a href="#entity-product">Product</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>supplierWorkflowsAfterUpdate</code></td><td><a href="#entity-supplier">Supplier</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>customerReturnWorkflowsAfterUpdate</code></td><td><a href="#entity-customer-return">Customer Return</a></td><td>afterUpdate</td></tr>
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
 
-
-
+  <section id="processes">
+    <h2>The processes it runs</h2>
+    <p>A process spans more than one record. Its steps run in order and stop at the first failure.</p>
+    <div id="process-party-exception-raised" class="process">
+      <h3>PartyExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-party">Party</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-exchange-rate-follow-up-required" class="process">
+      <h3>ExchangeRateFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-exchange-rate">Exchange Rate</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-customer-exception-raised" class="process">
+      <h3>CustomerExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-customer">Customer</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-quotation-approval-requested" class="process">
+      <h3>QuotationApprovalRequested</h3>
+      <p class="meta">On <a href="#entity-quotation">Quotation</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: decide on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-quotation-follow-up-required" class="process">
+      <h3>QuotationFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-quotation">Quotation</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-sales-order-follow-up-required" class="process">
+      <h3>SalesOrderFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-sales-order">Sales Order</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-sales-order-completion-confirmed" class="process">
+      <h3>SalesOrderCompletionConfirmed</h3>
+      <p class="meta">On <a href="#entity-sales-order">Sales Order</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: confirm <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-purchase-order-follow-up-required" class="process">
+      <h3>PurchaseOrderFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-purchase-order">Purchase Order</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-product-exception-raised" class="process">
+      <h3>ProductExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-product">Product</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-supplier-exception-raised" class="process">
+      <h3>SupplierExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-supplier">Supplier</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-customer-return-exception-raised" class="process">
+      <h3>CustomerReturnExceptionRaised</h3>
+      <p class="meta">On <a href="#entity-customer-return">Customer Return</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: resolve <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-customer-return-follow-up-required" class="process">
+      <h3>CustomerReturnFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-customer-return">Customer Return</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-customer-return-completion-confirmed" class="process">
+      <h3>CustomerReturnCompletionConfirmed</h3>
+      <p class="meta">On <a href="#entity-customer-return">Customer Return</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: confirm <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
 
   <section id="how-it-was-built">
     <h2>How this application was built</h2>
@@ -10390,7 +11855,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    sales 1.0.0 &middot; 85 record types &middot; 0 rules &middot; 0 processes
+    sales 1.0.0 &middot; 91 record types &middot; 33 rules &middot; 35 processes
   </footer>
 </div>
 </body>

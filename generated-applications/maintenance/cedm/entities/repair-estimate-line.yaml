@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_transaction_line
   description: An individual damage, repair, component, material, labor, or replacement requirement that forms part of a RepairEstimate's technical scope and financial evaluation.
+  ui:
+    icon: list
   identity:
     key: repairEstimateLineId
     type: uuid
@@ -132,6 +134,11 @@ entity:
     rule: totalAmount must reconcile with the applicable component amounts according to the estimate calculation policy.
   - id: REPAIR-LINE-004
     rule: A material quantity should identify a materialCode and applicable unit semantics when material consumption is expected.
+  - {id: REPAIR-ESTIMATE-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: REPAIR-ESTIMATE-LINE-EXE-002, rule: "Material Amount cannot be negative.", violatedWhen: "material_amount != null and material_amount < 0", message: "Material Amount cannot be negative."}
+  - {id: REPAIR-ESTIMATE-LINE-EXE-003, rule: "Labour Amount cannot be negative.", violatedWhen: "labour_amount != null and labour_amount < 0", message: "Labour Amount cannot be negative."}
+  - {id: REPAIR-ESTIMATE-LINE-EXE-004, rule: "Replacement Amount cannot be negative.", violatedWhen: "replacement_amount != null and replacement_amount < 0", message: "Replacement Amount cannot be negative."}
+  - {id: REPAIR-ESTIMATE-LINE-EXE-005, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   help:
     summary: Represents one actionable or evaluative item within a repair estimate, connecting observed asset condition to proposed repair work and estimated cost.
     businessMeaning: RepairEstimateLine is the detailed evidence behind the overall repair decision. It can identify what is damaged, where it is damaged, what repair is proposed, what material or replacement is required, and what labor and cost are expected.

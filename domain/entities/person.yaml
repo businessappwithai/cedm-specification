@@ -75,10 +75,11 @@ entity:
         NON_BINARY: The gender of the person is non binary; set it when that is what the business means for this record.
         OTHER: The gender of the person is other; set it when that is what the business means for this record.
         UNSPECIFIED: The gender of the person is unspecified; set it when that is what the business means for this record.
-  - name: nationality
-    type: country_code
+  - name: nationalityId
+    type: reference
+    target: Country
     required: false
-    help: {summary: Nationality, usage: applicable identity/compliance processes, relationshipContext: not Party identity, workflowRole: process-specific, optionalMeaning: optional.}
+    help: {summary: "The country whose nationality the person holds.", usage: "Chosen from the list of countries; used by identity and compliance processes.", relationshipContext: "Not Party identity; process-specific.", optionalMeaning: "Optional."}
   relationships:
   - name: party
     target: Party

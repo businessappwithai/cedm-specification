@@ -378,7 +378,36 @@ impl Library {
                 };
                 if let Some(entity) = get(&document, "entity") {
                     if let Some(entity_name) = get_str(entity, "name") {
-                        entities.insert(entity_name.to_string(), entity.clone());
+                        let mut entity = entity.clone();
+                        // Reference data is a file of its own beside the entity; the
+                        // entity is handed out with the rows inlined, so nothing
+                        // downstream reads a file.
+                        if let (Some(reference), Value::Mapping(map)) = (
+                            get_str(&entity, "referenceData").map(str::to_string),
+                            &mut entity,
+                        ) {
+                            let rows =
+                                std::fs::read_to_string(root.join("domain").join(&reference))
+                                    .ok()
+                                    .and_then(|t| serde_yaml::from_str::<Value>(&t).ok())
+                                    .and_then(|doc| get(&doc, "referenceData").cloned());
+                            if let Some(rows) = rows {
+                                let mut data = Mapping::new();
+                                set(
+                                    &mut data,
+                                    "key",
+                                    get(&rows, "key").cloned().unwrap_or(Value::Null),
+                                );
+                                set(
+                                    &mut data,
+                                    "rows",
+                                    get(&rows, "rows").cloned().unwrap_or(Value::Null),
+                                );
+                                set(map, "data", Value::Mapping(data));
+                            }
+                            map.remove(key("referenceData"));
+                        }
+                        entities.insert(entity_name.to_string(), entity);
                     }
                 }
             }
@@ -1758,6 +1787,115 @@ fn lower(cedm: &Value) -> Result<Value> {
         }
     }
 
+    // ---- entity workflows: a saga, and a rule that triggers it
+    let mut entity_sagas: Vec<Value> = Vec::new();
+    for state in &states {
+        let declared = get_seq(&state.source, "workflows");
+        if declared.is_empty() {
+            continue;
+        }
+        let event_of = |workflow: &Value| {
+            get_str(workflow, "event")
+                .unwrap_or("afterUpdate")
+                .to_string()
+        };
+        let mut events: Vec<String> = Vec::new();
+        for workflow in declared {
+            let saga_name = format!("{}{}", state.name, get_str(workflow, "name").unwrap_or(""));
+            let mut saga = Mapping::new();
+            set(&mut saga, "name", Value::String(saga_name));
+            if let Some(title) = get(workflow, "title") {
+                set(&mut saga, "title", title.clone());
+            }
+            set(&mut saga, "entity", text(&state.name));
+            set(&mut saga, "operation", text("UPDATE"));
+            set(&mut saga, "trigger", text("rule"));
+            if let Some(description) = get(workflow, "description") {
+                set(&mut saga, "description", description.clone());
+            }
+            let steps: Vec<Value> = get_seq(workflow, "steps")
+                .iter()
+                .map(|step| lower_workflow_step(step, &names))
+                .collect();
+            set(&mut saga, "steps", Value::Sequence(steps));
+            entity_sagas.push(Value::Mapping(saga));
+            let event = event_of(workflow);
+            if !events.contains(&event) {
+                events.push(event);
+            }
+        }
+        for event in events {
+            let mut rule = Mapping::new();
+            set(
+                &mut rule,
+                "name",
+                Value::String(format!(
+                    "{}Workflows{}",
+                    lower_first(&state.name),
+                    pascal(&event)
+                )),
+            );
+            set(
+                &mut rule,
+                "title",
+                Value::String(format!("{} workflows ({event})", state.name)),
+            );
+            set(&mut rule, "entity", text(&state.name));
+            set(&mut rule, "event", text(&event));
+            let node = |id: &str, label: String, ty: &str| {
+                let mut map = Mapping::new();
+                set(&mut map, "id", text(id));
+                set(&mut map, "label", Value::String(label));
+                set(&mut map, "type", text(ty));
+                Value::Mapping(map)
+            };
+            set(
+                &mut rule,
+                "nodes",
+                Value::Sequence(vec![
+                    node("S", format!("Start: {} {event}", state.name), "start"),
+                    node("E", "End: workflows started".to_string(), "end"),
+                ]),
+            );
+            let mut edge = Mapping::new();
+            set(&mut edge, "from", text("S"));
+            set(&mut edge, "to", text("E"));
+            set(
+                &mut rule,
+                "edges",
+                Value::Sequence(vec![Value::Mapping(edge)]),
+            );
+            let actions: Vec<Value> = declared
+                .iter()
+                .filter(|workflow| event_of(workflow) == event)
+                .map(|workflow| {
+                    let name = get_str(workflow, "name").unwrap_or("");
+                    let mut action = Mapping::new();
+                    set(&mut action, "name", text(name));
+                    set(&mut action, "type", text("trigger-workflow"));
+                    set(
+                        &mut action,
+                        "when",
+                        get(workflow, "when").cloned().unwrap_or(Value::Null),
+                    );
+                    let mut props = Mapping::new();
+                    set(
+                        &mut props,
+                        "workflow",
+                        Value::String(format!("{}{}", state.name, name)),
+                    );
+                    if let Some(message) = get(workflow, "message") {
+                        set(&mut props, "message", message.clone());
+                    }
+                    set(&mut action, "props", Value::Mapping(props));
+                    Value::Mapping(action)
+                })
+                .collect();
+            set(&mut rule, "actions", Value::Sequence(actions));
+            rules.push(Value::Mapping(rule));
+        }
+    }
+
     // ---- authorization
     let mut rbac: Vec<Value> = Vec::new();
     let permissions = get(cedm, "authorization")
@@ -1795,6 +1933,134 @@ fn lower(cedm: &Value) -> Result<Value> {
             "the CEDM model cannot be generated:\n  {}",
             errors.join("\n  ")
         );
+    }
+
+    // ---- narrowed lookups: names become the columns that hold the references.
+    // Mirrors the same step in `lower.ts`.
+    for state in states.iter_mut() {
+        let physical: HashSet<String> = state
+            .attributes
+            .iter()
+            .filter_map(|a| get_str(a, "name").map(str::to_string))
+            .collect();
+        let relationship_names: HashSet<String> = get_seq(&state.source, "relationships")
+            .iter()
+            .filter_map(|r| get_str(r, "name").map(str::to_string))
+            .collect();
+        let column_of = |name: &str| -> Option<String> {
+            if let Some(declared) = state.columns.get(name) {
+                if physical.contains(declared) {
+                    return Some(declared.clone());
+                }
+            }
+            let key_column = format!("{}_id", snake(name));
+            (relationship_names.contains(name) && physical.contains(&key_column))
+                .then_some(key_column)
+        };
+        let mut wanted: Vec<(String, Vec<String>)> = Vec::new();
+        for relationship in get_seq(&state.source, "relationships") {
+            if let (Some(name), narrowed) = (
+                get_str(relationship, "name"),
+                get_seq(relationship, "narrowedBy"),
+            ) {
+                if !narrowed.is_empty() {
+                    wanted.push((name.to_string(), narrowed.iter().map(js_string).collect()));
+                }
+            }
+        }
+        for attribute in get_seq(&state.source, "attributes") {
+            if let (Some(name), narrowed) =
+                (get_str(attribute, "name"), get_seq(attribute, "narrowedBy"))
+            {
+                if !narrowed.is_empty() {
+                    wanted.push((name.to_string(), narrowed.iter().map(js_string).collect()));
+                }
+            }
+        }
+        for (holder, names) in wanted {
+            let columns: Vec<Option<String>> = names.iter().map(|n| column_of(n)).collect();
+            let holder_column = column_of(&holder);
+            let target = holder_column.as_ref().and_then(|column| {
+                state
+                    .attributes
+                    .iter()
+                    .position(|a| get_str(a, "name") == Some(column.as_str()))
+            });
+            match (target, columns.iter().all(Option::is_some)) {
+                (Some(index), true) => {
+                    if let Value::Mapping(attribute) = &mut state.attributes[index] {
+                        set(
+                            attribute,
+                            "narrowedBy",
+                            Value::Sequence(
+                                columns.into_iter().flatten().map(Value::String).collect(),
+                            ),
+                        );
+                    }
+                }
+                _ => errors.push(format!(
+                    "CEDM182 {}.{holder} is narrowed by {}, which are not all references of the entity",
+                    state.name,
+                    names.join(", ")
+                )),
+            }
+        }
+    }
+
+    // ---- reference data: rows keyed by attribute become rows keyed by column
+    // (`data` of each entity). Mirrors the same step in `lower.ts`.
+    for state in states.iter_mut() {
+        let Some(data) = get(&state.source, "data") else {
+            continue;
+        };
+        let physical: HashSet<String> = state
+            .attributes
+            .iter()
+            .filter_map(|a| get_str(a, "name").map(str::to_string))
+            .collect();
+        let relationship_names: HashSet<String> = get_seq(&state.source, "relationships")
+            .iter()
+            .filter_map(|r| get_str(r, "name").map(str::to_string))
+            .collect();
+        let column_of = |name: &str| -> Option<String> {
+            if let Some(declared) = state.columns.get(name) {
+                return Some(declared.clone());
+            }
+            let fk = format!("{}_id", snake(name));
+            if relationship_names.contains(name) && physical.contains(&fk) {
+                return Some(fk);
+            }
+            physical.contains(&snake(name)).then(|| snake(name))
+        };
+        let Some(key_column) = get_str(data, "key").and_then(column_of) else {
+            errors.push(format!(
+                "CEDM180 {} data names a key that is not one of its columns",
+                state.name
+            ));
+            continue;
+        };
+        let mut rows: Vec<Value> = Vec::new();
+        for row in get_seq(data, "rows") {
+            let Value::Mapping(row) = row else {
+                continue;
+            };
+            let mut lowered = Mapping::new();
+            for (name, value) in row {
+                let name = name.as_str().unwrap_or("");
+                match column_of(name) {
+                    Some(column) => set(&mut lowered, &column, value.clone()),
+                    None => errors.push(format!(
+                        "CEDM181 {} data has a value for \"{name}\", which is not one of its columns",
+                        state.name
+                    )),
+                }
+            }
+            rows.push(Value::Mapping(lowered));
+        }
+        let mut data_doc = Mapping::new();
+        set(&mut data_doc, "key", Value::String(key_column));
+        set(&mut data_doc, "rows", Value::Sequence(rows));
+        set(&mut state.document, "data", Value::Mapping(data_doc));
     }
 
     // ---- the document, in the language's key order
@@ -1921,7 +2187,11 @@ fn lower(cedm: &Value) -> Result<Value> {
         ("reports", get_seq(cedm, "reports").to_vec()),
         ("rules", rules),
         ("stateMachines", machines),
-        ("sagas", get_seq(cedm, "processes").to_vec()),
+        ("sagas", {
+            let mut sagas = get_seq(cedm, "processes").to_vec();
+            sagas.extend(entity_sagas);
+            sagas
+        }),
     ] {
         if !list.is_empty() {
             set(&mut document, name, Value::Sequence(list));
@@ -1929,6 +2199,47 @@ fn lower(cedm: &Value) -> Result<Value> {
     }
     add_enumeration_tables(&mut document, &table_enums);
     Ok(Value::Mapping(document))
+}
+
+/// A workflow step as a saga step: an entity named by its CEDM name is written as
+/// its table, and `fields` given as a mapping is the JSON text the executor reads.
+/// Mirrors `lowerWorkflowStep` in `language/cedm/lower.ts`.
+fn lower_workflow_step(step: &Value, entity_names: &HashSet<String>) -> Value {
+    let mut out = Mapping::new();
+    set(
+        &mut out,
+        "id",
+        get(step, "id").cloned().unwrap_or(Value::Null),
+    );
+    set(
+        &mut out,
+        "type",
+        get(step, "type").cloned().unwrap_or(Value::Null),
+    );
+    if let Some(label) = get(step, "label") {
+        set(&mut out, "label", label.clone());
+    }
+    if let Some(Value::Mapping(properties)) = get(step, "properties") {
+        let mut lowered = Mapping::new();
+        for (name, value) in properties {
+            let key_name = name.as_str().unwrap_or("");
+            let written = match value {
+                Value::String(text_) => {
+                    if key_name == "entity" && entity_names.contains(text_) {
+                        table_of(text_)
+                    } else {
+                        text_.clone()
+                    }
+                }
+                other => json_text(other),
+            };
+            set(&mut lowered, key_name, Value::String(written));
+        }
+        if !lowered.is_empty() {
+            set(&mut out, "properties", Value::Mapping(lowered));
+        }
+    }
+    Value::Mapping(out)
 }
 
 /// The category the business tables of enumerations are listed under.

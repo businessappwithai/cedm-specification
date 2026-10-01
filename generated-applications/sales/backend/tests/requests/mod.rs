@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-01T07:38:50.500Z
+//! Generated: 2026-10-01T09:34:33.916Z
 //! Project: sales
 
 mod ai;
@@ -36,6 +36,7 @@ mod crud_brand_status;
 mod crud_business_unit;
 mod crud_calendar;
 mod crud_campaign;
+mod crud_city;
 mod crud_contact;
 mod crud_contact_point;
 mod crud_country;
@@ -104,11 +105,16 @@ mod crud_sales_order;
 mod crud_sales_order_line;
 mod crud_sales_order_line_price_source;
 mod crud_sales_order_status;
+mod crud_state_province;
 mod crud_supplier;
 mod crud_supplier_qualification_status;
 mod crud_supplier_role_type;
 mod crud_supplier_status;
 mod crud_supplier_supplier_type;
+mod crud_task;
+mod crud_task_priority;
+mod crud_task_status;
+mod crud_task_task_type;
 mod crud_unit_of_measure;
 mod crud_unit_of_measure_category;
 mod crud_unit_of_measure_status;
@@ -122,6 +128,7 @@ mod rules_brand_status;
 mod rules_business_unit;
 mod rules_calendar;
 mod rules_campaign;
+mod rules_city;
 mod rules_contact;
 mod rules_contact_point;
 mod rules_country;
@@ -190,11 +197,16 @@ mod rules_sales_order;
 mod rules_sales_order_line;
 mod rules_sales_order_line_price_source;
 mod rules_sales_order_status;
+mod rules_state_province;
 mod rules_supplier;
 mod rules_supplier_qualification_status;
 mod rules_supplier_role_type;
 mod rules_supplier_status;
 mod rules_supplier_supplier_type;
+mod rules_task;
+mod rules_task_priority;
+mod rules_task_status;
+mod rules_task_task_type;
 mod rules_unit_of_measure;
 mod rules_unit_of_measure_category;
 mod rules_unit_of_measure_status;

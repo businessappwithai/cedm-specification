@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-01T05:19:18.979Z
+ * Generated: 2026-10-01T09:34:24.976Z
  * Project: research
  */
 
@@ -140,18 +140,190 @@ export const modelEnums: ModelEnum[] = [
     values: ["PLANNED", "ACTIVE", "COMPLETED", "SUSPENDED", "CANCELLED", "ARCHIVED"],
   },
   {
-    name: "UnitOfMeasureCategory",
+    name: "TaskPriority",
     referenceId: 1018,
+    values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
+  },
+  {
+    name: "TaskStatus",
+    referenceId: 1019,
+    values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
+  },
+  {
+    name: "TaskTaskType",
+    referenceId: 1020,
+    values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
+  },
+  {
+    name: "UnitOfMeasureCategory",
+    referenceId: 1021,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1019,
+    referenceId: 1022,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
 
 export const stateMachines: StateMachine[] = [
+  {
+    entity: "Party",
+    tableName: "bus_party",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "BLOCKED", trigger: "block" },
+      { from: "BLOCKED", to: "ACTIVE", trigger: "unblock" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "BLOCKED", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "Organization",
+    tableName: "bus_organization",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "DRAFT", to: "RETIRED", trigger: "retire" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "PartyRole",
+    tableName: "bus_party_role",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["EXPIRED"],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "EXPIRED", trigger: "expire" },
+      { from: "INACTIVE", to: "EXPIRED", trigger: "expire" },
+    ],
+  },
+  {
+    entity: "Address",
+    tableName: "bus_address",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "Location",
+    tableName: "bus_location",
+    statusField: "status",
+    initial: "PLANNED",
+    terminal: ["CLOSED", "RETIRED"],
+    edges: [
+      { from: "PLANNED", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "CLOSED", trigger: "close" },
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "PLANNED", to: "RETIRED", trigger: "retire" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "Currency",
+    tableName: "bus_currency",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "ExchangeRate",
+    tableName: "bus_exchange_rate",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["EXPIRED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "EXPIRED", trigger: "expire" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "UnitOfMeasure",
+    tableName: "bus_unit_of_measure",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["RETIRED"],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "INACTIVE", to: "RETIRED", trigger: "retire" },
+    ],
+  },
+  {
+    entity: "Task",
+    tableName: "bus_task",
+    statusField: "status",
+    initial: "CREATED",
+    terminal: ["COMPLETED", "CANCELLED", "FAILED"],
+    edges: [
+      { from: "CREATED", to: "READY", trigger: "mark_ready" },
+      { from: "READY", to: "ASSIGNED", trigger: "assign" },
+      { from: "ASSIGNED", to: "IN_PROGRESS", trigger: "start" },
+      { from: "IN_PROGRESS", to: "COMPLETED", trigger: "complete" },
+      { from: "READY", to: "BLOCKED", trigger: "block" },
+      { from: "BLOCKED", to: "READY", trigger: "unblock" },
+      { from: "ASSIGNED", to: "BLOCKED", trigger: "block" },
+      { from: "BLOCKED", to: "ASSIGNED", trigger: "unblock" },
+      { from: "IN_PROGRESS", to: "BLOCKED", trigger: "block" },
+      { from: "BLOCKED", to: "IN_PROGRESS", trigger: "unblock" },
+      { from: "CREATED", to: "CANCELLED", trigger: "cancel" },
+      { from: "READY", to: "CANCELLED", trigger: "cancel" },
+      { from: "ASSIGNED", to: "CANCELLED", trigger: "cancel" },
+      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
+      { from: "BLOCKED", to: "CANCELLED", trigger: "cancel" },
+      { from: "READY", to: "FAILED", trigger: "fail" },
+      { from: "ASSIGNED", to: "FAILED", trigger: "fail" },
+      { from: "IN_PROGRESS", to: "FAILED", trigger: "fail" },
+      { from: "BLOCKED", to: "FAILED", trigger: "fail" },
+    ],
+  },
+  {
+    entity: "ResearchProject",
+    tableName: "bus_research_project",
+    statusField: "status",
+    initial: "PLANNED",
+    terminal: ["ARCHIVED", "CANCELLED"],
+    edges: [
+      { from: "PLANNED", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "COMPLETED", trigger: "complete" },
+      { from: "COMPLETED", to: "ARCHIVED", trigger: "archive" },
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
+      { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
+      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+      { from: "SUSPENDED", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
 ];
 
 /** The state machine declared for a table, if the model declared one. */

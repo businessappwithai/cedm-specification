@@ -96,6 +96,7 @@ Two families of route, and they behave differently:
         crate::controllers::me::dashboard,
         crate::controllers::ai::query,
         crate::controllers::bus::list,
+        crate::controllers::bus::lookup,
         crate::controllers::bus::get_one,
         crate::controllers::bus::create,
         crate::controllers::bus::update,

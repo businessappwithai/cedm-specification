@@ -21,18 +21,47 @@
     "ContactPoint",
     "Location",
     "Country",
+    "StateProvince",
+    "City",
     "Language",
     "Currency",
     "ExchangeRate",
     "UnitOfMeasure",
     "Calendar",
     "Attachment",
+    "Task",
     "ConstructionProject",
-    "Project"
+    "Project",
+    "PartyPartyType",
+    "PartyStatus",
+    "PersonGender",
+    "PersonPartyType",
+    "PersonStatus",
+    "OrganizationOrganizationType",
+    "OrganizationStatus",
+    "OrganizationPartyType",
+    "PartyRoleRoleType",
+    "PartyRoleStatus",
+    "AddressAddressType",
+    "AddressStatus",
+    "LocationLocationType",
+    "LocationStatus",
+    "CurrencyStatus",
+    "ExchangeRateRateType",
+    "ExchangeRateStatus",
+    "UnitOfMeasureCategory",
+    "UnitOfMeasureStatus",
+    "TaskTaskType",
+    "TaskStatus",
+    "TaskPriority",
+    "ConstructionProjectProjectType",
+    "ConstructionProjectStatus",
+    "ProjectStatus"
   ],
   "categories": [
     "Foundation",
-    "Construction and Engineering"
+    "Construction and Engineering",
+    "Reference Data"
   ],
   "enums": [
     "AddressAddressType (7)",
@@ -55,10 +84,19 @@
     "PersonPartyType (2)",
     "PersonStatus (4)",
     "ProjectStatus (7)",
+    "TaskPriority (4)",
+    "TaskStatus (8)",
+    "TaskTaskType (7)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)"
   ],
-  "sagas": [],
+  "sagas": [
+    "PartyExceptionRaised on Party (1 steps, rule)",
+    "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "ConstructionProjectFollowUpRequired on ConstructionProject (1 steps, rule)",
+    "ProjectExceptionRaised on Project (1 steps, rule)",
+    "ProjectFollowUpRequired on Project (1 steps, rule)"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-01T05:17:22.243Z"
+  "generatedAt": "2026-10-01T09:31:25.404Z"
 }

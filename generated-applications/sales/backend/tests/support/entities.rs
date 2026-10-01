@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-01T07:38:50.486Z
+//! Generated: 2026-10-01T09:34:33.897Z
 //! Project: sales
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -404,10 +404,10 @@ pub static ENTITIES: &[EntityMeta] = &[
                 ref_table: ref_table_for("gender", false),
             },
             FieldMeta {
-                name: "nationality",
-                field_type: FieldType::from_model("string", false),
+                name: "nationality_id",
+                field_type: FieldType::from_model("string", true),
                 required: false,
-                ref_table: ref_table_for("nationality", false),
+                ref_table: Some("bus_country"),
             },
             FieldMeta {
                 name: "party_type",
@@ -735,28 +735,16 @@ pub static ENTITIES: &[EntityMeta] = &[
                 ref_table: ref_table_for("line3", false),
             },
             FieldMeta {
-                name: "city",
-                field_type: FieldType::from_model("string", false),
-                required: true,
-                ref_table: ref_table_for("city", false),
-            },
-            FieldMeta {
-                name: "state_or_province",
+                name: "city_name",
                 field_type: FieldType::from_model("string", false),
                 required: false,
-                ref_table: ref_table_for("state_or_province", false),
+                ref_table: ref_table_for("city_name", false),
             },
             FieldMeta {
                 name: "postal_code",
                 field_type: FieldType::from_model("string", false),
                 required: false,
                 ref_table: ref_table_for("postal_code", false),
-            },
-            FieldMeta {
-                name: "country_code",
-                field_type: FieldType::from_model("string", false),
-                required: true,
-                ref_table: ref_table_for("country_code", false),
             },
             FieldMeta {
                 name: "latitude",
@@ -799,6 +787,24 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
+            },
+            FieldMeta {
+                name: "country_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("country_id", true),
+            },
+            FieldMeta {
+                name: "state_province_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("state_province_id", true),
+            },
+            FieldMeta {
+                name: "city_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("city_id", true),
             },
             FieldMeta {
                 name: "customer_id",
@@ -924,10 +930,138 @@ pub static ENTITIES: &[EntityMeta] = &[
                 ref_table: ref_table_for("code", false),
             },
             FieldMeta {
+                name: "alpha3",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("alpha3", false),
+            },
+            FieldMeta {
+                name: "numeric_code",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("numeric_code", false),
+            },
+            FieldMeta {
                 name: "name",
                 field_type: FieldType::from_model("string", false),
                 required: true,
                 ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "phone_code",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("phone_code", false),
+            },
+            FieldMeta {
+                name: "currency_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("currency_id", true),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "StateProvince",
+        table_name: "bus_state_province",
+        route: "bus_state_province",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "subdivision_type",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("subdivision_type", false),
+            },
+            FieldMeta {
+                name: "country_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("country_id", true),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "City",
+        table_name: "bus_city",
+        route: "bus_city",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "population",
+                field_type: FieldType::from_model("integer", false),
+                required: false,
+                ref_table: ref_table_for("population", false),
+            },
+            FieldMeta {
+                name: "latitude",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("latitude", false),
+            },
+            FieldMeta {
+                name: "longitude",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("longitude", false),
+            },
+            FieldMeta {
+                name: "timezone",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("timezone", false),
+            },
+            FieldMeta {
+                name: "is_capital",
+                field_type: FieldType::from_model("boolean", false),
+                required: false,
+                ref_table: ref_table_for("is_capital", false),
+            },
+            FieldMeta {
+                name: "country_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("country_id", true),
+            },
+            FieldMeta {
+                name: "state_province_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("state_province_id", true),
             },
         ],
     },
@@ -1156,6 +1290,85 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("datetime", false),
                 required: false,
                 ref_table: ref_table_for("effective_at", false),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "Task",
+        table_name: "bus_task",
+        route: "bus_task",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+            },
+            FieldMeta {
+                name: "task_type",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("task_type", false),
+            },
+            FieldMeta {
+                name: "status",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("status", false),
+            },
+            FieldMeta {
+                name: "priority",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("priority", false),
+            },
+            FieldMeta {
+                name: "due_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: false,
+                ref_table: ref_table_for("due_at", false),
+            },
+            FieldMeta {
+                name: "started_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: false,
+                ref_table: ref_table_for("started_at", false),
+            },
+            FieldMeta {
+                name: "completed_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: false,
+                ref_table: ref_table_for("completed_at", false),
+            },
+            FieldMeta {
+                name: "assignee_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: Some("bus_party"),
+            },
+            FieldMeta {
+                name: "organization_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("organization_id", true),
             },
         ],
     },
@@ -3225,6 +3438,135 @@ pub static ENTITIES: &[EntityMeta] = &[
         name: "UnitOfMeasureStatus",
         table_name: "bus_unit_of_measure_status",
         route: "bus_unit_of_measure_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "TaskTaskType",
+        table_name: "bus_task_task_type",
+        route: "bus_task_task_type",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "TaskStatus",
+        table_name: "bus_task_status",
+        route: "bus_task_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+            },
+        ],
+    },
+    EntityMeta {
+        name: "TaskPriority",
+        table_name: "bus_task_priority",
+        route: "bus_task_priority",
         fields: &[
             FieldMeta {
                 name: "id",

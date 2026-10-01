@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T05:18:55.713Z
+ * Generated: 2026-10-01T09:33:51.966Z
  * Project: professional-services
  */
 
