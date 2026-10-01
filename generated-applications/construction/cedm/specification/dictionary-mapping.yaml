@@ -92,9 +92,10 @@ entity:
     description: What identifies one record on a screen, a lookup or a list.
     source: ui.recordLabel
     derived: >-
-      The first of: attributes named name, fullName, displayName, title, label, subject;
-      firstName with lastName; code, reference, number; the first string attribute that is
-      neither the identity nor a reference. Rule shared with the generator (identifierColumnNames).
+      The first of: a unique code beside a name (both: "USD · US Dollar"); attributes named
+      name, fullName, displayName, title, label, subject; firstName with lastName; code,
+      reference, number; then the same with a prefix (orderNumber, invoiceNumber,
+      poReference); the first string attribute that is neither the identity nor a reference. Rule shared with the generator (identifierColumnNames).
     required: derived
 
 # --------------------------------------------------------------------------
