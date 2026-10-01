@@ -1,0 +1,3476 @@
+# ============================================================================
+# Enterprise Customer Relationship Management Platform
+# EML — complete model: ERD · business rules · workflows
+
+# Every entity, rule, state machine and saga below is drawn by the model
+# viewer from this document; the YAML itself is what every generator reads.
+
+# Scope: the whole commercial lifecycle, front to back —
+#   marketing   Campaign, CampaignMember, Lead
+#   sales       Account, Contact, Opportunity, OpportunityLineItem, Product
+#   commerce    Quote, QuoteLineItem, Contract
+#   service     SupportCase, SlaPolicy
+#   operations  User, Team, Territory, Activity
+
+# Generate:
+#   bun run generate:tanstack -- -i language/yaml/examples/crm.eml.yaml \
+#     -o generated-projects/crm -n crm
+
+# Check:
+#   bun language/cli/eml.ts validate -i language/yaml/examples/crm.eml.yaml
+
+# ---- How the three layers fit together --------------------------------------
+# Structure is the ERD in Section 1. Everything after it is behaviour, and the
+# file is arranged so behaviour reads in the order it fires:
+
+#   rules (2-9)      declarative decisions — scoring, routing, forecasting,
+#                    discount policy, triage, renewal risk. Compiled to GoRules
+#                    decision graphs and evaluated around the write.
+#   state (10-14)    the lifecycle each revenue object moves through, and who
+#                    is allowed to move it.
+#   hooks (15-21)    imperative side effects bound to CRUD lifecycle events.
+#   sagas (22-26)    multi-step, multi-entity processes: lead conversion,
+#                    discount approval, case escalation, closed-won handoff,
+#                    renewal playbook.
+
+# Three of the sagas are `trigger: rule` — they run only when a rule's
+# action names them, so the rule's condition is what decides. The other two
+# run on the entity's own lifecycle. Both halves of that pairing are here on
+# purpose: it is the difference between "escalate when the discount is out of
+# policy" and "hand off every opportunity that closes".
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
+eml: "1.0"
+name: Enterprise CRM
+version: 1.0.0
+enums:
+  # ---- Enumerations ----------------------------------------------------------
+  # Lifecycle enums carry exactly the states of the matching state workflow in
+  # Sections 10-14; the rest are closed vocabularies for reporting fields.
+  - name: UserRole
+    values: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager, administrator]
+  - name: LeadStatus
+    values: [new, working, nurturing, qualified, converted, disqualified]
+  - name: LeadRating
+    values: [hot, warm, cold]
+  - name: LeadSource
+    values: [web, inbound_call, referral, event, partner, outbound, advertisement]
+  - name: AccountType
+    values: [prospect, customer, partner, reseller, former_customer]
+  - name: AccountTier
+    values: [strategic, enterprise, mid_market, smb]
+  - name: AccountStatus
+    values: [active, on_hold, churned]
+  - name: Industry
+    values: [technology, financial_services, healthcare, manufacturing, retail, public_sector, energy, education, other]
+  - name: ContactStatus
+    values: [active, inactive, bounced, do_not_contact]
+  - name: OpportunityStage
+    values: [prospecting, qualification, needs_analysis, proposal, negotiation, closed_won, closed_lost]
+  - name: ForecastCategory
+    values: [pipeline, best_case, commit, closed, omitted]
+  - name: LossReason
+    values: [price, product_fit, competitor, no_decision, timing, budget]
+  - name: ProductFamily
+    values: [platform, add_on, professional_services, support_plan, training]
+  - name: QuoteStatus
+    values: [draft, in_review, approved, rejected, presented, accepted, expired]
+  - name: ContractStatus
+    values: [draft, in_approval, active, expiring, renewed, expired, terminated]
+  - name: CaseStatus
+    values: [new, assigned, in_progress, waiting_on_customer, escalated, resolved, closed]
+  - name: CasePriority
+    values: [low, medium, high, critical]
+  - name: CaseType
+    values: [question, incident, defect, feature_request, billing]
+  - name: CaseOrigin
+    values: [email, phone, web, chat, partner_portal]
+  - name: SlaTier
+    values: [standard, premium, enterprise, platinum]
+  - name: CampaignType
+    values: [email, webinar, conference, paid_search, content, field_event, partner]
+  - name: CampaignStatus
+    values: [planning, active, completed, cancelled]
+  - name: CampaignMemberStatus
+    values: [targeted, invited, registered, attended, responded, converted, unsubscribed]
+  - name: ActivityType
+    values: [call, email, meeting, task, note, demo]
+  - name: ActivityStatus
+    values: [planned, in_progress, completed, cancelled]
+  - name: ActivityPriority
+    values: [low, medium, high, urgent]
+categories:
+  # ---- Entity categories ------------------------------------------------------
+  # Group entities into dashboard sections. One block per category.
+  - name: Accounts and Contacts
+    description: Customer organisations, their people and the territories that cover them
+    icon: Building2
+    color: "#6366f1"
+    entities: [Account, Contact, Territory]
+  - name: Demand Generation
+    description: Campaigns, campaign membership and inbound leads
+    icon: Megaphone
+    color: "#ec4899"
+    entities: [Campaign, Lead]
+  - name: Sales Pipeline
+    description: Opportunities and the products sold
+    icon: TrendingUp
+    color: "#0ea5e9"
+    entities: [Opportunity, Product]
+  - name: Quotes and Contracts
+    description: Priced quotes and signed agreements
+    icon: FileSignature
+    color: "#14b8a6"
+    entities: [Quote, Contract]
+  - name: Customer Service
+    description: Support cases and the service levels that govern them
+    icon: LifeBuoy
+    color: "#f59e0b"
+    entities: [SupportCase, SlaPolicy]
+  - name: Activities
+    description: Calls, emails, meetings and tasks logged against any record
+    icon: CalendarClock
+    color: "#8b5cf6"
+    entities: [Activity]
+  - name: People and Teams
+    description: Users, selling teams and organisational structure
+    icon: Users
+    color: "#64748b"
+    default: true
+    entities: [User, Team]
+entities:
+  # ---- Help text -----------------------------------------------------------
+  # What an entity's and an attribute's `help` buy: they are compiled into
+  # sys_table.description and sys_column.description, which are the only help
+  # the generated application has — the tooltip beside a control, and the lede
+  # of that entity's section in the generated manual. A model without them
+  # produces an application whose every field is a label somebody guesses at.
+  - name: User
+    help: Someone who signs in and does the work — a rep, a manager, an agent. Every business record names one as its owner.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: email
+        unique: true
+        help: The address this user signs in with. It must be unique across the application.
+      - name: first_name
+        type: string
+        help: Given name, as it should appear on screen and in email.
+      - name: last_name
+        type: string
+        help: Family name, as it should appear on screen and in email.
+      - name: role
+        type: string
+        enum: UserRole
+        help: What this user is allowed to do. The role decides which records they can see at all.
+      - name: job_title
+        type: string
+        optional: true
+        help: The title shown on this user's profile. Presentation only — it grants nothing.
+      - name: phone
+        type: phone
+        optional: true
+        help: A direct number for this user, for colleagues rather than customers.
+      - name: team_id
+        type: string
+        fk: true
+        optional: true
+        help: The team this user belongs to, and whose quota their numbers roll up into.
+      - name: quota_annual
+        type: decimal
+        optional: true
+        help: This user's own annual target, in the reporting currency.
+      - name: is_active
+        type: boolean
+        help: Clear this instead of deleting a user who has left — their records keep their owner.
+      - name: last_login
+        type: datetime
+        optional: true
+        help: When this account last signed in. Set by the application, not by hand.
+    indexes:
+      - columns: [email]
+        unique: true
+  - name: Team
+    help: A group of users under one manager, carrying a shared quota. Teams are how sales targets roll up.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        help: What this team is called on reports and in the team picker.
+      - name: manager_id
+        type: string
+        fk: true
+        optional: true
+        help: The user who runs this team and reviews its pipeline.
+      - name: region
+        type: string
+        optional: true
+        help: The part of the world this team sells into.
+      - name: quota_annual
+        type: decimal
+        optional: true
+        help: The team's combined annual target. Its members' quotas should add up to about this.
+      - name: is_active
+        type: boolean
+        help: Clear this to retire a team without losing the history of who was in it.
+  - name: Territory
+    help: A slice of the market — a region, a country, a company-size band — that accounts are assigned to.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        help: What this territory is called when an account is assigned to it.
+      - name: region
+        type: string
+        help: The geography this territory covers.
+      - name: country_code
+        type: string
+        optional: true
+        help: The ISO country code, when the territory is a single country.
+      - name: manager_id
+        type: string
+        fk: true
+        optional: true
+        help: The user accountable for everything in this territory.
+      - name: employee_count_floor
+        type: integer
+        optional: true
+        help: The smallest company that belongs in this territory, by headcount. Leave empty for no lower bound.
+      - name: employee_count_ceiling
+        type: integer
+        optional: true
+        help: The largest company that belongs in this territory, by headcount. Leave empty for no upper bound.
+      - name: is_active
+        type: boolean
+        help: Clear this to stop new accounts being assigned here without disturbing the ones already in it.
+  - name: Account
+    help: A company you sell to or support. Almost everything else in this application hangs off an account.
+    prefix: bus
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        help: The company's name as it should appear on a contract or an invoice.
+      - name: account_number
+        type: string
+        unique: true
+        optional: true
+        help: Your own reference for this customer. Unique, and usually the key that matches your finance system.
+      - name: account_type
+        type: string
+        enum: AccountType
+        help: What this company is to you — a customer, a prospect, a partner.
+      - name: tier
+        type: string
+        optional: true
+        enum: AccountTier
+        help: The service level this account is entitled to. It decides which SLA its cases are measured against.
+      - name: industry
+        type: string
+        optional: true
+        enum: Industry
+        help: The sector this company trades in, used for segmentation and reporting.
+      - name: website
+        type: url
+        optional: true
+        help: The company's public website.
+      - name: phone
+        type: phone
+        optional: true
+        help: The main switchboard number.
+      - name: billing_street
+        type: string
+        optional: true
+        help: Street address for invoicing.
+      - name: billing_city
+        type: string
+        optional: true
+        help: City for invoicing.
+      - name: billing_postal_code
+        type: string
+        optional: true
+        help: Postal or ZIP code for invoicing.
+      - name: billing_country
+        type: string
+        optional: true
+        help: Country for invoicing, which may decide tax treatment.
+      - name: employee_count
+        type: integer
+        optional: true
+        help: Roughly how many people work here. Used to size the account and to pick a territory.
+      - name: annual_revenue
+        type: decimal
+        optional: true
+        help: The company's own annual turnover, not what they spend with you.
+      - name: health_score
+        type: integer
+        optional: true
+        help: A 0-100 read on how well this relationship is going. Maintained by the account team.
+        min: 0
+        max: 100
+      - name: territory_id
+        type: string
+        fk: true
+        optional: true
+        help: The territory this account is covered by, and so which team works it.
+      - name: sla_policy_id
+        type: string
+        fk: true
+        optional: true
+        help: The response and resolution times this account's support cases are held to.
+      - name: status
+        type: string
+        enum: AccountStatus
+        help: Whether this account is live, on hold, or closed.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user accountable for this relationship.
+    indexes:
+      - columns: [account_number]
+        unique: true
+      - columns: [territory_id, status]
+  - name: Contact
+    help: A person at an account. Contacts are who you talk to; accounts are who you invoice.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: account_id
+        type: string
+        fk: true
+        optional: true
+        help: The company this person works for. Leave empty only for a contact you have not placed yet.
+      - name: first_name
+        type: string
+        help: Given name, as you would address them.
+      - name: last_name
+        type: string
+        help: Family name, as it appears on correspondence.
+      - name: email
+        type: email
+        unique: true
+        help: Their work address. It must be unique — two records for one person is how a relationship gets lost.
+      - name: phone
+        type: phone
+        optional: true
+        help: Desk or switchboard number.
+      - name: mobile
+        type: phone
+        optional: true
+        help: Mobile number, where they have given you one.
+      - name: job_title
+        type: string
+        optional: true
+        help: Their role at the company, which is how you judge whether they can sign.
+      - name: department
+        type: string
+        optional: true
+        help: The part of the business they sit in.
+      - name: lead_source
+        type: string
+        optional: true
+        enum: LeadSource
+        help: Where this person first came from.
+      - name: is_primary
+        type: boolean
+        help: Set on the one contact who is your main relationship at this account.
+      - name: email_opt_out
+        type: boolean
+        help: Set when they have asked not to receive marketing email. Campaigns must respect it.
+      - name: do_not_call
+        type: boolean
+        help: Set when they have asked not to be telephoned. Respect it the same way.
+      - name: status
+        type: string
+        enum: ContactStatus
+        help: Whether this is a live contact, or someone who has moved on.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user who looks after this person.
+    indexes:
+      - columns: [email]
+        unique: true
+      - columns: [account_id, status]
+  - name: Lead
+    help: An unqualified enquiry that has not been connected to an account yet. A lead is either converted into an account, a contact and an opportunity, or disqualified.
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+        help: Given name, as supplied on the enquiry.
+      - name: last_name
+        type: string
+        help: Family name, as supplied on the enquiry.
+      - name: company_name
+        type: string
+        help: The company they said they were from. It becomes the account name on conversion.
+      - name: email
+        type: email
+        help: The address the enquiry came from, and the one you will reply to.
+      - name: phone
+        type: phone
+        optional: true
+        help: A number to call them back on.
+      - name: job_title
+        type: string
+        optional: true
+        help: Their stated role, which is most of what decides whether this lead is worth working.
+      - name: industry
+        type: string
+        optional: true
+        enum: Industry
+        help: The sector their company trades in.
+      - name: employee_count
+        type: integer
+        optional: true
+        help: Roughly how big their company is. Feeds the score.
+      - name: annual_revenue
+        type: decimal
+        optional: true
+        help: Their company's turnover, where you know it. Feeds the score.
+      - name: lead_source
+        type: string
+        enum: LeadSource
+        help: How this lead reached you — a campaign, a referral, the website.
+      - name: rating
+        type: string
+        optional: true
+        enum: LeadRating
+        help: A quick judgement of quality. The scoring rule sets it; you may override it.
+      - name: score
+        type: integer
+        optional: true
+        help: A 0-100 fit score the scoring rule calculates from title, size and source. Do not type into it.
+        min: 0
+        max: 100
+      - name: campaign_id
+        type: string
+        fk: true
+        optional: true
+        help: The campaign that produced this lead, so its cost can be measured against what it generated.
+      - name: status
+        type: string
+        enum: LeadStatus
+        help: Where this lead has got to, from new through to converted or disqualified.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user working this lead.
+      - name: converted_at
+        type: datetime
+        optional: true
+        help: When this lead became an account. Set by the conversion process, not by hand.
+      - name: disqualification_reason
+        type: string
+        optional: true
+        help: Why this lead was dropped. Required when you disqualify one, and it is what makes the report worth reading.
+    indexes:
+      - columns: [status, score]
+      - columns: [owner_id, status]
+  - name: Campaign
+    help: A marketing programme with a budget and a window, run to generate leads.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        help: What this programme is called in reporting.
+      - name: campaign_type
+        type: string
+        enum: CampaignType
+        help: The kind of programme — an event, a mailing, a webinar.
+      - name: status
+        type: string
+        enum: CampaignStatus
+        help: Whether this campaign is planned, running, or finished.
+      - name: start_date
+        type: date
+        help: The day the campaign goes live.
+      - name: end_date
+        type: date
+        optional: true
+        help: The day it stops. Leave empty for an open-ended programme.
+      - name: budgeted_cost
+        type: decimal
+        optional: true
+        help: What you agreed to spend.
+      - name: actual_cost
+        type: decimal
+        optional: true
+        help: What it actually cost, which is the half that decides whether to run it again.
+      - name: expected_revenue
+        type: decimal
+        optional: true
+        help: The pipeline this campaign is expected to generate.
+      - name: expected_response_count
+        type: integer
+        optional: true
+        help: How many responses you planned for, to compare against what arrived.
+      - name: target_audience
+        type: string
+        optional: true
+        help: Who this campaign was aimed at, in a sentence.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user accountable for this programme.
+  - name: CampaignMember
+    help: One person on one campaign's target list, and whether they responded.
+    parent: Campaign
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: campaign_id
+        type: string
+        fk: true
+        help: The campaign this person was targeted by.
+      - name: lead_id
+        type: string
+        fk: true
+        optional: true
+        help: The lead who was targeted, when the target was not yet a known contact.
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+        help: The contact who was targeted, when they were already known to you.
+      - name: member_status
+        type: string
+        enum: CampaignMemberStatus
+        help: Where this person got to in the campaign — sent, opened, responded.
+      - name: responded_at
+        type: datetime
+        optional: true
+        help: When they responded. Empty until they do.
+      - name: has_responded
+        type: boolean
+        help: Set once any response arrives, so response rates can be counted without reading dates.
+    indexes:
+      - columns: [campaign_id, member_status]
+  - name: Opportunity
+    help: A deal in progress against an account, with an amount, a stage and a close date. The pipeline is the sum of these.
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: account_id
+        type: string
+        fk: true
+        help: The company this deal is with.
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+        help: The person championing this deal inside the account.
+      - name: campaign_id
+        type: string
+        fk: true
+        optional: true
+        help: The campaign this deal can be attributed to, where there is one.
+      - name: name
+        type: string
+        help: A short description of what is being bought, as it reads in the pipeline list.
+      - name: description
+        type: text
+        optional: true
+        help: The detail — what they need, what you proposed, what is still open.
+        ui: textarea
+      - name: amount
+        type: decimal
+        optional: true
+        help: The value of this deal. It should agree with its line items.
+      - name: currency_code
+        type: string
+        help: The currency the amount is in.
+      - name: stage
+        type: string
+        enum: OpportunityStage
+        help: How far along this deal is. The stage is what the forecast is built from.
+      - name: probability
+        type: integer
+        optional: true
+        help: The 0-100 chance of winning. The forecasting rule derives it from the stage.
+        min: 0
+        max: 100
+      - name: forecast_category
+        type: string
+        optional: true
+        enum: ForecastCategory
+        help: Which forecast bucket this deal falls in — pipeline, best case, commit.
+      - name: expected_close_date
+        type: date
+        optional: true
+        help: When you expect to win it. Moving this date is the single most watched change on a deal.
+      - name: actual_close_date
+        type: date
+        optional: true
+        help: When it actually closed, won or lost. Set when the stage becomes final.
+      - name: lead_source
+        type: string
+        optional: true
+        enum: LeadSource
+        help: Where the deal originally came from.
+      - name: next_step
+        type: string
+        optional: true
+        help: The one thing that has to happen next, and by when.
+      - name: loss_reason
+        type: string
+        optional: true
+        enum: LossReason
+        help: Why the deal was lost. Required on a closed-lost deal, and the reason loss reports mean anything.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user selling this deal.
+    indexes:
+      - columns: [account_id, stage]
+      - columns: [owner_id, expected_close_date]
+  - name: OpportunityLineItem
+    help: One product on one opportunity, priced. The opportunity's amount is what these add up to.
+    parent: Opportunity
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: opportunity_id
+        type: string
+        fk: true
+        help: The deal this line belongs to.
+      - name: product_id
+        type: string
+        fk: true
+        help: What is being sold on this line.
+      - name: quantity
+        type: decimal
+        help: How many.
+      - name: unit_price
+        type: decimal
+        help: The price for one, before any discount on this line.
+      - name: discount_percent
+        type: decimal
+        optional: true
+        help: The discount applied to this line, as a percentage.
+      - name: line_total
+        type: decimal
+        help: Quantity times unit price, less the discount. Calculated — do not type into it.
+      - name: line_description
+        type: string
+        optional: true
+        help: Anything about this line the product name does not say.
+  - name: Product
+    help: Something you sell, with a list price. Products are what line items point at.
+    label: Product Catalogue
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: product_code
+        type: string
+        unique: true
+        help: Your own catalogue code for this product. Unique, and what an order refers to.
+      - name: name
+        type: string
+        help: The product's name as it appears on a quote.
+      - name: description
+        type: text
+        optional: true
+        help: What it is and what it includes, in the words a customer would read.
+      - name: family
+        type: string
+        enum: ProductFamily
+        help: The group this product belongs to, for reporting and for the product picker.
+      - name: list_price
+        type: decimal
+        help: The published price before any discount.
+        min: 0
+      - name: unit_cost
+        type: decimal
+        optional: true
+        help: What it costs you, which is what makes margin calculable.
+      - name: billing_frequency
+        type: string
+        optional: true
+        help: How often this is charged — once, monthly, annually.
+      - name: is_active
+        type: boolean
+        help: Clear this to stop the product being added to new quotes without disturbing the ones it is already on.
+    indexes:
+      - columns: [product_code]
+        unique: true
+  - name: Quote
+    help: A priced, versioned offer to an account for one opportunity. A quote is what gets approved and sent.
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: quote_number
+        type: string
+        unique: true
+        optional: true
+        help: The reference the customer will quote back at you. Unique.
+      - name: opportunity_id
+        type: string
+        fk: true
+        help: The deal this quote prices.
+      - name: account_id
+        type: string
+        fk: true
+        help: The company the quote is addressed to.
+      - name: name
+        type: string
+        help: A short title for this quote, so several versions can be told apart.
+      - name: status
+        type: string
+        enum: QuoteStatus
+        help: Where this quote is — draft, waiting for approval, sent, accepted, rejected.
+      - name: version_number
+        type: integer
+        help: Which revision this is. A new version is raised rather than an old one edited.
+      - name: valid_until
+        type: date
+        optional: true
+        help: The day this offer expires.
+      - name: subtotal
+        type: decimal
+        help: The line items added up, before discount and tax.
+      - name: discount_percent
+        type: decimal
+        optional: true
+        help: A discount across the whole quote. Past the approval threshold it needs a manager.
+        min: 0
+        max: 100
+      - name: discount_amount
+        type: decimal
+        optional: true
+        help: The discount in money, where it was agreed as an amount rather than a percentage.
+      - name: tax_amount
+        type: decimal
+        optional: true
+        help: Tax on the discounted subtotal.
+      - name: grand_total
+        type: decimal
+        help: What the customer will actually pay. Calculated — do not type into it.
+      - name: approved_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The manager who approved this quote's discount. Empty until one does.
+      - name: approved_at
+        type: datetime
+        optional: true
+        help: When approval was given.
+      - name: approval_notes
+        type: text
+        optional: true
+        help: What the approver said — the conditions, or why they refused.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user who raised this quote.
+    indexes:
+      - columns: [quote_number]
+        unique: true
+      - columns: [opportunity_id, status]
+  - name: QuoteLineItem
+    help: One product on one quote, priced, in the order it appears on the document.
+    parent: Quote
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: quote_id
+        type: string
+        fk: true
+        help: The quote this line appears on.
+      - name: product_id
+        type: string
+        fk: true
+        help: What is being quoted on this line.
+      - name: quantity
+        type: decimal
+        help: How many.
+      - name: unit_price
+        type: decimal
+        help: The price for one, before any discount on this line.
+      - name: discount_percent
+        type: decimal
+        optional: true
+        help: The discount applied to this line, as a percentage.
+      - name: line_total
+        type: decimal
+        help: Quantity times unit price, less the discount. Calculated — do not type into it.
+      - name: sort_order
+        type: integer
+        optional: true
+        help: Where this line sits on the printed quote.
+  - name: Contract
+    help: The signed commitment that follows an accepted quote — a term, an annual value and a renewal date.
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: contract_number
+        type: string
+        unique: true
+        optional: true
+        help: The reference this agreement is known by. Unique.
+      - name: account_id
+        type: string
+        fk: true
+        help: The company that signed.
+      - name: quote_id
+        type: string
+        fk: true
+        optional: true
+        help: The accepted quote this contract was written from.
+      - name: status
+        type: string
+        enum: ContractStatus
+        help: Where the agreement is — drafted, out for signature, active, expired.
+      - name: start_date
+        type: date
+        optional: true
+        help: The day the term begins.
+      - name: end_date
+        type: date
+        optional: true
+        help: The day the term ends, and so the day the renewal conversation is already late.
+      - name: term_months
+        type: integer
+        help: How long the term runs, in months.
+      - name: annual_value
+        type: decimal
+        help: What this agreement is worth per year. The renewal book is the sum of these.
+      - name: auto_renew
+        type: boolean
+        help: Set when the term rolls over unless someone cancels it.
+        default: "false"
+      - name: renewal_notice_days
+        type: integer
+        optional: true
+        help: How many days' notice either side must give. It decides when the renewal work has to start.
+      - name: signed_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The user who countersigned on your side.
+      - name: signed_at
+        type: datetime
+        optional: true
+        help: When it was signed.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user accountable for this agreement and its renewal.
+    indexes:
+      - columns: [contract_number]
+        unique: true
+      - columns: [account_id, end_date]
+  - name: SupportCase
+    help: A customer problem, from the moment it arrives to the moment it is resolved, measured against an SLA.
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: case_number
+        type: string
+        unique: true
+        optional: true
+        help: The reference the customer quotes when they chase. Unique.
+      - name: account_id
+        type: string
+        fk: true
+        help: The company reporting the problem. It decides which SLA applies.
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+        help: The person who reported it, and who you will reply to.
+      - name: sla_policy_id
+        type: string
+        fk: true
+        optional: true
+        help: The response and resolution times this case is measured against.
+      - name: subject
+        type: string
+        help: The problem in one line, as it reads in the queue.
+      - name: description
+        type: text
+        optional: true
+        help: What happened, what they expected, and what they have already tried.
+        ui: textarea
+      - name: case_type
+        type: string
+        enum: CaseType
+        help: What kind of case this is — a question, an incident, a defect, a request.
+      - name: priority
+        type: string
+        enum: CasePriority
+        help: How urgent it is. The triage rule sets it from type and account tier.
+      - name: origin
+        type: string
+        enum: CaseOrigin
+        help: How the case reached you — email, phone, the web, the partner portal.
+      - name: status
+        type: string
+        enum: CaseStatus
+        help: Where the case is, from new through to closed.
+      - name: first_response_due_at
+        type: datetime
+        optional: true
+        help: When the customer must have heard from a person. Calculated from the SLA on arrival.
+      - name: first_response_at
+        type: datetime
+        optional: true
+        help: When they actually did. Empty until someone replies.
+      - name: resolution_due_at
+        type: datetime
+        optional: true
+        help: When the case must be resolved by, under the SLA.
+      - name: resolved_at
+        type: datetime
+        optional: true
+        help: When it actually was resolved.
+      - name: is_sla_breached
+        type: boolean
+        help: Set when a due time passed unmet. It is what breach reporting counts.
+      - name: resolution_notes
+        type: text
+        optional: true
+        help: What fixed it, in enough detail that the next person with this problem is helped.
+      - name: satisfaction_score
+        type: integer
+        optional: true
+        help: What the customer scored the handling, 1 to 5, after it closed.
+        min: 1
+        max: 5
+      - name: escalated_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The user who escalated this case, when one did.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The agent handling it.
+    indexes:
+      - columns: [case_number]
+        unique: true
+      - columns: [account_id, status]
+      - columns: [owner_id, priority]
+  - name: SlaPolicy
+    help: How quickly cases must be answered and resolved for a given tier of customer.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        help: What this policy is called when an account or a case is assigned to it.
+      - name: tier
+        type: string
+        enum: SlaTier
+        help: The customer tier this policy is written for.
+      - name: first_response_minutes
+        type: integer
+        help: How long a customer may wait to hear from a person, in minutes.
+      - name: resolution_hours
+        type: integer
+        help: How long they may wait for the problem to be fixed, in hours.
+      - name: business_hours_only
+        type: boolean
+        help: Set when the clock stops overnight and at weekends.
+      - name: is_active
+        type: boolean
+        help: Clear this to retire a policy without disturbing the cases already measured against it.
+  - name: Activity
+    help: A call, a meeting, an email or a task, attached to whatever it was about. The history of a relationship is its activities.
+    softDelete: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: activity_type
+        type: string
+        enum: ActivityType
+        help: What happened — a call, a meeting, an email, a task.
+      - name: subject
+        type: string
+        help: The activity in one line, as it reads on a timeline.
+      - name: description
+        type: text
+        optional: true
+        help: What was said, agreed or found out.
+      - name: status
+        type: string
+        enum: ActivityStatus
+        help: Whether this is still to do, in hand, or done.
+      - name: priority
+        type: string
+        enum: ActivityPriority
+        help: How urgent it is, for the person whose list it is on.
+      - name: due_at
+        type: datetime
+        optional: true
+        help: When it has to happen by.
+      - name: completed_at
+        type: datetime
+        optional: true
+        help: When it actually did.
+      - name: duration_minutes
+        type: integer
+        optional: true
+        help: How long it took, for calls and meetings.
+      - name: account_id
+        type: string
+        fk: true
+        optional: true
+        help: The company this activity was about.
+      - name: contact_id
+        type: string
+        fk: true
+        optional: true
+        help: The person it involved.
+      - name: lead_id
+        type: string
+        fk: true
+        optional: true
+        help: The lead it was about, before there is an account.
+      - name: opportunity_id
+        type: string
+        fk: true
+        optional: true
+        help: The deal it moved forward.
+      - name: support_case_id
+        type: string
+        fk: true
+        optional: true
+        help: The case it was part of handling.
+      - name: contract_id
+        type: string
+        fk: true
+        optional: true
+        help: The agreement it concerned.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The user who did it, or has to.
+    indexes:
+      - columns: [owner_id, due_at]
+      - columns: [account_id, activity_type]
+relationships:
+  - from: Team
+    fromCardinality: exactly-one
+    to: User
+    toCardinality: zero-or-more
+    label: has members
+  - from: Team
+    fromCardinality: exactly-one
+    to: Territory
+    toCardinality: zero-or-more
+    label: covers
+  - from: User
+    fromCardinality: exactly-one
+    to: Territory
+    toCardinality: zero-or-more
+    label: manages
+  - from: Territory
+    fromCardinality: exactly-one
+    to: Account
+    toCardinality: zero-or-more
+    label: covers
+  - from: SlaPolicy
+    fromCardinality: exactly-one
+    to: Account
+    toCardinality: zero-or-more
+    label: governs
+  - from: SlaPolicy
+    fromCardinality: exactly-one
+    to: SupportCase
+    toCardinality: zero-or-more
+    label: applies to
+  - from: Account
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: employs
+  - from: Account
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: has pipeline
+  - from: Account
+    fromCardinality: exactly-one
+    to: Quote
+    toCardinality: zero-or-more
+    label: receives
+  - from: Account
+    fromCardinality: exactly-one
+    to: Contract
+    toCardinality: zero-or-more
+    label: signs
+  - from: Account
+    fromCardinality: exactly-one
+    to: SupportCase
+    toCardinality: zero-or-more
+    label: raises
+  - from: Account
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: has history
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: champions
+  - from: Contact
+    fromCardinality: exactly-one
+    to: SupportCase
+    toCardinality: zero-or-more
+    label: reports
+  - from: Contact
+    fromCardinality: exactly-one
+    to: CampaignMember
+    toCardinality: zero-or-more
+    label: is targeted as
+  - from: Contact
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: involves
+  - from: Lead
+    fromCardinality: exactly-one
+    to: CampaignMember
+    toCardinality: zero-or-more
+    label: is targeted as
+  - from: Lead
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: involves
+  - from: Campaign
+    fromCardinality: exactly-one
+    to: CampaignMember
+    toCardinality: zero-or-more
+    label: targets
+  - from: Campaign
+    fromCardinality: exactly-one
+    to: Lead
+    toCardinality: zero-or-more
+    label: generates
+  - from: Campaign
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: influences
+  - from: Opportunity
+    fromCardinality: exactly-one
+    to: OpportunityLineItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Opportunity
+    fromCardinality: exactly-one
+    to: Quote
+    toCardinality: zero-or-more
+    label: is priced by
+  - from: Opportunity
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: is worked through
+  - from: Product
+    fromCardinality: exactly-one
+    to: OpportunityLineItem
+    toCardinality: zero-or-more
+    label: is sold as
+  - from: Product
+    fromCardinality: exactly-one
+    to: QuoteLineItem
+    toCardinality: zero-or-more
+    label: is quoted as
+  - from: Quote
+    fromCardinality: exactly-one
+    to: QuoteLineItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Quote
+    fromCardinality: exactly-one
+    to: Contract
+    toCardinality: zero-or-more
+    label: becomes
+  - from: Contract
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: is serviced by
+  - from: SupportCase
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: is handled through
+  - from: User
+    fromCardinality: exactly-one
+    to: Account
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Contact
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Lead
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Campaign
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Opportunity
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Quote
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Contract
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: SupportCase
+    toCardinality: zero-or-more
+    label: owns
+  - from: User
+    fromCardinality: exactly-one
+    to: Activity
+    toCardinality: zero-or-more
+    label: owns
+hooks:
+  # account_number is unique and minted here rather than supplied by the
+  # caller. That is why it is OPTIONAL in the ERD: the conversion saga in
+  # Section 22 inserts an account without one, and a NOT NULL column would
+  # fail that insert before the hook ever ran. Postgres allows repeated NULLs
+  # under a unique index, so nothing collides in the window before the hook
+  # stamps a value. quote_number, contract_number and case_number are the
+  # same shape for the same reason.
+  - entity: Account
+    event: beforeCreate
+    handler: normalizeAccountName
+    fields: [name]
+  - entity: Account
+    event: beforeCreate
+    handler: assignAccountNumber
+    fields: [account_number]
+  - entity: Account
+    event: customValidate
+    handler: ensureAccountNumberUnique
+    fields: [account_number]
+  - entity: Account
+    event: afterCreate
+    handler: seedAccountTeam
+  - entity: Account
+    event: beforeList
+    handler: scopeToTerritory
+    fields: [territory_id]
+  - entity: Account
+    event: afterList
+    handler: attachHealthScore
+    fields: [health_score]
+  - entity: Account
+    event: beforeDelete
+    handler: blockDeleteWithOpenBusiness
+  - entity: Contact
+    event: beforeCreate
+    handler: normalizeEmail
+    fields: [email]
+  - entity: Contact
+    event: customValidate
+    handler: ensureUniqueEmail
+    fields: [email]
+  - entity: Contact
+    event: afterCreate
+    handler: enqueueWelcomeSequence
+  - entity: Contact
+    event: afterUpdate
+    handler: syncToMarketingPlatform
+    fields: [email_opt_out]
+  - entity: Contact
+    event: beforeRead
+    handler: enforceFieldLevelSecurity
+  - entity: Contact
+    event: afterRead
+    handler: maskPersonalData
+    fields: [phone, mobile]
+  - entity: Contact
+    event: afterDelete
+    handler: purgeMarketingConsent
+  - entity: Lead
+    event: beforeCreate
+    handler: stampLeadSource
+    fields: [lead_source]
+  - entity: Lead
+    event: customValidate
+    handler: requireContactChannel
+    fields: [email, phone]
+  - entity: Lead
+    event: afterCreate
+    handler: notifyOwnerOfNewLead
+  - entity: Lead
+    event: beforeQuery
+    handler: scopeToOwnedLeads
+    fields: [owner_id]
+  - entity: Lead
+    event: afterQuery
+    handler: annotateDuplicateLeads
+    fields: [email]
+  - entity: Opportunity
+    event: beforeUpdate
+    handler: snapshotStageChange
+    fields: [stage]
+  - entity: Opportunity
+    event: customValidate
+    handler: requireLossReasonOnLoss
+    fields: [loss_reason]
+  - entity: Opportunity
+    event: afterCreate
+    handler: notifySellingTeam
+  - entity: Opportunity
+    event: afterUpdate
+    handler: recalculateAccountPipeline
+    fields: [amount]
+  - entity: Quote
+    event: beforeCreate
+    handler: generateQuoteNumber
+    fields: [quote_number]
+  - entity: Quote
+    event: beforeUpdate
+    handler: recalculateQuoteTotals
+    fields: [grand_total]
+  - entity: Quote
+    event: customValidate
+    handler: enforceDiscountCeiling
+    fields: [discount_percent]
+  - entity: Quote
+    event: afterUpdate
+    handler: regenerateQuoteDocument
+  - entity: SupportCase
+    event: beforeCreate
+    handler: assignCaseNumber
+    fields: [case_number]
+  - entity: SupportCase
+    event: beforeCreate
+    handler: stampSlaTargets
+    fields: [first_response_due_at, resolution_due_at]
+  - entity: SupportCase
+    event: beforeUpdate
+    handler: captureFirstResponse
+    fields: [first_response_at]
+  - entity: SupportCase
+    event: afterCreate
+    handler: acknowledgeCustomer
+  - entity: SupportCase
+    event: afterUpdate
+    handler: recomputeSlaBreach
+    fields: [is_sla_breached]
+  - entity: SupportCase
+    event: beforeDelete
+    handler: blockDeleteOfOpenCase
+  - entity: SupportCase
+    event: afterDelete
+    handler: archiveCaseTranscript
+  - entity: Contract
+    event: beforeCreate
+    handler: generateContractNumber
+    fields: [contract_number]
+  - entity: Contract
+    event: customValidate
+    handler: ensureTermMatchesDates
+    fields: [start_date, end_date, term_months]
+  - entity: Contract
+    event: afterCreate
+    handler: notifyFinanceOfNewContract
+  - entity: Contract
+    event: afterUpdate
+    handler: scheduleRenewalReminders
+    fields: [renewal_notice_days]
+hookFlows:
+  # ---- Section 15: Workflow — account governance hooks -----------------------
+  - name: AccountGovernance
+    title: Account Governance
+    entity: Account
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeAccountName
+      - id: D
+        event: beforeCreate
+        handler: assignAccountNumber
+      - id: E
+        event: customValidate
+        handler: ensureAccountNumberUnique
+      - id: F
+        label: Process Account
+      - id: G
+        event: afterCreate
+        handler: seedAccountTeam
+      - id: H
+        event: beforeList
+        handler: scopeToTerritory
+      - id: I
+        event: afterList
+        handler: attachHealthScore
+      - id: J
+        event: beforeDelete
+        handler: blockDeleteWithOpenBusiness
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 16: Workflow — contact hygiene hooks --------------------------
+  # Deliverability and consent are the two things a CRM quietly destroys if
+  # nobody guards them, so both are enforced at the write rather than in the UI.
+  - name: ContactHygiene
+    title: Contact Hygiene
+    entity: Contact
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: normalizeEmail
+      - id: D
+        event: customValidate
+        handler: ensureUniqueEmail
+      - id: E
+        label: Process Contact
+      - id: F
+        event: afterCreate
+        handler: enqueueWelcomeSequence
+      - id: G
+        event: afterUpdate
+        handler: syncToMarketingPlatform
+      - id: H
+        event: beforeRead
+        handler: enforceFieldLevelSecurity
+      - id: I
+        event: afterRead
+        handler: maskPersonalData
+      - id: J
+        event: afterDelete
+        handler: purgeMarketingConsent
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 17: Workflow — lead intake hooks ------------------------------
+  - name: LeadIntake
+    title: Lead Intake
+    entity: Lead
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampLeadSource
+      - id: D
+        event: customValidate
+        handler: requireContactChannel
+      - id: E
+        label: Process Lead
+      - id: F
+        event: afterCreate
+        handler: notifyOwnerOfNewLead
+      - id: G
+        event: beforeQuery
+        handler: scopeToOwnedLeads
+      - id: H
+        event: afterQuery
+        handler: annotateDuplicateLeads
+      - id: I
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+  # ---- Section 18: Workflow — opportunity integrity hooks --------------------
+  - name: OpportunityIntegrity
+    title: Opportunity Integrity
+    entity: Opportunity
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeUpdate
+        handler: snapshotStageChange
+      - id: D
+        event: customValidate
+        handler: requireLossReasonOnLoss
+      - id: E
+        label: Process Opportunity
+      - id: F
+        event: afterCreate
+        handler: notifySellingTeam
+      - id: G
+        event: afterUpdate
+        handler: recalculateAccountPipeline
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 19: Workflow — quote calculation hooks ------------------------
+  - name: QuoteCalculation
+    title: Quote Calculation
+    entity: Quote
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateQuoteNumber
+      - id: D
+        event: beforeUpdate
+        handler: recalculateQuoteTotals
+      - id: E
+        event: customValidate
+        handler: enforceDiscountCeiling
+      - id: F
+        label: Process Quote
+      - id: G
+        event: afterUpdate
+        handler: regenerateQuoteDocument
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+  # ---- Section 20: Workflow — case SLA tracking hooks ------------------------
+  - name: CaseSlaTracking
+    title: Case SLA Tracking
+    entity: SupportCase
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: assignCaseNumber
+      - id: D
+        event: beforeCreate
+        handler: stampSlaTargets
+      - id: E
+        event: beforeUpdate
+        handler: captureFirstResponse
+      - id: F
+        label: Process Case
+      - id: G
+        event: afterCreate
+        handler: acknowledgeCustomer
+      - id: H
+        event: afterUpdate
+        handler: recomputeSlaBreach
+      - id: I
+        event: beforeDelete
+        handler: blockDeleteOfOpenCase
+      - id: J
+        event: afterDelete
+        handler: archiveCaseTranscript
+      - id: K
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+      - from: H
+        to: I
+      - from: I
+        to: J
+      - from: J
+        to: K
+  # ---- Section 21: Workflow — contract governance hooks ----------------------
+  # A contract is drafted by the handoff saga in Section 25 before anyone has
+  # agreed dates, so the number is minted here and the date/term agreement is
+  # validated on the way out of draft rather than on the way in.
+  - name: ContractGovernance
+    title: Contract Governance
+    entity: Contract
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateContractNumber
+      - id: D
+        event: customValidate
+        handler: ensureTermMatchesDates
+      - id: E
+        label: Process Contract
+      - id: F
+        event: afterCreate
+        handler: notifyFinanceOfNewContract
+      - id: G
+        event: afterUpdate
+        handler: scheduleRenewalReminders
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+rbac:
+  # ---- Access by functional role ---------------------------------------------
+  # Every entity belongs to at least one functional role, and `read` is the
+  # operation that decides it: a role that may not read an entity does not see it
+  # in the navigation at all, so signing in as `support.agent@…` gives you the
+  # service desk rather than the whole CRM with most of it refusing to open.
+  # The roles are the ones UserRole already names. Administrator bypasses all of
+  # it, which is what makes it the account to compare the others against.
+  # Restricting `read` is deliberately separate from the update and transition
+  # rules further down: those say who may change a record, this says whose
+  # application it is part of.
+  - entity: Account
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager]
+  - entity: Contact
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager]
+  - entity: Activity
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager, support_agent, support_manager]
+  - entity: Territory
+    action: read
+    roles: [sales_manager, sales_ops]
+  - entity: Campaign
+    action: read
+    roles: [marketing_manager, sales_ops]
+  - entity: CampaignMember
+    action: read
+    roles: [marketing_manager, sales_ops]
+  - entity: Lead
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops, marketing_manager]
+  - entity: Opportunity
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops]
+  - entity: OpportunityLineItem
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops]
+  - entity: Product
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops]
+  - entity: Quote
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops]
+  - entity: QuoteLineItem
+    action: read
+    roles: [sales_rep, account_executive, sales_manager, sales_ops]
+  - entity: Contract
+    action: read
+    roles: [account_executive, sales_manager, sales_ops]
+  - entity: SupportCase
+    action: read
+    roles: [support_agent, support_manager]
+  - entity: SlaPolicy
+    action: read
+    roles: [support_agent, support_manager]
+  - entity: User
+    action: read
+    roles: [sales_manager, sales_ops, support_manager]
+  - entity: Team
+    action: read
+    roles: [sales_manager, sales_ops]
+  - entity: Lead
+    action: update
+    roles: [sales_rep, account_executive, sales_manager]
+  - entity: Lead
+    action: convert
+    roles: [sales_manager, sales_ops]
+  - entity: Lead
+    action: disqualify
+    roles: [sales_manager]
+  - entity: Opportunity
+    action: update
+    roles: [sales_rep, account_executive]
+  - entity: Opportunity
+    action: close_won
+    roles: [sales_manager]
+  - entity: Opportunity
+    action: delete
+    roles: [sales_manager, sales_ops]
+  - entity: Quote
+    action: update
+    roles: [sales_rep, account_executive]
+  - entity: Quote
+    action: approve
+    roles: [sales_manager, sales_ops]
+  - entity: Quote
+    action: reject
+    roles: [sales_manager]
+  - entity: SupportCase
+    action: update
+    roles: [support_agent, support_manager]
+  - entity: SupportCase
+    action: escalate
+    roles: [support_manager]
+  - entity: SupportCase
+    action: delete
+    roles: [support_manager, administrator]
+  - entity: Contract
+    action: update
+    roles: [sales_manager, sales_ops]
+  - entity: Contract
+    action: counter_signed
+    roles: [sales_ops, administrator]
+  - entity: Contract
+    action: terminate
+    roles: [administrator]
+triggers:
+  - entity: Lead
+    source: webhook:marketing
+    handler: ingestInboundLead
+  - entity: Lead
+    source: cron:0 7 * * 1
+    handler: recycleStaleLeads
+  - entity: Opportunity
+    source: cron:0 7 * * *
+    handler: nudgeStalledOpportunities
+  - entity: Quote
+    source: cron:0 6 * * *
+    handler: expireStaleQuotes
+  - entity: SupportCase
+    source: cron:*/15 * * * *
+    handler: checkSlaBreaches
+  - entity: SupportCase
+    source: webhook:helpdesk
+    handler: ingestInboundCase
+  - entity: Contract
+    source: cron:0 8 * * *
+    handler: openRenewalWindows
+  - entity: Contract
+    source: message:billing.invoice.paid
+    handler: markContractActive
+reports:
+  # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
+
+  # What the derived pack already gives this model without being asked: a
+  # register per entity, a breakdown per enum-bound column, created-per-month,
+  # a lifecycle report over every state machine in the diagram's own order, and
+  # children-per-parent for all 39 relationships. None of that needed anyone who
+  # understands selling.
+
+  # These do. Every role on the rbac matrix above is walked through the four
+  # questions — what they open first, what tells them something is wrong today,
+  # what they are asked for weekly, and what rots silently if nobody looks — so
+  # each role can do its whole job from what it can see.
+
+  # -- sales_rep: their own book of work --------------------------------------
+  - name: rep-stalled-deals
+    title: Deals with no activity in 14 days
+    entity: Opportunity
+    chart: bar
+    x: owner
+    y: deals
+    help: The rep's own pipeline hygiene and the manager's Monday question. A deal nobody has touched in a fortnight is not a forecast, it is a hope.
+    sql: SELECT u.first_name || ' ' || u.last_name AS owner, COUNT(*) AS deals FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') AND o.updated_at < now() - interval '14 days' GROUP BY 1 ORDER BY deals DESC
+  - name: rep-overdue-activities
+    title: Overdue calls, tasks and meetings
+    entity: Activity
+    help: The first screen of the day. An activity past its due date is a promise made to a customer and not kept, and it is the cheapest thing in this application to fix.
+    sql: SELECT u.first_name || ' ' || u.last_name AS owner, a.activity_type, a.subject, a.priority, a.due_at FROM bus_activity a JOIN bus_user u ON u.id = a.owner_id WHERE a.deleted_at IS NULL AND a.status IN ('planned', 'in_progress') AND a.due_at < now() ORDER BY a.due_at
+  - name: rep-unworked-leads
+    title: New leads nobody has worked
+    entity: Lead
+    help: A lead still sitting in new after 48 hours has gone cold, and whoever it was routed to has not noticed. The age column is the argument.
+    sql: SELECT l.first_name || ' ' || l.last_name AS lead, l.company_name, l.lead_source, l.rating, EXTRACT(hour FROM now() - l.created_at)::int AS hours_old FROM bus_lead l WHERE l.deleted_at IS NULL AND l.status = 'new' AND l.created_at < now() - interval '48 hours' ORDER BY hours_old DESC
+  - name: rep-pipeline-by-stage
+    title: Open pipeline value by stage
+    entity: Opportunity
+    chart: bar
+    x: stage
+    y: value
+    help: What the rep is carrying, in money rather than deal count. Stage order is the sales process, so a fat prospecting column and a thin negotiation one is a rep who is prospecting instead of closing.
+    sql: SELECT o.stage, SUM(o.amount) AS value, COUNT(*) AS deals FROM bus_opportunity o WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') GROUP BY 1 ORDER BY value DESC
+  # -- account_executive: named accounts, end to end --------------------------
+  - name: ae-closing-this-month
+    title: Deals closing this month
+    entity: Opportunity
+    help: The commit list. Sorted by close date rather than value, because the question is what has to be done this week, not what is worth most.
+    sql: SELECT o.name AS opportunity, a.name AS account, o.stage, o.amount, o.expected_close_date FROM bus_opportunity o JOIN bus_account a ON a.id = o.account_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') AND o.expected_close_date >= date_trunc('month', now())::date AND o.expected_close_date < (date_trunc('month', now()) + interval '1 month')::date ORDER BY o.expected_close_date
+  - name: ae-accounts-at-risk
+    title: Accounts at risk
+    entity: Account
+    chart: bar
+    x: account
+    y: health
+    help: Customers whose health score has fallen or who are on hold. An account executive who learns about churn from the renewal date learns too late.
+    sql: SELECT a.name AS account, a.tier, COALESCE(a.health_score, 0) AS health, a.status FROM bus_account a WHERE a.deleted_at IS NULL AND a.account_type = 'customer' AND (a.status = 'on_hold' OR a.health_score < 50) ORDER BY health
+  - name: ae-quotes-with-customer
+    title: Quotes presented and not answered
+    entity: Quote
+    help: A quote sitting with the customer past its validity date is a deal that has quietly expired. Nobody is told; the date simply passes.
+    sql: SELECT q.quote_number, a.name AS account, q.grand_total, q.valid_until, EXTRACT(day FROM now() - q.valid_until)::int AS days_past_validity FROM bus_quote q JOIN bus_account a ON a.id = q.account_id WHERE q.deleted_at IS NULL AND q.status = 'presented' AND q.valid_until < now()::date ORDER BY days_past_validity DESC
+  - name: ae-renewals-next-quarter
+    title: Renewals due next quarter
+    entity: Contract
+    help: The renewal conversation has to start a quarter early to be a conversation rather than an invoice. Auto-renew is shown because those need a different one.
+    sql: SELECT c.contract_number, a.name AS account, c.end_date, c.annual_value, c.auto_renew, c.renewal_notice_days FROM bus_contract c JOIN bus_account a ON a.id = c.account_id WHERE c.deleted_at IS NULL AND c.status IN ('active', 'expiring') AND c.end_date BETWEEN (now() + interval '90 days')::date AND (now() + interval '180 days')::date ORDER BY c.end_date
+  # -- sales_manager: the team, and the number --------------------------------
+  - name: manager-quota-attainment
+    title: Quota attainment by rep
+    entity: User
+    chart: bar
+    x: rep
+    y: won
+    help: What goes into the forecast call. Closed-won against the annual quota the model already records on each user, so the two numbers cannot disagree.
+    sql: SELECT u.first_name || ' ' || u.last_name AS rep, COALESCE(SUM(o.amount) FILTER (WHERE o.stage = 'closed_won'), 0) AS won, MAX(u.quota_annual) AS quota FROM bus_user u LEFT JOIN bus_opportunity o ON o.owner_id = u.id AND o.deleted_at IS NULL WHERE u.deleted_at IS NULL AND u.is_active AND u.quota_annual IS NOT NULL GROUP BY u.id, u.first_name, u.last_name ORDER BY won DESC
+  - name: manager-loss-reasons
+    title: Why deals were lost
+    entity: Opportunity
+    chart: pie
+    x: reason
+    y: deals
+    help: The only report here that changes what the team does next quarter rather than what it does this week. A blank loss reason is itself the finding.
+    sql: SELECT COALESCE(NULLIF(o.loss_reason, ''), '(not recorded)') AS reason, COUNT(*) AS deals, SUM(o.amount) AS value FROM bus_opportunity o WHERE o.deleted_at IS NULL AND o.stage = 'closed_lost' GROUP BY 1 ORDER BY deals DESC
+  - name: manager-team-coverage
+    title: Pipeline coverage by team
+    entity: Team
+    chart: bar
+    x: team
+    y: pipeline
+    help: Open pipeline against the team quota. Coverage under about three times quota means the quarter is already lost and nobody has said so.
+    sql: SELECT t.name AS team, COALESCE(SUM(o.amount) FILTER (WHERE o.stage NOT IN ('closed_won','closed_lost')), 0) AS pipeline, MAX(t.quota_annual) AS quota FROM bus_team t LEFT JOIN bus_user u ON u.team_id = t.id AND u.deleted_at IS NULL LEFT JOIN bus_opportunity o ON o.owner_id = u.id AND o.deleted_at IS NULL WHERE t.deleted_at IS NULL AND t.is_active GROUP BY t.id, t.name ORDER BY pipeline DESC
+  - name: manager-slipping-deals
+    title: Deals that have slipped their close date
+    entity: Opportunity
+    help: An open deal whose expected close date is in the past has slipped and nobody re-forecast it. These are the ones that make a forecast wrong twice.
+    sql: SELECT o.name AS opportunity, a.name AS account, u.first_name || ' ' || u.last_name AS owner, o.stage, o.amount, o.expected_close_date FROM bus_opportunity o JOIN bus_account a ON a.id = o.account_id LEFT JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won','closed_lost') AND o.expected_close_date < now()::date ORDER BY o.expected_close_date
+  # -- sales_ops: the machine that has to keep working ------------------------
+  - name: ops-quotes-awaiting-approval
+    title: Quotes waiting on an approver
+    entity: Quote
+    help: Sales ops owns the approval queue. A quote sitting in review is a deal that cannot be signed, and the age column is what turns that into a phone call.
+    sql: SELECT q.quote_number, a.name AS account, q.grand_total, q.discount_percent, EXTRACT(day FROM now() - q.created_at)::int AS days_waiting FROM bus_quote q JOIN bus_account a ON a.id = q.account_id WHERE q.deleted_at IS NULL AND q.status = 'in_review' ORDER BY days_waiting DESC
+  - name: ops-accounts-without-contacts
+    title: Accounts with nobody to call
+    entity: Account
+    help: An account with no contact cannot be sold to or supported. Usually a migration that half-finished, and invisible until somebody tries to use it.
+    sql: SELECT a.name AS account, a.account_type, a.tier FROM bus_account a LEFT JOIN bus_contact c ON c.account_id = a.id AND c.deleted_at IS NULL WHERE a.deleted_at IS NULL GROUP BY a.id, a.name, a.account_type, a.tier HAVING COUNT(c.id) = 0 ORDER BY a.name
+  - name: ops-empty-opportunities
+    title: Opportunities with no products
+    entity: Opportunity
+    help: A deal with an amount and no line items is a number somebody typed. It cannot be quoted from, and it is the most common reason a quote total does not match its opportunity.
+    sql: SELECT o.name AS opportunity, a.name AS account, o.stage, o.amount FROM bus_opportunity o JOIN bus_account a ON a.id = o.account_id LEFT JOIN bus_opportunity_line_item li ON li.opportunity_id = o.id AND li.deleted_at IS NULL WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_lost') GROUP BY o.id, o.name, a.name, o.stage, o.amount HAVING COUNT(li.id) = 0 ORDER BY o.amount DESC
+  - name: ops-discount-exposure
+    title: Discount exposure by tier
+    entity: Quote
+    chart: bar
+    x: tier
+    y: discounted_value
+    help: What the discount policy is actually costing, grouped by the account tier that is supposed to justify it. Deep discounts concentrated outside the strategic tier mean the policy is being worked around.
+    sql: SELECT COALESCE(a.tier, '(unset)') AS tier, ROUND(SUM(q.discount_amount)::numeric, 2) AS discounted_value, ROUND(AVG(q.discount_percent)::numeric, 1) AS avg_discount_pct FROM bus_quote q JOIN bus_account a ON a.id = q.account_id WHERE q.deleted_at IS NULL AND q.status IN ('approved','presented','accepted') GROUP BY 1 ORDER BY discounted_value DESC
+  - name: ops-territory-coverage
+    title: Accounts per territory
+    entity: Territory
+    chart: bar
+    x: territory
+    y: accounts
+    help: A territory with no accounts is a routing rule that never fires; one with far too many is a rep who cannot cover it. Both are invisible from inside a single account.
+    sql: SELECT t.name AS territory, t.region, COUNT(a.id) AS accounts FROM bus_territory t LEFT JOIN bus_account a ON a.territory_id = t.id AND a.deleted_at IS NULL WHERE t.deleted_at IS NULL AND t.is_active GROUP BY t.id, t.name, t.region ORDER BY accounts DESC
+  # -- marketing_manager: what the spend bought -------------------------------
+  - name: marketing-campaign-response
+    title: Campaign response rate
+    entity: Campaign
+    chart: bar
+    x: campaign
+    y: responded
+    help: The one number. Members who responded against members targeted, so a campaign that reached nobody is visibly different from one that reached everybody and convinced none of them.
+    sql: SELECT c.name AS campaign, COUNT(m.id) FILTER (WHERE m.has_responded) AS responded, COUNT(m.id) AS members FROM bus_campaign c LEFT JOIN bus_campaign_member m ON m.campaign_id = c.id AND m.deleted_at IS NULL WHERE c.deleted_at IS NULL GROUP BY c.id, c.name ORDER BY responded DESC
+  - name: marketing-campaign-return
+    title: Cost against influenced revenue
+    entity: Campaign
+    chart: bar
+    x: campaign
+    y: won_value
+    help: Actual cost against closed-won revenue on the opportunities the campaign is attached to. The only report that decides next year's budget.
+    sql: SELECT c.name AS campaign, c.actual_cost, COALESCE(SUM(o.amount) FILTER (WHERE o.stage = 'closed_won'), 0) AS won_value FROM bus_campaign c LEFT JOIN bus_opportunity o ON o.campaign_id = c.id AND o.deleted_at IS NULL WHERE c.deleted_at IS NULL AND c.status = 'completed' GROUP BY c.id, c.name, c.actual_cost ORDER BY won_value DESC
+  - name: marketing-lead-source
+    title: Lead quality by source
+    entity: Lead
+    chart: bar
+    x: source
+    y: qualified
+    help: Volume flatters the cheap sources. Qualified and converted counts alongside it are what separate a source worth paying for from one worth switching off.
+    sql: SELECT COALESCE(l.lead_source, '(unset)') AS source, COUNT(*) AS leads, COUNT(*) FILTER (WHERE l.status IN ('qualified','converted')) AS qualified, COUNT(*) FILTER (WHERE l.status = 'converted') AS converted FROM bus_lead l WHERE l.deleted_at IS NULL GROUP BY 1 ORDER BY qualified DESC
+  - name: marketing-spent-no-response
+    title: Campaigns that spent and got nothing
+    entity: Campaign
+    help: Money out, no responses in. Nobody runs this report voluntarily, which is exactly why it belongs on the dashboard.
+    sql: SELECT c.name AS campaign, c.campaign_type, c.actual_cost, COUNT(m.id) AS members FROM bus_campaign c LEFT JOIN bus_campaign_member m ON m.campaign_id = c.id AND m.has_responded AND m.deleted_at IS NULL WHERE c.deleted_at IS NULL AND c.status = 'completed' AND COALESCE(c.actual_cost, 0) > 0 GROUP BY c.id, c.name, c.campaign_type, c.actual_cost HAVING COUNT(m.id) = 0 ORDER BY c.actual_cost DESC
+  # -- support_agent: the queue in front of them ------------------------------
+  - name: agent-cases-past-first-response
+    title: Cases past their first-response target
+    entity: SupportCase
+    help: What gets checked before standup. A case past its first-response time is an SLA breach that is already happening, not one that might.
+    sql: SELECT sc.case_number, sc.subject, sc.priority, sc.created_at, sc.first_response_due_at FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.first_response_at IS NULL AND sc.first_response_due_at < now() AND sc.status NOT IN ('closed', 'resolved') ORDER BY sc.first_response_due_at
+  - name: agent-open-by-priority
+    title: Open cases by priority
+    entity: SupportCase
+    chart: bar
+    x: priority
+    y: cases
+    help: The shape of the queue. An agent with four critical cases works differently from one with forty low ones, and the register alone does not show which they have.
+    sql: SELECT sc.priority, COUNT(*) AS cases FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.status NOT IN ('resolved','closed') GROUP BY 1 ORDER BY cases DESC
+  - name: agent-waiting-on-customer
+    title: Cases waiting on a customer for over a week
+    entity: SupportCase
+    help: Waiting on customer is where cases go to be forgotten. After a week it is not the customer who has stopped replying, it is the case that has stopped being chased.
+    sql: SELECT sc.case_number, sc.subject, sc.priority, sc.updated_at, EXTRACT(day FROM now() - sc.updated_at)::int AS days_waiting FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.status = 'waiting_on_customer' AND sc.updated_at < now() - interval '7 days' ORDER BY days_waiting DESC
+  - name: agent-resolution-due
+    title: Cases approaching their resolution deadline
+    entity: SupportCase
+    help: Answered on time and then left unresolved is the second SLA, and the one nobody watches. These are still savable.
+    sql: SELECT sc.case_number, sc.subject, sc.priority, sc.resolution_due_at FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.resolved_at IS NULL AND sc.resolution_due_at IS NOT NULL AND sc.resolution_due_at BETWEEN now() AND now() + interval '24 hours' ORDER BY sc.resolution_due_at
+  # -- support_manager: the service, not the ticket ---------------------------
+  - name: support-breaches-by-priority
+    title: SLA breaches by priority
+    entity: SupportCase
+    chart: bar
+    x: priority
+    y: breached
+    help: The weekly review. Breaches concentrated in one priority band mean the SLA policy is wrong, not that the team is slow.
+    sql: SELECT sc.priority, COUNT(*) AS breached FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.is_sla_breached GROUP BY 1 ORDER BY breached DESC
+  - name: support-resolution-time
+    title: Median resolution hours by agent
+    entity: User
+    chart: bar
+    x: agent
+    y: median_hours
+    help: Median rather than average, because one case that sat open over a holiday makes an average meaningless. Case count alongside it, so a fast agent with three cases is not mistaken for a fast team.
+    sql: SELECT u.first_name || ' ' || u.last_name AS agent, COUNT(*) AS resolved, ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(epoch FROM sc.resolved_at - sc.created_at) / 3600.0)::numeric, 1) AS median_hours FROM bus_support_case sc JOIN bus_user u ON u.id = sc.owner_id WHERE sc.deleted_at IS NULL AND sc.resolved_at IS NOT NULL GROUP BY u.id, u.first_name, u.last_name ORDER BY median_hours
+  - name: support-satisfaction
+    title: Satisfaction by case type
+    entity: SupportCase
+    chart: bar
+    x: case_type
+    y: avg_score
+    help: Where the team is disliked rather than merely slow. A low score on defects is a product problem; a low score on questions is a documentation problem.
+    sql: SELECT sc.case_type, ROUND(AVG(sc.satisfaction_score)::numeric, 2) AS avg_score, COUNT(*) FILTER (WHERE sc.satisfaction_score IS NOT NULL) AS responses FROM bus_support_case sc WHERE sc.deleted_at IS NULL AND sc.satisfaction_score IS NOT NULL GROUP BY 1 ORDER BY avg_score
+  - name: support-escalated-open
+    title: Escalated cases still open
+    entity: SupportCase
+    help: An escalation that is still open is one the manager already agreed to own. Sorted oldest first, because the escalation itself is the promise.
+    sql: SELECT sc.case_number, a.name AS account, sc.subject, sc.priority, sc.created_at FROM bus_support_case sc LEFT JOIN bus_account a ON a.id = sc.account_id WHERE sc.deleted_at IS NULL AND sc.status = 'escalated' ORDER BY sc.created_at
+  # -- administrator: what nobody else can see --------------------------------
+  - name: admin-contracts-expiring
+    title: Contracts expiring in 90 days
+    entity: Contract
+    help: The renewal list, and the only report here nobody asks for until it is too late. Auto-renew is shown because a contract that renews itself needs a different conversation from one that lapses.
+    sql: SELECT c.contract_number, a.name AS account, c.end_date, c.annual_value, c.auto_renew FROM bus_contract c JOIN bus_account a ON a.id = c.account_id WHERE c.deleted_at IS NULL AND c.status = 'active' AND c.end_date BETWEEN now()::date AND (now() + interval '90 days')::date ORDER BY c.end_date
+  - name: admin-inactive-owners
+    title: Open work owned by deactivated users
+    entity: User
+    help: When somebody leaves, their pipeline and their cases stay pointed at them. Nothing in the application complains; the work simply stops moving.
+    sql: SELECT u.first_name || ' ' || u.last_name AS former_user, u.email, COUNT(DISTINCT o.id) AS open_deals, COUNT(DISTINCT sc.id) AS open_cases FROM bus_user u LEFT JOIN bus_opportunity o ON o.owner_id = u.id AND o.deleted_at IS NULL AND o.stage NOT IN ('closed_won','closed_lost') LEFT JOIN bus_support_case sc ON sc.owner_id = u.id AND sc.deleted_at IS NULL AND sc.status NOT IN ('resolved','closed') WHERE u.deleted_at IS NULL AND NOT u.is_active GROUP BY u.id, u.first_name, u.last_name, u.email HAVING COUNT(DISTINCT o.id) + COUNT(DISTINCT sc.id) > 0 ORDER BY open_deals DESC
+  - name: admin-stale-logins
+    title: Licensed users who have stopped signing in
+    entity: User
+    chart: bar
+    x: user
+    y: days_since_login
+    help: Every one is a seat being paid for and a set of records nobody is watching. Ninety days is the point at which it is a decision rather than a holiday.
+    sql: SELECT u.first_name || ' ' || u.last_name AS "user", u.role, COALESCE(EXTRACT(day FROM now() - u.last_login), 999)::int AS days_since_login FROM bus_user u WHERE u.deleted_at IS NULL AND u.is_active AND (u.last_login IS NULL OR u.last_login < now() - interval '90 days') ORDER BY days_since_login DESC
+  - name: admin-orphaned-records
+    title: Records with no owner
+    entity: Account
+    help: An unowned record answers to nobody and appears on no rep's list. It is not visible from inside any single screen, which is why only an administrator ever finds it.
+    sql: SELECT 'Account' AS record_type, COUNT(*) AS records FROM bus_account WHERE deleted_at IS NULL AND owner_id IS NULL UNION ALL SELECT 'Opportunity', COUNT(*) FROM bus_opportunity WHERE deleted_at IS NULL AND owner_id IS NULL UNION ALL SELECT 'SupportCase', COUNT(*) FROM bus_support_case WHERE deleted_at IS NULL AND owner_id IS NULL UNION ALL SELECT 'Lead', COUNT(*) FROM bus_lead WHERE deleted_at IS NULL AND owner_id IS NULL ORDER BY records DESC
+rules:
+  # ---- Section 2: Business rule — inbound lead scoring -----------------------
+  # Scores a lead on firmographics and source, then grades it. The grade is what
+  # routing (Section 3) and conversion (Section 22) both read, so the arithmetic
+  # lives in exactly one place.
+  - name: leadScoring
+    title: Lead Scoring
+    entity: Lead
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Lead Captured"
+        type: start
+      - id: B
+        label: employee_count >= 1000?
+        type: decision
+      - id: C
+        label: Add 35 firmographic points
+        type: expression
+      - id: D
+        label: employee_count >= 100?
+        type: decision
+      - id: E
+        label: Add 20 firmographic points
+        type: expression
+      - id: F
+        label: Add 5 firmographic points
+        type: expression
+      - id: G
+        label: lead_source == referral?
+        type: decision
+      - id: H
+        label: Add 30 source points
+        type: expression
+      - id: I
+        label: lead_source == event?
+        type: decision
+      - id: J
+        label: Add 20 source points
+        type: expression
+      - id: K
+        label: Add 8 source points
+        type: expression
+      - id: L
+        label: annual_revenue > 10000000?
+        type: decision
+      - id: M
+        label: Add 25 revenue points
+        type: expression
+      - id: N
+        label: Add 5 revenue points
+        type: expression
+      - id: O
+        label: Compute lead score
+        type: function
+      - id: P
+        label: score >= 70?
+        type: decision
+      - id: Q
+        label: Set rating hot
+        type: expression
+      - id: R
+        label: score >= 40?
+        type: decision
+      - id: S
+        label: Set rating warm
+        type: expression
+      - id: T
+        label: Set rating cold
+        type: expression
+      - id: Z
+        label: "End: Lead Scored"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: C
+        to: G
+      - from: E
+        to: G
+      - from: F
+        to: G
+      - from: G
+        to: H
+        label: Yes
+      - from: G
+        to: I
+        label: No
+      - from: I
+        to: J
+        label: Yes
+      - from: I
+        to: K
+        label: No
+      - from: H
+        to: L
+      - from: J
+        to: L
+      - from: K
+        to: L
+      - from: L
+        to: M
+        label: Yes
+      - from: L
+        to: N
+        label: No
+      - from: M
+        to: O
+      - from: N
+        to: O
+      - from: O
+        to: P
+      - from: P
+        to: Q
+        label: Yes
+      - from: P
+        to: R
+        label: No
+      - from: R
+        to: S
+        label: Yes
+      - from: R
+        to: T
+        label: No
+      - from: Q
+        to: Z
+      - from: S
+        to: Z
+      - from: T
+        to: Z
+  # ---- Section 3: Business rule — lead routing -------------------------------
+  # Who picks the lead up. Enterprise-sized leads never sit in the shared queue,
+  # and a lead that arrived through a partner goes back to the partner desk
+  # whatever its size.
+  - name: leadRouting
+    title: Lead Routing
+    entity: Lead
+    event: afterCreate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Lead Scored"
+        type: start
+      - id: B
+        label: lead_source == partner?
+        type: decision
+      - id: C
+        label: Route to Partner Desk
+        type: expression
+      - id: D
+        label: annual_revenue > 50000000?
+        type: decision
+      - id: E
+        label: Route to Strategic Accounts Team
+        type: expression
+      - id: F
+        label: employee_count >= 500?
+        type: decision
+      - id: G
+        label: Route to Enterprise Team
+        type: expression
+      - id: H
+        label: rating == hot?
+        type: decision
+      - id: I
+        label: Route to Mid Market Team
+        type: expression
+      - id: J
+        label: Route to SMB Queue
+        type: expression
+      - id: K
+        label: Assign owner from territory
+        type: function
+      - id: L
+        label: owner assigned?
+        type: decision
+      - id: M
+        label: Notify assigned owner
+        type: expression
+      - id: N
+        label: Hold in unassigned queue
+        type: expression
+      - id: Z
+        label: "End: Lead Routed"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: F
+        to: G
+        label: Yes
+      - from: F
+        to: H
+        label: No
+      - from: H
+        to: I
+        label: Yes
+      - from: H
+        to: J
+        label: No
+      - from: C
+        to: K
+      - from: E
+        to: K
+      - from: G
+        to: K
+      - from: I
+        to: K
+      - from: J
+        to: K
+      - from: K
+        to: L
+      - from: L
+        to: M
+        label: Yes
+      - from: L
+        to: N
+        label: No
+      - from: M
+        to: Z
+      - from: N
+        to: Z
+  # ---- Section 4: Business rule — lead qualification gate --------------------
+  # The gate a lead has to pass before it becomes an account. Its action is
+  # what makes the conversion saga in Section 22 run — without it the saga would
+  # either fire on every lead update or never fire at all.
+  - name: leadQualification
+    title: Lead Qualification
+    entity: Lead
+    event: beforeUpdate
+    priority: 15
+    nodes:
+      - id: A
+        label: "Start: Qualification Requested"
+        type: start
+      - id: B
+        label: email present?
+        type: decision
+      - id: C
+        label: "Reject: Contact email required"
+        type: expression
+      - id: D
+        label: company_name present?
+        type: decision
+      - id: E
+        label: "Reject: Company name required"
+        type: expression
+      - id: F
+        label: score >= 40?
+        type: decision
+      - id: G
+        label: Route back to nurturing
+        type: expression
+      - id: H
+        label: owner assigned?
+        type: decision
+      - id: I
+        label: "Reject: Owner required before conversion"
+        type: expression
+      - id: J
+        label: Set status qualified
+        type: expression
+      - id: Z
+        label: "End: Qualification Decided"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: No
+      - from: B
+        to: D
+        label: Yes
+      - from: D
+        to: E
+        label: No
+      - from: D
+        to: F
+        label: Yes
+      - from: F
+        to: G
+        label: No
+      - from: F
+        to: H
+        label: Yes
+      - from: H
+        to: I
+        label: No
+      - from: H
+        to: J
+        label: Yes
+      - from: C
+        to: Z
+      - from: E
+        to: Z
+      - from: G
+        to: Z
+      - from: I
+        to: Z
+      - from: J
+        to: Z
+    actions:
+      - name: convertQualifiedLead
+        type: trigger-workflow
+        when: status == "qualified"
+        props:
+          workflow: LeadConversion
+          message: Lead qualified — opening the account, contact and first opportunity
+  # A qualified lead is converted by the multi-step workflow in Section 22.
+  # The `when` is what keeps that workflow off every other lead update.
+
+  # ---- Section 5: Business rule — opportunity forecasting --------------------
+  # Probability and forecast category are derived, never typed in. Reps disagree
+  # about what "70% likely" means; a stage does not.
+  - name: opportunityForecast
+    title: Opportunity Forecasting
+    entity: Opportunity
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Opportunity Updated"
+        type: start
+      - id: B
+        label: stage == closed_won?
+        type: decision
+      - id: C
+        label: Set probability 100 and category closed
+        type: expression
+      - id: D
+        label: stage == closed_lost?
+        type: decision
+      - id: E
+        label: Set probability 0 and category omitted
+        type: expression
+      - id: F
+        label: stage == negotiation?
+        type: decision
+      - id: G
+        label: Set probability 80 and category commit
+        type: expression
+      - id: H
+        label: stage == proposal?
+        type: decision
+      - id: I
+        label: Set probability 60 and category best_case
+        type: expression
+      - id: J
+        label: stage == needs_analysis?
+        type: decision
+      - id: K
+        label: Set probability 40 and category pipeline
+        type: expression
+      - id: L
+        label: stage == qualification?
+        type: decision
+      - id: M
+        label: Set probability 20 and category pipeline
+        type: expression
+      - id: N
+        label: Set probability 10 and category pipeline
+        type: expression
+      - id: O
+        label: Recompute account pipeline
+        type: function
+      - id: P
+        label: expected_close_date in the past?
+        type: decision
+      - id: Q
+        label: Flag as slipped
+        type: expression
+      - id: R
+        label: Keep current close date
+        type: expression
+      - id: Z
+        label: "End: Forecast Recomputed"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: F
+        to: G
+        label: Yes
+      - from: F
+        to: H
+        label: No
+      - from: H
+        to: I
+        label: Yes
+      - from: H
+        to: J
+        label: No
+      - from: J
+        to: K
+        label: Yes
+      - from: J
+        to: L
+        label: No
+      - from: L
+        to: M
+        label: Yes
+      - from: L
+        to: N
+        label: No
+      - from: C
+        to: O
+      - from: E
+        to: O
+      - from: G
+        to: O
+      - from: I
+        to: O
+      - from: K
+        to: O
+      - from: M
+        to: O
+      - from: N
+        to: O
+      - from: O
+        to: P
+      - from: P
+        to: Q
+        label: Yes
+      - from: P
+        to: R
+        label: No
+      - from: Q
+        to: Z
+      - from: R
+        to: Z
+  # ---- Section 6: Business rule — closed-won gate ----------------------------
+  # What a deal has to have before anyone is allowed to call it won. A pipeline
+  # nobody can trust is usually a pipeline where this gate was never written down.
+  - name: opportunityCloseGate
+    title: Closed Won Gate
+    entity: Opportunity
+    event: beforeUpdate
+    priority: 5
+    nodes:
+      - id: A
+        label: "Start: Close Requested"
+        type: start
+      - id: B
+        label: stage == closed_won?
+        type: decision
+      - id: C
+        label: stage == closed_lost?
+        type: decision
+      - id: D
+        label: loss_reason present?
+        type: decision
+      - id: E
+        label: "Reject: Loss reason required"
+        type: expression
+      - id: F
+        label: Stamp actual close date
+        type: expression
+      - id: G
+        label: "Allow: Not a closing transition"
+        type: expression
+      - id: H
+        label: amount > 0?
+        type: decision
+      - id: I
+        label: "Reject: Amount required to close won"
+        type: expression
+      - id: J
+        label: accepted quote present?
+        type: decision
+      - id: K
+        label: "Reject: An accepted quote is required"
+        type: expression
+      - id: L
+        label: primary contact present?
+        type: decision
+      - id: M
+        label: "Reject: A primary contact is required"
+        type: expression
+      - id: N
+        label: Stamp actual close date and category closed
+        type: expression
+      - id: Z
+        label: "End: Close Decided"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: E
+        label: No
+      - from: D
+        to: F
+        label: Yes
+      - from: C
+        to: G
+        label: No
+      - from: B
+        to: H
+        label: Yes
+      - from: H
+        to: I
+        label: No
+      - from: H
+        to: J
+        label: Yes
+      - from: J
+        to: K
+        label: No
+      - from: J
+        to: L
+        label: Yes
+      - from: L
+        to: M
+        label: No
+      - from: L
+        to: N
+        label: Yes
+      - from: E
+        to: Z
+      - from: F
+        to: Z
+      - from: G
+        to: Z
+      - from: I
+        to: Z
+      - from: K
+        to: Z
+      - from: M
+        to: Z
+      - from: N
+        to: Z
+  # ---- Section 7: Business rule — quote discount policy ----------------------
+  # Discount authority by band. Anything past the rep's own authority stops the
+  # quote and raises an approval; anything past the ceiling is refused outright
+  # rather than sent up the chain, because no one is allowed to approve it.
+  - name: quoteDiscountApproval
+    title: Quote Discount Policy
+    entity: Quote
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Quote Priced"
+        type: start
+      - id: B
+        label: discount_percent > 40?
+        type: decision
+      - id: C
+        label: "Reject: Above the maximum discount"
+        type: expression
+      - id: D
+        label: discount_percent > 25?
+        type: decision
+      - id: E
+        label: Require VP approval
+        type: expression
+      - id: F
+        label: discount_percent > 15?
+        type: decision
+      - id: G
+        label: Require sales manager approval
+        type: expression
+      - id: H
+        label: discount_percent > 0?
+        type: decision
+      - id: I
+        label: Auto approve within rep authority
+        type: expression
+      - id: J
+        label: No discount applied
+        type: expression
+      - id: K
+        label: Recompute grand total
+        type: function
+      - id: Z
+        label: "End: Discount Decided"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: F
+        to: G
+        label: Yes
+      - from: F
+        to: H
+        label: No
+      - from: H
+        to: I
+        label: Yes
+      - from: H
+        to: J
+        label: No
+      - from: E
+        to: K
+      - from: G
+        to: K
+      - from: I
+        to: K
+      - from: J
+        to: K
+      - from: C
+        to: Z
+      - from: K
+        to: Z
+    actions:
+      - name: escalateDiscount
+        type: trigger-workflow
+        when: discount_percent > 15
+        props:
+          workflow: QuoteApprovalEscalation
+          message: Discount above rep authority — holding the quote for approval
+      - name: refuseDiscount
+        type: validation-error
+        when: discount_percent > 40
+        props:
+          message: Discounts above 40 percent cannot be approved by anyone — reprice the quote
+  # Out-of-policy discounts hold the quote and raise an approval task; the
+  # multi-step process that does it is Section 23.
+
+  # ---- Section 8: Business rule — support case triage ------------------------
+  # Priority is a function of who is asking and what broke, not of how the case
+  # was worded. The action hands a critical case to the escalation process in
+  # Section 24.
+  - name: caseTriage
+    title: Support Case Triage
+    entity: SupportCase
+    event: beforeCreate
+    priority: 5
+    nodes:
+      - id: A
+        label: "Start: Case Raised"
+        type: start
+      - id: B
+        label: account tier == strategic?
+        type: decision
+      - id: C
+        label: case_type == incident?
+        type: decision
+      - id: D
+        label: Set priority critical
+        type: expression
+      - id: E
+        label: Set priority high
+        type: expression
+      - id: F
+        label: case_type == incident?
+        type: decision
+      - id: G
+        label: account tier == enterprise?
+        type: decision
+      - id: H
+        label: Set priority high
+        type: expression
+      - id: I
+        label: Set priority medium
+        type: expression
+      - id: J
+        label: case_type == billing?
+        type: decision
+      - id: K
+        label: Set priority medium
+        type: expression
+      - id: L
+        label: Set priority low
+        type: expression
+      - id: M
+        label: Stamp SLA targets from policy
+        type: function
+      - id: N
+        label: first response due within 60 minutes?
+        type: decision
+      - id: O
+        label: Page the on-call queue
+        type: expression
+      - id: P
+        label: Queue for the next available agent
+        type: expression
+      - id: Z
+        label: "End: Case Triaged"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: D
+        label: Yes
+      - from: C
+        to: E
+        label: No
+      - from: B
+        to: F
+        label: No
+      - from: F
+        to: G
+        label: Yes
+      - from: G
+        to: H
+        label: Yes
+      - from: G
+        to: I
+        label: No
+      - from: F
+        to: J
+        label: No
+      - from: J
+        to: K
+        label: Yes
+      - from: J
+        to: L
+        label: No
+      - from: D
+        to: M
+      - from: E
+        to: M
+      - from: H
+        to: M
+      - from: I
+        to: M
+      - from: K
+        to: M
+      - from: L
+        to: M
+      - from: M
+        to: N
+      - from: N
+        to: O
+        label: Yes
+      - from: N
+        to: P
+        label: No
+      - from: O
+        to: Z
+      - from: P
+        to: Z
+    actions:
+      - name: escalateCriticalCase
+        type: trigger-workflow
+        when: priority == "critical"
+        props:
+          workflow: CriticalCaseEscalation
+          message: Critical case — escalating and raising an escalation task
+      - name: requireResolutionNotes
+        type: validation-error
+        when: status == "resolved" and resolution_notes == null
+        props:
+          message: A resolved case needs resolution notes
+  # A critical case escalates through Section 24 rather than waiting for an
+  # agent to notice it.
+
+  # ---- Section 9: Business rule — renewal risk -------------------------------
+  # Grades a contract as its renewal window opens. The renewal playbook in
+  # Section 26 evaluates this same rule as a step rather than forking a second
+  # copy of the policy.
+  - name: renewalRisk
+    title: Renewal Risk
+    entity: Contract
+    event: beforeUpdate
+    priority: 15
+    nodes:
+      - id: A
+        label: "Start: Renewal Window Opened"
+        type: start
+      - id: B
+        label: account health_score < 40?
+        type: decision
+      - id: C
+        label: Grade renewal at risk
+        type: expression
+      - id: D
+        label: open critical cases > 0?
+        type: decision
+      - id: E
+        label: Grade renewal watch
+        type: expression
+      - id: F
+        label: annual_value >= 250000?
+        type: decision
+      - id: G
+        label: auto_renew == true?
+        type: decision
+      - id: H
+        label: Grade renewal secure and confirm terms
+        type: expression
+      - id: I
+        label: Grade renewal strategic and assign an executive
+        type: expression
+      - id: J
+        label: auto_renew == true?
+        type: decision
+      - id: K
+        label: Grade renewal automatic
+        type: expression
+      - id: L
+        label: Grade renewal standard
+        type: expression
+      - id: M
+        label: Compute renewal probability
+        type: function
+      - id: Z
+        label: "End: Renewal Graded"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: F
+        to: G
+        label: Yes
+      - from: G
+        to: H
+        label: Yes
+      - from: G
+        to: I
+        label: No
+      - from: F
+        to: J
+        label: No
+      - from: J
+        to: K
+        label: Yes
+      - from: J
+        to: L
+        label: No
+      - from: C
+        to: M
+      - from: E
+        to: M
+      - from: H
+        to: M
+      - from: I
+        to: M
+      - from: K
+        to: M
+      - from: L
+        to: M
+      - from: M
+        to: Z
+stateMachines:
+  # ---- Section 10: Workflow — lead lifecycle (state machine) -----------------
+  - name: LeadLifecycle
+    title: Lead Lifecycle
+    entity: Lead
+    states: [new, working, nurturing, qualified, converted, disqualified]
+    initial: new
+    final: [converted, disqualified]
+    transitions:
+      - from: new
+        to: working
+        trigger: engage
+      - from: working
+        to: nurturing
+        trigger: nurture
+      - from: nurturing
+        to: working
+        trigger: re_engage
+      - from: working
+        to: qualified
+        trigger: qualify
+      - from: qualified
+        to: working
+        trigger: return_to_working
+      - from: qualified
+        to: converted
+        trigger: convert
+      - from: working
+        to: disqualified
+        trigger: disqualify
+      - from: nurturing
+        to: disqualified
+        trigger: disqualify
+      - from: new
+        to: disqualified
+        trigger: reject
+  # ---- Section 11: Workflow — opportunity pipeline (state machine) -----------
+  - name: OpportunityPipeline
+    title: Opportunity Pipeline
+    entity: Opportunity
+    states: [prospecting, qualification, needs_analysis, closed_lost, proposal, negotiation, closed_won]
+    initial: prospecting
+    final: [closed_won, closed_lost]
+    transitions:
+      - from: prospecting
+        to: qualification
+        trigger: qualify
+      - from: qualification
+        to: needs_analysis
+        trigger: discover
+      - from: qualification
+        to: closed_lost
+        trigger: disqualify
+      - from: needs_analysis
+        to: proposal
+        trigger: send_proposal
+      - from: needs_analysis
+        to: closed_lost
+        trigger: no_fit
+      - from: proposal
+        to: negotiation
+        trigger: negotiate
+      - from: proposal
+        to: closed_lost
+        trigger: lose
+      - from: negotiation
+        to: closed_won
+        trigger: close_won
+      - from: negotiation
+        to: closed_lost
+        trigger: close_lost
+      - from: negotiation
+        to: proposal
+        trigger: reprice
+  # ---- Section 12: Workflow — quote approval (state machine) -----------------
+  - name: QuoteApproval
+    title: Quote Approval
+    entity: Quote
+    states: [draft, in_review, approved, rejected, presented, expired, accepted]
+    initial: draft
+    final: [accepted, expired]
+    transitions:
+      - from: draft
+        to: in_review
+        trigger: submit_for_approval
+      - from: in_review
+        to: approved
+        trigger: approve
+      - from: in_review
+        to: rejected
+        trigger: reject
+      - from: rejected
+        to: draft
+        trigger: revise
+      - from: approved
+        to: presented
+        trigger: present
+      - from: approved
+        to: expired
+        trigger: lapse
+      - from: presented
+        to: accepted
+        trigger: accept
+      - from: presented
+        to: draft
+        trigger: renegotiate
+      - from: presented
+        to: expired
+        trigger: lapse
+  # ---- Section 13: Workflow — support case lifecycle (state machine) ---------
+  - name: SupportCaseLifecycle
+    title: Support Case Lifecycle
+    entity: SupportCase
+    states: [new, assigned, in_progress, waiting_on_customer, escalated, resolved, closed]
+    initial: new
+    final: [closed]
+    transitions:
+      - from: new
+        to: assigned
+        trigger: assign
+      - from: assigned
+        to: in_progress
+        trigger: start_work
+      - from: in_progress
+        to: waiting_on_customer
+        trigger: request_information
+      - from: waiting_on_customer
+        to: in_progress
+        trigger: customer_responded
+      - from: in_progress
+        to: escalated
+        trigger: escalate
+      - from: escalated
+        to: in_progress
+        trigger: de_escalate
+      - from: in_progress
+        to: resolved
+        trigger: resolve
+      - from: resolved
+        to: in_progress
+        trigger: reopen
+      - from: resolved
+        to: closed
+        trigger: close
+  # ---- Section 14: Workflow — contract lifecycle (state machine) -------------
+  - name: ContractLifecycle
+    title: Contract Lifecycle
+    entity: Contract
+    states: [draft, in_approval, active, expiring, terminated, renewed, expired]
+    initial: draft
+    final: [expired, terminated]
+    transitions:
+      - from: draft
+        to: in_approval
+        trigger: submit_for_signature
+      - from: in_approval
+        to: draft
+        trigger: return_for_edit
+      - from: in_approval
+        to: active
+        trigger: counter_signed
+      - from: active
+        to: expiring
+        trigger: enter_renewal_window
+      - from: active
+        to: terminated
+        trigger: terminate
+      - from: expiring
+        to: renewed
+        trigger: renew
+      - from: expiring
+        to: expired
+        trigger: lapse
+      - from: expiring
+        to: terminated
+        trigger: terminate
+      - from: renewed
+        to: active
+        trigger: activate_renewal
+sagas:
+  # ---- Section 22: Workflow — lead conversion (saga) -------------------------
+  # The one process every CRM is judged on. A qualified lead becomes an account,
+  # a primary contact and an opening opportunity in one transaction, and the
+  # lead is stamped converted so it stops appearing in prospecting lists.
+
+  # `trigger: rule` is load-bearing: the qualification rule in Section 4 decides
+  # whether this runs at all. Step B's table is the sizing policy — grade in,
+  # tier and opening amount out — and the steps after it read what it published.
+  # Step G reaches back into the account step C created, using the id step C
+  # bound, which is the only way a later step can touch a row created earlier in
+  # the same run.
+  - name: LeadConversion
+    title: Lead Conversion
+    entity: Lead
+    trigger: rule
+    steps:
+      - id: B
+        type: Decision
+        label: Size the account
+        properties:
+          decisionTable: "{\"hitPolicy\":\"first\",\"inputs\":[{\"id\":\"i1\",\"name\":\"Score\",\"field\":\"score\"}],\"outputs\":[{\"id\":\"o1\",\"name\":\"Tier\",\"field\":\"accountTier\"},{\"id\":\"o2\",\"name\":\"OpeningAmount\",\"field\":\"openingAmount\"},{\"id\":\"o3\",\"name\":\"AccountType\",\"field\":\"openingAccountType\"}],\"rules\":[{\"_id\":\"strategic\",\"i1\":\">= 85\",\"o1\":\"'strategic'\",\"o2\":\"250000\",\"o3\":\"'prospect'\"},{\"_id\":\"enterprise\",\"i1\":\">= 70\",\"o1\":\"'enterprise'\",\"o2\":\"120000\",\"o3\":\"'prospect'\"},{\"_id\":\"midmarket\",\"i1\":\">= 40\",\"o1\":\"'mid_market'\",\"o2\":\"45000\",\"o3\":\"'prospect'\"},{\"_id\":\"rest\",\"i1\":\"\",\"o1\":\"'smb'\",\"o2\":\"12000\",\"o3\":\"'prospect'\"}]}"
+      - id: C
+        type: CreateEntity
+        label: Open the account
+        properties:
+          entity: Account
+          as: newAccountId
+          fields: '{"name":"company_name","account_type":"openingAccountType","tier":"accountTier","industry":"industry","employee_count":"employee_count","annual_revenue":"annual_revenue","status":"active","owner_id":"owner_id"}'
+      - id: D
+        type: CreateEntity
+        label: Create the primary contact
+        properties:
+          entity: Contact
+          as: newContactId
+          fields: '{"account_id":"newAccountId","first_name":"first_name","last_name":"last_name","email":"email","phone":"phone","job_title":"job_title","lead_source":"lead_source","is_primary":true,"email_opt_out":false,"do_not_call":false,"status":"active","owner_id":"owner_id"}'
+      - id: E
+        type: CreateEntity
+        label: Open the first opportunity
+        properties:
+          entity: Opportunity
+          as: newOpportunityId
+          fields: '{"account_id":"newAccountId","contact_id":"newContactId","campaign_id":"campaign_id","name":"company_name","amount":"openingAmount","currency_code":"USD","stage":"prospecting","forecast_category":"pipeline","lead_source":"lead_source","owner_id":"owner_id"}'
+      - id: F
+        type: UpdateEntity
+        label: Mark the lead converted
+        properties:
+          field: status
+          value: converted
+      - id: G
+        type: UpdateEntity
+        label: Stamp the account tier
+        properties:
+          entity: Account
+          targetSource: newAccountId
+          field: tier
+          source: accountTier
+  # ---- Section 23: Workflow — quote discount approval (saga) -----------------
+  # Holds an out-of-policy quote and puts a named approval task in front of a
+  # human, with a review window sized by how far out of policy the discount is.
+  # Section 7 decides when it runs.
+  - name: QuoteApprovalEscalation
+    title: Quote Approval Escalation
+    entity: Quote
+    trigger: rule
+    steps:
+      - id: B
+        type: Decision
+        label: Set the approval level
+        properties:
+          decisionTable: "{\"hitPolicy\":\"first\",\"inputs\":[{\"id\":\"i1\",\"name\":\"Discount\",\"field\":\"discount_percent\"}],\"outputs\":[{\"id\":\"o1\",\"name\":\"Level\",\"field\":\"approvalLevel\"},{\"id\":\"o2\",\"name\":\"ReviewHours\",\"field\":\"reviewHours\"}],\"rules\":[{\"_id\":\"vp\",\"i1\":\"> 25\",\"o1\":\"'vp_sales'\",\"o2\":\"48\"},{\"_id\":\"manager\",\"i1\":\"> 15\",\"o1\":\"'sales_manager'\",\"o2\":\"24\"},{\"_id\":\"rest\",\"i1\":\"\",\"o1\":\"'rep_authority'\",\"o2\":\"8\"}]}"
+      - id: C
+        type: Formula
+        label: Compute the review window
+        properties:
+          target: reviewWindowDays
+          source: reviewHours
+          operation: divide
+          operand: "24"
+      - id: D
+        type: CreateEntity
+        label: Raise the approval task
+        properties:
+          entity: Activity
+          as: approvalTaskId
+          fields: '{"activity_type":"task","subject":"Approve quote discount","status":"planned","priority":"high","account_id":"account_id","opportunity_id":"opportunity_id","owner_id":"owner_id"}'
+      - id: E
+        type: UpdateEntity
+        label: Hold the quote for review
+        properties:
+          field: status
+          value: in_review
+      - id: F
+        type: UpdateEntity
+        label: Name the approval level on the task
+        properties:
+          entity: Activity
+          targetSource: approvalTaskId
+          field: description
+          source: approvalLevel
+  # ---- Section 24: Workflow — critical case escalation (saga) ----------------
+  # A critical case does not wait for an agent to open the queue. The tier table
+  # sets the response clock, an escalation task is raised against the account,
+  # the case moves to escalated, and the on-call channel is told.
+  - name: CriticalCaseEscalation
+    title: Critical Case Escalation
+    entity: SupportCase
+    trigger: rule
+    steps:
+      - id: B
+        type: Decision
+        label: Set the escalation tier
+        properties:
+          decisionTable: "{\"hitPolicy\":\"first\",\"inputs\":[{\"id\":\"i1\",\"name\":\"Priority\",\"field\":\"priority\"}],\"outputs\":[{\"id\":\"o1\",\"name\":\"Tier\",\"field\":\"escalationTier\"},{\"id\":\"o2\",\"name\":\"ResponseMinutes\",\"field\":\"responseMinutes\"}],\"rules\":[{\"_id\":\"critical\",\"i1\":\"\\\"critical\\\"\",\"o1\":\"'executive_bridge'\",\"o2\":\"15\"},{\"_id\":\"high\",\"i1\":\"\\\"high\\\"\",\"o1\":\"'support_manager'\",\"o2\":\"60\"},{\"_id\":\"rest\",\"i1\":\"\",\"o1\":\"'queue'\",\"o2\":\"240\"}]}"
+      - id: C
+        type: Formula
+        label: Compute the response deadline
+        properties:
+          target: responseHours
+          source: responseMinutes
+          operation: divide
+          operand: "60"
+      - id: D
+        type: CreateEntity
+        label: Raise the escalation task
+        properties:
+          entity: Activity
+          as: escalationTaskId
+          fields: '{"activity_type":"task","subject":"Escalated support case","status":"planned","priority":"urgent","account_id":"account_id","contact_id":"contact_id","support_case_id":"id","owner_id":"owner_id"}'
+      - id: E
+        type: UpdateEntity
+        label: Escalate the case
+        properties:
+          field: status
+          value: escalated
+      - id: F
+        type: UpdateEntity
+        label: Name the tier on the task
+        properties:
+          entity: Activity
+          targetSource: escalationTaskId
+          field: description
+          source: escalationTier
+      - id: G
+        type: REST
+        label: Notify the on-call channel
+        properties:
+          url: https://hooks.example.com/crm/case-escalation
+          method: POST
+          bodyTemplate: '{"case":"{{case_number}}","tier":"{{escalationTier}}","respondWithinHours":"{{responseHours}}"}'
+  # `url:` carries no space before its value on purpose: a step's properties
+  # are split at whitespace preceding the next `<key>:`, so ` https://…`
+  # would be read as a property named "https" and the step would lose its url.
+
+  # ---- Section 25: Workflow — closed-won handoff (saga) ----------------------
+  # The other kind of trigger. Nothing gates this one on a rule: every
+  # opportunity that reaches closed_won is handed to delivery, because a deal
+  # that closes and is never onboarded is the failure mode this exists to stop.
+  # It runs on UPDATE, since closing is an update to an existing row.
+  - name: ClosedWonHandoff
+    title: Closed Won Handoff
+    entity: Opportunity
+    operation: UPDATE
+    steps:
+      - id: B
+        type: Decision
+        label: Size the engagement
+        properties:
+          decisionTable: "{\"hitPolicy\":\"first\",\"inputs\":[{\"id\":\"i1\",\"name\":\"Amount\",\"field\":\"amount\"}],\"outputs\":[{\"id\":\"o1\",\"name\":\"TermMonths\",\"field\":\"termMonths\"},{\"id\":\"o2\",\"name\":\"OnboardingTier\",\"field\":\"onboardingTier\"},{\"id\":\"o3\",\"name\":\"NoticeDays\",\"field\":\"renewalNoticeDays\"}],\"rules\":[{\"_id\":\"strategic\",\"i1\":\">= 250000\",\"o1\":\"36\",\"o2\":\"'white_glove'\",\"o3\":\"120\"},{\"_id\":\"enterprise\",\"i1\":\">= 100000\",\"o1\":\"24\",\"o2\":\"'guided'\",\"o3\":\"90\"},{\"_id\":\"rest\",\"i1\":\"\",\"o1\":\"12\",\"o2\":\"'self_serve'\",\"o3\":\"60\"}]}"
+      - id: C
+        type: Formula
+        label: Compute the monthly run rate
+        properties:
+          target: monthlyRunRate
+          source: amount
+          operation: divide
+          operand: "12"
+      - id: D
+        type: CreateEntity
+        label: Draft the contract
+        properties:
+          entity: Contract
+          as: newContractId
+          fields: '{"account_id":"account_id","status":"draft","term_months":"termMonths","annual_value":"amount","renewal_notice_days":"renewalNoticeDays","auto_renew":false,"owner_id":"owner_id"}'
+      - id: E
+        type: CreateEntity
+        label: Book the onboarding kickoff
+        properties:
+          entity: Activity
+          as: kickoffActivityId
+          fields: '{"activity_type":"meeting","subject":"Customer onboarding kickoff","status":"planned","priority":"high","account_id":"account_id","contact_id":"contact_id","opportunity_id":"id","owner_id":"owner_id"}'
+      - id: F
+        type: UpdateEntity
+        label: Stamp the forecast category
+        properties:
+          field: forecast_category
+          value: closed
+      - id: G
+        type: UpdateEntity
+        label: Name the onboarding tier on the kickoff
+        properties:
+          entity: Activity
+          targetSource: kickoffActivityId
+          field: description
+          source: onboardingTier
+  # ---- Section 26: Workflow — renewal playbook (saga) ------------------------
+  # Runs when a contract is updated into its renewal window. Step B evaluates
+  # the rule declared in Section 9 rather than carrying a second copy of the
+  # policy, which is the whole point of naming a rule instead of inlining a
+  # table: the grade a person sees in the rules editor is the grade this process
+  # acts on.
+
+  # Step C is the delete. Stale renewal tasks from the previous cycle are
+  # cleared by matching Activity.contract_id against the triggering contract —
+  # row targeting by foreign key, since no earlier step created those rows.
+  - name: RenewalPlaybook
+    title: Renewal Playbook
+    entity: Contract
+    operation: UPDATE
+    steps:
+      - id: B
+        type: Decision
+        label: Grade the renewal
+        properties:
+          rule: renewalRisk
+          publish: renewalGrade
+      - id: C
+        type: DeleteEntity
+        label: Clear the stale renewal tasks
+        properties:
+          entity: Activity
+          targetField: contract_id
+      - id: D
+        type: CreateEntity
+        label: Open the renewal opportunity
+        properties:
+          entity: Opportunity
+          as: renewalOpportunityId
+          fields: '{"account_id":"account_id","name":"Renewal","amount":"annual_value","currency_code":"USD","stage":"qualification","forecast_category":"pipeline","expected_close_date":"end_date","owner_id":"owner_id"}'
+      - id: E
+        type: CreateEntity
+        label: Schedule the renewal review
+        properties:
+          entity: Activity
+          as: renewalReviewId
+          fields: '{"activity_type":"meeting","subject":"Renewal review","status":"planned","priority":"high","account_id":"account_id","contract_id":"id","opportunity_id":"renewalOpportunityId","owner_id":"owner_id"}'
+      - id: F
+        type: UpdateEntity
+        label: Flag the contract as expiring
+        properties:
+          field: status
+          value: expiring
+      - id: G
+        type: UpdateEntity
+        label: Name the grade on the renewal opportunity
+        properties:
+          entity: Opportunity
+          targetSource: renewalOpportunityId
+          field: next_step
+          source: renewalGrade

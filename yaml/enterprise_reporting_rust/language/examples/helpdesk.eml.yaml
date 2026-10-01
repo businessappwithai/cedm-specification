@@ -1,0 +1,239 @@
+# ============================================================================
+# EML Example — Helpdesk / Support Ticketing
+# A simple, complete model: the data model (ERD), a declarative business rule
+# (ticket prioritization), and a workflow (ticket lifecycle state machine)
+# plus lifecycle hooks.
+# ============================================================================
+
+# ---- Section 1: ERD --------------------------------------------------------
+
+eml: "1.0"
+name: Helpdesk
+version: 1.0.0
+enums:
+  - name: TicketStatus
+    values: [open, in_progress, resolved, closed]
+  - name: TicketPriority
+    values: [low, medium, high, urgent]
+  - name: CustomerTier
+    values: [free, pro, enterprise]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: tier
+        type: string
+        enum: CustomerTier
+      - name: is_active
+        type: boolean
+    indexes:
+      - columns: [email]
+        unique: true
+  - name: Agent
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Ticket
+    audited: true
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: agent_id
+        type: string
+        fk: true
+        optional: true
+      - name: subject
+        type: string
+      - name: description
+        type: text
+        optional: true
+      - name: impact_score
+        type: integer
+      - name: priority
+        type: string
+        optional: true
+        enum: TicketPriority
+      - name: status
+        type: string
+        optional: true
+        enum: TicketStatus
+    indexes:
+      - columns: [customer_id, status]
+  - name: Comment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: ticket_id
+        type: string
+        fk: true
+      - name: author
+        type: string
+      - name: body
+        type: text
+      - name: is_internal
+        type: boolean
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Ticket
+    toCardinality: zero-or-more
+    label: opens
+  - from: Agent
+    fromCardinality: exactly-one
+    to: Ticket
+    toCardinality: zero-or-more
+    label: assigned
+  - from: Ticket
+    fromCardinality: exactly-one
+    to: Comment
+    toCardinality: zero-or-more
+    label: has
+hooks:
+  - entity: Ticket
+    event: beforeCreate
+    handler: stampReference
+  - entity: Ticket
+    event: afterCreate
+    handler: notifyCustomer
+  - entity: Ticket
+    event: afterUpdate
+    handler: logStatusChange
+hookFlows:
+  # ---- Section 4: Workflow — ticket hooks ------------------------------------
+  - name: TicketHooks
+    title: Ticket Hooks
+    entity: Ticket
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: stampReference
+      - id: D
+        label: Process Ticket
+      - id: E
+        event: afterCreate
+        handler: notifyCustomer
+      - id: F
+        event: afterUpdate
+        handler: logStatusChange
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+rbac:
+  - entity: Ticket
+    action: update
+    roles: [agent, admin]
+triggers:
+  - entity: Ticket
+    source: cron:0 * * * *
+    handler: escalateStale
+rules:
+  # ---- Section 2: Business rule — ticket prioritization ----------------------
+  # Decision reads the ticket's own impact_score, so it evaluates on real data.
+  - name: prioritize
+    title: Ticket Prioritization
+    entity: Ticket
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Ticket Created"
+        type: start
+      - id: B
+        label: impact_score >= 80?
+        type: decision
+      - id: P1
+        label: Set Priority urgent
+        type: expression
+      - id: C
+        label: impact_score >= 50?
+        type: decision
+      - id: P2
+        label: Set Priority high
+        type: expression
+      - id: P3
+        label: Set Priority low
+        type: expression
+      - id: E
+        label: "End: Prioritized"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: P1
+        label: Yes
+      - from: B
+        to: C
+        label: No
+      - from: C
+        to: P2
+        label: Yes
+      - from: C
+        to: P3
+        label: No
+      - from: P1
+        to: E
+      - from: P2
+        to: E
+      - from: P3
+        to: E
+stateMachines:
+  # ---- Section 3: Workflow — ticket lifecycle (state machine) ----------------
+  - name: TicketLifecycle
+    title: Ticket Lifecycle
+    entity: Ticket
+    states: [open, in_progress, closed, resolved]
+    initial: open
+    final: [closed]
+    transitions:
+      - from: open
+        to: in_progress
+        trigger: assign
+      - from: open
+        to: closed
+        trigger: cancel
+      - from: in_progress
+        to: resolved
+        trigger: resolve
+      - from: resolved
+        to: in_progress
+        trigger: reopen
+      - from: resolved
+        to: closed
+        trigger: close

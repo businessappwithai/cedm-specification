@@ -1,0 +1,17 @@
+# The repositories imported under yaml/, and the commit each was taken from.
+# Every tracked file was copied at its original path. The two gstack submodules
+# (.claude/skills/gstack, a third-party skill pack) were not: they are
+# installed per developer with `bun run setup:gstack`, as at the root.
+imports:
+  - repository: businessappwithai/app-and-report-with-ai-rust
+    path: yaml/app-and-report-with-ai-rust
+    commit: fbc49ce84bd855a18d1530b4cfc05b1eb4c1d068
+    files: 174
+  - repository: businessappwithai/enterprise_reporting_rust
+    path: yaml/enterprise_reporting_rust
+    commit: ac0107304c378826648fd26e5d1e8e234a872692
+    files: 3034
+  - repository: businessappwithai/businessappwithairust
+    path: yaml/businessappwithairust
+    commit: eccd780860ac1593440be4ea42dcd53289053a2d
+    files: 190

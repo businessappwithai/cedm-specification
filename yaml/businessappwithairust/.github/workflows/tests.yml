@@ -1,0 +1,106 @@
+# The website's own checks. Node only — this repository has no package.json and
+# no build step, and these scripts have no dependencies, so there is nothing to
+# install.
+name: Website tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Spec, models and end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # llms-full.txt's own examples and claims, against the published checker.
+      - name: Specification
+        run: node scripts/check-spec.mjs
+
+      # Every published model, through the runner the specification tells a
+      # language model to use.
+      - name: Models
+        run: |
+          for f in guide/models/*.eml.mmd; do
+            echo "── $f"
+            node guide/check-model.mjs "$f"
+          done
+
+      # And through the *other* published runner — the checklist audit. A model
+      # can pass the step above with 0 errors and 0 warnings and still be
+      # missing half the language: no state machine, no access rules, a
+      # reference column that forgot its FK modifier, help that restates the
+      # column's own name. Every published model is meant to be a worked
+      # example, so every one of them scores 22/22 or this fails.
+      - name: Models are finished, not merely valid
+        run: |
+          for f in guide/models/*.eml.mmd; do
+            echo "── $f"
+            node guide/audit-model.mjs "$f" --base guide/
+          done
+
+      # The audit has to still bite. A scorer that passes everything is
+      # indistinguishable from one that ran nothing, and this one is published,
+      # so a vendored checker that stopped emitting EML151-EML153 would leave it
+      # silently toothless. A bare ERD the checker accepts must fail it.
+      - name: The audit fails an unfinished model
+        run: |
+          work=$(mktemp -d)
+          printf '%%%%meta name: Bare Erd\n%%%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n        string status\n    }\n' > "$work/bare-erd.mmd"
+          node guide/check-model.mjs "$work/bare-erd.mmd" --quiet
+          node guide/audit-model.mjs "$work/bare-erd.mmd" --base guide/ --quiet && \
+            { echo "expected the audit to fail a model with no rbac, no workflow and no help"; exit 1; } || true
+
+      # The one-file checker carries checker.js, fixer.js and both runners
+      # compressed inside it. Re-vendoring the validators without rebuilding it
+      # would publish a single file that disagrees with the four beside it —
+      # and nothing about the page would look wrong.
+      - name: One-file checker is current
+        run: node scripts/build-standalone-checker.mjs --check
+
+      # It has to actually run, not merely be up to date: in a directory of its
+      # own, with no other file to fall back to, and agreeing with the runners
+      # it carries — both of them, since it carries the audit as well.
+      - name: One-file checker runs standalone
+        run: |
+          work=$(mktemp -d)
+          cp guide/check-model-standalone.mjs "$work"/
+          cp guide/models/crm.eml.mmd "$work"/model.mmd
+          ( cd "$work" && node check-model-standalone.mjs model.mmd --quiet ) > "$work/one-file.txt"
+          node guide/check-model.mjs guide/models/crm.eml.mmd --quiet > "$work/three-file.txt"
+          diff "$work/one-file.txt" "$work/three-file.txt"
+          ( cd "$work" && node check-model-standalone.mjs model.mmd --audit --quiet ) > "$work/one-file-audit.txt"
+          node guide/audit-model.mjs guide/models/crm.eml.mmd --base guide/ --quiet > "$work/three-file-audit.txt"
+          diff "$work/one-file-audit.txt" "$work/three-file-audit.txt"
+          printf 'prose about a model, not a model\n' > "$work"/prose.mmd
+          ( cd "$work" && node check-model-standalone.mjs prose.mmd >/dev/null 2>&1 ) && \
+            { echo "expected exit 1 on an invalid model"; exit 1; } || true
+          ( cd "$work" && node check-model-standalone.mjs prose.mmd --audit >/dev/null 2>&1 ) && \
+            { echo "expected exit 1 from --audit on an invalid model"; exit 1; } || true
+
+      # The validators are also published inside pages, for a fetch layer that
+      # reads text/html and refuses application/javascript. Each page carries
+      # one file base64-encoded plus its SHA-256, so a stale page would hand
+      # somebody a checker that is subtly not the published one.
+      - name: Validator source pages are current
+        run: node scripts/build-validator-source-page.mjs --check
+
+      # "Current" is not "recoverable": the check above would pass just as
+      # happily on a page whose base64 decodes to nothing. This decodes each
+      # page the way a reader would, compares against the published file, checks
+      # the SHA-256 the page prints, and runs the reconstructed checker and
+      # audit in a directory holding nothing else.
+      - name: Validator source pages round-trip to the real bytes
+        run: node scripts/check-validator-source-pages.mjs
+
+      # Every figure the pages state about a model, against the model; every
+      # example offered, against what chapter 09 can select; and the vendored
+      # generator bundles, against the behaviour they are supposed to carry.
+      - name: Website end-to-end tests
+        run: node scripts/website-e2e.mjs

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Six items before AppWithAI is 1.0.0 — comprehensive testing, security assessment, product documentation, DeepSeek Harness integration, reporting application, and controlled external access to generated applications — followed by completely agentic application delivery.">
+  <meta name="keywords" content="AppWithAI, todo, roadmap, 1.0.0, testing, security testing, manual, DeepSeek Harness, external access, firewall, agentic workflows, autonomous app building, Cordis, subagents">
+  <title>Todo — The Road to 1.0.0</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/dark-theme.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="logo" aria-label="AppWithAI — home" title="AppWithAI — home">
+        <span class="logo-mark" aria-hidden="true">A</span>
+        <span class="logo-word">App<span class="logo-word-dim">With</span><span class="logo-word-ai">AI</span></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav" id="mainNav">
+        <ul class="nav-list">
+          <li><a href="justification.html" class="nav-link">Why AppWithAI</a></li>
+          <li><a href="try-it-yourself.html" class="nav-link active">Try It Yourself</a></li>
+          <li><a href="features.html" class="nav-link">Features</a></li>
+          <li><a href="how-it-works.html" class="nav-link">How It Works</a></li>
+          <li><a href="technology.html" class="nav-link">Technology</a></li>
+          <li><a href="guide/index.html" class="nav-link">Guide</a></li>
+          <li><a href="pricing.html" class="nav-link">Pricing</a></li>
+          <li><a href="guide/run-in-browser.html" class="btn btn-accent" style="margin-right: var(--spacing-sm);">Live Demo</a></li>
+          <li><a href="contact.html" class="btn btn-primary">Get Started</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section" style="background: linear-gradient(135deg, var(--primary-700) 0%, var(--secondary-700) 100%); color: white; padding: var(--spacing-3xl) 0;">
+    <div class="container container-narrow">
+      <h1 style="color: white;">Todo</h1>
+      <p class="hero-subtitle" style="color: rgba(255,255,255,0.9);">
+        Six items remain before the <b>1.0.0</b> release. One follows it.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section-white">
+    <div class="container container-narrow">
+      <div class="section-header">
+        <h2>Before 1.0.0</h2>
+      </div>
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <span class="hero-badge">1</span>
+          <h3>Comprehensive test coverage</h3>
+          <p>End-to-end coverage of the generator, the modelling tool and the applications it produces.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="hero-badge">2</span>
+          <h3>Security assessment</h3>
+          <p>Access control, authentication, secrets handling and dependencies, audited across the platform and across generated applications.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="hero-badge">3</span>
+          <h3>Complete product documentation</h3>
+          <p>A full manual for the generator, from installation through to deployment.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="hero-badge">4</span>
+          <h3>DeepSeek Harness integration</h3>
+          <p>The complete generation pipeline running on the DeepSeek harness.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="hero-badge">5</span>
+          <h3>Reporting application</h3>
+          <p>
+            Complete testing of the enterprise reporting application, and its integration with
+            AppWithAI. Source:
+            <a href="https://github.com/businessappwithai/enterprise_reporting_tanstack" target="_blank" rel="noopener noreferrer">enterprise_reporting_tanstack</a>.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="hero-badge">6</span>
+          <h3>Controlled external access to generated applications</h3>
+          <p>
+            Enable selected parts of each generated application's URL space to be securely exposed to
+            the public internet through the customer's firewall, allowing authorised customers,
+            suppliers and other external users to interact with designated application functions.
+            External exposure will be limited to explicitly approved routes and services, with
+            authentication, authorisation, transport security and appropriate network controls applied
+            so that public access does not require exposing the application's internal services or
+            infrastructure.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="card mt-4" style="border-left: 4px solid var(--primary-500);">
+        <h3 style="margin-bottom: var(--spacing-xs);">These six constitute the 1.0.0 release</h3>
+        <p class="text-sm text-muted" style="margin: 0;">
+          The repository currently reads 5.1.1. That number tracked releases rather than production
+          readiness, so 1.0.0 is a deliberate reset.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-gray">
+    <div class="container container-narrow">
+      <div class="section-header">
+        <h2>After 1.0.0</h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <span class="hero-badge">7</span>
+          <h3>Completely agentic workflows on the DeepSeek Harness</h3>
+          <p>
+            The whole path — business description, model, review, generated application, migrations,
+            tests, deployment — driven end to end by agents on
+            <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer">DeepSeek Harness</a>,
+            with the human at the review gate rather than at the keyboard.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-header mt-5">
+        <h3>How that would be built</h3>
+        <p class="section-subtitle">
+          Item 4 puts the existing pipeline <em>on</em> the harness. This item makes the pipeline
+          <em>agentic</em>: the harness supplies the loop, the delegation and the sandbox, and
+          AppWithAI supplies the tools and the standards those agents are held to.
+        </p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h4>Ship a bundle, not a fork</h4>
+          <p>
+            The harness is built on Cordis, where the model adapter, the tool registry, the session log
+            and the agent loop are all plugins on a shared context — there is no privileged core to
+            patch. AppWithAI mounts beside them as a bundle, so a harness release does not become a
+            merge.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>The pipeline becomes tools</h4>
+          <p>
+            Domain analysis, ERD design, the Application Dictionary and generation register on
+            <code>ctx.tools</code>, and so do the published validators — <code>checker.js</code> and
+            <code>fixer.js</code>. An agent then meets the same diagnostics a person does, and a model
+            that would fail the checker cannot reach code generation.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>The human gate stays a gate</h4>
+          <p>
+            Human-in-the-loop review of the model is step 3 of the pipeline and does not move. The
+            harness has <code>ask_user_question</code> for exactly this, plus approval gates on
+            operations that need explicit consent — autonomy up to the model, and a stop there.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>Delegation through the subagent seam</h4>
+          <p>
+            <code>ctx.subagents</code> is a swappable seam: spawn or fork in process, or delegate to an
+            external coding agent over ACP. One subagent per entity or module, and the harness's
+            <code>ralph</code> loop — fresh agent, same task, until it holds — to iterate on a
+            generated application until the checks are clean.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>Build it where it cannot reach the host</h4>
+          <p>
+            Filesystem and subprocess are seams too, with sandboxed providers alongside the local ones.
+            The generated application gets built, migrated and tested in that sandbox. This is the part
+            that makes unattended delivery safe rather than merely possible.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>Headless is a profile, and sessions are durable</h4>
+          <p>
+            The same composition boots as <code>web</code>, <code>headless</code> or <code>sdk</code>, so
+            a delivery can run from CI with no terminal attached. The session log is the authoritative
+            context and survives reloads, so a run that fails in its third hour resumes instead of
+            starting again.
+          </p>
+        </div>
+      </div>
+
+      <div class="card mt-4" style="border-left: 4px solid var(--accent-500);">
+        <h4 style="margin-bottom: var(--spacing-xs);">Why this is after 1.0.0 and not before it</h4>
+        <p class="text-sm text-muted" style="margin: 0;">
+          DeepSeek Harness is in developer preview under the MIT licence and expects
+          compatibility-breaking changes. Building the autonomous path on it is the right target and
+          the wrong thing to make a release depend on — so 1.0.0 is the pipeline running on the
+          harness, and this is the pipeline running itself.
+        </p>
+      </div>
+
+      <p class="text-sm text-muted mt-4">
+        Detailed scope and acceptance criteria for each item are maintained with the source:
+        <a href="https://github.com/businessappwithai/app-with-ai-tanstack/blob/main/ROADMAP.md" target="_blank" rel="noopener noreferrer">ROADMAP.md</a>.
+        The harness behaviour described above is taken from its own
+        <a href="https://github.com/deepseek-ai/deepseek-harness/tree/master/docs" target="_blank" rel="noopener noreferrer">architecture, agent-lifecycle, capability-seams and tool-catalog documentation</a>.
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3>AppWithAI</h3>
+          <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+        </div>
+        <div>
+          <h3>Product</h3>
+          <ul class="footer-links">
+            <li><a href="justification.html">Why AppWithAI</a></li>
+            <li><a href="try-it-yourself.html">Try It Yourself</a></li>
+            <li><a href="viewers/index.html">Model Viewer</a></li>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="technology.html">Technology</a></li>
+            <li><a href="guide/index.html">Build a CRM Guide</a></li>
+            <li><a href="todo.html">Todo</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Company</h3>
+          <ul class="footer-links">
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Legal</h3>
+          <ul class="footer-links">
+            <li><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/analytics.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
