@@ -1,6 +1,6 @@
 //! Background jobs — enqueue, list, cancel.
 //!
-//! Generated: 2026-10-01T09:31:28.550Z
+//! Generated: 2026-10-01T18:10:22.389Z
 //! Project: container-logistics
 //!
 //! These run under `workers.mode: ForegroundBlocking` (config/test.yaml), so an

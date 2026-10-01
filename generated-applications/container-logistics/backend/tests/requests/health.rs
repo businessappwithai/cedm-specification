@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T09:31:28.523Z
+//! Generated: 2026-10-01T18:10:22.326Z
 //! Project: container-logistics
 
 use serde_json::Value;
