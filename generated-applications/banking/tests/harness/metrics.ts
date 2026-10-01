@@ -17,7 +17,7 @@
  * single insert that fires one rule and two workflows is recorded as exactly
  * that, without the test having to know what the model declares.
  *
- * Generated: 2026-10-01T09:31:12.648Z
+ * Generated: 2026-10-01T16:10:32.747Z
  * Project: banking
  */
 

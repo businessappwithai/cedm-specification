@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-01T09:31:10.476Z
+//! Generated: 2026-10-01T16:10:30.404Z
 //! Project: banking
 //!
 //! Every other rules suite creates a rule through the API and then checks that

@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T09:31:10.489Z
+//! Generated: 2026-10-01T16:10:30.419Z
 //! Project: banking
 
 use serde_json::Value;
