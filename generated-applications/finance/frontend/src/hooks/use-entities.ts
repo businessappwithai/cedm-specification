@@ -1,13 +1,14 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-10-01T09:32:13.547Z
+ * Generated: 2026-10-01T21:51:18.849Z
  */
 
 import {
   useQuery,
   useMutation,
   useQueryClient,
+  type QueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import { apiClient, type PaginatedResponse, type ApiError } from '@/lib/api-client';
@@ -99,6 +100,21 @@ export interface TableMetadata {
 // ============================================================================
 // Query Keys
 // ============================================================================
+
+/**
+ * What every dropdown on screen was read from, marked stale so it is read from
+ * the API again: lookups (narrowed by the record's other values), custom
+ * endpoints, the dictionary's lists of values, the label shown on a read-only
+ * lookup, and the entity lists a lookup can be built on. A form's *Refresh*
+ * calls this beside re-reading the record, so a value added in another window
+ * or by another user is offered without leaving the page.
+ */
+export function refreshDropdowns(queryClient: QueryClient) {
+  for (const key of ['lookup', 'table-ref-custom', 'table-ref-view', 'ref-list', 'ref-lists']) {
+    queryClient.invalidateQueries({ queryKey: [key] });
+  }
+  queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
+}
 
 export const entityKeys = {
   all: ['entities'] as const,
