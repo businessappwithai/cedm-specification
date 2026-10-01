@@ -4,6 +4,8 @@ entity:
   kind: construction_entity
   extends: Project
   description: A project for planning and executing construction or civil engineering work.
+  ui:
+    icon: folder-kanban
   identity:
     key: constructionProjectId
     type: uuid

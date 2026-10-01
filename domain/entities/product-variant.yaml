@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_master_entity
   description: A sellable, purchasable, manufacturable, or stockable variation of a parent Product distinguished by governed option or attribute values while retaining the parent product family identity.
+  ui:
+    icon: package
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}

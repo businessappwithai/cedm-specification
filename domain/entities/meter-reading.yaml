@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: utility_transaction
   description: A measured reading recorded from a utility meter at a point in time.
+  ui:
+    icon: gauge
   identity:
     key: meterReadingId
     type: uuid

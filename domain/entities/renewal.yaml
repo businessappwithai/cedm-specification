@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: subscription_lifecycle
   description: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+  ui:
+    icon: table
   identity: {key: renewalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Renewal., businessMeaning: Identifies one governed Renewal record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

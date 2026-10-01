@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_adjustment_transaction_line
   description: A line on a CreditNote that records the specific quantity or monetary component being credited, its original InvoiceLine basis, optional CustomerReturnLine justification, transaction-time pricing and tax evidence, and resulting credit amount.
+  ui:
+    icon: credit-card
   identity: {key: creditNoteLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: creditNoteLineId

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: real_estate_entity
   description: A real estate asset or property managed, owned, leased, developed, or transacted by a business.
+  ui:
+    icon: home
   identity:
     key: propertyId
     type: uuid

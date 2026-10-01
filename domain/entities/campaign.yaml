@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: commercial_campaign
   description: A governed commercial marketing or outreach initiative targeting an audience over a defined period and measuring responses and outcomes.
+  ui:
+    icon: megaphone
   identity: {key: campaignId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: campaignId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Campaign., businessMeaning: Identifies one governed Campaign record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: mining_entity
   description: A geographic site at which mineral or natural-resource extraction activities occur.
+  ui:
+    icon: table
   identity:
     key: miningSiteId
     type: uuid

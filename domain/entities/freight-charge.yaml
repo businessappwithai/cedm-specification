@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_charge
   description: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
+  ui:
+    icon: table
   identity: {key: freightChargeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: freightChargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of FreightCharge., businessMeaning: Identifies one governed FreightCharge record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

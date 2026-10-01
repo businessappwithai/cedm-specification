@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: travel_entity
   description: A leg of a trip between an origin and destination using a transport or travel service.
+  ui:
+    icon: table
   identity:
     key: tripSegmentId
     type: uuid

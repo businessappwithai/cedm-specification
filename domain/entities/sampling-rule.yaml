@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_sampling_configuration
   description: A conditional rule within a SamplingPlan that determines eligible population ranges, sample quantity, and acceptance or rejection thresholds for a governed inspection scope.
+  ui:
+    icon: settings
   identity:
     key: samplingRuleId
     type: uuid

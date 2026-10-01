@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: human_capital_transaction
   description: A governed payroll run or employee payroll result that converts approved employment, attendance, leave, compensation, and statutory inputs into auditable gross-to-net obligations without treating payment as the payroll calculation itself.
+  ui:
+    icon: file-text
   identity: {key: payrollId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: payrollId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the payroll record., businessMeaning: Identifies one governed payroll calculation independently of employee and payment., usage: "Payroll processing, finance, audit, and integration.", relationshipContext: Root identity for payroll evidence., requiredMeaning: Required.}}

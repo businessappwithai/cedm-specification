@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_measurement_evidence
   description: A structured quantitative or categorical observation captured during a QualityInspection against a governed QualityPlanCharacteristic, preserving the observed value, unit, applicable criteria, method, and result as auditable evidence.
+  ui:
+    icon: badge-check
   identity: {key: qualityMeasurementId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: qualityMeasurementId
@@ -52,8 +54,25 @@ entity:
   - name: result
     type: enum
     required: true
-    values: [PASS, FAIL, CONDITIONAL, NOT_EVALUATED]
-    help: {summary: Evaluation of this measurement against its governing criterion., businessMeaning: States whether the individual observation satisfies the applicable requirement., usage: "Inspection completion, nonconformance and analytics.", relationshipContext: Contributes evidence to QualityInspection.result but does not replace it., workflowRole: Supplies structured evidence for the overall inspection decision., requiredMeaning: Required.}
+    values:
+    - PASS
+    - FAIL
+    - CONDITIONAL
+    - NOT_EVALUATED
+    help:
+      summary: Evaluation of this measurement against its governing criterion.
+      businessMeaning: States whether the individual observation satisfies the applicable requirement.
+      usage: Inspection completion, nonconformance and analytics.
+      relationshipContext: Contributes evidence to QualityInspection.result but does not replace it.
+      workflowRole: Supplies structured evidence for the overall inspection decision.
+      requiredMeaning: Required.
+      valueSemantics:
+        PASS: The result of the quality measurement is pass; set it when that is what the business means for this record.
+        FAIL: The result of the quality measurement is fail; set it when that is what the business means for this record.
+        CONDITIONAL: The result of the quality measurement is conditional; set it when that is what the business means for this
+          record.
+        NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for
+          this record.
   - name: measuredAt
     type: datetime
     required: true

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workforce_master
   description: A governed reusable definition of work responsibilities, qualifications, classification, and organizational role characteristics that may be instantiated by Positions and occupied through Employment.
+  ui:
+    icon: briefcase
   identity: {key: jobId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: Stable job-definition identity., businessMeaning: Identifies reusable work definition., usage: "Workforce planning, recruiting, position and compensation processes.", relationshipContext: Positions may reference Job., requiredMeaning: Required.}}

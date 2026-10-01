@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: agriculture_entity
   description: A defined agricultural land area managed as a production unit.
+  ui:
+    icon: table
   identity:
     key: farmFieldId
     type: uuid

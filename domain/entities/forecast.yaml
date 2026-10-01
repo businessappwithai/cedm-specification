@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_forecast
   description: A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting.
+  ui:
+    icon: table
   identity: {key: forecastId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: Stable Forecast identity., businessMeaning: Identifies the governed Forecast concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}

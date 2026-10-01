@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_transaction
   description: A balanced accounting entry that records the debit and credit consequences recognized by the accounting system for an originating business event such as an invoice, payment, credit note, supplier credit, supplier debit, receipt, bank adjustment, asset event, or other authorized transaction.
+  ui:
+    icon: book-open
   identity:
     key: journalEntryId
     type: uuid
@@ -28,8 +30,22 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, POSTED, REVERSED]
-    help: {summary: Accounting lifecycle state., usage: "Controls editing, posting, reporting and reversal permissions.", relationshipContext: "Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction statuses.", workflowRole: "DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting its effect.", requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - POSTED
+    - REVERSED
+    help:
+      summary: Accounting lifecycle state.
+      usage: Controls editing, posting, reporting and reversal permissions.
+      relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction
+        statuses.
+      workflowRole: DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting
+        its effect.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the journal entry is draft; set it when that is what the business means for this record.
+        POSTED: The status of the journal entry is posted; set it when that is what the business means for this record.
+        REVERSED: The status of the journal entry is reversed; set it when that is what the business means for this record.
   - name: description
     type: string
     required: false

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: project_management_entity
   description: A temporary or ongoing coordinated initiative with defined objectives, scope, resources, and outcomes.
+  ui:
+    icon: folder-kanban
   identity:
     key: projectId
     type: uuid

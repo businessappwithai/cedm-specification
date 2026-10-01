@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_issue
   description: A recorded deviation from a requirement, specification, procedure, or expected result, including supplier defects discovered during receipt inspection or supplier-return processing and requiring containment, disposition, corrective action, claim, or other controlled response.
+  ui:
+    icon: table
   identity: {key: nonconformanceId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: nonconformanceId
@@ -19,14 +21,48 @@ entity:
   - name: severity
     type: enum
     required: true
-    values: [LOW, MEDIUM, HIGH, CRITICAL]
-    help: {summary: Business severity of the deviation., businessMeaning: Indicates impact and urgency., usage: "Prioritization, containment and escalation.", workflowRole: Determines response urgency., requiredMeaning: Required.}
+    values:
+    - LOW
+    - MEDIUM
+    - HIGH
+    - CRITICAL
+    help:
+      summary: Business severity of the deviation.
+      businessMeaning: Indicates impact and urgency.
+      usage: Prioritization, containment and escalation.
+      workflowRole: Determines response urgency.
+      requiredMeaning: Required.
+      valueSemantics:
+        LOW: The severity of the nonconformance is low; set it when that is what the business means for this record.
+        MEDIUM: The severity of the nonconformance is medium; set it when that is what the business means for this record.
+        HIGH: The severity of the nonconformance is high; set it when that is what the business means for this record.
+        CRITICAL: The severity of the nonconformance is critical; set it when that is what the business means for this record.
   - name: status
     type: enum
     required: true
     default: OPEN
-    values: [OPEN, UNDER_REVIEW, CONTAINED, CORRECTIVE_ACTION, CLOSED, REJECTED]
-    help: {summary: Lifecycle state of the quality issue., businessMeaning: "Indicates investigation, containment, corrective action and closure.", usage: Quality management and audit., workflowRole: Controls allowed responses and closure., requiredMeaning: Required.}
+    values:
+    - OPEN
+    - UNDER_REVIEW
+    - CONTAINED
+    - CORRECTIVE_ACTION
+    - CLOSED
+    - REJECTED
+    help:
+      summary: Lifecycle state of the quality issue.
+      businessMeaning: Indicates investigation, containment, corrective action and closure.
+      usage: Quality management and audit.
+      workflowRole: Controls allowed responses and closure.
+      requiredMeaning: Required.
+      valueSemantics:
+        OPEN: The status of the nonconformance is open; set it when that is what the business means for this record.
+        UNDER_REVIEW: The status of the nonconformance is under review; set it when that is what the business means for this
+          record.
+        CONTAINED: The status of the nonconformance is contained; set it when that is what the business means for this record.
+        CORRECTIVE_ACTION: The status of the nonconformance is corrective action; set it when that is what the business means
+          for this record.
+        CLOSED: The status of the nonconformance is closed; set it when that is what the business means for this record.
+        REJECTED: The status of the nonconformance is rejected; set it when that is what the business means for this record.
   - name: description
     type: string
     required: true

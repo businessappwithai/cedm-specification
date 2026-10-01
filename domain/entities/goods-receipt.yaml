@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: procurement_fulfillment_transaction
   description: A controlled record confirming physical or service fulfillment received against a PurchaseOrder, with line-level evidence of quantities received, accepted, rejected, pending inspection, and later eligible supplier returns. Header state and totals are projections of line-level receipt disposition and downstream posting state.
+  ui:
+    icon: file-text
   identity: {key: goodsReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: goodsReceiptId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt., businessMeaning: Identifies the historical receiving event independently of later supplier returns or corrections., usage: "Receiving, inventory, procurement, audit and reconciliation.", relationshipContext: SupplierReturn references eligible receipt evidence without rewriting this identity., workflowRole: Stable root reference for receipt lifecycle and downstream traceability., requiredMeaning: Required.}}
@@ -12,8 +14,30 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
-    help: {summary: Controlled receiving-document lifecycle state., businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory., usage: Controls receiving progression and authorized corrections., relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status., workflowRole: Controls receiving progression and authorized corrections.}
+    values:
+    - DRAFT
+    - RECEIVED
+    - INSPECTION_PENDING
+    - ACCEPTED
+    - PARTIALLY_ACCEPTED
+    - REJECTED
+    - CANCELLED
+    help:
+      summary: Controlled receiving-document lifecycle state.
+      businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory.
+      usage: Controls receiving progression and authorized corrections.
+      relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status.
+      workflowRole: Controls receiving progression and authorized corrections.
+      valueSemantics:
+        DRAFT: The status of the goods receipt is draft; set it when that is what the business means for this record.
+        RECEIVED: The status of the goods receipt is received; set it when that is what the business means for this record.
+        INSPECTION_PENDING: The status of the goods receipt is inspection pending; set it when that is what the business means
+          for this record.
+        ACCEPTED: The status of the goods receipt is accepted; set it when that is what the business means for this record.
+        PARTIALLY_ACCEPTED: The status of the goods receipt is partially accepted; set it when that is what the business means
+          for this record.
+        REJECTED: The status of the goods receipt is rejected; set it when that is what the business means for this record.
+        CANCELLED: The status of the goods receipt is cancelled; set it when that is what the business means for this record.
   - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Total quantity physically recorded as received., businessMeaning: Sum of line received quantities., usage: Receiving and audit., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis., requiredMeaning: Required.}}
   - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity accepted after receiving controls., businessMeaning: Sum of line accepted quantities that may become inventory., usage: "Inventory posting, PO fulfillment and invoice matching.", relationshipContext: SupplierReturnLine eligibility is normally based on accepted quantity and subsequent prior returns., workflowRole: Provides authoritative accepted receipt basis for later supplier returns., requiredMeaning: Required.}}
   - {name: notes, type: string, required: false, maxLength: 2000, help: {summary: Receiving notes and operational context., businessMeaning: Human-readable context for receipt exceptions or inspection., usage: Operations and audit., relationshipContext: Does not replace structured disposition or return evidence., workflowRole: Supports review., optionalMeaning: Optional.}}

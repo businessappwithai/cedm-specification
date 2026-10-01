@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: asset_maintenance_transaction
   description: A controlled assessment of the technical scope, expected cost, and commercial or operational disposition of maintenance work for a specific Container or other maintainable asset.
+  ui:
+    icon: file-text
   identity:
     key: repairEstimateId
     type: uuid

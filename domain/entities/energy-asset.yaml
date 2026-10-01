@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: energy_entity
   description: A physical asset used to generate, transmit, distribute, store, or consume energy.
+  ui:
+    icon: box
   identity:
     key: energyAssetId
     type: uuid

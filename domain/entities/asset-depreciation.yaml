@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_asset_entity
   description: A financial measurement and depreciation schedule for an Asset that determines how its depreciable value is recognized over time for a defined accounting or valuation context.
+  ui:
+    icon: box
   identity:
     key: assetDepreciationId
     type: uuid

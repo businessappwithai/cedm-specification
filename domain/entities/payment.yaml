@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_settlement_transaction
   description: A financial settlement event in which money is received or disbursed, with explicit monetary denomination, execution method, external clearing evidence, allocation to claims, accounting recognition, and controlled customer or supplier credit settlement linkage kept as separate business facts.
+  ui:
+    icon: credit-card
   identity: {key: paymentId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: paymentId
@@ -23,14 +25,46 @@ entity:
     - name: direction
       type: enum
       required: true
-      values: [RECEIPT, DISBURSEMENT]
-      help: {summary: Indicates whether the organization receives or disburses money., businessMeaning: Establishes cash-flow direction and payer/payee interpretation., usage: "Receivables, payables, treasury, accounting and refunds/credit settlements.", relationshipContext: Customer refund and supplier-credit refund/settlement payments are DISBURSEMENT events and never rewrite original receipt payments., workflowRole: Determines cash-flow and settlement path., requiredMeaning: Required.}
+      values:
+      - RECEIPT
+      - DISBURSEMENT
+      help:
+        summary: Indicates whether the organization receives or disburses money.
+        businessMeaning: Establishes cash-flow direction and payer/payee interpretation.
+        usage: Receivables, payables, treasury, accounting and refunds/credit settlements.
+        relationshipContext: Customer refund and supplier-credit refund/settlement payments are DISBURSEMENT events and never
+          rewrite original receipt payments.
+        workflowRole: Determines cash-flow and settlement path.
+        requiredMeaning: Required.
+        valueSemantics:
+          RECEIPT: The direction of the payment is receipt; set it when that is what the business means for this record.
+          DISBURSEMENT: The direction of the payment is disbursement; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
       default: DRAFT
-      values: [DRAFT, APPROVED, POSTED, CLEARED, VOID, REVERSED]
-      help: {summary: Lifecycle state of the payment event., businessMeaning: "Indicates authorization, internal recognition, external clearing, invalidation or reversal.", usage: "Controls execution, reconciliation, reporting and correction.", relationshipContext: "Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.", workflowRole: "APPROVED authorizes processing; POSTED recognizes internally; CLEARED confirms external evidence; VOID/REVERSED handle correction.", requiredMeaning: Required.}
+      values:
+      - DRAFT
+      - APPROVED
+      - POSTED
+      - CLEARED
+      - VOID
+      - REVERSED
+      help:
+        summary: Lifecycle state of the payment event.
+        businessMeaning: Indicates authorization, internal recognition, external clearing, invalidation or reversal.
+        usage: Controls execution, reconciliation, reporting and correction.
+        relationshipContext: Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.
+        workflowRole: APPROVED authorizes processing; POSTED recognizes internally; CLEARED confirms external evidence; VOID/REVERSED
+          handle correction.
+        requiredMeaning: Required.
+        valueSemantics:
+          DRAFT: The status of the payment is draft; set it when that is what the business means for this record.
+          APPROVED: The status of the payment is approved; set it when that is what the business means for this record.
+          POSTED: The status of the payment is posted; set it when that is what the business means for this record.
+          CLEARED: The status of the payment is cleared; set it when that is what the business means for this record.
+          VOID: The status of the payment is void; set it when that is what the business means for this record.
+          REVERSED: The status of the payment is reversed; set it when that is what the business means for this record.
     - name: amount
       type: Money
       required: true
@@ -44,8 +78,29 @@ entity:
     - name: paymentMethod
       type: enum
       required: true
-      values: [CASH, BANK_TRANSFER, CARD, CHEQUE, DIRECT_DEBIT, OTHER]
-      help: {summary: Mechanism through which payment is executed or received., businessMeaning: Describes how money moves rather than which obligation it settles., usage: "Execution, bank matching, treasury and reconciliation.", relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy., workflowRole: Determines expected settlement evidence., requiredMeaning: Required.}
+      values:
+      - CASH
+      - BANK_TRANSFER
+      - CARD
+      - CHEQUE
+      - DIRECT_DEBIT
+      - OTHER
+      help:
+        summary: Mechanism through which payment is executed or received.
+        businessMeaning: Describes how money moves rather than which obligation it settles.
+        usage: Execution, bank matching, treasury and reconciliation.
+        relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy.
+        workflowRole: Determines expected settlement evidence.
+        requiredMeaning: Required.
+        valueSemantics:
+          CASH: The payment method of the payment is cash; set it when that is what the business means for this record.
+          BANK_TRANSFER: The payment method of the payment is bank transfer; set it when that is what the business means for this
+            record.
+          CARD: The payment method of the payment is card; set it when that is what the business means for this record.
+          CHEQUE: The payment method of the payment is cheque; set it when that is what the business means for this record.
+          DIRECT_DEBIT: The payment method of the payment is direct debit; set it when that is what the business means for this
+            record.
+          OTHER: The payment method of the payment is other; set it when that is what the business means for this record.
     - name: valueDate
       type: date
       required: false

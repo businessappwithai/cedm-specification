@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: automotive_master_entity
   description: A manufacturer-defined model and configuration family for vehicles.
+  ui:
+    icon: car
   identity:
     key: vehicleModelId
     type: uuid

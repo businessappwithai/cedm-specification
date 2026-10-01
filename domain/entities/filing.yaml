@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_filing
   description: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
+  ui:
+    icon: table
   identity: {key: filingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Filing., businessMeaning: Identifies one governed Filing record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

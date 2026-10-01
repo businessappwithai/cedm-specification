@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: accounting_master
   description: A governed accounting book defining the scope in which journal entries are recorded and reported.
+  ui:
+    icon: book-open
   identity: {key: ledgerId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Ledger., businessMeaning: Identifies one governed Ledger record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

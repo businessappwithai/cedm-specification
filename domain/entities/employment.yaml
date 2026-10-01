@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workforce_relationship
   description: A time-bounded employment relationship between a person and an organization.
+  ui:
+    icon: table
   identity:
     key: employmentId
     type: uuid

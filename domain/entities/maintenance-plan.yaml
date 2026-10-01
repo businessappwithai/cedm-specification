@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_definition
   description: A preventive or condition-based maintenance schedule and policy.
+  ui:
+    icon: wrench
   identity:
     key: maintenancePlanId
     type: uuid

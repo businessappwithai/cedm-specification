@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_definition
   description: A defined set of inspections, tests, sampling rules, quality characteristics, and acceptance criteria governing how a product or process is evaluated.
+  ui:
+    icon: badge-check
   identity:
     key: qualityPlanId
     type: uuid

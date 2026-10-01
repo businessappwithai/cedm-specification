@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workflow_transaction
   description: A governed execution instance of a ProcessDefinition preserving the effective process version, business context, state, and audit history.
+  ui:
+    icon: file-text
   identity: {key: processInstanceId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: processInstanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessInstance., businessMeaning: Identifies one governed ProcessInstance record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}

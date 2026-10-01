@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: data_governance_entity
   description: A governed assessment of Dataset quality across completeness, validity, consistency, timeliness, and other declared dimensions.
+  ui:
+    icon: badge-check
   identity:
     key: dataQualityAssessmentId
     type: uuid

@@ -4,6 +4,8 @@ entity:
   kind: sustainability_entity
   description: A measured or calculated release of greenhouse gases or other environmental pollutants associated with a business
     activity or source.
+  ui:
+    icon: table
   identity:
     key: emissionId
     type: uuid

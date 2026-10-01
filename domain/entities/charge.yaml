@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: billing_transaction
   description: A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement.
+  ui:
+    icon: file-text
   identity: {key: chargeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: chargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Charge., businessMeaning: Identifies one governed Charge record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: integration_message
   description: A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence.
+  ui:
+    icon: table
   identity: {key: messageId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}

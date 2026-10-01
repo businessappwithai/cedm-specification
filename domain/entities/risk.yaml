@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_entity
   description: A potential event or condition that may affect achievement of business objectives.
+  ui:
+    icon: alert-triangle
   identity:
     key: riskId
     type: uuid

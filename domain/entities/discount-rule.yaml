@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: pricing_policy_entity
   description: A reusable commercial rule defining when and how a discount may reduce a qualifying price or transaction amount.
+  ui:
+    icon: percent
   identity: {key: discountRuleId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: discountRuleId
@@ -42,6 +44,9 @@ entity:
       usage: Determines whether the rule reduces an amount by a percentage or fixed monetary value.
       relationshipContext: FIXED_AMOUNT requires a currency context; PERCENTAGE is applied to an eligible monetary base.
       workflowRole: Supplies the calculation method used before tax determination and final transaction totals.
+      valueSemantics:
+        PERCENTAGE: The method of the discount rule is percentage; set it when that is what the business means for this record.
+        FIXED_AMOUNT: The method of the discount rule is fixed amount; set it when that is what the business means for this record.
   - name: value
     type: decimal
     required: true
@@ -80,6 +85,11 @@ entity:
       usage: Used by pricing and transaction validation.
       relationshipContext: Retiring a rule must not change discounts already recorded on historical transactions.
       workflowRole: Controls future applicability while preserving historical pricing evidence.
+      valueSemantics:
+        DRAFT: The status of the discount rule is draft; set it when that is what the business means for this record.
+        ACTIVE: The status of the discount rule is active; set it when that is what the business means for this record.
+        INACTIVE: The status of the discount rule is inactive; set it when that is what the business means for this record.
+        RETIRED: The status of the discount rule is retired; set it when that is what the business means for this record.
   relationships:
   - name: currencyRef
     target: Currency

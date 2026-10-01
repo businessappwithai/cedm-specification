@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: procurement_demand_transaction
   description: An internal procurement demand record through which a person or organizational unit requests goods or services before a PurchaseOrder is created or another approved sourcing outcome is selected.
+  ui:
+    icon: file-text
   identity:
     key: purchaseRequisitionId
     type: uuid

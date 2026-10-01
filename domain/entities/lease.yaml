@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: real_estate_commercial_entity
   description: A contractual arrangement granting a party rights to use a property or asset for a defined period and consideration.
+  ui:
+    icon: key-round
   identity:
     key: leaseId
     type: uuid

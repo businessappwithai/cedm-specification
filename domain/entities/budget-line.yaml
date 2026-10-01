@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_plan_line
   description: A dimensional allocation of planned money within a Budget.
+  ui:
+    icon: piggy-bank
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: Stable line identity., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget., requiredMeaning: Required.}}

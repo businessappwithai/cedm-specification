@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: billing_transaction
   description: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
+  ui:
+    icon: credit-card
   identity: {key: creditId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Credit., businessMeaning: Identifies one governed Credit record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

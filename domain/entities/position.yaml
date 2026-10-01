@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workforce_master_entity
   description: A defined organizational role with responsibilities, reporting structure, and staffing requirements.
+  ui:
+    icon: briefcase
   identity:
     key: positionId
     type: uuid

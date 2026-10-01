@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: research_sample_entity
   description: A governed physical or logical specimen, aliquot, material portion, or research sample collected, prepared, received, or derived for scientific investigation and traceability.
+  ui:
+    icon: flask-conical
   identity:
     key: sampleId
     type: uuid
@@ -40,6 +42,17 @@ entity:
       usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
       relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
       requiredMeaning: Required because handling and interpretation depend on sample classification.
+      valueSemantics:
+        SPECIMEN: The sample type of the sample is specimen; set it when that is what the business means for this record.
+        ALIQUOT: The sample type of the sample is aliquot; set it when that is what the business means for this record.
+        COMPOUND: The sample type of the sample is compound; set it when that is what the business means for this record.
+        MATERIAL: The sample type of the sample is material; set it when that is what the business means for this record.
+        BIOLOGICAL: The sample type of the sample is biological; set it when that is what the business means for this record.
+        CHEMICAL: The sample type of the sample is chemical; set it when that is what the business means for this record.
+        ENVIRONMENTAL: The sample type of the sample is environmental; set it when that is what the business means for this record.
+        CONTROL: The sample type of the sample is control; set it when that is what the business means for this record.
+        REFERENCE: The sample type of the sample is reference; set it when that is what the business means for this record.
+        OTHER: The sample type of the sample is other; set it when that is what the business means for this record.
   - name: status
     type: enum
     required: true

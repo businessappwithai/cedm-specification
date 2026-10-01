@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: asset_master_entity
   description: A uniquely identifiable durable resource that an organization owns, leases, controls, or operates and manages as a business resource throughout an operational lifecycle.
+  ui:
+    icon: box
   identity:
     key: assetId
     type: uuid

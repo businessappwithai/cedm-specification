@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: insurance_transaction
   description: A request for payment or service under an insurance policy following a covered event.
+  ui:
+    icon: file-warning
   identity:
     key: insuranceClaimId
     type: uuid

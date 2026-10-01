@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: warehouse_execution_transaction
   description: A governed warehouse task selecting reserved inventory from storage for fulfillment, production, transfer, or other authorized demand without itself being the stock ledger.
+  ui:
+    icon: file-text
   identity: {key: pickingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: Stable pick-task identity., businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}

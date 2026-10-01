@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_party_role
   description: A person or organization authorized to provide healthcare services.
+  ui:
+    icon: database
   identity:
     key: providerId
     type: uuid

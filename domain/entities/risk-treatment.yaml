@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: risk_management_entity
   description: A governed treatment or response planned and executed to modify, accept, transfer, avoid, or monitor a Risk.
+  ui:
+    icon: alert-triangle
   identity:
     key: riskTreatmentId
     type: uuid

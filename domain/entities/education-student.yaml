@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: education_entity
   description: A learner enrolled or eligible for enrollment in an educational institution or program.
+  ui:
+    icon: graduation-cap
   identity:
     key: studentId
     type: uuid

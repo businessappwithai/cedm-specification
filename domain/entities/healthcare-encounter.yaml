@@ -4,6 +4,8 @@ entity:
   kind: healthcare_transaction
   description: A recorded interaction between a patient and healthcare provider or facility for evaluation, treatment, or
     service.
+  ui:
+    icon: file-text
   identity:
     key: encounterId
     type: uuid

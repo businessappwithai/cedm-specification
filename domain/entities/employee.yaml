@@ -4,6 +4,8 @@ entity:
   kind: party_role_specialization
   extends: PartyRole
   description: A person engaged by an organization as an employee.
+  ui:
+    icon: user-check
   identity:
     key: employeeId
     type: uuid

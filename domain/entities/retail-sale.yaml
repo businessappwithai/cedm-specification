@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: retail_transaction
   description: A point-of-sale retail transaction.
+  ui:
+    icon: file-text
   identity:
     key: retailSaleId
     type: uuid

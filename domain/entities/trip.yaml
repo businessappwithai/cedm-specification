@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: travel_entity
   description: A planned or completed journey involving one or more travelers, locations, bookings, or transport segments.
+  ui:
+    icon: table
   identity:
     key: tripId
     type: uuid

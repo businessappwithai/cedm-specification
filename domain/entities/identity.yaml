@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: security_identity_entity
   description: An authentication identity or credential-bearing representation associated with a user or principal.
+  ui:
+    icon: table
   identity:
     key: identityId
     type: uuid

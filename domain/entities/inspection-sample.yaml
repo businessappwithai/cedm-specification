@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_sampling_transaction
   description: A recorded selection of one or more units, portions, or specimens from an inspection population for execution of governed QualityMeasurements under a SamplingPlan and SamplingRule.
+  ui:
+    icon: clipboard-check
   identity:
     key: inspectionSampleId
     type: uuid

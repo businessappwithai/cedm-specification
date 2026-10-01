@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: A vertical stacking level within a YardBay that establishes stack height, access dependencies, and the vertical context for one or more atomic container storage positions.
+  ui:
+    icon: table
   identity:
     key: yardTierId
     type: uuid

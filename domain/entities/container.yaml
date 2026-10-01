@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_asset
   description: A reusable intermodal freight container identified and managed as a physical equipment asset across terminals, depots, vessels, rail, road, customer operations, maintenance, leasing, and commercial disposition.
+  ui:
+    icon: database
   identity:
     key: containerId
     type: uuid

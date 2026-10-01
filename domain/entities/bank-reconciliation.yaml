@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: treasury_reconciliation
   description: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
+  ui:
+    icon: table
   identity: {key: bankReconciliationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: bankReconciliationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BankReconciliation., businessMeaning: Identifies one governed BankReconciliation record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: agriculture_master_entity
   description: A crop or cultivated plant category managed within an agricultural operation.
+  ui:
+    icon: sprout
   identity:
     key: cropId
     type: uuid

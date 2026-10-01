@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: A major operational subdivision of a container yard used to organize storage capacity, group bays, apply common handling rules, and support yard planning and optimization.
+  ui:
+    icon: table
   identity:
     key: yardBlockId
     type: uuid

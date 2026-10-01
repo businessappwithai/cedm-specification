@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: crm_activity
   description: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
+  ui:
+    icon: activity
   identity: {key: activityId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: activityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Activity., businessMeaning: Identifies one governed Activity record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: crm_entity
   description: A prospective customer or business opportunity before qualification.
+  ui:
+    icon: target
   identity:
     key: leadId
     type: uuid

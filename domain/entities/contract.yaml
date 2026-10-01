@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_commercial_entity
   description: A legally or commercially binding agreement between parties defining rights, obligations, terms, and conditions.
+  ui:
+    icon: file-check
   identity:
     key: contractId
     type: uuid

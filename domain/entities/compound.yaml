@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: life_sciences_entity
   description: A chemical or biological substance investigated for scientific, pharmaceutical, or industrial purposes.
+  ui:
+    icon: flask-conical
   identity:
     key: compoundId
     type: uuid

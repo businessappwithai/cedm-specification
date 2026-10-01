@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: transaction_line
   description: A line-level receiving event that records received, accepted, rejected and pending quantities for a PurchaseOrderLine, preserving exact evidence used for fulfillment, inventory posting, quality decisions, invoice matching and later supplier-return eligibility.
+  ui:
+    icon: list
   identity: {key: goodsReceiptLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: goodsReceiptLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt line., businessMeaning: Identifies original receipt evidence independently of later supplier returns., usage: "Receiving, inventory, matching, returns and audit.", relationshipContext: SupplierReturnLine references this evidence without modifying it., workflowRole: Stable line-level traceability., requiredMeaning: Required.}}

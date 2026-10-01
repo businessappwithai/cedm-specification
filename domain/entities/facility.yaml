@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: facilities_entity
   description: A physical facility, building, site, or managed space used for business operations.
+  ui:
+    icon: building
   identity:
     key: facilityId
     type: uuid

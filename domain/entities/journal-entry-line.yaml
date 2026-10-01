@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_transaction_line
   description: A debit or credit line within a journal entry.
+  ui:
+    icon: book-open
   identity:
     key: journalEntryLineId
     type: uuid

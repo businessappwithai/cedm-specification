@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_plan
   description: A governed financial plan defining approved or proposed monetary limits and targets for an organization, period, scenario, and accounting dimensions.
+  ui:
+    icon: piggy-bank
   identity: {key: budgetId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}

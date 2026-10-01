@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: hospitality_transaction
   description: A reservation for accommodation or hospitality services.
+  ui:
+    icon: calendar-check
   identity:
     key: hotelReservationId
     type: uuid

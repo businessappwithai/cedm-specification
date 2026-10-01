@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_case_management
   description: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
+  ui:
+    icon: table
   identity: {key: legalMatterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: legalMatterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalMatter., businessMeaning: Identifies one governed LegalMatter record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

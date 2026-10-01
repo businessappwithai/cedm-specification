@@ -4,6 +4,8 @@ entity:
   kind: process_industry_entity
   description: A traceable batch of chemical or process-industry material produced, received, or processed under controlled
     conditions.
+  ui:
+    icon: table
   identity:
     key: chemicalBatchId
     type: uuid

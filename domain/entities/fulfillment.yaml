@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: sales_fulfillment
   description: A governed orchestration record connecting sales demand to reservation, picking, packing, shipment, delivery, and completion evidence.
+  ui:
+    icon: table
   identity: {key: fulfillmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: fulfillmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Fulfillment., businessMeaning: Identifies one governed Fulfillment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

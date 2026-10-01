@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: value_object
   description: A monetary value consisting of an amount and its Currency, with explicit semantic context for pricing, taxation, discounting, invoicing, payment, banking, and accounting.
+  ui:
+    icon: table
   identity:
     key: null
     type: value_object
@@ -43,6 +45,10 @@ entity:
       relationshipContext: Currency supplies default decimalPlaces, while a transaction or accounting policy may require stricter precision.
       workflowRole: Prevents silent precision changes during pricing, tax, allocation, conversion, and posting.
       optionalMeaning: Optional when the consuming process has an unambiguous global precision policy.
+      valueSemantics:
+        CURRENCY_STANDARD: The scale policy of the money is currency standard; set it when that is what the business means for this record.
+        TRANSACTION_DEFINED: The scale policy of the money is transaction defined; set it when that is what the business means for this record.
+        ACCOUNTING_DEFINED: The scale policy of the money is accounting defined; set it when that is what the business means for this record.
   invariants:
   - id: MONEY-001
     rule: currencyId is required for every Money value.

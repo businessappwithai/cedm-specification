@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_reference
   description: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
+  ui:
+    icon: percent
   identity: {key: taxCodeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxCode., businessMeaning: Identifies one governed TaxCode record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

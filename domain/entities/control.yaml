@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_entity
   description: A policy, procedure, mechanism, or activity designed to prevent, detect, or reduce a business risk.
+  ui:
+    icon: sliders-horizontal
   identity:
     key: controlId
     type: uuid

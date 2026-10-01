@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: warehouse_execution_transaction
   description: A governed warehouse task grouping picked goods into HandlingUnits and preparing them for shipment while preserving line, lot, serial, quantity, and package traceability.
+  ui:
+    icon: file-text
   identity: {key: packingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: Stable packing-task identity., businessMeaning: Identifies one governed packaging execution., usage: "Fulfillment, labeling, shipment preparation and audit.", relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}

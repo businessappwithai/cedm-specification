@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: A managed container-yard facility in which containers and other equipment are received, stored, positioned, inspected, repaired, dispatched, and transferred through a defined physical storage hierarchy.
+  ui:
+    icon: table
   identity:
     key: yardId
     type: uuid

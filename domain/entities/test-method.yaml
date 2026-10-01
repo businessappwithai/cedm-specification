@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_test_definition
   description: A governed reusable procedure for producing quality observations, including method identity, lifecycle, instructions, and applicability.
+  ui:
+    icon: flask-conical
   identity: {key: testMethodId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the governed test method., businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence., requiredMeaning: Required.}}

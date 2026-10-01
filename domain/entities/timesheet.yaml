@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: professional_services_transaction
   description: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
+  ui:
+    icon: clock
   identity:
     key: timesheetId
     type: uuid

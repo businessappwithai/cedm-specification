@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: industry_specialization
   description: A person receiving or eligible to receive healthcare services.
+  ui:
+    icon: heart-pulse
   identity:
     key: patientId
     type: uuid

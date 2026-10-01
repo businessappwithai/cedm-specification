@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: document_governance
   description: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
+  ui:
+    icon: file-text
   identity: {key: documentClassificationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentClassification., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

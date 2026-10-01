@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: project_management_entity
   description: A significant planned achievement or checkpoint within a project or process.
+  ui:
+    icon: table
   identity:
     key: milestoneId
     type: uuid

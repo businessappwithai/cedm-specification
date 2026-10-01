@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_output_transaction
   description: An auditable manufacturing output receipt recording accepted quantity produced by a ManufacturingWorkOrder, with inventory increase represented by attributable InventoryMovement and output genealogy preserved by Lot/SerialNumber.
+  ui:
+    icon: package
   identity: {key: productionReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productionReceiptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of production receipt., businessMeaning: Identifies one governed output posting., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Connects work-order output to stock event., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: public_sector_entity
   description: A government case representing an application, request, investigation, benefit, permit, or public-service matter.
+  ui:
+    icon: briefcase
   identity:
     key: governmentCaseId
     type: uuid

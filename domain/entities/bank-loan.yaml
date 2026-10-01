@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: banking_entity
   description: A credit facility under which a financial institution advances funds to a borrower subject to repayment terms.
+  ui:
+    icon: banknote
   identity:
     key: loanId
     type: uuid

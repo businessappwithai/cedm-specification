@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_reference_master
   description: A governed commercial or manufacturer brand identity associated with Products and ProductVariants for catalog, sourcing, sales, service, and reporting.
+  ui:
+    icon: list
   identity: {key: brandId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: Stable brand identity., businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants., requiredMeaning: Required.}}

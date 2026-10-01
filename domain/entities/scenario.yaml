@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: planning_reference
   description: A governed planning assumption set used to distinguish alternative budgets and forecasts without altering actual business transactions.
+  ui:
+    icon: list
   identity: {key: scenarioId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: scenarioId, type: uuid, required: true, immutable: true, help: {summary: Stable scenario identity., businessMeaning: Identifies one planning assumption set., usage: Budget/forecast comparison., relationshipContext: Referenced by planning artifacts., requiredMeaning: Required.}}

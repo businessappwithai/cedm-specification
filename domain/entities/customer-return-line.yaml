@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reverse_fulfillment_transaction_line
   description: A line within a CustomerReturn recording the quantity returned against a prior SalesOrderLine or fulfillment evidence and its inspection/disposition result. It is the quantity-level bridge to inventory and financial adjustment workflows.
+  ui:
+    icon: user-round
   identity: {key: customerReturnLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: customerReturnLineId
@@ -102,6 +104,13 @@ entity:
       relationshipContext: Distinct from return reason and financial credit reason.
       workflowRole: Determines authoritative InventoryMovement or downstream workflow.
       requiredMeaning: Required to prevent ambiguous physical treatment.
+      valueSemantics:
+        PENDING: The disposition of the customer return line is pending; set it when that is what the business means for this record.
+        RESTOCK: The disposition of the customer return line is restock; set it when that is what the business means for this record.
+        QUARANTINE: The disposition of the customer return line is quarantine; set it when that is what the business means for this record.
+        REPAIR: The disposition of the customer return line is repair; set it when that is what the business means for this record.
+        SCRAP: The disposition of the customer return line is scrap; set it when that is what the business means for this record.
+        MIXED: The disposition of the customer return line is mixed; set it when that is what the business means for this record.
   - name: approvedCreditAmount
     type: Money
     required: false

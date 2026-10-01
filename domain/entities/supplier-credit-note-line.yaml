@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_adjustment_transaction_line
   description: A detailed supplier credit component preserving the original invoice-line evidence, credited quantity, price, discount and tax used to calculate a payable reduction.
+  ui:
+    icon: factory
   identity: {key: supplierCreditNoteLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierCreditNoteLineId

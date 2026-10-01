@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: education_transaction
   description: A student's formal registration in an educational program or course.
+  ui:
+    icon: file-text
   identity:
     key: enrollmentId
     type: uuid

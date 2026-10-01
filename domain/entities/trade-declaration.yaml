@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: international_trade_entity
   description: A formal customs or trade declaration describing goods crossing a jurisdictional border.
+  ui:
+    icon: table
   identity:
     key: tradeDeclarationId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_verification_transaction
   description: A controlled verification record that determines whether an implemented CorrectiveAction or PreventiveAction achieved its intended result and whether the associated quality issue can progress toward closure.
+  ui:
+    icon: file-text
   identity: {key: correctiveActionVerificationId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: correctiveActionVerificationId
@@ -23,14 +25,54 @@ entity:
   - name: result
     type: enum
     required: true
-    values: [EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_VERIFIABLE]
-    help: {summary: Outcome of effectiveness verification., businessMeaning: States whether the action achieved its intended quality outcome., usage: Controls corrective-action completion recurrence handling and escalation., relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence., workflowRole: Determines whether action may be completed or must be reopened., requiredMeaning: Required.}
+    values:
+    - EFFECTIVE
+    - PARTIALLY_EFFECTIVE
+    - INEFFECTIVE
+    - NOT_VERIFIABLE
+    help:
+      summary: Outcome of effectiveness verification.
+      businessMeaning: States whether the action achieved its intended quality outcome.
+      usage: Controls corrective-action completion recurrence handling and escalation.
+      relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence.
+      workflowRole: Determines whether action may be completed or must be reopened.
+      requiredMeaning: Required.
+      valueSemantics:
+        EFFECTIVE: The result of the corrective action verification is effective; set it when that is what the business means
+          for this record.
+        PARTIALLY_EFFECTIVE: The result of the corrective action verification is partially effective; set it when that is what
+          the business means for this record.
+        INEFFECTIVE: The result of the corrective action verification is ineffective; set it when that is what the business
+          means for this record.
+        NOT_VERIFIABLE: The result of the corrective action verification is not verifiable; set it when that is what the business
+          means for this record.
   - name: status
     type: enum
     required: true
     default: OPEN
-    values: [OPEN, IN_PROGRESS, COMPLETED, REOPENED, CANCELLED]
-    help: {summary: Lifecycle state of verification., businessMeaning: Separates preparation evaluation completion and follow-up., usage: Quality governance and audit., workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required., requiredMeaning: Required.}
+    values:
+    - OPEN
+    - IN_PROGRESS
+    - COMPLETED
+    - REOPENED
+    - CANCELLED
+    help:
+      summary: Lifecycle state of verification.
+      businessMeaning: Separates preparation evaluation completion and follow-up.
+      usage: Quality governance and audit.
+      workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required.
+      requiredMeaning: Required.
+      valueSemantics:
+        OPEN: The status of the corrective action verification is open; set it when that is what the business means for this
+          record.
+        IN_PROGRESS: The status of the corrective action verification is in progress; set it when that is what the business
+          means for this record.
+        COMPLETED: The status of the corrective action verification is completed; set it when that is what the business means
+          for this record.
+        REOPENED: The status of the corrective action verification is reopened; set it when that is what the business means
+          for this record.
+        CANCELLED: The status of the corrective action verification is cancelled; set it when that is what the business means
+          for this record.
   - name: findings
     type: string
     required: true

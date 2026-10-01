@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: identity_entity
   description: A digital identity representing an individual or system principal that can authenticate and act within an application.
+  ui:
+    icon: user
   identity:
     key: userId
     type: uuid

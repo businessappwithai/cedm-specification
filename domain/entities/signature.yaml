@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: document_signature
   description: A governed signature evidence record proving a signatory action over a specific document/version or business transaction.
+  ui:
+    icon: table
   identity: {key: signatureId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: signatureId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Signature., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

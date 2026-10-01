@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supply_chain_entity
   description: A plan describing expected demand, supply, inventory, and replenishment actions over a planning horizon.
+  ui:
+    icon: table
   identity:
     key: supplyPlanId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_clinical_entity
   description: A clinical procedure performed or planned as part of healthcare delivery.
+  ui:
+    icon: table
   identity:
     key: procedureId
     type: uuid

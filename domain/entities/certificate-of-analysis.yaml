@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_certificate
   description: A governed certificate summarizing quality results for a product, lot, batch, receipt, shipment, or other controlled material context without replacing underlying inspection and measurement evidence.
+  ui:
+    icon: table
   identity: {key: certificateOfAnalysisId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: certificateOfAnalysisId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the certificate., businessMeaning: Identifies one issued quality certificate independently of its document number., usage: "Compliance, customer/supplier exchange, audit, and integration.", relationshipContext: Links certificate representation to source quality evidence., requiredMeaning: Required.}}

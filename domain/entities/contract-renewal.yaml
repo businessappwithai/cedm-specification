@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: contract_lifecycle
   description: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
+  ui:
+    icon: file-check
   identity: {key: contractRenewalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractRenewal., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

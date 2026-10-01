@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: trade_entity
   description: A declaration of goods and trade information submitted to a customs authority.
+  ui:
+    icon: table
   identity:
     key: customsDeclarationId
     type: uuid

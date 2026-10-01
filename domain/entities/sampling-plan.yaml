@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_sampling_definition
   description: A governed definition of how inspection samples are selected from an inspection scope, including sampling method, lot basis, sample size, and acceptance criteria.
+  ui:
+    icon: settings
   identity:
     key: samplingPlanId
     type: uuid

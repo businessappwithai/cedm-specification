@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: travel_transport_entity
   description: A scheduled or operational air transport service between locations.
+  ui:
+    icon: plane
   identity:
     key: flightId
     type: uuid

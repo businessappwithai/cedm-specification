@@ -3,11 +3,69 @@ entity:
   namespace: cedm.domain
   kind: inventory_master_entity
   description: A defined physical or logical stock-holding position inside a Warehouse or managed inventory network where quantities can be received, stored, staged, picked, reserved, counted, transferred, or controlled. Location lifecycle changes propagate to dependent inventory and execution workflows while preserving historical stock evidence.
+  ui:
+    icon: boxes
   identity: {key: inventoryLocationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryLocationId, type: uuid, required: true, immutable: true}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100}
-  - {name: locationType, type: enum, required: true, values: [RECEIVING, BIN, SHELF, RACK, FLOOR, PICK, STAGING, QUARANTINE, YARD_SLOT, OTHER]}
+  - name: inventoryLocationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: 'The inventory location id of the inventory location: an identifier the business records on it.'
+      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+        and reports.
+      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
+        on its own.
+      requiredMeaning: 'Required: a inventory location cannot be understood without its inventory location id.'
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: 'The code of the inventory location: a value the business records on it.'
+      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+        and reports.
+      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
+        on its own.
+      requiredMeaning: 'Required: a inventory location cannot be understood without its code.'
+  - name: locationType
+    type: enum
+    required: true
+    values:
+    - RECEIVING
+    - BIN
+    - SHELF
+    - RACK
+    - FLOOR
+    - PICK
+    - STAGING
+    - QUARANTINE
+    - YARD_SLOT
+    - OTHER
+    help:
+      summary: 'The location type of the inventory location: a value the business records on it.'
+      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+        and reports.
+      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
+        on its own.
+      requiredMeaning: 'Required: a inventory location cannot be understood without its location type.'
+      valueSemantics:
+        RECEIVING: The location type of the inventory location is receiving; set it when that is what the business means for
+          this record.
+        BIN: The location type of the inventory location is bin; set it when that is what the business means for this record.
+        SHELF: The location type of the inventory location is shelf; set it when that is what the business means for this record.
+        RACK: The location type of the inventory location is rack; set it when that is what the business means for this record.
+        FLOOR: The location type of the inventory location is floor; set it when that is what the business means for this record.
+        PICK: The location type of the inventory location is pick; set it when that is what the business means for this record.
+        STAGING: The location type of the inventory location is staging; set it when that is what the business means for this
+          record.
+        QUARANTINE: The location type of the inventory location is quarantine; set it when that is what the business means for
+          this record.
+        YARD_SLOT: The location type of the inventory location is yard slot; set it when that is what the business means for
+          this record.
+        OTHER: The location type of the inventory location is other; set it when that is what the business means for this record.
   - name: status
     type: enum
     required: true
@@ -18,12 +76,31 @@ entity:
       usage: Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging.
       relationshipContext: Status constrains future operations; it never deletes current balances or historical movements.
       workflowRole: Status changes trigger dependent-workflow validation before operational eligibility changes become effective.
-  - {name: capacity, type: decimal, required: false, precision: 20, scale: 4}
+      valueSemantics:
+        ACTIVE: The status of the inventory location is active; set it when that is what the business means for this record.
+        BLOCKED: The status of the inventory location is blocked; set it when that is what the business means for this record.
+        INACTIVE: The status of the inventory location is inactive; set it when that is what the business means for this record.
+  - name: capacity
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: 'The capacity of the inventory location: a number the business records on it.'
+      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+        and reports.
+      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
+        on its own.
   relationships:
   - name: warehouse
     target: Warehouse
     cardinality: '1'
     ownership: reference
+    help:
+      summary: Links a inventory location to warehouse, the warehouse it relates to.
+      usage: Chosen from the existing warehouse records when the inventory location is created or edited.
+      cardinalityMeaning: A inventory location has exactly one warehouse in this role.
+      context: Lets the inventory location be found from, and reported with, its warehouse.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*

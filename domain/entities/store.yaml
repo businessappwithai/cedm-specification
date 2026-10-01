@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: retail_entity
   description: A retail location through which products or services are offered to customers.
+  ui:
+    icon: table
   identity:
     key: storeId
     type: uuid

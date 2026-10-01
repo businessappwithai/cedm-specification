@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: insurance_entity
   description: A contract providing defined insurance coverage in exchange for premium obligations.
+  ui:
+    icon: shield
   identity:
     key: insurancePolicyId
     type: uuid

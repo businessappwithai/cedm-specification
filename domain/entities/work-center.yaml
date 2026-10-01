@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_resource_master
   description: A governed manufacturing capacity resource or resource group where production operations are scheduled and executed.
+  ui:
+    icon: database
   identity: {key: workCenterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}

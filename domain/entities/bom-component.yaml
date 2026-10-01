@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_detail_entity
   description: A component line within a bill of material defining a required product or material quantity.
+  ui:
+    icon: table
   identity:
     key: bomComponentId
     type: uuid

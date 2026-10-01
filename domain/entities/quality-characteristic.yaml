@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_definition
   description: A reusable definition of a measurable or observable quality property, such as weight, temperature, dimension, purity, appearance, grade, or other acceptance characteristic. It defines the semantic nature of an observation; plan-specific limits and methods belong to QualityPlanCharacteristic.
+  ui:
+    icon: badge-check
   identity:
     key: qualityCharacteristicId
     type: uuid

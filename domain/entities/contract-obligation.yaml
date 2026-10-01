@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: legal_commercial_entity
   description: A specific obligation, commitment, deliverable, or condition arising from a contract.
+  ui:
+    icon: file-check
   identity:
     key: contractObligationId
     type: uuid

@@ -4,6 +4,8 @@ entity:
   kind: location_specialization
   extends: Location
   description: A managed physical or operational facility in which inventory is received, stored, controlled, picked, consolidated, and dispatched under defined warehouse processes.
+  ui:
+    icon: warehouse
   identity:
     key: warehouseId
     type: uuid

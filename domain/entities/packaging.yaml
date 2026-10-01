@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_packaging_master
   description: A governed packaging configuration defining how a Product or ProductVariant is contained, quantified, measured, labeled, and handled for procurement, storage, sale, and logistics.
+  ui:
+    icon: database
   identity: {key: packagingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: packagingId, type: uuid, required: true, immutable: true, help: {summary: Stable packaging identity., businessMeaning: Identifies one governed pack configuration., usage: "PIM, procurement, WMS, sales and logistics.", relationshipContext: References Product and quantity/UOM semantics., requiredMeaning: Required.}}

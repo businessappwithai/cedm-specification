@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: ai_governance_entity
   description: An evaluation record assessing an AIModel against defined quality, safety, performance, or business criteria.
+  ui:
+    icon: table
   identity:
     key: aIEvaluationId
     type: uuid

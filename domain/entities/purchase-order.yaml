@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: procurement_transaction
   description: A formal procurement commitment issued by a buying organization to a Supplier for specified goods or services under agreed commercial and delivery conditions.
+  ui:
+    icon: shopping-cart
   identity: {key: purchaseOrderId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: purchaseOrderId

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: media_entity
   description: A digital or physical media work managed for creation, licensing, publication, or distribution.
+  ui:
+    icon: image
   identity:
     key: mediaContentId
     type: uuid

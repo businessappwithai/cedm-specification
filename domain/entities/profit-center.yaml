@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: management_accounting_dimension
   description: A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.
+  ui:
+    icon: table
   identity: {key: profitCenterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable ProfitCenter identity., businessMeaning: Identifies the governed ProfitCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}

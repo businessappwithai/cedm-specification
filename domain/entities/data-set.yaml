@@ -4,6 +4,8 @@ entity:
   kind: data_entity
   description: A governed collection of structured or unstructured data used for operations, analytics, reporting, research,
     or AI.
+  ui:
+    icon: table
   identity:
     key: datasetId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: industrial_transaction
   description: A recorded quantity of output produced or extracted by an operational process.
+  ui:
+    icon: package
   identity:
     key: productionRecordId
     type: uuid

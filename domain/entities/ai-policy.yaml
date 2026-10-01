@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: ai_governance_entity
   description: A governed policy defining constraints, approvals, controls, and permitted use for AI models and predictions.
+  ui:
+    icon: shield
   identity:
     key: aIPolicyId
     type: uuid

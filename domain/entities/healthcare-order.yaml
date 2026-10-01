@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_transaction
   description: A clinical or operational order issued within healthcare for a test, medication, procedure, service, or other governed action.
+  ui:
+    icon: shopping-cart
   identity:
     key: healthcareOrderId
     type: uuid

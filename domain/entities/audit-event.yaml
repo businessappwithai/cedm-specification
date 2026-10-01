@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: audit_event
   description: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
+  ui:
+    icon: activity
   identity: {key: auditEventId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: auditEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditEvent., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

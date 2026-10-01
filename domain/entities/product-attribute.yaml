@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: product_definition_master
   description: A governed reusable characteristic definition used to describe, classify, configure, search, or validate Products and ProductVariants.
+  ui:
+    icon: package
   identity: {key: productAttributeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: productAttributeId, type: uuid, required: true, immutable: true, help: {summary: Stable attribute-definition identity., businessMeaning: Identifies a reusable product characteristic independently of labels., usage: "PIM, variant configuration, search and integration.", relationshipContext: Attribute values are interpreted against this definition., requiredMeaning: Required.}}

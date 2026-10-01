@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_pharmaceutical_entity
   description: A medicinal product or therapeutic substance used or prescribed for a patient.
+  ui:
+    icon: table
   identity:
     key: medicationId
     type: uuid

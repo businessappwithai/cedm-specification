@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reverse_procurement_transaction
   description: An authorized return of previously received supplier goods that reverses or adjusts procurement fulfillment without deleting PurchaseOrder, GoodsReceipt, InventoryMovement, or supplier Invoice evidence.
+  ui:
+    icon: factory
   identity: {key: supplierReturnId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierReturnId
@@ -40,6 +42,14 @@ entity:
       relationshipContext: Return status does not itself reverse inventory or accounts payable.
       workflowRole: Coordinates dependent workflows without replacing InventoryMovement, QualityInspection or SupplierCreditNote evidence.
       requiredMeaning: Required for controlled lifecycle.
+      valueSemantics:
+        DRAFT: The status of the supplier return is draft; set it when that is what the business means for this record.
+        AUTHORIZED: The status of the supplier return is authorized; set it when that is what the business means for this record.
+        IN_TRANSIT: The status of the supplier return is in transit; set it when that is what the business means for this record.
+        RECEIVED_BY_SUPPLIER: The status of the supplier return is received by supplier; set it when that is what the business means for this record.
+        COMPLETED: The status of the supplier return is completed; set it when that is what the business means for this record.
+        CANCELLED: The status of the supplier return is cancelled; set it when that is what the business means for this record.
+        EXCEPTION: The status of the supplier return is exception; set it when that is what the business means for this record.
   - name: returnDate
     type: datetime
     required: true

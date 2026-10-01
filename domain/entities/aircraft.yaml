@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: aerospace_asset
   description: A powered or unpowered aircraft managed as an operational asset.
+  ui:
+    icon: database
   identity:
     key: aircraftId
     type: uuid

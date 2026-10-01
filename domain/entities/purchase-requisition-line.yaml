@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: transaction_line
   description: A specific internal procurement demand within a PurchaseRequisition, describing what the requester needs, how much is needed, when it is needed, and enough context for purchasing to source and convert the demand into an approved procurement commitment.
+  ui:
+    icon: list
   identity:
     key: purchaseRequisitionLineId
     type: uuid

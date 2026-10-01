@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: authorization_entity
   description: A fine-grained authorization capability governing an operation on a resource.
+  ui:
+    icon: key
   identity:
     key: permissionId
     type: uuid

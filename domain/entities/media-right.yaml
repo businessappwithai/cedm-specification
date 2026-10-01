@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: media_legal_entity
   description: A right, license, restriction, or usage entitlement associated with media content.
+  ui:
+    icon: image
   identity:
     key: mediaRightId
     type: uuid

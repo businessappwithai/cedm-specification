@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: sourcing_response_transaction
   description: A Supplier's governed commercial response to a RequestForQuotation, recording offered price, validity, delivery, and award state without itself creating a PurchaseOrder commitment.
+  ui:
+    icon: factory
   identity: {key: supplierQuotationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: supplierQuotationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the supplier response., businessMeaning: Identifies one offer independently of supplier document number and RFQ., usage: "Comparison, negotiation, award, and audit.", relationshipContext: Root identity for the offer., workflowRole: Preserves supplier response evidence., requiredMeaning: Required.}}

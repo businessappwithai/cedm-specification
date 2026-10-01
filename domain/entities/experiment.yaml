@@ -4,6 +4,8 @@ entity:
   kind: research_entity
   description: A controlled scientific investigation performed to evaluate a hypothesis, treatment, compound, process, or
     other research question.
+  ui:
+    icon: table
   identity:
     key: experimentId
     type: uuid

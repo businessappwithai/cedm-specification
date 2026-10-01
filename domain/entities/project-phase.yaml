@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: project_structure
   description: A governed stage of a Project used to group milestones, tasks, resources, costs, and delivery controls within a defined portion of the project lifecycle.
+  ui:
+    icon: folder-kanban
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}

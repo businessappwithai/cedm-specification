@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_transaction
   description: An authorized instruction for a patient to receive or use a medication or therapy.
+  ui:
+    icon: file-text
   identity:
     key: prescriptionId
     type: uuid

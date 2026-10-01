@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_transaction
   description: A governed production order authorizing manufacture, assembly, processing, or transformation of a Product using controlled material and process definitions.
+  ui:
+    icon: shopping-cart
   identity: {key: manufacturingWorkOrderId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: manufacturingWorkOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the production order., businessMeaning: Identifies one authorized manufacturing execution independently of its business number., usage: "Planning, execution, inventory, costing, quality, genealogy, and audit.", relationshipContext: "Root identity for material issues, output receipts and scrap.", requiredMeaning: Required.}}

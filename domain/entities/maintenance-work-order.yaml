@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_transaction
   description: A controlled instruction and execution record for inspecting, maintaining, correcting, or repairing an Asset, including the work required, responsible party, planned timing, and completion outcome.
+  ui:
+    icon: shopping-cart
   identity: {key: maintenanceWorkOrderId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: maintenanceWorkOrderId

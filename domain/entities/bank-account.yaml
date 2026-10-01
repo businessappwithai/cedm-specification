@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_master_entity
   description: A financial institution account maintained for a Party and used as the controlled account context for cash receipts, disbursements, bank transactions, reconciliation, treasury operations, and accounting.
+  ui:
+    icon: landmark
   identity:
     key: bankAccountId
     type: uuid

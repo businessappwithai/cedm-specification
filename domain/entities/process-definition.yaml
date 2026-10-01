@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: workflow_definition
   description: A versioned executable-neutral definition of a business process, its activities, transitions, assignments, controls, and completion semantics.
+  ui:
+    icon: settings
   identity: {key: processDefinitionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessDefinition., businessMeaning: Identifies one governed ProcessDefinition record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}

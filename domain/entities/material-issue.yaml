@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_material_transaction
   description: An auditable authorization and execution record for component material consumed or staged to a ManufacturingWorkOrder, with physical stock effect represented by attributable InventoryMovement.
+  ui:
+    icon: file-text
   identity: {key: materialIssueId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: materialIssueId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of material issue., businessMeaning: Identifies one governed production-consumption transaction., usage: "Inventory, manufacturing genealogy, costing, and audit.", relationshipContext: Links work order/BOM demand to stock movement., requiredMeaning: Required.}}

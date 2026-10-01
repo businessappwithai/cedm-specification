@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: risk_incident
   description: A governed record of an adverse, disruptive, security, operational, safety, compliance, or other risk event requiring response and analysis.
+  ui:
+    icon: table
   identity: {key: incidentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: incidentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Incident., businessMeaning: Identifies one governed Incident record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}

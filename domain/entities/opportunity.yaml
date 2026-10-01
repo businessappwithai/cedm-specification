@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: crm_entity
   description: A qualified potential commercial transaction.
+  ui:
+    icon: trending-up
   identity:
     key: opportunityId
     type: uuid

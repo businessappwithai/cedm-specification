@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supplier_financial_adjustment_transaction
   description: A formal buyer-issued financial debit raised against a supplier to increase recoverable supplier exposure for shortages, overcharges, penalties, service failures, damages, tax corrections, or other authorized commercial adjustments. It is separate from the supplier claim, claim resolution, original invoice, physical return, and cash settlement.
+  ui:
+    icon: factory
   identity: {key: supplierDebitNoteId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierDebitNoteId
@@ -24,8 +26,34 @@ entity:
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, DISPUTED, CANCELLED, REVERSED]
-    help: {summary: Lifecycle state of the supplier debit adjustment., businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal., usage: Controls posting payable reconciliation and supplier dispute workflows., relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence., workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling., requiredMeaning: Required.}
+    values:
+    - DRAFT
+    - APPROVED
+    - POSTED
+    - PARTIALLY_APPLIED
+    - FULLY_APPLIED
+    - DISPUTED
+    - CANCELLED
+    - REVERSED
+    help:
+      summary: Lifecycle state of the supplier debit adjustment.
+      businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal.
+      usage: Controls posting payable reconciliation and supplier dispute workflows.
+      relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence.
+      workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling.
+      requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
+        APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
+        POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
+        PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business
+          means for this record.
+        FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for
+          this record.
+        DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
+        CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this
+          record.
+        REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
   - name: currencyId
     type: reference
     target: Currency

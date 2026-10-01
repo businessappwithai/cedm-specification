@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: The atomic physical storage position in a structured container yard at which one container can be placed, reserved, or explicitly made unavailable, providing the final address used by yard execution and movement operations.
+  ui:
+    icon: table
   identity:
     key: yardSlotId
     type: uuid

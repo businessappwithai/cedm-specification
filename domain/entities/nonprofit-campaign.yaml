@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: nonprofit_entity
   description: A fundraising or public-interest campaign organized to achieve a defined funding or participation objective.
+  ui:
+    icon: megaphone
   identity:
     key: campaignId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_transaction_line
   description: An individual damage, repair, component, material, labor, or replacement requirement that forms part of a RepairEstimate's technical scope and financial evaluation.
+  ui:
+    icon: list
   identity:
     key: repairEstimateLineId
     type: uuid

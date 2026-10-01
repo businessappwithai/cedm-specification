@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: professional_services_entity
   description: A client engagement under which professional services are planned, delivered, measured, and billed.
+  ui:
+    icon: table
   identity:
     key: engagementId
     type: uuid

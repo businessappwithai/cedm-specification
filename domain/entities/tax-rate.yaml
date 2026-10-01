@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_reference
   description: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
+  ui:
+    icon: percent
   identity: {key: taxRateId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxRateId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRate., businessMeaning: Identifies one governed TaxRate record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

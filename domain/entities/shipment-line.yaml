@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_transaction_line
   description: A product-level quantity planned, dispatched, transported, delivered, or received within a Shipment, preserving commercial and inventory traceability without replacing InventoryMovement.
+  ui:
+    icon: truck
   identity: {key: shipmentLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: shipmentLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one shipment quantity line., businessMeaning: Identifies a logistics quantity independently of order and inventory events., usage: "Fulfillment, transport, tracking, claims, and audit.", relationshipContext: Bridges order lines and inventory movements., requiredMeaning: Required.}}

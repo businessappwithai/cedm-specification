@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reference_master_entity
   description: A standardized measurement definition used to give semantic meaning to quantities on products, sales orders, purchase orders, receipts, invoices, inventory, manufacturing, logistics, and service transactions. Changes to an active unit or its conversion definition are controlled because they can alter the interpretation of quantities across dependent workflows.
+  ui:
+    icon: list
   identity: {key: unitOfMeasureId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: unitOfMeasureId
@@ -56,6 +58,16 @@ entity:
         relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
         workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
         requiredMeaning: Required to establish dimensional compatibility.
+        valueSemantics:
+          QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
+          LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
+          AREA: The category of the unit of measure is area; set it when that is what the business means for this record.
+          VOLUME: The category of the unit of measure is volume; set it when that is what the business means for this record.
+          MASS: The category of the unit of measure is mass; set it when that is what the business means for this record.
+          TIME: The category of the unit of measure is time; set it when that is what the business means for this record.
+          COUNT: The category of the unit of measure is count; set it when that is what the business means for this record.
+          CURRENCY: The category of the unit of measure is currency; set it when that is what the business means for this record.
+          OTHER: The category of the unit of measure is other; set it when that is what the business means for this record.
     - name: conversionFactor
       type: decimal
       required: false
@@ -89,6 +101,10 @@ entity:
         relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
         workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
         requiredMeaning: Required for transaction eligibility.
+        valueSemantics:
+          ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
+          INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.
+          RETIRED: The status of the unit of measure is retired; set it when that is what the business means for this record.
   relationships:
     - name: baseUnit
       target: UnitOfMeasure

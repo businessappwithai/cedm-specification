@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: billing_control
   description: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
+  ui:
+    icon: table
   identity: {key: billingCycleId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: billingCycleId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BillingCycle., businessMeaning: Identifies one governed BillingCycle record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

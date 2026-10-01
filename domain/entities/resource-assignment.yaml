@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: project_transaction
   description: A governed assignment of a person, role, or resource to a Project with defined responsibility and allocation.
+  ui:
+    icon: file-text
   identity:
     key: resourceAssignmentId
     type: uuid

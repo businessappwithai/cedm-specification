@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: management_accounting_dimension
   description: A governed responsibility center used to assign and analyze costs independently of legal-account identity.
+  ui:
+    icon: calculator
   identity: {key: costCenterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: costCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable CostCenter identity., businessMeaning: Identifies the governed CostCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}

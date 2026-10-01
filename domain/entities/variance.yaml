@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_analysis
   description: A derived comparison between planned, forecast, or actual financial measures for a defined period and dimensional context.
+  ui:
+    icon: table
   identity: {key: varianceId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: Stable Variance identity., businessMeaning: Identifies the governed Variance concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_operation_definition
   description: A sequenced manufacturing process step defining work, resource assignment, standard time, and optional quality requirements within a Routing.
+  ui:
+    icon: settings
   identity: {key: operationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: operationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the operation definition., businessMeaning: Identifies one governed process step., usage: "Routing, scheduling, execution, and costing.", relationshipContext: Belongs to one Routing and normally uses a WorkCenter., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reference_master_entity
   description: A recognized monetary denomination used to give financial amounts their currency context across pricing, orders, invoices, payments, banking, settlements, and accounting.
+  ui:
+    icon: coins
   identity:
     key: currencyId
     type: uuid

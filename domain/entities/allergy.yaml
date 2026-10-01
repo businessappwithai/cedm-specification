@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_entity
   description: A governed patient allergy or intolerance record used to support clinical safety and treatment decisions.
+  ui:
+    icon: table
   identity:
     key: allergyId
     type: uuid

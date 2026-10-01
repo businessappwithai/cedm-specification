@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: iam_authorization
   description: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
+  ui:
+    icon: key
   identity: {key: accessGrantId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: accessGrantId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AccessGrant., businessMeaning: Identifies one governed AccessGrant record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}

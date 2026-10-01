@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: subscription_contract
   description: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
+  ui:
+    icon: repeat
   identity: {key: subscriptionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: subscriptionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Subscription., businessMeaning: Identifies one governed Subscription record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

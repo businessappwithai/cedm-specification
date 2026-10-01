@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: hospitality_entity
   description: A hospitality property providing accommodation and related services.
+  ui:
+    icon: bed
   identity:
     key: hotelId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_location
   description: A longitudinal storage lane within a YardBlock that groups the vertical stack positions used to store containers and provides an intermediate planning level between the block and an individual YardSlot.
+  ui:
+    icon: table
   identity:
     key: yardBayId
     type: uuid

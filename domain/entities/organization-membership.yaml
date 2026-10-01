@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: iam_membership
   description: A governed relationship connecting a User or Party to an Organization with membership status and role context.
+  ui:
+    icon: building-2
   identity: {key: organizationMembershipId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of OrganizationMembership., businessMeaning: Identifies one governed OrganizationMembership record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}

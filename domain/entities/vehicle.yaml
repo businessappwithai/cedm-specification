@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_asset
   description: A vehicle or transport equipment used to execute logistics movements.
+  ui:
+    icon: car
   identity:
     key: vehicleId
     type: uuid

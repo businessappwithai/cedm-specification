@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: crm_contact
   description: A governed business contact representing a Person in a customer, prospect, supplier, partner, or account relationship context.
+  ui:
+    icon: table
   identity: {key: contactId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contactId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Contact., businessMeaning: Identifies one governed Contact record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

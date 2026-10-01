@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_adjustment_transaction
   description: A formal financial adjustment that reduces a customer's receivable claim or otherwise credits an eligible original Invoice, preserving the original invoice as immutable historical evidence and recording the authorized reason, lines, tax, currency, accounting recognition, application, return linkage, and refund evidence.
+  ui:
+    icon: credit-card
   identity: {key: creditNoteId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: creditNoteId
@@ -32,6 +34,16 @@ entity:
       relationshipContext: CreditNote status is independent of Invoice, CustomerReturn, Payment and CreditNoteApplication status.
       workflowRole: POSTED establishes the financial adjustment; application reduces eligible outstanding receivable; refund states apply when money must be returned.
       requiredMeaning: Required.
+      valueSemantics:
+        DRAFT: The status of the credit note is draft; set it when that is what the business means for this record.
+        APPROVED: The status of the credit note is approved; set it when that is what the business means for this record.
+        POSTED: The status of the credit note is posted; set it when that is what the business means for this record.
+        PARTIALLY_APPLIED: The status of the credit note is partially applied; set it when that is what the business means for this record.
+        FULLY_APPLIED: The status of the credit note is fully applied; set it when that is what the business means for this record.
+        REFUND_DUE: The status of the credit note is refund due; set it when that is what the business means for this record.
+        REFUNDED: The status of the credit note is refunded; set it when that is what the business means for this record.
+        CANCELLED: The status of the credit note is cancelled; set it when that is what the business means for this record.
+        REVERSED: The status of the credit note is reversed; set it when that is what the business means for this record.
   - name: currencyId
     type: reference
     target: Currency

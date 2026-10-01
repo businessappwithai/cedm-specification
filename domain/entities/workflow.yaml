@@ -4,6 +4,8 @@ entity:
   kind: process_definition_entity
   description: A machine-executable or human-executable orchestration definition for coordinating business activities and
     decisions.
+  ui:
+    icon: settings
   identity:
     key: workflowId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_commercial_transaction
   description: A formal commercial document that records a financial claim for supplied goods, services, credits, debits, or adjustments and establishes the amount owed and settlement conditions. Credit notes and debit adjustments reduce or increase eligible claims through explicit financial adjustment evidence without mutating the original invoice history.
+  ui:
+    icon: receipt
   identity: {key: invoiceId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: invoiceId
@@ -59,6 +61,11 @@ entity:
         relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote or SupplierDebitNote is preferred for explicit financial adjustments.
         workflowRole: Controls which party, matching, tax, and settlement processes apply.
         requiredMeaning: Required for correct financial treatment.
+        valueSemantics:
+          SALES: The invoice type of the invoice is sales; set it when that is what the business means for this record.
+          PURCHASE: The invoice type of the invoice is purchase; set it when that is what the business means for this record.
+          CREDIT_NOTE: The invoice type of the invoice is credit note; set it when that is what the business means for this record.
+          DEBIT_NOTE: The invoice type of the invoice is debit note; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true

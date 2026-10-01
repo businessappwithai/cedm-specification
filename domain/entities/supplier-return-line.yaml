@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reverse_procurement_transaction_line
   description: A quantity-level supplier return detail linking previously accepted procurement fulfillment to the quantity being returned and its quality, inventory and financial consequences.
+  ui:
+    icon: factory
   identity: {key: supplierReturnLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: supplierReturnLineId
@@ -60,6 +62,10 @@ entity:
       relationshipContext: Distinct from the original GoodsReceipt acceptance status and any QualityInspection disposition.
       workflowRole: Controls whether the normal supplier-return workflow may proceed.
       requiredMeaning: Required for controlled physical processing.
+      valueSemantics:
+        RETURN_TO_SUPPLIER: The disposition of the supplier return line is return to supplier; set it when that is what the business means for this record.
+        REJECTED: The disposition of the supplier return line is rejected; set it when that is what the business means for this record.
+        EXCEPTION: The disposition of the supplier return line is exception; set it when that is what the business means for this record.
   relationships:
   - name: supplierReturn
     target: SupplierReturn

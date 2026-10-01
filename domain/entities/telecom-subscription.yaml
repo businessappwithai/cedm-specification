@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: telecommunications_entity
   description: A customer's subscription to a telecommunications service or plan.
+  ui:
+    icon: repeat
   identity:
     key: telecomSubscriptionId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_master
   description: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
+  ui:
+    icon: route
   identity: {key: routeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Route., businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

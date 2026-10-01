@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_transaction
   description: A recorded inspection or test performed against a quality requirement, including controlled sample selection, measurement, result, and disposition of received or returned goods.
+  ui:
+    icon: badge-check
   identity: {key: qualityInspectionId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: qualityInspectionId
@@ -24,18 +26,87 @@ entity:
     type: enum
     required: true
     default: OPEN
-    values: [OPEN, IN_PROGRESS, PASSED, FAILED, CONDITIONAL, CANCELLED]
-    help: {summary: Lifecycle state of inspection., businessMeaning: "Indicates whether inspection is pending, executing, completed with a result, or cancelled.", usage: Controls release and disposition workflows., relationshipContext: "Inspection status is independent of sample status, receipt/return status, and inventory state.", workflowRole: PASSED/FAILED/CONDITIONAL controls eligible disposition., requiredMeaning: Required.}
+    values:
+    - OPEN
+    - IN_PROGRESS
+    - PASSED
+    - FAILED
+    - CONDITIONAL
+    - CANCELLED
+    help:
+      summary: Lifecycle state of inspection.
+      businessMeaning: Indicates whether inspection is pending, executing, completed with a result, or cancelled.
+      usage: Controls release and disposition workflows.
+      relationshipContext: Inspection status is independent of sample status, receipt/return status, and inventory state.
+      workflowRole: PASSED/FAILED/CONDITIONAL controls eligible disposition.
+      requiredMeaning: Required.
+      valueSemantics:
+        OPEN: The status of the quality inspection is open; set it when that is what the business means for this record.
+        IN_PROGRESS: The status of the quality inspection is in progress; set it when that is what the business means for this
+          record.
+        PASSED: The status of the quality inspection is passed; set it when that is what the business means for this record.
+        FAILED: The status of the quality inspection is failed; set it when that is what the business means for this record.
+        CONDITIONAL: The status of the quality inspection is conditional; set it when that is what the business means for this
+          record.
+        CANCELLED: The status of the quality inspection is cancelled; set it when that is what the business means for this record.
   - name: result
     type: enum
     required: false
-    values: [PASS, FAIL, CONDITIONAL, NOT_TESTED]
-    help: {summary: Overall outcome of inspection or test., businessMeaning: "Records whether the inspected scope satisfies applicable requirements after evaluating relevant samples, measurements and other evidence.", usage: "Drives acceptance, rejection, quarantine, return, repair or release decisions.", relationshipContext: "May be derived from QualityMeasurement and InspectionSample evidence; it does not replace that evidence.", workflowRole: Supplies aggregate evidence for controlled disposition., optionalMeaning: Optional until testing is complete.}
+    values:
+    - PASS
+    - FAIL
+    - CONDITIONAL
+    - NOT_TESTED
+    help:
+      summary: Overall outcome of inspection or test.
+      businessMeaning: Records whether the inspected scope satisfies applicable requirements after evaluating relevant samples,
+        measurements and other evidence.
+      usage: Drives acceptance, rejection, quarantine, return, repair or release decisions.
+      relationshipContext: May be derived from QualityMeasurement and InspectionSample evidence; it does not replace that evidence.
+      workflowRole: Supplies aggregate evidence for controlled disposition.
+      optionalMeaning: Optional until testing is complete.
+      valueSemantics:
+        PASS: The result of the quality inspection is pass; set it when that is what the business means for this record.
+        FAIL: The result of the quality inspection is fail; set it when that is what the business means for this record.
+        CONDITIONAL: The result of the quality inspection is conditional; set it when that is what the business means for this
+          record.
+        NOT_TESTED: The result of the quality inspection is not tested; set it when that is what the business means for this
+          record.
   - name: disposition
     type: enum
     required: false
-    values: [RELEASE, ACCEPT, REJECT, QUARANTINE, RETURN_TO_SUPPLIER, REWORK, REPAIR, SCRAP, CONDITIONAL_RELEASE]
-    help: {summary: Controlled operational disposition resulting from inspection., businessMeaning: Defines what happens to inspected material after quality evaluation., usage: "Controls inventory availability, supplier return, repair, scrap and release processes.", relationshipContext: "RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted.", workflowRole: Converts quality result into an authorized physical disposition., optionalMeaning: Optional until a disposition decision is made.}
+    values:
+    - RELEASE
+    - ACCEPT
+    - REJECT
+    - QUARANTINE
+    - RETURN_TO_SUPPLIER
+    - REWORK
+    - REPAIR
+    - SCRAP
+    - CONDITIONAL_RELEASE
+    help:
+      summary: Controlled operational disposition resulting from inspection.
+      businessMeaning: Defines what happens to inspected material after quality evaluation.
+      usage: Controls inventory availability, supplier return, repair, scrap and release processes.
+      relationshipContext: RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until
+        an attributable InventoryMovement is posted.
+      workflowRole: Converts quality result into an authorized physical disposition.
+      optionalMeaning: Optional until a disposition decision is made.
+      valueSemantics:
+        RELEASE: The disposition of the quality inspection is release; set it when that is what the business means for this
+          record.
+        ACCEPT: The disposition of the quality inspection is accept; set it when that is what the business means for this record.
+        REJECT: The disposition of the quality inspection is reject; set it when that is what the business means for this record.
+        QUARANTINE: The disposition of the quality inspection is quarantine; set it when that is what the business means for
+          this record.
+        RETURN_TO_SUPPLIER: The disposition of the quality inspection is return to supplier; set it when that is what the business
+          means for this record.
+        REWORK: The disposition of the quality inspection is rework; set it when that is what the business means for this record.
+        REPAIR: The disposition of the quality inspection is repair; set it when that is what the business means for this record.
+        SCRAP: The disposition of the quality inspection is scrap; set it when that is what the business means for this record.
+        CONDITIONAL_RELEASE: The disposition of the quality inspection is conditional release; set it when that is what the
+          business means for this record.
   - name: notes
     type: string
     required: false

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_entity
   description: A governed plan of care defining goals, interventions, responsibilities, and follow-up for a patient.
+  ui:
+    icon: table
   identity:
     key: carePlanId
     type: uuid

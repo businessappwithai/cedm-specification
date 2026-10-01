@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: project_management_entity
   description: A work item contributing to delivery of a project objective or deliverable.
+  ui:
+    icon: folder-kanban
   identity:
     key: projectTaskId
     type: uuid

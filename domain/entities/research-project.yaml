@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: scientific_research_entity
   description: A structured scientific research initiative with defined objectives, resources, experiments, and outcomes.
+  ui:
+    icon: folder-kanban
   identity:
     key: researchProjectId
     type: uuid

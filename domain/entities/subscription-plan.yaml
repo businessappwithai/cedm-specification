@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: subscription_master
   description: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
+  ui:
+    icon: repeat
   identity: {key: subscriptionPlanId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: subscriptionPlanId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of SubscriptionPlan., businessMeaning: Identifies one governed SubscriptionPlan record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: subscription_usage
   description: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
+  ui:
+    icon: table
   identity: {key: usageRecordId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of UsageRecord., businessMeaning: Identifies one governed UsageRecord record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

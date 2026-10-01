@@ -4,6 +4,8 @@ entity:
   kind: regulatory_entity
   description: A formal submission made to a regulatory authority to obtain approval, authorization, registration, or fulfill
     a regulatory obligation.
+  ui:
+    icon: table
   identity:
     key: regulatorySubmissionId
     type: uuid

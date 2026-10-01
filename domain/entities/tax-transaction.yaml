@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_transaction
   description: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
+  ui:
+    icon: percent
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

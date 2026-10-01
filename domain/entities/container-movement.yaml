@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: logistics_transaction
   description: A traceable operational instruction and, once executed, historical event representing the movement of one specific shipping container between physical positions or transport states within a depot, terminal, port, workshop, yard, gate, or wider logistics network.
+  ui:
+    icon: file-text
   identity:
     key: containerMovementId
     type: uuid

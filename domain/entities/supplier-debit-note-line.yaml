@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supplier_financial_adjustment_transaction_line
   description: A line-level component of a SupplierDebitNote identifying the quantity, value, tax, reason, or other measurable basis for a buyer-issued supplier debit.
+  ui:
+    icon: factory
   identity: {key: supplierDebitNoteLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: supplierDebitNoteLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the supplier debit line., businessMeaning: Identifies one adjustment component independently of its parent debit note and source transactions., usage: Accounting reconciliation audit and integration., relationshipContext: Distinct from InvoiceLine SupplierClaim and SupplierReturnLine identities., workflowRole: Stable attribution for calculation and accounting., requiredMeaning: Required.}}

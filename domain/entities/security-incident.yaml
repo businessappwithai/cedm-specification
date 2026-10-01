@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: security_entity
   description: A recorded event or condition that may compromise confidentiality, integrity, availability, safety, or security.
+  ui:
+    icon: table
   identity:
     key: securityIncidentId
     type: uuid

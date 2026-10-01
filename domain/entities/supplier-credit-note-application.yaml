@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_settlement_adjustment
   description: An explicit application of a posted SupplierCreditNote against one eligible supplier Invoice payable claim, preserving the amount, currency, timing and reversal evidence used to reduce payable exposure without rewriting the original invoice.
+  ui:
+    icon: factory
   identity: {key: supplierCreditNoteApplicationId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: supplierCreditNoteApplicationId
@@ -33,8 +35,27 @@ entity:
       type: enum
       required: true
       default: ACTIVE
-      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
-      help: {summary: Lifecycle state of the supplier credit application., businessMeaning: Indicates whether the application currently reduces payable exposure., usage: Controls SupplierCreditNote and Invoice projections., relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts., workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event., requiredMeaning: Required.}
+      values:
+      - DRAFT
+      - ACTIVE
+      - REVERSED
+      - CANCELLED
+      help:
+        summary: Lifecycle state of the supplier credit application.
+        businessMeaning: Indicates whether the application currently reduces payable exposure.
+        usage: Controls SupplierCreditNote and Invoice projections.
+        relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts.
+        workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event.
+        requiredMeaning: Required.
+        valueSemantics:
+          DRAFT: The status of the supplier credit note application is draft; set it when that is what the business means for
+            this record.
+          ACTIVE: The status of the supplier credit note application is active; set it when that is what the business means for
+            this record.
+          REVERSED: The status of the supplier credit note application is reversed; set it when that is what the business means
+            for this record.
+          CANCELLED: The status of the supplier credit note application is cancelled; set it when that is what the business means
+            for this record.
     - name: reversalOfApplicationId
       type: reference
       target: SupplierCreditNoteApplication

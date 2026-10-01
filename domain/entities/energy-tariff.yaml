@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: utilities_entity
   description: A pricing schedule defining charges for consumption, demand, connection, or other utility services.
+  ui:
+    icon: zap
   identity:
     key: tariffId
     type: uuid

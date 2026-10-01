@@ -4,15 +4,81 @@ entity:
   kind: party_role_specialization
   extends: PartyRole
   description: A Party that is authorized or recognized to provide goods, services, materials, assets, or other business inputs under a sourcing or commercial relationship.
+  ui:
+    icon: factory
   identity: {key: supplierId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: supplierId, type: uuid, required: true, immutable: true, help: {summary: Immutable Supplier role identity., usage: Connects procurement purchase orders receipts invoices payments returns credits claims resolutions and supplier performance., relationshipContext: Supplier identifies the role while PartyRole and Party identify the underlying party., workflowRole: Preserves supplier traceability across procure-to-pay reverse procurement claim recovery and performance management., requiredMeaning: Required for stable supplier history.}}
   - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: PartyRole backing the Supplier specialization., usage: Navigates to common party identity and role information., relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows., requiredMeaning: Required for role specialization.}}
   - {name: supplierCode, type: string, required: true, unique: true, maxLength: 100, help: {summary: Enterprise supplier business reference., usage: Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations., relationshipContext: Distinct from legal name and external registration identifiers., workflowRole: Identifies the supplier across procurement settlement recovery and performance., requiredMeaning: Required for operational recognition.}}
-  - {name: supplierType, type: enum, required: false, values: [INDIVIDUAL, BUSINESS, GOVERNMENT, INTERNAL, OTHER], help: {summary: Classification of supplier relationship., usage: Supports onboarding compliance tax contracting and reporting., relationshipContext: Does not replace Party identity classification., workflowRole: Supplies supplier classification to procurement policy., optionalMeaning: Optional.}}
-  - {name: qualificationStatus, type: enum, required: false, values: [NOT_REVIEWED, PENDING, QUALIFIED, SUSPENDED, DISQUALIFIED], help: {summary: Procurement qualification state., usage: Controls sourcing eligibility and supplier governance., relationshipContext: Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence., workflowRole: Gates new procurement commitments while historical transactions remain valid., optionalMeaning: Optional where supplier qualification is not used.}}
+  - name: supplierType
+    type: enum
+    required: false
+    values:
+    - INDIVIDUAL
+    - BUSINESS
+    - GOVERNMENT
+    - INTERNAL
+    - OTHER
+    help:
+      summary: Classification of supplier relationship.
+      usage: Supports onboarding compliance tax contracting and reporting.
+      relationshipContext: Does not replace Party identity classification.
+      workflowRole: Supplies supplier classification to procurement policy.
+      optionalMeaning: Optional.
+      valueSemantics:
+        INDIVIDUAL: The supplier type of the supplier is individual; set it when that is what the business means for this record.
+        BUSINESS: The supplier type of the supplier is business; set it when that is what the business means for this record.
+        GOVERNMENT: The supplier type of the supplier is government; set it when that is what the business means for this record.
+        INTERNAL: The supplier type of the supplier is internal; set it when that is what the business means for this record.
+        OTHER: The supplier type of the supplier is other; set it when that is what the business means for this record.
+  - name: qualificationStatus
+    type: enum
+    required: false
+    values:
+    - NOT_REVIEWED
+    - PENDING
+    - QUALIFIED
+    - SUSPENDED
+    - DISQUALIFIED
+    help:
+      summary: Procurement qualification state.
+      usage: Controls sourcing eligibility and supplier governance.
+      relationshipContext: Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment
+        evidence.
+      workflowRole: Gates new procurement commitments while historical transactions remain valid.
+      optionalMeaning: Optional where supplier qualification is not used.
+      valueSemantics:
+        NOT_REVIEWED: The qualification status of the supplier is not reviewed; set it when that is what the business means
+          for this record.
+        PENDING: The qualification status of the supplier is pending; set it when that is what the business means for this record.
+        QUALIFIED: The qualification status of the supplier is qualified; set it when that is what the business means for this
+          record.
+        SUSPENDED: The qualification status of the supplier is suspended; set it when that is what the business means for this
+          record.
+        DISQUALIFIED: The qualification status of the supplier is disqualified; set it when that is what the business means
+          for this record.
   - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing., optionalMeaning: Optional.}}
-  - {name: status, type: enum, required: true, default: ACTIVE, values: [ACTIVE, INACTIVE, BLOCKED, RETIRED], help: {summary: Supplier relationship lifecycle state., usage: Controls procurement eligibility., relationshipContext: Historical transactions remain valid after state changes., workflowRole: New procurement return claim-resolution and performance workflows must evaluate status., requiredMeaning: Required for eligibility.}}
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - BLOCKED
+    - RETIRED
+    help:
+      summary: Supplier relationship lifecycle state.
+      usage: Controls procurement eligibility.
+      relationshipContext: Historical transactions remain valid after state changes.
+      workflowRole: New procurement return claim-resolution and performance workflows must evaluate status.
+      requiredMeaning: Required for eligibility.
+      valueSemantics:
+        ACTIVE: The status of the supplier is active; set it when that is what the business means for this record.
+        INACTIVE: The status of the supplier is inactive; set it when that is what the business means for this record.
+        BLOCKED: The status of the supplier is blocked; set it when that is what the business means for this record.
+        RETIRED: The status of the supplier is retired; set it when that is what the business means for this record.
   relationships:
   - {name: partyRole, target: PartyRole, cardinality: '1', ownership: reference, help: {summary: Common PartyRole relationship., usage: Resolves underlying party and supplier role., cardinalityMeaning: Exactly one PartyRole., workflowRole: Supplies common identity.}}
   - {name: addresses, target: Address, cardinality: 0..*, ownership: reference, help: {summary: Supplier operational addresses., usage: Supports ordering invoicing logistics tax correspondence and returns., cardinalityMeaning: Multiple purpose-specific addresses are supported., workflowRole: Consuming workflows select the appropriate address.}}

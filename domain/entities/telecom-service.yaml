@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: telecom_entity
   description: A telecommunications service subscribed to or provided for a party.
+  ui:
+    icon: table
   identity:
     key: telecomServiceId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: retail_transaction_line
   description: A product or service line within a retail sale.
+  ui:
+    icon: list
   identity:
     key: retailSaleLineId
     type: uuid

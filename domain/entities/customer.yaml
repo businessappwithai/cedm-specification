@@ -4,6 +4,8 @@ entity:
   kind: party_role_specialization
   extends: PartyRole
   description: A party role representing the enterprise's commercial relationship with a buyer or consumer of goods, services, subscriptions, or other offerings.
+  ui:
+    icon: user-round
   identity: {key: customerId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: customerId
@@ -27,13 +29,44 @@ entity:
     - name: customerType
       type: enum
       required: false
-      values: [INDIVIDUAL, BUSINESS, GOVERNMENT, INTERNAL, OTHER]
-      help: {summary: Commercial classification of the customer relationship., usage: Supports pricing credit tax service and reporting., relationshipContext: Does not replace Party partyType., workflowRole: Supplies customer classification to transaction policy., optionalMeaning: Optional when not needed.}
+      values:
+      - INDIVIDUAL
+      - BUSINESS
+      - GOVERNMENT
+      - INTERNAL
+      - OTHER
+      help:
+        summary: Commercial classification of the customer relationship.
+        usage: Supports pricing credit tax service and reporting.
+        relationshipContext: Does not replace Party partyType.
+        workflowRole: Supplies customer classification to transaction policy.
+        optionalMeaning: Optional when not needed.
+        valueSemantics:
+          INDIVIDUAL: The customer type of the customer is individual; set it when that is what the business means for this record.
+          BUSINESS: The customer type of the customer is business; set it when that is what the business means for this record.
+          GOVERNMENT: The customer type of the customer is government; set it when that is what the business means for this record.
+          INTERNAL: The customer type of the customer is internal; set it when that is what the business means for this record.
+          OTHER: The customer type of the customer is other; set it when that is what the business means for this record.
     - name: creditStatus
       type: enum
       required: false
-      values: [NOT_REVIEWED, APPROVED, ON_HOLD, BLOCKED]
-      help: {summary: Current credit-control disposition., usage: Used by order authorization receivables collections and credit review., relationshipContext: Credit control affects exposure and does not alter party identity., workflowRole: SalesOrder confirmation must evaluate current credit policy when applicable., optionalMeaning: Optional where credit controls are not used.}
+      values:
+      - NOT_REVIEWED
+      - APPROVED
+      - ON_HOLD
+      - BLOCKED
+      help:
+        summary: Current credit-control disposition.
+        usage: Used by order authorization receivables collections and credit review.
+        relationshipContext: Credit control affects exposure and does not alter party identity.
+        workflowRole: SalesOrder confirmation must evaluate current credit policy when applicable.
+        optionalMeaning: Optional where credit controls are not used.
+        valueSemantics:
+          NOT_REVIEWED: The credit status of the customer is not reviewed; set it when that is what the business means for this
+            record.
+          APPROVED: The credit status of the customer is approved; set it when that is what the business means for this record.
+          ON_HOLD: The credit status of the customer is on hold; set it when that is what the business means for this record.
+          BLOCKED: The credit status of the customer is blocked; set it when that is what the business means for this record.
     - name: creditLimit
       type: Money
       required: false
@@ -47,8 +80,22 @@ entity:
       type: enum
       required: true
       default: ACTIVE
-      values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
-      help: {summary: Lifecycle state of the customer relationship., usage: Controls eligibility for new commercial activity., relationshipContext: Historical transactions remain attributable after status changes., workflowRole: New workflows must evaluate status; historical records remain valid., requiredMeaning: Required for eligibility decisions.}
+      values:
+      - ACTIVE
+      - INACTIVE
+      - BLOCKED
+      - RETIRED
+      help:
+        summary: Lifecycle state of the customer relationship.
+        usage: Controls eligibility for new commercial activity.
+        relationshipContext: Historical transactions remain attributable after status changes.
+        workflowRole: New workflows must evaluate status; historical records remain valid.
+        requiredMeaning: Required for eligibility decisions.
+        valueSemantics:
+          ACTIVE: The status of the customer is active; set it when that is what the business means for this record.
+          INACTIVE: The status of the customer is inactive; set it when that is what the business means for this record.
+          BLOCKED: The status of the customer is blocked; set it when that is what the business means for this record.
+          RETIRED: The status of the customer is retired; set it when that is what the business means for this record.
   relationships:
     - name: partyRole
       target: PartyRole

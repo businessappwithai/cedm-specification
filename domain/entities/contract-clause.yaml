@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: contract_component
   description: A governed clause forming part of a Contract and preserving the effective contractual text or structured term reference.
+  ui:
+    icon: file-check
   identity: {key: contractClauseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractClauseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractClause., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

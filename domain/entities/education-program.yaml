@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: education_entity
   description: A structured educational program leading to a qualification, credential, or defined learning outcome.
+  ui:
+    icon: table
   identity:
     key: educationProgramId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: sourcing_response_line
   description: A supplier's line-level commercial offer for one RequestForQuotationLine, preserving offered quantity, price, delivery and award evidence before purchase commitment.
+  ui:
+    icon: factory
   identity: {key: supplierQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one supplier offer line., businessMeaning: Identifies one commercial response independently of header and order conversion., usage: "Comparison, negotiation, award, and audit.", relationshipContext: Connects an RFQ requirement to resulting order lines., requiredMeaning: Required.}}

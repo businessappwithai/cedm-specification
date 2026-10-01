@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_traceability_master
   description: A governed batch or lot identity grouping a quantity of one Product with common production, receipt, quality, expiry, or provenance characteristics for inventory traceability.
+  ui:
+    icon: database
   identity: {key: lotId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the lot., businessMeaning: Identifies the traceability group independently of printed lot number., usage: "Inventory, quality, recall, manufacturing, receiving, shipping, and audit.", relationshipContext: Groups quantities of one Product across locations and movements., requiredMeaning: Required.}}

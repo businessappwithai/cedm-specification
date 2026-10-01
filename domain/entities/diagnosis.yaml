@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: healthcare_clinical_entity
   description: A clinical finding or condition identified during healthcare assessment.
+  ui:
+    icon: table
   identity:
     key: diagnosisId
     type: uuid

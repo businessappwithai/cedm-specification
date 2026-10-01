@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: accounting_control_master
   description: A governed accounting time interval controlling when financial transactions may be posted, adjusted, closed, or reported for an Organization.
+  ui:
+    icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}

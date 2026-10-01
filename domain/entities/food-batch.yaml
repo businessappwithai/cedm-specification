@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: food_industry_entity
   description: A traceable batch of food or beverage product produced or received under controlled conditions.
+  ui:
+    icon: table
   identity:
     key: foodBatchId
     type: uuid

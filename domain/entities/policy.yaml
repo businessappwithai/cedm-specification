@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: governance_entity
   description: A formally defined rule, principle, or requirement governing business behavior or decision-making.
+  ui:
+    icon: shield
   identity:
     key: policyId
     type: uuid

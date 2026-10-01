@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: maintenance_material_master
   description: A governed maintenance material designation identifying a Product that is eligible to be planned, reserved, issued, consumed, returned, or replaced as part of asset and equipment maintenance.
+  ui:
+    icon: database
   identity: {key: sparePartId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: sparePartId, type: uuid, required: true, immutable: true, help: {summary: Stable spare-part identity., businessMeaning: Identifies one governed maintenance-material designation., usage: "Maintenance planning, inventory, procurement and costing.", relationshipContext: References canonical Product rather than duplicating product master data., requiredMeaning: Required.}}

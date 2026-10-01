@@ -4,6 +4,8 @@ entity:
   kind: root_business_entity
   description: An ERP represents an enterprise business application context that manages shared master data, organizational
     structures, business processes, transactions, documents, workflows, and operational resources.
+  ui:
+    icon: table
   identity:
     key: erpId
     type: uuid

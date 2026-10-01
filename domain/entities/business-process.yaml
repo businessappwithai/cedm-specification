@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: process_definition_entity
   description: A defined sequence of business activities, decisions, events, and outcomes that accomplishes a business objective.
+  ui:
+    icon: settings
   identity:
     key: businessProcessId
     type: uuid

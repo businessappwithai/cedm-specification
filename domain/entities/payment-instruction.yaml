@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: treasury_instruction
   description: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
+  ui:
+    icon: credit-card
   identity: {key: paymentInstructionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

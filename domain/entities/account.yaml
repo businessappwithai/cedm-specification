@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_master_entity
   description: A financial ledger account used to classify and record monetary activity.
+  ui:
+    icon: landmark
   identity:
     key: accountId
     type: uuid

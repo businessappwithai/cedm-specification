@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_transaction_line
   description: A billed product, service, quantity, tax, credit, debit, or adjustment line on an Invoice, retaining immutable transaction-time monetary, pricing, tax, unit, and matching evidence needed to reproduce the financial claim. Later credits reference this line without rewriting its historical values.
+  ui:
+    icon: receipt
   identity: {key: invoiceLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: invoiceLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the original invoice line, businessMeaning: Identifies the historical billed detail independently of later credits or corrections., usage: "Used for billing, audit, matching, credit and reconciliation.", relationshipContext: CreditNoteLine and SupplierCreditNoteLine may reference this identity as source evidence., workflowRole: Stable root reference for the line lifecycle., requiredMeaning: Required for financial traceability.}}
@@ -59,6 +61,13 @@ entity:
       usage: Used for accounts payable controls and reconciliation.
       relationshipContext: Independent from CreditNote and SupplierCreditNote status; a credit may correct a posted line after matching.
       workflowRole: Controls matching approval before posting.
+      valueSemantics:
+        NOT_APPLICABLE: The matching status of the invoice line is not applicable; set it when that is what the business means for this record.
+        UNMATCHED: The matching status of the invoice line is unmatched; set it when that is what the business means for this record.
+        MATCHED: The matching status of the invoice line is matched; set it when that is what the business means for this record.
+        PARTIALLY_MATCHED: The matching status of the invoice line is partially matched; set it when that is what the business means for this record.
+        EXCEPTION: The matching status of the invoice line is exception; set it when that is what the business means for this record.
+        WAIVED: The matching status of the invoice line is waived; set it when that is what the business means for this record.
   relationships:
   - name: invoice
     target: Invoice

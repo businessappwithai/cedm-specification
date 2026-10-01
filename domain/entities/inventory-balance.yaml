@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_state_entity
   description: The current stock-state projection for a Product at an InventoryLocation, derived from posted InventoryMovement and reservation workflows. It is not an independently editable inventory ledger.
+  ui:
+    icon: boxes
   identity:
     key: inventoryBalanceId
     type: uuid
@@ -65,10 +67,20 @@ entity:
     target: Product
     cardinality: '1'
     ownership: reference
+    help:
+      summary: Links a inventory balance to product, the product it relates to.
+      usage: Chosen from the existing product records when the inventory balance is created or edited.
+      cardinalityMeaning: A inventory balance has exactly one product in this role.
+      context: Lets the inventory balance be found from, and reported with, its product.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
+    help:
+      summary: Links a inventory balance to inventory location, the inventory location it relates to.
+      usage: Chosen from the existing inventory location records when the inventory balance is created or edited.
+      cardinalityMeaning: A inventory balance has exactly one inventory location in this role.
+      context: Lets the inventory balance be found from, and reported with, its inventory location.
   - name: lot
     target: Lot
     cardinality: 0..1

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: quality_plan_configuration
   description: A contextual configuration that assigns a reusable QualityCharacteristic to a QualityPlan and defines the acceptance limits, target, method, sequence, and control semantics applicable in that plan.
+  ui:
+    icon: badge-check
   identity:
     key: qualityPlanCharacteristicId
     type: uuid

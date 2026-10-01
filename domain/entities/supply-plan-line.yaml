@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: supply_chain_entity
   description: A planned quantity for a product at a location and time within a supply plan.
+  ui:
+    icon: table
   identity:
     key: supplyPlanLineId
     type: uuid

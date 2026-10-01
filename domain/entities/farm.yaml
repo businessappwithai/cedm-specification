@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: agriculture_entity
   description: A managed agricultural operation consisting of land, facilities, resources, and production activities.
+  ui:
+    icon: table
   identity:
     key: farmId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: utility_entity
   description: A metering device or logical metering point used to record consumption or production of a utility resource.
+  ui:
+    icon: zap
   identity:
     key: energyMeterId
     type: uuid

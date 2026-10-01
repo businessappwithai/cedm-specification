@@ -4,6 +4,8 @@ entity:
   kind: ai_entity
   description: A machine-learning or artificial-intelligence model used to produce predictions, classifications, recommendations,
     generations, or decisions.
+  ui:
+    icon: brain
   identity:
     key: aiModelId
     type: uuid

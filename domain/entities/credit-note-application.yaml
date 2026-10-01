@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: financial_settlement_adjustment
   description: An explicit application of a posted customer CreditNote against one eligible Invoice claim, preserving the amount, currency, timing, and reversal evidence used to derive the Invoice's credited exposure.
+  ui:
+    icon: credit-card
   identity: {key: creditNoteApplicationId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: creditNoteApplicationId
@@ -33,8 +35,25 @@ entity:
       type: enum
       required: true
       default: ACTIVE
-      values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
-      help: {summary: Lifecycle state of the application., businessMeaning: Indicates whether the application currently reduces the invoice., usage: Controls credit and invoice projections., relationshipContext: CreditNote and Invoice statuses remain independent historical facts., workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event., requiredMeaning: Required.}
+      values:
+      - DRAFT
+      - ACTIVE
+      - REVERSED
+      - CANCELLED
+      help:
+        summary: Lifecycle state of the application.
+        businessMeaning: Indicates whether the application currently reduces the invoice.
+        usage: Controls credit and invoice projections.
+        relationshipContext: CreditNote and Invoice statuses remain independent historical facts.
+        workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event.
+        requiredMeaning: Required.
+        valueSemantics:
+          DRAFT: The status of the credit note application is draft; set it when that is what the business means for this record.
+          ACTIVE: The status of the credit note application is active; set it when that is what the business means for this record.
+          REVERSED: The status of the credit note application is reversed; set it when that is what the business means for this
+            record.
+          CANCELLED: The status of the credit note application is cancelled; set it when that is what the business means for this
+            record.
     - name: reversalOfApplicationId
       type: reference
       target: CreditNoteApplication

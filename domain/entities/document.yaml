@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: core_business_entity
   description: A business document that records, communicates, supports, or evidences business information or activity.
+  ui:
+    icon: file-text
   identity:
     key: documentId
     type: uuid

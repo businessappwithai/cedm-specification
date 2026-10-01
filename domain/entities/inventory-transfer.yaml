@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_control_transaction
   description: A governed authorization to relocate inventory between InventoryLocations, with actual stock effects represented by attributable InventoryMovement transfer events.
+  ui:
+    icon: boxes
   identity: {key: inventoryTransferId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: inventoryTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable transfer identity., businessMeaning: Identifies one governed relocation independently of stock postings., usage: "Warehouse transfer, staging, replenishment and audit.", relationshipContext: Groups attributable InventoryMovement events., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: audit_case
   description: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
+  ui:
+    icon: scroll-text
   identity: {key: auditCaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: auditCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditCase., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_reference
   description: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
+  ui:
+    icon: percent
   identity: {key: taxJurisdictionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxJurisdictionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxJurisdiction., businessMeaning: Identifies one governed TaxJurisdiction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

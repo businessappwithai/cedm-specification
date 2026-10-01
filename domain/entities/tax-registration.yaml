@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: tax_master
   description: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
+  ui:
+    icon: percent
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}

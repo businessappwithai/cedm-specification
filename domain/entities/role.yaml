@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: authorization_entity
   description: A named set of permissions or responsibilities assignable to users or service principals.
+  ui:
+    icon: shield
   identity:
     key: roleId
     type: uuid

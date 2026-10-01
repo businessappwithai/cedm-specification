@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: ecommerce_detail_entity
   description: A product selection and quantity within a shopping cart.
+  ui:
+    icon: table
   identity:
     key: shoppingCartLineId
     type: uuid

@@ -18,6 +18,9 @@ from __future__ import annotations
 import pathlib
 import re
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dictionary_lib as dictlib  # noqa: E402
 from collections import defaultdict
 
 try:
@@ -67,6 +70,70 @@ def split_text(value, where: str = "entity") -> list[str]:
         for index, item in enumerate(value):
             found.extend(split_text(item, f"{where}[{index}]"))
     return found
+
+
+def dictionary_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
+    """The DICT-* and ENUM-* rules of specification/dictionary-mapping.yaml."""
+    mapping = load_yaml(ROOT / "specification" / "dictionary-mapping.yaml")
+    known = set(dictlib.HELP_ALIASES) | set(dictlib.HELP_ALIASES.values())
+    known |= set(mapping.get("help", {}).get("carriedKeys", {}).get("keys", []))
+    known |= set(mapping.get("help", {}).get("windowSlots", []) + mapping["help"].get("tabSlots", []) + mapping["help"].get("fieldSlots", []))
+    enumeration_tables: dict[str, str] = {}
+    for name, (_, entity) in entities.items():
+        kind = entity.get("kind")
+        if len(dictlib.kind_classes(kind)) < 1:
+            errors.append(f"{name}: DICT-002 kind {kind!r} resolves to no class")
+        icon = (entity.get("ui") or {}).get("icon")
+        if not icon:
+            errors.append(f"{name}: DICT-001 ui.icon is required")
+        elif icon not in dictlib.LUCIDE:
+            errors.append(f"{name}: DICT-001 ui.icon {icon!r} is not a lucide 0.312 icon (tools/lucide-icons.txt)")
+        help_ = entity.get("help") or {}
+        if not help_.get("summary") or not (help_.get("businessMeaning") or help_.get("purpose")):
+            errors.append(f"{name}: DICT-003 help needs summary and businessMeaning (or purpose)")
+        for key in help_:
+            if key not in known:
+                errors.append(f"{name}: DICT-004 unknown help key {key!r}")
+        ui = entity.get("ui") or {}
+        if ui.get("group") and ui["group"] not in dictlib.GROUPS:
+            errors.append(f"{name}: DICT-008 ui.group {ui['group']!r} is not in groups.order")
+        attribute_names = {a.get("name") for a in entity.get("attributes") or []}
+        label = ui.get("recordLabel")
+        for part in ([label] if isinstance(label, str) else label or []):
+            if part not in attribute_names:
+                errors.append(f"{name}: DICT-009 ui.recordLabel names {part!r}, which the entity does not declare")
+        for attr in entity.get("attributes") or []:
+            where = f"{name}.{attr.get('name')}"
+            attr_help = attr.get("help") if isinstance(attr.get("help"), dict) else {}
+            if not attr_help.get("summary") or not attr_help.get("usage"):
+                errors.append(f"{where}: DICT-006 help needs summary and usage")
+            for key in attr_help:
+                if key not in known:
+                    errors.append(f"{where}: DICT-004 unknown help key {key!r}")
+            values = attr.get("values")
+            if attr.get("type") == "enum" and not values:
+                errors.append(f"{where}: ENUM-001 an enum attribute declares values")
+            if values:
+                table = "bus_" + re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", dictlib.enumeration_name(name, attr["name"])).lower()
+                if table in enumeration_tables:
+                    errors.append(f"{where}: ENUM-003 table {table} is also {enumeration_tables[table]}")
+                enumeration_tables[table] = where
+                have = {str(k) for k in (attr_help.get("valueSemantics") or {})}
+                want = {str(v) for v in values}
+                if have != want:
+                    errors.append(f"{where}: DICT-005 valueSemantics differs from values (missing {sorted(want - have)}, extra {sorted(have - want)})")
+        for rel in entity.get("relationships") or []:
+            if not rel.get("help"):
+                warnings.append(f"{name}.{rel.get('name')}: DICT-007 relationship has no help")
+    for table, where in enumeration_tables.items():
+        for name in entities:
+            if "bus_" + re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower() == table:
+                errors.append(f"{where}: DICT-010 enumeration table {table} collides with entity {name}")
+    import subprocess
+
+    registry = subprocess.run([sys.executable, str(ROOT / "tools" / "build_enumerations.py"), "--check"], capture_output=True, text=True)
+    if registry.returncode:
+        errors.append(f"ENUM-002 {registry.stdout.strip() or registry.stderr.strip()}")
 
 
 def main() -> int:
@@ -160,6 +227,8 @@ def main() -> int:
                     errors.append(f"{name}: transition.from is not a declared state: {transition.get('from')}")
                 if transition.get("to") not in state_set:
                     errors.append(f"{name}: transition.to is not a declared state: {transition.get('to')}")
+
+    dictionary_checks(entities)
 
     registered_set = set(registered)
     actual_set = set(entities)

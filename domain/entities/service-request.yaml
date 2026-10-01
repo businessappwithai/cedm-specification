@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: service_management_entity
   description: A request for service, support, maintenance, or assistance that requires fulfillment or resolution.
+  ui:
+    icon: table
   identity:
     key: serviceRequestId
     type: uuid

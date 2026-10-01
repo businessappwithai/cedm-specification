@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: warehouse_resource_master
   description: A governed warehouse door, bay, or loading position used for inbound receiving, outbound shipping, transfer, and staging execution.
+  ui:
+    icon: database
   identity: {key: dockId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: Stable dock identity., businessMeaning: Identifies one loading/receiving resource., usage: "Appointment, staging, loading and receiving.", relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}

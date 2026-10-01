@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: core_business_transaction
   description: A recorded business event or transaction that changes, commits, or represents a business state or obligation.
+  ui:
+    icon: file-text
   identity:
     key: transactionId
     type: uuid

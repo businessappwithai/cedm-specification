@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: process_runtime_entity
   description: A discrete unit of business work performed by a person, organization, system, or workflow participant.
+  ui:
+    icon: list-checks
   identity:
     key: taskId
     type: uuid

@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: inventory_traceability_master
   description: A governed unique identity for an individually traceable unit of a Product across receipt, inventory, shipment, installation, maintenance, return, and disposal workflows.
+  ui:
+    icon: database
   identity: {key: serialNumberId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: serialNumberId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the serialized unit., businessMeaning: Identifies the unit independently of its printed serial code., usage: "Inventory, service, warranty, asset, recall, and audit.", relationshipContext: One serialized identity represents one governed physical unit., requiredMeaning: Required.}}

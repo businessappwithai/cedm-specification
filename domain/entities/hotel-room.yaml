@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: hospitality_asset
   description: An individual accommodation unit within a hotel.
+  ui:
+    icon: bed
   identity:
     key: hotelRoomId
     type: uuid

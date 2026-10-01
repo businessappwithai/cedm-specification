@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: manufacturing_disposition_transaction
   description: A governed record of material or production quantity rejected, lost, damaged, or intentionally scrapped during manufacturing, with inventory and quality effects represented by explicit related evidence.
+  ui:
+    icon: file-text
   identity: {key: scrapId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: scrapId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of scrap event., businessMeaning: Identifies one governed production loss/disposition., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Links work order/product quantity to cause and inventory effect., requiredMeaning: Required.}}

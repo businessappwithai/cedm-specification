@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: service_commitment_master
   description: A governed service-performance commitment defining response, resolution, availability, or other measurable obligations applicable to service requests, cases, orders, contracts, or entitled customers.
+  ui:
+    icon: file-check
   identity: {key: serviceLevelAgreementId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: serviceLevelAgreementId, type: uuid, required: true, immutable: true, help: {summary: Stable SLA identity., businessMeaning: Identifies one governed service commitment definition., usage: "Service operations, entitlement and compliance.", relationshipContext: Referenced by service transactions/contracts., requiredMeaning: Required.}}

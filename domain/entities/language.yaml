@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reference_data
   description: A governed language reference used for localization, communication preferences, content, and reporting.
+  ui:
+    icon: list
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
