@@ -7,7 +7,7 @@
  * Enables runtime UI layout customization by fetching field
  * ordering and display settings from the backend.
  *
- * Generated: 2026-10-01T09:31:41.637Z
+ * Generated: 2026-10-01T19:15:29.435Z
  * Project: document-management
  */
 
