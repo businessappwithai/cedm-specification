@@ -52,13 +52,13 @@ entity:
   - {id: SALES-ORDER-003, rule: totalAmount must reconcile with applicable line amounts and adjustments.}
   - {id: SALES-ORDER-004, rule: CANCELLED orders must not create new allocation or fulfillment commitments.}
   - {id: SALES-ORDER-005, rule: FULFILLED status requires all executable line quantities to have accepted fulfillment evidence according to the applicable workflow.}
-  - {id: SALES-ORDER-006, rule: CONFIRMED status requires required customer, currency, product, UOM, pricing, tax and delivery context to pass validation before fulfillment work can begin.}
+  - {id: SALES-ORDER-006, rule: "CONFIRMED status requires required customer, currency, product, UOM, pricing, tax and delivery context to pass validation before fulfillment work can begin."}
   - {id: SALES-ORDER-007, rule: ALLOCATED status requires active reservation/allocation evidence for the executable quantities according to fulfillment policy; order status cannot create reservations implicitly without the allocation workflow.}
-  - {id: SALES-ORDER-008, rule: PARTIALLY_FULFILLED and FULFILLED must be derived from accepted fulfillment evidence on SalesOrderLine, not merely Shipment status or invoice creation.}
+  - {id: SALES-ORDER-008, rule: "PARTIALLY_FULFILLED and FULFILLED must be derived from accepted fulfillment evidence on SalesOrderLine, not merely Shipment status or invoice creation."}
   - {id: SALES-ORDER-009, rule: A Shipment linked to this order may contribute fulfillment evidence only through validated shipment execution and corresponding fulfillment/inventory workflows; Shipment delivery alone cannot directly overwrite order quantities.}
-  - {id: SALES-ORDER-010, rule: Cancelling an order with active reservations, open shipments, or downstream fulfillment requires controlled release/cancellation/reconciliation of those dependent workflows before remaining demand is terminated.}
-  - {id: SALES-ORDER-011, rule: Cancellation must not erase accepted shipment, inventory, invoice or payment history; any already-posted effects require their own compensating workflows.}
-  - {id: SALES-ORDER-012, rule: Changes to Customer, Product, UOM, Price, DiscountRule, TaxRule, Currency, DeliveryLocation or requested delivery date that affect an executable order require controlled revalidation and, where applicable, repricing/reallocation/rescheduling workflows.}
+  - {id: SALES-ORDER-010, rule: "Cancelling an order with active reservations, open shipments, or downstream fulfillment requires controlled release/cancellation/reconciliation of those dependent workflows before remaining demand is terminated."}
+  - {id: SALES-ORDER-011, rule: "Cancellation must not erase accepted shipment, inventory, invoice or payment history; any already-posted effects require their own compensating workflows."}
+  - {id: SALES-ORDER-012, rule: "Changes to Customer, Product, UOM, Price, DiscountRule, TaxRule, Currency, DeliveryLocation or requested delivery date that affect an executable order require controlled revalidation and, where applicable, repricing/reallocation/rescheduling workflows."}
   - {id: SALES-ORDER-013, rule: Invoice creation does not make an order FULFILLED and shipment delivery does not make an invoice PAID; each lifecycle is governed by its authoritative evidence.}
   - {id: SALES-ORDER-014, rule: Order-level derived totals and status must be recalculated atomically or through an idempotent recoverable workflow whenever a dependent line/reservation/fulfillment event changes.}
   help:

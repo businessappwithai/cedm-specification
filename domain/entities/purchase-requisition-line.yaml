@@ -87,7 +87,7 @@ entity:
     target: RequestForQuotationLine
     cardinality: 0..*
     ownership: reference
-    help: {summary: Sourcing requirement lines created from this approved demand., businessMeaning: Preserves exact demand-to-sourcing traceability including split sourcing., usage: Sourcing reconciliation, award analysis, and audit., cardinalityMeaning: One demand line may be sourced through multiple RFQ lines/events., context: Total active sourcing allocations must remain governed by approved demand and policy.}
+    help: {summary: Sourcing requirement lines created from this approved demand., businessMeaning: Preserves exact demand-to-sourcing traceability including split sourcing., usage: "Sourcing reconciliation, award analysis, and audit.", cardinalityMeaning: One demand line may be sourced through multiple RFQ lines/events., context: Total active sourcing allocations must remain governed by approved demand and policy.}
   invariants:
   - id: PR-LINE-001
     rule: quantity must be greater than zero.

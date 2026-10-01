@@ -5,11 +5,11 @@ entity:
   description: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
   identity: {key: agreementId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Agreement., businessMeaning: Identifies one governed Agreement record., usage: Governance, workflow, reporting and audit., relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: Chronology, reporting and audit., relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+  - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Agreement., businessMeaning: Identifies one governed Agreement record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
   relationships: []
   invariants:
-  - {id: AGREEMENT-001, rule: Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit.}
+  - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
     summary: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
     purpose: Provide canonical governance semantics for Agreement.

@@ -5,7 +5,7 @@ entity:
   description: A governed stage of a Project used to group milestones, tasks, resources, costs, and delivery controls within a defined portion of the project lifecycle.
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: Planning, execution, costing and reporting., relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
+  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 200, help: {summary: Human-readable phase name., businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
   - name: status
     type: enum
@@ -19,5 +19,5 @@ entity:
   invariants:
   - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
   - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
-  help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: Project planning, delivery, resources and costing., relationshipContext: Project owns context; ProjectTask and Milestone provide execution evidence.}
+  help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

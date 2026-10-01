@@ -5,12 +5,12 @@ entity:
   description: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
   identity: {key: trackingEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TrackingEvent., businessMeaning: Identifies one governed TrackingEvent record., usage: Transactions, integration, reporting and audit., relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for TrackingEvent., businessMeaning: Human or integration-friendly reference where applicable., usage: Search, exchange and reporting., relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TrackingEvent., businessMeaning: Identifies one governed TrackingEvent record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for TrackingEvent., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships:
   - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., cardinalityMeaning: Exactly one Shipment., workflowRole: Event must not silently rewrite prior shipment evidence.}}
   invariants:
-  - {id: TRACKING-EVENT-001, rule: Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects.}
+  - {id: TRACKING-EVENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
     summary: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
     purpose: Provide canonical implementation-neutral semantics for TrackingEvent across enterprise applications.

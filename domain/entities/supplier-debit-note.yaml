@@ -44,7 +44,7 @@ entity:
   - name: totalAmount
     type: Money
     required: true
-    help: {summary: Total supplier debit adjustment., businessMeaning: Financial amount by which supplier-related recoverable exposure is increased., usage: Accounts payable supplier settlement accounting and reconciliation., relationshipContext: It is an adjustment, not a replacement for the original supplier Invoice., workflowRole: Determines the maximum amount available for controlled application., requiredMeaning: Required.}
+    help: {summary: Total supplier debit adjustment., businessMeaning: Financial amount by which supplier-related recoverable exposure is increased., usage: Accounts payable supplier settlement accounting and reconciliation., relationshipContext: "It is an adjustment, not a replacement for the original supplier Invoice.", workflowRole: Determines the maximum amount available for controlled application., requiredMeaning: Required.}
   - name: amountApplied
     type: Money
     required: true
@@ -72,7 +72,7 @@ entity:
   - {id: SUPPLIER-DEBIT-006, rule: Original Invoice and InvoiceLine values remain immutable; debit adjustments must be represented by explicit financial evidence.}
   - {id: SUPPLIER-DEBIT-007, rule: POSTED supplier debits are immutable except through explicit reversal or compensating adjustment workflows.}
   - {id: SUPPLIER-DEBIT-008, rule: Posting must be idempotent and must not duplicate accounting recognition on retry.}
-  - {id: SUPPLIER-DEBIT-009, rule: When SupplierClaimResolution is linked, its resolutionType must authorize a debit adjustment and the debit amount must not exceed the approved recovery amount.}
+  - {id: SUPPLIER-DEBIT-009, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize a debit adjustment and the debit amount must not exceed the approved recovery amount."}
   - {id: SUPPLIER-DEBIT-010, rule: Active SupplierDebitNoteApplication records must reconcile to amountApplied and must not collectively exceed totalAmount.}
   help:
     summary: Represents a buyer-issued financial debit against a supplier while preserving the original payable claim supplier-claim history resolution decision and application evidence.

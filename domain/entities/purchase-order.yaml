@@ -9,17 +9,17 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable system identity of the purchase order., usage: Used for procurement, receiving, invoice matching, supplier returns, audit and integrations., relationshipContext: Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt and SupplierReturn., workflowRole: Stable root reference across commitment, fulfillment, reversal and closure., requiredMeaning: Required for procurement traceability.}
+    help: {summary: Immutable system identity of the purchase order., usage: "Used for procurement, receiving, invoice matching, supplier returns, audit and integrations.", relationshipContext: "Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt and SupplierReturn.", workflowRole: "Stable root reference across commitment, fulfillment, reversal and closure.", requiredMeaning: Required for procurement traceability.}
   - name: orderNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing procurement reference., usage: Used by buyers, suppliers, receiving, accounts payable and integrations., relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability.}
+    help: {summary: Human-facing procurement reference., usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability.}
   - name: orderDate
     type: datetime
     required: true
-    help: {summary: Date and time the procurement commitment is created or issued., usage: Supports chronology, approval, reporting and reconciliation., relationshipContext: Distinct from requested delivery, receipt, return, invoice and payment dates., workflowRole: Anchors the commitment lifecycle., requiredMeaning: Required for chronology.}
+    help: {summary: Date and time the procurement commitment is created or issued., usage: "Supports chronology, approval, reporting and reconciliation.", relationshipContext: "Distinct from requested delivery, receipt, return, invoice and payment dates.", workflowRole: Anchors the commitment lifecycle., requiredMeaning: Required for chronology.}
   - name: status
     type: enum
     required: true
@@ -34,33 +34,33 @@ entity:
     type: reference
     target: Currency
     required: false
-    help: {summary: Currency qualifying order monetary values., usage: Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting., relationshipContext: Qualifies amounts and does not identify Supplier or Product.}
+    help: {summary: Currency qualifying order monetary values., usage: "Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting.", relationshipContext: Qualifies amounts and does not identify Supplier or Product.}
   - name: requestedDeliveryDate
     type: date
     required: false
-    help: {summary: Buyer's requested delivery or completion date., usage: Used for supplier communication and fulfillment planning., relationshipContext: A request, not proof of actual receipt or return., workflowRole: Supports delivery planning.}
+    help: {summary: Buyer's requested delivery or completion date., usage: Used for supplier communication and fulfillment planning., relationshipContext: "A request, not proof of actual receipt or return.", workflowRole: Supports delivery planning.}
   - name: totalAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
-    help: {summary: Order-level value derived from committed lines and commercial adjustments., usage: Used for approval, budget, supplier commitment and invoice reconciliation., relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId.}
+    help: {summary: Order-level value derived from committed lines and commercial adjustments., usage: "Used for approval, budget, supplier commitment and invoice reconciliation.", relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId.}
   relationships:
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help: {summary: Supplier receiving the procurement commitment., usage: Drives sourcing, delivery, receiving, supplier performance, returns and accounts payable., context: GoodsReceipt and SupplierReturn supplier should normally match this supplier.}
+    help: {summary: Supplier receiving the procurement commitment., usage: "Drives sourcing, delivery, receiving, supplier performance, returns and accounts payable.", context: GoodsReceipt and SupplierReturn supplier should normally match this supplier.}
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
-    help: {summary: Buying organization responsible for the commitment., usage: Supports authorization, legal entity, budget, tax and reporting.}
+    help: {summary: Buying organization responsible for the commitment., usage: "Supports authorization, legal entity, budget, tax and reporting."}
   - name: lines
     target: PurchaseOrderLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: Individual commercial commitments within the order., usage: Defines products/services, quantities, units, prices and fulfillment expectations., context: GoodsReceipt and SupplierReturn quantities must be evaluated against these ordered lines.}
+    help: {summary: Individual commercial commitments within the order., usage: "Defines products/services, quantities, units, prices and fulfillment expectations.", context: GoodsReceipt and SupplierReturn quantities must be evaluated against these ordered lines.}
   - name: deliveryLocation
     target: Location
     cardinality: 0..1
@@ -75,7 +75,7 @@ entity:
     target: Invoice
     cardinality: 0..*
     ownership: reference
-    help: {summary: Supplier financial claims associated with this procurement commitment., usage: Supports three-way matching, accounts payable and reconciliation., cardinalityMeaning: Multiple invoices may reference one order., context: Invoice is a financial claim and cannot substitute for GoodsReceipt evidence.}
+    help: {summary: Supplier financial claims associated with this procurement commitment., usage: "Supports three-way matching, accounts payable and reconciliation.", cardinalityMeaning: Multiple invoices may reference one order., context: Invoice is a financial claim and cannot substitute for GoodsReceipt evidence.}
   - name: supplierReturns
     target: SupplierReturn
     cardinality: 0..*
@@ -90,12 +90,12 @@ entity:
     target: RequestForQuotation
     cardinality: 0..1
     ownership: reference
-    help: {summary: Sourcing solicitation from which this order was awarded when applicable., businessMeaning: Preserves demand-to-source-to-order traceability., usage: Procurement compliance, price validation, and audit., cardinalityMeaning: Optional for direct or non-RFQ procurement., workflowRole: Supplies sourcing context without replacing order approval.}
+    help: {summary: Sourcing solicitation from which this order was awarded when applicable., businessMeaning: Preserves demand-to-source-to-order traceability., usage: "Procurement compliance, price validation, and audit.", cardinalityMeaning: Optional for direct or non-RFQ procurement., workflowRole: Supplies sourcing context without replacing order approval.}
   - name: supplierQuotation
     target: SupplierQuotation
     cardinality: 0..1
     ownership: reference
-    help: {summary: Accepted supplier offer forming the commercial basis of this order when applicable., businessMeaning: Preserves awarded price and term provenance., usage: Order verification, three-way sourcing audit, and supplier analysis., cardinalityMeaning: Optional where procurement does not use supplier quotations., workflowRole: Provides offer evidence while PurchaseOrder remains the external commitment.}
+    help: {summary: Accepted supplier offer forming the commercial basis of this order when applicable., businessMeaning: Preserves awarded price and term provenance., usage: "Order verification, three-way sourcing audit, and supplier analysis.", cardinalityMeaning: Optional where procurement does not use supplier quotations., workflowRole: Provides offer evidence while PurchaseOrder remains the external commitment.}
   invariants:
   - {id: PURCHASE-ORDER-001, rule: An APPROVED or later purchase order must contain at least one PurchaseOrderLine.}
   - {id: PURCHASE-ORDER-002, rule: totalAmount must reconcile with applicable PurchaseOrderLine amounts and commercial adjustments when maintained.}

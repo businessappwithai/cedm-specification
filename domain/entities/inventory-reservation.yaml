@@ -42,9 +42,9 @@ entity:
   - {id: INVENTORY-RESERVATION-004, rule: Creating or increasing an ACTIVE reservation must atomically verify and consume the corresponding available quantity without changing physical quantityOnHand.}
   - {id: INVENTORY-RESERVATION-005, rule: Consuming a reservation through fulfillment must create the appropriate InventoryMovement and reduce the remaining reservation atomically or through an equivalent recoverable workflow.}
   - {id: INVENTORY-RESERVATION-006, rule: Releasing or cancelling a reservation must restore the released quantity to available inventory without creating physical stock.}
-  - {id: INVENTORY-RESERVATION-007, rule: Product, UnitOfMeasure, InventoryLocation, SalesOrderLine, or demand-status changes that invalidate an active reservation must trigger a controlled revalidation, transfer, reduction, or release workflow.}
-  - {id: INVENTORY-RESERVATION-008, rule: An InventoryLocation becoming BLOCKED or INACTIVE must not leave an active reservation silently available for allocation; it must be transferred, released, or explicitly excepted.}
-  - {id: INVENTORY-RESERVATION-009, rule: Reservation lifecycle changes must update InventoryBalance.quantityReserved and quantityAvailable through the authoritative reservation workflow, not by direct balance edits.}
+  - {id: INVENTORY-RESERVATION-007, rule: "Product, UnitOfMeasure, InventoryLocation, SalesOrderLine, or demand-status changes that invalidate an active reservation must trigger a controlled revalidation, transfer, reduction, or release workflow."}
+  - {id: INVENTORY-RESERVATION-008, rule: "An InventoryLocation becoming BLOCKED or INACTIVE must not leave an active reservation silently available for allocation; it must be transferred, released, or explicitly excepted."}
+  - {id: INVENTORY-RESERVATION-009, rule: "Reservation lifecycle changes must update InventoryBalance.quantityReserved and quantityAvailable through the authoritative reservation workflow, not by direct balance edits."}
   - {id: INVENTORY-RESERVATION-010, rule: Historical consumed/released reservation evidence must remain auditable even after the reservation reaches a terminal status.}
   help:
     summary: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement.

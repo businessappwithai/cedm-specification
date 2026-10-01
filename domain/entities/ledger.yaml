@@ -5,7 +5,7 @@ entity:
   description: A governed accounting book defining the scope in which journal entries are recorded and reported.
   identity: {key: ledgerId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Ledger., businessMeaning: Identifies one governed Ledger record., usage: Enterprise processing, integration, reporting and audit., relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Ledger., businessMeaning: Identifies one governed Ledger record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
@@ -15,7 +15,7 @@ entity:
   - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Organization owning accounting book., businessMeaning: Defines legal/management accounting boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal entries must use compatible organization context.}}
   - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Journal entries posted to ledger., businessMeaning: Supplies accounting evidence contained by book., usage: General ledger and reporting., cardinalityMeaning: Zero or many entries., workflowRole: Posted entries remain immutable.}}
   invariants:
-  - {id: LEDGER-001, rule: This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity.}
+  - {id: LEDGER-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   help:
     summary: A governed accounting book defining the scope in which journal entries are recorded and reported.
     purpose: Provide canonical enterprise semantics for Ledger while keeping planning, operational, financial and evidential responsibilities separated.

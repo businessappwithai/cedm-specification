@@ -25,14 +25,14 @@ entity:
   - {name: invoices, target: Invoice, cardinality: 0..*, ownership: reference, help: {summary: Supplier invoices relevant to the claim., businessMeaning: Identifies original payable claims used as commercial or financial evidence without rewriting them., usage: Supports overcharge shortage tax and payable recovery investigation., workflowRole: Supplies transaction-time financial evidence for credit or debit resolution.}}
   invariants:
   - {id: SUPPLIER-CLAIM-001, rule: OPEN or later claim status requires supplier context and claimType.}
-  - {id: SUPPLIER-CLAIM-002, rule: claimedAmount, when present, must be non-negative and use the governed claim currency.}
+  - {id: SUPPLIER-CLAIM-002, rule: "claimedAmount, when present, must be non-negative and use the governed claim currency."}
   - {id: SUPPLIER-CLAIM-003, rule: ACCEPTED or PARTIALLY_ACCEPTED requires supporting investigation evidence appropriate to claimType.}
   - {id: SUPPLIER-CLAIM-004, rule: A CREDIT resolution does not itself create accounting or payable reduction; an authorized SupplierCreditNote or other financial adjustment is required.}
   - {id: SUPPLIER-CLAIM-005, rule: A DEBIT_ADJUSTMENT resolution does not itself create accounting or payable recovery; an authorized SupplierDebitNote or other approved adjustment is required.}
   - {id: SUPPLIER-CLAIM-006, rule: A RETURN resolution does not itself change inventory; an authorized SupplierReturn and attributable InventoryMovement are required.}
-  - {id: SUPPLIER-CLAIM-007, rule: Original PurchaseOrder, GoodsReceipt, Invoice and quality records remain immutable historical evidence; claim resolution must not rewrite them.}
-  - {id: SUPPLIER-CLAIM-008, rule: Closed claims retain links to all physical, quality, resolution and financial evidence.}
-  - {id: SUPPLIER-CLAIM-009, rule: Corrections after closure use explicit amendment, reopening or compensating evidence according to policy and do not erase claim history.}
+  - {id: SUPPLIER-CLAIM-007, rule: "Original PurchaseOrder, GoodsReceipt, Invoice and quality records remain immutable historical evidence; claim resolution must not rewrite them."}
+  - {id: SUPPLIER-CLAIM-008, rule: "Closed claims retain links to all physical, quality, resolution and financial evidence."}
+  - {id: SUPPLIER-CLAIM-009, rule: "Corrections after closure use explicit amendment, reopening or compensating evidence according to policy and do not erase claim history."}
   - {id: SUPPLIER-CLAIM-010, rule: Claim creation and resolution workflows must be idempotent so retries cannot duplicate returns or financial adjustments.}
   help:
     summary: Provides a formal auditable case for supplier-related quality or commercial recovery while keeping the decision and physical/financial consequences as separate controlled records.

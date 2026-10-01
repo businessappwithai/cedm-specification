@@ -5,7 +5,7 @@ entity:
   description: A governed approval decision or approval request associated with a business object, process, task, or controlled change.
   identity: {key: approvalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Approval., businessMeaning: Identifies one governed Approval record independently of mutable status., usage: Workflow, authorization, integration and audit., relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Approval., businessMeaning: Identifies one governed Approval record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true

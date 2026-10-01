@@ -5,7 +5,7 @@ entity:
   description: A governed financial plan defining approved or proposed monetary limits and targets for an organization, period, scenario, and accounting dimensions.
   identity: {key: budgetId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: Planning, approval, control and reporting., relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}
+  - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}
   - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business budget code., businessMeaning: Human/integration reference for plan., usage: Planning and reporting., relationshipContext: Unique within organization/version policy., requiredMeaning: Required.}}
   - name: status
     type: enum
@@ -22,5 +22,5 @@ entity:
   - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
   - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
   - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
-  help: {summary: Governed financial planning baseline., businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting., usage: Planning, spending control and variance reporting., relationshipContext: BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions., lifecycle: Draft to submitted to approved/active to superseded/closed.}
+  help: {summary: Governed financial planning baseline., businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting., usage: "Planning, spending control and variance reporting.", relationshipContext: "BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions.", lifecycle: Draft to submitted to approved/active to superseded/closed.}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET}

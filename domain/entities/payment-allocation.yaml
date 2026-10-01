@@ -152,13 +152,13 @@ entity:
     - {id: PAYMENT-ALLOCATION-001, rule: paymentAmount and invoiceAmount must both be positive for an active allocation.}
     - {id: PAYMENT-ALLOCATION-002, rule: paymentAmount currency must equal the Payment currency.}
     - {id: PAYMENT-ALLOCATION-003, rule: invoiceAmount currency must equal the Invoice currency.}
-    - {id: PAYMENT-ALLOCATION-004, rule: If Payment and Invoice currencies differ, exchangeRateId is required and must reference a valid rate for the allocation policy and time.}
-    - {id: PAYMENT-ALLOCATION-005, rule: If Payment and Invoice currencies are identical, an ExchangeRate is not required merely to perform allocation.}
+    - {id: PAYMENT-ALLOCATION-004, rule: "If Payment and Invoice currencies differ, exchangeRateId is required and must reference a valid rate for the allocation policy and time."}
+    - {id: PAYMENT-ALLOCATION-005, rule: "If Payment and Invoice currencies are identical, an ExchangeRate is not required merely to perform allocation."}
     - {id: PAYMENT-ALLOCATION-006, rule: Active paymentAmount allocations must not exceed the Payment's available unapplied amount under the applicable correction and concurrency policy.}
     - {id: PAYMENT-ALLOCATION-007, rule: Active invoiceAmount allocations must not exceed the Invoice amountOutstanding plus authorized rounding or adjustment tolerance.}
     - {id: PAYMENT-ALLOCATION-008, rule: Reversal must create controlled historical evidence and must not mutate the original allocation record.}
-    - {id: PAYMENT-ALLOCATION-009, rule: Invoice amountSettled and amountOutstanding must be projections of active allocations and authorized adjustments, not independently editable settlement facts.}
-    - {id: PAYMENT-ALLOCATION-010, rule: Cross-currency allocation must preserve ExchangeRate, effective context, rounding adjustment, and resulting target amount for historical reproducibility.}
+    - {id: PAYMENT-ALLOCATION-009, rule: "Invoice amountSettled and amountOutstanding must be projections of active allocations and authorized adjustments, not independently editable settlement facts."}
+    - {id: PAYMENT-ALLOCATION-010, rule: "Cross-currency allocation must preserve ExchangeRate, effective context, rounding adjustment, and resulting target amount for historical reproducibility."}
   help:
     summary: Provides the controlled bridge between a Payment event and an Invoice claim.
     businessMeaning: Payment says money moved; Invoice says money is owed; PaymentAllocation says exactly how much of that payment satisfies that claim.

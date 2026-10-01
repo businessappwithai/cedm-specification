@@ -5,9 +5,9 @@ entity:
   description: A sellable, purchasable, manufacturable, or stockable variation of a parent Product distinguished by governed option or attribute values while retaining the parent product family identity.
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: Catalog, sales, procurement, inventory and manufacturing., relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
+  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
   - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
-  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: WMS, commerce and integration., relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
+  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
   - name: status
     type: enum
     required: true

@@ -13,7 +13,7 @@ entity:
   - name: unitPrice
     type: Money
     required: true
-    help: {summary: Agreed transaction-time price per unit including currency., usage: Order valuation, invoicing, margin, credit and reconciliation., relationshipContext: Must align with SalesOrder currency and UnitOfMeasure pricing basis., workflowRole: Authoritative commercial price for downstream billing unless controlled repricing occurs.}
+    help: {summary: Agreed transaction-time price per unit including currency., usage: "Order valuation, invoicing, margin, credit and reconciliation.", relationshipContext: Must align with SalesOrder currency and UnitOfMeasure pricing basis., workflowRole: Authoritative commercial price for downstream billing unless controlled repricing occurs.}
   - name: discountAmount
     type: Money
     required: false
@@ -21,11 +21,11 @@ entity:
   - name: taxAmount
     type: Money
     required: false
-    help: {summary: Tax determined for the order line when tax is calculated at order stage., usage: Supports order and invoice reconciliation., relationshipContext: Determination may depend on Product, Customer, address, location, date and TaxRule., workflowRole: Preserves tax evidence when the order commits to a tax amount.}
+    help: {summary: Tax determined for the order line when tax is calculated at order stage., usage: Supports order and invoice reconciliation., relationshipContext: "Determination may depend on Product, Customer, address, location, date and TaxRule.", workflowRole: Preserves tax evidence when the order commits to a tax amount.}
   - name: lineAmount
     type: Money
     required: true
-    help: {summary: Calculated commercial value of the line., usage: Supports order totals, invoicing, credit and reporting., relationshipContext: Must reconcile with pricing, discount, tax and rounding policy., workflowRole: Financial baseline for downstream billing and reconciliation.}
+    help: {summary: Calculated commercial value of the line., usage: "Supports order totals, invoicing, credit and reporting.", relationshipContext: "Must reconcile with pricing, discount, tax and rounding policy.", workflowRole: Financial baseline for downstream billing and reconciliation.}
   - {name: priceSource, type: enum, required: false, values: [PRICE_LIST, CONTRACT, CUSTOMER_AGREEMENT, QUOTATION, MANUAL, PROMOTION, OTHER]}
   - {name: priceDeterminedAt, type: datetime, required: false}
   relationships:
@@ -58,19 +58,19 @@ entity:
   - {id: SALES-ORDER-LINE-002, rule: quantityAllocated must be between zero and quantity unless an authorized over-allocation policy applies.}
   - {id: SALES-ORDER-LINE-003, rule: quantityFulfilled must be between zero and quantity unless an authorized over-fulfillment policy applies.}
   - {id: SALES-ORDER-LINE-004, rule: lineNumber must be unique within its SalesOrder.}
-  - {id: SALES-ORDER-LINE-005, rule: lineAmount must reconcile with quantity, unitPrice, discounts, tax and configured rounding policy.}
-  - {id: SALES-ORDER-LINE-006, rule: unitPrice, discountAmount, taxAmount and lineAmount must use compatible currency semantics with SalesOrder.}
-  - {id: SALES-ORDER-LINE-007, rule: Changes to Product, PriceList, DiscountRule, TaxRule, Currency or UnitOfMeasure must not silently rewrite an executable line; affected open lines require controlled revalidation or repricing.}
-  - {id: SALES-ORDER-LINE-008, rule: If the line originated from a QuotationLine, accepted quotation pricing evidence must be retained unless authorized repricing occurs.}
-  - {id: SALES-ORDER-LINE-009, rule: Invoice generation must use effective transaction price and billing policy, not current Product or PriceList price.}
+  - {id: SALES-ORDER-LINE-005, rule: "lineAmount must reconcile with quantity, unitPrice, discounts, tax and configured rounding policy."}
+  - {id: SALES-ORDER-LINE-006, rule: "unitPrice, discountAmount, taxAmount and lineAmount must use compatible currency semantics with SalesOrder."}
+  - {id: SALES-ORDER-LINE-007, rule: "Changes to Product, PriceList, DiscountRule, TaxRule, Currency or UnitOfMeasure must not silently rewrite an executable line; affected open lines require controlled revalidation or repricing."}
+  - {id: SALES-ORDER-LINE-008, rule: "If the line originated from a QuotationLine, accepted quotation pricing evidence must be retained unless authorized repricing occurs."}
+  - {id: SALES-ORDER-LINE-009, rule: "Invoice generation must use effective transaction price and billing policy, not current Product or PriceList price."}
   - {id: SALES-ORDER-LINE-010, rule: quantityAllocated must be reconciled from active InventoryReservation evidence and must not be independently increased without the reservation workflow.}
   - {id: SALES-ORDER-LINE-011, rule: quantityFulfilled must be reconciled from accepted fulfillment/shipment evidence and must not be independently increased by changing Shipment status.}
-  - {id: SALES-ORDER-LINE-012, rule: A reservation consuming this line must reduce remaining reservation quantity and, when fulfillment posts, increase quantityFulfilled through one idempotent workflow.}
-  - {id: SALES-ORDER-LINE-013, rule: Shipment quantities attributed to this line must not exceed executable quantity minus already fulfilled quantity, except under an authorized over-fulfillment policy.}
+  - {id: SALES-ORDER-LINE-012, rule: "A reservation consuming this line must reduce remaining reservation quantity and, when fulfillment posts, increase quantityFulfilled through one idempotent workflow."}
+  - {id: SALES-ORDER-LINE-013, rule: "Shipment quantities attributed to this line must not exceed executable quantity minus already fulfilled quantity, except under an authorized over-fulfillment policy."}
   - {id: SALES-ORDER-LINE-014, rule: InvoiceLine quantities billed against this line must obey billing policy and must not silently exceed billable/fulfilled quantity where fulfillment-based billing is required.}
-  - {id: SALES-ORDER-LINE-015, rule: Cancelling or reducing the line with active reservations or open shipments requires controlled release, cancellation, reallocation or reconciliation of those dependencies before remaining quantity is changed.}
-  - {id: SALES-ORDER-LINE-016, rule: A fulfilled or financially posted line cannot be destructively reduced or deleted; corrections require explicit return, credit, debit or adjustment workflows.}
-  - {id: SALES-ORDER-LINE-017, rule: Every material quantity change must be attributable to an authoritative reservation, release, fulfillment, return, reversal or approved correction event.}
+  - {id: SALES-ORDER-LINE-015, rule: "Cancelling or reducing the line with active reservations or open shipments requires controlled release, cancellation, reallocation or reconciliation of those dependencies before remaining quantity is changed."}
+  - {id: SALES-ORDER-LINE-016, rule: "A fulfilled or financially posted line cannot be destructively reduced or deleted; corrections require explicit return, credit, debit or adjustment workflows."}
+  - {id: SALES-ORDER-LINE-017, rule: "Every material quantity change must be attributable to an authoritative reservation, release, fulfillment, return, reversal or approved correction event."}
   - {id: SALES-ORDER-LINE-018, rule: Line-derived status and SalesOrder status must be recalculated atomically or through an idempotent recoverable workflow after dependent quantity events.}
   help:
     summary: Authoritative commercial commitment at product/quantity level, reconciling transaction pricing with allocation, fulfillment and billing evidence.

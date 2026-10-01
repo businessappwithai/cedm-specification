@@ -121,7 +121,7 @@ entity:
   invariants:
   - {id: SUPPLIER-CREDIT-LINE-001, rule: lineNumber must be unique within SupplierCreditNote.}
   - {id: SUPPLIER-CREDIT-LINE-002, rule: All monetary values must use the SupplierCreditNote currency.}
-  - {id: SUPPLIER-CREDIT-LINE-003, rule: grossAmount, discountAmount, taxableAmount, taxAmount and netAmount must reconcile under the applicable credit calculation and rounding policy.}
+  - {id: SUPPLIER-CREDIT-LINE-003, rule: "grossAmount, discountAmount, taxableAmount, taxAmount and netAmount must reconcile under the applicable credit calculation and rounding policy."}
   - {id: SUPPLIER-CREDIT-LINE-004, rule: A return-originated credit line must not exceed the eligible quantity and approved credit value of its SupplierReturnLine.}
   - {id: SUPPLIER-CREDIT-LINE-005, rule: Credit calculation must use original transaction-time evidence rather than mutable current pricing or tax master data.}
   - {id: SUPPLIER-CREDIT-LINE-006, rule: Posted credit lines are immutable except through explicit reversal or compensating adjustment workflows.}

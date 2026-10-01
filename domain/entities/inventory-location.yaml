@@ -49,20 +49,20 @@ entity:
     target: WarehouseZone
     cardinality: 0..1
     ownership: reference
-    help: {summary: Operational warehouse zone containing this inventory location., businessMeaning: Supplies storage/process/control classification., usage: Putaway, picking, quarantine, replenishment and reporting., cardinalityMeaning: Optional for locations outside zoned warehouses., workflowRole: Location eligibility must comply with zone controls.}
+    help: {summary: Operational warehouse zone containing this inventory location., businessMeaning: Supplies storage/process/control classification., usage: "Putaway, picking, quarantine, replenishment and reporting.", cardinalityMeaning: Optional for locations outside zoned warehouses., workflowRole: Location eligibility must comply with zone controls.}
   - name: handlingUnits
     target: HandlingUnit
     cardinality: 0..*
     ownership: reference
-    help: {summary: Physical logistics units currently associated with this location., businessMeaning: Supports pallet/carton/tote execution without replacing stock balances., usage: Scanning, putaway, picking and count., cardinalityMeaning: Zero or many handling units., workflowRole: Handling-unit moves must reconcile with underlying inventory execution.}
+    help: {summary: Physical logistics units currently associated with this location., businessMeaning: Supports pallet/carton/tote execution without replacing stock balances., usage: "Scanning, putaway, picking and count.", cardinalityMeaning: Zero or many handling units., workflowRole: Handling-unit moves must reconcile with underlying inventory execution.}
   invariants:
   - {id: INVENTORY-LOCATION-001, rule: code must be unique within its Warehouse.}
   - {id: INVENTORY-LOCATION-002, rule: capacity must be non-negative when supplied.}
-  - {id: INVENTORY-LOCATION-003, rule: BLOCKED and INACTIVE locations must not receive new normal put-away, receipt, or transfer movements unless an explicit exception workflow permits them.}
+  - {id: INVENTORY-LOCATION-003, rule: "BLOCKED and INACTIVE locations must not receive new normal put-away, receipt, or transfer movements unless an explicit exception workflow permits them."}
   - {id: INVENTORY-LOCATION-004, rule: QUARANTINE stock must not be treated as unrestricted available inventory without explicit quality/disposition authorization.}
-  - {id: INVENTORY-LOCATION-005, rule: Changing status, warehouse, location type, capacity semantics, or operational eligibility must identify affected InventoryBalance, InventoryMovement, InventoryReservation, receiving, picking, transfer, replenishment, and fulfillment workflows before becoming effective.}
-  - {id: INVENTORY-LOCATION-006, rule: A location with on-hand stock cannot be made operationally inaccessible without a controlled relocation, exception, or stock-management workflow.}
-  - {id: INVENTORY-LOCATION-007, rule: Existing reservations on a blocked/inactive location must be released, transferred, or explicitly retained under an authorized exception before the location is excluded from allocation.}
+  - {id: INVENTORY-LOCATION-005, rule: "Changing status, warehouse, location type, capacity semantics, or operational eligibility must identify affected InventoryBalance, InventoryMovement, InventoryReservation, receiving, picking, transfer, replenishment, and fulfillment workflows before becoming effective."}
+  - {id: INVENTORY-LOCATION-006, rule: "A location with on-hand stock cannot be made operationally inaccessible without a controlled relocation, exception, or stock-management workflow."}
+  - {id: INVENTORY-LOCATION-007, rule: "Existing reservations on a blocked/inactive location must be released, transferred, or explicitly retained under an authorized exception before the location is excluded from allocation."}
   - {id: INVENTORY-LOCATION-008, rule: Historical inventory movements and balances must retain the original location identity even after the location becomes inactive.}
   help:
     summary: Granular inventory position whose lifecycle controls future execution while preserving historical inventory state.

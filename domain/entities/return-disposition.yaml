@@ -9,17 +9,17 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the return disposition decision., businessMeaning: Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects., usage: Used for reverse logistics, inventory, quality, audit and reconciliation., relationshipContext: CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence., workflowRole: Carries the disposition decision into execution and completion., requiredMeaning: Required.}
+    help: {summary: Stable identity of the return disposition decision., businessMeaning: "Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects.", usage: "Used for reverse logistics, inventory, quality, audit and reconciliation.", relationshipContext: "CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence.", workflowRole: Carries the disposition decision into execution and completion., requiredMeaning: Required.}
   - name: dispositionCode
     type: enum
     required: true
     values: [RESTOCK, QUARANTINE, RETURN_TO_SUPPLIER, REWORK, REPAIR, SCRAP, REJECT, ACCEPT, CONDITIONAL_RELEASE]
-    help: {summary: Controlled operational outcome selected for returned material., businessMeaning: Defines what should happen to the returned quantity., usage: Drives warehouse execution, quality containment and eligibility for inventory availability., relationshipContext: The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote., workflowRole: Determines which downstream physical workflow is permitted., requiredMeaning: Required.}
+    help: {summary: Controlled operational outcome selected for returned material., businessMeaning: Defines what should happen to the returned quantity., usage: "Drives warehouse execution, quality containment and eligibility for inventory availability.", relationshipContext: "The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote.", workflowRole: Determines which downstream physical workflow is permitted., requiredMeaning: Required.}
   - name: dispositionDate
     type: datetime
     required: true
     immutable: true
-    help: {summary: Timestamp when the disposition became effective., businessMeaning: Establishes chronology for the physical return decision., usage: Supports audit, warehouse processing, SLA measurement and reconciliation., relationshipContext: Distinct from returnDate, receiptDate and financial adjustment dates., workflowRole: Anchors execution of the disposition., requiredMeaning: Required.}
+    help: {summary: Timestamp when the disposition became effective., businessMeaning: Establishes chronology for the physical return decision., usage: "Supports audit, warehouse processing, SLA measurement and reconciliation.", relationshipContext: "Distinct from returnDate, receiptDate and financial adjustment dates.", workflowRole: Anchors execution of the disposition., requiredMeaning: Required.}
   - name: quantity
     type: decimal
     required: true
@@ -29,12 +29,12 @@ entity:
     required: true
     default: AUTHORIZED
     values: [DRAFT, AUTHORIZED, EXECUTED, CANCELLED, EXCEPTION]
-    help: {summary: Lifecycle state of the disposition decision., businessMeaning: Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed., usage: Controls whether downstream inventory execution is permitted., relationshipContext: Does not replace CustomerReturn, SupplierReturn or QualityInspection status., workflowRole: EXECUTED requires attributable physical evidence where the disposition changes inventory., requiredMeaning: Required.}
+    help: {summary: Lifecycle state of the disposition decision., businessMeaning: "Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed.", usage: Controls whether downstream inventory execution is permitted., relationshipContext: "Does not replace CustomerReturn, SupplierReturn or QualityInspection status.", workflowRole: EXECUTED requires attributable physical evidence where the disposition changes inventory., requiredMeaning: Required.}
   - name: reasonCode
     type: string
     required: false
     maxLength: 100
-    help: {summary: Business reason supporting the selected disposition., businessMeaning: Explains why the returned quantity received the selected operational outcome., usage: Used for quality analysis, supplier/customer disputes and reporting., relationshipContext: May derive from return reason or inspection evidence but remains disposition-specific., workflowRole: Supports authorization and exception handling., optionalMeaning: Optional when another controlled reason source is sufficient.}
+    help: {summary: Business reason supporting the selected disposition., businessMeaning: Explains why the returned quantity received the selected operational outcome., usage: "Used for quality analysis, supplier/customer disputes and reporting.", relationshipContext: May derive from return reason or inspection evidence but remains disposition-specific., workflowRole: Supports authorization and exception handling., optionalMeaning: Optional when another controlled reason source is sufficient.}
   relationships:
   - name: customerReturn
     target: CustomerReturn
@@ -60,7 +60,7 @@ entity:
     target: QualityInspection
     cardinality: 0..1
     ownership: reference
-    help: {summary: Quality inspection supporting the disposition decision., businessMeaning: Links the operational outcome to quality evidence where inspection is required., usage: Supports release, quarantine, rejection, repair, scrap and return decisions., workflowRole: Provides controlled evidence for disposition authorization.}
+    help: {summary: Quality inspection supporting the disposition decision., businessMeaning: Links the operational outcome to quality evidence where inspection is required., usage: "Supports release, quarantine, rejection, repair, scrap and return decisions.", workflowRole: Provides controlled evidence for disposition authorization.}
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
@@ -71,10 +71,10 @@ entity:
   - {id: RETURN-DISPOSITION-002, rule: quantity must be greater than zero and must not exceed the eligible quantity on the related return line except an explicitly authorized exception.}
   - {id: RETURN-DISPOSITION-003, rule: A disposition requiring quality evidence must reference a completed applicable QualityInspection.}
   - {id: RETURN-DISPOSITION-004, rule: Authorization of a disposition does not itself change InventoryBalance.}
-  - {id: RETURN-DISPOSITION-005, rule: RESTOCK, ACCEPT or RELEASE may increase unrestricted inventory only through an attributable InventoryMovement after required quality controls pass.}
-  - {id: RETURN-DISPOSITION-006, rule: QUARANTINE, REWORK, REPAIR, SCRAP and REJECT must not increase unrestricted available inventory.}
+  - {id: RETURN-DISPOSITION-005, rule: "RESTOCK, ACCEPT or RELEASE may increase unrestricted inventory only through an attributable InventoryMovement after required quality controls pass."}
+  - {id: RETURN-DISPOSITION-006, rule: "QUARANTINE, REWORK, REPAIR, SCRAP and REJECT must not increase unrestricted available inventory."}
   - {id: RETURN-DISPOSITION-007, rule: RETURN_TO_SUPPLIER requires SupplierReturn context and does not itself reduce inventory; physical reduction requires attributable InventoryMovement.}
-  - {id: RETURN-DISPOSITION-008, rule: Financial effects are separate from disposition and require CreditNote, SupplierCreditNote or another authorized financial adjustment.}
+  - {id: RETURN-DISPOSITION-008, rule: "Financial effects are separate from disposition and require CreditNote, SupplierCreditNote or another authorized financial adjustment."}
   - {id: RETURN-DISPOSITION-009, rule: Executed disposition quantities must reconcile with attributable InventoryMovement quantities where a physical effect is required.}
   - {id: RETURN-DISPOSITION-010, rule: Corrections after execution create compensating disposition or reversal evidence and do not rewrite historical decisions.}
   - {id: RETURN-DISPOSITION-011, rule: Execution must be idempotent and protected against duplicate inventory effects.}

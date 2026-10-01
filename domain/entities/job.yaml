@@ -5,7 +5,7 @@ entity:
   description: A governed reusable definition of work responsibilities, qualifications, classification, and organizational role characteristics that may be instantiated by Positions and occupied through Employment.
   identity: {key: jobId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: Stable job-definition identity., businessMeaning: Identifies reusable work definition., usage: Workforce planning, recruiting, position and compensation processes., relationshipContext: Positions may reference Job., requiredMeaning: Required.}}
+  - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: Stable job-definition identity., businessMeaning: Identifies reusable work definition., usage: "Workforce planning, recruiting, position and compensation processes.", relationshipContext: Positions may reference Job., requiredMeaning: Required.}}
   - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed job code., businessMeaning: Human/integration classification identifier., usage: HCM and reporting., relationshipContext: Independent of employee/position identity., requiredMeaning: Required.}}
   - {name: title, type: string, required: true, maxLength: 300, help: {summary: Standard job title., businessMeaning: Names the reusable work role., usage: Organization design and HR., relationshipContext: Position may have contextual display title., requiredMeaning: Required.}}
   - name: status
@@ -18,5 +18,5 @@ entity:
   invariants:
   - {id: JOB-001, rule: RETIRED Job cannot be newly assigned to a Position without governed reinstatement/migration.}
   - {id: JOB-002, rule: Job definition changes must not rewrite historical Employment terms.}
-  help: {summary: Reusable definition of work in HCM., businessMeaning: Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements., usage: Workforce planning, recruiting, position management and compensation., relationshipContext: Position instantiates Job; Employment remains transaction/relationship evidence.}
+  help: {summary: Reusable definition of work in HCM., businessMeaning: "Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements.", usage: "Workforce planning, recruiting, position management and compensation.", relationshipContext: "Position instantiates Job; Employment remains transaction/relationship evidence."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOB}

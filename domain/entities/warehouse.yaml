@@ -104,8 +104,8 @@ entity:
     target: WarehouseZone
     cardinality: 0..*
     ownership: aggregate
-    help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: Receiving, putaway, picking, quarantine, staging and shipping., cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
-  - {name: docks, target: Dock, cardinality: 0..*, ownership: aggregate, help: {summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: Dock scheduling, receiving, shipping and cross-dock., cardinalityMeaning: Zero or many docks., workflowRole: Dock eligibility constrains shipment execution.}}
+    help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: "Receiving, putaway, picking, quarantine, staging and shipping.", cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
+  - {name: docks, target: Dock, cardinality: "0..*", ownership: aggregate, help: {summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: "Dock scheduling, receiving, shipping and cross-dock.", cardinalityMeaning: Zero or many docks., workflowRole: Dock eligibility constrains shipment execution.}}
   - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., cardinalityMeaning: Zero or many waves., workflowRole: Wave does not itself alter inventory.}}
   invariants:
   - id: WAREHOUSE-001

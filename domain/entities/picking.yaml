@@ -12,7 +12,7 @@ entity:
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
-    help: {summary: Picking execution state., businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: PICKED is warehouse evidence, not shipment delivery., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help: {summary: Picking execution state., businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: "PICKED is warehouse evidence, not shipment delivery.", valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
   relationships:
   - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
   - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., cardinalityMeaning: Exactly one source., workflowRole: Must hold eligible stock.}}
@@ -21,7 +21,7 @@ entity:
   - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment demand served by pick., businessMeaning: Connects warehouse selection to logistics execution., usage: Fulfillment., cardinalityMeaning: Optional outside shipment picking., workflowRole: Pick does not itself mark shipment delivered.}}
   invariants:
   - {id: PICKING-001, rule: quantity must be greater than zero.}
-  - {id: PICKING-002, rule: Picked Product, lot and serial eligibility must satisfy reservation/demand and source availability.}
+  - {id: PICKING-002, rule: "Picked Product, lot and serial eligibility must satisfy reservation/demand and source availability."}
   - {id: PICKING-003, rule: Pick confirmation must not duplicate reservation consumption or inventory relocation/issue on retry.}
   help:
     summary: Warehouse inventory-selection task for authorized demand.

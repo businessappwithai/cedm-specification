@@ -5,7 +5,7 @@ entity:
   description: An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction.
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: Integration, event processing, reporting and audit., relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
   - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
   relationships: []
   invariants:

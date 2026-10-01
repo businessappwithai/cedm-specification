@@ -48,6 +48,27 @@ def load_yaml(path: pathlib.Path):
         return {}
 
 
+def split_text(value, where: str = "entity") -> list[str]:
+    """Paths whose mapping holds text a flow mapping cut at a comma.
+
+    The signature is a null-valued key straight after a text value: in
+    `{rule: a, b}` YAML reads `b` as a key with no value. A null that follows
+    anything else (`key: null` on a value object's identity) is deliberate.
+    """
+    found: list[str] = []
+    if isinstance(value, dict):
+        items = list(value.values())
+        if any(item is None and isinstance(before, str) for before, item in zip(items, items[1:])):
+            found.append(where)
+        for key, item in value.items():
+            if item is not None:
+                found.extend(split_text(item, f"{where}.{key}"))
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            found.extend(split_text(item, f"{where}[{index}]"))
+    return found
+
+
 def main() -> int:
     if not REGISTRY.exists():
         errors.append(f"Missing registry: {REGISTRY}")
@@ -76,6 +97,12 @@ def main() -> int:
         if name in entities:
             errors.append(f"Duplicate entity name: {name}")
         entities[name] = (path, entity)
+
+        for where in split_text(entity):
+            errors.append(
+                f"{path}: {where} has text split at a comma by a YAML flow mapping "
+                "(quote it; tools/repair_flow_text.py repairs this)"
+            )
 
         identity = entity.get("identity", {})
         if entity.get("kind") != "value_object" and not identity.get("key"):

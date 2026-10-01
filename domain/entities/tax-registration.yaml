@@ -5,7 +5,7 @@ entity:
   description: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: Enterprise processing, integration, reporting and audit., relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
@@ -14,7 +14,7 @@ entity:
   relationships:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:
-  - {id: TAX-REGISTRATION-001, rule: This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity.}
+  - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   help:
     summary: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
     purpose: Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated.

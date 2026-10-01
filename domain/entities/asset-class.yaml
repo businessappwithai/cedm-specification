@@ -5,8 +5,8 @@ entity:
   description: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
   identity: {key: assetClassId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: assetClassId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetClass., businessMeaning: Identifies one governed AssetClass record independently of mutable state., usage: Operations, finance, integration, reporting and audit., relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: Lifecycle, reconciliation and reporting., relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - {name: assetClassId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetClass., businessMeaning: Identifies one governed AssetClass record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
   relationships: []
   invariants:
   - {id: ASSET-CLASS-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}

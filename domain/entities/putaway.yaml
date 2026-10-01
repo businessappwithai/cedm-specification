@@ -21,7 +21,7 @@ entity:
   - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., usage: Reconciliation., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
   invariants:
   - {id: PUTAWAY-001, rule: quantity must be greater than zero and source/target must differ.}
-  - {id: PUTAWAY-002, rule: Target must satisfy WarehouseZone, product, quality, capacity and handling constraints.}
+  - {id: PUTAWAY-002, rule: "Target must satisfy WarehouseZone, product, quality, capacity and handling constraints."}
   - {id: PUTAWAY-003, rule: COMPLETED requires attributable transfer/movement evidence and retries must be idempotent.}
   help:
     summary: Directed inbound/staging-to-storage warehouse task.

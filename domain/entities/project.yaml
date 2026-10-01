@@ -166,7 +166,7 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
-  - {name: phases, target: ProjectPhase, cardinality: 0..*, ownership: aggregate, help: {summary: Governed lifecycle stages of Project., businessMeaning: Groups tasks/milestones into project phases., usage: Planning, execution and reporting., cardinalityMeaning: Zero or many phases., workflowRole: Phase lifecycle must reconcile with project lifecycle.}}
+  - {name: phases, target: ProjectPhase, cardinality: "0..*", ownership: aggregate, help: {summary: Governed lifecycle stages of Project., businessMeaning: Groups tasks/milestones into project phases., usage: "Planning, execution and reporting.", cardinalityMeaning: Zero or many phases., workflowRole: Phase lifecycle must reconcile with project lifecycle.}}
   invariants:
   - id: PROJECT-001
     rule: endDate must not precede startDate.

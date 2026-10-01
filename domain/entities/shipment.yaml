@@ -26,7 +26,7 @@ entity:
     target: ShipmentLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: Product-level quantities executed by the shipment., businessMeaning: Provides line-level logistics traceability to orders and inventory events., usage: Packing, dispatch, delivery, fulfillment, receiving, and audit., cardinalityMeaning: An executable shipment contains at least one line., workflowRole: Line quantities reconcile transport execution with source demand and attributable InventoryMovement.}
+    help: {summary: Product-level quantities executed by the shipment., businessMeaning: Provides line-level logistics traceability to orders and inventory events., usage: "Packing, dispatch, delivery, fulfillment, receiving, and audit.", cardinalityMeaning: An executable shipment contains at least one line., workflowRole: Line quantities reconcile transport execution with source demand and attributable InventoryMovement.}
   - name: origin
     target: Location
     cardinality: 0..1
@@ -55,7 +55,7 @@ entity:
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
-  - {name: handlingUnits, target: HandlingUnit, cardinality: 0..*, ownership: reference, help: {summary: Physical logistics units assigned to shipment., businessMeaning: Identifies pallets/cartons/totes/packages transported., usage: Packing, loading, tracking and delivery., cardinalityMeaning: Zero or many handling units., workflowRole: Assignment does not itself dispatch or alter stock.}}
+  - {name: handlingUnits, target: HandlingUnit, cardinality: "0..*", ownership: reference, help: {summary: Physical logistics units assigned to shipment., businessMeaning: Identifies pallets/cartons/totes/packages transported., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Zero or many handling units., workflowRole: Assignment does not itself dispatch or alter stock.}}
   - {name: packingTasks, target: Packing, cardinality: 0..*, ownership: reference, help: {summary: Warehouse packing evidence preparing goods for shipment., businessMeaning: Connects picked goods and packages to transport readiness., usage: Fulfillment and loading., cardinalityMeaning: Zero or many packing tasks., workflowRole: PACKED is not dispatch/delivery evidence.}}
   - {name: dock, target: Dock, cardinality: 0..1, ownership: reference, help: {summary: Warehouse dock used for shipment loading/unloading., businessMeaning: Provides physical execution resource., usage: Dock scheduling and carrier handoff., cardinalityMeaning: Optional for shipments not executed at managed dock., workflowRole: Dock type/direction must be compatible.}}
   invariants:
@@ -69,7 +69,7 @@ entity:
   - {id: SHIPMENT-008, rule: A RETURN shipment must reference an authorized return/receiving workflow before returned goods increase available inventory.}
   - {id: SHIPMENT-009, rule: Dispatch or delivery events that affect inventory or SalesOrderLine fulfillment must be idempotent and traceable to the originating shipment execution event.}
   - {id: SHIPMENT-010, rule: Cancelling or reversing a shipment with posted inventory or fulfillment effects requires compensating InventoryMovement and fulfillment reversal/reconciliation workflows; status change alone is insufficient.}
-  - {id: SHIPMENT-011, rule: Changes to SalesOrder, PurchaseOrder, Product, UnitOfMeasure, InventoryLocation, Carrier or container eligibility that affect an open shipment must trigger controlled revalidation before dispatch or delivery progression.}
+  - {id: SHIPMENT-011, rule: "Changes to SalesOrder, PurchaseOrder, Product, UnitOfMeasure, InventoryLocation, Carrier or container eligibility that affect an open shipment must trigger controlled revalidation before dispatch or delivery progression."}
   - {id: SHIPMENT-012, rule: DELIVERED is transport evidence and must not directly set Invoice status to paid or settled.}
   help:
     summary: Represents physical logistics execution bridging commercial fulfillment and transport while keeping inventory and financial state under their authoritative workflows.

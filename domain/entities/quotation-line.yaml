@@ -76,9 +76,9 @@ entity:
   - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
   - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}
   - {id: QUOTATION-LINE-003, rule: amount.currency must equal unitPrice.currency.}
-  - {id: QUOTATION-LINE-004, rule: amount must reconcile with quantity and unitPrice under the quotation's pricing and rounding policy, including explicitly represented discounts where applicable.}
-  - {id: QUOTATION-LINE-005, rule: Changing a Product, PriceList, DiscountRule, Currency policy, or UnitOfMeasure after quotation acceptance must not silently rewrite the accepted quotation line.}
-  - {id: QUOTATION-LINE-006, rule: Conversion from an accepted QuotationLine to SalesOrderLine must carry forward the effective quantity, UOM, unitPrice, currency, discount evidence, and applicable pricing source rather than re-querying master pricing without an explicit repricing action.}
+  - {id: QUOTATION-LINE-004, rule: "amount must reconcile with quantity and unitPrice under the quotation's pricing and rounding policy, including explicitly represented discounts where applicable."}
+  - {id: QUOTATION-LINE-005, rule: "Changing a Product, PriceList, DiscountRule, Currency policy, or UnitOfMeasure after quotation acceptance must not silently rewrite the accepted quotation line."}
+  - {id: QUOTATION-LINE-006, rule: "Conversion from an accepted QuotationLine to SalesOrderLine must carry forward the effective quantity, UOM, unitPrice, currency, discount evidence, and applicable pricing source rather than re-querying master pricing without an explicit repricing action."}
   help:
     summary: Preserves the commercial terms offered to a customer and the evidence needed when those terms become an order.
     businessMeaning: QuotationLine is a transaction-time commercial snapshot, not merely a pointer to current pricing master data.

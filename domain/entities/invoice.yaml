@@ -309,17 +309,17 @@ entity:
         workflowRole: Active applications reduce payable exposure according to governed policy.
   invariants:
     - {id: INVOICE-001, rule: All Invoice Money values must use the Invoice currency.}
-    - {id: INVOICE-002, rule: totalAmount must reconcile with line-derived amounts, document discounts, taxes, credits, debits, and authorized adjustments.}
+    - {id: INVOICE-002, rule: "totalAmount must reconcile with line-derived amounts, document discounts, taxes, credits, debits, and authorized adjustments."}
     - {id: INVOICE-003, rule: dueDate must not precede invoiceDate.}
     - {id: INVOICE-004, rule: An ISSUED invoice must have at least one InvoiceLine.}
     - {id: INVOICE-005, rule: SALES invoices require Customer context and PURCHASE invoices require Supplier context unless an explicitly supported subtype provides another party model.}
     - {id: INVOICE-006, rule: A PURCHASE invoice linked to a PurchaseOrder must use applicable accepted GoodsReceipt evidence when three-way matching is required.}
-    - {id: INVOICE-007, rule: amountSettled must reconcile with active PaymentAllocation records, including currency-conversion context where applicable.}
+    - {id: INVOICE-007, rule: "amountSettled must reconcile with active PaymentAllocation records, including currency-conversion context where applicable."}
     - {id: INVOICE-008, rule: amountCredited must reconcile with active CreditNote application evidence and must not exceed the eligible claim under configured policy.}
-    - {id: INVOICE-009, rule: amountOutstanding must reconcile with totalAmount, active settlement allocations, and authorized CreditNote, SupplierCreditNoteApplication, and SupplierDebitNoteApplication evidence in invoice currency.}
+    - {id: INVOICE-009, rule: "amountOutstanding must reconcile with totalAmount, active settlement allocations, and authorized CreditNote, SupplierCreditNoteApplication, and SupplierDebitNoteApplication evidence in invoice currency."}
     - {id: INVOICE-010, rule: PAID requires amountOutstanding to satisfy the applicable zero-tolerance or rounding policy.}
-    - {id: INVOICE-011, rule: Issued monetary results must preserve applicable pricing, discount, tax, currency, exchange-rate, and rounding evidence required for historical reproducibility.}
-    - {id: INVOICE-012, rule: Original Invoice and InvoiceLine values remain immutable after posting; returns, corrections and concessions use explicit CreditNote, SupplierCreditNote, SupplierDebitNote, or other authorized adjustment documents.}
+    - {id: INVOICE-011, rule: "Issued monetary results must preserve applicable pricing, discount, tax, currency, exchange-rate, and rounding evidence required for historical reproducibility."}
+    - {id: INVOICE-012, rule: "Original Invoice and InvoiceLine values remain immutable after posting; returns, corrections and concessions use explicit CreditNote, SupplierCreditNote, SupplierDebitNote, or other authorized adjustment documents."}
     - {id: INVOICE-013, rule: Active SupplierCreditNoteApplication and SupplierDebitNoteApplication records must be validated against eligible PURCHASE invoice exposure and must not create duplicate claim-level settlement effects.}
   help:
     summary: Represents a formal financial claim and its controlled settlement and adjustment state.

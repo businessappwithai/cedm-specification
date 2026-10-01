@@ -5,7 +5,7 @@ entity:
   description: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
   identity: {key: escalationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Escalation., businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: Workflow, authorization, integration and audit., relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Escalation., businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true

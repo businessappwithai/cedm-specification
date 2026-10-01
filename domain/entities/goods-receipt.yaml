@@ -5,34 +5,34 @@ entity:
   description: A controlled record confirming physical or service fulfillment received against a PurchaseOrder, with line-level evidence of quantities received, accepted, rejected, pending inspection, and later eligible supplier returns. Header state and totals are projections of line-level receipt disposition and downstream posting state.
   identity: {key: goodsReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: goodsReceiptId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt., businessMeaning: Identifies the historical receiving event independently of later supplier returns or corrections., usage: Receiving, inventory, procurement, audit and reconciliation., relationshipContext: SupplierReturn references eligible receipt evidence without rewriting this identity., workflowRole: Stable root reference for receipt lifecycle and downstream traceability., requiredMeaning: Required.}}
-  - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing receiving reference., businessMeaning: Identifies the receipt in warehouse and supplier operations., usage: Documents, audit, matching and return processing., relationshipContext: Distinct from SupplierReturn.returnNumber and PurchaseOrder number., workflowRole: Provides operational reference across receipt and later return workflows., requiredMeaning: Required.}}
-  - {name: receiptDate, type: datetime, required: true, help: {summary: Date and time the receipt was recorded., businessMeaning: Establishes receiving chronology., usage: Inventory history, procurement, matching and audit., relationshipContext: Distinct from later SupplierReturn.returnDate., workflowRole: Anchors original receipt evidence., requiredMeaning: Required.}}
+  - {name: goodsReceiptId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt., businessMeaning: Identifies the historical receiving event independently of later supplier returns or corrections., usage: "Receiving, inventory, procurement, audit and reconciliation.", relationshipContext: SupplierReturn references eligible receipt evidence without rewriting this identity., workflowRole: Stable root reference for receipt lifecycle and downstream traceability., requiredMeaning: Required.}}
+  - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing receiving reference., businessMeaning: Identifies the receipt in warehouse and supplier operations., usage: "Documents, audit, matching and return processing.", relationshipContext: Distinct from SupplierReturn.returnNumber and PurchaseOrder number., workflowRole: Provides operational reference across receipt and later return workflows., requiredMeaning: Required.}}
+  - {name: receiptDate, type: datetime, required: true, help: {summary: Date and time the receipt was recorded., businessMeaning: Establishes receiving chronology., usage: "Inventory history, procurement, matching and audit.", relationshipContext: Distinct from later SupplierReturn.returnDate., workflowRole: Anchors original receipt evidence., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, RECEIVED, INSPECTION_PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, CANCELLED]
     help: {summary: Controlled receiving-document lifecycle state., businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory., usage: Controls receiving progression and authorized corrections., relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status., workflowRole: Controls receiving progression and authorized corrections.}
-  - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Total quantity physically recorded as received., businessMeaning: Sum of line received quantities., usage: Receiving and audit., relationshipContext: SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone., workflowRole: Provides original physical receipt basis., requiredMeaning: Required.}}
-  - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity accepted after receiving controls., businessMeaning: Sum of line accepted quantities that may become inventory., usage: Inventory posting, PO fulfillment and invoice matching., relationshipContext: SupplierReturnLine eligibility is normally based on accepted quantity and subsequent prior returns., workflowRole: Provides authoritative accepted receipt basis for later supplier returns., requiredMeaning: Required.}}
+  - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Total quantity physically recorded as received., businessMeaning: Sum of line received quantities., usage: Receiving and audit., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis., requiredMeaning: Required.}}
+  - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity accepted after receiving controls., businessMeaning: Sum of line accepted quantities that may become inventory., usage: "Inventory posting, PO fulfillment and invoice matching.", relationshipContext: SupplierReturnLine eligibility is normally based on accepted quantity and subsequent prior returns., workflowRole: Provides authoritative accepted receipt basis for later supplier returns., requiredMeaning: Required.}}
   - {name: notes, type: string, required: false, maxLength: 2000, help: {summary: Receiving notes and operational context., businessMeaning: Human-readable context for receipt exceptions or inspection., usage: Operations and audit., relationshipContext: Does not replace structured disposition or return evidence., workflowRole: Supports review., optionalMeaning: Optional.}}
   relationships:
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: '1'
     ownership: reference
-    help: {summary: Procurement commitment fulfilled by this receipt., businessMeaning: Connects received goods to what was ordered., usage: Receiving, fulfillment, matching and supplier return eligibility., workflowRole: Supplies original procurement context.}
+    help: {summary: Procurement commitment fulfilled by this receipt., businessMeaning: Connects received goods to what was ordered., usage: "Receiving, fulfillment, matching and supplier return eligibility.", workflowRole: Supplies original procurement context.}
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help: {summary: Supplier that delivered the receipt., businessMeaning: Identifies the commercial party responsible for the delivery., usage: Receiving, procurement, audit and supplier return processing., workflowRole: Supplies supplier context for subsequent returns.}
+    help: {summary: Supplier that delivered the receipt., businessMeaning: Identifies the commercial party responsible for the delivery., usage: "Receiving, procurement, audit and supplier return processing.", workflowRole: Supplies supplier context for subsequent returns.}
   - name: lines
     target: GoodsReceiptLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: Detailed receipt and disposition lines., businessMeaning: Line evidence is authoritative for quantities and later return eligibility., usage: Receiving, inventory, quality, matching and returns., cardinalityMeaning: A receipt requires at least one line., workflowRole: Drives header totals and downstream posting.}
+    help: {summary: Detailed receipt and disposition lines., businessMeaning: Line evidence is authoritative for quantities and later return eligibility., usage: "Receiving, inventory, quality, matching and returns.", cardinalityMeaning: A receipt requires at least one line., workflowRole: Drives header totals and downstream posting.}
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
@@ -47,7 +47,7 @@ entity:
     target: SupplierReturn
     cardinality: 0..*
     ownership: reference
-    help: {summary: Supplier returns that use this receipt as eligibility evidence., businessMeaning: Connects the original accepted receipt to later reverse-procurement events without mutating the receipt history., usage: Return authorization, inventory reversal, supplier credit and audit., cardinalityMeaning: A receipt may support no returns, one return, or multiple controlled returns up to eligible quantity., workflowRole: Provides the receipt basis used by SupplierReturn and SupplierReturnLine eligibility validation.}
+    help: {summary: Supplier returns that use this receipt as eligibility evidence., businessMeaning: Connects the original accepted receipt to later reverse-procurement events without mutating the receipt history., usage: "Return authorization, inventory reversal, supplier credit and audit.", cardinalityMeaning: "A receipt may support no returns, one return, or multiple controlled returns up to eligible quantity.", workflowRole: Provides the receipt basis used by SupplierReturn and SupplierReturnLine eligibility validation.}
   invariants:
   - {id: GOODS-RECEIPT-001, rule: receivedQuantity must equal the sum of GoodsReceiptLine.receivedQuantity.}
   - {id: GOODS-RECEIPT-002, rule: acceptedQuantity must equal the sum of GoodsReceiptLine.acceptedQuantity.}
@@ -57,14 +57,14 @@ entity:
   - {id: GOODS-RECEIPT-006, rule: PARTIALLY_ACCEPTED requires at least one accepted quantity and at least one rejected or pending quantity unless explicit disposition policy defines otherwise.}
   - {id: GOODS-RECEIPT-007, rule: REJECTED requires no accepted quantity unless controlled partial-rejection workflow is represented by PARTIALLY_ACCEPTED.}
   - {id: GOODS-RECEIPT-008, rule: INSPECTION_PENDING requires at least one line with pendingInspectionQuantity greater than zero.}
-  - {id: GOODS-RECEIPT-009, rule: A DRAFT receipt must not update PurchaseOrder fulfillment, InventoryBalance, InventoryMovement posting state, or invoice matching evidence.}
-  - {id: GOODS-RECEIPT-010, rule: Transition out of DRAFT requires line validation, product/UOM validation, PO linkage validation and duplicate/idempotency validation.}
+  - {id: GOODS-RECEIPT-009, rule: "A DRAFT receipt must not update PurchaseOrder fulfillment, InventoryBalance, InventoryMovement posting state, or invoice matching evidence."}
+  - {id: GOODS-RECEIPT-010, rule: "Transition out of DRAFT requires line validation, product/UOM validation, PO linkage validation and duplicate/idempotency validation."}
   - {id: GOODS-RECEIPT-011, rule: Posting accepted receipt quantities must update PurchaseOrderLine fulfillment and InventoryBalance through one controlled workflow and must be idempotent.}
-  - {id: GOODS-RECEIPT-012, rule: A receipt cannot be marked ACCEPTED if required accepted-line InventoryMovement posting failed or is incomplete, unless a governed service/non-stock workflow applies.}
+  - {id: GOODS-RECEIPT-012, rule: "A receipt cannot be marked ACCEPTED if required accepted-line InventoryMovement posting failed or is incomplete, unless a governed service/non-stock workflow applies."}
   - {id: GOODS-RECEIPT-013, rule: CANCELLED receipts cannot be physically reversed by status change alone; posted effects require compensating reversal/disposition events.}
-  - {id: GOODS-RECEIPT-014, rule: Corrections to posted receipt evidence must use reversal, supplier return, rejection or adjustment workflows and preserve the original receipt.}
-  - {id: GOODS-RECEIPT-015, rule: Changes to PurchaseOrder, Supplier, Product, UnitOfMeasure, Warehouse or InventoryLocation affecting an open receipt require revalidation.}
-  - {id: GOODS-RECEIPT-016, rule: SupplierReturn eligibility must be derived from accepted GoodsReceiptLine evidence after subtracting quantities already returned through posted SupplierReturnLine records, except authorized exceptions.}
+  - {id: GOODS-RECEIPT-014, rule: "Corrections to posted receipt evidence must use reversal, supplier return, rejection or adjustment workflows and preserve the original receipt."}
+  - {id: GOODS-RECEIPT-015, rule: "Changes to PurchaseOrder, Supplier, Product, UnitOfMeasure, Warehouse or InventoryLocation affecting an open receipt require revalidation."}
+  - {id: GOODS-RECEIPT-016, rule: "SupplierReturn eligibility must be derived from accepted GoodsReceiptLine evidence after subtracting quantities already returned through posted SupplierReturnLine records, except authorized exceptions."}
   - {id: GOODS-RECEIPT-017, rule: A SupplierReturn must not change receivedQuantity or acceptedQuantity on the historical receipt; physical reduction is represented by attributable InventoryMovement events.}
   help:
     summary: Controlled receiving document whose line evidence establishes original fulfillment and eligible basis for later supplier returns.

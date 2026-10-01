@@ -61,24 +61,24 @@ entity:
     target: Lot
     cardinality: 0..*
     ownership: reference
-    help: {summary: Traceable batches associated with the Product., businessMeaning: Provides batch genealogy for produced or received quantities., usage: Inventory, quality, expiry, and recall., cardinalityMeaning: Many lots may exist over product lifetime., workflowRole: Lot status constrains future inventory use without changing Product identity.}
+    help: {summary: Traceable batches associated with the Product., businessMeaning: Provides batch genealogy for produced or received quantities., usage: "Inventory, quality, expiry, and recall.", cardinalityMeaning: Many lots may exist over product lifetime., workflowRole: Lot status constrains future inventory use without changing Product identity.}
   - name: serialNumbers
     target: SerialNumber
     cardinality: 0..*
     ownership: reference
-    help: {summary: Individually traceable units of the Product., businessMeaning: Provides unit-level identity and custody history., usage: Inventory, logistics, service, warranty, returns, and assets., cardinalityMeaning: Many serialized units may exist., workflowRole: Serial lifecycle constrains unit eligibility independently of product master status.}
+    help: {summary: Individually traceable units of the Product., businessMeaning: Provides unit-level identity and custody history., usage: "Inventory, logistics, service, warranty, returns, and assets.", cardinalityMeaning: Many serialized units may exist., workflowRole: Serial lifecycle constrains unit eligibility independently of product master status.}
   - name: brand
     target: Brand
     cardinality: 0..1
     ownership: reference
-    help: {summary: Commercial/manufacturer brand of Product., businessMeaning: Supplies market identity independently of category., usage: PIM, catalog, sales, sourcing and reporting., cardinalityMeaning: Optional for unbranded products., workflowRole: Brand lifecycle affects future catalog/master eligibility without rewriting historical transactions.}
+    help: {summary: Commercial/manufacturer brand of Product., businessMeaning: Supplies market identity independently of category., usage: "PIM, catalog, sales, sourcing and reporting.", cardinalityMeaning: Optional for unbranded products., workflowRole: Brand lifecycle affects future catalog/master eligibility without rewriting historical transactions.}
   - name: variants
     target: ProductVariant
     cardinality: 0..*
     ownership: aggregate
-    help: {summary: Governed configurations belonging to this product family., businessMeaning: Represents specific option combinations such as size, color, grade or pack., usage: Catalog, commerce, inventory and manufacturing., cardinalityMeaning: Zero or many variants., workflowRole: Parent Product restrictions propagate to variants.}
-  - {name: attributes, target: ProductAttribute, cardinality: 0..*, ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: PIM, search and variant configuration., cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}}
-  - {name: packagingConfigurations, target: Packaging, cardinality: 0..*, ownership: aggregate, help: {summary: Governed pack configurations for Product., businessMeaning: Defines quantity/containment options for commercial and logistics use., usage: Procurement, sales, WMS and shipping., cardinalityMeaning: Zero or many configurations., workflowRole: Conversion changes require open-work impact analysis.}}
+    help: {summary: Governed configurations belonging to this product family., businessMeaning: "Represents specific option combinations such as size, color, grade or pack.", usage: "Catalog, commerce, inventory and manufacturing.", cardinalityMeaning: Zero or many variants., workflowRole: Parent Product restrictions propagate to variants.}
+  - {name: attributes, target: ProductAttribute, cardinality: "0..*", ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: "PIM, search and variant configuration.", cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}}
+  - {name: packagingConfigurations, target: Packaging, cardinality: "0..*", ownership: aggregate, help: {summary: Governed pack configurations for Product., businessMeaning: Defines quantity/containment options for commercial and logistics use., usage: "Procurement, sales, WMS and shipping.", cardinalityMeaning: Zero or many configurations., workflowRole: Conversion changes require open-work impact analysis.}}
   - {name: lifecycleHistory, target: ProductLifecycle, cardinality: 0..*, ownership: aggregate, help: {summary: Effective-dated lifecycle transition history., businessMeaning: Preserves why/when Product eligibility changed., usage: Governance and audit., cardinalityMeaning: Zero or many lifecycle events., workflowRole: Current status must reconcile to effective history.}}
   invariants:
   - id: PRODUCT-001

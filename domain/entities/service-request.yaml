@@ -187,7 +187,7 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
-  - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: 0..1, ownership: reference, help: {summary: SLA governing request service targets., businessMeaning: Supplies response/resolution commitments., usage: Deadline, escalation and compliance measurement., cardinalityMeaning: Optional when no SLA applies., workflowRole: Applied SLA/version must be retained for historical measurement.}}
+  - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: "0..1", ownership: reference, help: {summary: SLA governing request service targets., businessMeaning: Supplies response/resolution commitments., usage: "Deadline, escalation and compliance measurement.", cardinalityMeaning: Optional when no SLA applies., workflowRole: Applied SLA/version must be retained for historical measurement.}}
   invariants:
   - id: SERVICE-REQUEST-001
     rule: resolvedAt is required when status is RESOLVED or CLOSED.

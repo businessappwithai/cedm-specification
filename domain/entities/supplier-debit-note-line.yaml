@@ -21,11 +21,11 @@ entity:
   invariants:
   - {id: SUPPLIER-DEBIT-LINE-001, rule: lineNumber must be unique within SupplierDebitNote.}
   - {id: SUPPLIER-DEBIT-LINE-002, rule: Monetary values must use SupplierDebitNote.currencyId.}
-  - {id: SUPPLIER-DEBIT-LINE-003, rule: quantity, when present, must be greater than zero.}
+  - {id: SUPPLIER-DEBIT-LINE-003, rule: "quantity, when present, must be greater than zero."}
   - {id: SUPPLIER-DEBIT-LINE-004, rule: grossAmount and taxAmount must reconcile to netAmount under the governing tax and rounding policy.}
   - {id: SUPPLIER-DEBIT-LINE-005, rule: Quantity-based valuation must preserve sufficient original InvoiceLine or other source evidence for reproducibility.}
   - {id: SUPPLIER-DEBIT-LINE-006, rule: Posted line values are immutable except through explicit reversal or compensating adjustment workflows.}
-  - {id: SUPPLIER-DEBIT-LINE-007, rule: When SupplierClaimResolution is linked, its resolutionType must authorize DEBIT_ADJUSTMENT and the line must remain within the approved recovery amount.}
+  - {id: SUPPLIER-DEBIT-LINE-007, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize DEBIT_ADJUSTMENT and the line must remain within the approved recovery amount."}
   help:
     summary: Provides the auditable financial detail supporting one component of a SupplierDebitNote.
     businessMeaning: The line explains exactly how a supplier recovery amount was calculated; it does not replace the original invoice supplier claim or claim resolution.

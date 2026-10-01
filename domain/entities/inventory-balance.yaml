@@ -73,7 +73,7 @@ entity:
     target: Lot
     cardinality: 0..1
     ownership: reference
-    help: {summary: Lot segment represented by this balance when lot-controlled., businessMeaning: Separates stock state by batch for quality, expiry, and recall., usage: Allocation, FEFO, recall, and reconciliation., cardinalityMeaning: Optional for non-lot-controlled products., workflowRole: Balance must reconcile to lot-attributed movements.}
+    help: {summary: Lot segment represented by this balance when lot-controlled., businessMeaning: "Separates stock state by batch for quality, expiry, and recall.", usage: "Allocation, FEFO, recall, and reconciliation.", cardinalityMeaning: Optional for non-lot-controlled products., workflowRole: Balance must reconcile to lot-attributed movements.}
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
@@ -82,14 +82,14 @@ entity:
       summary: Posted inventory events contributing to the balance projection.
       workflowRole: Supplies the historical event stream against which the balance must reconcile.
   invariants:
-  - {id: INVENTORY-BALANCE-001, rule: quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy permits it.}
+  - {id: INVENTORY-BALANCE-001, rule: "quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy permits it."}
   - {id: INVENTORY-BALANCE-002, rule: quantityReserved must not normally exceed quantityOnHand.}
   - {id: INVENTORY-BALANCE-003, rule: quantityAvailable normally equals quantityOnHand minus quantityReserved before additional availability restrictions.}
   - {id: INVENTORY-BALANCE-004, rule: InventoryBalance is a derived projection and must not be used as an independent source of historical inventory truth.}
-  - {id: INVENTORY-BALANCE-005, rule: Every material balance change must be attributable to a posted InventoryMovement, reservation/release event, or approved reconciliation workflow.}
+  - {id: INVENTORY-BALANCE-005, rule: "Every material balance change must be attributable to a posted InventoryMovement, reservation/release event, or approved reconciliation workflow."}
   - {id: INVENTORY-BALANCE-006, rule: Reservation and release operations must update reserved and available quantities atomically with their authorization/event and concurrency control.}
   - {id: INVENTORY-BALANCE-007, rule: Product or UnitOfMeasure master changes must not directly rewrite historical inventory quantities; affected future operations require validation of measurement and product eligibility.}
-  - {id: INVENTORY-BALANCE-008, rule: InventoryLocation status or hierarchy changes must trigger validation of affected future movements, reservations, transfers and fulfillment workflows before the location becomes unavailable.}
+  - {id: INVENTORY-BALANCE-008, rule: "InventoryLocation status or hierarchy changes must trigger validation of affected future movements, reservations, transfers and fulfillment workflows before the location becomes unavailable."}
   - {id: INVENTORY-BALANCE-009, rule: A posted inventory correction must be represented by an adjustment/reversal event and must not directly overwrite quantityOnHand history.}
   help:
     summary: Current inventory state projection maintained from authoritative inventory events and reservation workflows.

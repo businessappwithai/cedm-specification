@@ -5,7 +5,7 @@ entity:
   description: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
   identity: {key: deliveryAttemptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: Integration, event processing, reporting and audit., relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
   - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
   relationships:
   - {name: message, target: Message, cardinality: '1', ownership: reference, help: {summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., cardinalityMeaning: Exactly one Message., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}

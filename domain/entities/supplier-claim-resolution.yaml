@@ -27,7 +27,7 @@ entity:
   - {id: SUPPLIER-CLAIM-RESOLUTION-007, rule: Resolution approval must not mutate the original PurchaseOrder GoodsReceipt Invoice QualityInspection or SupplierClaim evidence.}
   - {id: SUPPLIER-CLAIM-RESOLUTION-008, rule: Corrections after execution use reversal or compensating workflows in the affected downstream transaction and retain the original resolution history.}
   - {id: SUPPLIER-CLAIM-RESOLUTION-009, rule: Resolution execution must be idempotent and must not create duplicate returns credits debit notes or payments.}
-  - {id: SUPPLIER-CLAIM-RESOLUTION-010, rule: When approvedAmount is present, aggregate authorized financial execution must not exceed it except under explicit correction policy.}
+  - {id: SUPPLIER-CLAIM-RESOLUTION-010, rule: "When approvedAmount is present, aggregate authorized financial execution must not exceed it except under explicit correction policy."}
   help:
     summary: Converts a supplier claim decision into a controlled auditable execution plan without conflating the case remedy and resulting transactions.
     businessMeaning: SupplierClaim explains the problem; SupplierClaimResolution records the agreed remedy; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment execute distinct physical or financial consequences.

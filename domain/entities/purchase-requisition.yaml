@@ -104,7 +104,7 @@ entity:
     target: RequestForQuotation
     cardinality: 0..*
     ownership: reference
-    help: {summary: Governed sourcing solicitations created for this approved demand., businessMeaning: Connects internal authorization to competitive or controlled supplier sourcing., usage: Demand-to-source traceability, procurement governance, and audit., cardinalityMeaning: A requisition may be sourced through zero or multiple RFQs., workflowRole: RFQs solicit offers but do not themselves create supplier commitments.}
+    help: {summary: Governed sourcing solicitations created for this approved demand., businessMeaning: Connects internal authorization to competitive or controlled supplier sourcing., usage: "Demand-to-source traceability, procurement governance, and audit.", cardinalityMeaning: A requisition may be sourced through zero or multiple RFQs., workflowRole: RFQs solicit offers but do not themselves create supplier commitments.}
   invariants:
   - id: PURCHASE-REQUISITION-001
     rule: SUBMITTED or APPROVED requisitions must contain at least one PurchaseRequisitionLine.

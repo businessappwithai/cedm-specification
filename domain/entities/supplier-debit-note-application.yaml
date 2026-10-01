@@ -9,7 +9,7 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the supplier debit application., businessMeaning: Identifies one application of a supplier debit to a payable claim., usage: Used for reconciliation, audit, supplier statements and integration., relationshipContext: Distinct from SupplierDebitNote, Invoice and Payment identities., workflowRole: Stable identity across creation, activation, reversal and cancellation., requiredMeaning: Required.}
+    help: {summary: Immutable identity of the supplier debit application., businessMeaning: Identifies one application of a supplier debit to a payable claim., usage: "Used for reconciliation, audit, supplier statements and integration.", relationshipContext: "Distinct from SupplierDebitNote, Invoice and Payment identities.", workflowRole: "Stable identity across creation, activation, reversal and cancellation.", requiredMeaning: Required.}
   - name: supplierDebitAmount
     type: Money
     required: true
@@ -23,12 +23,12 @@ entity:
     target: ExchangeRate
     required: false
     immutable: true
-    help: {summary: Exchange-rate evidence used when debit and invoice currencies differ., businessMeaning: Provides reproducible conversion between application currencies., usage: Accounting, tax, reconciliation and audit., relationshipContext: Required for cross-currency application under policy., workflowRole: Determines the conversion used for invoiceAmount., optionalMeaning: Optional when currencies are identical.}
+    help: {summary: Exchange-rate evidence used when debit and invoice currencies differ., businessMeaning: Provides reproducible conversion between application currencies., usage: "Accounting, tax, reconciliation and audit.", relationshipContext: Required for cross-currency application under policy., workflowRole: Determines the conversion used for invoiceAmount., optionalMeaning: Optional when currencies are identical.}
   - name: appliedAt
     type: datetime
     required: true
     immutable: true
-    help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: Period control, audit, supplier statements and reconciliation., workflowRole: Anchors the application event., requiredMeaning: Required.}
+    help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event., requiredMeaning: Required.}
   - name: status
     type: enum
     required: true
@@ -40,16 +40,16 @@ entity:
     target: SupplierDebitNoteApplication
     required: false
     immutable: true
-    help: {summary: Prior application being reversed., businessMeaning: Provides explicit lineage for a corrective reversal., usage: Audit, reconciliation and error correction., relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application., optionalMeaning: Required when status is REVERSED under the reversal model.}
+    help: {summary: Prior application being reversed., businessMeaning: Provides explicit lineage for a corrective reversal., usage: "Audit, reconciliation and error correction.", relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application., optionalMeaning: Required when status is REVERSED under the reversal model.}
   relationships:
   - {name: supplierDebitNote, target: SupplierDebitNote, cardinality: '1', ownership: reference, help: {summary: Posted supplier debit being applied., businessMeaning: Identifies the source financial adjustment., usage: Remaining-balance and audit reconciliation., workflowRole: Supplies available debit amount and supplier context.}}
-  - {name: invoice, target: Invoice, cardinality: '1', ownership: reference, help: {summary: Supplier payable invoice receiving the debit application., businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced., usage: Accounts payable, reconciliation and supplier statements., workflowRole: Supplies target claim and currency context.}}
+  - {name: invoice, target: Invoice, cardinality: "1", ownership: reference, help: {summary: Supplier payable invoice receiving the debit application., businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced., usage: "Accounts payable, reconciliation and supplier statements.", workflowRole: Supplies target claim and currency context.}}
   - {name: exchangeRate, target: ExchangeRate, cardinality: 0..1, ownership: reference, help: {summary: Exchange-rate evidence for cross-currency application., businessMeaning: Supports reproducible conversion between source debit and target invoice currencies., usage: Accounting and audit., workflowRole: Qualifies invoiceAmount when currencies differ.}}
   invariants:
   - {id: SUPPLIER-DEBIT-APPLICATION-001, rule: supplierDebitAmount and invoiceAmount must be greater than zero.}
   - {id: SUPPLIER-DEBIT-APPLICATION-002, rule: Source SupplierDebitNote must be POSTED and must have sufficient unapplied amount for the active application.}
   - {id: SUPPLIER-DEBIT-APPLICATION-003, rule: Target Invoice must be an eligible PURCHASE payable claim and the application must not reduce exposure below the governing zero or credit-balance policy.}
-  - {id: SUPPLIER-DEBIT-APPLICATION-004, rule: When SupplierDebitNote.currencyId differs from Invoice.currencyId, exchangeRateId is required and the converted amounts must reconcile under configured rounding policy.}
+  - {id: SUPPLIER-DEBIT-APPLICATION-004, rule: "When SupplierDebitNote.currencyId differs from Invoice.currencyId, exchangeRateId is required and the converted amounts must reconcile under configured rounding policy."}
   - {id: SUPPLIER-DEBIT-APPLICATION-005, rule: ACTIVE applications are the authoritative evidence for SupplierDebitNote.amountApplied and the corresponding payable exposure projection.}
   - {id: SUPPLIER-DEBIT-APPLICATION-006, rule: REVERSED or CANCELLED applications must not remain active in settlement projections.}
   - {id: SUPPLIER-DEBIT-APPLICATION-007, rule: Original Invoice and InvoiceLine values remain immutable; correction uses explicit reversal and compensating application evidence.}

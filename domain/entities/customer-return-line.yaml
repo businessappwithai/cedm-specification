@@ -174,10 +174,10 @@ entity:
   - {id: CUSTOMER-RETURN-LINE-002, rule: quantityRestocked + quantityQuarantined + quantityToRepair + quantityScrapped must equal quantityReturned unless an explicit pending disposition exists.}
   - {id: CUSTOMER-RETURN-LINE-003, rule: quantityReturned must not exceed the eligible previously fulfilled quantity without an authorized exception.}
   - {id: CUSTOMER-RETURN-LINE-004, rule: Only quantityRestocked may create unrestricted positive inventory movement.}
-  - {id: CUSTOMER-RETURN-LINE-005, rule: Quarantined, repair and scrapped quantities must follow their respective restricted, work-order or disposal workflows and cannot be treated as unrestricted stock.}
+  - {id: CUSTOMER-RETURN-LINE-005, rule: "Quarantined, repair and scrapped quantities must follow their respective restricted, work-order or disposal workflows and cannot be treated as unrestricted stock."}
   - {id: CUSTOMER-RETURN-LINE-006, rule: Restock posting must be idempotent and attributable to this return-line disposition.}
-  - {id: CUSTOMER-RETURN-LINE-007, rule: Approved credit amount must follow applicable billing, original transaction price, tax, discount and return policy and must not directly mutate the original InvoiceLine.}
-  - {id: CUSTOMER-RETURN-LINE-008, rule: Changes to SalesOrderLine, Product, UnitOfMeasure, Shipment or Invoice that affect an open return line require controlled revalidation.}
+  - {id: CUSTOMER-RETURN-LINE-007, rule: "Approved credit amount must follow applicable billing, original transaction price, tax, discount and return policy and must not directly mutate the original InvoiceLine."}
+  - {id: CUSTOMER-RETURN-LINE-008, rule: "Changes to SalesOrderLine, Product, UnitOfMeasure, Shipment or Invoice that affect an open return line require controlled revalidation."}
   - {id: CUSTOMER-RETURN-LINE-009, rule: Corrections after disposition posting require compensating inventory or financial events rather than destructive mutation.}
   - {id: CUSTOMER-RETURN-LINE-010, rule: A return-based CreditNoteLine must reference this line and must not exceed approvedCreditAmount unless an explicitly authorized non-return adjustment is separately evidenced.}
   help:

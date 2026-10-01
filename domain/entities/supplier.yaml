@@ -38,10 +38,10 @@ entity:
   - {id: SUPPLIER-005, rule: Supplier invoice approval must use applicable PurchaseOrder and accepted GoodsReceipt evidence when three-way matching is required.}
   - {id: SUPPLIER-006, rule: Supplier payment settlement must remain traceable from Payment through PaymentAllocation to applicable Invoice; supplier master status is not settlement evidence.}
   - {id: SUPPLIER-007, rule: SupplierReturn must reference eligible previously accepted GoodsReceipt evidence and must not create a financial credit merely because a return was authorized.}
-  - {id: SUPPLIER-008, rule: SupplierCreditNote financial effects must remain traceable to eligible Invoice and, when return-originated, SupplierReturn evidence.}
+  - {id: SUPPLIER-008, rule: "SupplierCreditNote financial effects must remain traceable to eligible Invoice and, when return-originated, SupplierReturn evidence."}
   - {id: SUPPLIER-009, rule: SupplierDebitNote must remain traceable to the supplier and its supporting SupplierClaim or other authorized recovery evidence without rewriting the original Invoice.}
   - {id: SUPPLIER-010, rule: SupplierClaimResolution must remain traceable to exactly one SupplierClaim and its executed downstream evidence.}
-  - {id: SUPPLIER-011, rule: SupplierPerformanceAssessment must reference the supplier and must not mutate the source procurement, receipt, quality, claim, return, financial or corrective-action records used as evidence.}
+  - {id: SUPPLIER-011, rule: "SupplierPerformanceAssessment must reference the supplier and must not mutate the source procurement, receipt, quality, claim, return, financial or corrective-action records used as evidence."}
   - {id: SUPPLIER-012, rule: Published supplier performance assessments are immutable historical governance evidence; corrections use a superseding assessment rather than rewriting the prior result.}
   help:
     summary: Represents the procurement-facing role of a Party that supplies business inputs and participates in reverse procurement, supplier claims, financial recovery and performance governance.

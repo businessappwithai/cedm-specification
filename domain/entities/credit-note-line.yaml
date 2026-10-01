@@ -159,11 +159,11 @@ entity:
   invariants:
   - {id: CREDIT-NOTE-LINE-001, rule: lineNumber must be unique within the parent CreditNote.}
   - {id: CREDIT-NOTE-LINE-002, rule: quantity must be greater than zero when supplied.}
-  - {id: CREDIT-NOTE-LINE-003, rule: subtotal, discountAmount, taxableAmount, taxAmount and totalAmount must reconcile under the applicable credit calculation and rounding policy.}
+  - {id: CREDIT-NOTE-LINE-003, rule: "subtotal, discountAmount, taxableAmount, taxAmount and totalAmount must reconcile under the applicable credit calculation and rounding policy."}
   - {id: CREDIT-NOTE-LINE-004, rule: A return-based quantity credit must not exceed eligible quantity from the referenced InvoiceLine and CustomerReturnLine without an authorized exception.}
   - {id: CREDIT-NOTE-LINE-005, rule: A posted CreditNoteLine must retain transaction-time pricing and tax evidence sufficient to reproduce its financial result.}
   - {id: CREDIT-NOTE-LINE-006, rule: CreditNoteLine never directly changes the original InvoiceLine; all financial correction is represented by the CreditNote and its accounting/application workflows.}
-  - {id: CREDIT-NOTE-LINE-007, rule: Changes to InvoiceLine, CustomerReturnLine, Product, UnitOfMeasure, TaxRule, Currency or pricing policy affecting an open line require controlled revalidation.}
+  - {id: CREDIT-NOTE-LINE-007, rule: "Changes to InvoiceLine, CustomerReturnLine, Product, UnitOfMeasure, TaxRule, Currency or pricing policy affecting an open line require controlled revalidation."}
   - {id: CREDIT-NOTE-LINE-008, rule: Posted line corrections require explicit reversal/replacement rather than destructive mutation.}
   help:
     summary: Represents one auditable financial adjustment detail and its source evidence.

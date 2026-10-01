@@ -9,7 +9,7 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the supplier credit application., businessMeaning: Identifies one controlled application independently of its supplier credit and invoice., usage: Used for payable reconciliation, audit, reversal and settlement projections., relationshipContext: SupplierCreditNote supplies the adjustment; Invoice supplies the payable claim; this entity records the application bridge., workflowRole: Stable reference for applying and reversing supplier credit., requiredMeaning: Required.}
+      help: {summary: Immutable identity of the supplier credit application., businessMeaning: Identifies one controlled application independently of its supplier credit and invoice., usage: "Used for payable reconciliation, audit, reversal and settlement projections.", relationshipContext: "SupplierCreditNote supplies the adjustment; Invoice supplies the payable claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing supplier credit., requiredMeaning: Required.}
     - name: supplierCreditAmount
       type: Money
       required: true
@@ -28,7 +28,7 @@ entity:
       type: datetime
       required: true
       immutable: true
-      help: {summary: Timestamp when the supplier credit application became effective., businessMeaning: Establishes adjustment chronology., usage: Supports accounting periods, supplier statements, audit and reconciliation., relationshipContext: Distinct from SupplierCreditNoteDate and InvoiceDate., workflowRole: Determines when payable exposure changes., requiredMeaning: Required.}
+      help: {summary: Timestamp when the supplier credit application became effective., businessMeaning: Establishes adjustment chronology., usage: "Supports accounting periods, supplier statements, audit and reconciliation.", relationshipContext: Distinct from SupplierCreditNoteDate and InvoiceDate., workflowRole: Determines when payable exposure changes., requiredMeaning: Required.}
     - name: status
       type: enum
       required: true
@@ -51,7 +51,7 @@ entity:
       target: Invoice
       cardinality: '1'
       ownership: reference
-      help: {summary: Purchase Invoice receiving the payable reduction., businessMeaning: Identifies the supplier claim whose exposure is reduced., usage: Supports accounts payable, reconciliation and supplier statements., cardinalityMeaning: Exactly one Invoice is targeted., workflowRole: Supplies eligible payable exposure and currency context.}
+      help: {summary: Purchase Invoice receiving the payable reduction., businessMeaning: Identifies the supplier claim whose exposure is reduced., usage: "Supports accounts payable, reconciliation and supplier statements.", cardinalityMeaning: Exactly one Invoice is targeted., workflowRole: Supplies eligible payable exposure and currency context.}
     - name: exchangeRate
       target: ExchangeRate
       cardinality: 0..1
@@ -65,7 +65,7 @@ entity:
     - {id: SUPPLIER-CREDIT-APPLICATION-005, rule: Active supplierCreditAmount must not exceed the SupplierCreditNote's unapplied eligible amount.}
     - {id: SUPPLIER-CREDIT-APPLICATION-006, rule: Active invoiceAmount must not exceed the Invoice's eligible payable exposure under policy.}
     - {id: SUPPLIER-CREDIT-APPLICATION-007, rule: Reversal creates compensating history and must not mutate the original application.}
-    - {id: SUPPLIER-CREDIT-APPLICATION-008, rule: Payable exposure projections must be derived from active applications and other authorized adjustment evidence, not independently editable facts.}
+    - {id: SUPPLIER-CREDIT-APPLICATION-008, rule: "Payable exposure projections must be derived from active applications and other authorized adjustment evidence, not independently editable facts."}
     - {id: SUPPLIER-CREDIT-APPLICATION-009, rule: Application activation must be idempotent and protected against concurrent duplicate effects.}
   help:
     summary: Provides the auditable bridge by which a posted SupplierCreditNote is consumed against a purchase Invoice.

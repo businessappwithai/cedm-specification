@@ -34,11 +34,11 @@ entity:
   invariants:
   - {id: TAX-RULE-001, rule: rate must be zero or greater.}
   - {id: TAX-RULE-002, rule: validTo must not be earlier than validFrom when both are supplied.}
-  - {id: TAX-RULE-003, rule: ACTIVE applicability requires validity period and all configured jurisdiction, product, customer and organizational conditions to permit use.}
-  - {id: TAX-RULE-004, rule: Changing rate, taxType, jurisdiction, validity, scope or status is a controlled policy change and must identify affected open quotations/orders before becoming effective.}
+  - {id: TAX-RULE-003, rule: "ACTIVE applicability requires validity period and all configured jurisdiction, product, customer and organizational conditions to permit use."}
+  - {id: TAX-RULE-004, rule: "Changing rate, taxType, jurisdiction, validity, scope or status is a controlled policy change and must identify affected open quotations/orders before becoming effective."}
   - {id: TAX-RULE-005, rule: A transaction tax amount must retain the TaxRule or equivalent determination evidence used to calculate it.}
   - {id: TAX-RULE-006, rule: Historical tax amounts and tax determinations must not be rewritten when the master TaxRule changes or retires.}
-  - {id: TAX-RULE-007, rule: Tax applicability must be determined from the effective transaction context, including date, product/service, customer/party, locations and jurisdiction, before tax calculation.}
+  - {id: TAX-RULE-007, rule: "Tax applicability must be determined from the effective transaction context, including date, product/service, customer/party, locations and jurisdiction, before tax calculation."}
   help:
     summary: Defines reusable tax policy used to determine tax treatment and calculate tax amounts.
     businessMeaning: TaxRule is policy; transaction tax evidence records what tax was actually determined and charged.

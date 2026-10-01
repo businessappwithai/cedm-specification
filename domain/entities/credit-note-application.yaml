@@ -9,7 +9,7 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the credit application., businessMeaning: Identifies one controlled application independently of the CreditNote and Invoice., usage: Used for reconciliation, audit, reversal and settlement projections., relationshipContext: CreditNote supplies the adjustment; Invoice supplies the claim; this entity records the application bridge., workflowRole: Stable reference for applying and reversing customer credit., requiredMeaning: Required for traceability.}
+      help: {summary: Immutable identity of the credit application., businessMeaning: Identifies one controlled application independently of the CreditNote and Invoice., usage: "Used for reconciliation, audit, reversal and settlement projections.", relationshipContext: "CreditNote supplies the adjustment; Invoice supplies the claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing customer credit., requiredMeaning: Required for traceability.}
     - name: creditNoteAmount
       type: Money
       required: true
@@ -28,7 +28,7 @@ entity:
       type: datetime
       required: true
       immutable: true
-      help: {summary: Timestamp when the application became effective., businessMeaning: Establishes adjustment chronology., usage: Supports accounting periods, statements, audit and reconciliation., relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes., requiredMeaning: Required.}
+      help: {summary: Timestamp when the application became effective., businessMeaning: Establishes adjustment chronology., usage: "Supports accounting periods, statements, audit and reconciliation.", relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes., requiredMeaning: Required.}
     - name: status
       type: enum
       required: true

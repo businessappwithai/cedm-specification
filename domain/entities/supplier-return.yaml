@@ -146,9 +146,9 @@ entity:
   - {id: SUPPLIER-RETURN-006, rule: Financial reduction of a supplier claim requires an explicit SupplierCreditNote or governed financial adjustment and must not mutate the original Invoice or InvoiceLine.}
   - {id: SUPPLIER-RETURN-007, rule: Completion requires all lines to have posted physical consequences and all required financial consequences posted or explicitly excepted.}
   - {id: SUPPLIER-RETURN-008, rule: Cancellation after posted effects requires compensating reversal workflows and cannot erase historical evidence.}
-  - {id: SUPPLIER-RETURN-009, rule: Changes to Supplier, PurchaseOrderLine, GoodsReceiptLine, Product, UnitOfMeasure or Invoice affecting an open return require controlled revalidation.}
+  - {id: SUPPLIER-RETURN-009, rule: "Changes to Supplier, PurchaseOrderLine, GoodsReceiptLine, Product, UnitOfMeasure or Invoice affecting an open return require controlled revalidation."}
   - {id: SUPPLIER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory reductions or supplier credits.}
-  - {id: SUPPLIER-RETURN-011, rule: Where return policy requires quality inspection, completion cannot bypass an unresolved required QualityInspection result or disposition.}
+  - {id: SUPPLIER-RETURN-011, rule: "Where return policy requires quality inspection, completion cannot bypass an unresolved required QualityInspection result or disposition."}
   help:
     summary: Coordinates the controlled reversal of accepted procurement fulfillment while preserving original purchasing, receiving, inventory, quality and financial history.
     businessMeaning: A supplier return is a new reverse-procurement event; it does not delete or rewrite the original PurchaseOrder, GoodsReceipt or Invoice.

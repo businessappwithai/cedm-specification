@@ -5,7 +5,7 @@ entity:
   description: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
   identity: {key: taxCodeId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxCode., businessMeaning: Identifies one governed TaxCode record., usage: Enterprise processing, integration, reporting and audit., relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxCode., businessMeaning: Identifies one governed TaxCode record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
@@ -14,7 +14,7 @@ entity:
   relationships:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:
-  - {id: TAX-CODE-001, rule: This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity.}
+  - {id: TAX-CODE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   help:
     summary: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
     purpose: Provide canonical enterprise semantics for TaxCode while keeping planning, operational, financial and evidential responsibilities separated.

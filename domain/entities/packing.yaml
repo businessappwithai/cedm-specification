@@ -5,7 +5,7 @@ entity:
   description: A governed warehouse task grouping picked goods into HandlingUnits and preparing them for shipment while preserving line, lot, serial, quantity, and package traceability.
   identity: {key: packingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: Stable packing-task identity., businessMeaning: Identifies one governed packaging execution., usage: Fulfillment, labeling, shipment preparation and audit., relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}
+  - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: Stable packing-task identity., businessMeaning: Identifies one governed packaging execution., usage: "Fulfillment, labeling, shipment preparation and audit.", relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}
   - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity confirmed packed., businessMeaning: Measures goods prepared for transport., usage: Shipment readiness and reconciliation., relationshipContext: Must not exceed eligible picked quantity., requiredMeaning: Required.}}
   - name: status
     type: enum
@@ -15,13 +15,13 @@ entity:
     help: {summary: Packing task state., businessMeaning: Controls packaging workflow., usage: WMS and shipping readiness., relationshipContext: PACKED is not dispatch/delivery evidence., valueSemantics: {PLANNED: Awaiting work., IN_PROGRESS: Packaging underway., PACKED: Confirmed complete., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
   relationships:
   - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: Pick task supplying goods., businessMeaning: Preserves pick-to-pack provenance., usage: Fulfillment reconciliation., cardinalityMeaning: Optional for packing not driven by a single pick., workflowRole: Packed quantity cannot exceed eligible picked quantity.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: '1', ownership: reference, help: {summary: Package/pallet/tote receiving packed goods., businessMeaning: Establishes physical logistics identity., usage: Labels, staging, loading and tracking., cardinalityMeaning: Exactly one target handling unit per packing record., workflowRole: Contents/custody remain traceable.}}
+  - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: Package/pallet/tote receiving packed goods., businessMeaning: Establishes physical logistics identity., usage: "Labels, staging, loading and tracking.", cardinalityMeaning: Exactly one target handling unit per packing record., workflowRole: Contents/custody remain traceable.}}
   - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment for which package is prepared., businessMeaning: Connects warehouse packaging to transport., usage: Shipment readiness and loading., cardinalityMeaning: Optional before shipment assignment., workflowRole: Packing does not dispatch shipment.}}
   - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Shipment product line represented by packed quantity., businessMeaning: Preserves line-level fulfillment provenance., usage: Packing and dispatch reconciliation., cardinalityMeaning: Optional for mixed/general packing records., workflowRole: Product/UOM/quantity must reconcile.}}
   invariants:
   - {id: PACKING-001, rule: packedQuantity must be greater than zero.}
   - {id: PACKING-002, rule: Packed quantity must not exceed eligible picked or shipment quantity and must preserve lot/serial identity where controlled.}
-  - {id: PACKING-003, rule: Packing must not itself create inventory issue, dispatch, delivery, invoice or payment effects.}
+  - {id: PACKING-003, rule: "Packing must not itself create inventory issue, dispatch, delivery, invoice or payment effects."}
   help:
     summary: Warehouse packaging execution between picking and shipping.
     businessMeaning: Packing establishes physical package composition/readiness; Shipment and InventoryMovement separately govern transport and stock effects.

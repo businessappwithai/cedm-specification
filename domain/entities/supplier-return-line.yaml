@@ -134,10 +134,10 @@ entity:
   - {id: SUPPLIER-RETURN-LINE-002, rule: quantityReturned must not exceed the eligible accepted quantity from referenced GoodsReceiptLine records except under an authorized exception.}
   - {id: SUPPLIER-RETURN-LINE-003, rule: Product and UnitOfMeasure must reconcile with the referenced PurchaseOrderLine and GoodsReceiptLine evidence.}
   - {id: SUPPLIER-RETURN-LINE-004, rule: Inventory reduction must equal the physically executed return quantity and must be attributable to this line.}
-  - {id: SUPPLIER-RETURN-LINE-005, rule: Approved credit must not exceed the eligible financial value under the original invoice, return and tolerance policies.}
+  - {id: SUPPLIER-RETURN-LINE-005, rule: "Approved credit must not exceed the eligible financial value under the original invoice, return and tolerance policies."}
   - {id: SUPPLIER-RETURN-LINE-006, rule: Supplier credit must not directly mutate the original InvoiceLine.}
   - {id: SUPPLIER-RETURN-LINE-007, rule: Changes after posted inventory or credit effects require compensating events rather than destructive mutation.}
-  - {id: SUPPLIER-RETURN-LINE-008, rule: Where inspection is required, the returned quantity cannot be dispositioned or completed in contradiction to the applicable QualityInspection result without an authorized exception.}
+  - {id: SUPPLIER-RETURN-LINE-008, rule: "Where inspection is required, the returned quantity cannot be dispositioned or completed in contradiction to the applicable QualityInspection result without an authorized exception."}
   help:
     summary: Defines exactly what previously accepted procurement quantity is being returned and connects that quantity to quality, physical and financial consequences.
     businessMeaning: SupplierReturnLine is the bridge between accepted receiving evidence and quality, reverse inventory and payable workflows.

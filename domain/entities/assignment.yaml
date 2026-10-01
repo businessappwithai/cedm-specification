@@ -5,7 +5,7 @@ entity:
   description: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
   identity: {key: assignmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Assignment., businessMeaning: Identifies one governed Assignment record independently of mutable status., usage: Workflow, authorization, integration and audit., relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Assignment., businessMeaning: Identifies one governed Assignment record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true

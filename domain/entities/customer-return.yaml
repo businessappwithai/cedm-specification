@@ -139,15 +139,15 @@ entity:
       cardinalityMeaning: A return may create no credit, one credit, or multiple credits when policy permits.
       workflowRole: Approved return disposition and credit eligibility feed CreditNote creation and posting.
   invariants:
-  - {id: CUSTOMER-RETURN-001, rule: AUTHORIZED requires customer, return reason and at least one valid return line.}
+  - {id: CUSTOMER-RETURN-001, rule: "AUTHORIZED requires customer, return reason and at least one valid return line."}
   - {id: CUSTOMER-RETURN-002, rule: Returned quantity must not exceed previously fulfilled quantity unless an explicit authorized exception permits it.}
-  - {id: CUSTOMER-RETURN-003, rule: A return does not change InventoryBalance merely by being authorized, shipped or received.}
+  - {id: CUSTOMER-RETURN-003, rule: "A return does not change InventoryBalance merely by being authorized, shipped or received."}
   - {id: CUSTOMER-RETURN-004, rule: Inventory increases only from an accepted disposition that posts the appropriate InventoryMovement.}
-  - {id: CUSTOMER-RETURN-005, rule: Quarantine, repair and scrap dispositions must not increase unrestricted available inventory.}
+  - {id: CUSTOMER-RETURN-005, rule: "Quarantine, repair and scrap dispositions must not increase unrestricted available inventory."}
   - {id: CUSTOMER-RETURN-006, rule: Financial adjustment must use an explicit CreditNote or other authorized adjustment workflow; the original Invoice and InvoiceLine remain immutable historical evidence.}
   - {id: CUSTOMER-RETURN-007, rule: Completion requires all return lines to have a terminal physical disposition and all required inventory and financial effects to have been successfully posted or explicitly excepted.}
   - {id: CUSTOMER-RETURN-008, rule: Cancellation after posted physical or financial effects requires compensating reversal/reconciliation workflows and cannot erase historical evidence.}
-  - {id: CUSTOMER-RETURN-009, rule: Product, UnitOfMeasure, Customer, SalesOrderLine, Shipment or Invoice changes affecting an open return require controlled revalidation.}
+  - {id: CUSTOMER-RETURN-009, rule: "Product, UnitOfMeasure, Customer, SalesOrderLine, Shipment or Invoice changes affecting an open return require controlled revalidation."}
   - {id: CUSTOMER-RETURN-010, rule: Return posting must be idempotent so retries cannot duplicate inventory receipts or financial adjustments.}
   - {id: CUSTOMER-RETURN-011, rule: A return-based CreditNote must be traceable from CreditNoteLine to the originating CustomerReturnLine and must not exceed its approved credit basis.}
   help:
