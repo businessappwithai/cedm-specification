@@ -109,7 +109,7 @@ hooks: []
 | relationship `0..*` / `1..*` | the other half of a to-one on the target; two relationships naming each other (`inverse`), or the only two between a pair, are one |
 | `n..*` (n > 1) | enforced as `1..*`, reported |
 | `ownership: aggregate` (to-many) | the target is a line item: no window of its own, a tab inside the root's |
-| `lifecycle` | a state machine; each transition's `action` is its trigger, which `authorization` may grant |
+| `lifecycle` | a state machine; each transition's `action` is its trigger, which `authorization` may grant. The record page shows the current state and a button per move out of it |
 | `invariants` with `violatedWhen` | a `validation-error` rule on `beforeCreate` and `beforeUpdate` (or `events`); prose-only invariants are documentation |
 | structured `help` | one paragraph, fields joined in the order written |
 | `authorization.permissions` (`allow`) | role grants on operations and transitions; `deny` and `scope` are refused, because the generated application's grants are additive |

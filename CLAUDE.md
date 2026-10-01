@@ -2055,6 +2055,35 @@ Two more that cost a debugging cycle each:
 
 ---
 
+## What changes together
+
+Most defects in this repository were one copy of a rule changed and its mirrors
+left behind. Before calling a change done, walk the row for it. The gates listed
+under each row are the ones that fail when a mirror is missed; run them, and
+regenerate at least `sales` (`bash scripts/generate-domain-applications.sh sales`)
+to see the result.
+
+| You change | Also change, in the same commit |
+|---|---|
+| **A CEDM construct** (a key on an entity, attribute, relationship) | `specification/*.yaml` contract → `schema/cedm-entity.schema.yaml` → `language/cedm/{document.ts,lower.ts,cedm-model.schema.json}` **and** `crates/appwithai-gen/src/cedm.rs` → `language/yaml/{document.ts,eml.schema.json,README.md}` → `packages/generator/src/model/*` and `crates/appwithai-gen/src/records.rs` → `tools/validate.py` → a library entity or `applications/*.cedm.yaml` that uses it → `language/cedm/README.md`. Gates: `bun run parity`, `model-cedm` tests, `tools/validate.py` |
+| **A derivation shared by both generators** (identifier columns, reference target, table naming, identifier label) | the TS function (`packages/core/src/types/bus-entity.types.ts`) **and** its Rust mirror (`crates/appwithai-gen/src/bus.rs`), a unit test in **both**, the text in `language/appwithai-language.json` (`displayValue.derivation` etc.), `specification/dictionary-mapping.yaml`, this file's note on it, and every other mirror it lists (the generated test harnesses, `field_meta`, `bus.rs` and the frontend `utils`). Gates: `bun run parity`, `cargo test -p appwithai-gen`, `identifier-columns.test.ts` |
+| **A backend template** (`backend/**.hbs`) | the generated test suites for it (`backend/tests/**`), `src/openapi.rs.hbs` and `GUARDED_ROUTES` for a new route, `RENDERED_FILES` in **both** `loco-backend.generator.ts` and `crates/appwithai-gen/src/backend.rs` for a new file, `Cargo.lock.hbs` for a new dependency, a migration (four edits) for a schema change. Gates: `bun run parity`, `cargo test --test app` in a regenerated app |
+| **A generated screen or adapter** (`frontend/**`) | the static-copy list in `tanstack-start-frontend.generator.ts` for a new plain file, every call site of a changed `components/ui/*` adapter (`grep` them: the shadcn surface has composed and controlled forms), the labels rule (window/tab/field names, never `bus_…` — `useEntityLabel`), the browser smoke (`scripts/qa/smoke-application.mjs`). Never leave a hook after an early `return` |
+| **A generated test** (`backend/tests/**`, `tests/**`) | the factory's limits (`FieldMeta` carries `max_length`; values must fit, narrowed references come from the lookup, a rule's `createData` carries real parents), the bun harness mirror (`tests/harness/*`), and run the **other** corpus models' suites, not only the one you changed for |
+| **A theme or style** (`styles/globals.css.hbs`) | check all seven themes (`ThemeSelector`), light and dark, with the screenshot script — a tint taken from a theme's own accent vanishes on the monochrome ones, which is why highlights use `--ad-highlight` |
+| **The language definition** (`appwithai-language.json`) | `language/grammar/appwithai.ebnf`, `language/spec/*.md`, both checkers (`language/checker.ts`, `language/cli/src/validator.ts`), `bun run build:language-tools` + `bun run check:language-bundle`, `bun run wasm` parity, an example model |
+| **The CLI** (`packages/generator/src/cli/generate.ts`, `crates/appwithai-gen/src/cli.rs`) | both CLIs' flags and help text, `language/cli`, `docs/DEVELOPMENT.md`, the Quick Reference table here; rebuild (`bun --filter @appwithai/core build && bun --filter @appwithai/generator build`) before trusting the output |
+| **The CEDM library** (`domain/entities/*.yaml`) | `domain/entities/index.yaml`, `domains/application-catalog.yaml` and `bun scripts/build-domain-applications.ts` (`--check`), regenerate the affected `generated-applications/<domain>/`, `tools/validate.py` (edit by text insertion — a YAML round trip rewraps the file) |
+| **Anything a generated app does at run time** | `docs/qa/` entry with evidence, and `bash scripts/qa/qa-loop.sh <domain>` for at least one domain with a different shape from `sales` |
+
+Then, always: `bun run type-check`, `bun run type-check:language`,
+`bun run test:generator`, `bun run test`, `bun run parity`,
+`cargo clippy -p appwithai-gen --all-targets -- -D warnings`; regenerate
+(`generated-applications/` is committed output); update this file where a
+paragraph above is now untrue; commit source and generated source together.
+
+---
+
 ## Git Workflow
 
 1. Create a feature branch from `main`

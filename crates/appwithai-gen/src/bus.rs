@@ -810,6 +810,45 @@ entities:
         );
     }
 
+    fn bus_attr(name: &str, fk: bool) -> BusAttribute {
+        BusAttribute {
+            name: name.to_string(),
+            ty: "string".to_string(),
+            required: false,
+            unique: false,
+            max_length: None,
+            is_foreign_key: fk,
+            is_primary_key: false,
+            column_name: name.to_string(),
+            display_name: name.to_string(),
+            reference_id: reference_type::STRING,
+            seq_no: 10,
+            is_identifier: false,
+            references: None,
+            references_table: None,
+            narrowed_by: None,
+            description: None,
+        }
+    }
+
+    #[test]
+    fn a_prefixed_number_identifies_a_record_but_a_foreign_key_does_not() {
+        // A sales order points at a currency and a customer, which made it look
+        // like a join entity and labelled it by them.
+        let order = vec![
+            bus_attr("id", false),
+            bus_attr("order_number", false),
+            bus_attr("status", false),
+            bus_attr("currency_id", true),
+            bus_attr("customer_id", true),
+        ];
+        assert_eq!(identifier_column_names(&order, "id"), vec!["order_number"]);
+
+        let only_a_pointer = vec![bus_attr("id", false), bus_attr("country_code", true)];
+        assert!(!identifier_column_names(&only_a_pointer, "id")
+            .contains(&"country_code".to_string()));
+    }
+
     #[test]
     fn seq_numbers_leave_room_between_columns() {
         let bus = entity_to_bus_entity(
