@@ -132,6 +132,20 @@
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/line" }
+        },
+        "table": {
+          "description": "The enum has a business table: an entity of the same name holds a row per value and the dropdown reads it.",
+          "type": "boolean"
+        },
+        "labels": {
+          "description": "A short label per value, where it is not the value split into words.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        },
+        "descriptions": {
+          "description": "What each value means to the business, keyed by value.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/line" }
         }
       }
     },

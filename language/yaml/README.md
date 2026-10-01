@@ -177,7 +177,15 @@ The foreign key is on the many side of a one-to-many, named after the one side.
 
 ### `enums`, `categories`
 
-`enums`: `{ name, values: [...] }`. A column binds one with `enum:`.
+`enums`: `{ name, values: [...] }`, optionally `table`, `labels` and `descriptions`.
+A column binds one with `enum:`. `table: true` says the list has a business table —
+an entity of the same name, with a `code`, `name`, `description`, `sequence` and
+`is_active` column — whose rows are the values (written by the dictionary seed as
+application data, not sample data); the dropdown is then a Table reference
+(`sys_reference` type `T` + `sys_ref_table`) and `/api/sys/ref-list` reads the
+table, so a value reworded or retired there is what a form offers. `labels` and
+`descriptions` map a value to its dropdown label and its meaning. A CEDM model
+gets all of this from `application.enumerationTables` (see `language/cedm/README.md`).
 
 `categories`: **`name`**, `code` (derived from the name when omitted; categories
 sharing a code merge), `description`, `icon`, `color`, `seq`, `default` (the

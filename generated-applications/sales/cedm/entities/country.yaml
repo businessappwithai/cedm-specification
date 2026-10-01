@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reference_data
   description: A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting.
+  ui:
+    icon: list
   identity: {key: countryId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: countryId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Country., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Country is referenced., requiredMeaning: Required.}}

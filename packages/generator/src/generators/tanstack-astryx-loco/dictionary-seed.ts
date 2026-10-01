@@ -136,6 +136,14 @@ export function raw(sql: string): RawSql {
  * `sys_role.name`, …), which is exactly the "insert unless this row is already
  * there in some form" semantics a re-runnable seed wants.
  */
+/** `pending_review` / `PARTIALLY_FILLED` → `Pending Review` / `Partially Filled`. */
+export function enumValueLabel(value: string): string {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export function insert(table: string, values: Record<string, SqlValue>): string {
   const columns = Object.keys(values);
   const rendered = columns.map((column) => {
@@ -365,7 +373,9 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         sys_reference_id: modelEnum.referenceId,
         name: modelEnum.name,
         description: `Values allowed for ${modelEnum.name}`,
-        validation_type: "L",
+        // An enumeration with a business table is a Table reference: the
+        // dropdown is that table's rows, so there is no second copy to drift.
+        validation_type: modelEnum.table ? "T" : "L",
         entity_type: "U",
         is_active: true,
         created_by: createdBy,
@@ -374,6 +384,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         updated_at: NOW,
       })
     );
+    if (modelEnum.table) continue;
     for (const value of modelEnum.values) {
       out.push(
         insert("sys_ref_list", {
@@ -742,6 +753,48 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         access_type_table: "R",
         is_read_only: true,
         is_exclude: false,
+        entity_type: "U",
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: NOW,
+        updated_at: NOW,
+      })
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Enumerations with a business table: the rows (application data, not sample
+  // data) and the Table reference that makes the table the dropdown's source.
+  // After the entity sections, because `sys_ref_table` names `sys_column` rows.
+  const tableEnums = (options.modelEnums ?? []).filter((declared) => declared.table);
+  if (tableEnums.length) section("Enumeration tables (the values of every enumeration)");
+  for (const modelEnum of tableEnums) {
+    const entity = entities.find((candidate) => candidate.name === modelEnum.name);
+    if (!entity) continue;
+    const columnId = (name: string) => id("column", entity.tableName, name);
+    modelEnum.values.forEach((value, position) => {
+      out.push(
+        insert(entity.tableName, {
+          id: id("enum_value", modelEnum.name, value),
+          code: value,
+          name: modelEnum.labels?.[value] ?? enumValueLabel(value),
+          description: modelEnum.descriptions?.[value] ?? null,
+          sequence: (position + 1) * 10,
+          is_active: true,
+        })
+      );
+    });
+    out.push(
+      insert("sys_ref_table", {
+        sys_ref_table_id: id("ref_table", String(modelEnum.referenceId)),
+        sys_reference_id: modelEnum.referenceId,
+        sys_table_id: id("table", entity.tableName),
+        key_column_id: columnId("code"),
+        display_column_id: columnId("name"),
+        is_value_displayed: false,
+        order_by_clause: "sequence",
+        where_clause: "is_active = true",
         entity_type: "U",
         is_active: true,
         created_by: createdBy,

@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Media and Entertainment, built on the CEDM common foundation.
   domain: media
+  enumerationTables: true
 imports:
   - module: common
   - entity: MediaContent

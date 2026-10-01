@@ -52,6 +52,15 @@ export interface EntityEnum {
   values: string[];
   /** Allocated from 1000 up, stable for a given set of enum names. */
   referenceId: number;
+  /**
+   * The enumeration has a business table, an entity of the same name. Its rows
+   * are the values, and the dropdown reads the table rather than a fixed list.
+   */
+  table?: boolean;
+  /** A short label per value; absent values read as the value split into words. */
+  labels?: Record<string, string>;
+  /** What each value means to the business. */
+  descriptions?: Record<string, string>;
 }
 
 /**

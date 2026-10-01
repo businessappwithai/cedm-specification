@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Finance and Accounting, built on the CEDM common foundation.
   domain: finance
+  enumerationTables: true
 imports:
   - module: common
   - entity: Account

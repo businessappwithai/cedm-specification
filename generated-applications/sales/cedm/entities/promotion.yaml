@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: commercial_promotion
   description: A governed time- and eligibility-bounded commercial offer that may alter price, benefit, bundle, or fulfillment terms without rewriting base pricing.
+  ui:
+    icon: table
   identity: {key: promotionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: promotionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Promotion., businessMeaning: Identifies one governed Promotion record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

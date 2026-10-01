@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: core_master_entity
   description: A person or organization recognized by the business as an actor in one or more roles, relationships, transactions, or responsibilities. Party is the CEDM identity root from which business roles such as Customer, Supplier, Employee, Provider, and Owner can be established.
+  ui:
+    icon: users
   identity: {key: partyId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: partyId

@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Human Resources, built on the CEDM common foundation.
   domain: human-resources
+  enumerationTables: true
 imports:
   - module: common
   - entity: Employee

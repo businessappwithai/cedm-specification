@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Customer Service and CRM, built on the CEDM common foundation.
   domain: customer-service
+  enumerationTables: true
 imports:
   - module: common
   - entity: Customer

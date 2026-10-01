@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Procurement and Sourcing, built on the CEDM common foundation.
   domain: procurement
+  enumerationTables: true
 imports:
   - module: common
   - entity: Supplier

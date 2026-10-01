@@ -224,6 +224,11 @@ export interface CedmApplication {
   namespace?: string;
   /** The catalog domain (`domains/catalog.yaml`) the application serves. */
   domain?: string;
+  /**
+   * Give every enumeration a business table (`specification/enumeration-semantics.yaml`).
+   * Off by default, so a model that predates it lowers exactly as it did.
+   */
+  enumerationTables?: boolean;
 }
 
 export interface CedmModelDocument {

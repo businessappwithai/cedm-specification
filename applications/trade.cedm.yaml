@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: International Trade and Customs, built on the CEDM common foundation.
   domain: trade
+  enumerationTables: true
 imports:
   - module: common
   - entity: TradeDeclaration

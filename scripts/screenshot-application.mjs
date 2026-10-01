@@ -53,7 +53,16 @@ try {
   await page.locator('input[type="email"]').fill("admin@admin.com");
   await page.locator('input[type="password"]').fill("admin");
   await shot("login");
-  await page.locator('button[type="submit"]').click();
+  // Hydration has no signal the page exposes, so click until the app itself
+  // posts: a click before it is a plain GET to `/auth/login?` and posts nothing.
+  let posted = false;
+  for (let attempt = 0; attempt < 8 && !posted; attempt++) {
+    const reply = page.waitForResponse((r) => r.url().includes("/api/auth/login"), { timeout: 4000 });
+    await page.locator('input[type="email"]').fill("admin@admin.com");
+    await page.locator('input[type="password"]').fill("admin");
+    await page.locator('button[type="submit"]').click();
+    posted = await reply.then(() => true, () => false);
+  }
   await page.waitForURL((url) => !url.pathname.startsWith("/auth"), { timeout: 30000 });
   await settle();
 
@@ -64,12 +73,21 @@ try {
   await shot("dashboard-top");
 
   // One entity: the first card that links somewhere that is not the admin area.
-  const hrefs = await page
+  const links = await page
     .locator("a[href]")
-    .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
-  const entityHref = hrefs.find(
-    (href) => href && /^\/[a-z0-9-]+$/.test(href) && !["/admin", "/auth", "/"].includes(href)
+    .evaluateAll((all) =>
+      all.map((link) => ({ href: link.getAttribute("href"), label: (link.textContent || "").trim() }))
+    );
+  const NOT_AN_ENTITY = new Set(["/", "/dashboard", "/ask", "/reports", "/admin", "/auth"]);
+  const entityLinks = links.filter(
+    (link) =>
+      link.href && /^\/[A-Za-z0-9_%-]+$/.test(link.href) && !NOT_AN_ENTITY.has(link.href)
   );
+  const entityHref = entityLinks[0]?.href;
+  // An enumeration is a business table like any other: its window is a list of
+  // values. Capture one, to show the Reference Data screens.
+  const enumerationHref = entityLinks.find((link) => / (type|status|class|category)$/i.test(link.label))
+    ?.href;
   if (entityHref) {
     await page.goto(`${baseUrl}${entityHref}`);
     await settle();
@@ -95,8 +113,14 @@ try {
     console.log(`  no entity link found on the ${domain} dashboard`);
   }
 
+  if (enumerationHref) {
+    await page.goto(`${baseUrl}${enumerationHref}`);
+    await settle();
+    await shot("enumeration");
+  }
+
   // The Application Dictionary's own screens.
-  await page.goto(`${baseUrl}/admin/elements`);
+  await page.goto(`${baseUrl}/admin/windows`);
   await settle();
   await shot("admin");
 } catch (error) {

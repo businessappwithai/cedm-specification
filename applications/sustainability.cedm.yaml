@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: ESG and Sustainability, built on the CEDM common foundation.
   domain: sustainability
+  enumerationTables: true
 imports:
   - module: common
   - entity: Emission

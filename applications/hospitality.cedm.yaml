@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Hospitality, built on the CEDM common foundation.
   domain: hospitality
+  enumerationTables: true
 imports:
   - module: common
   - entity: Hotel

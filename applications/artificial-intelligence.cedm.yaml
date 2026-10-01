@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Artificial Intelligence Operations, built on the CEDM common foundation.
   domain: artificial-intelligence
+  enumerationTables: true
 imports:
   - module: common
   - entity: AIModel

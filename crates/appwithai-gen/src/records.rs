@@ -45,6 +45,16 @@ pub struct IndexDeclaration {
     pub unique: bool,
 }
 
+/// An enum's business table, labels and meanings (`EnumDocument.table`, `labels`,
+/// `descriptions`). Empty for a model that states none.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct EnumDetails {
+    /// The enum has a business table, an entity of the same name.
+    pub table: bool,
+    pub labels: std::collections::BTreeMap<String, String>,
+    pub descriptions: std::collections::BTreeMap<String, String>,
+}
+
 /// Everything the ERD layer declares, annotations as flat lists in declaration
 /// order. Repeats are resolved by the compiler: the first enum of a name, the
 /// last help/icon/parent for an entity.
@@ -54,6 +64,8 @@ pub struct ErdRecords {
     pub relationships: Vec<RelationshipDeclaration>,
     pub indexes: Vec<IndexDeclaration>,
     pub enums: Vec<(String, Vec<String>)>,
+    /// What an enum states beyond its values — `(enum, details)`.
+    pub enum_details: Vec<(String, EnumDetails)>,
     /// `(entity, column, enum)`
     pub enum_bindings: Vec<(String, String, String)>,
     /// `(entity, column, help)`

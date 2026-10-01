@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Construction and Engineering, built on the CEDM common foundation.
   domain: construction
+  enumerationTables: true
 imports:
   - module: common
   - entity: ConstructionProject

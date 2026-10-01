@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: Mining and Natural Resources, built on the CEDM common foundation.
   domain: mining
+  enumerationTables: true
 imports:
   - module: common
   - entity: MiningSite

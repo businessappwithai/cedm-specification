@@ -246,6 +246,24 @@ const ROLES: &[(&str, &str, &str, bool)] = &[
 ///
 /// The stored value is untouched: every rule and state machine compares against
 /// the raw one, and prettifying that would break them silently.
+/// `pending_review` / `PARTIALLY_FILLED` → `Pending Review` / `Partially Filled`.
+/// Mirrors `enumValueLabel` in `dictionary-seed.ts`.
+fn enum_value_label(value: &str) -> String {
+    value
+        .split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => {
+                    first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase()
+                }
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 fn title_case_enum_value(value: &str) -> String {
     value
         .split('_')
@@ -340,7 +358,13 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                     "description",
                     text(format!("Values allowed for {}", model_enum.name)),
                 ),
-                ("validation_type", text("L")),
+                // An enumeration with a business table is a Table reference: the
+                // dropdown is that table's rows, so there is no second copy to
+                // drift.
+                (
+                    "validation_type",
+                    text(if model_enum.table { "T" } else { "L" }),
+                ),
                 ("entity_type", text("U")),
                 ("is_active", Sql::Bool(true)),
                 ("created_by", text(created_by)),
@@ -349,6 +373,9 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                 ("updated_at", now()),
             ],
         ));
+        if model_enum.table {
+            continue;
+        }
         for value in &model_enum.values {
             out.push(insert(
                 "sys_ref_list",
@@ -807,6 +834,77 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                 ("access_type_table", text("R")),
                 ("is_read_only", Sql::Bool(true)),
                 ("is_exclude", Sql::Bool(false)),
+                ("entity_type", text("U")),
+                ("is_active", Sql::Bool(true)),
+                ("created_by", text(created_by)),
+                ("updated_by", text(created_by)),
+                ("created_at", now()),
+                ("updated_at", now()),
+            ],
+        ));
+    }
+
+    // ── Enumeration tables ──────────────────────────────────────────────────
+    // The rows (application data, not sample data) and the Table reference that
+    // makes the table the dropdown's source. After the entity sections, because
+    // `sys_ref_table` names `sys_column` rows.
+    let table_enums: Vec<&ModelEnum> = model_enums.iter().filter(|e| e.table).collect();
+    if !table_enums.is_empty() {
+        section(
+            &mut out,
+            "Enumeration tables (the values of every enumeration)",
+        );
+    }
+    for model_enum in table_enums {
+        let Some(entity) = entities.iter().find(|e| e.name == model_enum.name) else {
+            continue;
+        };
+        let column_id = |name: &str| id("column", &[&entity.table_name, name]);
+        for (position, value) in model_enum.values.iter().enumerate() {
+            out.push(insert(
+                &entity.table_name,
+                &[
+                    ("id", text(id("enum_value", &[&model_enum.name, value]))),
+                    ("code", text(value.clone())),
+                    (
+                        "name",
+                        text(
+                            model_enum
+                                .labels
+                                .get(value)
+                                .cloned()
+                                .unwrap_or_else(|| enum_value_label(value)),
+                        ),
+                    ),
+                    (
+                        "description",
+                        model_enum
+                            .descriptions
+                            .get(value)
+                            .map_or(Sql::Null, |d| text(d.clone())),
+                    ),
+                    ("sequence", Sql::Int(((position + 1) * 10) as i64)),
+                    ("is_active", Sql::Bool(true)),
+                ],
+            ));
+        }
+        out.push(insert(
+            "sys_ref_table",
+            &[
+                (
+                    "sys_ref_table_id",
+                    text(id("ref_table", &[&model_enum.reference_id.to_string()])),
+                ),
+                (
+                    "sys_reference_id",
+                    Sql::Int(i64::from(model_enum.reference_id)),
+                ),
+                ("sys_table_id", text(id("table", &[&entity.table_name]))),
+                ("key_column_id", text(column_id("code"))),
+                ("display_column_id", text(column_id("name"))),
+                ("is_value_displayed", Sql::Bool(false)),
+                ("order_by_clause", text("sequence")),
+                ("where_clause", text("is_active = true")),
                 ("entity_type", text("U")),
                 ("is_active", Sql::Bool(true)),
                 ("created_by", text(created_by)),

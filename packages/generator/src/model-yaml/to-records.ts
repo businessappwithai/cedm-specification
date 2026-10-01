@@ -53,6 +53,9 @@ function erdOf(document: ModelDocument): ErdRecords {
     enums: (document.enums ?? []).map((declared) => ({
       name: declared.name,
       values: [...declared.values],
+      ...(declared.table ? { table: true } : {}),
+      ...(declared.labels ? { labels: { ...declared.labels } } : {}),
+      ...(declared.descriptions ? { descriptions: { ...declared.descriptions } } : {}),
     })),
     enumBindings: [],
     fieldHelp: [],

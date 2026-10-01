@@ -16,10 +16,10 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::Deserialize;
 
 use crate::records::{
-    AttributeDeclaration, CategoryDeclaration, EntityDeclaration, ErdRecords, HookDeclaration,
-    IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration, ReportDeclaration,
-    RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration, SagaStepDeclaration,
-    StateMachineDeclaration, StateTransitionDeclaration,
+    AttributeDeclaration, CategoryDeclaration, EntityDeclaration, EnumDetails, ErdRecords,
+    HookDeclaration, IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration,
+    ReportDeclaration, RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration,
+    SagaStepDeclaration, StateMachineDeclaration, StateTransitionDeclaration,
 };
 
 /// `language/yaml/eml.schema.json`, as this binary was built with it.
@@ -103,6 +103,12 @@ struct HookFlowNodeDocument {
 struct EnumDocument {
     name: String,
     values: Vec<String>,
+    #[serde(default)]
+    table: bool,
+    #[serde(default)]
+    labels: BTreeMap<String, String>,
+    #[serde(default)]
+    descriptions: BTreeMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -396,14 +402,18 @@ fn text_of(value: &serde_yaml::Value) -> Result<String> {
 }
 
 fn document_to_records(document: Document) -> Result<ModelRecords> {
-    let mut erd = ErdRecords {
-        enums: document
-            .enums
-            .into_iter()
-            .map(|declared| (declared.name, declared.values))
-            .collect(),
-        ..ErdRecords::default()
-    };
+    let mut erd = ErdRecords::default();
+    for declared in document.enums {
+        erd.enum_details.push((
+            declared.name.clone(),
+            EnumDetails {
+                table: declared.table,
+                labels: declared.labels,
+                descriptions: declared.descriptions,
+            },
+        ));
+        erd.enums.push((declared.name, declared.values));
+    }
 
     for entity in document.entities {
         let name = entity.name;

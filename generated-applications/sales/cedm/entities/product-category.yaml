@@ -3,25 +3,46 @@ entity:
   namespace: cedm.domain
   kind: classification_entity
   description: A governed classification node used to organize Product master records into a navigable business taxonomy for assortment, reporting, procurement, sales, inventory, and analytics. Category changes are controlled because classification can drive downstream rules and reporting.
+  ui:
+    icon: package
   identity: {key: productCategoryId, type: uuid, generated: true, immutable: true}
   attributes:
     - name: productCategoryId
       type: uuid
       required: true
       immutable: true
+      help:
+        summary: "The product category id of the product category: an identifier the business records on it."
+        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+        requiredMeaning: "Required: a product category cannot be understood without its product category id."
     - name: code
       type: string
       required: true
       unique: true
       maxLength: 100
+      help:
+        summary: "The code of the product category: a value the business records on it."
+        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+        requiredMeaning: "Required: a product category cannot be understood without its code."
     - name: name
       type: string
       required: true
       maxLength: 200
+      help:
+        summary: "The name of the product category: a value the business records on it."
+        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+        requiredMeaning: "Required: a product category cannot be understood without its name."
     - name: description
       type: string
       required: false
       maxLength: 2000
+      help:
+        summary: "The description of the product category: a value the business records on it."
+        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
     - name: status
       type: enum
       required: true
@@ -29,18 +50,33 @@ entity:
       values: [ACTIVE, INACTIVE, RETIRED]
       help:
         summary: Lifecycle state controlling whether the category can be used for new classification.
+        usage: Set when a category is created and changed as it is taken out of use; filters which categories a product can be classified under.
         workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
+        valueSemantics:
+          ACTIVE: The status of the product category is active; set it when that is what the business means for this record.
+          INACTIVE: The status of the product category is inactive; set it when that is what the business means for this record.
+          RETIRED: The status of the product category is retired; set it when that is what the business means for this record.
   relationships:
     - name: parentCategory
       target: ProductCategory
       cardinality: 0..1
       ownership: reference
       inverse: childCategories
+      help:
+        summary: Links a product category to product category, the parent category it relates to.
+        usage: Chosen from the existing product category records when the product category is created or edited.
+        cardinalityMeaning: A product category has at most one product category in this role.
+        context: Lets the product category be found from, and reported with, its product category.
     - name: childCategories
       target: ProductCategory
       cardinality: 0..*
       ownership: reference
       inverse: parentCategory
+      help:
+        summary: Links a product category to product category, the child categories it relates to.
+        usage: Chosen from the existing product category records when the product category is created or edited.
+        cardinalityMeaning: A product category has any number of product category in this role.
+        context: Lets the product category be found from, and reported with, its product category.
     - name: products
       target: Product
       cardinality: 0..*

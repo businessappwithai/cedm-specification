@@ -25,6 +25,10 @@
         "domain": {
           "description": "The catalog domain (domains/catalog.yaml) the application serves.",
           "$ref": "#/$defs/line"
+        },
+        "enumerationTables": {
+          "description": "Give every enumeration a business table, maintained in its own window and read by the dropdowns (specification/enumeration-semantics.yaml).",
+          "type": "boolean"
         }
       }
     },

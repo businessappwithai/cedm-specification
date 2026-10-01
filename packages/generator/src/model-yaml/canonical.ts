@@ -88,7 +88,15 @@ function enumsOf(enums: EnumDocument[] | undefined): EnumDocument[] | undefined 
   const seen = new Set<string>();
   return enums
     .filter((declared) => !seen.has(declared.name) && seen.add(declared.name))
-    .map((declared) => ({ name: declared.name, values: [...declared.values] }));
+    .map((declared) => ({
+      name: declared.name,
+      values: [...declared.values],
+      ...(declared.table ? { table: true } : {}),
+      ...(declared.labels && Object.keys(declared.labels).length ? { labels: { ...declared.labels } } : {}),
+      ...(declared.descriptions && Object.keys(declared.descriptions).length
+        ? { descriptions: { ...declared.descriptions } }
+        : {}),
+    }));
 }
 
 function categoryOf(category: CategoryDocument): CategoryDocument {

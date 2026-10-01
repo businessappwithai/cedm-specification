@@ -8,7 +8,8 @@ use serde::Serialize;
 
 use crate::language::Language;
 use crate::naming::{add_bus_prefix, snake_case};
-use crate::records::{AttributeDeclaration, ErdRecords, RelationshipDeclaration};
+use crate::records::{AttributeDeclaration, EnumDetails, ErdRecords, RelationshipDeclaration};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Attribute {
@@ -65,6 +66,13 @@ pub struct ModelEnum {
     /// Allocated from 1000 up, stable for a given set of enum names.
     #[serde(rename = "referenceId")]
     pub reference_id: u16,
+    /// The enumeration has a business table, an entity of the same name.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub table: bool,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub labels: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub descriptions: BTreeMap<String, String>,
 }
 
 /// An index the model asked for explicitly, in the entity's `indexes`.
@@ -212,7 +220,12 @@ pub fn compile_erd(records: &ErdRecords, lang: &Language) -> Model {
         }
     }
     attach_parents(&mut entities, &last_wins(&records.entity_parents));
-    let enums = attach_enums(&mut entities, &declared_enums, &records.enum_bindings);
+    let enums = attach_enums(
+        &mut entities,
+        &declared_enums,
+        &records.enum_bindings,
+        &records.enum_details,
+    );
 
     Model {
         entities,
@@ -336,6 +349,7 @@ fn attach_enums(
     entities: &mut [Entity],
     declared: &[(String, Vec<String>)],
     bindings: &[(String, String, String)],
+    details: &[(String, EnumDetails)],
 ) -> Vec<ModelEnum> {
     let values_for = |name: &str| {
         declared
@@ -392,10 +406,21 @@ fn attach_enums(
 
     reference_ids
         .into_iter()
-        .map(|(name, reference_id)| ModelEnum {
-            values: values_for(&name).unwrap_or_default(),
-            name,
-            reference_id,
+        .map(|(name, reference_id)| {
+            // The first enum of a name is the one that counts, details included.
+            let extra = details
+                .iter()
+                .find(|(declared, _)| *declared == name)
+                .map(|(_, extra)| extra.clone())
+                .unwrap_or_default();
+            ModelEnum {
+                values: values_for(&name).unwrap_or_default(),
+                name,
+                reference_id,
+                table: extra.table,
+                labels: extra.labels,
+                descriptions: extra.descriptions,
+            }
         })
         .collect()
 }

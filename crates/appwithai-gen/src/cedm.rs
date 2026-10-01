@@ -1034,17 +1034,43 @@ fn lower(cedm: &Value) -> Result<Value> {
         let values = get_seq(declared, "values").iter().map(js_string).collect();
         enums.push((name, values));
     }
-    let mut publish_enum = |name: &str, values: Vec<String>, errors: &mut Vec<String>| {
-        if let Some((_, known)) = enums.iter().find(|(n, _)| n == name) {
-            if *known != values {
-                errors.push(format!(
-                    "CEDM110 value list \"{name}\" is declared twice with different values"
-                ));
+    // Labels and meanings the attributes state, by value list: `(labels, descriptions)`.
+    // In the order the values were first described, which is the order written out.
+    type Described = Vec<(String, String)>;
+    let mut enum_details: HashMap<String, (Described, Described)> = HashMap::new();
+    let mut publish_enum =
+        |name: &str, values: Vec<String>, help: Option<&Value>, errors: &mut Vec<String>| {
+            let details = enum_details.entry(name.to_string()).or_default();
+            if let Some(help) = help.filter(|h| h.is_mapping()) {
+                for value in &values {
+                    if let Some(label) = get(help, "valueLabels")
+                        .and_then(|labels| get(labels, value))
+                        .and_then(Value::as_str)
+                    {
+                        if !details.0.iter().any(|(v, _)| v == value) {
+                            details.0.push((value.clone(), label.to_string()));
+                        }
+                    }
+                    if let Some(meaning) = get(help, "valueSemantics")
+                        .and_then(|meant| get(meant, value))
+                        .and_then(Value::as_str)
+                    {
+                        if !details.1.iter().any(|(v, _)| v == value) {
+                            details.1.push((value.clone(), meaning.to_string()));
+                        }
+                    }
+                }
             }
-            return;
-        }
-        enums.push((name.to_string(), values));
-    };
+            if let Some((_, known)) = enums.iter().find(|(n, _)| n == name) {
+                if *known != values {
+                    errors.push(format!(
+                        "CEDM110 value list \"{name}\" is declared twice with different values"
+                    ));
+                }
+                return;
+            }
+            enums.push((name.to_string(), values));
+        };
 
     // ---- aggregate roots
     let mut parents: HashMap<String, String> = HashMap::new();
@@ -1203,6 +1229,7 @@ fn lower(cedm: &Value) -> Result<Value> {
                 publish_enum(
                     &enum_name,
                     values.iter().map(js_string).collect(),
+                    get(attribute, "help"),
                     &mut errors,
                 );
             }
@@ -1780,17 +1807,43 @@ fn lower(cedm: &Value) -> Result<Value> {
             }
         }
     }
+    // Lists some attribute names; only those reach a dropdown, so only those get
+    // a business table when the application asks for them.
+    let enumeration_tables = get(cedm, "application")
+        .is_some_and(|a| get(a, "enumerationTables") == Some(&Value::Bool(true)));
+    let used_enums: HashSet<String> = states
+        .iter()
+        .flat_map(|s| s.attributes.iter())
+        .filter_map(|a| get_str(a, "enum").map(str::to_string))
+        .collect();
+    let mut table_enums: Vec<String> = Vec::new();
     if !enums.is_empty() {
         let list = enums
             .into_iter()
             .map(|(name, values)| {
                 let mut map = Mapping::new();
-                set(&mut map, "name", Value::String(name));
+                set(&mut map, "name", Value::String(name.clone()));
                 set(
                     &mut map,
                     "values",
                     Value::Sequence(values.into_iter().map(Value::String).collect()),
                 );
+                if enumeration_tables && used_enums.contains(&name) && !names.contains(&name) {
+                    table_enums.push(name.clone());
+                    set(&mut map, "table", Value::Bool(true));
+                    if let Some((labels, descriptions)) = enum_details.get(&name) {
+                        for (field, details) in [("labels", labels), ("descriptions", descriptions)]
+                        {
+                            if !details.is_empty() {
+                                let mut entries = Mapping::new();
+                                for (value, text_) in details {
+                                    set(&mut entries, value, Value::String(text_.clone()));
+                                }
+                                set(&mut map, field, Value::Mapping(entries));
+                            }
+                        }
+                    }
+                }
                 Value::Mapping(map)
             })
             .collect();
@@ -1874,7 +1927,129 @@ fn lower(cedm: &Value) -> Result<Value> {
             set(&mut document, name, Value::Sequence(list));
         }
     }
+    add_enumeration_tables(&mut document, &table_enums);
     Ok(Value::Mapping(document))
+}
+
+/// The category the business tables of enumerations are listed under.
+const ENUMERATION_CATEGORY: &str = "Reference Data";
+
+/// `SalesOrderStatus` → `sales order status`.
+fn words_of(name: &str) -> String {
+    let chars: Vec<char> = name.chars().collect();
+    let mut out = String::new();
+    for (index, c) in chars.iter().enumerate() {
+        if index > 0 {
+            let before = chars[index - 1];
+            let after = chars.get(index + 1);
+            if c.is_ascii_uppercase()
+                && (before.is_ascii_lowercase()
+                    || before.is_ascii_digit()
+                    || (before.is_ascii_uppercase() && after.is_some_and(char::is_ascii_lowercase)))
+            {
+                out.push(' ');
+            }
+        }
+        out.push(c.to_ascii_lowercase());
+    }
+    out
+}
+
+/// Give every enumeration in `table_enums` a business table: an entity named like
+/// the list, with the columns `specification/enumeration-semantics.yaml` fixes.
+/// Mirrors `addEnumerationTables` in `language/cedm/lower.ts`.
+fn add_enumeration_tables(document: &mut Mapping, table_enums: &[String]) {
+    if table_enums.is_empty() {
+        return;
+    }
+    let attribute = |pairs: &[(&str, Value)]| {
+        let mut map = Mapping::new();
+        for (name, value) in pairs {
+            set(&mut map, name, value.clone());
+        }
+        Value::Mapping(map)
+    };
+    let mut entities = document
+        .get(key("entities"))
+        .and_then(Value::as_sequence)
+        .cloned()
+        .unwrap_or_default();
+    for name in table_enums {
+        let mut entity = Mapping::new();
+        set(&mut entity, "name", text(name));
+        set(
+            &mut entity,
+            "help",
+            Value::String(format!(
+                "The values of {}, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.",
+                words_of(name)
+            )),
+        );
+        set(&mut entity, "icon", text("list"));
+        set(
+            &mut entity,
+            "attributes",
+            Value::Sequence(vec![
+                attribute(&[("name", text("id")), ("type", text("uuid")), ("pk", Value::Bool(true))]),
+                attribute(&[
+                    ("name", text("code")),
+                    ("type", text("string(100)")),
+                    ("unique", Value::Bool(true)),
+                    ("help", text("The value stored on every record that uses this list. Fixed once created.")),
+                ]),
+                attribute(&[
+                    ("name", text("name")),
+                    ("type", text("string(200)")),
+                    ("help", text("What a person reads in the dropdown and on a record.")),
+                ]),
+                attribute(&[
+                    ("name", text("description")),
+                    ("type", text("text")),
+                    ("optional", Value::Bool(true)),
+                    ("help", text("What the value means to the business.")),
+                ]),
+                attribute(&[
+                    ("name", text("sequence")),
+                    ("type", text("integer")),
+                    ("help", text("The position of the value in a dropdown, lowest first.")),
+                ]),
+                attribute(&[
+                    ("name", text("is_active")),
+                    ("type", text("boolean")),
+                    ("default", text("true")),
+                    ("help", text("Whether the value is offered on new records.")),
+                ]),
+            ]),
+        );
+        entities.push(Value::Mapping(entity));
+    }
+    set(document, "entities", Value::Sequence(entities));
+
+    let mut categories = document
+        .get(key("categories"))
+        .and_then(Value::as_sequence)
+        .cloned()
+        .unwrap_or_default();
+    let made: Vec<Value> = table_enums.iter().map(|n| text(n)).collect();
+    let existing = categories
+        .iter_mut()
+        .find(|category| get_str(category, "name") == Some(ENUMERATION_CATEGORY));
+    if let Some(Value::Mapping(category)) = existing {
+        let mut listed = category
+            .get(key("entities"))
+            .and_then(Value::as_sequence)
+            .cloned()
+            .unwrap_or_default();
+        listed.extend(made);
+        set(category, "entities", Value::Sequence(listed));
+    } else {
+        let mut category = Mapping::new();
+        set(&mut category, "name", text(ENUMERATION_CATEGORY));
+        set(&mut category, "icon", text("list"));
+        set(&mut category, "entities", Value::Sequence(made));
+        categories.push(Value::Mapping(category));
+    }
+    set(document, "categories", Value::Sequence(categories));
 }
 
 /// What reading a CEDM model produces.

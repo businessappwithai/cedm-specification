@@ -44,6 +44,8 @@ PARITY_MODELS=(
   # TypeScript one.
   "examples/drug-discovery.cedm.yaml"
   "language/cedm/examples/crm.cedm.yaml"
+  # A domain application: enumeration tables, imports of the common module.
+  "applications/sales.cedm.yaml"
 )
 
 # CEDM models whose lowering is compared across TypeScript, Rust and
@@ -51,6 +53,7 @@ PARITY_MODELS=(
 # CEDM is compared too; these add what generation parity would not reach.
 CEDM_LOWERING_MODELS=(
   "examples/drug-discovery.cedm.yaml"
+  "applications/common.cedm.yaml"
   language/cedm/examples/*.cedm.yaml
 )
 

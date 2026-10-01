@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: commercial_reference_entity
   description: A reusable commercial policy defining when and under what conditions a financial obligation becomes due and how settlement timing is determined.
+  ui:
+    icon: credit-card
   identity:
     key: paymentTermId
     type: uuid

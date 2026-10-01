@@ -61,6 +61,10 @@ export interface IndexDeclaration {
 export interface EnumDeclaration {
   name: string;
   values: string[];
+  /** The enumeration has a business table (an entity of the same name). */
+  table?: boolean;
+  labels?: Record<string, string>;
+  descriptions?: Record<string, string>;
 }
 
 export interface FieldEnumBinding {

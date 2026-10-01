@@ -73,6 +73,19 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
         rows_per_entity,
     } = *options;
     let rows = rows_per_entity;
+    // An enumeration's business table holds the values themselves, written by
+    // the dictionary seed as application data; demonstration rows would add
+    // values.
+    let without_enumeration_tables: Vec<BusEntity> = entities
+        .iter()
+        .filter(|entity| {
+            !model_enums
+                .iter()
+                .any(|declared| declared.table && declared.name == entity.name)
+        })
+        .cloned()
+        .collect();
+    let entities = &without_enumeration_tables[..];
     let tables: HashSet<String> = entities
         .iter()
         .map(|entity| entity.table_name.clone())

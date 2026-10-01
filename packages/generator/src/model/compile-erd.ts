@@ -13,6 +13,7 @@ import { snakeCase } from "@appwithai/core/utils";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 import type {
   AttributeDeclaration,
+  EnumDeclaration,
   ErdRecords,
   FieldEnumBinding,
   FieldHelp,
@@ -188,8 +189,12 @@ export function compileErdRecords(records: ErdRecords): {
    * position of the first. Building the maps in declaration order gives both.
    */
   const declaredEnums = new Map<string, string[]>();
+  const enumDetails = new Map<string, EnumDeclaration>();
   for (const declared of records.enums) {
-    if (!declaredEnums.has(declared.name)) declaredEnums.set(declared.name, declared.values);
+    if (!declaredEnums.has(declared.name)) {
+      declaredEnums.set(declared.name, declared.values);
+      enumDetails.set(declared.name, declared);
+    }
   }
   const entityHelpText = new Map<string, string>();
   for (const { entity, help } of records.entityHelp) entityHelpText.set(entity, help);
@@ -205,7 +210,7 @@ export function compileErdRecords(records: ErdRecords): {
     if (entity) entity.icon = icon;
   }
   attachParents(entities, entityParents);
-  const enums = attachEnums(entities, declaredEnums, records.enumBindings);
+  const enums = attachEnums(entities, declaredEnums, records.enumBindings, enumDetails);
 
   return { entities, relationships, enums };
 }
@@ -308,7 +313,8 @@ function attachIndexes(entities: Entity[], declared: IndexDeclaration[]): void {
 function attachEnums(
   entities: Entity[],
   declared: Map<string, string[]>,
-  bindings: FieldEnumBinding[]
+  bindings: FieldEnumBinding[],
+  details: Map<string, EnumDeclaration>
 ): EntityEnum[] {
   const used = new Set<string>();
   for (const binding of bindings) {
@@ -336,11 +342,17 @@ function attachEnums(
     attribute.enumReferenceId = referenceId;
   }
 
-  return [...referenceIds.entries()].map(([name, referenceId]) => ({
-    name,
-    values: [...(declared.get(name) ?? [])],
-    referenceId,
-  }));
+  return [...referenceIds.entries()].map(([name, referenceId]) => {
+    const extra = details.get(name);
+    return {
+      name,
+      values: [...(declared.get(name) ?? [])],
+      referenceId,
+      ...(extra?.table ? { table: true } : {}),
+      ...(extra?.labels ? { labels: { ...extra.labels } } : {}),
+      ...(extra?.descriptions ? { descriptions: { ...extra.descriptions } } : {}),
+    };
+  });
 }
 
 /**

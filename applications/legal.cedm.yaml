@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Legal and Contract Management, built on the CEDM common foundation.
   domain: legal
+  enumerationTables: true
 imports:
   - module: common
   - entity: Contract

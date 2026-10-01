@@ -9,6 +9,7 @@ application:
   version: 1.0.0
   description: Security and Identity, built on the CEDM common foundation.
   domain: security
+  enumerationTables: true
 imports:
   - module: common
   - entity: User

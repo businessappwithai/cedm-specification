@@ -105,7 +105,11 @@ write(
   "common.cedm.yaml",
   {
     cedm: "1.0",
-    application: { name: catalog.common.name, description: catalog.common.description },
+    application: {
+      name: catalog.common.name,
+      description: catalog.common.description,
+      enumerationTables: true,
+    },
     imports: common.map((entity) => ({ entity })),
     ui: {
       categories: [
@@ -188,6 +192,7 @@ for (const application of catalog.applications) {
         version: "1.0.0",
         description: `${domain.name}, built on the CEDM common foundation.`,
         domain: application.domain,
+        enumerationTables: true,
       },
       imports: [{ module: "common" }, ...imports.map((entity) => ({ entity }))],
       ui: { categories },

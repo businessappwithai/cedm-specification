@@ -5,6 +5,7 @@ cedm: "1.0"
 application:
   name: CEDM Common Foundation
   description: The parties, organisations, places, units and reference data every domain application shares.
+  enumerationTables: true
 imports:
   - entity: Party
   - entity: Person

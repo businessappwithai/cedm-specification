@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: commercial_transaction
   description: A commercial offer specifying products, services, quantities, prices, terms, and validity.
+  ui:
+    icon: file-text
   identity:
     key: quotationId
     type: uuid

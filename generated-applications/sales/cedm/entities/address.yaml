@@ -3,62 +3,135 @@ entity:
   namespace: cedm.domain
   kind: reusable_master_entity
   description: A structured postal, physical, billing, shipping, registered, or other address that may be associated with a Party or Location and may be captured as transaction-time address evidence.
+  ui:
+    icon: map-pin
   identity: {key: addressId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: addressId
     type: uuid
     required: true
     immutable: true
+    help:
+      summary: "The address id of the address: an identifier the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its address id."
   - name: addressType
     type: enum
     required: true
     values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
+    help:
+      summary: "The address type of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its address type."
+      valueSemantics:
+        RESIDENTIAL: The address type of the address is residential; set it when that is what the business means for this record.
+        BUSINESS: The address type of the address is business; set it when that is what the business means for this record.
+        BILLING: The address type of the address is billing; set it when that is what the business means for this record.
+        SHIPPING: The address type of the address is shipping; set it when that is what the business means for this record.
+        REGISTERED: The address type of the address is registered; set it when that is what the business means for this record.
+        POSTAL: The address type of the address is postal; set it when that is what the business means for this record.
+        OTHER: The address type of the address is other; set it when that is what the business means for this record.
   - name: line1
     type: string
     required: true
     maxLength: 200
+    help:
+      summary: "The line1 of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its line1."
   - name: line2
     type: string
     required: false
     maxLength: 200
+    help:
+      summary: "The line2 of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: line3
     type: string
     required: false
     maxLength: 200
+    help:
+      summary: "The line3 of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: city
     type: string
     required: true
     maxLength: 150
+    help:
+      summary: "The city of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its city."
   - name: stateOrProvince
     type: string
     required: false
     maxLength: 150
+    help:
+      summary: "The state or province of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: postalCode
     type: string
     required: false
     maxLength: 30
+    help:
+      summary: "The postal code of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: countryCode
     type: country_code
     required: true
+    help:
+      summary: "The country code of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its country code."
   - name: latitude
     type: decimal
     required: false
     precision: 10
     scale: 7
+    help:
+      summary: "The latitude of the address: a number the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: longitude
     type: decimal
     required: false
     precision: 10
     scale: 7
+    help:
+      summary: "The longitude of the address: a number the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
   - name: isPrimary
     type: boolean
     required: true
     default: false
+    help:
+      summary: "The is primary of the address: a yes/no indicator the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its is primary."
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, RETIRED]
+    help:
+      summary: "The status of the address: a value the business records on it."
+      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a address cannot be understood without its status."
+      valueSemantics:
+        ACTIVE: The status of the address is active; set it when that is what the business means for this record.
+        INACTIVE: The status of the address is inactive; set it when that is what the business means for this record.
+        RETIRED: The status of the address is retired; set it when that is what the business means for this record.
   relationships:
   - name: party
     target: Party

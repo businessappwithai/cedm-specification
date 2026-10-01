@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: reverse_fulfillment_transaction
   description: An authorized customer return that reverses or adjusts previously fulfilled sales demand without deleting the original SalesOrder, Shipment, InventoryMovement, or Invoice evidence. It coordinates return authorization, physical receipt, inspection, disposition, inventory effects, and financial adjustment.
+  ui:
+    icon: user-round
   identity: {key: customerReturnId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: customerReturnId
@@ -39,6 +41,16 @@ entity:
       usage: Controls return processing and completion decisions.
       relationshipContext: Return status does not itself change inventory or invoice balances.
       workflowRole: Coordinates dependent return workflows; CreditNote posting is a separate financial state.
+      valueSemantics:
+        DRAFT: The status of the customer return is draft; set it when that is what the business means for this record.
+        AUTHORIZED: The status of the customer return is authorized; set it when that is what the business means for this record.
+        IN_TRANSIT: The status of the customer return is in transit; set it when that is what the business means for this record.
+        RECEIVED: The status of the customer return is received; set it when that is what the business means for this record.
+        INSPECTION_PENDING: The status of the customer return is inspection pending; set it when that is what the business means for this record.
+        DISPOSITIONED: The status of the customer return is dispositioned; set it when that is what the business means for this record.
+        COMPLETED: The status of the customer return is completed; set it when that is what the business means for this record.
+        CANCELLED: The status of the customer return is cancelled; set it when that is what the business means for this record.
+        EXCEPTION: The status of the customer return is exception; set it when that is what the business means for this record.
   - name: returnDate
     type: datetime
     required: true

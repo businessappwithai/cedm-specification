@@ -3,6 +3,8 @@ entity:
   namespace: cedm.domain
   kind: crm_party_state
   description: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
+  ui:
+    icon: database
   identity: {key: prospectId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}

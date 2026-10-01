@@ -93,6 +93,16 @@ export interface RelationshipDocument {
 export interface EnumDocument {
   name: string;
   values: string[];
+  /**
+   * The enumeration has a business table: an entity of the same name holds one
+   * row per value, and the dropdown reads the table (`sys_ref_table`) instead of
+   * a fixed list. See `specification/enumeration-semantics.yaml`.
+   */
+  table?: boolean;
+  /** A short label per value, where it is not the value split into words. */
+  labels?: Record<string, string>;
+  /** What each value means to the business. */
+  descriptions?: Record<string, string>;
 }
 
 export interface CategoryDocument {

@@ -10,6 +10,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import { parse, stringify } from "yaml";
 import { compileModelDocument } from "../../model-yaml";
 import {
@@ -441,5 +442,91 @@ describe("the CEDM library", () => {
     });
     expect(read.diagnostics.map((diagnostic) => diagnostic.code)).toContain("CEDM101");
     expect(read.ok).toBe(false);
+  });
+});
+
+describe("enumeration tables", () => {
+  const model: Omit<CedmModelDocument, "cedm"> = {
+    application: { name: "Orders", enumerationTables: true },
+    entities: [
+      {
+        name: "Order",
+        identity: { key: "orderId", type: "uuid" },
+        attributes: [
+          { name: "orderId", type: "uuid", required: true },
+          {
+            name: "status",
+            type: "enum",
+            required: true,
+            values: ["OPEN", "ON_HOLD"],
+            help: {
+              summary: "Where the order is.",
+              valueSemantics: { OPEN: "Accepting changes.", ON_HOLD: "Paused by the buyer." },
+              valueLabels: { ON_HOLD: "On hold" },
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  it("gives a value list an entity, a category and the table flag", () => {
+    const { document } = lower(model);
+    const table = document.entities.find((entity) => entity.name === "OrderStatus");
+    expect(table?.attributes.map((attribute) => attribute.name)).toEqual([
+      "id",
+      "code",
+      "name",
+      "description",
+      "sequence",
+      "is_active",
+    ]);
+    expect(document.enums).toEqual([
+      {
+        name: "OrderStatus",
+        values: ["OPEN", "ON_HOLD"],
+        table: true,
+        labels: { ON_HOLD: "On hold" },
+        descriptions: { OPEN: "Accepting changes.", ON_HOLD: "Paused by the buyer." },
+      },
+    ]);
+    expect(document.categories?.find((category) => category.name === "Reference Data")?.entities).toEqual([
+      "OrderStatus",
+    ]);
+  });
+
+  it("does nothing unless the application asks", () => {
+    const { document } = lower({ ...model, application: { name: "Orders" } });
+    expect(document.entities.map((entity) => entity.name)).toEqual(["Order"]);
+    expect(document.enums?.[0]).toEqual({ name: "OrderStatus", values: ["OPEN", "ON_HOLD"] });
+  });
+
+  it("refuses a list whose name is an entity's", () => {
+    const { notes } = lower({
+      ...model,
+      entities: [
+        ...(model.entities ?? []),
+        { name: "OrderStatus", identity: { key: "id", type: "uuid" }, attributes: [{ name: "id", type: "uuid" }] },
+      ],
+    });
+    expect(notes.some((note) => note.code === "CEDM170")).toBe(true);
+  });
+
+  it("seeds the rows and a Table reference, and no sys_ref_list rows", async () => {
+    const { buildDictionarySeedSql } = await import(
+      "../../generators/tanstack-astryx-loco/dictionary-seed"
+    );
+    const compiled = compileModelDocument(lower(model).document);
+    const declared = declaredEntityNames(compiled.entities);
+    const sql = buildDictionarySeedSql({
+      projectName: "orders",
+      entities: compiled.entities.map((entity) => entityToBusEntity(entity, declared)),
+      modelEnums: compiled.enums,
+    });
+    expect(sql).toContain("INSERT INTO bus_order_status (id, code, name, description, sequence, is_active)");
+    expect(sql).toContain("'On hold'");
+    expect(sql).toContain("INSERT INTO sys_ref_table");
+    const listRows = sql.split("ON CONFLICT DO NOTHING;").filter((statement) => statement.includes("INSERT INTO sys_ref_list"));
+    expect(listRows.some((statement) => statement.includes("ON_HOLD"))).toBe(false);
   });
 });

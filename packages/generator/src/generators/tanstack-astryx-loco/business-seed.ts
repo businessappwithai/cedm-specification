@@ -53,7 +53,7 @@ export interface BusinessSeedOptions {
    * the form renders its dropdown from, so a value chosen any other way could
    * be one the control does not offer.
    */
-  modelEnums?: Array<{ referenceId: number; values: string[] }>;
+  modelEnums?: Array<{ name?: string; referenceId: number; values: string[]; table?: boolean }>;
   /** Rows per entity. Enough to show a list, a lookup and a detail page. */
   rowsPerEntity?: number;
 }
@@ -74,7 +74,13 @@ const MANAGED = new Set([
 ]);
 
 export function buildBusinessSeedSql(options: BusinessSeedOptions): string {
-  const { projectName, entities } = options;
+  const { projectName } = options;
+  // An enumeration's business table holds the values themselves, written by the
+  // dictionary seed as application data; demonstration rows would add values.
+  const enumerationTables = new Set(
+    (options.modelEnums ?? []).filter((declared) => declared.table).map((declared) => declared.name)
+  );
+  const entities = options.entities.filter((entity) => !enumerationTables.has(entity.name));
   const rows = options.rowsPerEntity ?? DEFAULT_ROWS;
   const tables = new Set(entities.map((entity) => entity.tableName));
 

@@ -8,6 +8,7 @@ application:
   version: 1.0.0
   description: E-Commerce and Marketplace, built on the CEDM common foundation.
   domain: ecommerce
+  enumerationTables: true
 imports:
   - module: common
   - entity: ShoppingCart

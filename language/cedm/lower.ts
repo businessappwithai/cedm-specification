@@ -194,7 +194,30 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     map(["enums", enums.length], ["enums", index]);
     enums.push({ name: declared.name, values: [...declared.values] });
   });
-  const publishEnum = (name: string, values: string[], at: DocumentPath) => {
+  /** Labels and meanings a value list's attributes state, by list name. */
+  const enumDetails = new Map<
+    string,
+    { labels: Record<string, string>; descriptions: Record<string, string> }
+  >();
+  const publishEnum = (
+    name: string,
+    values: string[],
+    at: DocumentPath,
+    source?: CedmAttribute
+  ) => {
+    const details = enumDetails.get(name) ?? { labels: {}, descriptions: {} };
+    enumDetails.set(name, details);
+    const help = source?.help;
+    if (help && typeof help === "object") {
+      const labelled = (help as Record<string, unknown>).valueLabels;
+      const meant = (help as Record<string, unknown>).valueSemantics;
+      for (const value of values) {
+        const label = labelled && (labelled as Record<string, unknown>)[value];
+        const meaning = meant && (meant as Record<string, unknown>)[value];
+        if (typeof label === "string") details.labels[value] ??= label;
+        if (typeof meaning === "string") details.descriptions[value] ??= meaning;
+      }
+    }
     const existing = enumIndex.get(name);
     if (existing !== undefined) {
       const known = enums[existing]?.values ?? [];
@@ -302,7 +325,9 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
       map([...path, "attributes", document.attributes.length], at);
       document.attributes.push(lowered.attribute);
       if (lowered.reference) state.references.set(column, attribute.target);
-      if (lowered.enumValues) publishEnum(lowered.attribute.enum as string, lowered.enumValues, at);
+      if (lowered.enumValues) {
+        publishEnum(lowered.attribute.enum as string, lowered.enumValues, at, attribute);
+      }
       if (dangling) {
         note(
           "warning",
@@ -779,6 +804,11 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     });
   }
 
+  // Last, so the entities, categories and value lists it extends are the final ones.
+  if (cedm.application?.enumerationTables) {
+    addEnumerationTables(document, enums, enumDetails, note);
+  }
+
   return { document, notes, sources };
 }
 
@@ -806,6 +836,77 @@ export function lowerType(
     return { token: `${type}(${attribute.maxLength})`, reference: false };
   }
   return { token: type, reference: false };
+}
+
+/** The category the business tables of enumerations are listed under. */
+export const ENUMERATION_CATEGORY = "Reference Data";
+
+/**
+ * Give every enumeration a business table: an entity named like the list, with a
+ * row per value. The columns are fixed by `specification/enumeration-semantics.yaml`
+ * (code, name, description, sequence, is_active), and the document's enum is
+ * marked `table`, so the dictionary reads the dropdown from the table.
+ * Mirrored by `add_enumeration_tables` in `crates/appwithai-gen/src/cedm.rs`.
+ */
+function addEnumerationTables(
+  document: ModelDocument,
+  enums: EnumDocument[],
+  details: Map<string, { labels: Record<string, string>; descriptions: Record<string, string> }>,
+  note: (severity: LoweringNote["severity"], code: string, message: string, path: DocumentPath) => void
+): void {
+  const taken = new Set(document.entities.map((entity) => entity.name));
+  // A list no attribute names reaches no dropdown, and the dictionary seeds only
+  // the lists something binds to; a table for it would hold rows nothing reads.
+  const used = new Set(
+    document.entities.flatMap((entity) =>
+      entity.attributes.flatMap((attribute) => (attribute.enum ? [attribute.enum] : []))
+    )
+  );
+  const made: string[] = [];
+  enums.forEach((declared, index) => {
+    if (!used.has(declared.name)) return;
+    if (taken.has(declared.name)) {
+      note(
+        "error",
+        "CEDM170",
+        `Enumeration "${declared.name}" cannot have a business table: the model has an entity of that name.`,
+        ["enums", index]
+      );
+      return;
+    }
+    taken.add(declared.name);
+    made.push(declared.name);
+    const known = details.get(declared.name);
+    declared.table = true;
+    if (known && Object.keys(known.labels).length) declared.labels = known.labels;
+    if (known && Object.keys(known.descriptions).length) declared.descriptions = known.descriptions;
+    document.entities.push({
+      name: declared.name,
+      help: `The values of ${wordsOf(declared.name)}, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.`,
+      icon: "list",
+      attributes: [
+        { name: "id", type: "uuid", pk: true },
+        { name: "code", type: "string(100)", unique: true, help: "The value stored on every record that uses this list. Fixed once created." },
+        { name: "name", type: "string(200)", help: "What a person reads in the dropdown and on a record." },
+        { name: "description", type: "text", optional: true, help: "What the value means to the business." },
+        { name: "sequence", type: "integer", help: "The position of the value in a dropdown, lowest first." },
+        { name: "is_active", type: "boolean", default: "true", help: "Whether the value is offered on new records." },
+      ],
+    });
+  });
+  if (!made.length) return;
+  // The model's own categories are shared with the CEDM document; copy before extending.
+  const categories = (document.categories = (document.categories ?? []).map((category) => ({
+    ...category,
+  })));
+  const existing = categories.find((category) => category.name === ENUMERATION_CATEGORY);
+  if (existing) existing.entities = [...(existing.entities ?? []), ...made];
+  else categories.push({ name: ENUMERATION_CATEGORY, icon: "list", entities: made });
+}
+
+/** `SalesOrderStatus` → `sales order status`. */
+function wordsOf(name: string): string {
+  return name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2").toLowerCase();
 }
 
 function lowerAttribute(

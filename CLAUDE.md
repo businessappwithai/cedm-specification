@@ -1212,6 +1212,26 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   the key on the side that is `1`. Treating them as two one-to-many gave a
   required-FK cycle (`Supplier.party_role_id` ↔ `PartyRole.supplier_role_id`) that
   the business seed could not insert.
+- **Every enumeration has a business table** (`application.enumerationTables: true`,
+  set on every `applications/*.cedm.yaml`). Lowering adds an entity named like the
+  value list (`id, code, name, description, sequence, is_active`) under *Reference
+  Data* and marks the document's enum `table`, with `labels`/`descriptions` from
+  `help.valueLabels`/`valueSemantics`; both lowerings do it
+  (`addEnumerationTables` / `add_enumeration_tables`). The dictionary seed writes the
+  rows as application data and a Table reference (`sys_reference` `T` +
+  `sys_ref_table`) instead of `sys_ref_list` rows; `sys.rs` `list` answers
+  `/sys/ref-list?sys_reference_id=` from the table; the business seed skips these
+  entities. Only lists some attribute names get a table. Contract:
+  `specification/enumeration-semantics.yaml`; registry `domain/enumerations/index.yaml`
+  (`tools/build_enumerations.py`).
+- **The specification supplies the Application Dictionary.**
+  `specification/dictionary-mapping.yaml` says which CEDM construct fills each
+  window/tab/table/column/field slot, `vocabulary.yaml` `kindClasses` resolves a
+  free-form `kind` to a class, and `tools/validate.py` enforces DICT-001…010 /
+  ENUM-001…003 (`ui.icon` a lucide 0.312 id, help on every entity, attribute and
+  relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
+  prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
+  round trip rewraps every folded line in the library).
 - **One application per domain.** `domains/application-catalog.yaml` →
   `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
   holds them in sync) → `scripts/generate-domain-applications.sh` →

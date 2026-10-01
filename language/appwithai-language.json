@@ -200,6 +200,7 @@
       "reference": "An independent target: a foreign key and nothing more."
     },
     "names": "camelCase attributes compile to snake_case columns; a single identity key is stored as id; `column` overrides either.",
+    "enumerationTables": "`application.enumerationTables: true` gives every value list an attribute names a business table: an entity of the list's name (id, code, name, description, sequence, is_active) with a row per value, listed under the Reference Data category. The list's enum is marked `table`, with `labels` (help.valueLabels) and `descriptions` (help.valueSemantics) per value; the dictionary then makes the list a Table reference over that table instead of a fixed list. See specification/enumeration-semantics.yaml.",
     "references": "A reference names its target. Where the column name would resolve elsewhere, the target is written to the attribute's `references`, which the dictionary stores and every lookup resolver prefers.",
     "lifecycle": "A lifecycle compiles to a state machine; each transition's action is its trigger.",
     "invariants": "An invariant with violatedWhen compiles to a validation-error rule action; one without is documentation.",
