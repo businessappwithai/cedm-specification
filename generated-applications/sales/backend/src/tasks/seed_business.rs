@@ -16,7 +16,7 @@
 //! statement is `ON CONFLICT DO NOTHING`, so re-running adds nothing and a
 //! record somebody edited keeps their edit.
 //!
-//! Generated: 2026-10-01T11:46:41.863Z
+//! Generated: 2026-10-01T11:58:49.304Z
 //! Project: sales
 
 use loco_rs::prelude::*;
