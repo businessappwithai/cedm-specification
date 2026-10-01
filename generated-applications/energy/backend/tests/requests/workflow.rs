@@ -1,6 +1,6 @@
 //! Workflow definitions, runs, and the audit trail they write.
 //!
-//! Generated: 2026-10-01T09:31:57.362Z
+//! Generated: 2026-10-01T20:49:01.819Z
 //! Project: energy
 
 use serde_json::{json, Value};

@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBusEntityLevel } from "@/hooks/use-bus-entity-level";
 import { ADDetailShell } from "./ad-detail-shell";
+import { ADCreateShell } from "./ad-list-shell";
 
 interface BusEntityDetailPageProps {
   entityName: string;
@@ -28,6 +29,9 @@ export function BusEntityDetailPage({ entityName, recordId }: BusEntityDetailPag
       </div>
     );
   }
+
+  // `/<entity>/new` is the create page; every other id is a record.
+  if (recordId === "new") return <ADCreateShell level={level} />;
 
   return <ADDetailShell level={level} recordId={recordId} parentContext={[]} initialMode="view" />;
 }

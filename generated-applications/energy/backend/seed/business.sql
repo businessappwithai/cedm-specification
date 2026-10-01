@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('71451466-e977-56cd-b9dd-862ee5163af1', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '31a01239-88cc-543e-a897-72186fba18d2', '1fdccd9d-ef38-5fdf-adaf-1b96a685f3af', '308ac63d-ffd2-5c5a-bfaa-bfe382973da9', '3493a7e1-8a99-53f6-9266-42a585395ca4', '82c67dae-7675-5863-99c8-61ea9f576cd6', 'c2da0373-1f61-59f6-a228-23dde603554e', 'final', NOW(), NOW())
+VALUES ('71451466-e977-56cd-b9dd-862ee5163af1', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '31a01239-88cc-543e-a897-72186fba18d2', '1fdccd9d-ef38-5fdf-adaf-1b96a685f3af', '308ac63d-ffd2-5c5a-bfaa-bfe382973da9', '3493a7e1-8a99-53f6-9266-42a585395ca4', '82c67dae-7675-5863-99c8-61ea9f576cd6', 'c2da0373-1f61-59f6-a228-23dde603554e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('b5244b6a-34ad-52de-90a4-945d827372ba', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', 'fe6e2d8a-efb0-51b3-9ca6-9134df1ae7eb', '452cce10-67c9-5270-a7dd-e4d27ffbeda5', '52354feb-c2b9-56f3-8b8e-1d793e848d08', '1023f6fb-6c14-5460-a67b-70a50ec65d78', '2b1d9f2b-bd66-5fbf-8318-9c4993529782', 'b31229cc-3999-5b5b-9532-05537cc50331', 'final', NOW(), NOW())
+VALUES ('b5244b6a-34ad-52de-90a4-945d827372ba', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', 'fe6e2d8a-efb0-51b3-9ca6-9134df1ae7eb', '452cce10-67c9-5270-a7dd-e4d27ffbeda5', '52354feb-c2b9-56f3-8b8e-1d793e848d08', '1023f6fb-6c14-5460-a67b-70a50ec65d78', '2b1d9f2b-bd66-5fbf-8318-9c4993529782', 'b31229cc-3999-5b5b-9532-05537cc50331', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('4a576c53-14e3-58ba-8e5f-2f41d1c100de', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'b48c98e6-5466-5241-a32f-ea1a9c00d85d', '47454ea0-042a-55bc-b164-573a5daa8c03', '115e2ca9-492b-5a29-9321-467d64d23b5c', '56f3f8a9-3cec-50c3-b006-e14c18e4333a', '2f351d61-a6a3-5e6b-af74-89068fdbfa6f', '8f3050d7-037f-51b7-953d-2d97d242b4dd', 'final', NOW(), NOW())
+VALUES ('4a576c53-14e3-58ba-8e5f-2f41d1c100de', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', 'b48c98e6-5466-5241-a32f-ea1a9c00d85d', '47454ea0-042a-55bc-b164-573a5daa8c03', '115e2ca9-492b-5a29-9321-467d64d23b5c', '56f3f8a9-3cec-50c3-b006-e14c18e4333a', '2f351d61-a6a3-5e6b-af74-89068fdbfa6f', '8f3050d7-037f-51b7-953d-2d97d242b4dd', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('ba02eeb0-4f8c-5fad-9847-dde7844a7714', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '73c9ba86-f359-5b6a-94d5-a27f95f4a8d6', '4a465d09-c71a-5a02-8355-b7fed775b6e0', 'a60f3ba6-3157-5f10-a200-fd616f2384ce', '1f73ee26-01f4-5d88-8b1f-3cfd337f558d', 'c735b9d3-9cc7-5c2c-98bb-aa09b4b9c6c5', 'f7c65724-5774-55cd-a362-2e9ab266075a', 'final', NOW(), NOW())
+VALUES ('ba02eeb0-4f8c-5fad-9847-dde7844a7714', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '73c9ba86-f359-5b6a-94d5-a27f95f4a8d6', '4a465d09-c71a-5a02-8355-b7fed775b6e0', 'a60f3ba6-3157-5f10-a200-fd616f2384ce', '1f73ee26-01f4-5d88-8b1f-3cfd337f558d', 'c735b9d3-9cc7-5c2c-98bb-aa09b4b9c6c5', 'f7c65724-5774-55cd-a362-2e9ab266075a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('c41a0c9a-29cc-5055-a989-48878ccdea9c', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '486650f7-7401-5734-8f69-755429a459a4', '019fd770-31d8-5077-8758-76d2347ce2a0', '7dceb34d-36a3-5f0c-8dbd-a28e8f1fdec8', '164c4d59-6a47-533b-a7ec-4ba9d908b643', 'c7a013f7-5a09-52b8-828c-3b9b249b84af', 'ef084595-727f-5d41-8db2-85aae91e4993', 'final', NOW(), NOW())
+VALUES ('c41a0c9a-29cc-5055-a989-48878ccdea9c', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '486650f7-7401-5734-8f69-755429a459a4', '019fd770-31d8-5077-8758-76d2347ce2a0', '7dceb34d-36a3-5f0c-8dbd-a28e8f1fdec8', '164c4d59-6a47-533b-a7ec-4ba9d908b643', 'c7a013f7-5a09-52b8-828c-3b9b249b84af', 'ef084595-727f-5d41-8db2-85aae91e4993', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -286,19 +286,19 @@ ON CONFLICT DO NOTHING;
 
 -- Energy Asset (bus_energy_asset)
 INSERT INTO bus_energy_asset (id, asset_code, asset_type, capacity, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('136cf54d-43b7-551f-8b5d-7189e32fd158', 'Asset Code 1', 'Asset Type 1', 10.50, 'PLANNED', '9a327da2-f081-5c9b-9131-a0db5e6644ee', '308ac63d-ffd2-5c5a-bfaa-bfe382973da9', 'final', NOW(), NOW())
+VALUES ('136cf54d-43b7-551f-8b5d-7189e32fd158', 'Energy Asset 1', 'Asset Type 1', 10.50, 'PLANNED', '9a327da2-f081-5c9b-9131-a0db5e6644ee', '308ac63d-ffd2-5c5a-bfaa-bfe382973da9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_energy_asset (id, asset_code, asset_type, capacity, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('7e9d82fc-30b4-57ac-88c1-11e6b6122aa1', 'Asset Code 2', 'Asset Type 2', 21.00, 'PLANNED', 'd2d85880-b749-5f35-8a60-eac92da4b50d', '52354feb-c2b9-56f3-8b8e-1d793e848d08', 'final', NOW(), NOW())
+VALUES ('7e9d82fc-30b4-57ac-88c1-11e6b6122aa1', 'Energy Asset 2', 'Asset Type 2', 21.00, 'PLANNED', 'd2d85880-b749-5f35-8a60-eac92da4b50d', '52354feb-c2b9-56f3-8b8e-1d793e848d08', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_energy_asset (id, asset_code, asset_type, capacity, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('e9399b14-49b4-5342-8939-e559bcbabe5d', 'Asset Code 3', 'Asset Type 3', 31.50, 'PLANNED', '12b96911-e0b4-5a8d-9225-0c628872d780', '115e2ca9-492b-5a29-9321-467d64d23b5c', 'final', NOW(), NOW())
+VALUES ('e9399b14-49b4-5342-8939-e559bcbabe5d', 'Energy Asset 3', 'Asset Type 3', 31.50, 'PLANNED', '12b96911-e0b4-5a8d-9225-0c628872d780', '115e2ca9-492b-5a29-9321-467d64d23b5c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_energy_asset (id, asset_code, asset_type, capacity, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('c61453a8-7db3-5858-a676-cde8405745ad', 'Asset Code 4', 'Asset Type 4', 42.00, 'PLANNED', '7ca6d3ff-cd55-54a1-ae4b-806e404d32a7', 'a60f3ba6-3157-5f10-a200-fd616f2384ce', 'final', NOW(), NOW())
+VALUES ('c61453a8-7db3-5858-a676-cde8405745ad', 'Energy Asset 4', 'Asset Type 4', 42.00, 'PLANNED', '7ca6d3ff-cd55-54a1-ae4b-806e404d32a7', 'a60f3ba6-3157-5f10-a200-fd616f2384ce', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_energy_asset (id, asset_code, asset_type, capacity, status, location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('3215201d-1e03-5f76-968e-8ce8c0972816', 'Asset Code 5', 'Asset Type 5', 52.50, 'PLANNED', '9cc659e7-f34a-5290-8bd1-bf549a3752c4', '7dceb34d-36a3-5f0c-8dbd-a28e8f1fdec8', 'final', NOW(), NOW())
+VALUES ('3215201d-1e03-5f76-968e-8ce8c0972816', 'Energy Asset 5', 'Asset Type 5', 52.50, 'PLANNED', '9cc659e7-f34a-5290-8bd1-bf549a3752c4', '7dceb34d-36a3-5f0c-8dbd-a28e8f1fdec8', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Energy Meter (bus_energy_meter)
