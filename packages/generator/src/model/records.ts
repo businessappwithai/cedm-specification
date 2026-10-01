@@ -29,6 +29,8 @@ export interface AttributeDeclaration {
   type: string;
   name: string;
   modifiers: string[];
+  /** The entity a foreign key points at, where its name does not say. */
+  references?: string;
 }
 
 export interface EntityDeclaration {

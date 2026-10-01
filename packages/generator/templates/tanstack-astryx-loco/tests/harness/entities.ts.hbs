@@ -30,6 +30,11 @@ export interface FieldMeta {
   unique: boolean;
   /** True for *_id columns that point at another bus_ table. */
   isForeignKey: boolean;
+  /**
+   * The entity a foreign key names outright, where its column name would
+   * resolve elsewhere (a CEDM reference). Wins over `referencedEntity`'s rule.
+   */
+  references?: string;
   maxLength?: number;
   /**
    * The enum this column is bound to, when its `enum` key binds one.
@@ -114,6 +119,9 @@ export const entities: EntityMeta[] = [
         required: {{#if required}}true{{else}}false{{/if}},
         unique: {{#if unique}}true{{else}}false{{/if}},
         isForeignKey: {{#if isForeignKey}}true{{else}}false{{/if}},
+{{#if referencesTable}}
+        references: "{{references}}",
+{{/if}}
 {{#if maxLength}}
         maxLength: {{maxLength}},
 {{/if}}
@@ -237,7 +245,10 @@ function entityByStem(stem: string): EntityMeta | null {
  * Getting this wrong leaves a mandatory FK unset and every create in the
  * suite fails validation.
  */
-export function referencedEntity(columnName: string): EntityMeta | null {
+export function referencedEntity(columnName: string, references?: string): EntityMeta | null {
+  // A target the model named outright is the answer; the name is not consulted.
+  if (references) return entities.find((e) => e.name === references) ?? null;
+
   if (
     columnName.endsWith("_by_id") ||
     columnName.endsWith("_by") ||
@@ -286,7 +297,7 @@ export function topologicalEntities(): EntityMeta[] {
   for (const entity of entities) {
     const references = new Set<string>();
     for (const field of foreignKeyFields(entity)) {
-      const target = referencedEntity(field.name);
+      const target = referencedEntity(field.name, field.references);
       if (target) references.add(target.name);
     }
     dependencies.set(entity.name, references);

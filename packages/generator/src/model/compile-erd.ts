@@ -80,6 +80,9 @@ function mergeDuplicateAttributes(attributes: EntityAttribute[]): EntityAttribut
     existing.required = existing.required || attribute.required;
     if (attribute.unique) existing.unique = true;
     if (attribute.isForeignKey) existing.isForeignKey = true;
+    if (existing.references === undefined && attribute.references !== undefined) {
+      existing.references = attribute.references;
+    }
     // Anything the first line did not say, a later one may still supply.
     if (existing.maxLength === undefined && attribute.maxLength !== undefined) {
       existing.maxLength = attribute.maxLength;
@@ -126,6 +129,10 @@ export function attributeFromDeclaration(declaration: AttributeDeclaration): Ent
     unique: isUnique || isPrimaryKey,
     maxLength,
     ...(isForeignKey && { isForeignKey: true }),
+    ...(isForeignKey &&
+      declaration.references !== undefined && {
+        references: declaration.references,
+      }),
     ...(SEMANTIC_TYPES.has(baseType) && {
       semanticType: baseType as NonNullable<EntityAttribute["semanticType"]>,
     }),
@@ -255,7 +262,9 @@ function attachParents(entities: Entity[], parents: Map<string, string>): void {
     const snake = snakeCase(parent.name);
     const link =
       child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ??
-      child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));
+      child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`)) ??
+      // A key that names the parent outright, whatever it is called.
+      child.attributes.find((a) => a.isForeignKey && a.references === parent.name);
     if (!link) continue;
 
     child.parentEntity = parent.name;

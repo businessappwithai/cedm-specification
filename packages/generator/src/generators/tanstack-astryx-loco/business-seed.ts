@@ -219,7 +219,7 @@ function valueFor(attribute: BusEntityAttribute, context: ValueContext): SqlValu
   }
 
   if (attribute.isForeignKey || isReferenceColumn(column)) {
-    const target = foreignKeyTargetTable(column, context.tables);
+    const target = foreignKeyTargetTable(column, context.tables, attribute.referencesTable);
     // NULL rather than a uuid that joins to nothing: an empty lookup reads as
     // "not set", a dangling one reads as corruption.
     if (!target) return null;
@@ -417,7 +417,10 @@ function deferredUpdates(
     const columns = deferred.get(entity.tableName);
     if (!columns) continue;
     for (const column of columns) {
-      const target = foreignKeyTargetTable(column, tables);
+      const explicit = entity.attributes.find(
+        (attribute) => attribute.columnName === column
+      )?.referencesTable;
+      const target = foreignKeyTargetTable(column, tables, explicit);
       if (!target) continue;
       for (let index = 0; index < rows; index++) {
         out.push(

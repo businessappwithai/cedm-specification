@@ -39,6 +39,19 @@ PARITY_MODELS=(
   "language/yaml/examples/ecommerce.eml.yaml"
   "language/yaml/examples/helpdesk.eml.yaml"
   "language/yaml/examples/minimal.eml.yaml"
+  # Written in CEDM: each generator reads the CEDM itself — the Rust and
+  # WebAssembly builds through their own port of the lowering, not the
+  # TypeScript one.
+  "examples/drug-discovery.cedm.yaml"
+  "language/cedm/examples/crm.cedm.yaml"
+)
+
+# CEDM models whose lowering is compared across TypeScript, Rust and
+# WebAssembly, document for document. Every PARITY_MODELS entry written in
+# CEDM is compared too; these add what generation parity would not reach.
+CEDM_LOWERING_MODELS=(
+  "examples/drug-discovery.cedm.yaml"
+  language/cedm/examples/*.cedm.yaml
 )
 
 OUT_DIR="${PARITY_OUT_DIR:-$(mktemp -d)}"
@@ -112,6 +125,12 @@ for model in "${PARITY_MODELS[@]}"; do
   compare "TypeScript and Rust agree" "$OUT_DIR/$slug-ts" "$OUT_DIR/$slug-rs"
   compare "the WebAssembly build emits what the native build emits" "$OUT_DIR/$slug-wasm" "$OUT_DIR/$slug-rs"
 done
+
+echo
+echo "==> CEDM lowering: TypeScript, Rust and WebAssembly read each model alike"
+if ! bun scripts/cedm-lowering-parity.ts "${CEDM_LOWERING_MODELS[@]}"; then
+  failures=$((failures + 1))
+fi
 
 echo
 if [ "$failures" -ne 0 ]; then

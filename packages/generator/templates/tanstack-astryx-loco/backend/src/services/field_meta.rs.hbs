@@ -17,7 +17,7 @@ use sqlx::{AssertSqlSafe, PgPool, Row};
 use std::collections::HashMap;
 
 use crate::errors::AppResult;
-use crate::services::dictionary::resolve_ref_table_name;
+use crate::services::dictionary::resolve_ref_table;
 
 /// Which of the two layouts a request wants.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -65,6 +65,7 @@ pub async fn layout_fields(
                  c.column_name, c.sys_reference_id, c.is_mandatory, c.is_updateable,
                  c.is_identifier,
                  c.field_length, c.default_value AS column_default_value,
+                 c.ref_table_name AS stored_ref_table_name,
                  r.name AS reference_name,
                  g.name AS group_name, g.columns AS group_columns,
                  g.description AS group_description, g.layout_type AS group_layout_type,
@@ -95,7 +96,8 @@ pub async fn layout_fields(
     for row in &rows {
         let column_name: String = row.try_get("column_name").unwrap_or_default();
         let sys_reference_id: Option<i32> = row.try_get("sys_reference_id").ok().flatten();
-        let ref_table_name = resolve_ref_table_name(&column_name, sys_reference_id);
+        let stored: Option<String> = row.try_get("stored_ref_table_name").ok().flatten();
+        let ref_table_name = resolve_ref_table(stored.as_deref(), &column_name, sys_reference_id);
         if let Some(name) = &ref_table_name {
             if !ref_tables.contains(name) {
                 ref_tables.push(name.clone());

@@ -318,7 +318,11 @@ pub static ENTITIES: &[EntityMeta] = &[
                 name: "{{columnName}}",
                 field_type: FieldType::from_model("{{type}}", {{#if isForeignKey}}true{{else}}false{{/if}}),
                 required: {{#if required}}true{{else}}false{{/if}},
+{{#if referencesTable}}
+                ref_table: Some("{{referencesTable}}"),
+{{else}}
                 ref_table: ref_table_for("{{columnName}}", {{#if isForeignKey}}true{{else}}false{{/if}}),
+{{/if}}
             },
 {{/each}}
         ],

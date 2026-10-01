@@ -83,6 +83,9 @@ export async function runWasmGenerator(args, cwd = process.cwd()) {
       TEMPLATE_DIR: env.TEMPLATE_DIR ?? path.join(ROOT, "packages/generator/templates"),
       APPWITHAI_LANGUAGE_FILE:
         env.APPWITHAI_LANGUAGE_FILE ?? path.join(ROOT, "language/appwithai-language.json"),
+      // Where a CEDM model's library imports are read from. The reading, the
+      // imports and the lowering all happen inside the module, in Rust.
+      CEDM_SPEC_ROOT: env.CEDM_SPEC_ROOT ?? ROOT,
     },
     preopens: { "/": "/" },
     returnOnExit: true,

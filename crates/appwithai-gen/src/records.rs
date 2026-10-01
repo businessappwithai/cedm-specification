@@ -16,6 +16,8 @@ pub struct AttributeDeclaration {
     pub ty: String,
     pub name: String,
     pub modifiers: Vec<String>,
+    /// The entity a foreign key points at, where its name does not say.
+    pub references: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

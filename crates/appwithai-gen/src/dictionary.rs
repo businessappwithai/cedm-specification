@@ -683,6 +683,20 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
             ));
         }
 
+        // Store the target of each lookup whose name does not say it — a CEDM
+        // reference named outright. A separate statement rather than a value
+        // in the INSERT keeps every seed of a model without one byte for byte
+        // what it was. The column exists from m0018.
+        for attr in &entity.attributes {
+            if let Some(table) = attr.references_table.as_deref() {
+                out.push(format!(
+                    "UPDATE sys_column SET ref_table_name = {} WHERE sys_column_id = {};",
+                    text(table).render(),
+                    text(id("column", &[&entity.table_name, &attr.column_name])).render(),
+                ));
+            }
+        }
+
         // Point the child's tab at the column that links it to its parent.
         //
         // An UPDATE rather than a value in the INSERT above, because

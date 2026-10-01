@@ -71,6 +71,7 @@ function erdOf(document: ModelDocument): ErdRecords {
           type: attribute.type,
           name: attribute.name,
           modifiers: modifiersOf(attribute),
+          ...(attribute.references !== undefined ? { references: attribute.references } : {}),
         })
       ),
     });

@@ -647,6 +647,24 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
     });
 
     /*
+     * Store the target of each lookup whose name does not say it.
+     *
+     * A CEDM reference names its target outright — `deliveryLocation →
+     * Location`, held in `delivery_location_id` — and the name alone would
+     * resolve to a `bus_delivery_location` nothing declares. The column exists
+     * from m0018; a separate statement rather than a value in the INSERT
+     * keeps every seed of a model without such a column byte-for-byte what it
+     * was.
+     */
+    for (const attr of entity.attributes) {
+      if (!attr.referencesTable) continue;
+      out.push(
+        `UPDATE sys_column SET ref_table_name = ${lit(attr.referencesTable)} ` +
+          `WHERE sys_column_id = ${lit(id("column", entity.tableName, attr.columnName))};`
+      );
+    }
+
+    /*
      * Point the child's tab at the column that links it to its parent.
      *
      * An UPDATE rather than a value in the INSERT above, because

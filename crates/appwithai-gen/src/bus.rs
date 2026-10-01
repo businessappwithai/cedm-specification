@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use serde::Serialize;
 
 use crate::model::{Attribute, Entity, EntityIndex};
-use crate::naming::BUS_TABLE_PREFIX;
+use crate::naming::{snake_case, BUS_TABLE_PREFIX};
 
 /// `sys_reference_id` values. Mirrors `ReferenceType` in
 /// `packages/core/src/types/sys-dictionary.types.ts`; the numbers are stored in
@@ -75,6 +75,13 @@ pub struct BusAttribute {
     /// `entity_to_bus_entity` and carried here for every template that needs it.
     #[serde(rename = "isIdentifier")]
     pub is_identifier: bool,
+    /// The entity a foreign key names outright (a CEDM reference), and the
+    /// table that is — what `sys_column.ref_table_name` stores and every lookup
+    /// resolver prefers. Absent for every column whose name says it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<String>,
+    #[serde(rename = "referencesTable", skip_serializing_if = "Option::is_none")]
+    pub references_table: Option<String>,
     /// The column's `help`, as the author wrote it.
     ///
     /// The only text in a generated application that carries *domain*
@@ -274,7 +281,9 @@ fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Ve
     let references: Vec<&BusAttribute> = attributes
         .iter()
         .filter(|a| {
-            a.name != primary_key && a.is_foreign_key && is_foreign_key_column_name(&a.name)
+            a.name != primary_key
+                && a.is_foreign_key
+                && (a.references.is_some() || is_foreign_key_column_name(&a.name))
         })
         .collect();
     if references.len() >= 2 {
@@ -400,6 +409,12 @@ pub fn attribute_to_bus_attribute(
         // Set across the whole list by `with_identifiers`; one attribute on its
         // own cannot tell whether it identifies the record.
         is_identifier: false,
+        references: attr.references.clone().filter(|_| attr.is_foreign_key),
+        references_table: attr
+            .references
+            .as_deref()
+            .filter(|_| attr.is_foreign_key)
+            .map(|entity| format!("{BUS_TABLE_PREFIX}{}", snake_case(entity))),
     }
 }
 
@@ -412,7 +427,10 @@ pub fn attribute_reference_id(attr: &Attribute, entity_primary_key: &str) -> u16
     if attr.name == "id" || attr.name == entity_primary_key {
         return reference_type::ID;
     }
-    if attr.is_foreign_key && is_foreign_key_column_name(&attr.name) {
+    // An explicit target makes a lookup whatever the column is called; without
+    // one, the name has to be one a resolver can read.
+    if attr.is_foreign_key && (attr.references.is_some() || is_foreign_key_column_name(&attr.name))
+    {
         return reference_type::TABLE_DIRECT;
     }
     // A column bound to an enum points at that enum's own list reference. The
@@ -508,7 +526,12 @@ const PERSON_TABLES: &[&str] = &["bus_user", "bus_staff", "bus_employee"];
 pub fn foreign_key_target_table(
     column_name: &str,
     tables: &std::collections::HashSet<String>,
+    explicit_table: Option<&str>,
 ) -> Option<String> {
+    // A stated target wins over anything the name would say.
+    if let Some(table) = explicit_table {
+        return tables.contains(table).then(|| table.to_string());
+    }
     let person = || {
         PERSON_TABLES
             .iter()
@@ -740,6 +763,7 @@ entities:
             max_length: None,
             is_foreign_key: true,
             is_primary_key: false,
+            references: None,
             enum_ref: None,
             enum_values: None,
             enum_reference_id: None,

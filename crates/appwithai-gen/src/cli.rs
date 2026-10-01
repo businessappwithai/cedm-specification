@@ -28,6 +28,8 @@ pub enum Command {
     Info(InfoArgs),
     /// List the stacks and themes this generator can emit
     List,
+    /// Print the model document a CEDM model lowers to, as JSON
+    Lower(InfoArgs),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]

@@ -125,7 +125,7 @@ class TestHarness {
   ): Promise<Record<string, unknown> | null> {
     const foreignKeys: Record<string, string> = {};
     for (const fk of foreignKeyFields(entity)) {
-      const parent = this.resolveParentEntity(fk.name);
+      const parent = this.resolveParentEntity(fk.name, fk.references);
       if (!parent) continue;
 
       const existing = await this.anyRecordId(parent);
@@ -162,7 +162,7 @@ class TestHarness {
     const foreignKeys: Record<string, string> = {};
 
     for (const fk of foreignKeyFields(entity)) {
-      const parent = this.resolveParentEntity(fk.name);
+      const parent = this.resolveParentEntity(fk.name, fk.references);
       if (!parent) continue;
       const id = await this.anyRecordId(parent);
       if (id) foreignKeys[fk.name] = id;
@@ -196,8 +196,8 @@ class TestHarness {
   }
 
   /** Map a foreign-key column (`customer_id`) to its entity — see `referencedEntity`. */
-  resolveParentEntity(columnName: string): EntityMeta | null {
-    return referencedEntity(columnName);
+  resolveParentEntity(columnName: string, references?: string): EntityMeta | null {
+    return referencedEntity(columnName, references);
   }
 
   /** Entities ordered parents-first — the safe creation order. */

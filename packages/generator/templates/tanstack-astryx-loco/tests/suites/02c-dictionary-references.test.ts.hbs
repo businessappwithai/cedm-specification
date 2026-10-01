@@ -189,6 +189,22 @@ describe("application dictionary — references", () => {
         expect(unresolved).toEqual([]);
       });
 
+      // A reference the model named outright (a CEDM `deliveryLocation →
+      // Location`) must reach the table it named, not the one its column name
+      // would derive.
+      it("points a named reference at the entity the model named", () => {
+        const fields = fieldsByRoute.get(entity.route) ?? [];
+        const byColumn = new Map(fields.map((field) => [field.column_name, field]));
+        const wrong: string[] = [];
+        for (const fk of foreignKeyFields(entity)) {
+          if (!fk.references) continue;
+          const expected = entities.find((item) => item.name === fk.references)?.tableName;
+          const actual = byColumn.get(fk.name)?.ref_table_name;
+          if (actual !== expected) wrong.push(`${fk.name}→${actual ?? "unresolved"} (model: ${expected})`);
+        }
+        expect(wrong).toEqual([]);
+      });
+
       it("gives every foreign key a column to display instead of the id", () => {
         const fields = fieldsByRoute.get(entity.route) ?? [];
         const byColumn = new Map(fields.map((field) => [field.column_name, field]));

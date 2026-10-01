@@ -25,6 +25,14 @@ export interface EntityAttribute {
   minLength?: number;
   pattern?: string;
   isForeignKey?: boolean;
+  /**
+   * The entity a foreign key points at, where its name does not say: a CEDM
+   * reference such as `deliveryLocation → Location`, stored in the column
+   * `delivery_location_id`. Absent for a column whose name resolves to its
+   * target by the usual rule — which is every column a model written without
+   * CEDM has — so the stored target is written only where it is needed.
+   */
+  references?: string;
   /** Name of the enum this column is bound to, by the attribute's `enum` key. */
   enumRef?: string;
   /** The enum's values, in declaration order. */
@@ -127,6 +135,7 @@ export const EntityAttributeSchema = z.object({
   maxLength: z.number().optional(),
   minLength: z.number().optional(),
   pattern: z.string().optional(),
+  references: z.string().optional(),
 });
 
 export const EntitySchema = z.object({

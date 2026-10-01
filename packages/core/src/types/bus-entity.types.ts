@@ -7,6 +7,7 @@
  */
 
 import { z } from "zod";
+import { snakeCase } from "../utils/naming";
 import type { Entity, EntityAttribute, EntityIndex, Relationship } from "./entity.types";
 import {
   AccessLevel,
@@ -114,6 +115,11 @@ export interface BusEntityAttribute extends EntityAttribute {
    * what a record is called.
    */
   isIdentifier: boolean;
+  /**
+   * The table `references` names, for an attribute whose target is explicit —
+   * what `sys_column.ref_table_name` stores and every lookup resolver prefers.
+   */
+  referencesTable?: string;
 }
 
 /**
@@ -252,7 +258,13 @@ const SEMANTIC_REFERENCE = {
  * Returns the names in the order they should be concatenated.
  */
 export function identifierColumnNames(
-  attributes: Array<{ name: string; type?: string; unique?: boolean; isForeignKey?: boolean }>,
+  attributes: Array<{
+    name: string;
+    type?: string;
+    unique?: boolean;
+    isForeignKey?: boolean;
+    references?: string;
+  }>,
   primaryKey?: string
 ): string[] {
   const names = new Set(attributes.map((attribute) => attribute.name));
@@ -300,7 +312,7 @@ export function identifierColumnNames(
     (attribute) =>
       attribute.name !== primaryKey &&
       attribute.isForeignKey &&
-      isForeignKeyColumnName(attribute.name)
+      (attribute.references !== undefined || isForeignKeyColumnName(attribute.name))
   );
   if (references.length >= 2) return references.slice(0, 2).map((attribute) => attribute.name);
 
@@ -319,7 +331,11 @@ export function identifierColumnNames(
 export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
-  if (attr.isForeignKey && isForeignKeyColumnName(attr.name)) return ReferenceType.TABLE_DIRECT;
+  // An explicit target makes a lookup whatever the column is called; without
+  // one, the name has to be one a resolver can read.
+  if (attr.isForeignKey && (attr.references !== undefined || isForeignKeyColumnName(attr.name))) {
+    return ReferenceType.TABLE_DIRECT;
+  }
   // A column bound to an enum points at that enum's own list reference. The
   // generated forms render any reference at or above 1000 as a dropdown fed by
   // /sys/ref-list, so this is what stops a modelled status being a text box the
@@ -437,8 +453,11 @@ const PERSON_TABLES = ["bus_user", "bus_staff", "bus_employee"];
  */
 export function foreignKeyTargetTable(
   columnName: string,
-  tables: ReadonlySet<string>
+  tables: ReadonlySet<string>,
+  explicitTable?: string
 ): string | undefined {
+  // A stated target wins over anything the name would say.
+  if (explicitTable !== undefined) return tables.has(explicitTable) ? explicitTable : undefined;
   const person = () => PERSON_TABLES.find((table) => tables.has(table));
 
   if (PERSON_ROLE_COLUMN_NAMES.has(columnName)) return person();
@@ -536,6 +555,9 @@ export function attributeToBusAttribute(
     // Set across the whole list by `withIdentifiers`; one attribute on its own
     // cannot tell whether it identifies the record.
     isIdentifier: false,
+    ...(attr.isForeignKey && attr.references !== undefined
+      ? { referencesTable: `${BUS_TABLE_PREFIX}${snakeCase(attr.references)}` }
+      : {}),
   };
 }
 

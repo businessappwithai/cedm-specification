@@ -122,7 +122,7 @@ catalog:
       name: Sustainability and ESG
       entities: [Emission, EnergyUsage, WasteRecord, ESGMetric, SustainabilityTarget]
       processes: [measurement, target-setting, reduction, disclosure, assurance]
-
-  - id: budgeting-planning
-    entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
-    processes: [budgeting, forecasting, scenario-planning, variance-analysis]
+    - id: budgeting-planning
+      name: Budgeting and Planning
+      entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
+      processes: [budgeting, forecasting, scenario-planning, variance-analysis]

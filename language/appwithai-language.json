@@ -309,6 +309,7 @@
       ]
     },
     "checkerCodes": {
+      "EML118": "An `fk` column whose `references` names an entity the model does not declare. The dictionary would store a target table no migration creates.",
       "EML114": "An `fk` column that does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by` becomes `reported_by_id` — everywhere the model names it — and starts resolving to the person entity.",
       "EML119": "A column named like a reference (_id/_by, resolving to a declared entity) without `fk: true`. Both conditions are required for TABLE_DIRECT, and a column that fails either is recorded as a plain String."
     }

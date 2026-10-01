@@ -253,6 +253,10 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
     tpl: "migration/src/m0017_workflow_definition_yaml.rs.hbs",
     out: "migration/src/m0017_workflow_definition_yaml.rs",
   },
+  {
+    tpl: "migration/src/m0018_sys_column_ref_table.rs.hbs",
+    out: "migration/src/m0018_sys_column_ref_table.rs",
+  },
 
   { tpl: "src/lib.rs.hbs", out: "src/lib.rs" },
   { tpl: "src/bin/main.rs.hbs", out: "src/bin/main.rs" },

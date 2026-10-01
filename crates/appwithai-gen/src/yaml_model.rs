@@ -161,6 +161,9 @@ struct AttributeDocument {
     comment: Option<String>,
     #[serde(rename = "enum")]
     enum_name: Option<String>,
+    /// The entity a foreign key points at, where its name does not say: a CEDM
+    /// reference such as `deliveryLocation → Location`.
+    references: Option<String>,
     help: Option<String>,
     /// `ui`, `default`, `min`, `max`, `format`: validated and carried, not
     /// compiled by either application generator yet. `min`/`max` are a number
@@ -370,6 +373,12 @@ pub fn read_model_yaml(text: &str) -> Result<ModelRecords> {
             ),
             None => anyhow!("{error}"),
         })?;
+    read_model_value(value)
+}
+
+/// Read a model document already parsed — the one a CEDM model lowers to —
+/// into records, refusing anything the schema refuses.
+pub fn read_model_value(value: serde_yaml::Value) -> Result<ModelRecords> {
     let as_json = serde_json::to_value(&value)
         .context("the model contains a value JSON cannot hold (a non-string key?)")?;
     validate_against_schema(&as_json)?;
@@ -421,6 +430,7 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
                         ty: attribute.ty.clone(),
                         name: attribute.name.clone(),
                         modifiers,
+                        references: attribute.references.clone(),
                     }
                 })
                 .collect(),

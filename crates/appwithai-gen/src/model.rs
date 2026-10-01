@@ -33,6 +33,10 @@ pub struct Attribute {
     pub is_foreign_key: bool,
     #[serde(rename = "isPrimaryKey", skip_serializing_if = "std::ops::Not::not")]
     pub is_primary_key: bool,
+    /// The entity a foreign key names outright, where its column name would
+    /// resolve elsewhere — a CEDM reference. Absent for every other column.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<String>,
     /// Name of the enum this column is bound to, by its `enum` key.
     #[serde(rename = "enumRef", skip_serializing_if = "Option::is_none")]
     pub enum_ref: Option<String>,
@@ -307,6 +311,12 @@ fn attach_parents(entities: &mut [Entity], parents: &[(String, String)]) {
                     .iter()
                     .find(|a| a.is_foreign_key && a.name.starts_with(&prefix))
             })
+            .or_else(|| {
+                // A key that names the parent outright, whatever it is called.
+                child.attributes.iter().find(|a| {
+                    a.is_foreign_key && a.references.as_deref() == Some(parent_display.as_str())
+                })
+            })
             .map(|a| a.name.clone());
         let Some(link) = link else { continue };
 
@@ -477,6 +487,7 @@ pub fn attribute_from_declaration(
         max_length,
         is_foreign_key,
         is_primary_key,
+        references: declaration.references.clone().filter(|_| is_foreign_key),
         enum_ref: None,
         enum_values: None,
         enum_reference_id: None,
@@ -510,6 +521,9 @@ fn merge_duplicate_attributes(attributes: Vec<Attribute>) -> Vec<Attribute> {
         }
         if attribute.is_foreign_key {
             existing.is_foreign_key = true;
+        }
+        if existing.references.is_none() {
+            existing.references = attribute.references;
         }
         // Anything the first line did not say, a later one may still supply.
         if existing.max_length.is_none() {
@@ -547,6 +561,7 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
                 max_length: None,
                 is_foreign_key: false,
                 is_primary_key: true,
+                references: None,
                 enum_ref: None,
                 enum_values: None,
                 enum_reference_id: None,

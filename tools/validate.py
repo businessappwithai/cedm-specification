@@ -80,6 +80,12 @@ def main() -> int:
         errors.append("registry.entities must be a list")
         return finish()
 
+    # Every specification file must at least be YAML: a catalog that does not
+    # parse is one no tool can read, and nothing else here would notice.
+    for directory in ("specification", "domains", "schema", "applications"):
+        for path in sorted((ROOT / directory).glob("*.yaml")):
+            load_yaml(path)
+
     files = sorted(p for p in ENTITY_DIR.glob("*.yaml") if p.name != "index.yaml")
     entities: dict[str, tuple[pathlib.Path, dict]] = {}
     file_names = {p.stem for p in files}

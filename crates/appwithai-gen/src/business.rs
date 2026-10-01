@@ -240,7 +240,8 @@ fn value_for(
     }
 
     if attribute.is_foreign_key || column.ends_with("_id") || column.ends_with("_by") {
-        return match foreign_key_target_table(column, tables) {
+        return match foreign_key_target_table(column, tables, attribute.references_table.as_deref())
+        {
             Some(target) => text(row_id(&target, index % rows)),
             None => Sql::Null,
         };
@@ -460,7 +461,12 @@ fn deferred_updates(
         let mut columns: Vec<&String> = columns.iter().collect();
         columns.sort();
         for column in columns {
-            let Some(target) = foreign_key_target_table(column, tables) else {
+            let explicit = entity
+                .attributes
+                .iter()
+                .find(|attribute| attribute.column_name == **column)
+                .and_then(|attribute| attribute.references_table.as_deref());
+            let Some(target) = foreign_key_target_table(column, tables, explicit) else {
                 continue;
             };
             for index in 0..rows {
