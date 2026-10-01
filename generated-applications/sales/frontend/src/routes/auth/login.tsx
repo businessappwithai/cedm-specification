@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T11:12:32.073Z
+ * Generated: 2026-10-01T11:46:44.312Z
  * Project: sales
  */
 

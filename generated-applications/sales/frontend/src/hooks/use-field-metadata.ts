@@ -7,7 +7,7 @@
  * Enables runtime UI layout customization by fetching field
  * ordering and display settings from the backend.
  *
- * Generated: 2026-10-01T11:12:32.103Z
+ * Generated: 2026-10-01T11:46:44.334Z
  * Project: sales
  */
 

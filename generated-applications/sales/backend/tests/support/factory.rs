@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-01T11:12:29.144Z
+//! Generated: 2026-10-01T11:46:41.759Z
 //! Project: sales
 
 #![allow(dead_code)]
@@ -87,27 +87,28 @@ pub fn marked(field: &FieldMeta, label: &str) -> String {
 /// A string no other row holds, no longer than the column allows.
 ///
 /// A column with a short limit (a two-letter country code) cannot hold the
-/// readable `e2e-<field>-<run>-<n>` form, so it gets the counter in base 36,
-/// lower case — which also keeps it clear of the upper-case codes the
-/// reference data seeds. The low digits are the ones that vary, so cutting from
+/// readable `e2e-<field>-<run>-<n>` form, so it gets a symbol followed by the
+/// counter in base 36 — which keeps it clear of the codes the reference data
+/// seeds, all of which are letters or digits. The low digits are the ones that vary, so cutting from
 /// the left keeps every value in a run distinct for as long as the limit
 /// allows.
 fn fit(field: &FieldMeta, readable: String, n: u64) -> String {
     match field.max_length {
         Some(limit) if readable.len() > limit => {
-            let mut digits = Vec::new();
+            // The first character is a symbol, so the value cannot equal a seeded
+            // ISO code: those are letters (language, country, currency) or
+            // digits (a country's numeric code), never punctuation.
+            const SYMBOLS: &[u8] = b"!#$%&*+=?@^~";
+            let tail = limit.saturating_sub(1);
             let mut rest = n;
-            loop {
-                digits.push(char::from_digit((rest % 36) as u32, 36).unwrap_or('0'));
+            let mut low = Vec::with_capacity(tail);
+            for _ in 0..tail {
+                low.push(char::from_digit((rest % 36) as u32, 36).unwrap_or('0'));
                 rest /= 36;
-                if rest == 0 {
-                    break;
-                }
             }
-            digits.reverse();
-            let encoded: String = digits.into_iter().collect();
-            let start = encoded.len().saturating_sub(limit);
-            encoded[start..].to_string()
+            low.reverse();
+            let lead = SYMBOLS[(rest % SYMBOLS.len() as u64) as usize] as char;
+            std::iter::once(lead).chain(low).collect()
         }
         _ => readable,
     }
