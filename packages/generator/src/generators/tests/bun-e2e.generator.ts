@@ -10,6 +10,8 @@
  * Layout produced under <outputDir>/tests:
  *
  *   run.ts                       orchestrator — starts the app, runs suites in order
+ *   smoke.mjs                    browser smoke test of every screen
+ *   qa.sh                        smoke test + the Rust request suite, one command
  *   harness/                     shared machinery (config, http, auth, factory, rules…)
  *   suites/00-health…08-users    one file per functional area
  *   suites/03-crud.<entity>      one per entity
@@ -96,10 +98,18 @@ const SHARED_SUITES = [
 ];
 
 /** Root-level files. */
-const ROOT_FILES = ["package.json", "tsconfig.json", "README.md", "run.ts", "cleanup.ts"];
+const ROOT_FILES = [
+  "package.json",
+  "tsconfig.json",
+  "README.md",
+  "run.ts",
+  "cleanup.ts",
+  "smoke.mjs",
+  "qa.sh",
+];
 
 /** Files made executable after writing. */
-const EXECUTABLE_FILES = ["run.ts", "cleanup.ts"];
+const EXECUTABLE_FILES = ["run.ts", "cleanup.ts", "smoke.mjs", "qa.sh"];
 
 export class BunE2ETestGenerator extends BaseGenerator {
   private readonly options: BunE2ETestGeneratorOptions;

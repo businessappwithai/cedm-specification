@@ -6,8 +6,8 @@
 #   QA_TESTS=0 bash scripts/qa/qa-loop.sh sales         # skip `cargo test`
 #
 # For each domain: regenerate it, build and start it (scripts/serve-application.sh),
-# smoke-test every screen in a browser (scripts/qa/smoke-application.mjs, with
-# screenshots), run its own Rust request suite, record the result in
+# smoke-test every screen in a browser (the application's own tests/smoke.mjs,
+# with screenshots), run its own Rust request suite, record the result in
 # $QA_OUT/summary.tsv, and delete the build before the next one starts — a debug
 # build is several gigabytes and the disk holds one.
 set -uo pipefail
@@ -29,7 +29,8 @@ for domain in "$@"; do
 
   bash scripts/generate-domain-applications.sh "$domain" >"$dir/generate.log" 2>&1 && gen=ok
   if [ "$gen" = ok ] && bash scripts/serve-application.sh "$domain" >"$dir/serve.log" 2>&1; then
-    timeout 1800 bun scripts/qa/smoke-application.mjs "$domain" --shots >"$dir/smoke.json" 2>"$dir/smoke.err"
+    CHROMIUM="${CHROMIUM:-/opt/pw-browsers/chromium-1194/chrome-linux/chrome}" SMOKE_OUT="$PWD/generated-applications/screenshots/$domain" \
+      timeout 1800 bun "generated-applications/$domain/tests/smoke.mjs" --shots >"$dir/smoke.json" 2>"$dir/smoke.err"
     smoke=$?
     findings=$(python3 -c "import json,sys;print(len(json.load(open('$dir/smoke.json'))['findings']))" 2>/dev/null || echo "?")
 

@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T12:26:17.861Z
+ * Generated: 2026-10-01T13:57:52.185Z
  * Project: sales
  */
 

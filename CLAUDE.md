@@ -2019,7 +2019,7 @@ Drive it by button text — the Astryx `Button` adapter does not forward
 **Screens name an entity by its window, never its table.** `useEntityLabel()`
 (`use-dictionary-entities.ts`) is the one place a stored `bus_…` name becomes a
 label; the rules, decision-table, workflow monitor, workflow list and trigger
-card use it. `scripts/qa/smoke-application.mjs` fails a screen that shows
+card use it. the generated `tests/smoke.mjs` fails a screen that shows
 `\bbus_[a-z0-9_]+`.
 
 **`AlertDialogTrigger` is rendered by the adapter.** The shadcn composed form
@@ -2037,7 +2037,7 @@ otherwise Country cannot be created and everything holding one fails.
 
 **The serial QA loop** is `bash scripts/qa/qa-loop.sh <domain>… | --all`: per
 domain it regenerates, builds, starts, smoke-tests every screen
-(`scripts/qa/smoke-application.mjs`), runs the application's own `cargo test`,
+(the application's own `tests/smoke.mjs`), runs its `cargo test`,
 records `$QA_OUT/summary.tsv` (default `/tmp/claude-0/qa-loop`) and deletes the
 build before the next one.
 
@@ -2068,7 +2068,7 @@ to see the result.
 | **A CEDM construct** (a key on an entity, attribute, relationship) | `specification/*.yaml` contract → `schema/cedm-entity.schema.yaml` → `language/cedm/{document.ts,lower.ts,cedm-model.schema.json}` **and** `crates/appwithai-gen/src/cedm.rs` → `language/yaml/{document.ts,eml.schema.json,README.md}` → `packages/generator/src/model/*` and `crates/appwithai-gen/src/records.rs` → `tools/validate.py` → a library entity or `applications/*.cedm.yaml` that uses it → `language/cedm/README.md`. Gates: `bun run parity`, `model-cedm` tests, `tools/validate.py` |
 | **A derivation shared by both generators** (identifier columns, reference target, table naming, identifier label) | the TS function (`packages/core/src/types/bus-entity.types.ts`) **and** its Rust mirror (`crates/appwithai-gen/src/bus.rs`), a unit test in **both**, the text in `language/appwithai-language.json` (`displayValue.derivation` etc.), `specification/dictionary-mapping.yaml`, this file's note on it, and every other mirror it lists (the generated test harnesses, `field_meta`, `bus.rs` and the frontend `utils`). Gates: `bun run parity`, `cargo test -p appwithai-gen`, `identifier-columns.test.ts` |
 | **A backend template** (`backend/**.hbs`) | the generated test suites for it (`backend/tests/**`), `src/openapi.rs.hbs` and `GUARDED_ROUTES` for a new route, `RENDERED_FILES` in **both** `loco-backend.generator.ts` and `crates/appwithai-gen/src/backend.rs` for a new file, `Cargo.lock.hbs` for a new dependency, a migration (four edits) for a schema change. Gates: `bun run parity`, `cargo test --test app` in a regenerated app |
-| **A generated screen or adapter** (`frontend/**`) | the static-copy list in `tanstack-start-frontend.generator.ts` for a new plain file, every call site of a changed `components/ui/*` adapter (`grep` them: the shadcn surface has composed and controlled forms), the labels rule (window/tab/field names, never `bus_…` — `useEntityLabel`), the browser smoke (`scripts/qa/smoke-application.mjs`). Never leave a hook after an early `return` |
+| **A generated screen or adapter** (`frontend/**`) | the static-copy list in `tanstack-start-frontend.generator.ts` for a new plain file, every call site of a changed `components/ui/*` adapter (`grep` them: the shadcn surface has composed and controlled forms), the labels rule (window/tab/field names, never `bus_…` — `useEntityLabel`), the browser smoke (`tests/smoke.mjs.hbs`, the one source — generated with every app, run by `tests/qa.sh` / `bun run qa`). Never leave a hook after an early `return` |
 | **A generated test** (`backend/tests/**`, `tests/**`) | the factory's limits (`FieldMeta` carries `max_length`; values must fit, narrowed references come from the lookup, a rule's `createData` carries real parents), the bun harness mirror (`tests/harness/*`), and run the **other** corpus models' suites, not only the one you changed for |
 | **A theme or style** (`styles/globals.css.hbs`) | check all seven themes (`ThemeSelector`), light and dark, with the screenshot script — a tint taken from a theme's own accent vanishes on the monochrome ones, which is why highlights use `--ad-highlight` |
 | **The language definition** (`appwithai-language.json`) | `language/grammar/appwithai.ebnf`, `language/spec/*.md`, both checkers (`language/checker.ts`, `language/cli/src/validator.ts`), `bun run build:language-tools` + `bun run check:language-bundle`, `bun run wasm` parity, an example model |

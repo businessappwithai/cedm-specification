@@ -15,7 +15,7 @@
 //! ordering matters only so the reports have something to answer with when
 //! somebody opens one.
 //!
-//! Generated: 2026-10-01T12:26:15.184Z
+//! Generated: 2026-10-01T13:57:49.737Z
 //! Project: sales
 
 use loco_rs::prelude::*;
