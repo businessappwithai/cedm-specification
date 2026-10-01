@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T09:31:16.257Z
+//! Generated: 2026-10-01T17:09:01.543Z
 //! Project: compliance
 
 use serde_json::Value;

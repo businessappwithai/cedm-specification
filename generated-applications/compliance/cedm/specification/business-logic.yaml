@@ -32,6 +32,7 @@ lifecycle:
   guarantees:
     - Topology is enforced for every caller, the master role included. A move the diagram never drew is a move that does not exist.
     - A transition may carry `authorization` (roles that may make it) and `guard` (a condition over the record).
+    - A generated application presents the machine on the record itself: the current state and one button per move that leaves it (the move's `action`, title-cased), written through the ordinary update so these guarantees still apply. A state with no outgoing move says so. An entity with no lifecycle shows nothing.
   derivation: >-
     Where an entity states only its status values, tools/derive_business_logic.py draws the lifecycle
     from them: the values are sorted into a starting run, detours that are left and returned to

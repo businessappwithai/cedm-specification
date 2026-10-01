@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T09:31:18.252Z
+ * Generated: 2026-10-01T17:09:03.592Z
  * Project: compliance
  */
 
