@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-01T13:28:53.121Z
+//! Generated: 2026-10-01T14:01:42.180Z
 //! Project: agriculture
 
 /// What a column holds, which is what decides the shape of a generated value.

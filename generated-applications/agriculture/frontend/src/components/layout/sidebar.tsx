@@ -21,7 +21,7 @@
  * - Neither list was scoped to the caller, so the menu offered entities the API
  *   would refuse.
  *
- * Generated: 2026-10-01T13:28:55.697Z
+ * Generated: 2026-10-01T14:01:43.886Z
  */
 
 import { useState } from 'react';
