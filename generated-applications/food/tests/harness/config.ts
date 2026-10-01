@@ -4,7 +4,7 @@
  * Every knob is env-overridable so the same suites run against a locally
  * started app, a docker-compose stack, or CI.
  *
- * Generated: 2026-10-01T09:32:20.225Z
+ * Generated: 2026-10-01T22:47:39.885Z
  * Project: food
  */
 
