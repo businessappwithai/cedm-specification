@@ -12,7 +12,7 @@ use serial_test::serial;
 use crate::support::{
     self, bearer,
     entities::entity,
-    factory::{build_invalid_record, build_record, create_with_parents},
+    factory::{build_invalid_record, build_record, create_with_parents, marked},
     rows, total,
 };
 
@@ -73,7 +73,7 @@ async fn persists_the_values_it_was_given() {
         let meta = entity(ENTITY);
         let Some(text_field) = meta.first_text_field() else { return };
 
-        let marker = format!("marker-{}", uuid::Uuid::new_v4());
+        let marker = marked(text_field, "marker");
         let created = create_with_parents(
             &request,
             &token,
@@ -110,7 +110,7 @@ async fn updates_with_patch_and_bumps_the_version() {
         let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
         let before = created.get("version").and_then(Value::as_i64).unwrap_or(0);
 
-        let updated = format!("patched-{}", uuid::Uuid::new_v4());
+        let updated = marked(text_field, "patched");
         let response = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))

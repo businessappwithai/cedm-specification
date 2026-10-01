@@ -181,6 +181,10 @@ pub struct FieldMeta {
     pub required: bool,
     /// The `bus_*` table a `Reference` points at, when it resolves to one.
     pub ref_table: Option<&'static str>,
+    /// The longest value the column accepts, when the model states one. A
+    /// two-letter ISO code rejects the factory's usual `e2e-code-…` string, and
+    /// the failure surfaces as "could not create the record".
+    pub max_length: Option<usize>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -323,6 +327,7 @@ pub static ENTITIES: &[EntityMeta] = &[
 {{else}}
                 ref_table: ref_table_for("{{columnName}}", {{#if isForeignKey}}true{{else}}false{{/if}}),
 {{/if}}
+                max_length: {{#if maxLength}}Some({{maxLength}}){{else}}None{{/if}},
             },
 {{/each}}
         ],
