@@ -1,0 +1,402 @@
+# Converted from ecommerce.eml.yaml.
+
+cedm: "1.0"
+application:
+  name: Store Core
+  version: 1.0.0
+enums:
+  - name: FulfilmentEvent
+    values: [place, pay, pack, ship, deliver, cancel, refund]
+entities:
+  - name: Customer
+    help: A shopper with an account on the store. The account is what carries an order history, a saved address book and a verified contact address, so a customer exists before an order does and outlives every order they place.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: email
+        type: string
+        unique: true
+        help: The address the customer signs in with and where order confirmations, dispatch notices and refunds are sent. Unique across the store — a second account on the same address splits one shopper's history in two.
+      - name: passwordHash
+        type: string
+        help: The stored hash of the customer's password, never the password. Written only by the sign-up and password-reset flows; nothing else reads or displays it.
+      - name: firstName
+        type: string
+        help: How the customer is greeted in email and on the account page. Kept apart from the surname because most correspondence uses only this half.
+      - name: lastName
+        type: string
+        help: The family name, used together with the first name on invoices and delivery labels where a full name is required.
+      - name: phone
+        type: string
+        required: false
+        help: A number the courier can call on the day of delivery. Optional at sign-up, but an order without one is the usual reason a failed delivery cannot be rescued.
+      - name: isVerified
+        type: boolean
+        help: Whether the customer has confirmed their email address by following the link sent at sign-up. An unverified account can browse but should not be trusted with order notifications, because the address may belong to somebody else.
+    relationships:
+      - name: places
+        target: Order
+        cardinality: 0..*
+  - name: Product
+    help: Something the store sells, priced and counted. A product carries the list price an order line copies at the moment of sale and the stock figure fulfilment works from, which is why it is never deleted once it has been ordered — deactivating it takes it off the storefront and leaves the order history intact.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: name
+        type: string
+        help: The product as it appears on the storefront, in search results and on the invoice line. Write it the way a shopper would recognise it, not the way the warehouse labels it.
+      - name: sku
+        type: string
+        unique: true
+        help: "The stock-keeping unit — the warehouse's own code for this item, and the identifier the store shares with suppliers and couriers. Unique, and it does not change: a reused SKU makes two products indistinguishable in every stock report ever run."
+      - name: description
+        type: text
+        required: false
+        help: What the shopper needs to know before buying — what it is, what is in the box, what it does not include. Optional, though a product without one converts noticeably worse.
+      - name: unitPrice
+        type: decimal
+        help: The current list price, before any discount. An order line copies this figure when the line is created rather than referring to it, so a later price change never rewrites what somebody already agreed to pay.
+      - name: stockQty
+        type: integer
+        help: Units physically available to promise. Fulfilment decrements it when an order is packed, so a figure that drifts from the shelf is what causes an order to be accepted and then cancelled.
+      - name: isActive
+        type: boolean
+        help: Whether the product is offered for sale. Cleared instead of deleting a discontinued line, which would break every historical order that contains it.
+    relationships:
+      - name: orderedIn
+        target: OrderItem
+        cardinality: 0..*
+    persistence:
+      indexes:
+        - columns: [sku]
+          unique: true
+  - name: Category
+    help: A branch of the storefront's navigation. Categories nest — a category may name another as its parent — so the tree is what a shopper walks down and what the merchandising team reorganises without touching a single product.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: name
+        type: string
+        help: "The heading shoppers see in navigation and breadcrumbs. Keep it short: it is read in a menu, not in a sentence."
+      - name: parentId
+        type: reference
+        required: false
+        help: The category this one sits under, empty for a top-level branch. This is what makes the navigation a tree rather than a flat list; a category pointing at its own descendant would make it a loop, so it is checked before it is saved.
+    relationships:
+      - name: categorizes
+        target: Product
+        cardinality: 0..*
+        foreignKey: false
+      - name: hasSubcategory
+        target: Category
+        cardinality: 0..*
+        foreignKey: false
+  - name: Order
+    help: One purchase, from the basket a shopper is still filling to a delivered or refunded transaction. The order carries the money — subtotal, discount, shipping and total — and its status is the single answer to "where is this". It is audited, because the question after any billing dispute is who changed what and when.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: customerId
+        type: reference
+        target: Customer
+        help: The shopper this order belongs to. It decides where confirmations are sent and which account the order appears under, and it is fixed once the order is placed.
+      - name: orderNumber
+        type: string
+        unique: true
+        help: "The human-readable reference quoted in email, on the invoice and by anyone phoning about the order. Unique, and deliberately not the record's key: it is a number people read out."
+      - name: status
+        type: enum
+        values: [cart, placed, paid, packed, shipped, delivered, cancelled, refunded]
+        help: cart — still being filled and freely editable; placed — submitted and awaiting payment; paid, packed, shipped, delivered — the fulfilment path; cancelled and refunded — the two ways it ends early. Only the moves the fulfilment diagram draws are allowed, so an order cannot ship before it is paid.
+      - name: subtotal
+        type: decimal
+        help: The order's lines added up at the prices agreed when each was added, before discount and shipping. Recalculated by the pricing rule whenever a line changes.
+      - name: discountAmount
+        type: decimal
+        help: What has been taken off the subtotal — a promotion, a voucher or an agreed goodwill reduction. Held separately from the line prices so a discount is always visible as a decision rather than hidden in the arithmetic.
+      - name: shippingAmount
+        type: decimal
+        help: What the shopper is charged to have the order delivered, from the shipping band the basket qualifies for. Added after the discount, so a discount never reduces the carriage charge.
+      - name: totalAmount
+        type: decimal
+        help: "What the customer actually owes: subtotal less discount, plus shipping. This is the figure payment is taken against, so a payment that does not match it is the first thing reconciliation looks for."
+      - name: placedAt
+        type: datetime
+        required: false
+        help: When the shopper submitted the order. Empty while it is still a cart, and it is the clock every delivery promise is measured from.
+    relationships:
+      - name: contains
+        target: OrderItem
+        cardinality: 0..*
+        ownership: aggregate
+      - name: paidBy
+        target: Payment
+        cardinality: 0..*
+    lifecycle:
+      name: OrderFulfilment
+      title: Order Fulfilment
+      states: [cart, placed, paid, cancelled, packed, shipped, delivered, refunded]
+      initial: cart
+      terminal: [delivered, cancelled, refunded]
+      transitions:
+        - from: cart
+          to: placed
+          action: place
+        - from: placed
+          to: paid
+          action: pay
+        - from: placed
+          to: cancelled
+          action: cancel
+        - from: paid
+          to: packed
+          action: pack
+        - from: packed
+          to: shipped
+          action: ship
+        - from: shipped
+          to: delivered
+          action: deliver
+        - from: paid
+          to: refunded
+          action: refund
+    persistence:
+      audited: true
+      indexes:
+        - columns: [customer_id, status]
+  - name: OrderItem
+    help: One product on one order, at the quantity and price agreed. A line has no meaning away from its order — line 2 of order 4417, not line 2 — which is why it is a line item of the order rather than a screen of its own.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: orderId
+        type: reference
+        target: Order
+        help: The order this line belongs to. It is what the order's own screen lists the lines by, and the reason a line is never opened on its own.
+      - name: productId
+        type: reference
+        target: Product
+        help: What was bought. It is the reference the warehouse picks against, and the only link back from a sale to the product's stock and description.
+      - name: quantity
+        type: integer
+        help: How many units of the product this line covers. Multiplied by the unit price to give the line total, and the figure stock is decremented by when the order is packed.
+      - name: unitPrice
+        type: decimal
+        help: The price per unit **as agreed when the line was added**, copied from the product rather than referenced. This is what makes an old order still show the price the customer actually paid after the product's list price has moved.
+      - name: lineTotal
+        type: decimal
+        help: Quantity multiplied by unit price, stored rather than recomputed so the order's arithmetic can be audited line by line without re-deriving prices that have since changed.
+  - name: Payment
+    help: One attempt to collect money against an order. An order can carry several — a failed card followed by a successful one, a gift card topped up by a card, a refund — so payments are a list rather than a field, and the order is settled only when the captured amounts cover its total.
+    identity:
+      key: id
+    attributes:
+      - name: id
+        type: string
+      - name: orderId
+        type: reference
+        target: Order
+        help: "The order this money is for. Everything about reconciliation starts here: a payment whose order is missing or already refunded is the exception a finance team chases."
+      - name: method
+        type: enum
+        values: [card, paypal, bank_transfer, gift_card]
+        help: card, paypal, bank_transfer or gift_card. It decides how a refund has to be returned — money goes back the way it came — and how long settlement takes.
+      - name: status
+        type: enum
+        values: [pending, authorized, captured, failed, refunded]
+        help: pending — submitted, no answer yet; authorized — funds reserved, not taken; captured — money actually collected; failed — declined, and the order stays unpaid; refunded — returned to the customer. Only a captured payment counts towards the order's total.
+      - name: amount
+        type: decimal
+        help: "The sum this payment moves. It need not equal the order total: part payments, gift-card balances and partial refunds are all normal, which is why settlement is the sum of captured payments rather than a single figure."
+      - name: capturedAt
+        type: datetime
+        required: false
+        help: When the money was actually taken, as opposed to reserved. Empty until capture, and it is the date that appears on the customer's statement and in the day's takings.
+authorization:
+  permissions:
+    - resource: Order
+      action: place
+      subject: [customer]
+    - resource: Order
+      action: pack
+      subject: [warehouse, admin]
+    - resource: Order
+      action: refund
+      subject: [admin]
+hooks:
+  - entity: Order
+    event: customValidate
+    handler: ensureStockAvailable
+  - entity: Order
+    event: beforeUpdate
+    handler: recomputeTotals
+  - entity: Order
+    event: afterUpdate
+    handler: decrementInventory
+  - entity: Order
+    event: afterUpdate
+    handler: sendOrderConfirmation
+hookFlows:
+  - name: CheckoutHooks
+    title: Checkout Hooks
+    entity: Order
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Cart
+      - id: C
+        event: customValidate
+        handler: ensureStockAvailable
+      - id: D
+        event: beforeUpdate
+        handler: recomputeTotals
+      - id: E
+        label: Process Order
+      - id: F
+        event: afterUpdate
+        handler: decrementInventory
+      - id: G
+        event: afterUpdate
+        handler: sendOrderConfirmation
+      - id: H
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+      - from: G
+        to: H
+triggers:
+  - entity: Order
+    source: webhook:payment
+    handler: markPaid
+  - entity: Order
+    source: webhook:carrier
+    handler: markShipped
+rules:
+  - name: pricing
+    title: Order Pricing
+    entity: Order
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Order Repriced"
+        type: start
+      - id: B
+        label: Subtotal > 1000?
+        type: decision
+      - id: C
+        label: Apply Premium Discount 15%
+        type: expression
+      - id: D
+        label: Customer is_verified?
+        type: decision
+      - id: E
+        label: Apply Loyalty Discount 5%
+        type: expression
+      - id: F
+        label: No Discount
+        type: expression
+      - id: G
+        label: Calculate Total
+        type: expression
+      - id: H
+        label: "End: Priced"
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: C
+        to: G
+      - from: E
+        to: G
+      - from: F
+        to: G
+      - from: G
+        to: H
+  - name: freeShipping
+    title: Free Shipping
+    entity: Order
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: S
+        label: Start
+        type: start
+      - id: Q1
+        label: Total >= 50?
+        type: decision
+      - id: P1
+        label: Charge Standard Shipping
+        type: expression
+      - id: Q2
+        label: Item count >= 3?
+        type: decision
+      - id: P2
+        label: Free Express Shipping
+        type: expression
+      - id: P3
+        label: Free Standard Shipping
+        type: expression
+      - id: R
+        label: Set Shipping Amount
+        type: function
+      - id: E
+        label: End
+        type: end
+    edges:
+      - from: S
+        to: Q1
+      - from: Q1
+        to: P1
+        label: No
+      - from: Q1
+        to: Q2
+        label: Yes
+      - from: Q2
+        to: P2
+        label: Yes
+      - from: Q2
+        to: P3
+        label: No
+      - from: P1
+        to: R
+      - from: P2
+        to: R
+      - from: P3
+        to: R
+      - from: R
+        to: E

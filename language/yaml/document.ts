@@ -44,6 +44,12 @@ export interface AttributeDocument {
   type: string;
   pk?: boolean;
   fk?: boolean;
+  /**
+   * The entity a foreign key points at, where its name does not say: a CEDM
+   * reference such as `deliveryLocation → Location` (`delivery_location_id`
+   * would otherwise resolve to a `DeliveryLocation` nothing declares).
+   */
+  references?: string;
   unique?: boolean;
   optional?: boolean;
   comment?: string;

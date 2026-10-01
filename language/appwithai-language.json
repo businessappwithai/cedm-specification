@@ -163,6 +163,48 @@
     },
     "default": "string"
   },
+  "cedm": {
+    "description": "How a model written in CEDM (language/cedm/cedm-model.schema.json) maps onto this vocabulary. A CEDM model is lowered into the model document the generators compile (language/cedm/lower.ts); these are the CEDM terms that lowering translates. Everything else in a CEDM model is already a term of this language.",
+    "types": {
+      "preserved": [
+        "uuid",
+        "string",
+        "integer",
+        "decimal",
+        "money",
+        "boolean",
+        "date",
+        "datetime",
+        "object"
+      ],
+      "mapped": {
+        "enum": "string",
+        "reference": "the reference's keyType, default string, as a foreign key",
+        "currency_code": "string(3)",
+        "country_code": "string(2)",
+        "locale": "string(35)",
+        "timezone": "string(64)",
+        "value_object": "json"
+      },
+      "maxLength": "Written as the (n) suffix of a string, varchar or char token."
+    },
+    "cardinalities": {
+      "1": "exactly-one",
+      "0..1": "zero-or-one",
+      "0..*": "zero-or-more",
+      "1..*": "one-or-more",
+      "n..*": "one-or-more (n > 1 is enforced as at least one)"
+    },
+    "ownership": {
+      "aggregate": "The target is a line item of the source: entity parent.",
+      "reference": "An independent target: a foreign key and nothing more."
+    },
+    "names": "camelCase attributes compile to snake_case columns; a single identity key is stored as id; `column` overrides either.",
+    "references": "A reference names its target. Where the column name would resolve elsewhere, the target is written to the attribute's `references`, which the dictionary stores and every lookup resolver prefers.",
+    "lifecycle": "A lifecycle compiles to a state machine; each transition's action is its trigger.",
+    "invariants": "An invariant with violatedWhen compiles to a validation-error rule action; one without is documentation.",
+    "authorization": "allow permissions compile to rbac grants; deny and scoped permissions are refused."
+  },
   "attributes": {
     "description": "The keys of one entry in an entity's `attributes` list. `name` and `type` are required; every flag defaults to false.",
     "keys": {

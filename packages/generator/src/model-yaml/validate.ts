@@ -187,38 +187,56 @@ export function readModelYaml(
   if (parsed.errors.length) return { diagnostics, ok: false };
 
   const value: unknown = parsed.toJS({ maxAliasCount: 100 });
-  const validate = schemaValidator();
-  if (!validate(value)) {
-    for (const error of significantErrors(validate.errors ?? [])) {
-      const { path, message } = schemaMessage(error);
-      diagnostics.push({ severity: "error", code: "SCHEMA", message, path, ...locate(path) });
-    }
-    return { diagnostics, ok: false };
-  }
-
-  const document = value as ModelDocument;
-
-  if (options.check !== false) {
-    installLanguageDefinition();
-    for (const issue of checkModelDocument(document)) {
-      diagnostics.push({
-        severity: issue.severity,
-        code: issue.code,
-        message: issue.message,
-        path: issue.path,
-        ...locate(issue.path),
-        ...(issue.hint ? { hint: issue.hint } : {}),
-      });
-    }
-  }
-
+  const validated = validateModelValue(value, options);
+  for (const issue of validated.issues) diagnostics.push({ ...issue, ...locate(issue.path) });
   return {
-    document,
+    ...(validated.document ? { document: validated.document } : {}),
     diagnostics,
     ok: !diagnostics.some((diagnostic) => diagnostic.severity === "error"),
   };
 }
 
+/** A finding about a document, before it is placed on a line of text. */
+export type ModelIssue = Omit<ModelDiagnostic, "line" | "column">;
+
+/**
+ * Layers 2 and 3 over a value already read from YAML: the schema, then the
+ * language checker. Shared by `readModelYaml` and by the CEDM reader, which
+ * runs them over the document a CEDM model lowers to and reports each finding
+ * where the CEDM model said it.
+ */
+export function validateModelValue(
+  value: unknown,
+  options: ReadModelYamlOptions = {}
+): { document?: ModelDocument; issues: ModelIssue[] } {
+  const issues: ModelIssue[] = [];
+  const validate = schemaValidator();
+  if (!validate(value)) {
+    for (const error of significantErrors(validate.errors ?? [])) {
+      const { path, message } = schemaMessage(error);
+      issues.push({ severity: "error", code: "SCHEMA", message, path });
+    }
+    return { issues };
+  }
+
+  const document = value as ModelDocument;
+  if (options.check !== false) {
+    installLanguageDefinition();
+    for (const issue of checkModelDocument(document)) {
+      issues.push({
+        severity: issue.severity,
+        code: issue.code,
+        message: issue.message,
+        path: issue.path,
+        ...(issue.hint ? { hint: issue.hint } : {}),
+      });
+    }
+  }
+  return { document, issues };
+}
+
+/** `pathLabel` for other readers' messages. */
+export { pathLabel, pointerToPath, schemaMessage, significantErrors };
 
 let definitionInstalled = false;
 

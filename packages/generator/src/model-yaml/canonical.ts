@@ -47,6 +47,7 @@ function attributeOf(attribute: AttributeDocument): AttributeDocument {
     type: attribute.type,
     ...(attribute.pk ? { pk: true } : {}),
     ...(attribute.fk ? { fk: true } : {}),
+    ...present("references", attribute.references),
     ...(attribute.unique ? { unique: true } : {}),
     ...(attribute.optional ? { optional: true } : {}),
     ...present("enum", attribute.enum),

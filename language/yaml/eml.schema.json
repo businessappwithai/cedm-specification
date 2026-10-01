@@ -219,6 +219,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "type"],
+      "dependentRequired": { "references": ["fk"] },
       "properties": {
         "name": { "$ref": "#/$defs/identifier" },
         "type": {
@@ -230,6 +231,10 @@
         "fk": {
           "description": "Foreign key. The table it references is derived from the column's name (`order_id` → Order; `*_by` and the person-role names → the user entity).",
           "type": "boolean"
+        },
+        "references": {
+          "description": "The entity a foreign key points at, for a column whose name does not say it: `delivery_location_id` referencing `Location`. Written only where it differs from what the name resolves to; requires `fk`.",
+          "$ref": "#/$defs/entityName"
         },
         "unique": { "description": "Unique.", "type": "boolean" },
         "optional": {
