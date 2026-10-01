@@ -1,0 +1,37 @@
+specification:
+  name: CEDM Lifecycle Semantics
+  version: 0.1.0
+  status: draft
+
+lifecycle:
+  principles:
+    - Lifecycle state is domain data, not merely UI state.
+    - Valid transitions must be explicitly declared where lifecycle is material.
+    - Terminal states require explicit domain semantics.
+    - Invalid transitions must be rejected before persistence.
+
+  transition:
+    requiredFields:
+      - from
+      - to
+    optionalFields:
+      - action
+      - guard
+      - sideEffects
+      - authorization
+      - auditEvent
+
+  standardStateSets:
+    masterData: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+    document: [DRAFT, ISSUED, APPROVED, CANCELLED, ARCHIVED]
+    workflow: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    task: [CREATED, READY, ASSIGNED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED, FAILED]
+    transaction: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
+
+  rules:
+    - id: LIFE-001
+      rule: A transition must originate from the entity's declared state set.
+    - id: LIFE-002
+      rule: A transition must terminate in the entity's declared state set.
+    - id: LIFE-003
+      rule: Terminal states must not have outgoing transitions unless explicitly marked reactivatable.

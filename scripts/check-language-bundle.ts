@@ -25,10 +25,18 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { chromium } from "playwright";
+import { readCedmModel } from "../packages/generator/src/model-cedm/read";
 import { checkAndFix, readModelYaml } from "../packages/generator/src/model-yaml/index";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-const SKIP = new Set(["node_modules", "dist", ".git", "generated-projects", "target"]);
+const SKIP = new Set([
+  "node_modules",
+  "dist",
+  ".git",
+  "generated-projects",
+  "generated-applications",
+  "target",
+]);
 
 function yamlModels(): string[] {
   const found: string[] = [];
@@ -81,6 +89,37 @@ function summarise(text: string): Outcome {
     fixed: checkAndFix(text).text,
   };
 }
+
+/**
+ * A CEDM model that imports from a library the page supplies. A tab has no
+ * filesystem, so the library is an object; here it holds one entity, written
+ * so that lowering has real work to do: a reference whose name does not say its
+ * target, a lifecycle with no initial state, an invariant with a condition.
+ */
+const CEDM_LIBRARY_ENTITY = {
+  name: "Shipment",
+  identity: { key: "shipmentId", type: "uuid" },
+  attributes: [
+    { name: "shipmentId", type: "uuid", required: true },
+    { name: "reference", type: "string", required: true, maxLength: 40 },
+    { name: "status", type: "enum", values: ["OPEN", "SENT"] },
+    { name: "weight", type: "decimal", required: false },
+  ],
+  relationships: [{ name: "deliveryLocation", target: "Location", cardinality: "1" }],
+  lifecycle: {
+    states: ["OPEN", "SENT"],
+    transitions: [{ from: "OPEN", to: "SENT", action: "send" }],
+  },
+  invariants: [{ id: "SHP-1", rule: "Weight is not negative.", violatedWhen: "weight < 0" }],
+};
+const CEDM_LOCATION = { name: "Location", attributes: [{ name: "name", type: "string" }] };
+const CEDM_WITH_IMPORTS = [
+  'cedm: "1.0"',
+  "application: {name: Imports}",
+  "imports:",
+  "  - entity: Shipment",
+  "",
+].join("\n");
 
 const bundle = readFileSync(path.join(ROOT, "html/model-yaml.js"), "utf8");
 const server = createServer((request, response) => {
@@ -139,6 +178,66 @@ try {
       };
     }, text);
 
+  /** The CEDM reader in the page and here, given the same library. */
+  const cedmCases: Array<[string, string]> = [
+    [
+      "examples/drug-discovery.cedm.yaml",
+      readFileSync(path.join(ROOT, "examples/drug-discovery.cedm.yaml"), "utf8"),
+    ],
+    [
+      "language/cedm/examples/crm.cedm.yaml",
+      readFileSync(path.join(ROOT, "language/cedm/examples/crm.cedm.yaml"), "utf8"),
+    ],
+    ["(a CEDM model importing from a supplied library)", CEDM_WITH_IMPORTS],
+  ];
+  const library = {
+    entity: (name: string) =>
+      name === "Shipment" ? CEDM_LIBRARY_ENTITY : name === "Location" ? CEDM_LOCATION : undefined,
+  };
+  for (const [label, text] of cedmCases) {
+    const local = readCedmModel(text, { library: library as never });
+    const expected = JSON.stringify({
+      ok: local.ok,
+      document: local.document,
+      diagnostics: local.diagnostics.map((d) => `${d.severity} ${d.code} ${d.line}:${d.column}`),
+    });
+    const actual = await page.evaluate(
+      ({ source, entities }) => {
+        const api = (globalThis as Record<string, unknown>).__modelYaml as {
+          validateCedm(
+            text: string,
+            options: { library: unknown }
+          ): {
+            ok: boolean;
+            document?: unknown;
+            diagnostics: Array<{ severity: string; code: string; line: number; column: number }>;
+          };
+        };
+        const result = api.validateCedm(source, {
+          library: { entity: (name: string) => entities[name] },
+        });
+        return JSON.stringify({
+          ok: result.ok,
+          document: result.document,
+          diagnostics: result.diagnostics.map(
+            (d) => `${d.severity} ${d.code} ${d.line}:${d.column}`
+          ),
+        });
+      },
+      { source: text, entities: { Shipment: CEDM_LIBRARY_ENTITY, Location: CEDM_LOCATION } }
+    );
+    // Round trip through JSON on this side too: the page returns plain data.
+    const same = JSON.stringify(JSON.parse(actual)) === JSON.stringify(JSON.parse(expected));
+    if (same && local.ok) {
+      console.log(`  ok  ${label}  (CEDM, ${local.diagnostics.length} diagnostic(s))`);
+    } else {
+      failures++;
+      console.error(
+        `  !!  ${label}: the browser and Node read this CEDM model differently (ok=${local.ok})`
+      );
+    }
+  }
+
   const cases: Array<[string, string]> = [
     ...yamlModels().map((file): [string, string] => [
       path.relative(ROOT, file),
@@ -169,9 +268,7 @@ try {
     }
   }
 
-  const brokenErrors = summarise(BROKEN).diagnostics.filter((d) =>
-    d.startsWith("error")
-  );
+  const brokenErrors = summarise(BROKEN).diagnostics.filter((d) => d.startsWith("error"));
   if (brokenErrors.length === 0) {
     failures++;
     console.error("  !!  the broken document validated; the comparison proves nothing");

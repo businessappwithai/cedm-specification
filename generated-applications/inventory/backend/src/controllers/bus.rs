@@ -1,0 +1,990 @@
+//! Generic CRUD over every `bus_*` table.
+//!
+//! One controller serves every business entity, resolving columns, validation
+//! and ordering from the Application Dictionary on each request. The routes and
+//! payload shapes here are the frozen API contract (§9) — the frontend and the
+//! stack-agnostic `tests/` suites both depend on them, and they must not drift
+//! from the NestJS stack.
+
+use std::collections::HashMap;
+
+use axum::{
+    extract::{Path, Query, State},
+    http::{HeaderMap, StatusCode},
+    response::{IntoResponse, Response},
+    Json,
+};
+use loco_rs::prelude::*;
+use serde_json::{json, Map, Value};
+use uuid::Uuid;
+
+use crate::errors::{AppError, AppResult};
+use crate::models::_entities::users;
+use crate::hooks;
+use crate::services::audit::{AuditEntry, AuditOperation, AuditService};
+use crate::services::authz;
+use crate::services::dictionary::DictionaryCache;
+use crate::services::field_meta::{self, FieldLayout};
+use crate::services::dynamic_repo::{
+    DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions,
+};
+use crate::services::promotion::{
+    PromotionOutcome, PromotionService, STATUS_DRAFT, STATUS_REJECTED,
+};
+use crate::services::rules_engine::RuleOperation;
+
+/// Default page size, matching the TypeScript stack.
+const DEFAULT_LIMIT: u64 = 25;
+/// Upper bound so a caller cannot ask for the whole table in one request.
+const MAX_LIMIT: u64 = 500;
+
+#[utoipa::path(
+    get, path = "/api/bus/{entity}", tag = "bus",
+    security(("bearer" = [])),
+    params(
+        ("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`"),
+        ("page" = Option<u64>, Query, description = "1-based page number"),
+        ("limit" = Option<u64>, Query, description = "Rows per page"),
+        ("search" = Option<String>, Query, description = "Substring match across the entity's text columns"),
+        ("sort" = Option<String>, Query, description = "Column to order by"),
+        ("order" = Option<String>, Query, description = "`asc` or `desc`"),
+    ),
+    responses(
+        (status = 200, description = "`{ data: [...], meta: { total, page, limit, totalPages } }`. Column filters are `filter.COLUMN=OP:VALUE`, where OP is one of equals/eq, gt, gte, lt, lte, contains, startsWith, endsWith."),
+        (status = 401, description = "No or invalid token"),
+        (status = 404, description = "No such entity in the dictionary"),
+    ),
+)]
+pub async fn list(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(entity): Path<String>,
+    Query(mut params): Query<HashMap<String, String>>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &meta.table_name,
+        authz::Operation::Read,
+    )
+    .await?;
+    // The model's `hooks`. `beforeQuery` may rewrite the query
+    // parameters — tenant scoping is the motivating case — so it runs before
+    // they are read into `opts` and `filters`; `beforeList` only observes them.
+    hooks::before_query(&meta.table_name, &mut params).await?;
+    hooks::before_list(&meta.table_name, &params).await?;
+
+    let opts = pagination_from(&params, &dictionary, &entity).await?;
+    let filters = filters_from(&params, &dictionary, &entity).await?;
+
+    let mut result = repo
+        .find_all(&meta, &opts, &filters, params.get("search").map(String::as_str))
+        .await?;
+
+    // `total` is the count the query reported and is deliberately not
+    // recomputed from `data`: these hooks shape the page being returned, and
+    // a hook that drops a row from one page must not make the collection look
+    // smaller than it is.
+    hooks::after_query(&meta.table_name, &mut result.data).await?;
+    hooks::after_list(&meta.table_name, &mut result.data).await?;
+
+    let total_pages = if opts.limit == 0 {
+        0
+    } else {
+        result.total.div_ceil(opts.limit)
+    };
+
+    Ok(Json(json!({
+        "data": result.data,
+        "meta": {
+            "total": result.total,
+            "page": opts.page,
+            "limit": opts.limit,
+            "totalPages": total_pages,
+        }
+    }))
+    .into_response())
+}
+
+#[utoipa::path(
+    get, path = "/api/bus/{entity}/{id}", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`"), ("id" = String, Path, description = "Record id (UUID)")),
+    responses(
+        (status = 200, description = "The record"),
+        (status = 400, description = "Malformed id"),
+        (status = 404, description = "No such record, or it is soft-deleted"),
+    ),
+)]
+pub async fn get_one(
+    auth: auth::JWTWithUser<users::Model>,
+    Path((entity, id)): Path<(String, Uuid)>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+) -> AppResult<Response> {
+    let table = dictionary.resolve(&entity).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        table.as_str(),
+        authz::Operation::Read,
+    )
+    .await?;
+    hooks::before_read(table.as_str(), id).await?;
+
+    let mut row = repo
+        .find_by_id(&table, id)
+        .await?
+        .ok_or_else(|| AppError::NotFound(format!("Record {id} not found")))?;
+
+    // Runs on the row that is about to be returned, so the ETag is computed
+    // from what the caller actually receives.
+    hooks::after_read(table.as_str(), &mut row).await?;
+
+    Ok(with_etag(&row, Json(row.clone()).into_response()))
+}
+
+#[utoipa::path(
+    post, path = "/api/bus/{entity}", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`")),
+    request_body(content = serde_json::Value, description = "The entity's writable columns. Ask `/api/bus/{entity}/meta` for the shape."),
+    responses(
+        (status = 201, description = "The created record, carrying `docStatus` and the rules verdict under `promotion`"),
+        (status = 400, description = "Missing a mandatory column, or a value of the wrong type"),
+        (status = 409, description = "A unique column already holds that value"),
+        (status = 422, description = "A business rule prevented the write"),
+    ),
+)]
+pub async fn create(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(entity): Path<String>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &meta.table_name,
+        authz::Operation::Create,
+    )
+    .await?;
+    let mut body = as_object(payload)?;
+
+    // The model's `hooks`. Validation sees exactly what the caller
+    // sent and `beforeCreate` may then rewrite it: validating after the
+    // transform would be validating something nobody submitted.
+    hooks::custom_validate(&meta.table_name, &body).await?;
+    hooks::before_create(&meta.table_name, &mut body).await?;
+    verify_narrowing(ctx.db.get_postgres_connection_pool(), &meta, &body).await?;
+
+    // The row lands as a draft; promotion decides whether it becomes final.
+    let mut row = repo.create(&meta, &body).await?;
+    let outcome = run_promotion(&ctx, &meta, &row, RuleOperation::Create, None).await;
+
+    // A rule that prevented this create means the request failed. Discard the
+    // draft and return before the audit entry, which would otherwise record a
+    // creation that did not survive the request.
+    let table = dictionary.resolve(&entity).await?;
+    reject_if_prevented(&ctx, &repo, &table, &row, &outcome, true).await?;
+
+    apply_promotion(&mut row, &outcome);
+
+    record_audit(
+        &ctx,
+        &meta,
+        AuditOperation::Create,
+        row_id(&row),
+        None,
+        Some(row.clone()),
+        &auth.user,
+    )
+    .await;
+
+    settle_row(&repo, &table, &mut row, &outcome).await?;
+
+    // After the audit entry, so the trail records the write whatever the hook
+    // does. An `after*` hook cannot undo the write — an error here surfaces to
+    // the caller with the row already committed.
+    hooks::after_create(&meta.table_name, &row).await?;
+
+    Ok((StatusCode::CREATED, Json(row)).into_response())
+}
+
+/// `PUT`/`PATCH /api/bus/{entity}/{id}` — change a record.
+///
+/// Both verbs reach this handler and behave identically — only the columns
+/// present in the body are written. The document declares the `PUT`, which is
+/// what the generated frontend sends.
+#[utoipa::path(
+    put, path = "/api/bus/{entity}/{id}", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`"), ("id" = String, Path, description = "Record id (UUID)")),
+    request_body(content = serde_json::Value, description = "Only the columns to change; `PATCH` is accepted at the same path and does the same thing"),
+    responses(
+        (status = 200, description = "The updated record, with `version` advanced"),
+        (status = 400, description = "Unknown column, or a value of the wrong type"),
+        (status = 404, description = "No such record"),
+        (status = 409, description = "Unique violation, or a stale `version`"),
+    ),
+)]
+pub async fn update(
+    auth: auth::JWTWithUser<users::Model>,
+    Path((entity, id)): Path<(String, Uuid)>,
+    headers: HeaderMap,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &meta.table_name,
+        authz::Operation::Update,
+    )
+    .await?;
+    let mut body = as_object(payload)?;
+    let expected_version = parse_if_match(&headers)?;
+
+    // Same order as `create`: validate what the caller sent, then let
+    // `beforeUpdate` rewrite it.
+    hooks::custom_validate(&meta.table_name, &body).await?;
+    hooks::before_update(&meta.table_name, id, &mut body).await?;
+
+    // A status column is not an ordinary column. Before the write, check that
+    // the move the body asks for is one the model's state machine draws, and
+    // that this caller may make it. Both are no-ops for a table with no
+    // machine, which is every table until a state machine
+    // section names one.
+    authz::require_transition(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &meta.table_name,
+        id,
+        &body,
+    )
+    .await?;
+
+    // Read the row before writing so the audit entry has a real `before`.
+    // Losing the read is not a reason to fail the write, so a miss simply
+    // leaves `before` null rather than aborting.
+    let table = dictionary.resolve(&entity).await?;
+    let before = repo.find_by_id(&table, id).await.ok().flatten();
+
+    // A choice another column narrows is checked against the record as it will
+    // be: what is stored, with this request's columns laid over it.
+    let mut candidate: Map<String, Value> = match &before {
+        Some(Value::Object(stored)) => stored.clone(),
+        _ => Map::new(),
+    };
+    candidate.extend(body.iter().map(|(k, v)| (k.clone(), v.clone())));
+    verify_narrowing(ctx.db.get_postgres_connection_pool(), &meta, &candidate).await?;
+
+    let mut row = repo.update(&meta, id, &body, expected_version).await?;
+    let outcome = run_promotion(&ctx, &meta, &row, RuleOperation::Update, before.as_ref()).await;
+    if let Err(refusal) = reject_if_prevented(&ctx, &repo, &table, &row, &outcome, false).await {
+        // A rule that refuses a write has to leave nothing of it behind. The
+        // update has already landed, so put back what it replaced; otherwise
+        // the refused value stays in the record and every later edit — a status
+        // move included — is judged against it and refused too.
+        restore_columns(&repo, &meta.table_name, id, before.as_ref(), &body).await;
+        return Err(refusal);
+    }
+    apply_promotion(&mut row, &outcome);
+
+    record_audit(
+        &ctx,
+        &meta,
+        AuditOperation::Update,
+        Some(id.to_string()),
+        before,
+        Some(row.clone()),
+        &auth.user,
+    )
+    .await;
+
+    settle_row(&repo, &table, &mut row, &outcome).await?;
+
+    // After the audit entry, and unable to undo the write — see `create`.
+    hooks::after_update(&meta.table_name, &row).await?;
+
+    Ok(with_etag(&row, Json(row.clone()).into_response()))
+}
+
+#[utoipa::path(
+    delete, path = "/api/bus/{entity}/{id}", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`"), ("id" = String, Path, description = "Record id (UUID)")),
+    responses(
+        (status = 204, description = "Soft-deleted — the row stays auditable and drops out of every read"),
+        (status = 404, description = "No such record"),
+    ),
+)]
+pub async fn remove(
+    auth: auth::JWTWithUser<users::Model>,
+    Path((entity, id)): Path<(String, Uuid)>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &meta.table_name,
+        authz::Operation::Delete,
+    )
+    .await?;
+    let table = dictionary.resolve(&entity).await?;
+    let before = repo.find_by_id(&table, id).await.ok().flatten();
+
+    // A `beforeDelete` hook is a guard: returning `Ok(false)` refuses the
+    // request rather than raising, which is how a model says "this record is
+    // referenced" without inventing an error type.
+    if !hooks::before_delete(table.as_str(), id).await? {
+        return Err(AppError::BadRequest(format!(
+            "Record {id} cannot be deleted: a beforeDelete hook refused it"
+        )));
+    }
+
+    // `before` is moved into the audit entry below, so the row `afterDelete`
+    // is handed has to be cloned out first.
+    let deleted = before.clone();
+
+    if repo.soft_delete(&table, id).await? {
+        record_audit(
+            &ctx,
+            &meta,
+            AuditOperation::Delete,
+            Some(id.to_string()),
+            before,
+            None,
+            &auth.user,
+        )
+        .await;
+
+        // Handed the row as it was. Skipped when the pre-read missed, because
+        // there is nothing truthful to pass.
+        if let Some(row) = deleted {
+            hooks::after_delete(table.as_str(), &row).await?;
+        }
+
+        Ok(StatusCode::NO_CONTENT.into_response())
+    } else {
+        Err(AppError::NotFound(format!("Record {id} not found")))
+    }
+}
+
+/// `GET /bus/{entity}/meta` — the dictionary description of one entity.
+#[utoipa::path(
+    get, path = "/api/bus/{entity}/meta", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`")),
+    responses(
+        (status = 200, description = "The dictionary's description of this entity: its columns, types, and which are mandatory"),
+        (status = 404, description = "No such entity"),
+    ),
+)]
+pub async fn meta(
+    _auth: auth::JWT,
+    Path(entity): Path<String>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    Ok(Json(json!({
+        "tableName": meta.table_name,
+        "name": meta.name,
+        "columns": meta.columns,
+    }))
+    .into_response())
+}
+
+/// `GET /api/bus/{entity}/fields/form` — the detail form's field layout.
+///
+/// The projection lives in `services::field_meta` because `/api/sys/fields/form`
+/// returns exactly the same thing by a different route. Business screens ask
+/// here; the dictionary layout editor asks there, with hidden fields included.
+#[utoipa::path(
+    get, path = "/api/bus/{entity}/fields/form", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary entity name")),
+    responses(
+        (status = 200, description = "The detail form's field layout"),
+        (status = 404, description = "No such entity in the dictionary"),
+    ),
+)]
+pub async fn fields_form(
+    _auth: auth::JWT,
+    Path(entity): Path<String>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+) -> AppResult<Response> {
+    let table = dictionary.resolve(&entity).await?;
+    let pool = ctx.db.get_postgres_connection_pool();
+    Ok(
+        Json(field_meta::layout_fields(pool, table.as_str(), FieldLayout::Form, false).await?)
+            .into_response(),
+    )
+}
+
+/// `GET /api/bus/{entity}/fields/grid` — the list grid's column layout.
+#[utoipa::path(
+    get, path = "/api/bus/{entity}/fields/grid", tag = "bus",
+    security(("bearer" = [])),
+    params(("entity" = String, Path, description = "Dictionary entity name")),
+    responses(
+        (status = 200, description = "The list grid's column layout"),
+        (status = 404, description = "No such entity in the dictionary"),
+    ),
+)]
+pub async fn fields_grid(
+    _auth: auth::JWT,
+    Path(entity): Path<String>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+) -> AppResult<Response> {
+    let table = dictionary.resolve(&entity).await?;
+    let pool = ctx.db.get_postgres_connection_pool();
+    Ok(
+        Json(field_meta::layout_fields(pool, table.as_str(), FieldLayout::Grid, false).await?)
+            .into_response(),
+    )
+}
+
+/// Upper bound on one lookup: a dropdown is not paged, so it asks for all of
+/// its choices at once — and a list longer than this has outgrown a dropdown.
+const MAX_LOOKUP: u64 = 2000;
+
+/// `GET /api/bus/{entity}/lookup/{column}` — the choices for one lookup column.
+///
+/// The rows of the table the column points at, narrowed by the dictionary's
+/// `narrowed_by` rule for the column: pass the record's values for the columns
+/// that narrow it (`?country_id=…`) and only the rows that belong to them come
+/// back. A state is offered only from the country chosen; a city only from its
+/// state, or from its country when no state is chosen yet. The filter is applied
+/// here, where the data is supplied, and not in the screen that asks.
+///
+/// The caller needs the same read access as for the target's own list.
+#[utoipa::path(
+    get, path = "/api/bus/{entity}/lookup/{column}", tag = "bus",
+    security(("bearer" = [])),
+    params(
+        ("entity" = String, Path, description = "The entity holding the lookup column"),
+        ("column" = String, Path, description = "The lookup column, e.g. `state_province_id`"),
+        ("search" = Option<String>, Query, description = "Substring match across the target's text columns"),
+        ("limit" = Option<u64>, Query, description = "At most this many choices (default and maximum 2000)"),
+    ),
+    responses(
+        (status = 200, description = "`{ data: [...], meta: { total } }` — the target's rows that the record's other values allow"),
+        (status = 400, description = "The column is not a lookup"),
+        (status = 404, description = "No such entity or column"),
+    ),
+)]
+pub async fn lookup(
+    auth: auth::JWTWithUser<users::Model>,
+    Path((entity, column)): Path<(String, String)>,
+    Query(params): Query<HashMap<String, String>>,
+    State(ctx): State<AppContext>,
+    SharedStore(dictionary): SharedStore<DictionaryCache>,
+    SharedStore(repo): SharedStore<DynamicRepo>,
+) -> AppResult<Response> {
+    let meta = dictionary.meta(&entity).await?;
+    let source = meta
+        .column(&column)
+        .ok_or_else(|| AppError::NotFound(format!("No column '{column}' on this entity")))?;
+    let Some(target) = source.ref_table_name.clone() else {
+        return Err(AppError::BadRequest(format!(
+            "'{column}' is not a lookup"
+        )));
+    };
+    let target_meta = dictionary.meta(&target).await?;
+    let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
+    authz::require_operation(
+        ctx.db.get_postgres_connection_pool(),
+        &principal,
+        &target_meta.table_name,
+        authz::Operation::Read,
+    )
+    .await?;
+
+    // Only what the dictionary says narrows this column counts; a parameter
+    // naming any other column is ignored rather than turned into a filter.
+    let filters: Vec<Filter> = source
+        .narrowed_by
+        .iter()
+        .filter_map(|rule| {
+            params
+                .get(&rule.by)
+                .filter(|value| !value.is_empty())
+                .map(|value| Filter {
+                    column: rule.on.clone(),
+                    op: FilterOp::Equals,
+                    value: value.clone(),
+                })
+        })
+        .collect();
+
+    let order_by = ["name", "code"]
+        .into_iter()
+        .find(|candidate| target_meta.column(candidate).is_some())
+        .map(str::to_string);
+    let opts = PaginationOptions {
+        page: 1,
+        limit: params
+            .get("limit")
+            .and_then(|v| v.parse::<u64>().ok())
+            .unwrap_or(MAX_LOOKUP)
+            .clamp(1, MAX_LOOKUP),
+        order_by,
+        order_dir: OrderDir::Asc,
+    };
+    let result = repo
+        .find_all(
+            &target_meta,
+            &opts,
+            &filters,
+            params.get("search").map(String::as_str),
+        )
+        .await?;
+    Ok(Json(json!({ "data": result.data, "meta": { "total": result.total } })).into_response())
+}
+
+/// A choice that another column of the record narrows has to be one of the rows
+/// that column allows: a state of the country chosen, a city of the state.
+///
+/// `record` is the row as it will be — on an update, what is stored with the
+/// request's columns laid over it — so changing only the country is checked
+/// against the state already there. A null on either side is not a mismatch; the
+/// column's own mandatory rule decides whether it may be empty.
+async fn verify_narrowing(
+    pool: &sqlx::PgPool,
+    meta: &crate::services::dictionary::TableMeta,
+    record: &Map<String, Value>,
+) -> AppResult<()> {
+    for column in &meta.columns {
+        let Some(target) = column.ref_table_name.as_deref() else {
+            continue;
+        };
+        let Some(chosen) = record.get(&column.column_name).and_then(Value::as_str) else {
+            continue;
+        };
+        for rule in &column.narrowed_by {
+            let Some(control) = record.get(&rule.by).and_then(Value::as_str) else {
+                continue;
+            };
+            if !is_plain_identifier(target) || !is_plain_identifier(&rule.on) {
+                return Err(AppError::BadRequest(format!(
+                    "The dictionary names an unusable column for '{}'",
+                    column.name
+                )));
+            }
+            let (Ok(chosen_id), Ok(control_id)) =
+                (Uuid::parse_str(chosen), Uuid::parse_str(control))
+            else {
+                continue;
+            };
+            let sql = format!(
+                "SELECT EXISTS (SELECT 1 FROM {target} WHERE id = $1 AND {on} = $2 AND deleted_at IS NULL)",
+                on = rule.on
+            );
+            let belongs: bool = sqlx::query_scalar(sqlx::AssertSqlSafe(sql))
+                .bind(chosen_id)
+                .bind(control_id)
+                .fetch_one(pool)
+                .await?;
+            if !belongs {
+                let controlling = meta
+                    .column(&rule.by)
+                    .map_or(rule.by.as_str(), |c| c.name.as_str());
+                return Err(AppError::Validation {
+                    message: format!("{} does not belong to the chosen {controlling}", column.name),
+                    errors: vec![format!(
+                        "{} does not belong to the chosen {controlling}",
+                        column.name
+                    )],
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
+/// A table or column name that may be written into SQL: lower-case words and
+/// underscores. The names come from the dictionary, which an administrator can
+/// write, so they are checked rather than trusted.
+fn is_plain_identifier(name: &str) -> bool {
+    !name.is_empty()
+        && name.starts_with(|c: char| c.is_ascii_lowercase())
+        && name
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+}
+
+pub fn routes() -> Routes {
+    // Axum 0.8 brace syntax. Static segments outrank dynamic ones in the
+    // router, so `/{entity}/meta` is matched before `/{entity}/{id}`.
+    Routes::new()
+        .prefix("bus")
+        .add("/{entity}", get(list))
+        .add("/{entity}", post(create))
+        .add("/{entity}/meta", get(meta))
+        .add("/{entity}/fields/form", get(fields_form))
+        .add("/{entity}/fields/grid", get(fields_grid))
+        .add("/{entity}/lookup/{column}", get(lookup))
+        .add("/{entity}/{id}", get(get_one))
+        .add("/{entity}/{id}", put(update))
+        .add("/{entity}/{id}", patch(update))
+        .add("/{entity}/{id}", delete(remove))
+}
+
+// ---------------------------------------------------------------------------
+// Request helpers
+// ---------------------------------------------------------------------------
+
+fn as_object(payload: Value) -> AppResult<Map<String, Value>> {
+    match payload {
+        Value::Object(map) => Ok(map),
+        _ => Err(AppError::BadRequest(
+            "Request body must be a JSON object".to_string(),
+        )),
+    }
+}
+
+/// Parse `If-Match: "v{n}"` into a row version.
+///
+/// The quoted `v`-prefixed form is what the frontend sends; anything else is a
+/// malformed precondition rather than a silent full-overwrite.
+fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
+    let Some(raw) = headers.get(axum::http::header::IF_MATCH) else {
+        return Ok(None);
+    };
+    let raw = raw
+        .to_str()
+        .map_err(|_| AppError::BadRequest("Malformed If-Match header".to_string()))?;
+
+    // `*` means "any current version" — a valid precondition that imposes no
+    // version constraint.
+    if raw.trim() == "*" {
+        return Ok(None);
+    }
+
+    let version = raw
+        .trim()
+        .trim_matches('"')
+        .trim_start_matches('v')
+        .parse::<i32>()
+        .map_err(|_| {
+            AppError::BadRequest(format!("Malformed If-Match header: expected \"v{{n}}\", got {raw}"))
+        })?;
+    Ok(Some(version))
+}
+
+/// Echo the row's version back as an ETag so the next write can send `If-Match`.
+fn with_etag(row: &Value, mut response: Response) -> Response {
+    if let Some(version) = row.get("version").and_then(Value::as_i64) {
+        if let Ok(value) = format!("\"v{version}\"").parse() {
+            response.headers_mut().insert(axum::http::header::ETAG, value);
+        }
+    }
+    response
+}
+
+/// The row's primary key, as the audit log stores it (`entity_id` is VARCHAR).
+/// Bring the response up to date with what a rule's side effects wrote.
+///
+/// A `trigger-workflow` or `cascade-update` action runs inside this request
+/// and can write the row that fired it — a saga moving a quote to `in_review`
+/// is the common case. The response used to describe the row as it stood
+/// before they ran: crm's create answered `draft` for a quote the database
+/// already held as `in_review`, a caller acting on that status asked for a
+/// move out of a state the record had left, and the `version` — so the ETag
+/// a conditional update sends back — was one behind. A transform's columns are
+/// known and merged by `apply_promotion`; a workflow's are not, so the row is
+/// read back whole. It runs after the audit entry, which records the write
+/// the caller made.
+async fn settle_row(
+    repo: &DynamicRepo,
+    table: &crate::services::dictionary::TableName,
+    row: &mut Value,
+    outcome: &PromotionOutcome,
+) -> AppResult<()> {
+    if !outcome.side_effects_ran {
+        return Ok(());
+    }
+    let Some(id) = row
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|id| Uuid::parse_str(id).ok())
+    else {
+        return Ok(());
+    };
+    if let (Some(Value::Object(settled)), Value::Object(map)) =
+        (repo.find_by_id(table, id).await?, row)
+    {
+        map.extend(settled);
+    }
+    Ok(())
+}
+
+fn row_id(row: &Value) -> Option<String> {
+    row.get("id").map(|id| match id {
+        // Already a string for UUID keys; anything else is rendered rather
+        // than dropped, so an integer key still lands in the log.
+        Value::String(value) => value.clone(),
+        other => other.to_string(),
+    })
+}
+
+/// Append an audit entry for a write.
+///
+/// Gated on `sys_table.is_changelog`, which is the dictionary's own switch for
+/// "keep a history of this table" — a table an administrator has turned logging
+/// off for must not accumulate entries behind their back.
+///
+/// Never returns an error: `AuditService::record` already swallows and logs its
+/// own failures, because a write that succeeded but could not be logged is
+/// still a write and must not be rolled back over bookkeeping.
+async fn record_audit(
+    ctx: &AppContext,
+    meta: &crate::services::dictionary::TableMeta,
+    operation: AuditOperation,
+    entity_id: Option<String>,
+    before: Option<Value>,
+    after: Option<Value>,
+    user: &users::Model,
+) {
+    if !meta.is_changelog {
+        return;
+    }
+    let Some(audit) = ctx.shared_store.get::<AuditService>() else {
+        crate::log_event!(entity_audit_unavailable);
+        return;
+    };
+
+    audit
+        .record(&AuditEntry {
+            entity_type: meta.table_name.clone(),
+            entity_id,
+            operation,
+            before,
+            after,
+            // The dictionary identity, not the credential row: `/admin/audit`
+            // joins against `sys_user`, and it is the identity that survives a
+            // change of credential store.
+            user_id: user.sys_user_id.map(|id| id.to_string()),
+            user_email: Some(user.email.clone()),
+        })
+        .await;
+}
+
+/// Run the draft → final pipeline for a freshly written row.
+///
+/// Promotion runs inline (§6.7 option A) precisely so its verdict can travel in
+/// this response. A pipeline *failure* must not fail the write — the row exists
+/// either way — so it degrades to leaving the row a draft and logs.
+async fn run_promotion(
+    ctx: &AppContext,
+    meta: &crate::services::dictionary::TableMeta,
+    row: &Value,
+    operation: RuleOperation,
+    previous: Option<&Value>,
+) -> PromotionOutcome {
+    let Some(promotion) = ctx.shared_store.get::<PromotionService>() else {
+        crate::log_event!(entity_promotion_unavailable);
+        return PromotionOutcome {
+            doc_status: STATUS_DRAFT.to_string(),
+            ..PromotionOutcome::default()
+        };
+    };
+
+    // JDM lookup for the entity comes from sys_rule_definitions; a table with
+    // no rules promotes unconditionally.
+    let jdms = load_entity_jdms(ctx, &meta.table_name).await;
+
+    match promotion.promote(meta, row, operation, &jdms, previous).await {
+        Ok(outcome) => outcome,
+        Err(err) => {
+            crate::log_event!(entity_promotion_failed, error = ?err, table = meta.table_name);
+            PromotionOutcome {
+                doc_status: STATUS_DRAFT.to_string(),
+                ..PromotionOutcome::default()
+            }
+        }
+    }
+}
+
+/// Every active rule document for an entity, newest first.
+///
+/// All of them, deliberately. An entity routinely carries more than one rule —
+/// a validation that rejects bad input and an automation that fires on the good
+/// input are two separate documents — and evaluating only one means whichever
+/// rule loses the sort silently never runs. Rule authors get no feedback from
+/// that: the rule is listed, active, and dead.
+async fn load_entity_jdms(ctx: &AppContext, table_name: &str) -> Vec<String> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let rows: Vec<(String,)> = sqlx::query_as(
+        r"SELECT jdm_content FROM sys_rule_definitions
+           WHERE entity_name = $1 AND is_active = true
+           ORDER BY updated_at DESC NULLS LAST",
+    )
+    .bind(table_name)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.into_iter().map(|(jdm,)| jdm).collect()
+}
+
+/// Attach the promotion verdict to the response body, and reflect the settled
+/// status back onto the row's own `doc_status` so the two never disagree.
+fn apply_promotion(row: &mut Value, outcome: &PromotionOutcome) {
+    if let Value::Object(map) = row {
+        // A `transform` action rewrote these columns in the database. The body
+        // is built from the row as it was *sent*, so without this the response
+        // contradicts the record that was just written.
+        for (column, value) in &outcome.transformed {
+            map.insert(column.clone(), value.clone());
+        }
+        map.insert(
+            "doc_status".to_string(),
+            Value::String(outcome.doc_status.clone()),
+        );
+        map.insert("promotion".to_string(), outcome.to_json());
+    }
+}
+
+/// Write back the values `body` replaced, from the row as it was before the write.
+///
+/// Best effort, like discarding a refused create: a failure here must not
+/// replace the rule's message with a storage error, and is logged.
+async fn restore_columns(
+    repo: &DynamicRepo,
+    table: &str,
+    id: Uuid,
+    before: Option<&Value>,
+    body: &Map<String, Value>,
+) {
+    let Some(Value::Object(previous)) = before else {
+        return;
+    };
+    let restored: Map<String, Value> = body
+        .keys()
+        .filter_map(|column| previous.get(column).map(|value| (column.clone(), value.clone())))
+        .collect();
+    if restored.is_empty() {
+        return;
+    }
+    if let Err(err) = repo.update_raw(table, id, &restored).await {
+        crate::log_event!(entity_update_restore_failed, error = ?err, %id);
+    }
+}
+
+/// Turn a `prevent` verdict into a rejected request.
+///
+/// A rule that says "prevent" has to *prevent* something. Returning 201 with
+/// `doc_status: "rejected"` in the body meant every client that checks the
+/// status code — including the parity suites — saw the write succeed, and a
+/// form would happily navigate to a record the rules had refused.
+///
+/// The draft row is deleted first, so a refused create leaves nothing behind.
+/// An update keeps its row: the previous version is still valid data, and the
+/// rejected status on it is the record of what happened.
+async fn reject_if_prevented(
+    ctx: &AppContext,
+    repo: &DynamicRepo,
+    table: &crate::services::dictionary::TableName,
+    row: &Value,
+    outcome: &PromotionOutcome,
+    discard_row: bool,
+) -> AppResult<()> {
+    if outcome.doc_status != STATUS_REJECTED {
+        return Ok(());
+    }
+
+    if discard_row {
+        if let Some(id) = row_id(row).and_then(|id| Uuid::parse_str(&id).ok()) {
+            // Best effort: failing to clean up must not replace the rule's
+            // message with a storage error the caller can do nothing about.
+            if let Err(err) = repo.hard_delete(table, id).await {
+                crate::log_event!(entity_draft_discard_failed, error = ?err, %id);
+            }
+        }
+    }
+    let _ = ctx;
+
+    Err(AppError::Validation {
+        message: "Rejected by a business rule".to_string(),
+        errors: vec![outcome
+            .message
+            .clone()
+            .unwrap_or_else(|| "Rejected by a business rule".to_string())],
+    })
+}
+
+async fn pagination_from(
+    params: &HashMap<String, String>,
+    dictionary: &DictionaryCache,
+    entity: &str,
+) -> AppResult<PaginationOptions> {
+    let page = params
+        .get("page")
+        .and_then(|v| v.parse::<u64>().ok())
+        .filter(|p| *p > 0)
+        .unwrap_or(1);
+
+    let limit = params
+        .get("limit")
+        .and_then(|v| v.parse::<u64>().ok())
+        .filter(|l| *l > 0)
+        .unwrap_or(DEFAULT_LIMIT)
+        .min(MAX_LIMIT);
+
+    // An `orderBy` naming a column that is not in the dictionary is a 400 —
+    // it must never reach the query builder as an identifier.
+    let order_by = match params.get("orderBy") {
+        Some(column) => Some(dictionary.resolve_column(entity, column).await?),
+        None => None,
+    };
+
+    Ok(PaginationOptions {
+        page,
+        limit,
+        order_by,
+        order_dir: OrderDir::parse(params.get("orderDir").map(String::as_str)),
+    })
+}
+
+/// Parse `?filter.{field}={operator}:{value}` into verified filters.
+async fn filters_from(
+    params: &HashMap<String, String>,
+    dictionary: &DictionaryCache,
+    entity: &str,
+) -> AppResult<Vec<Filter>> {
+    let mut filters = Vec::new();
+    for (key, raw) in params {
+        let Some(field) = key.strip_prefix("filter.") else {
+            continue;
+        };
+        let column = dictionary.resolve_column(entity, field).await?;
+        let (op, value) = match raw.split_once(':') {
+            Some((op, value)) => (FilterOp::parse(op)?, value.to_string()),
+            // A bare value is an equality match, as in the TypeScript stack.
+            None => (FilterOp::Equals, raw.clone()),
+        };
+        filters.push(Filter { column, op, value });
+    }
+    Ok(filters)
+}

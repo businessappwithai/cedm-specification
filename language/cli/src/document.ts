@@ -36,6 +36,7 @@ import type {
 import { foreignKeyName, stripQuotes, toSnakeCase } from "./util.ts";
 
 const READER_MODULE = "../../../packages/generator/src/model-yaml/index.ts";
+const CEDM_READER_MODULE = "../../../packages/generator/src/model-cedm/index.ts";
 
 interface ReaderDiagnostic {
   severity: "error" | "warning" | "info";
@@ -83,6 +84,26 @@ export function isModelPath(file: string): boolean {
   return /\.ya?ml$/i.test(file);
 }
 
+interface CedmReader {
+  isCedmModelText(text: string): boolean;
+  createFileLibrary(options: { modelDirectory?: string }): unknown;
+  readCedmModel(
+    text: string,
+    options: { library: unknown }
+  ): { ok: boolean; document?: unknown; diagnostics: ReaderDiagnostic[] };
+}
+
+async function cedmReader(): Promise<CedmReader> {
+  try {
+    return (await import(CEDM_READER_MODULE)) as CedmReader;
+  } catch (error) {
+    throw new Error(
+      "Reading a CEDM model needs the repository's model reader and its dependencies " +
+        `(run \`bun install\` at the repository root): ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
 export interface ReadModel {
   /** The text that was validated: the file, or the file with its fixes applied. */
   text: string;
@@ -99,7 +120,29 @@ export interface ReadModel {
  * repairable findings are corrected in the text first — in memory, never in
  * the file — and each correction is reported.
  */
-export async function readModel(text: string, options: { autofix: boolean }): Promise<ReadModel> {
+export async function readModel(
+  text: string,
+  options: { autofix: boolean; file?: string }
+): Promise<ReadModel> {
+  // A CEDM application model: schema, imports and lowering, then the model
+  // document it lowers to is what every command below reads. Its findings are
+  // at the CEDM line they came from; there is nothing to auto-fix in it.
+  const cedm = await cedmReader();
+  if (cedm.isCedmModelText(text)) {
+    const { dirname } = await import("node:path");
+    const library = cedm.createFileLibrary({
+      ...(options.file ? { modelDirectory: dirname(options.file) } : {}),
+    });
+    const result = cedm.readCedmModel(text, { library });
+    return {
+      text,
+      diagnostics: result.diagnostics.map(toDiagnostic),
+      fixes: [],
+      ok: result.ok && result.document !== undefined,
+      document: result.ok ? (result.document as ModelDocument) : undefined,
+    };
+  }
+
   const yaml = await reader();
   let current = text;
   let fixes: Diagnostic[] = [];
@@ -271,7 +314,8 @@ export function parseCondition(label: string): ParsedCondition | undefined {
 function ruleOf(raw: RuleDocument, roles: Map<string, JdmNodeRole>): EmlRule {
   const nodes: RuleNode[] = raw.nodes.map((node) => {
     const jdmType = roles.get(node.type);
-    if (!jdmType) throw new Error(`Rule ${raw.name}: node ${node.id} has unknown type "${node.type}".`);
+    if (!jdmType)
+      throw new Error(`Rule ${raw.name}: node ${node.id} has unknown type "${node.type}".`);
     const condition = node.type === "decision" ? parseCondition(node.label) : undefined;
     return {
       id: node.id,
@@ -369,7 +413,9 @@ export function toEmlModel(document: ModelDocument): EmlModel {
 
   for (const flow of document.hookFlows ?? []) {
     const declared = new Set(
-      flow.nodes.filter((node) => node.event && node.handler).map((node) => `${node.event}:${node.handler}`)
+      flow.nodes
+        .filter((node) => node.event && node.handler)
+        .map((node) => `${node.event}:${node.handler}`)
     );
     model.workflows.push({
       name: flow.name,

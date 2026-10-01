@@ -1,0 +1,187 @@
+# CEDM Domain Coverage Catalog
+# Broad business-domain map. Domains are bounded contexts; entities are added beneath them.
+
+catalog:
+  specificationVersion: 0.2.0
+  strategy: broad-domain-coverage
+  domains:
+    - id: enterprise
+      name: Enterprise Management
+      capabilities: [organization, legal-entity, governance, master-data, policies]
+    - id: finance
+      name: Finance and Accounting
+      capabilities: [general-ledger, accounts-payable, accounts-receivable, treasury, tax, budgeting, costing, fixed-assets]
+    - id: procurement
+      name: Procurement and Sourcing
+      capabilities: [requisitions, sourcing, supplier-management, purchase-orders, contracts, receiving]
+    - id: sales
+      name: Sales and Order Management
+      capabilities: [leads, opportunities, quotations, orders, pricing, fulfillment, commissions]
+    - id: customer-service
+      name: Customer Service and CRM
+      capabilities: [customer-care, cases, complaints, service-requests, knowledge, SLAs]
+    - id: inventory
+      name: Inventory and Warehouse
+      capabilities: [stock, warehouses, bins, lots, serials, replenishment, counting, movements]
+    - id: logistics
+      name: Transportation and Logistics
+      capabilities: [shipments, routes, carriers, freight, tracking, delivery, fleet]
+    - id: container-logistics
+      name: Container and Intermodal Logistics
+      capabilities: [containers, equipment, depots, ports, yards, gates, moves, bookings, interchange]
+    - id: manufacturing
+      name: Manufacturing
+      capabilities: [bom, routings, work-orders, production, capacity, scheduling, shop-floor, subcontracting]
+    - id: maintenance
+      name: Asset Maintenance and Reliability
+      capabilities: [assets, maintenance-plans, work-orders, inspections, repairs, warranties, depreciation]
+    - id: quality
+      name: Quality Management
+      capabilities: [quality-plans, inspections, nonconformance, corrective-actions, audits, certificates]
+    - id: supply-chain
+      name: Supply Chain Planning
+      capabilities: [demand, supply, forecasting, mrp, planning, allocation, replenishment]
+    - id: human-resources
+      name: Human Resources
+      capabilities: [workers, positions, recruitment, onboarding, attendance, leave, payroll, performance]
+    - id: projects
+      name: Project and Portfolio Management
+      capabilities: [projects, work-breakdown, resources, budgets, milestones, risks, issues, timesheets]
+    - id: document-management
+      name: Document and Content Management
+      capabilities: [documents, versions, metadata, approvals, retention, signatures, records]
+    - id: workflow
+      name: Workflow and Business Process Management
+      capabilities: [processes, workflows, tasks, rules, approvals, escalations, events]
+    - id: compliance
+      name: Compliance, Risk and Governance
+      capabilities: [controls, risks, policies, obligations, assessments, incidents, audits]
+    - id: legal
+      name: Legal and Contract Management
+      capabilities: [contracts, clauses, obligations, matters, claims, disputes, legal-entities]
+    - id: insurance
+      name: Insurance
+      capabilities: [policies, underwriting, coverage, premiums, claims, settlements, parties]
+    - id: banking
+      name: Banking and Financial Services
+      capabilities: [accounts, customers, transactions, payments, loans, deposits, collateral, reconciliation]
+    - id: healthcare
+      name: Healthcare
+      capabilities: [patients, providers, encounters, diagnoses, procedures, medications, orders, billing]
+    - id: life-sciences
+      name: Life Sciences and Drug Discovery
+      capabilities: [compounds, studies, experiments, assays, samples, protocols, research-projects, regulatory-submissions]
+    - id: education
+      name: Education
+      capabilities: [institutions, programs, courses, students, admissions, enrollment, assessments, fees]
+    - id: retail
+      name: Retail
+      capabilities: [stores, catalogs, pricing, promotions, point-of-sale, customers, inventory, returns]
+    - id: hospitality
+      name: Hospitality
+      capabilities: [properties, rooms, reservations, guests, stays, housekeeping, folios, services]
+    - id: travel
+      name: Travel and Tourism
+      capabilities: [trips, itineraries, bookings, travelers, accommodations, transport, activities]
+    - id: real-estate
+      name: Real Estate and Property Management
+      capabilities: [properties, buildings, units, leases, tenants, rent, maintenance, inspections]
+    - id: construction
+      name: Construction and Engineering
+      capabilities: [projects, sites, contracts, boq, materials, equipment, subcontractors, inspections]
+    - id: agriculture
+      name: Agriculture and Agribusiness
+      capabilities: [farms, fields, crops, seasons, planting, harvesting, livestock, inputs, yields]
+    - id: energy
+      name: Energy and Utilities
+      capabilities: [assets, meters, readings, customers, tariffs, contracts, generation, distribution, outages]
+    - id: telecommunications
+      name: Telecommunications
+      capabilities: [subscribers, accounts, services, plans, devices, networks, orders, usage, billing]
+    - id: media
+      name: Media and Entertainment
+      capabilities: [content, rights, productions, schedules, subscriptions, advertising, distribution]
+    - id: technology
+      name: Technology and IT Service Management
+      capabilities: [services, applications, infrastructure, incidents, changes, releases, configurations, assets]
+    - id: public-sector
+      name: Government and Public Sector
+      capabilities: [citizens, agencies, programs, permits, cases, benefits, procurement, taxation]
+    - id: nonprofit
+      name: Nonprofit and Fundraising
+      capabilities: [donors, campaigns, grants, pledges, gifts, beneficiaries, volunteers, programs]
+    - id: environment
+      name: Environmental and Sustainability Management
+      capabilities: [emissions, energy, water, waste, environmental-incidents, targets, disclosures]
+    - id: security
+      name: Security and Identity
+      capabilities: [users, identities, roles, permissions, credentials, sessions, policies, events]
+    - id: analytics
+      name: Analytics and Data Management
+      capabilities: [datasets, metrics, dimensions, reports, dashboards, models, predictions, data-quality]
+    - id: artificial-intelligence
+      name: Artificial Intelligence Operations
+      capabilities: [models, prompts, agents, evaluations, datasets, inference, feedback, governance]
+    - id: ecommerce
+      name: E-Commerce and Marketplace
+      capabilities: [channels, listings, carts, checkout, orders, sellers, fulfillment, returns, reviews]
+    - id: food
+      name: Food and Beverage
+      capabilities: [recipes, ingredients, batches, production, allergens, traceability, quality, food-safety]
+    - id: mining
+      name: Mining and Natural Resources
+      capabilities: [sites, deposits, extraction, equipment, production, grades, shipments, royalties]
+    - id: chemicals
+      name: Chemicals and Process Industry
+      capabilities: [materials, formulas, batches, processes, safety, quality, compliance, hazardous-substances]
+    - id: aerospace
+      name: Aerospace and Defense
+      capabilities: [programs, aircraft, parts, configurations, maintenance, missions, compliance, supply-chain]
+    - id: automotive
+      name: Automotive
+      capabilities: [vehicles, configurations, parts, dealerships, orders, production, service, warranty]
+    - id: pharmaceuticals
+      name: Pharmaceutical Operations
+      capabilities: [products, batches, formulations, trials, manufacturing, quality, pharmacovigilance, regulatory]
+    - id: apparel
+      name: Apparel and Fashion
+      capabilities: [styles, variants, sizes, colors, collections, sourcing, production, channels, returns]
+    - id: professional-services
+      name: Professional Services
+      capabilities: [engagements, clients, consultants, deliverables, time, expenses, billing, utilization]
+    - id: field-service
+      name: Field Service
+      capabilities: [service-requests, dispatch, technicians, appointments, work-orders, parts, service-reports]
+    - id: facilities
+      name: Facilities Management
+      capabilities: [sites, spaces, assets, work-orders, inspections, vendors, leases, utilities]
+    - id: security-operations
+      name: Security Operations
+      capabilities: [incidents, threats, vulnerabilities, controls, investigations, response, evidence]
+    - id: research
+      name: Research and Scientific Operations
+      capabilities: [research-projects, protocols, experiments, samples, instruments, observations, publications]
+    - id: regulatory
+      name: Regulatory Affairs
+      capabilities: [authorities, submissions, approvals, licenses, permits, obligations, commitments]
+    - id: trade
+      name: International Trade and Customs
+      capabilities: [trade-orders, declarations, tariffs, duties, classifications, licenses, customs-events]
+    - id: sustainability
+      name: ESG and Sustainability
+      capabilities: [environmental, social, governance, targets, initiatives, metrics, disclosures, assurance]
+
+  cross_domain_capabilities:
+    - party-and-identity
+    - organization
+    - product-and-service
+    - location
+    - asset
+    - document
+    - workflow
+    - transaction
+    - financial-accounting
+    - event-and-audit
+    - authorization
+    - reporting-and-analytics
+    - ai-and-decisioning

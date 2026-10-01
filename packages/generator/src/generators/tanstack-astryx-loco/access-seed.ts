@@ -144,12 +144,24 @@ export function buildAccessSeedSql(options: AccessSeedOptions): string {
   if (declaredRoles.length > 0 && entities.length > 0) {
     section("What the model's roles may open (sys_access)");
     const tableNameByEntity = new Map(entities.map((entity) => [entity.name, entity.tableName]));
+    const ownerByName = new Map(entities.map((entity) => [entity.name, entity.windowOwner]));
+    /** The entity whose window an entity is reached through: follow `windowOwner` to the top. */
+    const windowRoot = (name: string): string => {
+      const seen = new Set<string>();
+      let current = name;
+      for (;;) {
+        const next = ownerByName.get(current) ?? current;
+        if (next === current || seen.has(current)) return current;
+        seen.add(current);
+        current = next;
+      }
+    };
     for (const role of declaredRoles) {
       for (const entity of entities) {
         // A child entity has no window of its own; its rows are reached
-        // through the parent's, which is the window that has to be granted.
-        const windowTable =
-          tableNameByEntity.get(entity.windowOwner ?? entity.name) ?? entity.tableName;
+        // through the parent's — the topmost one's, for a line item of a line
+        // item — which is the window that has to be granted.
+        const windowTable = tableNameByEntity.get(windowRoot(entity.name)) ?? entity.tableName;
         out.push(
           insert("sys_access", {
             sys_access_id: id("access", role.name, entity.tableName),

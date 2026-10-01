@@ -1,0 +1,66 @@
+# CEDM Implementation Generation Contract
+specification:
+  name: CEDM Generation Contract
+  version: 0.2.0
+  status: draft
+
+generation:
+  sourceOfTruth: domain/entities/*.yaml
+  prerequisites:
+    - structuralValidation
+    - referenceValidation
+    - lifecycleValidation
+    - aggregateValidation
+
+  targets:
+    relational:
+      output: SQL
+      mappings:
+        uuid: UUID
+        string: VARCHAR
+        integer: INTEGER
+        decimal: DECIMAL
+        boolean: BOOLEAN
+        date: DATE
+        datetime: TIMESTAMP
+        reference: FOREIGN_KEY
+    cds:
+      output: SAP_CAP_CDS
+      principles:
+        entityNamesPreserved: true
+        relationshipsBecomeAssociations: true
+        cardinalitiesPreserved: true
+    jsonSchema:
+      output: JSON_SCHEMA
+      principles:
+        requiredAttributesPreserved: true
+        enumsPreserved: true
+        descriptionsPreserved: true
+    openapi:
+      output: OPENAPI
+      principles:
+        entitiesBecomeSchemas: true
+        referencesBecomeSchemaReferences: true
+    graphql:
+      output: GRAPHQL
+      principles:
+        entitiesBecomeTypes: true
+        relationshipsBecomeFields: true
+    ui:
+      output: UI_METADATA
+      principles:
+        requiredFieldsBecomeValidationRules: true
+        enumsBecomeValueLists: true
+        relationshipsBecomeNavigationMetadata: true
+    workflow:
+      output: WORKFLOW_DEFINITION
+      principles:
+        lifecycleBecomesStateMachine: true
+        transitionsBecomeCommands: true
+        tasksBecomeActivities: true
+
+  generatedArtifacts:
+    mustIdentifySourceEntity: true
+    mustIncludeSpecificationVersion: true
+    mustNotChangeDomainSemantics: true
+    mustBeRegenerable: true

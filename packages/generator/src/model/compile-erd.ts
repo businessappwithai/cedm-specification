@@ -13,6 +13,7 @@ import { snakeCase } from "@appwithai/core/utils";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 import type {
   AttributeDeclaration,
+  EnumDeclaration,
   ErdRecords,
   FieldEnumBinding,
   FieldHelp,
@@ -80,6 +81,12 @@ function mergeDuplicateAttributes(attributes: EntityAttribute[]): EntityAttribut
     existing.required = existing.required || attribute.required;
     if (attribute.unique) existing.unique = true;
     if (attribute.isForeignKey) existing.isForeignKey = true;
+    if (existing.references === undefined && attribute.references !== undefined) {
+      existing.references = attribute.references;
+    }
+    if (existing.narrowedBy === undefined && attribute.narrowedBy !== undefined) {
+      existing.narrowedBy = attribute.narrowedBy;
+    }
     // Anything the first line did not say, a later one may still supply.
     if (existing.maxLength === undefined && attribute.maxLength !== undefined) {
       existing.maxLength = attribute.maxLength;
@@ -126,6 +133,14 @@ export function attributeFromDeclaration(declaration: AttributeDeclaration): Ent
     unique: isUnique || isPrimaryKey,
     maxLength,
     ...(isForeignKey && { isForeignKey: true }),
+    ...(isForeignKey &&
+      declaration.references !== undefined && {
+        references: declaration.references,
+      }),
+    ...(isForeignKey &&
+      declaration.narrowedBy !== undefined && {
+        narrowedBy: declaration.narrowedBy,
+      }),
     ...(SEMANTIC_TYPES.has(baseType) && {
       semanticType: baseType as NonNullable<EntityAttribute["semanticType"]>,
     }),
@@ -181,8 +196,12 @@ export function compileErdRecords(records: ErdRecords): {
    * position of the first. Building the maps in declaration order gives both.
    */
   const declaredEnums = new Map<string, string[]>();
+  const enumDetails = new Map<string, EnumDeclaration>();
   for (const declared of records.enums) {
-    if (!declaredEnums.has(declared.name)) declaredEnums.set(declared.name, declared.values);
+    if (!declaredEnums.has(declared.name)) {
+      declaredEnums.set(declared.name, declared.values);
+      enumDetails.set(declared.name, declared);
+    }
   }
   const entityHelpText = new Map<string, string>();
   for (const { entity, help } of records.entityHelp) entityHelpText.set(entity, help);
@@ -198,7 +217,11 @@ export function compileErdRecords(records: ErdRecords): {
     if (entity) entity.icon = icon;
   }
   attachParents(entities, entityParents);
-  const enums = attachEnums(entities, declaredEnums, records.enumBindings);
+  for (const { entity: name, key, rows } of records.entityData) {
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity) entity.data = { key, rows };
+  }
+  const enums = attachEnums(entities, declaredEnums, records.enumBindings, enumDetails);
 
   return { entities, relationships, enums };
 }
@@ -255,7 +278,9 @@ function attachParents(entities: Entity[], parents: Map<string, string>): void {
     const snake = snakeCase(parent.name);
     const link =
       child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ??
-      child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));
+      child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`)) ??
+      // A key that names the parent outright, whatever it is called.
+      child.attributes.find((a) => a.isForeignKey && a.references === parent.name);
     if (!link) continue;
 
     child.parentEntity = parent.name;
@@ -299,7 +324,8 @@ function attachIndexes(entities: Entity[], declared: IndexDeclaration[]): void {
 function attachEnums(
   entities: Entity[],
   declared: Map<string, string[]>,
-  bindings: FieldEnumBinding[]
+  bindings: FieldEnumBinding[],
+  details: Map<string, EnumDeclaration>
 ): EntityEnum[] {
   const used = new Set<string>();
   for (const binding of bindings) {
@@ -327,11 +353,17 @@ function attachEnums(
     attribute.enumReferenceId = referenceId;
   }
 
-  return [...referenceIds.entries()].map(([name, referenceId]) => ({
-    name,
-    values: [...(declared.get(name) ?? [])],
-    referenceId,
-  }));
+  return [...referenceIds.entries()].map(([name, referenceId]) => {
+    const extra = details.get(name);
+    return {
+      name,
+      values: [...(declared.get(name) ?? [])],
+      referenceId,
+      ...(extra?.table ? { table: true } : {}),
+      ...(extra?.labels ? { labels: { ...extra.labels } } : {}),
+      ...(extra?.descriptions ? { descriptions: { ...extra.descriptions } } : {}),
+    };
+  });
 }
 
 /**

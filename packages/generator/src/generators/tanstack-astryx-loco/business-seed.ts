@@ -53,7 +53,7 @@ export interface BusinessSeedOptions {
    * the form renders its dropdown from, so a value chosen any other way could
    * be one the control does not offer.
    */
-  modelEnums?: Array<{ referenceId: number; values: string[] }>;
+  modelEnums?: Array<{ name?: string; referenceId: number; values: string[]; table?: boolean }>;
   /** Rows per entity. Enough to show a list, a lookup and a detail page. */
   rowsPerEntity?: number;
 }
@@ -74,9 +74,27 @@ const MANAGED = new Set([
 ]);
 
 export function buildBusinessSeedSql(options: BusinessSeedOptions): string {
-  const { projectName, entities } = options;
+  const { projectName } = options;
+  // An enumeration's business table holds the values themselves, written by the
+  // dictionary seed as application data; demonstration rows would add values.
+  const enumerationTables = new Set(
+    (options.modelEnums ?? []).filter((declared) => declared.table).map((declared) => declared.name)
+  );
+  // Nor do reference-data entities (countries, cities, currencies…): their rows
+  // are the common specification's, written by the dictionary seed. A record that
+  // points at one points at one of those rows.
+  const entities = options.entities.filter(
+    (entity) => !enumerationTables.has(entity.name) && !entity.data
+  );
+  const dataKeys = new Map(
+    options.entities.flatMap((entity) =>
+      entity.data
+        ? [[entity.tableName, entity.data.rows.map((row) => row[entity.data?.key as string])] as const]
+        : []
+    )
+  );
   const rows = options.rowsPerEntity ?? DEFAULT_ROWS;
-  const tables = new Set(entities.map((entity) => entity.tableName));
+  const tables = new Set(options.entities.map((entity) => entity.tableName));
 
   const out: string[] = [];
   out.push(`-- Demonstration records for ${projectName}.`);
@@ -108,8 +126,13 @@ export function buildBusinessSeedSql(options: BusinessSeedOptions): string {
   );
 
   /** `bus_compound` row 2 → its id. Deterministic, so re-running is a no-op. */
-  const rowId = (tableName: string, index: number) =>
-    uuidv5(`${projectName}:business:${tableName}:${index}`);
+  const rowId = (tableName: string, index: number) => {
+    const keys = dataKeys.get(tableName);
+    if (keys?.length) {
+      return uuidv5(`${projectName}:data:${tableName}:${keys[index % keys.length]}`);
+    }
+    return uuidv5(`${projectName}:business:${tableName}:${index}`);
+  };
 
   for (const entity of ordered) {
     out.push("");
@@ -219,7 +242,7 @@ function valueFor(attribute: BusEntityAttribute, context: ValueContext): SqlValu
   }
 
   if (attribute.isForeignKey || isReferenceColumn(column)) {
-    const target = foreignKeyTargetTable(column, context.tables);
+    const target = foreignKeyTargetTable(column, context.tables, attribute.referencesTable);
     // NULL rather than a uuid that joins to nothing: an empty lookup reads as
     // "not set", a dangling one reads as corruption.
     if (!target) return null;
@@ -296,7 +319,17 @@ function label(attribute: BusEntityAttribute, context: ValueContext): string {
   // well — "Compound 1 (bus_compound)" — which prevented nothing and put an
   // internal name into the title of every record identified by that column.
   const limit = attribute.maxLength ?? 255;
-  return text.length > limit ? text.slice(0, limit) : text;
+  if (text.length <= limit) return text;
+  // Too long for the column: shorten the words and keep the number. Cutting
+  // from the end — "Code 3" in a `string(3)` becoming "Cod" — gave every row
+  // one value, and a unique column then drops all but the first insert (ON
+  // CONFLICT DO NOTHING), leaving every later reference to a dropped row
+  // dangling.
+  const suffix = String(context.index + 1);
+  if (limit <= suffix.length) return suffix.slice(0, limit);
+  const words = text.slice(0, text.length - suffix.length).trimEnd();
+  const head = words.slice(0, Math.max(0, limit - suffix.length - 1)).trimEnd();
+  return head ? `${head} ${suffix}` : suffix;
 }
 
 /** `Clinical Trial` → `clinical-trial`, for an address a reader can type. */
@@ -343,10 +376,9 @@ function statusStates(
 /**
  * Entities in an order where a row is written after everything it points at.
  *
- * Only declared `oneToMany` links are considered, because those are the only
- * ones the schema constrains — a column the ERD marks `FK` but draws no line
- * for is a reference the dictionary describes and the database does not
- * enforce, so it cannot fail an insert and cannot constrain the order.
+ * Declared `oneToMany` links and the foreign-key columns themselves are
+ * considered: the migration constrains every foreign-key column, whether or
+ * not the model draws a relationship for it.
  *
  * A cycle is not an error: two entities may legitimately point at each other.
  * The edge that closes it is dropped from the ordering and its column named in
@@ -371,9 +403,60 @@ function orderByDependency(
     dependsOn.set(child, edges);
   }
 
+  /*
+   * The foreign-key columns themselves. A CEDM entity holds most of its
+   * references as attributes (`currencyId: reference → Currency`) with no
+   * relationship drawn, and the migration constrains every one of them, so a row
+   * written before the row it points at fails its insert. A column adds an edge
+   * only where no relationship already did.
+   */
+  const tables = new Set(entities.map((entity) => entity.tableName));
+  for (const entity of entities) {
+    for (const attribute of entity.attributes) {
+      if (!attribute.isForeignKey || attribute.columnName === entity.primaryKey) continue;
+      const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
+      if (!target || target === entity.tableName) continue;
+      const edges = dependsOn.get(entity.tableName) ?? new Map<string, string>();
+      if (!edges.has(target)) edges.set(target, attribute.columnName);
+      dependsOn.set(entity.tableName, edges);
+    }
+  }
+
   const ordered: BusEntity[] = [];
   const done = new Set<string>();
   const onStack = new Set<string>();
+
+  /** Whether a column is NOT NULL: it cannot be written empty and updated later. */
+  const requiredColumn = (tableName: string, column: string): boolean =>
+    byTable.get(tableName)?.attributes.find((attribute) => attribute.columnName === column)
+      ?.required === true;
+
+  /** Every table a table cannot be written without, through required columns alone. */
+  const requiredReach = (start: string): Set<string> => {
+    const reach = new Set<string>([start]);
+    const walk = (tableName: string) => {
+      for (const [parent, column] of dependsOn.get(tableName) ?? []) {
+        if (!requiredColumn(tableName, column) || reach.has(parent)) continue;
+        reach.add(parent);
+        walk(parent);
+      }
+    };
+    walk(start);
+    return reach;
+  };
+
+  const defer = (tableName: string, column: string) => {
+    // A relationship's edge names its column by guess (`<source>_id`), and the
+    // child may hold that key under another name: there is nothing to UPDATE
+    // then, and an UPDATE of a column the table lacks fails the whole seed.
+    const exists = byTable
+      .get(tableName)
+      ?.attributes.some((attribute) => attribute.columnName === column);
+    if (!exists) return;
+    const columns = deferred.get(tableName) ?? new Set<string>();
+    columns.add(column);
+    deferred.set(tableName, columns);
+  };
 
   const visit = (tableName: string) => {
     if (done.has(tableName)) return;
@@ -383,9 +466,23 @@ function orderByDependency(
     for (const [parent, column] of dependsOn.get(tableName) ?? []) {
       if (onStack.has(parent)) {
         // The edge that closes the cycle. Written by the trailing UPDATE.
-        const columns = deferred.get(tableName) ?? new Set<string>();
-        columns.add(column);
-        deferred.set(tableName, columns);
+        defer(tableName, column);
+        continue;
+      }
+      /*
+       * An optional reference is only worth walking into if that cannot force a
+       * required one to be deferred. `Party.primary_address_id` is optional and
+       * `Address.party_id` is not: walking from Party into Address while Party
+       * is still being placed would close the cycle on `address.party_id`,
+       * which NOT NULL refuses. Deferring the optional side instead costs one
+       * UPDATE and breaks nothing.
+       */
+      if (
+        !requiredColumn(tableName, column) &&
+        !done.has(parent) &&
+        [...requiredReach(parent)].some((table) => onStack.has(table))
+      ) {
+        defer(tableName, column);
         continue;
       }
       visit(parent);
@@ -417,7 +514,10 @@ function deferredUpdates(
     const columns = deferred.get(entity.tableName);
     if (!columns) continue;
     for (const column of columns) {
-      const target = foreignKeyTargetTable(column, tables);
+      const explicit = entity.attributes.find(
+        (attribute) => attribute.columnName === column
+      )?.referencesTable;
+      const target = foreignKeyTargetTable(column, tables, explicit);
       if (!target) continue;
       for (let index = 0; index < rows; index++) {
         out.push(

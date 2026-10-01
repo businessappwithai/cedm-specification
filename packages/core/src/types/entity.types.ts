@@ -25,6 +25,22 @@ export interface EntityAttribute {
   minLength?: number;
   pattern?: string;
   isForeignKey?: boolean;
+  /**
+   * The entity a foreign key points at, where its name does not say: a CEDM
+   * reference such as `deliveryLocation → Location`, stored in the column
+   * `delivery_location_id`. Absent for a column whose name resolves to its
+   * target by the usual rule — which is every column a model written without
+   * CEDM has — so the stored target is written only where it is needed.
+   */
+  references?: string;
+  /**
+   * Foreign-key columns of the same entity that narrow this lookup's choices,
+   * most specific first: a state is narrowed by `country_id`, a city by
+   * `state_province_id` then `country_id`. The lookup offers only the target rows
+   * that belong to the values the record holds, and a write naming any other is
+   * refused. See `specification/reference-data.yaml`.
+   */
+  narrowedBy?: string[];
   /** Name of the enum this column is bound to, by the attribute's `enum` key. */
   enumRef?: string;
   /** The enum's values, in declaration order. */
@@ -44,6 +60,15 @@ export interface EntityEnum {
   values: string[];
   /** Allocated from 1000 up, stable for a given set of enum names. */
   referenceId: number;
+  /**
+   * The enumeration has a business table, an entity of the same name. Its rows
+   * are the values, and the dropdown reads the table rather than a fixed list.
+   */
+  table?: boolean;
+  /** A short label per value; absent values read as the value split into words. */
+  labels?: Record<string, string>;
+  /** What each value means to the business. */
+  descriptions?: Record<string, string>;
 }
 
 /**
@@ -95,6 +120,12 @@ export interface Entity {
    * holds both — so the model sets the starting point, not the final answer.
    */
   icon?: string;
+  /**
+   * Rows the application ships with (`data` of the entity document). Keys are
+   * physical columns; a foreign key column holds the natural key of its target
+   * row, and `key` names the column that is this entity's own natural key.
+   */
+  data?: { key: string; rows: Array<Record<string, string | number | boolean | null>> };
 }
 
 export interface Relationship {
@@ -127,6 +158,8 @@ export const EntityAttributeSchema = z.object({
   maxLength: z.number().optional(),
   minLength: z.number().optional(),
   pattern: z.string().optional(),
+  references: z.string().optional(),
+  narrowedBy: z.array(z.string()).optional(),
 });
 
 export const EntitySchema = z.object({

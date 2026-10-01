@@ -1,0 +1,34 @@
+specification:
+  name: CEDM Reporting Semantics
+  version: 0.1.0
+  status: draft
+
+report:
+  dimensions:
+    - entity
+    - attribute
+    - relationship
+    - date
+    - status
+  measures:
+    - count
+    - sum
+    - average
+    - minimum
+    - maximum
+    - distinctCount
+  query:
+    supports:
+      - filter
+      - sort
+      - group
+      - aggregate
+      - pagination
+      - relationshipTraversal
+  rules:
+    - id: REPORT-001
+      rule: Reports must declare their source entity or defined domain query.
+    - id: REPORT-002
+      rule: Derived measures must declare their calculation semantics.
+    - id: REPORT-003
+      rule: Reporting semantics must not mutate domain state.

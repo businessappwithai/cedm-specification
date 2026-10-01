@@ -26,7 +26,9 @@ import {
 import type { AstryxTheme, DatabaseTarget } from "../generators/tanstack-astryx-loco";
 import { renderManual } from "../manual";
 import type { ParsedModel } from "../model/compile";
-import { compileModelDocument, type ModelDocument } from "../model-yaml";
+import type { CedmSource } from "../model-cedm/library";
+import { compileModelDocument, type ModelDocument, serializeModelDocument } from "../model-yaml";
+import { writeCedmBundle } from "./cedm-bundle";
 import type { PipelineLogger } from "./logger-port";
 import { GENERATION_DEFAULTS, type GenerationSettings } from "./settings";
 
@@ -177,14 +179,27 @@ async function writeManual(
  * the application needs the source, and regenerating it then needs only the
  * directory it produced.
  */
-export async function writeModelFile(outputDir: string, modelText: string): Promise<void> {
+export async function writeModelFile(
+  outputDir: string,
+  modelText: string,
+  cedm?: { text: string; document: ModelDocument }
+): Promise<void> {
   try {
     await fs.mkdir(path.join(outputDir, "model"), { recursive: true });
-    await fs.writeFile(
-      path.join(outputDir, "model", "model.eml.yaml"),
-      modelText,
-      "utf-8"
-    );
+    if (cedm) {
+      // Written in CEDM: the CEDM text is the source, and the model document
+      // it lowers to ships beside it as what the generators compiled.
+      await fs.writeFile(path.join(outputDir, "model", "model.cedm.yaml"), cedm.text, "utf-8");
+      await fs.writeFile(
+        path.join(outputDir, "model", "model.eml.yaml"),
+        "# Compiled from model.cedm.yaml, which is the source of this application.\n" +
+          "# Regenerate rather than edit: a change here is lost on the next run.\n" +
+          serializeModelDocument(cedm.document),
+        "utf-8"
+      );
+      return;
+    }
+    await fs.writeFile(path.join(outputDir, "model", "model.eml.yaml"), modelText, "utf-8");
   } catch {
     // Non-fatal, exactly like the manifest: the application runs without it.
   }
@@ -202,6 +217,12 @@ export interface GenerateApplicationOptions extends GenerationSettings {
    * one of them.
    */
   modelText: string;
+  /**
+   * Present when the model was written in CEDM: the CEDM text (shipped as
+   * `model/model.cedm.yaml`, with the document it lowered to beside it) and
+   * the library entities and modules it used (bundled under `cedm/`).
+   */
+  cedm?: CedmSource;
   /** The document already compiled, when the caller has compiled and logged it. */
   model?: ParsedModel;
   manifest?: ManifestExtras;
@@ -246,7 +267,12 @@ export async function generateApplication(
     const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
     await generator.generate(model.entities, model.relationships);
 
-    await writeModelFile(options.outputDir, options.modelText);
+    await writeModelFile(
+      options.outputDir,
+      options.modelText,
+      options.cedm ? { text: options.cedm.text, document: options.document } : undefined
+    );
+    await writeCedmBundle(options.outputDir, options.cedm);
     await writeManual(options.outputDir, model, options);
 
     if (options.writeManifestFile !== false) {

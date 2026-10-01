@@ -16,6 +16,7 @@ mod backend;
 mod bus;
 mod business;
 mod category;
+mod cedm;
 mod cli;
 mod context;
 mod dictionary;
@@ -77,6 +78,7 @@ fn run() -> Result<()> {
             Ok(())
         }
         Command::Info(args) => info(&args.input),
+        Command::Lower(args) => lower_cedm(&args.input),
         Command::Generate(args) => generate(&args),
     }
 }
@@ -88,11 +90,32 @@ fn list_stacks() {
     println!("  neutral  butter  chocolate  matcha  stone  gothic  y2k");
 }
 
+/// Print what a CEDM model lowers to — the model document every compiler reads,
+/// and the library entities it brought in — so `bun run parity` can hold this
+/// lowering to the TypeScript one.
+fn lower_cedm(input: &Path) -> Result<()> {
+    let text =
+        std::fs::read_to_string(input).with_context(|| format!("reading {}", input.display()))?;
+    if !cedm::is_cedm_text(&text) {
+        bail!(
+            "{} is not a CEDM model (it does not open with `cedm:`)",
+            input.display()
+        );
+    }
+    let read = cedm::read_cedm(&text, input.parent())?;
+    let output = serde_json::json!({
+        "document": read.document,
+        "libraryEntities": read.library_entities,
+    });
+    println!("{}", serde_json::to_string_pretty(&output)?);
+    Ok(())
+}
+
 /// Read a model file into records, refusing a path that is not a model.
 fn read_model(path: &Path) -> Result<records::ModelRecords> {
     if !yaml_model::is_model_yaml_path(path) {
         bail!(
-            "\"{}\" is not a model. A model is a YAML document (*.eml.yaml); see language/yaml/README.md.",
+            "\"{}\" is not a model. A model is a YAML document (*.cedm.yaml or *.eml.yaml); see language/cedm/README.md.",
             path.display()
         );
     }
@@ -101,6 +124,14 @@ fn read_model(path: &Path) -> Result<records::ModelRecords> {
     }
     let text =
         std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+    if cedm::is_cedm_text(&text) {
+        // A CEDM application model: schema, imports and lowering, then the
+        // model document it lowers to is read exactly like one written by hand.
+        let read = cedm::read_cedm(&text, path.parent())
+            .with_context(|| format!("reading {}", path.display()))?;
+        return yaml_model::read_model_value(read.document)
+            .with_context(|| format!("reading the model {} lowers to", path.display()));
+    }
     yaml_model::read_model_yaml(&text).with_context(|| format!("reading {}", path.display()))
 }
 

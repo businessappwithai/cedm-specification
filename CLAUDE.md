@@ -566,7 +566,9 @@ Things to know before editing it:
   second copy in `dictionary-seed.ts` that disagreed with this one.
   The order is: a column that names the record outright (`name`, `full_name`,
   `display_name`, `title`, `label`, `subject`); then `first_name` + `last_name`
-  together; then `code`/`reference`/`number`; then a `text` column, which is
+  together; then `code`/`reference`/`number`, then the same with something in
+  front (`order_number`, `invoice_number`, `po_reference` — otherwise a sales
+  order is labelled by its currency and customer); then a `text` column, which is
   prose the author wrote about this record; then a join entity's first two
   foreign keys; and failing all of that the first plain string column that is
   neither the key nor a pointer.
@@ -1173,6 +1175,110 @@ bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-
   as rule-triggered on every write. The seed now writes `trigger_type`.
   **The Loco backend does not yet run `automatic` sagas**: a workflow starts
   only from a rule's `trigger-workflow` action or `/api/workflow/{id}/execute`.
+
+## CEDM application models (`language/cedm/`) — the base of the model language
+
+An application is written in **CEDM**: entities in the library's own shape
+(`domain/entities/*.yaml`, `schema/cedm-entity.schema.yaml`), imported by name
+or declared in the model, plus the application profile
+(`specification/application-profile.yaml`). Reference: `language/cedm/README.md`;
+schema: `language/cedm/cedm-model.schema.json`. A model is `*.cedm.yaml`, opens
+with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
+`eml` CLI, the Rust generator, the browser bundle) reads it.
+
+- **A CEDM model is lowered, never compiled directly.** `lowerCedmModel`
+  (`language/cedm/lower.ts`) turns it into the `*.eml.yaml` model document both
+  generators already compile; `resolveCedmImports` folds imports, modules,
+  `extends` and the closure over required references in first. The Rust port is
+  `crates/appwithai-gen/src/cedm.rs`, and **the two lowerings must agree**:
+  `scripts/cedm-lowering-parity.ts` (run by `bun run parity`) compares them
+  document for document, native and `wasm32-wasip1` alike. A lowering change
+  is a change in both files, the same day.
+- **The gates.** `model-cedm/__tests__/cedm-equivalence.test.ts` raises every
+  model in the repository to CEDM and lowers it back (must equal the original in
+  *entity order* — `cedmOrder`: a CEDM model declares a relationship on its
+  entity, and relationship order is visible in generated output);
+  `pipeline/__tests__/cedm-source.test.ts` generates drug-discovery from CEDM and
+  from the model document and compares every file; `cedm-examples-in-sync` holds
+  each checked-in `.cedm.yaml` to the conversion of its `.eml.yaml`
+  (`appwithai convert --force`).
+- **A reference names its target.** `deliveryLocation → Location` is held in
+  `delivery_location_id`, which would derive `bus_delivery_location`. The model
+  document's attribute `references` states it, the dictionary seed stores it in
+  `sys_column.ref_table_name` (m0018, by a trailing `UPDATE` — only where it
+  differs from the derived one, so every model without one seeds as before), and
+  every resolver prefers it: `resolve_ref_table`, `field_meta`, both generated
+  test harnesses, `foreignKeyTargetTable`/`foreign_key_target_table`, parent
+  links and the checker (EML118). Add a resolver, give it the stored target.
+- **Two to-one relationships that point at each other are one one-to-one**, with
+  the key on the side that is `1`. Treating them as two one-to-many gave a
+  required-FK cycle (`Supplier.party_role_id` ↔ `PartyRole.supplier_role_id`) that
+  the business seed could not insert.
+- **Every enumeration has a business table** (`application.enumerationTables: true`,
+  set on every `applications/*.cedm.yaml`). Lowering adds an entity named like the
+  value list (`id, code, name, description, sequence, is_active`) under *Reference
+  Data* and marks the document's enum `table`, with `labels`/`descriptions` from
+  `help.valueLabels`/`valueSemantics`; both lowerings do it
+  (`addEnumerationTables` / `add_enumeration_tables`). The dictionary seed writes the
+  rows as application data and a Table reference (`sys_reference` `T` +
+  `sys_ref_table`) instead of `sys_ref_list` rows; `sys.rs` `list` answers
+  `/sys/ref-list?sys_reference_id=` from the table; the business seed skips these
+  entities. Only lists some attribute names get a table. Contract:
+  `specification/enumeration-semantics.yaml`; registry `domain/enumerations/index.yaml`
+  (`tools/build_enumerations.py`).
+- **The specification supplies the Application Dictionary.**
+  `specification/dictionary-mapping.yaml` says which CEDM construct fills each
+  window/tab/table/column/field slot, `vocabulary.yaml` `kindClasses` resolves a
+  free-form `kind` to a class, and `tools/validate.py` enforces DICT-001…010 /
+  ENUM-001…003 (`ui.icon` a lucide 0.312 id, help on every entity, attribute and
+  relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
+  prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
+  round trip rewraps every folded line in the library).
+- **Reference data comes from the common specification.** Country, StateProvince,
+  City, Currency and Language are library entities whose rows live in
+  `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639
+  and GeoNames) and are named by the entity's `referenceData` key. The library
+  inlines them as `data`; lowering turns attribute names into columns (`CEDM180/181`);
+  the dictionary seed writes them as application data with UUIDv5 ids over the
+  natural key; the business seed skips them and points records at them. An address
+  holds relationships to Country, StateProvince and City, never typed codes.
+  Contract: `specification/reference-data.yaml`.
+- **A lookup can be narrowed, and the backend does it.** `narrowedBy` on a reference
+  (CEDM relationship or attribute; `narrowedBy` on the document attribute) becomes
+  `sys_column.narrowed_by` (m0019) as `[{by, on}]`. `GET /api/bus/{entity}/lookup/{column}`
+  returns the target's rows filtered by the values the record passes, and
+  `verify_narrowing` in `bus.rs` refuses a write naming a row outside the set — on
+  create, and on update against the stored row with the request laid over it.
+  The generated form passes control values and clears a choice that no longer
+  belongs. A grid reads labels by `filter.id=in:…` for the page's own ids, not a
+  500-row page of the target — states and cities outnumber that.
+- **A unique `code` beside a `name` identifies a record as both** (`identifierColumnNames`
+  in core, `identifier_column_names` in `bus.rs`): "USD · US Dollar". A `code` that is
+  not unique is technical and does not qualify.
+- **A refused update leaves nothing behind.** Rules run after the write, so a
+  `validation-error` used to keep the refused value in the record and refuse every
+  later edit; `bus.rs` `restore_columns` puts the replaced values back. Rules also
+  see `_previous_<column>` on an update, so `status != _previous_status` fires on
+  *entering* a state, which is what the entity workflows use.
+- **One application per domain.** `domains/application-catalog.yaml` →
+  `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
+  holds them in sync) → `scripts/generate-domain-applications.sh` →
+  `generated-applications/<domain>/`. Every generated application bundles the
+  common CEDM specification under `cedm/` (`pipeline/cedm-bundle.ts`).
+  **Commit source and generated source only** — never a `target/`, a
+  `node_modules/` or a built executable. `scripts/run-and-screenshot.sh` runs
+  an application from a scratch copy for exactly this reason.
+- **Corpus walkers skip `generated-applications/`** (as they skip
+  `generated-projects/`): each holds a `model/model.eml.yaml`.
+- **The library had defects the schema found.** 721 invariants and help entries
+  were unquoted flow mappings that YAML split at their commas
+  (`tools/repair_flow_text.py`; `tools/validate.py` now refuses it), and
+  `domains/capability-catalog.yaml` did not parse. `validate.py` parses every
+  specification file now.
+- **The web tool still saves the model document** (`model/model.eml.yaml`), and
+  generation from a project goes through it; CEDM is an input to the CLIs and
+  the generators. Its snapshot allow-list already admits `.yaml`/`.md`, so
+  `cedm/` and `model/model.cedm.yaml` publish.
 
 ## EML — AppWithAI Modeling Language (`language/`)
 
@@ -1891,11 +1997,49 @@ chromium.launch({
 });
 ```
 
-Worth knowing before writing a QA script against the UI: the new-record form
-opens **inline on the list page** rather than at its own route, its action is
-labelled **Create** (not Save), and **Delete lives inside edit mode** on the
-detail view. A script that looks for a `<form>`, a "Save" button, or a Delete on
-the read-only detail will report bugs that are not there.
+Worth knowing before writing a QA script against the UI: **New opens a page of
+its own, `/<window>/new`** (the list → detail flow: list, then a record, then
+`/new`; `ADCreateShell` in `ad-list-shell.tsx`, rendered by
+`bus-entity-detail-page.tsx` for the id `new`), its action is labelled **Create**
+(not Save), and **Delete lives inside edit mode** on the detail view. A list is
+read newest-modified first (`updated_at DESC`, in `dynamic_repo.rs` and the
+dictionary-backed reads in `bus.rs`) unless the caller names an order; the
+toolbar's Refresh re-reads the rows **and every dropdown** (`refreshDropdowns` in
+`use-entities.ts`). A script that looks for an inline `<form>`, a "Save" button,
+or a Delete on the read-only detail will report bugs that are not there.
+
+**A record whose table has a drawn state machine shows it.** `WorkflowStateBar`
+(`components/admin/workflow-state-bar.tsx`, registered in the static-copy list of
+`tanstack-start-frontend.generator.ts`) reads `/api/workflows/transitions?table=`
+and offers exactly the edges that leave the current state; the write goes
+through `PATCH`, so topology and role rules are still enforced by the backend.
+Drive it by button text — the Astryx `Button` adapter does not forward
+`data-testid`.
+
+**Screens name an entity by its window, never its table.** `useEntityLabel()`
+(`use-dictionary-entities.ts`) is the one place a stored `bus_…` name becomes a
+label; the rules, decision-table, workflow monitor, workflow list and trigger
+card use it. `scripts/qa/smoke-application.mjs` fails a screen that shows
+`\bbus_[a-z0-9_]+`.
+
+**`AlertDialogTrigger` is rendered by the adapter.** The shadcn composed form
+(`<AlertDialog><AlertDialogTrigger asChild><Button/></…>`) used to lose its
+trigger — the Delete button on the workflow list was never drawn. The adapter now
+holds its own open state when no `open` prop is passed. A hook placed after an
+early `return` is the other trap that has crashed a generated screen
+(`rules/$id.edit.tsx`, "Rendered more hooks"): call hooks first.
+
+**A generated test value must fit its column.** `tests/support/factory.rs`
+honours `FieldMeta::max_length` (a two-letter country code cannot hold
+`e2e-code-…`), leads short values with a symbol so they never equal a seeded
+ISO code, and takes a narrowed reference from the lookup the form uses —
+otherwise Country cannot be created and everything holding one fails.
+
+**The serial QA loop** is `bash scripts/qa/qa-loop.sh <domain>… | --all`: per
+domain it regenerates, builds, starts, smoke-tests every screen
+(`scripts/qa/smoke-application.mjs`), runs the application's own `cargo test`,
+records `$QA_OUT/summary.tsv` (default `/tmp/claude-0/qa-loop`) and deletes the
+build before the next one.
 
 Two more that cost a debugging cycle each:
 

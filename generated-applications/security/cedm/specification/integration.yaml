@@ -1,0 +1,38 @@
+specification:
+  name: CEDM Integration Semantics
+  version: 0.1.0
+  status: draft
+
+integration:
+  principles:
+    - External systems map to CEDM concepts through explicit contracts.
+    - External identifiers must not replace CEDM identity.
+    - Integration mappings must preserve source provenance.
+    - Domain events represent meaningful state changes rather than database CRUD operations.
+
+  externalReference:
+    fields:
+      - system
+      - value
+      - type
+    uniqueness: uniqueWithinSystemAndType
+
+  events:
+    requiredFields:
+      - eventId
+      - eventType
+      - occurredAt
+      - entityType
+      - entityId
+      - payloadVersion
+    delivery:
+      semantics: atLeastOnce
+      consumerRequirement: idempotent
+
+  commands:
+    requiredFields:
+      - commandId
+      - commandType
+      - requestedAt
+      - requestedBy
+      - payload

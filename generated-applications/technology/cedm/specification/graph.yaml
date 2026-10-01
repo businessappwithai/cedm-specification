@@ -1,0 +1,36 @@
+# CEDM Canonical Domain Graph Rules
+specification:
+  name: CEDM Domain Graph
+  version: 0.2.0
+  status: draft
+
+graph:
+  nodes: entity
+  edges: relationship
+  semantics:
+    reference: non-owning relationship
+    aggregate: owning relationship
+    inheritance: specialization relationship
+    inverse: bidirectional relationship contract
+
+  integrity:
+    danglingReferences: forbidden
+    unknownTargets: forbidden
+    duplicateEntityNames: forbidden
+    duplicateRelationshipNamesWithinEntity: forbidden
+    duplicateAttributeNamesWithinEntity: forbidden
+
+  hierarchy:
+    selfParent: forbidden
+    cycles: forbidden
+    maximumDepth: implementation-defined
+
+  aggregates:
+    rootMustBeIdentifiable: true
+    aggregateChildrenMustNotBeIndependentRoots: false
+    crossAggregateReferencesAllowed: true
+
+  identity:
+    entityKeysMustBeImmutable: true
+    naturalKeysMayExist: true
+    naturalKeysDoNotReplaceGlobalIdentity: true

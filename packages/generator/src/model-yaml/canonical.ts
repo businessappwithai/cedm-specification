@@ -47,6 +47,8 @@ function attributeOf(attribute: AttributeDocument): AttributeDocument {
     type: attribute.type,
     ...(attribute.pk ? { pk: true } : {}),
     ...(attribute.fk ? { fk: true } : {}),
+    ...present("references", attribute.references),
+    ...present("narrowedBy", attribute.narrowedBy),
     ...(attribute.unique ? { unique: true } : {}),
     ...(attribute.optional ? { optional: true } : {}),
     ...present("enum", attribute.enum),
@@ -70,6 +72,7 @@ function entityOf(entity: EntityDocument): EntityDocument {
     ...present("prefix", entity.prefix),
     ...present("softDelete", entity.softDelete),
     ...present("audited", entity.audited),
+    ...present("data", entity.data),
     attributes: entity.attributes.map(attributeOf),
     ...nonEmpty(
       "indexes",
@@ -87,7 +90,15 @@ function enumsOf(enums: EnumDocument[] | undefined): EnumDocument[] | undefined 
   const seen = new Set<string>();
   return enums
     .filter((declared) => !seen.has(declared.name) && seen.add(declared.name))
-    .map((declared) => ({ name: declared.name, values: [...declared.values] }));
+    .map((declared) => ({
+      name: declared.name,
+      values: [...declared.values],
+      ...(declared.table ? { table: true } : {}),
+      ...(declared.labels && Object.keys(declared.labels).length ? { labels: { ...declared.labels } } : {}),
+      ...(declared.descriptions && Object.keys(declared.descriptions).length
+        ? { descriptions: { ...declared.descriptions } }
+        : {}),
+    }));
 }
 
 function categoryOf(category: CategoryDocument): CategoryDocument {

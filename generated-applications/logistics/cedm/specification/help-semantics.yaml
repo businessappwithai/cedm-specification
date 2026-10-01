@@ -1,0 +1,74 @@
+# CEDM Help and Semantic Documentation Contract
+# Every entity and every field must carry human-readable semantic help.
+
+helpContract:
+  version: 1.0.0
+  mandatory: true
+
+entityHelp:
+  required:
+    - summary
+    - purpose
+    - businessMeaning
+    - whenUsed
+    - howItRelates
+    - lifecycleUsage
+    - commonProcesses
+    - commonExamples
+  fields:
+    summary: One concise explanation of what the entity represents.
+    purpose: Why the entity exists in a business application.
+    businessMeaning: The real-world business concept represented by the entity.
+    whenUsed: When users, processes, or systems create, read, update, or reference it.
+    howItRelates: Explanation of how it connects to important related entities and why those relationships matter.
+    lifecycleUsage: How the entity participates in lifecycle/state transitions and what those states mean operationally.
+    commonProcesses: Business processes in which the entity is normally involved.
+    commonExamples: Concrete examples of valid business situations represented by the entity.
+    distinctions: Important distinctions from similarly named or related entities.
+    synonyms: Business terms commonly used for the concept.
+    uiGuidance: Guidance for forms, lists, search, object pages, dashboards, and user actions.
+
+fieldHelp:
+  required:
+    - summary
+    - businessMeaning
+    - usage
+    - relationshipContext
+  fields:
+    summary: Plain-language explanation of what the field stores.
+    businessMeaning: What the value means to the business, not merely its technical type.
+    usage: How the field is populated, read, validated, searched, filtered, calculated, or displayed.
+    relationshipContext: How the field participates in the entity's relationships or connects the entity to other business concepts.
+    valueSemantics: Meaning of allowed values, units, signs, precision, and nullability where applicable.
+    lifecycleImpact: How the field affects or is affected by entity lifecycle states.
+    examples: Representative valid values and business scenarios.
+    validationGuidance: Business validation beyond primitive datatype constraints.
+    uiGuidance: Recommended label, tooltip, help text, visibility, editability, and search behavior.
+    securityGuidance: Whether the field is sensitive, restricted, or subject to masking.
+
+referenceHelp:
+  rule: Every reference field must explain both the target concept and why the relationship exists.
+  requiredDetails:
+    - targetMeaning
+    - relationshipPurpose
+    - cardinalityMeaning
+    - navigationUse
+
+enumHelp:
+  rule: Every enumerated value must have a business explanation.
+  valueFields:
+    - code
+    - label
+    - meaning
+    - usage
+
+qualityRules:
+  minimumEntitySummaryWords: 15
+  minimumFieldSummaryWords: 8
+  genericTextRejected:
+    - "Stores the value."
+    - "The field value."
+    - "Identifier."
+    - "Name of the entity."
+    - "Used for reference."
+  contextualRequirement: Help must describe the concept in its CEDM business context and must not merely restate the field name or datatype.

@@ -8,7 +8,10 @@ use serde::Serialize;
 
 use crate::language::Language;
 use crate::naming::{add_bus_prefix, snake_case};
-use crate::records::{AttributeDeclaration, ErdRecords, RelationshipDeclaration};
+use crate::records::{
+    AttributeDeclaration, EntityData, EnumDetails, ErdRecords, RelationshipDeclaration,
+};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Attribute {
@@ -33,6 +36,14 @@ pub struct Attribute {
     pub is_foreign_key: bool,
     #[serde(rename = "isPrimaryKey", skip_serializing_if = "std::ops::Not::not")]
     pub is_primary_key: bool,
+    /// The entity a foreign key names outright, where its column name would
+    /// resolve elsewhere — a CEDM reference. Absent for every other column.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<String>,
+    /// Foreign-key columns of the entity that narrow this lookup's choices, most
+    /// specific first: a state is narrowed by `country_id`.
+    #[serde(rename = "narrowedBy", skip_serializing_if = "Option::is_none")]
+    pub narrowed_by: Option<Vec<String>>,
     /// Name of the enum this column is bound to, by its `enum` key.
     #[serde(rename = "enumRef", skip_serializing_if = "Option::is_none")]
     pub enum_ref: Option<String>,
@@ -61,6 +72,13 @@ pub struct ModelEnum {
     /// Allocated from 1000 up, stable for a given set of enum names.
     #[serde(rename = "referenceId")]
     pub reference_id: u16,
+    /// The enumeration has a business table, an entity of the same name.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub table: bool,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub labels: BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
+    pub descriptions: BTreeMap<String, String>,
 }
 
 /// An index the model asked for explicitly, in the entity's `indexes`.
@@ -105,6 +123,9 @@ pub struct Entity {
     /// Compiled to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// Rows the entity ships with (reference data), from `data`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<EntityData>,
 }
 
 impl Entity {
@@ -208,7 +229,20 @@ pub fn compile_erd(records: &ErdRecords, lang: &Language) -> Model {
         }
     }
     attach_parents(&mut entities, &last_wins(&records.entity_parents));
-    let enums = attach_enums(&mut entities, &declared_enums, &records.enum_bindings);
+    for (name, data) in &records.entity_data {
+        if let Some(entity) = entities
+            .iter_mut()
+            .find(|candidate| candidate.name == *name)
+        {
+            entity.data = Some(data.clone());
+        }
+    }
+    let enums = attach_enums(
+        &mut entities,
+        &declared_enums,
+        &records.enum_bindings,
+        &records.enum_details,
+    );
 
     Model {
         entities,
@@ -307,6 +341,12 @@ fn attach_parents(entities: &mut [Entity], parents: &[(String, String)]) {
                     .iter()
                     .find(|a| a.is_foreign_key && a.name.starts_with(&prefix))
             })
+            .or_else(|| {
+                // A key that names the parent outright, whatever it is called.
+                child.attributes.iter().find(|a| {
+                    a.is_foreign_key && a.references.as_deref() == Some(parent_display.as_str())
+                })
+            })
             .map(|a| a.name.clone());
         let Some(link) = link else { continue };
 
@@ -326,6 +366,7 @@ fn attach_enums(
     entities: &mut [Entity],
     declared: &[(String, Vec<String>)],
     bindings: &[(String, String, String)],
+    details: &[(String, EnumDetails)],
 ) -> Vec<ModelEnum> {
     let values_for = |name: &str| {
         declared
@@ -382,10 +423,21 @@ fn attach_enums(
 
     reference_ids
         .into_iter()
-        .map(|(name, reference_id)| ModelEnum {
-            values: values_for(&name).unwrap_or_default(),
-            name,
-            reference_id,
+        .map(|(name, reference_id)| {
+            // The first enum of a name is the one that counts, details included.
+            let extra = details
+                .iter()
+                .find(|(declared, _)| *declared == name)
+                .map(|(_, extra)| extra.clone())
+                .unwrap_or_default();
+            ModelEnum {
+                values: values_for(&name).unwrap_or_default(),
+                name,
+                reference_id,
+                table: extra.table,
+                labels: extra.labels,
+                descriptions: extra.descriptions,
+            }
         })
         .collect()
 }
@@ -477,6 +529,8 @@ pub fn attribute_from_declaration(
         max_length,
         is_foreign_key,
         is_primary_key,
+        references: declaration.references.clone().filter(|_| is_foreign_key),
+        narrowed_by: declaration.narrowed_by.clone().filter(|_| is_foreign_key),
         enum_ref: None,
         enum_values: None,
         enum_reference_id: None,
@@ -510,6 +564,12 @@ fn merge_duplicate_attributes(attributes: Vec<Attribute>) -> Vec<Attribute> {
         }
         if attribute.is_foreign_key {
             existing.is_foreign_key = true;
+        }
+        if existing.references.is_none() {
+            existing.references = attribute.references;
+        }
+        if existing.narrowed_by.is_none() {
+            existing.narrowed_by = attribute.narrowed_by;
         }
         // Anything the first line did not say, a later one may still supply.
         if existing.max_length.is_none() {
@@ -547,6 +607,8 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
                 max_length: None,
                 is_foreign_key: false,
                 is_primary_key: true,
+                references: None,
+                narrowed_by: None,
                 enum_ref: None,
                 enum_values: None,
                 enum_reference_id: None,
@@ -571,6 +633,7 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
         parent_entity: None,
         parent_link_column: None,
         icon: None,
+        data: None,
     }
 }
 

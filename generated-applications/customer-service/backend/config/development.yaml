@@ -1,0 +1,147 @@
+# customer-service — development configuration.
+#
+# Every value below is rendered as a Tera template before it is parsed, so
+# `get_env(...)` reads the same environment variables the NestJS stack used.
+# See docs/MIGRATION-LOCO-ASTRYX.md §6.13 for the full env-var mapping.
+#
+# The tags below use Loco's YAML-safe delimiters, never Tera's native
+# doubled-brace form. A brace opens a flow mapping in YAML, so the native form
+# leaves this file invalid YAML at rest: it parses only because Loco rewrites it
+# before the parser sees it, and any tool that reads it as YAML first —
+# prettier, yaml-language-server, an editor on format-on-save — respaces the
+# braces and the app stops booting. An angle bracket is not a YAML indicator, so
+# the form below survives a formatter unchanged.
+#
+# Loco scans and rewrites the whole file, comments included, so neither
+# delimiter may be written out in prose here: a doubled brace earns a
+# deprecation warning on every command, and a complete YAML-safe tag is
+# translated and then evaluated as an expression, which fails to boot.
+# See https://github.com/loco-rs/loco/issues/1727.
+
+logger:
+  enable: true
+  pretty_backtrace: true
+  level: debug
+  format: compact
+
+server:
+  port: <%= get_env(name="PORT", default="3000") %>
+  binding: <%= get_env(name="HOST", default="localhost") %>
+  host: http://localhost
+  middlewares:
+    # NOTE: naming a middleware key at all flips it to the struct default,
+    # which resolves `enable` to false. Every key here is therefore explicit.
+    limit_payload:
+      enable: true
+      body_limit: 5mb
+    logger:
+      enable: true
+    catch_panic:
+      enable: true
+    timeout_request:
+      enable: false
+      timeout: 5000
+    cors:
+      enable: true
+      allow_origins:
+        - <%= get_env(name="CORS_ORIGIN", default="http://localhost:3001") %>
+      allow_headers:
+        - content-type
+        - authorization
+        - if-match
+        - if-none-match
+      allow_methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      expose_headers:
+        - etag
+        # Without these the browser cannot read its own remaining budget: a
+        # cross-origin response carries the headers and the fetch API hides
+        # them unless they are exposed. The frontend is served from a
+        # different port, so every one of its calls is cross-origin.
+        - ratelimit-limit
+        - ratelimit-remaining
+        - ratelimit-reset
+        - retry-after
+      allow_credentials: true
+    # Loco's etag middleware answers `If-None-Match` with a 304. The business
+    # CRUD routes implement a *row version* protocol over `If-Match` instead
+    # (§6.12) — different header, so the two do not collide.
+    etag:
+      enable: true
+
+database:
+  uri: <%= get_env(name="DATABASE_URL", default="postgres://postgres@localhost:5432/customer_service_development") %>
+  enable_logging: true
+  # `connect_timeout` is how long a request waits to be handed a pooled
+  # connection, and `idle_timeout` is how long an unused one survives before
+  # the pool closes it. Both arrived as 500ms from the `loco new` scaffold, and
+  # at that value they defeat each other: half a second of idleness reaps the
+  # pool, so the next burst has to open fresh connections, and half a second is
+  # not long enough to open them while the machine is busy. The caller does not
+  # see a slow request — it sees HTTP 500, because a pool timeout surfaces from
+  # the JWT lookup as an internal error before the handler runs.
+  #
+  # Reproduced against the generated app: 10 concurrent writers with the box
+  # under CPU load fail on the fourth record with three
+  # "Connection pool timed out" errors; the same load with `connect_timeout`
+  # at 5000 passes with none. Timings are in milliseconds.
+  connect_timeout: <%= get_env(name="DB_CONNECT_TIMEOUT", default="5000") %>
+  idle_timeout: <%= get_env(name="DB_IDLE_TIMEOUT", default="30000") %>
+  min_connections: <%= get_env(name="DB_MIN_CONNECTIONS", default="1") %>
+  max_connections: <%= get_env(name="DB_MAX_CONNECTIONS", default="10") %>
+  auto_migrate: true
+  dangerously_truncate: false
+  dangerously_recreate: false
+
+auth:
+  jwt:
+    # Accept the token from either place: the cookie keeps the frontend's
+    # existing "cookie is set, call /api/auth/me" flow working; Bearer serves
+    # API clients. Order is the order they are tried.
+    location:
+      - from: Cookie
+        name: token
+      - from: Bearer
+    secret: <%= get_env(name="JWT_SECRET", default="ZGV2LW9ubHktc2VjcmV0LXJlcGxhY2UtbWUtaW4tcHJvZA==") %>
+    expiration: 604800 # 7 days
+
+# Promotion runs inline (§6.7 option A) so the create/update response can carry
+# the final doc_status. Only email/report/sync are true background work.
+workers:
+  mode: BackgroundAsync
+
+settings:
+  electric_url: <%= get_env(name="ELECTRIC_URL", default="http://localhost:3100") %>
+  admin_email: <%= get_env(name="ADMIN_EMAIL", default="admin@admin.com") %>
+  frontend_port: 3001
+  # AI natural-language querying (decision D5). Empty by default, which
+  # leaves POST /api/ai/query answering 503 — the add-on is opt-in. Point
+  # these at any OpenAI-compatible endpoint (a local llama.cpp/vLLM server,
+  # or a hosted one) to turn it on. The model is asked for a validated query
+  # plan, never for SQL; see src/services/nl_query.rs.
+  ai_base_url: <%= get_env(name="LOCAL_AI_BASE_URL", default="") %>
+  ai_model: <%= get_env(name="LOCAL_AI_MODEL", default="") %>
+  ai_api_key: <%= get_env(name="LOCAL_AI_API_KEY", default="local") %>
+
+  # Rate limiting. The general budget bounds a runaway client; a single screen
+  # of this application costs several requests, so it is well above what a
+  # person produces. The credential budget is much tighter, because the thing
+  # it bounds is guessing. 0 switches a budget off.
+  #
+  # The credential figure is a compromise and counting is per address for an
+  # anonymous caller: without a trusted proxy everyone behind one gateway
+  # shares it, so a limit tuned for one person locks out a shift change. It is
+  # a floor, not a substitute for per-account lockout, which this application
+  # does not have.
+  rate_limit_max_per_minute: <%= get_env(name="RATE_LIMIT_MAX_PER_MINUTE", default="300") %>
+  rate_limit_auth_max_per_minute: <%= get_env(name="RATE_LIMIT_AUTH_MAX_PER_MINUTE", default="30") %>
+  # Whether X-Forwarded-For may be believed. Off is the security-relevant
+  # default: a client that can set its own forwarded header hands itself a
+  # fresh bucket per request, which turns the sign-in limit into decoration.
+  # Set it only when a proxy you control sits directly in front of this app.
+  trust_proxy: <%= get_env(name="TRUST_PROXY", default="") %>

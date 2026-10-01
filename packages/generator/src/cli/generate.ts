@@ -15,6 +15,7 @@ import { Command } from "commander";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
+import { isDeepStrictEqual } from "util";
 import type { StackOption } from "../generators/full-stack.generator";
 import {
   ASTRYX_THEMES,
@@ -23,6 +24,13 @@ import {
   LocoBackendGenerator,
 } from "../generators/tanstack-astryx-loco";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-astryx-loco/tanstack-start-frontend.generator";
+import {
+  cedmOrder,
+  raiseModelDocument,
+  readCedmModel,
+  serializeCedmDocument,
+} from "../model-cedm";
+import { serializeModelDocument } from "../model-yaml";
 import { generateApplication } from "../pipeline";
 import { cliLogger } from "../pipeline/logger-port";
 import { loadModelFile, validateModelYamlFile } from "./model-input";
@@ -460,7 +468,12 @@ program
       const inputPath = resolvePath(options.input);
       await preflight(inputPath, quiet);
       log(`📄 Reading the model from: ${inputPath}`, quiet);
-      const { document, model, text: modelText } = await loadModelFile(inputPath, { verbose: false });
+      const {
+        document,
+        model,
+        text: modelText,
+        cedm,
+      } = await loadModelFile(inputPath, { verbose: false });
       const allEntities = model.entities;
       const categories = model.categories;
       log(
@@ -573,6 +586,7 @@ program
         logger: cliLogger(getLogger("pipeline")),
         document,
         modelText,
+        ...(cedm ? { cedm } : {}),
         model,
         stackOption,
         astryxTheme: options.theme,
@@ -972,7 +986,9 @@ program
 
 program
   .command("validate")
-  .description("Validate a model (.eml.yaml): YAML, the schema and the language checker")
+  .description(
+    "Validate a model (.cedm.yaml or .eml.yaml): YAML, the schema, CEDM imports and lowering, and the language checker"
+  )
   .argument("<file>", "The model to validate")
   .option("--strict", "Fail on warnings in addition to errors")
   .action(async (file, options) => {
@@ -981,6 +997,58 @@ program
       const warnings = diagnostics.filter((d) => d.severity === "warning").length;
       console.log(`\n✅ ${path.basename(file)} is a valid model (${warnings} warning(s)).`);
       if (options.strict && warnings > 0) process.exit(1);
+    } catch (error: unknown) {
+      console.error("❌ Error:", error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+// ---------------------------------------------------------------------------
+// convert — between a CEDM application model and a model document
+// ---------------------------------------------------------------------------
+
+program
+  .command("convert")
+  .description(
+    "Convert a model between the two languages: a model document (.eml.yaml) to a CEDM application model (.cedm.yaml), or a CEDM model to the model document it compiles to"
+  )
+  .argument("<file>", "The model to convert")
+  .option("-o, --output <file>", "Where to write it (default: beside the input; `-` for stdout)")
+  .option("--force", "Overwrite an existing file")
+  .action(async (file, options) => {
+    try {
+      const inputPath = resolvePath(file);
+      const { document, cedm } = await validateModelYamlFile(inputPath, { verbose: false });
+      const base = inputPath.replace(/\.(cedm|eml)\.ya?ml$/i, "").replace(/\.ya?ml$/i, "");
+      let text: string;
+      let output: string;
+      if (cedm) {
+        text = serializeModelDocument(document);
+        output = options.output ?? `${base}.eml.yaml`;
+      } else {
+        const raised = raiseModelDocument(document);
+        const lowered = readCedmModel(serializeCedmDocument(raised), { check: false });
+        if (!isDeepStrictEqual(lowered.document, cedmOrder(document))) {
+          throw new Error(
+            "The CEDM form would not read back as the same model; nothing was written."
+          );
+        }
+        text = serializeCedmDocument(
+          raised,
+          ` Converted from ${path.basename(inputPath)}.`
+        );
+        output = options.output ?? `${base}.cedm.yaml`;
+      }
+      if (output === "-") {
+        process.stdout.write(text);
+        return;
+      }
+      const target = resolvePath(output);
+      if (!options.force && (await fs.stat(target).catch(() => undefined))) {
+        throw new Error(`${output} exists; pass --force to overwrite it.`);
+      }
+      await fs.writeFile(target, text, "utf-8");
+      console.log(`✅ Wrote ${path.relative(process.cwd(), target)}`);
     } catch (error: unknown) {
       console.error("❌ Error:", error instanceof Error ? error.message : String(error));
       process.exit(1);

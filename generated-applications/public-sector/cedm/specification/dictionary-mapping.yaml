@@ -1,0 +1,265 @@
+# CEDM → Application Dictionary Mapping
+#
+# The Application Dictionary (the sys_* tables of a generated application) is
+# what turns a domain model into screens: a window per entity, a tab and its
+# fields, a column behind every field, a list of values behind every dropdown.
+# This document says, normatively, which CEDM construct supplies every slot of
+# it, which slots have a derivation rule where the specification is silent, and
+# which are required. A CEDM specification that follows it supplies the whole
+# dictionary: nothing a screen shows has to be invented by a generator.
+#
+# `tools/validate.py` enforces the required rows (DICT-*); `tools/dictionary_report.py`
+# reports coverage. A generator reads the same rows: where one says "derived",
+# the rule below is the rule, and a generator must not apply another.
+specification:
+  name: CEDM Application Dictionary Mapping
+  version: 1.0.0
+  status: draft
+  appliesTo: [schema/cedm-entity.schema.yaml, specification/help-semantics.yaml]
+
+principles:
+  - The dictionary is derived from the specification and never the reverse; a label, an icon or a help text is written once, in the entity file.
+  - A slot with no source in an entity file has a derivation rule here, or is not required.
+  - Business screens speak in windows, tabs and fields. A dictionary table or column name (sys_table.name, sys_column.column_name) is storage, and is never a label.
+  - Nothing is defaulted silently. A derivation is documented here, applied by every generator the same way, and reported by `dictionary_report.py`.
+
+# --------------------------------------------------------------------------
+# Entity → window, tab, table
+# --------------------------------------------------------------------------
+entity:
+  window:
+    name:
+      source: ui.label
+      derived: The entity name, split into words (SalesOrderLine → Sales Order Line).
+      required: derived
+    description:
+      source: help.summary
+      required: true
+    help:
+      source: help slots listed under `help.windowSlots`
+      required: true
+    icon:
+      source: ui.icon
+      required: true
+      rule: A lucide icon id (https://lucide.dev), as published by the lucide release the generated frontend pins (0.312). Checked against tools/lucide-icons.txt.
+    window_type:
+      source: kind
+      derived: The class of the kind (see kindClasses) gives M for master data and T for transactions.
+      required: derived
+    is_sales_transaction:
+      source: kind class
+      derived: true for a transaction whose entity belongs to the sales domain (namespace or kind begins with sales_ or commercial_).
+      required: derived
+  tab:
+    name:
+      source: ui.label
+      derived: Same as the window for the top tab; the owning relationship's name for a line item's tab.
+      required: derived
+    description:
+      source: description
+      required: false
+    help:
+      source: help slots listed under `help.tabSlots`
+      required: true
+    is_read_only:
+      source: kind class
+      derived: true for an event (history is appended, never edited).
+      required: derived
+    is_insert_record:
+      source: kind class
+      derived: false for an event.
+      required: derived
+  table:
+    description:
+      source: help.summary
+      required: true
+    icon:
+      source: ui.icon
+      required: true
+    is_document:
+      source: kind class
+      derived: true for a transaction or a line.
+      required: derived
+    is_changelog:
+      source: audit | persistence.audited
+      derived: true for a transaction, a line and an event; false otherwise.
+      required: derived
+    is_high_volume:
+      source: ui.highVolume
+      derived: true for an event; false otherwise.
+      required: derived
+  record:
+    description: What identifies one record on a screen, a lookup or a list.
+    source: ui.recordLabel
+    derived: >-
+      The first of: attributes named name, fullName, displayName, title, label, subject;
+      firstName with lastName; code, reference, number; the first string attribute that is
+      neither the identity nor a reference. Rule shared with the generator (identifierColumnNames).
+    required: derived
+
+# --------------------------------------------------------------------------
+# Attribute → column, field
+# --------------------------------------------------------------------------
+attribute:
+  column:
+    name:
+      source: ui.label
+      derived: The attribute name, split into words.
+      required: derived
+    description:
+      source: help.summary
+      required: true
+    sys_reference_id:
+      source: type, values, target
+      derived: >-
+        uuid/reference with a target → lookup (Table Direct); enum or values → list;
+        string, integer, decimal, money, boolean, date, datetime, object, text per the type map.
+      required: derived
+    field_length:
+      source: maxLength
+      required: false
+    default_value:
+      source: default
+      required: false
+    value_min:
+      source: minimum
+      required: false
+    value_max:
+      source: maximum
+      required: false
+    is_key:
+      source: identity.key
+      required: derived
+    is_mandatory:
+      source: required
+      required: true
+    is_updateable:
+      source: immutable
+      derived: false when immutable, when systemManaged, or when it is the identity.
+      required: derived
+    is_identifier:
+      source: ui.recordLabel (on the entity)
+      required: derived
+    is_selection_column:
+      source: ui.searchable
+      derived: true for the record label, a unique attribute and a status attribute.
+      required: derived
+    is_encrypted:
+      source: ui.sensitive
+      required: false
+    is_allow_copy:
+      source: immutable | unique
+      derived: false for an identity, a unique attribute and a system-managed one.
+      required: derived
+    format_pattern:
+      source: format
+      required: false
+  field:
+    name:
+      source: ui.label
+      derived: Same as the column.
+      required: derived
+    help:
+      source: help slots listed under `help.fieldSlots`
+      required: true
+    group:
+      source: ui.group
+      derived: See `groups`.
+      required: derived
+    is_displayed:
+      source: ui.form
+      derived: false for a system-managed attribute and for an identity.
+      required: derived
+    is_displayed_grid:
+      source: ui.grid
+      derived: true for the record label, the status attribute, a unique attribute and up to six further attributes in declaration order; false for text and object attributes.
+      required: derived
+    is_read_only:
+      source: ui.readOnly | immutable | systemManaged
+      required: derived
+    seq_no:
+      source: declaration order
+      required: derived
+    num_lines:
+      source: ui.lines
+      derived: 1; 3 for a text attribute with maxLength above 500; 5 for an object attribute.
+      required: derived
+    column_span:
+      source: ui.span
+      derived: 2 for a text attribute, 1 otherwise.
+      required: derived
+
+# --------------------------------------------------------------------------
+# Field groups
+# --------------------------------------------------------------------------
+groups:
+  description: >-
+    A tab's fields are laid out in named groups. An attribute states its group in
+    `ui.group`; where it does not, the first matching rule below applies.
+  order: [Identification, Classification, Status, Relationships, Dates, Amounts, Details, System]
+  rules:
+    - {group: System, when: systemManaged is true, or the name is createdAt, createdBy, updatedAt, updatedBy}
+    - {group: Identification, when: the attribute is the identity, the record label, or is named code, number, reference, externalReference}
+    - {group: Status, when: the attribute is named status, or is the attribute a lifecycle governs}
+    - {group: Classification, when: an enum other than status, or named type, category, class, kind}
+    - {group: Relationships, when: type is reference}
+    - {group: Dates, when: type is date or datetime}
+    - {group: Amounts, when: type is decimal, money or integer}
+    - {group: Details, when: anything else}
+
+# --------------------------------------------------------------------------
+# Help
+# --------------------------------------------------------------------------
+help:
+  description: >-
+    Help is written once, structured, in the entity file, and distributed to the
+    dictionary slots below. A key outside this table is carried and shown in the
+    generated manual but fills no slot.
+  aliases:
+    description: The two shapes of entity help in use are one contract. A key in the left column means the key on the right.
+    purpose: businessMeaning
+    whenUsed: usage
+    howItRelates: relationshipContext
+    lifecycleUsage: lifecycle
+    commonProcesses: workflowContext
+    commonExamples: example
+  windowSlots: [businessMeaning, usage, workflowContext, example]
+  tabSlots: [relationshipContext, lifecycle, propagation, concurrency]
+  fieldSlots: [usage, businessMeaning, relationshipContext, workflowRole, requiredMeaning, optionalMeaning, validationGuidance, examples]
+  summarySlot: summary
+  carriedKeys:
+    description: Keys that fill no slot but are part of the contract (shown in the generated manual). DICT-004 refuses any key in neither list.
+    keys: [changePropagation, propagation, concurrency, operationalSemantics, workflowImpact, idempotency, optimizationContext, currentStateVsHistory, geospatialSemantics, operationalProcess, distinctions, synonyms, uiGuidance, lifecycleImpact, securityGuidance, valueSemantics, valueLabels, requiredMeaning, optionalMeaning, summary, purpose, whenUsed, howItRelates, lifecycleUsage, commonProcesses, commonExamples, targetMeaning, relationshipPurpose, cardinalityMeaning, navigationUse, context, workflowRole, example, examples, businessMeaning, usage, relationshipContext, lifecycle, validationGuidance, workflowContext]
+  valueMeaning:
+    source: help.valueSemantics
+    slot: sys_ref_list.description
+    description: One sentence per enumerated value, keyed by the value.
+  relationshipHelp:
+    description: A relationship's help becomes the help of the field that holds its key.
+    slots: [summary, usage, cardinalityMeaning, context, workflowRole]
+
+# --------------------------------------------------------------------------
+# Enumerations
+# --------------------------------------------------------------------------
+enumerations:
+  source: specification/enumeration-semantics.yaml
+  dictionary:
+    sys_reference: one list reference per enumeration
+    sys_ref_list.value: the value
+    sys_ref_list.name: valueLabels[value], else the value split into words
+    sys_ref_list.description: help.valueSemantics[value]
+
+# --------------------------------------------------------------------------
+# Rules a conforming specification satisfies (enforced by tools/validate.py)
+# --------------------------------------------------------------------------
+rules:
+  - {id: DICT-001, severity: error, rule: Every entity has ui.icon, and it is a lucide icon id.}
+  - {id: DICT-002, severity: error, rule: Every entity kind resolves to exactly one kind class.}
+  - {id: DICT-003, severity: error, rule: Every entity has help.summary and help.businessMeaning (or its alias purpose).}
+  - {id: DICT-004, severity: error, rule: Every help key is known (this document, help-semantics.yaml) so none is silently lost.}
+  - {id: DICT-005, severity: error, rule: Every enumerated attribute gives help.valueSemantics for every one of its values, and for no other.}
+  - {id: DICT-006, severity: error, rule: Every attribute has help.summary and help.usage.}
+  - {id: DICT-007, severity: warning, rule: Every relationship has help.summary.}
+  - {id: DICT-008, severity: error, rule: ui.group, when stated, names a group in `groups.order`.}
+  - {id: DICT-009, severity: error, rule: ui.recordLabel, when stated, names attributes the entity declares.}
+  - {id: DICT-010, severity: error, rule: Every enumeration has a table (see enumeration-semantics.yaml), and its name does not collide with an entity.}

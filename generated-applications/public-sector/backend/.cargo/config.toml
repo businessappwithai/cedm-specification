@@ -1,0 +1,19 @@
+# Cargo configuration for the public-sector backend.
+
+# `cargo loco …` is the command every Loco doc tells you to run, but `loco` is
+# not a cargo subcommand. Loco's own `loco new` solves this with exactly this
+# alias, and this matches it — the `loco` CLI on crates.io only knows `new`;
+# everything else lives in the generated app's own binary.
+#
+# That binary *is* the Loco CLI: `src/bin/main.rs` builds
+# `public_sector-cli`, whose clap layer provides `start`, `db`, `task`,
+# `routes`, and — in debug builds — `generate`. So
+#
+#     cargo loco db migrate
+#     cargo loco task seed_dictionary
+#     cargo loco start --server-and-worker
+#     cargo loco generate --help
+#
+# work in a fresh clone with nothing installed beyond a Rust toolchain.
+[alias]
+loco = ["run", "--bin", "public_sector-cli", "--"]

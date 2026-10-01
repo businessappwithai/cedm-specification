@@ -44,6 +44,20 @@ export interface AttributeDocument {
   type: string;
   pk?: boolean;
   fk?: boolean;
+  /**
+   * The entity a foreign key points at, where its name does not say: a CEDM
+   * reference such as `deliveryLocation → Location` (`delivery_location_id`
+   * would otherwise resolve to a `DeliveryLocation` nothing declares).
+   */
+  references?: string;
+  /**
+   * Foreign-key columns of the same entity that narrow this lookup's choices,
+   * most specific first: a state is narrowed by `country_id`, a city by
+   * `state_province_id` then `country_id`. The lookup offers only the target rows
+   * that belong to the values the record holds, and a write naming any other is
+   * refused. See `specification/reference-data.yaml`.
+   */
+  narrowedBy?: string[];
   unique?: boolean;
   optional?: boolean;
   comment?: string;
@@ -74,6 +88,19 @@ export interface EntityDocument {
   audited?: boolean;
   attributes: AttributeDocument[];
   indexes?: IndexDocument[];
+  /**
+   * Rows the application ships with: reference data every application of the
+   * common specification shares (countries, currencies, cities). Keys are
+   * physical columns; a foreign key column holds the *natural key* of the row it
+   * points at (`currency_id: "EUR"`), and `key` names the column that is the
+   * natural key of this entity's own rows.
+   */
+  data?: EntityData;
+}
+
+export interface EntityData {
+  key: string;
+  rows: Array<Record<string, string | number | boolean | null>>;
 }
 
 export interface RelationshipDocument {
@@ -87,6 +114,16 @@ export interface RelationshipDocument {
 export interface EnumDocument {
   name: string;
   values: string[];
+  /**
+   * The enumeration has a business table: an entity of the same name holds one
+   * row per value, and the dropdown reads the table (`sys_ref_table`) instead of
+   * a fixed list. See `specification/enumeration-semantics.yaml`.
+   */
+  table?: boolean;
+  /** A short label per value, where it is not the value split into words. */
+  labels?: Record<string, string>;
+  /** What each value means to the business. */
+  descriptions?: Record<string, string>;
 }
 
 export interface CategoryDocument {

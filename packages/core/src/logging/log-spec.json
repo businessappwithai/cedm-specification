@@ -1,6 +1,6 @@
 {
   "specVersion": "1.0.0",
-  "description": "The log specification \u2014 the single source of truth for what this repository logs, at what level, on which channel, and with which fields. A call site names an event id; the level, the channel, the message and the required fields come from here, so changing what is logged is a change to this file rather than a sweep through the code. Every channel here is the modelling tool's own. The generated application logs through Loco's `tracing` subscriber and does not read this file: it is a Rust crate, and a JSON catalogue it would have to parse at startup to say the same things `tracing` already says is a translation layer, not a shared contract.",
+  "description": "The log specification — the single source of truth for what this repository logs, at what level, on which channel, and with which fields. A call site names an event id; the level, the channel, the message and the required fields come from here, so changing what is logged is a change to this file rather than a sweep through the code. Every channel here is the modelling tool's own. The generated application logs through Loco's `tracing` subscriber and does not read this file: it is a Rust crate, and a JSON catalogue it would have to parse at startup to say the same things `tracing` already says is a translation layer, not a shared contract.",
   "levels": {
     "fatal": 60,
     "error": 50,
@@ -29,7 +29,7 @@
   },
   "transport": {
     "destination": "stdout",
-    "rationale": "The application writes structured JSON to stdout and nothing else \u2014 no files, no rotation, no network. Whatever runs the process (Docker, Kubernetes, systemd, a log shipper) is what collects and ships it. A process that manages its own log files has to be configured twice, fills a disk nobody is watching, and blocks the event loop doing it.",
+    "rationale": "The application writes structured JSON to stdout and nothing else — no files, no rotation, no network. Whatever runs the process (Docker, Kubernetes, systemd, a log shipper) is what collects and ships it. A process that manages its own log files has to be configured twice, fills a disk nobody is watching, and blocks the event loop doing it.",
     "asyncOnProduction": true
   },
   "redact": {
@@ -346,6 +346,16 @@
       "channel": "entity",
       "level": "error",
       "message": "A rejected draft could not be discarded and is still in the table",
+      "fields": [
+        "id",
+        "error"
+      ]
+    },
+    {
+      "id": "entity.update.restore_failed",
+      "channel": "entity",
+      "level": "error",
+      "message": "A refused update could not be rolled back and the record still holds the refused values",
       "fields": [
         "id",
         "error"

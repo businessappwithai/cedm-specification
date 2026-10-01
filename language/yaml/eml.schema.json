@@ -132,6 +132,20 @@
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/$defs/line" }
+        },
+        "table": {
+          "description": "The enum has a business table: an entity of the same name holds a row per value and the dropdown reads it.",
+          "type": "boolean"
+        },
+        "labels": {
+          "description": "A short label per value, where it is not the value split into words.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/line" }
+        },
+        "descriptions": {
+          "description": "What each value means to the business, keyed by value.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/line" }
         }
       }
     },
@@ -183,6 +197,22 @@
           "type": "string",
           "pattern": "^[\\w.-]+$"
         },
+        "data": {
+          "description": "Rows the application ships with: reference data shared by every application of the common specification. Keys are physical columns; a foreign key column holds the natural key of the row it points at, and `key` names the column that is the natural key of this entity's own rows.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key", "rows"],
+          "properties": {
+            "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": { "type": ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        },
         "parent": {
           "description": "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent.",
           "$ref": "#/$defs/identifier"
@@ -219,6 +249,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "type"],
+      "dependentRequired": { "references": ["fk"], "narrowedBy": ["fk"] },
       "properties": {
         "name": { "$ref": "#/$defs/identifier" },
         "type": {
@@ -230,6 +261,16 @@
         "fk": {
           "description": "Foreign key. The table it references is derived from the column's name (`order_id` → Order; `*_by` and the person-role names → the user entity).",
           "type": "boolean"
+        },
+        "references": {
+          "description": "The entity a foreign key points at, for a column whose name does not say it: `delivery_location_id` referencing `Location`. Written only where it differs from what the name resolves to; requires `fk`.",
+          "$ref": "#/$defs/entityName"
+        },
+        "narrowedBy": {
+          "description": "Foreign-key columns of this entity that narrow the choices of this lookup, most specific first: a state is narrowed by `country_id`, a city by `state_province_id` then `country_id`. Requires `fk`.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identifier" }
         },
         "unique": { "description": "Unique.", "type": "boolean" },
         "optional": {

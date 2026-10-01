@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // Without an explicit target, tsc defaults to ES5 and rejects every
+    // `for…of` over an iterator — `Headers`, `URLSearchParams`, `Map.values()`
+    // — with TS2802, while Vite happily transpiles the same code to modern
+    // output. `bun run type-check` failed on code that ran fine. ES2022
+    // matches what Vite emits and what the root repo targets.
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

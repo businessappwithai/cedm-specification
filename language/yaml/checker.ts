@@ -158,6 +158,8 @@ interface Column {
   optional: boolean;
   enum?: string;
   help?: string;
+  /** The entity an `fk` column names explicitly with `references`. */
+  references?: string;
 }
 
 /**
@@ -178,6 +180,7 @@ function columnsOf(entity: EntityDocument): Column[] {
     optional: attribute.optional === true,
     ...(attribute.enum !== undefined ? { enum: attribute.enum } : {}),
     ...(attribute.help !== undefined ? { help: attribute.help } : {}),
+    ...(attribute.references !== undefined ? { references: attribute.references } : {}),
   }));
   const hasKey = columns.some((column) => column.name === "id" || column.name.endsWith("_id"));
   if (!hasKey) {
@@ -279,9 +282,12 @@ class ModelChecker {
    */
   private linkColumnTo(entity: string, parent: string): Column | undefined {
     const snake = snakeCase(parent);
-    return (this.columns.get(entity) ?? []).find(
-      (column) =>
-        column.fk && (column.name === `${snake}_id` || column.name.startsWith(`${snake}_`))
+    const columns = this.columns.get(entity) ?? [];
+    return (
+      columns.find(
+        (column) =>
+          column.fk && (column.name === `${snake}_id` || column.name.startsWith(`${snake}_`))
+      ) ?? columns.find((column) => column.fk && column.references === parent)
     );
   }
 
@@ -402,8 +408,21 @@ class ModelChecker {
         }
       }
 
-      // EML114: a foreign key the generator cannot resolve by name.
-      if (column.fk && !column.name.endsWith("_id")) {
+      // EML118: an explicit target the model does not declare. The stored
+      // target would name a table no migration creates, and the lookup would
+      // fail on every read rather than fall back to the raw id.
+      if (column.references !== undefined && !this.declares(column.references)) {
+        this.error(
+          "EML118",
+          `Column "${entity.name}.${column.name}" references "${column.references}", which the model does not declare.`,
+          [...path, "references"],
+          { hint: `Declare "${column.references}", or remove  references  from the column.` }
+        );
+      }
+
+      // EML114: a foreign key the generator cannot resolve by name. One that
+      // names its target with `references` needs no name to resolve.
+      if (column.fk && column.references === undefined && !column.name.endsWith("_id")) {
         const byRole = column.name.endsWith("_by");
         this.warn(
           "EML114",

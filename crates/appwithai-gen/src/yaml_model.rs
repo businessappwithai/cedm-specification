@@ -16,10 +16,10 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::Deserialize;
 
 use crate::records::{
-    AttributeDeclaration, CategoryDeclaration, EntityDeclaration, ErdRecords, HookDeclaration,
-    IndexDeclaration, ModelRecords, RbacDeclaration, RelationshipDeclaration, ReportDeclaration,
-    RuleAction, RuleDeclaration, RuleEdge, RuleNode, SagaDeclaration, SagaStepDeclaration,
-    StateMachineDeclaration, StateTransitionDeclaration,
+    AttributeDeclaration, CategoryDeclaration, EntityData, EntityDeclaration, EnumDetails,
+    ErdRecords, HookDeclaration, IndexDeclaration, ModelRecords, RbacDeclaration,
+    RelationshipDeclaration, ReportDeclaration, RuleAction, RuleDeclaration, RuleEdge, RuleNode,
+    SagaDeclaration, SagaStepDeclaration, StateMachineDeclaration, StateTransitionDeclaration,
 };
 
 /// `language/yaml/eml.schema.json`, as this binary was built with it.
@@ -103,6 +103,12 @@ struct HookFlowNodeDocument {
 struct EnumDocument {
     name: String,
     values: Vec<String>,
+    #[serde(default)]
+    table: bool,
+    #[serde(default)]
+    labels: BTreeMap<String, String>,
+    #[serde(default)]
+    descriptions: BTreeMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -141,6 +147,14 @@ struct EntityDocument {
     attributes: Vec<AttributeDocument>,
     #[serde(default)]
     indexes: Vec<IndexDocument>,
+    data: Option<EntityDataDocument>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct EntityDataDocument {
+    key: String,
+    rows: Vec<serde_json::Map<String, serde_json::Value>>,
 }
 
 #[derive(Deserialize)]
@@ -161,6 +175,11 @@ struct AttributeDocument {
     comment: Option<String>,
     #[serde(rename = "enum")]
     enum_name: Option<String>,
+    /// The entity a foreign key points at, where its name does not say: a CEDM
+    /// reference such as `deliveryLocation → Location`.
+    references: Option<String>,
+    #[serde(rename = "narrowedBy")]
+    narrowed_by: Option<Vec<String>>,
     help: Option<String>,
     /// `ui`, `default`, `min`, `max`, `format`: validated and carried, not
     /// compiled by either application generator yet. `min`/`max` are a number
@@ -370,6 +389,12 @@ pub fn read_model_yaml(text: &str) -> Result<ModelRecords> {
             ),
             None => anyhow!("{error}"),
         })?;
+    read_model_value(value)
+}
+
+/// Read a model document already parsed — the one a CEDM model lowers to —
+/// into records, refusing anything the schema refuses.
+pub fn read_model_value(value: serde_yaml::Value) -> Result<ModelRecords> {
     let as_json = serde_json::to_value(&value)
         .context("the model contains a value JSON cannot hold (a non-string key?)")?;
     validate_against_schema(&as_json)?;
@@ -387,14 +412,18 @@ fn text_of(value: &serde_yaml::Value) -> Result<String> {
 }
 
 fn document_to_records(document: Document) -> Result<ModelRecords> {
-    let mut erd = ErdRecords {
-        enums: document
-            .enums
-            .into_iter()
-            .map(|declared| (declared.name, declared.values))
-            .collect(),
-        ..ErdRecords::default()
-    };
+    let mut erd = ErdRecords::default();
+    for declared in document.enums {
+        erd.enum_details.push((
+            declared.name.clone(),
+            EnumDetails {
+                table: declared.table,
+                labels: declared.labels,
+                descriptions: declared.descriptions,
+            },
+        ));
+        erd.enums.push((declared.name, declared.values));
+    }
 
     for entity in document.entities {
         let name = entity.name;
@@ -421,6 +450,8 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
                         ty: attribute.ty.clone(),
                         name: attribute.name.clone(),
                         modifiers,
+                        references: attribute.references.clone(),
+                        narrowed_by: attribute.narrowed_by.clone(),
                     }
                 })
                 .collect(),
@@ -430,6 +461,15 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
         }
         if let Some(icon) = entity.icon {
             erd.entity_icons.push((name.clone(), icon));
+        }
+        if let Some(data) = entity.data {
+            erd.entity_data.push((
+                name.clone(),
+                EntityData {
+                    key: data.key,
+                    rows: data.rows,
+                },
+            ));
         }
         if let Some(parent) = entity.parent {
             erd.entity_parents.push((name.clone(), parent));

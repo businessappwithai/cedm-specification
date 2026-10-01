@@ -53,11 +53,15 @@ function erdOf(document: ModelDocument): ErdRecords {
     enums: (document.enums ?? []).map((declared) => ({
       name: declared.name,
       values: [...declared.values],
+      ...(declared.table ? { table: true } : {}),
+      ...(declared.labels ? { labels: { ...declared.labels } } : {}),
+      ...(declared.descriptions ? { descriptions: { ...declared.descriptions } } : {}),
     })),
     enumBindings: [],
     fieldHelp: [],
     entityHelp: [],
     entityIcons: [],
+    entityData: [],
     entityParents: [],
     entityOptions: [],
     fieldOptions: [],
@@ -71,11 +75,14 @@ function erdOf(document: ModelDocument): ErdRecords {
           type: attribute.type,
           name: attribute.name,
           modifiers: modifiersOf(attribute),
+          ...(attribute.references !== undefined ? { references: attribute.references } : {}),
+          ...(attribute.narrowedBy !== undefined ? { narrowedBy: attribute.narrowedBy } : {}),
         })
       ),
     });
     if (entity.help !== undefined) erd.entityHelp.push({ entity: entity.name, help: entity.help });
     if (entity.icon !== undefined) erd.entityIcons.push({ entity: entity.name, icon: entity.icon });
+    if (entity.data !== undefined) erd.entityData.push({ entity: entity.name, ...entity.data });
     if (entity.parent !== undefined) {
       erd.entityParents.push({ entity: entity.name, parent: entity.parent });
     }

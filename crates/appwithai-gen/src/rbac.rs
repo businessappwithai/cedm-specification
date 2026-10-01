@@ -690,12 +690,32 @@ pub fn build_access_seed_sql(options: &AccessSeedOptions<'_>) -> String {
             .iter()
             .map(|entity| (entity.name.as_str(), entity.table_name.as_str()))
             .collect();
+        let owner_by_name: std::collections::HashMap<&str, &str> = entities
+            .iter()
+            .map(|entity| (entity.name.as_str(), entity.window_owner.as_str()))
+            .collect();
+        // The entity whose window an entity is reached through: follow
+        // `window_owner` to the top. Mirrors `windowRoot` in `access-seed.ts`.
+        let window_root = |name: &str| -> String {
+            let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+            let mut current = name.to_string();
+            loop {
+                let next = owner_by_name
+                    .get(current.as_str())
+                    .map_or(current.clone(), |owner| (*owner).to_string());
+                if next == current || !seen.insert(current.clone()) {
+                    return current;
+                }
+                current = next;
+            }
+        };
         for role in &declared_roles {
             for entity in entities {
                 // A child entity has no window of its own; its rows are reached
-                // through the parent's, which is the window to grant.
+                // through the parent's — the topmost one's, for a line item of a
+                // line item — which is the window to grant.
                 let window_table = table_name_by_entity
-                    .get(entity.window_owner.as_str())
+                    .get(window_root(&entity.name).as_str())
                     .copied()
                     .unwrap_or(entity.table_name.as_str());
                 out.push(insert(

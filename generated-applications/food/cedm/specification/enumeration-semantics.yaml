@@ -1,0 +1,87 @@
+# CEDM Enumeration Semantics
+#
+# An enumeration is a business concept in its own right, not a constraint on a
+# column: its values are maintained by the business (reworded, ordered,
+# retired, extended), they carry a meaning each, and other things refer to
+# them. So every enumeration in CEDM has a **business table** in an application
+# generated from it, exactly as every entity does — a window to maintain it, a
+# row per value, an audit trail, access control.
+#
+# The attribute that uses an enumeration keeps storing the value (its `code`):
+# lifecycles, rules and integrations compare it as text, and a status that
+# changed from a string to a key would break every one of them. What changes is
+# where the list comes from. The attribute's dropdown is fed from the table
+# (the dictionary's Table reference: `sys_ref_table`), so a value added, reworded
+# or retired in the table is what the form offers.
+specification:
+  name: CEDM Enumeration Semantics
+  version: 1.0.0
+  status: draft
+
+enumeration:
+  identity:
+    name:
+      rule: <Entity><Attribute> in PascalCase — SalesOrder.status is SalesOrderStatus.
+      uniqueness: An enumeration name is unique among enumerations and among entities. DICT-010.
+    owner: The entity and attribute that declare the values. Another attribute with the same values declares its own enumeration.
+    registry: domain/enumerations/index.yaml — one entry per enumeration, generated from the entity files by tools/build_enumerations.py and checked in sync by tools/validate.py.
+
+  declaration:
+    where: An attribute of type enum states `values`.
+    values:
+      rule: Non-empty, unique, each a single token of upper-case words (SENT, PARTIALLY_FULFILLED) or the lower-case form a model already uses; stored and compared exactly as written.
+    meanings: help.valueSemantics gives one sentence per value, keyed by the value. DICT-005.
+    labels:
+      optional: true
+      key: help.valueLabels
+      rule: One short label per value, where the label is not the value split into words.
+    order: The order of `values` is the order of the dropdown and of the table's `sequence`.
+
+  table:
+    name: bus_<snake_case of the enumeration name>
+    entityKind: reference_data
+    window:
+      name: The enumeration name split into words (Sales Order Status).
+      category: Reference Data
+      icon: list
+    columns:
+      - {name: id, type: uuid, key: true, generated: true}
+      - {name: code, type: string, maxLength: 100, required: true, unique: true, immutable: true, help: The value stored in every column that uses this enumeration. Fixed once created, because lifecycles, rules and integrations compare it as text.}
+      - {name: name, type: string, maxLength: 200, required: true, help: What a person reads in a dropdown and on a record. Reword freely; the code is unaffected.}
+      - {name: description, type: text, required: false, help: What the value means to the business — the enumeration's help.valueSemantics entry for it.}
+      - {name: sequence, type: integer, required: true, help: The position of the value in a dropdown, lowest first.}
+      - {name: isActive, type: boolean, required: true, default: true, help: Whether the value is offered on new records. A retired value stays on the records that already carry it.}
+    identifier: [name]
+    rows:
+      source: values, in order
+      id: Deterministic (UUIDv5 over the enumeration name and the value), so seeding is idempotent and stable across regeneration.
+      code: the value
+      name: valueLabels[value], else the value split into words and capitalised
+      description: valueSemantics[value]
+      sequence: 10, 20, 30 … in declaration order
+      isActive: true
+    seeding: "The rows are application data, not sample data: they are written by the dictionary seed and never generated, randomised or skipped."
+    access: Maintained by an administrator. Readable by anyone who can read an entity that uses the enumeration.
+
+  dictionary:
+    reference: One sys_reference per enumeration, validation type Table (T).
+    ref_table:
+      table: the enumeration's table
+      key_column: code
+      display_column: name
+      order_by: sequence
+      where: is_active = true
+    attribute_column: sys_column.sys_reference_id is that reference; the column stays a string.
+    ref_list: Not used. The table is the single source for the list, so there is no second copy to drift.
+
+  integrity:
+    - A record may carry a value whose row has since been retired; it keeps the value and the form shows it.
+    - A value that is not in the table is refused on write, as it was when the list was fixed.
+    - Deleting a row that a record carries is refused.
+
+rules:
+  - {id: ENUM-001, rule: Every enumerated attribute declares an enumeration, and every enumeration has a table.}
+  - {id: ENUM-002, rule: The registry lists exactly the enumerations the entity files declare, with their values, in order.}
+  - {id: ENUM-003, rule: An enumeration's table name collides with no entity's table.}
+  - {id: ENUM-004, rule: help.valueSemantics has a key for every value and no other.}
+  - {id: ENUM-005, rule: A value is stored exactly as the table's code holds it.}

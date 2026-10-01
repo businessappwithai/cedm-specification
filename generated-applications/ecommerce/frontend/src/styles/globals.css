@@ -1,0 +1,152 @@
+/**
+ * Astryx design system + Tailwind bridge.
+ *
+ * This is Phase A of the incremental migration (MIGRATION-LOCO-ASTRYX.md §7.3).
+ * The import order below IS the cascade contract — the explicit `@layer`
+ * declaration on the first line fixes layer precedence regardless of the order
+ * the bundler happens to emit these in.
+ *
+ * ## All seven themes are imported, on purpose
+ *
+ * Each theme stylesheet is `@scope`-d to `[data-astryx-theme="<name>"]`, so
+ * they do not conflict: only the one whose name is on the wrapper element
+ * applies. `<Theme>` sets that attribute, which is what lets the app switch
+ * themes at runtime without a rebuild. Dropping the unused six would break the
+ * theme selector.
+ *
+ * `@astryxdesign/core/tailwind-theme.css` maps Astryx design tokens onto
+ * Tailwind utility names via `@theme inline`. That is what lets the existing
+ * ~2,300 `className` sites keep rendering — and start inheriting Astryx's
+ * palette — while components are swapped over one at a time, instead of
+ * requiring a stop-the-world rewrite.
+ *
+ * Phase C deletes everything Tailwind on this page: the three `tailwindcss/*`
+ * imports and the bridge import, leaving only the Astryx ones.
+ *
+ * Generated: 2026-10-01T09:31:47.386Z
+ * Project: ecommerce
+ */
+
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
+
+/* The seven themes. Scoped by [data-astryx-theme], so all seven coexist. */
+@import '@astryxdesign/theme-neutral/theme.css';
+@import '@astryxdesign/theme-butter/theme.css';
+@import '@astryxdesign/theme-chocolate/theme.css';
+@import '@astryxdesign/theme-matcha/theme.css';
+@import '@astryxdesign/theme-stone/theme.css';
+@import '@astryxdesign/theme-gothic/theme.css';
+@import '@astryxdesign/theme-y2k/theme.css';
+
+/* The bridge — remove in Phase C, together with the Tailwind imports. */
+@import '@astryxdesign/core/tailwind-theme.css';
+
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* ---------------------------------------------------------------------------
+ * shadcn token compatibility
+ *
+ * Astryx's bridge above names its Tailwind colours after its own tokens —
+ * `card`, `muted`, `surface`, `body`. The screens in this app were written
+ * against shadcn's vocabulary — `background`, `foreground`, `muted-foreground`,
+ * `destructive`, `input`, `ring` — and those names are not in the bridge, so
+ * every one of them generated no CSS at all: `text-muted-foreground` (the most
+ * used class in the app), `bg-background` and `text-foreground` were silently
+ * doing nothing.
+ *
+ * Worse than nothing, in two cases. Astryx's `--color-primary` is the *text*
+ * colour — near-black in light themes, near-white in dark — while shadcn's
+ * `primary` is a brand accent. So `bg-primary` painted cards white-on-white
+ * under Gothic, which is why a dark theme rendered the page unreadable.
+ *
+ * This block defines the shadcn names in terms of Astryx system properties, so
+ * the existing `className` sites theme correctly under all seven themes without
+ * being rewritten. `@theme inline` emits no declarations of its own — it only
+ * registers the names, and the values stay live `var()` references, which is
+ * what makes switching themes take effect with no rebuild and no reload.
+ *
+ * Phase C deletes this along with the rest of Tailwind.
+ * ------------------------------------------------------------------------- */
+@theme inline {
+  /* Surfaces */
+  --color-background: var(--color-background-body);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-background-card);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-background-popover);
+  --color-popover-foreground: var(--color-text-primary);
+
+  /* Muted / secondary text and fills */
+  --color-muted: var(--color-background-muted);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-secondary: var(--color-background-muted);
+  --color-secondary-foreground: var(--color-text-primary);
+
+  /* Brand accent. Mapped to Astryx's accent, NOT to `--color-primary`, which
+     is a text colour there — see the note above. */
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-on-accent);
+  --color-accent: var(--color-background-muted);
+  --color-accent-foreground: var(--color-text-primary);
+
+  /* Status */
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-on-error);
+
+  /* Lines and focus */
+  --color-border: var(--color-border);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-text-accent);
+}
+
+/* ---------------------------------------------------------------------------
+ * The `swiss-*` component classes the generated screens use.
+ *
+ * These were referenced throughout the app but never defined, so cards had no
+ * surface, inputs no border, and the page no gutter. Built from the same Astryx
+ * properties as the block above, so they follow the theme too.
+ * ------------------------------------------------------------------------- */
+@layer components {
+  .container-swiss {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1.5rem;
+  }
+
+  .swiss-card {
+    background-color: var(--color-background-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-container);
+    color: var(--color-text-primary);
+  }
+
+  .swiss-input {
+    background-color: var(--color-background-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-element);
+    color: var(--color-text-primary);
+  }
+
+  .swiss-input::placeholder {
+    color: var(--color-text-secondary);
+  }
+
+  .swiss-input:focus-visible {
+    outline: 2px solid var(--color-text-accent);
+    outline-offset: 1px;
+  }
+}
+
+/* The page itself, so the body behind every route follows the theme rather
+   than staying the browser default white under a dark theme. */
+body {
+  background-color: var(--color-background-body);
+  color: var(--color-text-primary);
+}

@@ -1,0 +1,156 @@
+# CEDM Application Profile
+# What an application built on CEDM adds to the domain model, in CEDM's terms.
+#
+# CEDM describes the domain: entities, relationships, lifecycles, invariants and
+# help, independent of any implementation. An application built on it also has
+# to say how the domain is presented, who may do what, which rules execute,
+# which processes run and which questions it answers. This profile is where
+# those are specified, so an application model stays a CEDM document rather
+# than a second, private language.
+#
+# The normative schema is language/cedm/cedm-model.schema.json; the reference is
+# language/cedm/README.md. A CEDM application model is lowered into the model
+# document every generator compiles (language/yaml/eml.schema.json).
+specification:
+  name: CEDM Application Profile
+  version: 1.0.0
+  status: draft
+
+applicationModel:
+  document:
+    required: [cedm]
+    keys:
+      cedm: Version of the application model ("1.0").
+      application: Name, version, description, namespace, and the catalog domain it serves.
+      imports: Library entities (domain/entities) and application modules brought into the model.
+      enums: Value lists shared by several attributes.
+      entities: Entities in the CEDM entity shape, declared or refining an imported one.
+      ui: Dashboard categories.
+      authorization: Permissions (authorization.yaml), granted per role.
+      hooks: Lifecycle handlers the backend dispatches to around every read and write.
+      hookFlows: The documented order of an entity's hooks.
+      triggers: External events and schedules that call a handler.
+      reports: Read-only questions the application serves.
+      rules: Executable business rules, compiled to decision graphs.
+      processes: Multi-step processes run on a write (sagas), compiled to BPMN.
+
+  imports:
+    entity:
+      description: >-
+        Brings the canonical definition of a library entity. An imported entity
+        also brings every entity its required relationships (cardinality 1 or
+        1..*) and required reference attributes point at, recursively; an
+        optional reference to an entity the application does not contain is
+        not generated, and is reported.
+      options:
+        include: Keep only these attributes and relationships (the identity is always kept).
+        exclude: Drop these attributes and relationships.
+    module:
+      description: >-
+        Brings everything another application model declares. Domain
+        applications share one common foundation module this way.
+      resolution: [<name>.cedm.yaml beside the importing model, applications/<name>.cedm.yaml]
+    refinement: >-
+      An entity declared in the model with the name of an imported one refines
+      it: its keys replace the imported ones; attributes and relationships merge
+      by name.
+
+  entityExtensions:
+    ui:
+      icon: A lucide icon id drawn on the dashboard card, window heading and navigation.
+      label: The name the screens show.
+    persistence:
+      prefix: Table prefix (bus or sys).
+      softDelete: Retire rows by setting deleted_at.
+      audited: Keep an audit trail.
+      indexes: Composite indexes beyond those derived from unique and reference attributes.
+    aggregateRoot: >-
+      The aggregate root of a line item, where no ownership aggregate
+      relationship on the root states it. A member gets no window of its own;
+      it appears as a tab inside its root's.
+
+  attributeExtensions:
+    column: The physical column, where it is not the snake_case of the name (or id, for the identity key).
+    values: Inline value list; the attribute becomes a dropdown.
+    enumName: The name an inline value list is published under (default <Entity><Attribute>).
+    enum: A shared value list from the model's enums.
+    keyType: The stored type of a reference's key (default string).
+    ui: The control to draw the attribute with.
+    format: How the value is shown or checked.
+    comment: A note shown beside the attribute in the model viewer.
+
+  relationshipExtensions:
+    inverseCardinality: >-
+      How many source records relate to one target. Defaults to 1 for a to-many
+      relationship; a to-one relationship that states none is the many side of
+      a one-to-many owned by its target.
+    foreignKey: >-
+      The attribute holding the key: on the source for a to-one relationship,
+      on the target for a to-many one. Found by name when omitted and created
+      when none exists; false says the key is kept elsewhere.
+    label: The relationship's name in the generated application.
+
+  invariantExtensions:
+    violatedWhen: >-
+      The condition under which the invariant is broken, in the rules engine's
+      expression language over physical columns. An invariant with one compiles
+      to a validation rule; one without is documentation, carried into the
+      generated application's bundled specification.
+    events: Lifecycle events the compiled rule runs on (default beforeCreate, beforeUpdate).
+
+compilation:
+  names:
+    attributes: camelCase in the model; snake_case columns in the application.
+    identity: A single identity key is stored in the column id.
+  types:
+    preserved: [uuid, string, integer, decimal, money, boolean, date, datetime, object]
+    mapped:
+      enum: string, with the attribute's value list
+      reference: the keyType (default string), as a foreign key
+      currency_code: string(3)
+      country_code: string(2)
+      locale: string(35)
+      timezone: string(64)
+      value_object: json
+    maxLength: Written as the length of a string column.
+  relationships:
+    toOne: >-
+      A foreign key on the source, named <relationship>_id unless an attribute
+      already holds it. Its target is stored explicitly wherever the column's
+      name would not resolve to it (delivery_location_id → Location).
+    toMany: The other half of a to-one relationship on the target, or a key on the target.
+    pairs: >-
+      Two relationships that name each other as inverse, or the only two
+      between a pair of entities where one is to-many, are one relationship.
+    cardinality: n..* with n > 1 is enforced as 1..*.
+  ownership:
+    aggregate: The target becomes a line item of the source (no window; a tab inside the root's).
+  lifecycle:
+    states: The state machine's states, in the order listed.
+    transitions: Each transition's action becomes its trigger, which authorization may grant.
+    terminal: The machine's final states.
+  help:
+    structured: The fields are joined, in the order written, into one paragraph.
+  authorization:
+    allow: Compiles to a role grant on an operation or transition.
+    deny: Refused — the application's grants are additive; grant only to the roles that may act.
+    scope: Refused — the application grants per role.
+  extends: >-
+    A specialisation carries its parent's attributes and relationships (all but
+    the parent's identity).
+
+applications:
+  description: >-
+    Each catalog domain is its own application, under applications/, and every
+    application imports the common module (applications/common.cedm.yaml) for
+    the foundation every domain shares. Every generated application bundles the
+    common specification — specification/, schema/ and domains/ — under cedm/,
+    with the library entities and modules it used.
+
+rules:
+  - id: APP-001
+    rule: An application model must lower to a model document that satisfies the model language's schema and checker.
+  - id: APP-002
+    rule: Lowering must not drop a construct silently; what cannot be generated is reported.
+  - id: APP-003
+    rule: An explicit reference target is authoritative over any target derived from a column name.

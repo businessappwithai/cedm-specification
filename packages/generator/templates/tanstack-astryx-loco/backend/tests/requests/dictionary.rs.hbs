@@ -8,7 +8,7 @@ use serial_test::serial;
 
 use crate::support::{self, bearer, entities::ENTITIES, rows, total};
 
-use {{projectSnake}}::services::dictionary::resolve_ref_table_name;
+use {{projectSnake}}::services::dictionary::resolve_ref_table;
 
 #[tokio::test]
 #[serial]
@@ -202,6 +202,48 @@ async fn gives_every_entity_a_tab_and_every_column_a_field() {
 /// after something that is not an entity, and that falls back to rendering the
 /// raw id. `EML118` reports it at validation, where the model can be fixed;
 /// a generated suite can only observe it after the fact.
+/// A target the model stated outright (`sys_column.ref_table_name`, written
+/// for a CEDM reference whose column name would derive another table) names a
+/// table the dictionary holds, and is what the lookup resolves to.
+///
+/// Vacuous for a model without such a reference — which is every model not
+/// written in CEDM — and the stored column is then NULL throughout.
+#[tokio::test]
+#[serial]
+async fn a_stated_lookup_target_is_a_table_the_dictionary_holds() {
+    support::with_app(|_request, ctx, _token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let stated: Vec<(String, String, Option<i32>, String)> = sqlx::query_as(
+            r"SELECT t.table_name, c.column_name, c.sys_reference_id, c.ref_table_name
+                FROM sys_column c
+                JOIN sys_table t ON t.sys_table_id = c.sys_table_id
+               WHERE c.ref_table_name IS NOT NULL",
+        )
+        .fetch_all(pool)
+        .await
+        .expect("read the stated lookup targets");
+
+        for (table, column, reference, target) in &stated {
+            let exists: Option<(String,)> =
+                sqlx::query_as("SELECT table_name FROM sys_table WHERE table_name = $1")
+                    .bind(target)
+                    .fetch_optional(pool)
+                    .await
+                    .expect("look the target up");
+            assert!(
+                exists.is_some(),
+                "{table}.{column} states {target}, which the dictionary does not hold",
+            );
+            assert_eq!(
+                resolve_ref_table(Some(target), column, *reference).as_deref(),
+                Some(target.as_str()),
+                "{table}.{column} does not resolve to the target it states",
+            );
+        }
+    })
+    .await;
+}
+
 #[tokio::test]
 #[serial]
 async fn resolved_lookups_point_at_the_right_entity() {
@@ -214,8 +256,8 @@ async fn resolved_lookups_point_at_the_right_entity() {
             .expect("read the table list");
         let known: Vec<String> = known.into_iter().map(|(t,)| t).collect();
 
-        let lookups: Vec<(String, String, Option<i32>)> = sqlx::query_as(
-            r"SELECT t.table_name, c.column_name, c.sys_reference_id
+        let lookups: Vec<(String, String, Option<i32>, Option<String>)> = sqlx::query_as(
+            r"SELECT t.table_name, c.column_name, c.sys_reference_id, c.ref_table_name
                 FROM sys_column c
                 JOIN sys_table t ON t.sys_table_id = c.sys_table_id
                WHERE c.sys_reference_id IN (18, 19)
@@ -231,8 +273,8 @@ async fn resolved_lookups_point_at_the_right_entity() {
         );
 
         let mut resolved = 0_usize;
-        for (table, column, reference) in &lookups {
-            let Some(target) = resolve_ref_table_name(column, *reference) else {
+        for (table, column, reference, stored) in &lookups {
+            let Some(target) = resolve_ref_table(stored.as_deref(), column, *reference) else {
                 continue;
             };
             if !known.contains(&target) {
@@ -244,7 +286,8 @@ async fn resolved_lookups_point_at_the_right_entity() {
             // person and must reach the user entity — never a table named
             // after the column, which is what the plain `<entity>_id` rule
             // would produce.
-            if column.ends_with("_by") || column.ends_with("_by_id") {
+            // A target the model stated outright is the model's answer instead.
+            if stored.is_none() && (column.ends_with("_by") || column.ends_with("_by_id")) {
                 assert_eq!(
                     target, "bus_user",
                     "{table}.{column} names a person but resolved to {target}",

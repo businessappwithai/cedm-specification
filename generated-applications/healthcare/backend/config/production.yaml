@@ -1,0 +1,177 @@
+# healthcare — production configuration.
+#
+# Template tags use Loco's YAML-safe delimiters rather than Tera's native
+# doubled-brace form, which is not valid YAML at rest and gets rewritten by
+# formatters. Neither delimiter may be written out in a comment — Loco rewrites
+# those too. See config/development.yaml for the detail.
+#
+# Secrets are read from the environment and never committed. `JWT_SECRET` and
+# `DATABASE_URL` have no defaults on purpose: boot should fail loudly rather
+# than silently run on a development credential.
+
+logger:
+  enable: true
+  pretty_backtrace: false
+  level: info
+  format: json
+  # Loco's default filter whitelists a handful of modules at `level`, and
+  # `sqlx::query` is one of them — so a production deployment logged the text of
+  # every statement it ran and no record that a request had been served. Four
+  # requests produced seven lines, five of them SQL.
+  #
+  # This names the same whitelist with that one entry turned down. `warn` rather
+  # than `off`: a query that fails is worth a line, and only the successful ones
+  # are noise. `healthcare` is this crate, which is what carries the
+  # `event` lines from `common::logging` — leaving it out would silence the
+  # catalogue, because an override replaces the whitelist rather than adding
+  # to it.
+  #
+  # `RUST_LOG` still wins over this, so an operator diagnosing something can
+  # turn any of it back on without a redeploy.
+  override_filter: "healthcare=info,loco_rs=info,tower_http=info,sea_orm_migration=info,sqlx::query=warn"
+
+server:
+  port: <%= get_env(name="PORT", default="3000") %>
+  binding: <%= get_env(name="HOST", default="0.0.0.0") %>
+  host: <%= get_env(name="APP_HOST", default="http://localhost") %>
+  middlewares:
+    limit_payload:
+      enable: true
+      body_limit: 5mb
+    logger:
+      enable: true
+    catch_panic:
+      enable: true
+    compression:
+      enable: true
+    cors:
+      enable: true
+      allow_origins:
+        - <%= get_env(name="CORS_ORIGIN") %>
+      allow_headers:
+        - content-type
+        - authorization
+        - if-match
+        - if-none-match
+      allow_methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      expose_headers:
+        - etag
+        # Without these the browser cannot read its own remaining budget: a
+        # cross-origin response carries the headers and the fetch API hides
+        # them unless they are exposed. The frontend is served from a
+        # different port, so every one of its calls is cross-origin.
+        - ratelimit-limit
+        - ratelimit-remaining
+        - ratelimit-reset
+        - retry-after
+      allow_credentials: true
+    etag:
+      enable: true
+    secure_headers:
+      enable: true
+      # The OWASP preset, spelled out so that one header can be left out of it.
+      # `overrides` can only replace a preset's value, never drop a header, and
+      # the preset's `Clear-Site-Data: "cache","cookies","storage"` must not be
+      # sent: it is meant for a sign-out response, and on every response it
+      # wipes the session the moment it is created — the `token` cookie (cookies
+      # are not scoped by port, so a front end on another port loses its own
+      # too) and, wherever the front end shares this origin behind a proxy, the
+      # bearer token it keeps in sessionStorage. The first API call after
+      # signing in then signs the user out on their next page load.
+      preset: empty
+      overrides:
+        Cache-Control: "no-store, max-age=0"
+        Content-Security-Policy: "default-src 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content"
+        Cross-Origin-Embedder-Policy: "require-corp"
+        Cross-Origin-Opener-Policy: "same-origin"
+        Cross-Origin-Resource-Policy: "same-origin"
+        Permissions-Policy: "accelerometer=(), autoplay=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(self), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(), gamepad=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), unload=()"
+        Referrer-Policy: "no-referrer"
+        Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options: "nosniff"
+        X-Frame-Options: "deny"
+        X-Permitted-Cross-Domain-Policies: "none"
+
+database:
+  uri: <%= get_env(name="DATABASE_URL") %>
+  enable_logging: false
+  # `connect_timeout` is how long a request waits to be handed a pooled
+  # connection, and `idle_timeout` is how long an unused one survives before
+  # the pool closes it. Both arrived as 500ms from the `loco new` scaffold, and
+  # at that value they defeat each other: half a second of idleness reaps the
+  # pool, so the next burst has to open fresh connections, and half a second is
+  # not long enough to open them while the machine is busy. The caller does not
+  # see a slow request — it sees HTTP 500, because a pool timeout surfaces from
+  # the JWT lookup as an internal error before the handler runs.
+  #
+  # Reproduced against the generated app: 10 concurrent writers with the box
+  # under CPU load fail on the fourth record with three
+  # "Connection pool timed out" errors; the same load with `connect_timeout`
+  # at 5000 passes with none. Timings are in milliseconds.
+  connect_timeout: 5000
+  idle_timeout: 30000
+  min_connections: <%= get_env(name="DB_MIN_CONNECTIONS", default="2") %>
+  max_connections: <%= get_env(name="DB_MAX_CONNECTIONS", default="20") %>
+  # Production migrates deliberately (`cargo loco db migrate`), not on boot.
+  auto_migrate: false
+  dangerously_truncate: false
+  dangerously_recreate: false
+
+auth:
+  jwt:
+    # Accept the token from either place: the cookie keeps the frontend's
+    # existing "cookie is set, call /api/auth/me" flow working; Bearer serves
+    # API clients. Order is the order they are tried.
+    location:
+      - from: Cookie
+        name: token
+      - from: Bearer
+    secret: <%= get_env(name="JWT_SECRET") %>
+    expiration: 604800
+
+# Durable, Postgres-backed queue — the app already owns a Postgres, so this
+# replaces the Trigger.dev SaaS dependency outright (§6.7).
+queue:
+  kind: Postgres
+  uri: <%= get_env(name="QUEUE_DATABASE_URL", default="") %>
+  dangerously_flush: false
+
+workers:
+  mode: BackgroundQueue
+
+settings:
+  electric_url: <%= get_env(name="ELECTRIC_URL", default="") %>
+  admin_email: <%= get_env(name="ADMIN_EMAIL", default="") %>
+  frontend_port: 3001
+  # AI natural-language querying (decision D5). Empty by default, which
+  # leaves POST /api/ai/query answering 503 — the add-on is opt-in. Point
+  # these at any OpenAI-compatible endpoint (a local llama.cpp/vLLM server,
+  # or a hosted one) to turn it on. The model is asked for a validated query
+  # plan, never for SQL; see src/services/nl_query.rs.
+  ai_base_url: <%= get_env(name="LOCAL_AI_BASE_URL", default="") %>
+  ai_model: <%= get_env(name="LOCAL_AI_MODEL", default="") %>
+  ai_api_key: <%= get_env(name="LOCAL_AI_API_KEY", default="") %>
+
+  # Rate limiting. The general budget bounds a runaway client; a single screen
+  # of this application costs several requests, so it is well above what a
+  # person produces. The credential budget is much tighter, because the thing
+  # it bounds is guessing. 0 switches a budget off.
+  #
+  # The credential figure is a compromise and counting is per address for an
+  # anonymous caller: without a trusted proxy everyone behind one gateway
+  # shares it, so a limit tuned for one person locks out a shift change. It is
+  # a floor, not a substitute for per-account lockout, which this application
+  # does not have.
+  rate_limit_max_per_minute: <%= get_env(name="RATE_LIMIT_MAX_PER_MINUTE", default="300") %>
+  rate_limit_auth_max_per_minute: <%= get_env(name="RATE_LIMIT_AUTH_MAX_PER_MINUTE", default="30") %>
+  # Whether X-Forwarded-For may be believed. Off is the security-relevant
+  # default: a client that can set its own forwarded header hands itself a
+  # fresh bucket per request, which turns the sign-in limit into decoration.
+  # Set it only when a proxy you control sits directly in front of this app.
+  trust_proxy: <%= get_env(name="TRUST_PROXY", default="") %>

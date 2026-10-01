@@ -87,7 +87,7 @@ async function seedEntity(
     const foreignKeysFor = (position: number): Record<string, string> => {
       const foreignKeys: Record<string, string> = {};
       for (const fk of fks) {
-        const parent = harness.resolveParentEntity(fk.name);
+        const parent = harness.resolveParentEntity(fk.name, fk.references);
         if (!parent) continue;
         const pool = createdIds.get(parent.route);
         if (pool && pool.length > 0) {

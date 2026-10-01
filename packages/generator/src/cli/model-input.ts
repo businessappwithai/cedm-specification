@@ -1,15 +1,28 @@
 /**
  * Reading a model file for the CLI.
  *
- * A model is a YAML document, `*.eml.yaml`. Every command that takes a model
- * goes through here, so every command validates it the same way — YAML, the
- * schema, the language checker — before anything is generated from it, and
- * reports each finding at the line and column that caused it.
+ * A model is a YAML document: a CEDM application model (`*.cedm.yaml`, opening
+ * with `cedm:`), or a model document (`*.eml.yaml`). Every command that takes a
+ * model goes through here, so every command validates it the same way — YAML,
+ * the schema, the imports and lowering for CEDM, the language checker — before
+ * anything is generated from it, and reports each finding at the line and
+ * column of the file the author edits.
  */
 
 import * as fs from "node:fs/promises";
 import path from "node:path";
+import { parse } from "yaml";
 import type { ParsedModel } from "../model/compile";
+import {
+  type CedmModelDocument,
+  type CedmSource,
+  createFileLibrary,
+  isCedmModelText,
+  readCedmModel,
+  validateCedmValue,
+} from "../model-cedm";
+
+export type { CedmSource };
 import {
   compileModelDocument,
   isModelYamlPath,
@@ -23,6 +36,8 @@ export interface LoadedModel {
   text: string;
   document: ModelDocument;
   model: ParsedModel;
+  /** Present when the model was written in CEDM. */
+  cedm?: CedmSource;
 }
 
 const SYMBOL: Record<ModelDiagnostic["severity"], string> = {
@@ -48,8 +63,8 @@ export interface ValidateOptions {
 export function requireModelPath(filePath: string): void {
   if (!isModelYamlPath(filePath)) {
     throw new Error(
-      `"${path.basename(filePath)}" is not a model. A model is a YAML document (*.eml.yaml); ` +
-        "see language/yaml/README.md."
+      `"${path.basename(filePath)}" is not a model. A model is a YAML document ` +
+        "(*.cedm.yaml or *.eml.yaml); see language/cedm/README.md."
     );
   }
 }
@@ -61,12 +76,47 @@ export function requireModelPath(filePath: string): void {
 export async function validateModelYamlFile(
   filePath: string,
   options: ValidateOptions = {}
-): Promise<{ document: ModelDocument; text: string; diagnostics: ModelDiagnostic[] }> {
+): Promise<{
+  document: ModelDocument;
+  text: string;
+  diagnostics: ModelDiagnostic[];
+  cedm?: CedmSource;
+}> {
   requireModelPath(filePath);
   const print = options.print ?? ((line: string) => console.log(line));
   const text = await fs.readFile(filePath, "utf-8");
-  const result = readModelYaml(text);
   const name = path.basename(filePath);
+
+  let result: { document?: ModelDocument; diagnostics: ModelDiagnostic[]; ok: boolean };
+  let cedm: CedmSource | undefined;
+  if (isCedmModelText(text)) {
+    const library = createFileLibrary({
+      modelDirectory: path.dirname(filePath),
+      readModule: (moduleText, file) => {
+        const value = parse(moduleText) as unknown;
+        const problems = validateCedmValue(value);
+        if (problems) {
+          throw new Error(
+            `Module ${path.basename(file)} is not a valid CEDM model:\n` +
+              problems.map((problem) => `  ${problem.message}`).join("\n")
+          );
+        }
+        return value as CedmModelDocument;
+      },
+    });
+    const read = readCedmModel(text, { library });
+    result = read;
+    cedm = {
+      text,
+      ...(library.root ? { root: library.root } : {}),
+      libraryFiles: read.libraryEntities
+        .map((entity) => library.entityFile(entity))
+        .filter((file): file is string => file !== undefined),
+      moduleFiles: [...library.moduleFiles.values()],
+    };
+  } else {
+    result = readModelYaml(text);
+  }
 
   const shown = result.diagnostics.filter(
     (diagnostic) => options.verbose !== false || diagnostic.severity === "error"
@@ -80,7 +130,12 @@ export async function validateModelYamlFile(
         "Fix the errors shown above and re-run."
     );
   }
-  return { document: result.document, text, diagnostics: result.diagnostics };
+  return {
+    document: result.document,
+    text,
+    diagnostics: result.diagnostics,
+    ...(cedm ? { cedm } : {}),
+  };
 }
 
 /** Read, validate and compile a model file. */
@@ -88,9 +143,9 @@ export async function loadModelFile(
   filePath: string,
   options: ValidateOptions = {}
 ): Promise<LoadedModel> {
-  const { document, text } = await validateModelYamlFile(filePath, options);
+  const { document, text, cedm } = await validateModelYamlFile(filePath, options);
   const model = compileModelDocument(document, {
     warn: (message) => console.warn(`  ⚠️  ${message}`),
   });
-  return { path: filePath, text, document, model };
+  return { path: filePath, text, document, model, ...(cedm ? { cedm } : {}) };
 }

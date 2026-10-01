@@ -1,0 +1,605 @@
+//! Business-rule definitions — `sys_rule_definitions`.
+//!
+//! A rule is a GoRules JDM decision graph bound to an entity and a CRUD verb.
+//! The promotion pipeline evaluates them on every business write; these routes
+//! are the admin surface that authors them and the dry-run that lets an author
+//! test one before it goes live.
+//!
+//! **The JSON here is camelCase, unlike everywhere else in this API.** The
+//! rules screens were written against a NestJS controller that serialised its
+//! DTOs with `class-transformer` defaults, so `entityName` / `ruleName` /
+//! `jdmContent` / `isActive` are what the frontend reads and writes. Renaming
+//! them to match the snake_case columns would be a contract break for no gain,
+//! so the mapping lives here, in one place.
+
+use axum::{
+    extract::{Path, Query, State},
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
+use loco_rs::prelude::*;
+use serde_json::{json, Map, Value};
+use sqlx::Row;
+use std::collections::HashMap;
+use uuid::Uuid;
+
+use crate::errors::{AppError, AppResult};
+use crate::services::rules_engine::{RuleOperation, RulesEngine};
+
+/// `GET /api/rules?entityName=&operation=&isActive=`
+///
+/// A bare array, not an envelope: the rules list is small, bounded by how many
+/// rules a human has written, and the frontend types it as `Rule[]`.
+#[utoipa::path(
+    get, path = "/api/rules", tag = "rules",
+    security(("bearer" = [])),
+    params(("entityName" = Option<String>, Query, description = "Filter to one entity's rules")),
+    responses((status = 200, description = "Rule definitions")),
+)]
+pub async fn list(
+    _auth: auth::JWT,
+    Query(params): Query<HashMap<String, String>>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+
+    let entity = params.get("entityName").or_else(|| params.get("entity_name"));
+    let operation = params.get("operation");
+    let is_active = params
+        .get("isActive")
+        .or_else(|| params.get("is_active"))
+        .and_then(|v| v.parse::<bool>().ok());
+
+    let rows = sqlx::query(
+        r"SELECT * FROM sys_rule_definitions
+           WHERE ($1::text IS NULL OR entity_name = $1)
+             AND ($2::text IS NULL OR operation   = $2)
+             AND ($3::bool IS NULL OR is_active   = $3)
+           ORDER BY entity_name, rule_name",
+    )
+    .bind(entity)
+    .bind(operation)
+    .bind(is_active)
+    .fetch_all(pool)
+    .await?;
+
+    let rules: Vec<Value> = rows.iter().map(to_api).collect();
+    Ok(Json(rules).into_response())
+}
+
+/// `GET /api/rules/{id}` — one rule definition.
+#[utoipa::path(
+    get, path = "/api/rules/{id}", tag = "rules",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "Rule UUID")),
+    responses(
+        (status = 200, description = "The rule"),
+        (status = 404, description = "No such rule"),
+    ),
+)]
+pub async fn get_one(
+    _auth: auth::JWT,
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let row = sqlx::query("SELECT * FROM sys_rule_definitions WHERE id = $1")
+        .bind(id)
+        .fetch_optional(pool)
+        .await?
+        .ok_or_else(|| AppError::NotFound(format!("Rule {id} not found")))?;
+
+    Ok(Json(to_api(&row)).into_response())
+}
+
+#[utoipa::path(
+    post, path = "/api/rules", tag = "rules",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ entityName, ruleName, operation, jdmContent }` — jdmContent is a GoRules JDM decision graph"),
+    responses(
+        (status = 201, description = "The stored rule"),
+        (status = 400, description = "Invalid JDM"),
+    ),
+)]
+pub async fn create(
+    _auth: auth::JWT,
+    State(ctx): State<AppContext>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    let entity_name = required_str(&payload, "entityName")?;
+    let rule_name = required_str(&payload, "ruleName")?;
+    let jdm_content = required_str(&payload, "jdmContent")?;
+
+    // Reject a graph that cannot be parsed at write time. Discovering it when a
+    // business write triggers the rule means a user's save fails for a reason
+    // that has nothing to do with what they typed.
+    parse_jdm(&jdm_content)?;
+
+    let operation = payload
+        .get("operation")
+        .and_then(Value::as_str)
+        .unwrap_or("ALL");
+
+    let pool = ctx.db.get_postgres_connection_pool();
+    let row = sqlx::query(
+        r"INSERT INTO sys_rule_definitions
+            (entity_name, rule_name, operation, jdm_content, version, is_active)
+          VALUES ($1, $2, $3, $4, 1, COALESCE($5, true))
+          RETURNING *",
+    )
+    .bind(&entity_name)
+    .bind(&rule_name)
+    .bind(operation)
+    .bind(&jdm_content)
+    .bind(payload.get("isActive").and_then(Value::as_bool))
+    .fetch_one(pool)
+    .await?;
+
+    Ok((StatusCode::CREATED, Json(to_api(&row))).into_response())
+}
+
+/// `PUT /api/rules/{id}` — edit in place, bumping `version`.
+///
+/// The version bump is what the rule cache keys on, so an edit takes effect on
+/// the next evaluation without a restart.
+/// `PUT`/`PATCH /api/rules/{id}` — change a rule.
+#[utoipa::path(
+    put, path = "/api/rules/{id}", tag = "rules",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "Rule UUID")),
+    request_body(content = serde_json::Value, description = "The rule fields to change"),
+    responses(
+        (status = 200, description = "The updated rule"),
+        (status = 400, description = "Invalid JDM"),
+        (status = 404, description = "No such rule"),
+    ),
+)]
+pub async fn update(
+    _auth: auth::JWT,
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    if let Some(jdm) = payload.get("jdmContent").and_then(Value::as_str) {
+        parse_jdm(jdm)?;
+    }
+
+    let pool = ctx.db.get_postgres_connection_pool();
+    let row = sqlx::query(
+        r"UPDATE sys_rule_definitions
+             SET entity_name = COALESCE($2, entity_name),
+                 rule_name   = COALESCE($3, rule_name),
+                 operation   = COALESCE($4, operation),
+                 jdm_content = COALESCE($5, jdm_content),
+                 is_active   = COALESCE($6, is_active),
+                 version     = version + 1,
+                 updated_at  = NOW()
+           WHERE id = $1
+           RETURNING *",
+    )
+    .bind(id)
+    .bind(payload.get("entityName").and_then(Value::as_str))
+    .bind(payload.get("ruleName").and_then(Value::as_str))
+    .bind(payload.get("operation").and_then(Value::as_str))
+    .bind(payload.get("jdmContent").and_then(Value::as_str))
+    .bind(payload.get("isActive").and_then(Value::as_bool))
+    .fetch_optional(pool)
+    .await?
+    .ok_or_else(|| AppError::NotFound(format!("Rule {id} not found")))?;
+
+    Ok(Json(to_api(&row)).into_response())
+}
+
+/// `DELETE /api/rules/{id}` — deactivate, do not destroy.
+///
+/// Rules are referenced by audit entries explaining why a record was held, so
+/// deleting the row would orphan that explanation. The admin UI's own copy
+/// calls this "deactivate", which is what it does.
+/// `DELETE /api/rules/{id}` — drop a rule.
+#[utoipa::path(
+    delete, path = "/api/rules/{id}", tag = "rules",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "Rule UUID")),
+    responses(
+        (status = 204, description = "Deleted"),
+        (status = 404, description = "No such rule"),
+    ),
+)]
+pub async fn remove(
+    _auth: auth::JWT,
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let result = sqlx::query(
+        "UPDATE sys_rule_definitions SET is_active = false, updated_at = NOW() WHERE id = $1",
+    )
+    .bind(id)
+    .execute(pool)
+    .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(AppError::NotFound(format!("Rule {id} not found")));
+    }
+    Ok(StatusCode::NO_CONTENT.into_response())
+}
+
+/// `POST /api/rules/evaluate` — a dry run against sample data.
+///
+/// Body: `{ entityName, operation, data, jdmContent? }`. With `jdmContent` the
+/// unsaved draft in the editor is evaluated; without it, every active rule
+/// stored for that entity and verb runs, which is what the record would
+/// actually get. Nothing is written either way.
+#[utoipa::path(
+    post, path = "/api/rules/evaluate", tag = "rules",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ entityName, operation, data, jdmContent? }`. With jdmContent the draft graph is evaluated; without it, the entity's stored rules are."),
+    responses((status = 200, description = "`{ matched, results: [{ ruleId, matched, actions }] }`")),
+)]
+pub async fn evaluate(
+    _auth: auth::JWT,
+    State(ctx): State<AppContext>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    let entity_name = required_str(&payload, "entityName")?;
+    let operation = match payload
+        .get("operation")
+        .and_then(Value::as_str)
+        .unwrap_or("CREATE")
+        .to_ascii_uppercase()
+        .as_str()
+    {
+        "UPDATE" => RuleOperation::Update,
+        "DELETE" => RuleOperation::Delete,
+        _ => RuleOperation::Create,
+    };
+    let data: Map<String, Value> = payload
+        .get("data")
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+
+    let engine = ctx
+        .shared_store
+        .get::<RulesEngine>()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("rules engine not initialised")))?;
+
+    let mut results = Vec::new();
+
+    if let Some(draft) = payload.get("jdmContent").and_then(Value::as_str) {
+        results.extend(
+            engine
+                .evaluate_jdm_str(&entity_name, draft, &data, operation, Some("draft"))
+                .await,
+        );
+    } else {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let stored = sqlx::query(
+            r"SELECT rule_name, jdm_content FROM sys_rule_definitions
+               WHERE entity_name = $1
+                 AND is_active = true
+                 AND (operation = $2 OR operation = 'ALL')
+               ORDER BY rule_name",
+        )
+        .bind(&entity_name)
+        .bind(operation.as_str().to_ascii_uppercase())
+        .fetch_all(pool)
+        .await?;
+
+        for row in &stored {
+            let rule_name: String = row.try_get("rule_name").unwrap_or_default();
+            let jdm: String = row.try_get("jdm_content").unwrap_or_default();
+            results.extend(
+                engine
+                    .evaluate_jdm_str(&entity_name, &jdm, &data, operation, Some(&rule_name))
+                    .await,
+            );
+        }
+    }
+
+    let matched = results.iter().any(|r| r.matched);
+    Ok(Json(json!({
+        "entityName": entity_name,
+        "operation": operation.as_str(),
+        "matched": matched,
+        "results": results,
+    }))
+    .into_response())
+}
+
+/// `POST /api/rules/validate` — is this JDM well-formed?
+///
+/// Separate from `evaluate` because the editor asks it on every keystroke,
+/// against a document that is usually still being typed. Parsing is the whole
+/// answer, so an invalid graph is a 200 with `valid: false` and the reason,
+/// not a 400 — the client is asking a question, not making a mistake.
+#[utoipa::path(
+    post, path = "/api/rules/validate", tag = "rules",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ jdmContent }` — the decision graph to check"),
+    responses((status = 200, description = "`{ valid, errors }`; a malformed graph is a 200 with `valid: false`, not a 400")),
+)]
+pub async fn validate(_auth: auth::JWT, Json(payload): Json<Value>) -> AppResult<Response> {
+    let content = required_str(&payload, "jdmContent")?;
+    Ok(match parse_jdm(&content) {
+        Ok(()) => Json(json!({ "valid": true, "isValid": true, "errors": [] })),
+        Err(AppError::Validation { errors, .. }) => {
+            Json(json!({ "valid": false, "isValid": false, "errors": errors }))
+        }
+        Err(other) => return Err(other),
+    }
+    .into_response())
+}
+
+/// `POST /api/rules/dry-run` — evaluate one stored rule against sample data.
+///
+/// Body: `{ ruleId, testData }`. `evaluate` runs everything that applies to an
+/// entity; this runs exactly the rule you are looking at, which is what the
+/// editor's test panel needs.
+#[utoipa::path(
+    post, path = "/api/rules/dry-run", tag = "rules",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ ruleId, testData }`"),
+    responses(
+        (status = 200, description = "What that one rule decided about the sample data"),
+        (status = 404, description = "No such rule"),
+    ),
+)]
+pub async fn dry_run(
+    _auth: auth::JWT,
+    State(ctx): State<AppContext>,
+    Json(payload): Json<Value>,
+) -> AppResult<Response> {
+    let rule_id = payload
+        .get("ruleId")
+        .and_then(Value::as_str)
+        .and_then(|v| Uuid::parse_str(v).ok())
+        .ok_or_else(|| AppError::BadRequest("ruleId must be a UUID".to_string()))?;
+
+    let pool = ctx.db.get_postgres_connection_pool();
+    let row = sqlx::query(
+        "SELECT entity_name, rule_name, operation, jdm_content FROM sys_rule_definitions WHERE id = $1",
+    )
+    .bind(rule_id)
+    .fetch_optional(pool)
+    .await?
+    .ok_or_else(|| AppError::NotFound(format!("Rule {rule_id} not found")))?;
+
+    let entity_name: String = row.try_get("entity_name").unwrap_or_default();
+    let rule_name: String = row.try_get("rule_name").unwrap_or_default();
+    let jdm: String = row.try_get("jdm_content").unwrap_or_default();
+    let operation = match row
+        .try_get::<Option<String>, _>("operation")
+        .ok()
+        .flatten()
+        .unwrap_or_default()
+        .to_ascii_uppercase()
+        .as_str()
+    {
+        "UPDATE" => RuleOperation::Update,
+        "DELETE" => RuleOperation::Delete,
+        _ => RuleOperation::Create,
+    };
+
+    let data: Map<String, Value> = payload
+        .get("testData")
+        .or_else(|| payload.get("data"))
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
+
+    let engine = ctx
+        .shared_store
+        .get::<RulesEngine>()
+        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("rules engine not initialised")))?;
+
+    let results = engine
+        .evaluate_jdm_str(&entity_name, &jdm, &data, operation, Some(&rule_name))
+        .await;
+
+    Ok(Json(json!({
+        "ruleId": rule_id.to_string(),
+        "ruleName": rule_name,
+        "entityName": entity_name,
+        "matched": results.iter().any(|r| r.matched),
+        "results": results,
+    }))
+    .into_response())
+}
+
+pub fn routes() -> Routes {
+    Routes::new()
+        .prefix("rules")
+        // Static before the id capture, so `/rules/evaluate` is not read as a
+        // rule whose id is the word "evaluate".
+        .add("/evaluate", post(evaluate))
+        .add("/validate", post(validate))
+        .add("/dry-run", post(dry_run))
+        .add("/entities", get(entities))
+        .add("/migrate", post(migrate))
+        .add("/", get(list))
+        .add("/", post(create))
+        .add("/{id}", get(get_one))
+        .add("/{id}/history", get(history))
+        .add("/{id}", put(update))
+        .add("/{id}", patch(update))
+        .add("/{id}", delete(remove))
+}
+
+/// `GET /api/rules/entities` — the tables that carry at least one rule.
+///
+/// The rules screen needs a list to filter by, and deriving it from the
+/// dictionary would offer every table in the application — including the ones
+/// nobody has written a rule for, which is most of them on a fresh install.
+#[utoipa::path(
+    get, path = "/api/rules/entities", tag = "rules",
+    security(("bearer" = [])),
+    responses(
+        (status = 200, description = "`[{ entityName, ruleCount, activeCount }]`, ordered by table"),
+        (status = 401, description = "No or invalid token"),
+    ),
+)]
+pub async fn entities(_auth: auth::JWT, State(ctx): State<AppContext>) -> AppResult<Response> {
+    let rows: Vec<(String, i64, i64)> = sqlx::query_as(
+        r"SELECT entity_name,
+                 COUNT(*),
+                 COUNT(*) FILTER (WHERE is_active)
+            FROM sys_rule_definitions
+           GROUP BY entity_name
+           ORDER BY entity_name",
+    )
+    .fetch_all(ctx.db.get_postgres_connection_pool())
+    .await?;
+
+    let entities: Vec<Value> = rows
+        .into_iter()
+        .map(|(entity_name, total, active)| {
+            json!({ "entityName": entity_name, "ruleCount": total, "activeCount": active })
+        })
+        .collect();
+    Ok(Json(entities).into_response())
+}
+
+/// `GET /api/rules/{id}/history` — the versions of one rule.
+///
+/// **Only the current version exists.** `sys_rule_definitions` stores one row
+/// per rule and counts overwrites in `version`; the superseded documents are
+/// not kept. So this returns a one-element array, and says so rather than
+/// implying a history it does not have — keeping the old JDM would need a
+/// history table, which is a schema decision nobody has asked for yet.
+///
+/// The route exists because the rules screen calls it, and a 404 there reads
+/// as a broken rule rather than an absent feature.
+#[utoipa::path(
+    get, path = "/api/rules/{id}/history", tag = "rules",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "Rule UUID")),
+    responses(
+        (status = 200, description = "`[rule]` — the current version, the only one stored"),
+        (status = 404, description = "No such rule"),
+    ),
+)]
+pub async fn history(
+    _auth: auth::JWT,
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let row = sqlx::query("SELECT * FROM sys_rule_definitions WHERE id = $1")
+        .bind(id)
+        .fetch_optional(ctx.db.get_postgres_connection_pool())
+        .await?
+        .ok_or_else(|| AppError::NotFound(format!("Rule {id} not found")))?;
+
+    Ok(Json(vec![to_api(&row)]).into_response())
+}
+
+/// `POST /api/rules/migrate` — re-apply the model's rules over what is stored.
+///
+/// `seed_rules` installs what is missing and leaves an administrator's edits
+/// alone, which is what makes `cargo loco db seed` safe to re-run. That leaves
+/// a gap: a model whose rule *changed* has no way to reach a database that
+/// already holds the old version, short of dropping it.
+///
+/// This is that way. It applies the same `seed/rules.sql` inside a transaction
+/// with `appwithai.rules_overwrite` set, which turns every statement's
+/// conditional `DO UPDATE` on. One file, two policies; the JDM is not carried
+/// twice.
+///
+/// Destructive by design and by request — an edit made in the admin editor is
+/// replaced by what the model says. The response reports how many rows changed
+/// so the caller can see what it cost.
+#[utoipa::path(
+    post, path = "/api/rules/migrate", tag = "rules",
+    security(("bearer" = [])),
+    responses(
+        (status = 200, description = "`{ migrated, total, message }` — rows now matching the model"),
+        (status = 401, description = "No or invalid token"),
+    ),
+)]
+pub async fn migrate(_auth: auth::JWT, State(ctx): State<AppContext>) -> AppResult<Response> {
+    use sea_orm::ConnectionTrait;
+
+    let pool = ctx.db.get_postgres_connection_pool();
+    let before: i64 = sqlx::query_scalar("SELECT COALESCE(SUM(version), 0) FROM sys_rule_definitions")
+        .fetch_one(pool)
+        .await
+        .unwrap_or(0);
+
+    // `SET LOCAL` rather than `SET`: the connection goes back to a pool
+    // afterwards, and a session-level setting would leave the next request's
+    // seed silently overwriting too.
+    ctx.db
+        .execute_unprepared(&format!(
+            "BEGIN;\nSET LOCAL appwithai.rules_overwrite = 'on';\n{}\nCOMMIT;",
+            crate::tasks::seed_rules::RULES_SQL
+        ))
+        .await?;
+
+    let (after, total): (i64, i64) = sqlx::query_as(
+        "SELECT COALESCE(SUM(version), 0), COUNT(*) FROM sys_rule_definitions",
+    )
+    .fetch_one(pool)
+    .await?;
+
+    // Every overwrite bumps `version` by one, so the difference is the number
+    // of rules the model actually replaced — an install that changed nothing
+    // reports zero rather than claiming to have migrated every row.
+    let migrated = (after - before).max(0);
+    Ok(Json(json!({
+        "migrated": migrated,
+        "total": total,
+        "message": format!("Replaced {migrated} rule(s) with the model's version"),
+    }))
+    .into_response())
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/// One row, in the camelCase shape the rules screens read.
+fn to_api(row: &sqlx::postgres::PgRow) -> Value {
+    json!({
+        "id": row.try_get::<Uuid, _>("id").ok().map(|id| id.to_string()),
+        "entityName": row.try_get::<Option<String>, _>("entity_name").ok().flatten(),
+        "ruleName": row.try_get::<Option<String>, _>("rule_name").ok().flatten(),
+        "operation": row.try_get::<Option<String>, _>("operation").ok().flatten(),
+        "jdmContent": row.try_get::<Option<String>, _>("jdm_content").ok().flatten(),
+        "version": row.try_get::<Option<i32>, _>("version").ok().flatten().unwrap_or(1),
+        "isActive": row.try_get::<Option<bool>, _>("is_active").ok().flatten().unwrap_or(true),
+        "createdAt": row
+            .try_get::<Option<chrono::DateTime<chrono::Utc>>, _>("created_at")
+            .ok()
+            .flatten()
+            .map(|t| t.to_rfc3339()),
+        "updatedAt": row
+            .try_get::<Option<chrono::DateTime<chrono::Utc>>, _>("updated_at")
+            .ok()
+            .flatten()
+            .map(|t| t.to_rfc3339()),
+    })
+}
+
+/// Parse-check a JDM document without evaluating it.
+fn parse_jdm(content: &str) -> AppResult<()> {
+    serde_json::from_str::<zen_engine::model::DecisionContent>(content).map_err(|err| {
+        AppError::Validation {
+            message: "Validation failed".to_string(),
+            errors: vec![format!("jdmContent is not a valid JDM document: {err}")],
+        }
+    })?;
+    Ok(())
+}
+
+fn required_str(payload: &Value, key: &str) -> AppResult<String> {
+    payload
+        .get(key)
+        .and_then(Value::as_str)
+        .filter(|v| !v.is_empty())
+        .map(ToString::to_string)
+        .ok_or_else(|| AppError::Validation {
+            message: "Validation failed".to_string(),
+            errors: vec![format!("{key} is required")],
+        })
+}

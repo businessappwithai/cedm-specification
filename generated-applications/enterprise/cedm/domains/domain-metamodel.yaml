@@ -1,0 +1,108 @@
+# CEDM Domain Metamodel
+# Defines how industry/business domains are represented without coupling them to implementations.
+
+metamodel:
+  domain:
+    required:
+      - id
+      - name
+      - capabilities
+    optional:
+      - description
+      - parentDomain
+      - industry
+      - lifecycle
+      - entities
+      - processes
+      - rules
+      - integrations
+      - reports
+      - ui
+      - ai
+  capability:
+    required:
+      - id
+      - name
+    optional:
+      - description
+      - maturity
+      - entities
+      - processes
+  entity:
+    required:
+      - name
+      - identity
+    optional:
+      - kind
+      - extends
+      - attributes
+      - relationships
+      - lifecycle
+      - invariants
+      - audit
+      - events
+      - policies
+  process:
+    required:
+      - name
+      - objective
+      - steps
+    optional:
+      - triggers
+      - actors
+      - inputs
+      - outputs
+      - rules
+      - exceptions
+      - metrics
+  rule:
+    required:
+      - id
+      - expression
+    optional:
+      - severity
+      - message
+      - effectiveFrom
+      - effectiveTo
+  integration:
+    required:
+      - name
+      - direction
+      - protocol
+    optional:
+      - events
+      - commands
+      - mappings
+      - security
+  report:
+    required:
+      - name
+      - purpose
+      - dataSources
+    optional:
+      - dimensions
+      - measures
+      - filters
+      - drilldowns
+      - refresh
+  ui:
+    optional:
+      - forms
+      - lists
+      - objectPages
+      - dashboards
+      - actions
+  ai:
+    optional:
+      - useCases
+      - models
+      - prompts
+      - policies
+      - evaluations
+      - humanOversight
+
+coverage:
+  domainsMayExtendOtherDomains: true
+  sharedEntitiesAreReferencedNotDuplicated: true
+  domainSpecificEntitiesMustDeclareOwningDomain: true
+  industryDomainsMayComposeCrossDomainCapabilities: true

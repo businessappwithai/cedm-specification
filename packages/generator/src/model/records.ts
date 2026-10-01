@@ -29,6 +29,10 @@ export interface AttributeDeclaration {
   type: string;
   name: string;
   modifiers: string[];
+  /** The entity a foreign key points at, where its name does not say. */
+  references?: string;
+  /** Columns of the entity that narrow this lookup's choices. */
+  narrowedBy?: string[];
 }
 
 export interface EntityDeclaration {
@@ -59,6 +63,10 @@ export interface IndexDeclaration {
 export interface EnumDeclaration {
   name: string;
   values: string[];
+  /** The enumeration has a business table (an entity of the same name). */
+  table?: boolean;
+  labels?: Record<string, string>;
+  descriptions?: Record<string, string>;
 }
 
 export interface FieldEnumBinding {
@@ -115,6 +123,8 @@ export interface ErdRecords {
   fieldHelp: FieldHelp[];
   entityHelp: Array<{ entity: string; help: string }>;
   entityIcons: Array<{ entity: string; icon: string }>;
+  /** Rows an entity ships with: `data` of the entity document. */
+  entityData: Array<{ entity: string; key: string; rows: Array<Record<string, string | number | boolean | null>> }>;
   entityParents: Array<{ entity: string; parent: string }>;
   entityOptions: EntityOption[];
   fieldOptions: FieldOption[];
