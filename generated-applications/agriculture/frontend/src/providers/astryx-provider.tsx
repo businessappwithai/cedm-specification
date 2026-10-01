@@ -13,7 +13,7 @@
  * it, anything Astryx renders as an anchor triggers a full page load instead of
  * a client-side navigation.
  *
- * Generated: 2026-10-01T15:14:07.703Z
+ * Generated: 2026-10-01T23:12:52.334Z
  * Project: agriculture
  */
 
