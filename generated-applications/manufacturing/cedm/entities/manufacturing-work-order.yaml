@@ -1,0 +1,41 @@
+entity:
+  name: ManufacturingWorkOrder
+  namespace: cedm.domain
+  kind: manufacturing_transaction
+  description: A governed production order authorizing manufacture, assembly, processing, or transformation of a Product using controlled material and process definitions.
+  identity: {key: manufacturingWorkOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: manufacturingWorkOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the production order., businessMeaning: Identifies one authorized manufacturing execution independently of its business number., usage: "Planning, execution, inventory, costing, quality, genealogy, and audit.", relationshipContext: "Root identity for material issues, output receipts and scrap.", requiredMeaning: Required.}}
+  - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing production-order reference., businessMeaning: Operational identifier used across planning and shop-floor execution., usage: "Scheduling, material staging, production, quality, costing, and audit.", relationshipContext: Distinct from inventory transaction references., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Authorized target output quantity., businessMeaning: Defines planned production magnitude., usage: "Material planning, capacity, completion and variance.", relationshipContext: Interpreted with output Product and UOM policy., requiredMeaning: Required.}}
+  - {name: plannedStart, type: datetime, required: false, help: {summary: Planned production start., businessMeaning: Scheduling expectation rather than execution evidence., usage: Capacity and material planning., relationshipContext: Actual events are recorded separately., optionalMeaning: Optional until scheduled.}}
+  - {name: plannedEnd, type: datetime, required: false, help: {summary: Planned production completion., businessMeaning: Scheduling target for output availability., usage: "Capacity, promise and planning.", relationshipContext: Must not precede plannedStart., optionalMeaning: Optional until scheduled.}}
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CLOSED, CANCELLED]
+    help: {summary: Manufacturing order lifecycle state., businessMeaning: Controls authorization and execution eligibility., usage: "Planning, shop-floor control, inventory and costing.", relationshipContext: Posted execution evidence is not reversed by changing header status., valueSemantics: {PLANNED: Being planned and not executable., RELEASED: Authorized for governed execution., IN_PROGRESS: Execution has begun., COMPLETED: Production execution is materially complete pending closure where applicable., CLOSED: Reconciled and administratively closed., CANCELLED: Terminated before remaining execution.}, requiredMeaning: Required.}
+  relationships:
+  - {name: product, target: Product, cardinality: "1", ownership: reference, help: {summary: Product authorized as manufacturing output., businessMeaning: Defines what the work order produces., usage: "Planning, output receipt and genealogy.", cardinalityMeaning: Exactly one output Product., workflowRole: ProductionReceipt Product must reconcile.}}
+  - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Primary production location., businessMeaning: Places execution within the operating network., usage: "Scheduling, staging and reporting.", cardinalityMeaning: Optional for distributed/virtual production., workflowRole: Constrains material and resource execution where applicable.}}
+  - {name: project, target: Project, cardinality: 0..1, ownership: reference, help: {summary: Project funded or served by the production order., businessMeaning: Provides project cost/demand attribution., usage: Project manufacturing and costing., cardinalityMeaning: Optional outside project production., workflowRole: Execution costs may flow to project accounting.}}
+  - {name: billOfMaterial, target: BillOfMaterial, cardinality: "0..1", ownership: reference, help: {summary: Effective material structure governing planned component demand., businessMeaning: Defines expected inputs., usage: "Material planning, issue validation, variance and genealogy.", cardinalityMeaning: Optional for processes without formal BOM., workflowRole: RELEASED work preserves the effective BOM version.}}
+  - {name: routing, target: Routing, cardinality: "0..1", ownership: reference, help: {summary: Effective process definition governing production execution., businessMeaning: Defines ordered operations and resource expectations., usage: "Scheduling, execution, costing and audit.", cardinalityMeaning: Optional for simple production without formal routing., workflowRole: RELEASED work preserves the effective routing version.}}
+  - {name: materialIssues, target: MaterialIssue, cardinality: "0..*", ownership: reference, help: {summary: Component-consumption transactions attributable to this order., businessMeaning: Records actual inputs separately from planned BOM demand., usage: "Inventory, costing, genealogy and variance.", cardinalityMeaning: Zero or many issues., workflowRole: Posted issues reduce inventory through InventoryMovement.}}
+  - {name: productionReceipts, target: ProductionReceipt, cardinality: "0..*", ownership: reference, help: {summary: Accepted output receipts attributable to this order., businessMeaning: Records actual produced quantity entering controlled inventory., usage: "Completion, inventory, costing, genealogy and quality.", cardinalityMeaning: Partial production may create many receipts., workflowRole: Posted receipts increase inventory through InventoryMovement.}}
+  - {name: scrapTransactions, target: Scrap, cardinality: "0..*", ownership: reference, help: {summary: Governed rejected or lost production quantities., businessMeaning: Separates scrap from accepted output and unexplained variance., usage: "Yield, costing, inventory, quality and continuous improvement.", cardinalityMeaning: Zero or many scrap events., workflowRole: Inventory-affecting scrap must reconcile to attributable InventoryMovement.}}
+  invariants:
+  - {id: MWO-001, rule: plannedEnd must not precede plannedStart.}
+  - {id: MWO-002, rule: quantity must be greater than zero.}
+  - {id: MWO-003, rule: RELEASED work must preserve the effective BillOfMaterial and Routing versions used for execution and audit.}
+  - {id: MWO-004, rule: "MaterialIssue, ProductionReceipt and inventory-affecting Scrap postings must reconcile to this work order and be idempotent."}
+  - {id: MWO-005, rule: "COMPLETED or CLOSED requires governed reconciliation of planned quantity, accepted output, scrap, material consumption, required operations and quality gates."}
+  help:
+    summary: Canonical CEDM production-order transaction.
+    businessMeaning: ManufacturingWorkOrder authorizes production; BOM defines material expectations; Routing defines process expectations; execution transactions preserve actual material, output and scrap evidence.
+    usage: MRP, scheduling, shop-floor execution, inventory, costing, quality, genealogy and project manufacturing.
+    relationshipContext: Product is output; BOM and Routing are controlled definitions; MaterialIssue consumes inputs; ProductionReceipt accepts outputs; Scrap explains governed losses.
+    lifecycle: Planned → released → in progress → completed → closed, with controlled cancellation.
+    changePropagation: Release freezes effective definitions; execution updates inventory and genealogy; corrections use compensating evidence rather than rewriting posted history.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-MANUFACTURING-WORK-ORDER}

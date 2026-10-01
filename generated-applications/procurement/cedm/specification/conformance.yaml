@@ -1,0 +1,41 @@
+specification:
+  name: CEDM Conformance Profile
+  version: 0.1.0
+  status: draft
+
+conformance:
+  levels:
+    level1:
+      name: Structural
+      requirements:
+        - validYaml
+        - registryComplete
+        - requiredEntityFieldsPresent
+        - uniqueEntityNames
+        - uniqueIdentifiers
+    level2:
+      name: Relational
+      requirements:
+        - allRelationshipTargetsResolve
+        - cardinalitiesValid
+        - inverseRelationshipsResolve
+        - inheritanceTargetsResolve
+    level3:
+      name: Semantic
+      requirements:
+        - lifecycleStatesResolve
+        - invariantsHaveIdentifiers
+        - businessRulesAreDeclarative
+        - aggregateBoundariesResolve
+    level4:
+      name: Executable
+      requirements:
+        - validationCanBeGenerated
+        - apiContractCanBeGenerated
+        - persistenceModelCanBeGenerated
+        - uiMetadataCanBeGenerated
+        - workflowModelCanBeGenerated
+
+  certification:
+    specificationStatusValues: [draft, candidate, stable, deprecated]
+    generatedArtifactsMustDeclareSourceVersion: true

@@ -1,0 +1,88 @@
+entity:
+  name: Location
+  namespace: cedm.domain
+  kind: core_master_entity
+  description: A physical or logical place at which business resources, activities, inventory, services, or organizational operations are situated.
+  identity: {key: locationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: locationId
+    type: uuid
+    required: true
+    immutable: true
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    unique: true
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+  - name: locationType
+    type: enum
+    required: true
+    values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
+  - name: addressId
+    type: reference
+    target: Address
+    required: false
+  - name: parentLocationId
+    type: reference
+    target: Location
+    required: false
+  - name: createdAt
+    type: datetime
+    required: true
+    systemManaged: true
+  - name: updatedAt
+    type: datetime
+    required: true
+    systemManaged: true
+  relationships:
+  - name: parentLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    inverse: childLocations
+  - name: childLocations
+    target: Location
+    cardinality: 0..*
+    ownership: reference
+    inverse: parentLocation
+  - name: address
+    target: Address
+    cardinality: 0..1
+    ownership: reference
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+  invariants:
+  - id: LOCATION-001
+    rule: A Location cannot be its own parent.
+  - id: LOCATION-002
+    rule: The Location hierarchy must not contain cycles.
+  - id: LOCATION-003
+    rule: A Location in CLOSED or RETIRED status must not be selected for new operational transactions that require an active physical location unless an explicit exception workflow permits it.
+  - id: LOCATION-004
+    rule: Changing or retiring a Location must trigger validation of dependent operational entities and workflows that reference it before future use is disabled.
+  - id: LOCATION-005
+    rule: Historical transactions must retain the Location context effective when the transaction occurred and must not be rewritten merely because the Location master changes.
+  - id: LOCATION-006
+    rule: Changing parentLocation must preserve hierarchy integrity and must not create a cycle.
+  - id: LOCATION-007
+    rule: If an operational Location references an Address, the referenced Address must be active and usable when the Location becomes effective unless an explicitly supported historical/legacy exception applies.
+  help:
+    summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
+    businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."
+    usage: Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes.
+    relationshipContext: Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes.
+    workflowContext: Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context.
+    lifecycle: Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices.
+    example: A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-LOCATION}

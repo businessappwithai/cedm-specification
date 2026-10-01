@@ -1,0 +1,128 @@
+# CEDM Cross-Domain Capability Catalog
+catalog:
+  version: 0.5.0
+  capabilities:
+    - id: party-management
+      name: Party Management
+      entities: [Party, Person, Organization, PartyRole, Customer, Supplier]
+      processes: [party-onboarding, party-maintenance, party-offboarding]
+    - id: product-management
+      name: Product and Service Management
+      entities: [Product, ProductCategory, UnitOfMeasure]
+      processes: [product-introduction, product-change, product-retirement]
+    - id: location-management
+      name: Location Management
+      entities: [Address, Location, Warehouse, InventoryLocation, Yard]
+      processes: [location-setup, location-change, location-closure]
+    - id: pricing
+      name: Pricing and Commercial Terms
+      entities: [Product, Customer, Supplier, PaymentTerm, Currency]
+      processes: [price-definition, price-approval, price-change]
+    - id: order-management
+      name: Order Management
+      entities: [SalesOrder, SalesOrderLine, PurchaseOrder, PurchaseOrderLine]
+      processes: [order-capture, order-approval, order-fulfillment, order-cancellation]
+    - id: fulfillment
+      name: Fulfillment
+      entities: [SalesOrder, Shipment, ShipmentLine, InventoryMovement, Location]
+      processes: [pick-pack-ship, delivery, receipt]
+    - id: inventory-management
+      name: Inventory Management
+      entities: [InventoryBalance, InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product, InventoryLocation]
+      processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
+    - id: warehouse-management
+      name: Warehouse Management
+      entities: [Warehouse, WarehouseZone, InventoryLocation, Dock, HandlingUnit, Putaway, Picking, Packing, Wave, InventoryBalance, InventoryMovement, InventoryTransfer, InventoryCount]
+      processes: [inbound, putaway, picking, packing, outbound, replenishment]
+    - id: transportation-management
+      name: Transportation Management
+      entities: [Shipment, Vehicle, Location]
+      processes: [route-planning, dispatch, tracking, delivery, freight-settlement]
+    - id: manufacturing-management
+      name: Manufacturing Management
+      entities: [Product, BillOfMaterial, BOMComponent, Routing, Operation, WorkCenter, ManufacturingWorkOrder, MaterialIssue, ProductionReceipt, Lot, SerialNumber, InventoryMovement, QualityInspection]
+      processes: [production-planning, order-release, material-issue, operation-execution, in-process-quality, production-receipt, genealogy, variance, completion]
+    - id: asset-management
+      name: Asset Management
+      entities: [Asset, Location, Organization]
+      processes: [asset-acquisition, capitalization, transfer, disposal]
+    - id: maintenance-management
+      name: Maintenance Management
+      entities: [Asset, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate, RepairEstimateLine]
+      processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
+    - id: quality-management
+      name: Quality Management
+      entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
+      processes: [quality-definition, characteristic-configuration, test-method-governance, sampling-plan, sampling-rule, sample-selection, inspection, measurement, acceptance, nonconformance, corrective-action, verification, certificate-of-analysis, release, disposition]
+    - id: financial-accounting
+      name: Financial Accounting
+      entities: [Account, JournalEntry, JournalEntryLine, Invoice, Payment, Currency]
+      processes: [journal-posting, period-close, reconciliation, reporting]
+    - id: accounts-payable
+      name: Accounts Payable
+      entities: [Supplier, PurchaseOrder, Invoice, Payment]
+      processes: [invoice-capture, three-way-match, approval, payment]
+    - id: accounts-receivable
+      name: Accounts Receivable
+      entities: [Customer, SalesOrder, Invoice, Payment]
+      processes: [billing, collection, receipt, reconciliation]
+    - id: procurement
+      name: Procurement
+      entities: [Supplier, PurchaseRequisition, PurchaseRequisitionLine, RequestForQuotation, RequestForQuotationLine, SupplierQuotation, SupplierQuotationLine, PurchaseOrder, PurchaseOrderLine]
+      processes: [requisition, rfq, supplier-quotation, sourcing-award, purchase-order, receiving]
+    - id: sales
+      name: Sales
+      entities: [Customer, Lead, Opportunity, Quotation, SalesOrder]
+      processes: [lead-management, opportunity-management, quotation, order-capture]
+    - id: customer-service
+      name: Customer Service
+      entities: [Customer, ServiceCase, ServiceRequest, Task]
+      processes: [case-intake, triage, resolution, escalation, closure]
+    - id: project-management
+      name: Project Management
+      entities: [Project, ProjectPhase, ProjectTask, Milestone, ResourceAssignment, Timesheet]
+      processes: [project-initiation, planning, execution, monitoring, closure]
+    - id: human-capital
+      name: Human Capital Management
+      entities: [Employee, Position, Employment, Attendance, LeaveRequest, Payroll]
+      processes: [recruitment, onboarding, attendance, leave, payroll, offboarding]
+    - id: document-management
+      name: Document Management
+      entities: [Document, DocumentVersion, DocumentType, Signature]
+      processes: [document-creation, review, approval, signing, retention, archival]
+    - id: workflow-orchestration
+      name: Workflow Orchestration
+      entities: [BusinessProcess, Workflow, Task]
+      processes: [workflow-start, task-assignment, approval, escalation, completion]
+    - id: contract-management
+      name: Contract Management
+      entities: [Contract, ContractParty, ContractClause, ContractObligation]
+      processes: [contract-creation, negotiation, approval, execution, renewal, termination]
+    - id: compliance-management
+      name: Compliance Management
+      entities: [Policy, Control, Risk, ComplianceAssessment, Audit]
+      processes: [risk-assessment, control-testing, remediation, audit]
+    - id: reporting
+      name: Reporting and Analytics
+      entities: [Report, Dashboard, Metric, Dataset]
+      processes: [report-definition, refresh, distribution, analysis]
+    - id: integration
+      name: Integration and Event Management
+      entities: [Integration, Endpoint, Message, Event]
+      processes: [publish, consume, retry, reconcile]
+    - id: identity-access
+      name: Identity and Access Management
+      entities: [User, Identity, Role, Permission, AccessPolicy]
+      processes: [provisioning, authentication, authorization, deprovisioning]
+    - id: ai-decisioning
+      name: AI and Decisioning
+      entities: [AIModel, AIExperiment, AIPrediction, AIEvaluation, AIPolicy]
+      processes: [training, evaluation, deployment, inference, monitoring, human-review]
+    - id: sustainability
+      name: Sustainability and ESG
+      entities: [Emission, EnergyUsage, WasteRecord, ESGMetric, SustainabilityTarget]
+      processes: [measurement, target-setting, reduction, disclosure, assurance]
+    - id: budgeting-planning
+      name: Budgeting and Planning
+      entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
+      processes: [budgeting, forecasting, scenario-planning, variance-analysis]

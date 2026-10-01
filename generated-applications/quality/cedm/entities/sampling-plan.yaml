@@ -1,0 +1,122 @@
+entity:
+  name: SamplingPlan
+  namespace: cedm.domain
+  kind: quality_sampling_definition
+  description: A governed definition of how inspection samples are selected from an inspection scope, including sampling method, lot basis, sample size, and acceptance criteria.
+  identity:
+    key: samplingPlanId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: samplingPlanId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the sampling plan.
+      businessMeaning: Identifies one governed sampling definition independently of any inspection execution.
+      usage: Sampling configuration, inspection planning, audit, reporting, and integration.
+      relationshipContext: SamplingPlan may be assigned to a QualityPlan and contains SamplingRule records that determine how samples are selected.
+      requiredMeaning: Required.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: Business code identifying the sampling plan.
+      businessMeaning: Provides a stable operational reference for a governed sampling definition.
+      usage: Plan selection, inspection authoring, reports, and integrations.
+      relationshipContext: Identifies the sampling definition rather than an individual sample or inspection.
+      requiredMeaning: Required.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: Human-readable name of the sampling plan.
+      businessMeaning: Explains the purpose of the sampling strategy.
+      usage: Quality authoring, inspection execution, training, reporting, and audit.
+      relationshipContext: Describes the overall sampling definition whose detailed rules are represented by SamplingRule.
+      requiredMeaning: Required.
+  - name: method
+    type: enum
+    required: true
+    values: [CENSUS, RANDOM, SYSTEMATIC, STRATIFIED, FIXED_SIZE, PERCENTAGE, ACCEPTANCE_SAMPLING]
+    help:
+      summary: General method used to select inspection samples.
+      businessMeaning: Defines the governed selection approach rather than leaving sampling to operator discretion.
+      usage: Sampling execution, compliance, reproducibility, and audit.
+      relationshipContext: SamplingRule refines the method with lot and quantity parameters.
+      valueSemantics:
+        CENSUS: Every applicable unit is inspected.
+        RANDOM: Units are selected randomly from the eligible population.
+        SYSTEMATIC: Units are selected using a defined interval or systematic pattern.
+        STRATIFIED: Population is divided into defined strata and samples are selected within them.
+        FIXED_SIZE: A fixed number of units is selected.
+        PERCENTAGE: A defined proportion of the population is selected.
+        ACCEPTANCE_SAMPLING: Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme.
+      requiredMeaning: Required.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+    help:
+      summary: Lifecycle state of the sampling plan.
+      businessMeaning: Controls whether the sampling definition may be assigned to new governed inspections.
+      usage: Governance, authoring, inspection planning, and retirement.
+      relationshipContext: Retirement preserves historical inspection evidence and does not invalidate completed samples.
+      valueSemantics:
+        DRAFT: Being defined and not normally available for production use.
+        ACTIVE: Approved for governed sampling.
+        SUSPENDED: Temporarily unavailable for new use.
+        RETIRED: No longer normally assigned to new inspections but retained for history.
+      requiredMeaning: Required.
+  relationships:
+  - name: qualityPlans
+    target: QualityPlan
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Quality plans that use this sampling definition.
+      businessMeaning: Identifies where the sampling strategy is applied.
+      usage: Plan selection, impact analysis, and traceability.
+      cardinalityMeaning: A sampling plan may be reused by zero or many QualityPlans.
+      context: QualityPlan remains the parent quality definition while SamplingPlan supplies reusable sampling semantics.
+  - name: rules
+    target: SamplingRule
+    cardinality: 1..*
+    ownership: reference
+    help:
+      summary: Detailed sampling rules contained in this sampling plan.
+      businessMeaning: Defines the population basis, sample quantity, and acceptance logic used to execute sampling.
+      usage: Sampling execution, validation, audit, and reproducibility.
+      cardinalityMeaning: An active sampling plan requires at least one rule.
+      context: Rules may vary by lot-size range, product context, characteristic, or other governed condition.
+  invariants:
+  - id: SAMPLING-PLAN-001
+    rule: code must be unique within the governing quality-definition namespace.
+  - id: SAMPLING-PLAN-002
+    rule: An ACTIVE SamplingPlan must contain at least one valid SamplingRule.
+  - id: SAMPLING-PLAN-003
+    rule: Retired or suspended sampling plans must not be assigned to new inspections except through explicit authorized exception or historical reinspection workflow.
+  - id: SAMPLING-PLAN-004
+    rule: Changes affecting an active sampling plan must trigger impact analysis for QualityPlan, QualityPlanCharacteristic, open QualityInspection, and sample-selection workflows.
+  - id: SAMPLING-PLAN-005
+    rule: Historical sample selections must retain the sampling-plan and rule context applicable when they were created.
+  - id: SAMPLING-PLAN-006
+    rule: Sampling-plan changes must be auditable and idempotent.
+  help:
+    summary: Reusable governed definition for selecting inspection samples.
+    businessMeaning: SamplingPlan separates the statistical or operational selection policy from the QualityInspection transaction that executes it.
+    usage: Incoming inspection, supplier quality, process control, laboratory testing, compliance, acceptance sampling, and audit.
+    relationshipContext: QualityPlan determines the broader quality controls; SamplingPlan defines how populations are sampled; SamplingRule defines conditional sample quantities and acceptance criteria; inspection execution records the actual selection.
+    lifecycle: Draft → active → suspended/retired. Historical executions retain their governing configuration.
+    changePropagation: Changes propagate to QualityPlans, open inspections, sample-selection transactions, measurement coverage, and inspection completion gating. Completed sample evidence is never silently reinterpreted.
+    example: A receiving quality plan uses an acceptance-sampling SamplingPlan with different sample sizes for small, medium, and large lot-size ranges.
+specification:
+  version: 0.1.0
+  status: draft
+  identifier: CEDM-ENTITY-SAMPLING-PLAN

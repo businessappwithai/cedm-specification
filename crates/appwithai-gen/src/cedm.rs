@@ -908,12 +908,36 @@ fn foreign_key_of(relationship: &Value) -> ForeignKey {
     }
 }
 
+/// Help for a key column a to-one relationship is held in: `keyHelp`.
+fn key_help(relationship: &Value, holder: &str) -> String {
+    compose_help(get(relationship, "help"))
+        .or_else(|| get_str(relationship, "description").map(str::to_string))
+        .unwrap_or_else(|| {
+            format!(
+                "The {} this {holder} refers to.",
+                rel_str(relationship, "target").unwrap_or("")
+            )
+        })
+}
+
+/// Columns every generated table carries already: `MANAGED_COLUMNS`.
+const MANAGED_COLUMNS: &[&str] = &[
+    "version",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "deleted_at",
+    "deleted_by",
+];
+
 fn ensure_foreign_key(
     holder: &mut EntityState,
     target: &str,
     foreign_key: ForeignKey,
     hint: &str,
     optional: bool,
+    help: String,
     errors: &mut Vec<String>,
 ) {
     match foreign_key {
@@ -955,6 +979,7 @@ fn ensure_foreign_key(
     if derived_reference_table(&column) != Some(table_of(target)) {
         set(&mut attribute, "references", text(target));
     }
+    set(&mut attribute, "help", Value::String(help));
     holder.attributes.push(Value::Mapping(attribute));
     holder.physical.insert(column.clone());
     holder.references.push((column, Some(target.to_string())));
@@ -1098,6 +1123,14 @@ fn lower(cedm: &Value) -> Result<Value> {
                 });
             state.columns.insert(attribute_name.clone(), column.clone());
             state.physical.insert(column.clone());
+            // Provided by every generated table already, unless the model
+            // keeps it with `systemManaged: false`.
+            if MANAGED_COLUMNS.contains(&column.as_str())
+                && !is_key
+                && get(attribute, "systemManaged") != Some(&Value::Bool(false))
+            {
+                continue;
+            }
             let ty = get_str(attribute, "type").unwrap_or("string");
             let target = get_str(attribute, "target");
             let dangling =
@@ -1353,12 +1386,14 @@ fn lower(cedm: &Value) -> Result<Value> {
                     label_of(&relationship, false),
                 ));
                 let hint = rel_str(&relationship, "name").unwrap_or("").to_string();
+                let help = key_help(&relationship, &entity_name);
                 ensure_foreign_key(
                     &mut states[entity],
                     &target_name,
                     foreign_key_of(&relationship),
                     &hint,
                     end == End::ZeroOrOne,
+                    help,
                     &mut errors,
                 );
                 continue;
@@ -1376,12 +1411,14 @@ fn lower(cedm: &Value) -> Result<Value> {
                 .unwrap_or("")
                 .to_string();
             let hint = rel_str(&one_relationship, "name").unwrap_or("").to_string();
+            let help = key_help(&one_relationship, &states[one_entity].name.clone());
             ensure_foreign_key(
                 &mut states[one_entity],
                 &one_target,
                 foreign_key_of(&one_relationship),
                 &hint,
                 one_end == End::ZeroOrOne,
+                help,
                 &mut errors,
             );
             continue;
@@ -1406,12 +1443,14 @@ fn lower(cedm: &Value) -> Result<Value> {
                 } else {
                     lower_first(&entity_name)
                 };
+                let help = format!("The {entity_name} this {} belongs to.", states[target].name);
                 ensure_foreign_key(
                     &mut states[target],
                     &entity_name,
                     foreign_key_of(&relationship),
                     &hint,
                     rel_str(&relationship, "ownership") != Some("aggregate"),
+                    help,
                     &mut errors,
                 );
             }
@@ -1436,12 +1475,14 @@ fn lower(cedm: &Value) -> Result<Value> {
             )),
         }
         let hint = rel_str(&relationship, "name").unwrap_or("").to_string();
+        let help = key_help(&relationship, &entity_name);
         ensure_foreign_key(
             &mut states[entity],
             &target_name,
             foreign_key_of(&relationship),
             &hint,
             end == End::ZeroOrOne,
+            help,
             &mut errors,
         );
     }
@@ -1502,7 +1543,9 @@ fn lower(cedm: &Value) -> Result<Value> {
             if let Some(title) = get(&lifecycle, "title") {
                 set(&mut machine, "title", title.clone());
             }
-            if let Some(initial) = get(&lifecycle, "initial") {
+            // No initial state: the first one listed, as `lowerLifecycle` does.
+            let first = get_seq(&lifecycle, "states").first();
+            if let Some(initial) = get(&lifecycle, "initial").or(first) {
                 set(&mut machine, "initial", initial.clone());
             }
             if let Some(terminal) = get(&lifecycle, "terminal") {

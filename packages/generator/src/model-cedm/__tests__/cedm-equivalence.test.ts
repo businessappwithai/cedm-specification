@@ -19,7 +19,14 @@ import { cedmOrder, raiseModelDocument } from "../index";
 import { readCedmModel } from "../read";
 
 const ROOT = path.resolve(__dirname, "../../../../..");
-const SKIP = new Set(["node_modules", "generated-projects", ".git", "dist", "target"]);
+const SKIP = new Set([
+  "node_modules",
+  "generated-projects",
+  "generated-applications",
+  ".git",
+  "dist",
+  "target",
+]);
 /** The imported sibling platforms under yaml/ are their own repositories' corpora. */
 const SKIP_PATHS = new Set([path.join(ROOT, "yaml")]);
 

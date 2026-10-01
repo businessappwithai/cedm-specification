@@ -1,0 +1,23 @@
+entity:
+  name: Collateral
+  namespace: cedm.domain
+  kind: credit_risk_master
+  description: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
+  identity: {key: collateralId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  relationships:
+  - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: Loan secured by collateral., businessMeaning: Connects pledged value to credit exposure., usage: Credit risk and lending., cardinalityMeaning: Optional when securing a Facility or other exposure., workflowRole: Release/substitution requires governed lifecycle evidence.}}
+  invariants:
+  - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  help:
+    summary: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
+    purpose: Provide canonical enterprise semantics for Collateral.
+    businessMeaning: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
+    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
+    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
+    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COLLATERAL}

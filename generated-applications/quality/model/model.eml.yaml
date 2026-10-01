@@ -1,0 +1,1442 @@
+# Compiled from model.cedm.yaml, which is the source of this application.
+# Regenerate rather than edit: a change here is lost on the next run.
+eml: "1.0"
+name: Quality Management
+version: 1.0.0
+description: Quality Management, built on the CEDM common foundation.
+enums:
+  - name: PartyPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PartyStatus
+    values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+  - name: PersonGender
+    values: [FEMALE, MALE, NON_BINARY, OTHER, UNSPECIFIED]
+  - name: PersonPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PersonStatus
+    values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+  - name: OrganizationOrganizationType
+    values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
+  - name: OrganizationStatus
+    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+  - name: OrganizationPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PartyRoleRoleType
+    values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
+  - name: PartyRoleStatus
+    values: [ACTIVE, INACTIVE, EXPIRED]
+  - name: AddressAddressType
+    values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
+  - name: AddressStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: LocationLocationType
+    values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
+  - name: LocationStatus
+    values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
+  - name: CurrencyStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: ExchangeRateRateType
+    values: [SPOT, CONTRACT, DAILY, MONTHLY, ACCOUNTING, CUSTOM]
+  - name: ExchangeRateStatus
+    values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
+  - name: UnitOfMeasureCategory
+    values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
+  - name: UnitOfMeasureStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: QualityCharacteristicDataType
+    values: [DECIMAL, INTEGER, STRING, BOOLEAN, ENUM]
+  - name: QualityCharacteristicStatus
+    values: [DRAFT, ACTIVE, RETIRED]
+  - name: QualityPlanStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+  - name: TestMethodStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+  - name: SamplingPlanMethod
+    values: [CENSUS, RANDOM, SYSTEMATIC, STRATIFIED, FIXED_SIZE, PERCENTAGE, ACCEPTANCE_SAMPLING]
+  - name: SamplingPlanStatus
+    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+  - name: SamplingRuleStatus
+    values: [DRAFT, ACTIVE, RETIRED]
+  - name: QualityInspectionStatus
+    values: [OPEN, IN_PROGRESS, PASSED, FAILED, CONDITIONAL, CANCELLED]
+  - name: QualityInspectionResult
+    values: [PASS, FAIL, CONDITIONAL, NOT_TESTED]
+  - name: QualityInspectionDisposition
+    values: [RELEASE, ACCEPT, REJECT, QUARANTINE, RETURN_TO_SUPPLIER, REWORK, REPAIR, SCRAP, CONDITIONAL_RELEASE]
+  - name: InspectionSampleStatus
+    values: [SELECTED, IN_TESTING, TESTED, REJECTED, DISPOSED, CANCELLED]
+  - name: QualityMeasurementResult
+    values: [PASS, FAIL, CONDITIONAL, NOT_EVALUATED]
+  - name: NonconformanceSeverity
+    values: [LOW, MEDIUM, HIGH, CRITICAL]
+  - name: NonconformanceStatus
+    values: [OPEN, UNDER_REVIEW, CONTAINED, CORRECTIVE_ACTION, CLOSED, REJECTED]
+  - name: CorrectiveActionActionType
+    values: [CONTAINMENT, CORRECTION, CORRECTIVE, PREVENTIVE]
+  - name: CorrectiveActionStatus
+    values: [OPEN, ASSIGNED, IN_PROGRESS, VERIFICATION, COMPLETED, CANCELLED]
+  - name: CorrectiveActionVerificationResult
+    values: [EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE, NOT_VERIFIABLE]
+  - name: CorrectiveActionVerificationStatus
+    values: [OPEN, IN_PROGRESS, COMPLETED, REOPENED, CANCELLED]
+  - name: ReturnDispositionDispositionCode
+    values: [RESTOCK, QUARANTINE, RETURN_TO_SUPPLIER, REWORK, REPAIR, SCRAP, REJECT, ACCEPT, CONDITIONAL_RELEASE]
+  - name: ReturnDispositionStatus
+    values: [DRAFT, AUTHORIZED, EXECUTED, CANCELLED, EXCEPTION]
+  - name: CertificateOfAnalysisStatus
+    values: [DRAFT, APPROVED, ISSUED, SUPERSEDED, VOID]
+categories:
+  - name: Foundation
+    description: Parties, places, units and reference data every domain shares
+    icon: Library
+    default: true
+    entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment]
+  - name: Quality Management
+    icon: badge-check
+    entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
+entities:
+  - name: Party
+    help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity. Required because every party must have one stable identity.
+      - name: party_type
+        type: string
+        enum: PartyPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: status
+        type: string
+        enum: PartyStatus
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        default: ACTIVE
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
+  - name: Person
+    help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record. required for specialization traceability.
+      - name: party_id
+        type: string
+        fk: true
+        unique: true
+        help: Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactions and roles use one stable person identity. Required to prevent duplicate identity.
+      - name: title
+        type: string(50)
+        optional: true
+        help: Personal title. documents and presentation. presentation attribute. supports person display. optional.
+      - name: given_name
+        type: string(150)
+        help: Given name. identity and documents. intrinsic person identity. identification. required.
+      - name: middle_name
+        type: string(150)
+        optional: true
+        help: Middle name. identity and documents. intrinsic person identity. identification. optional.
+      - name: family_name
+        type: string(150)
+        help: Family name. identity and documents. intrinsic person identity. identification. required.
+      - name: preferred_name
+        type: string(150)
+        optional: true
+        help: Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
+      - name: date_of_birth
+        type: date
+        optional: true
+        help: Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
+      - name: gender
+        type: string
+        optional: true
+        enum: PersonGender
+        help: Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional.
+      - name: nationality
+        type: string(2)
+        optional: true
+        help: Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.
+      - name: party_type
+        type: string
+        enum: PersonPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: status
+        type: string
+        enum: PersonStatus
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        default: ACTIVE
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
+  - name: Organization
+    help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the Organization specialization. Used to navigate organizational identity details from the underlying Party. Party.partyId remains the canonical party identity; organizationId identifies the specialization record. Provides stable reference for organization-specific information. Required for specialization traceability.
+      - name: party_id
+        type: string
+        fk: true
+        unique: true
+        help: Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when partyType is ORGANIZATION. Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization. Required to prevent duplicate party identity.
+      - name: code
+        type: string(50)
+        help: Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope. Provides operational reference for organization hierarchy and business context. Required where the organization participates in governed operational processes.
+      - name: name
+        type: string(200)
+        help: Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required for operational recognition.
+      - name: organization_type
+        type: string
+        enum: OrganizationOrganizationType
+        help: Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation.
+      - name: status
+        type: string
+        enum: OrganizationStatus
+        help: Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks.
+        default: ACTIVE
+      - name: legal_name
+        type: string(300)
+        optional: true
+        help: Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the organization is not a legal entity or the information is not yet known.
+      - name: registration_number
+        type: string(100)
+        optional: true
+        help: Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verification and compliance controls. Optional for organizational units without separate registration.
+      - name: tax_identifier
+        type: string(100)
+        optional: true
+        help: Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting. Optional when no tax identifier applies or is known.
+      - name: party_type
+        type: string
+        enum: OrganizationPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this Organization belongs to.
+      - name: parent_organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Immediate parent organizational unit. Supports enterprise hierarchy and organizational scope. Zero or one immediate parent. Determines inherited organizational context where explicitly supported.
+  - name: PartyRole
+    help: The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Immutable identity of this specific role relationship. Referenced by specialized entities and transactions requiring the party in a defined business capacity. Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId. Provides the stable role reference used throughout the role lifecycle. Required for independent role traceability.
+      - name: party_id
+        type: string
+        fk: true
+        help: Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity. Required because a role cannot exist without a participant.
+      - name: role_type
+        type: string
+        enum: PartyRoleRoleType
+        help: Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation.
+      - name: code
+        type: string(100)
+        optional: true
+        help: Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when partyRoleId is sufficient.
+      - name: valid_from
+        type: date
+        optional: true
+        help: Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role. Optional for immediately effective roles.
+      - name: valid_to
+        type: date
+        optional: true
+        help: Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution. Optional for open-ended roles.
+      - name: status
+        type: string
+        enum: PartyRoleStatus
+        help: Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions.
+        default: ACTIVE
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this PartyRole belongs to.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
+  - name: PartyRelationship
+    help: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of PartyRelationship. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this PartyRelationship is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: from_party_id
+        type: string
+        fk: true
+        references: Party
+        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - name: LegalEntity
+    help: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of LegalEntity. Identifies one governed LegalEntity record. Governance, workflow, reporting and audit. Referenced by compatible enterprise records. Required.
+      - name: occurred_at
+        type: datetime
+        optional: true
+        help: Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+  - name: BusinessUnit
+    help: A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of BusinessUnit. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this BusinessUnit is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: organization_id
+        type: string
+        fk: true
+        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - name: Department
+    help: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Department. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Department is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: organization_id
+        type: string
+        fk: true
+        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - name: Address
+    help: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: address_type
+        type: string
+        enum: AddressAddressType
+      - name: line1
+        type: string(200)
+      - name: line2
+        type: string(200)
+        optional: true
+      - name: line3
+        type: string(200)
+        optional: true
+      - name: city
+        type: string(150)
+      - name: state_or_province
+        type: string(150)
+        optional: true
+      - name: postal_code
+        type: string(30)
+        optional: true
+      - name: country_code
+        type: string(2)
+      - name: latitude
+        type: decimal
+        optional: true
+      - name: longitude
+        type: decimal
+        optional: true
+      - name: is_primary
+        type: boolean
+        default: "false"
+      - name: status
+        type: string
+        enum: AddressStatus
+        default: ACTIVE
+      - name: party_id
+        type: string
+        fk: true
+        optional: true
+        help: Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this Address belongs to.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The Organization this Address belongs to.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
+  - name: ContactPoint
+    help: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of ContactPoint. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this ContactPoint is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: party_id
+        type: string
+        fk: true
+        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - name: Location
+    help: "Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred."
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+      - name: name
+        type: string(200)
+      - name: location_type
+        type: string
+        enum: LocationLocationType
+      - name: status
+        type: string
+        enum: LocationStatus
+        default: ACTIVE
+      - name: address_id
+        type: string
+        fk: true
+        optional: true
+      - name: parent_location_id
+        type: string
+        fk: true
+        optional: true
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The Organization this Location refers to.
+  - name: Country
+    help: A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Language
+    help: A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Currency
+    help: Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Required for unambiguous monetary interpretation.
+      - name: code
+        type: string(3)
+        unique: true
+        help: Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.
+      - name: name
+        type: string(100)
+        help: Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Required for usable currency master data.
+      - name: symbol
+        type: string(10)
+        optional: true
+        help: Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without affecting financial calculations. Optional where no standard symbol or display policy exists.
+      - name: decimal_places
+        type: integer
+        help: Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows. Required because monetary amounts must have predictable representation.
+        default: "2"
+        min: 0
+        max: 6
+      - name: status
+        type: string
+        enum: CurrencyStatus
+        help: Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies. Available for normal financial activity. Temporarily unavailable for new normal activity. No longer available for new normal activity while historical financial records remain valid. Required for transaction eligibility.
+        default: ACTIVE
+  - name: ExchangeRate
+    help: Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used. Required for traceable currency conversion.
+      - name: from_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion. Required to prevent ambiguous conversion direction.
+      - name: to_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value. Required for an auditable conversion.
+      - name: rate
+        type: decimal
+        help: Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations. Required for conversion.
+      - name: rate_type
+        type: string
+        enum: ExchangeRateRateType
+        help: Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event. Market or transaction-time conversion rate. Rate established by an agreement or commercial contract. Published daily rate for a defined business date. Published rate intended for a defined monthly reporting period. Rate designated by accounting policy for ledger translation or reporting. Controlled rate established for a specific business purpose. Required to preserve conversion context.
+      - name: effective_at
+        type: datetime
+        help: Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion. Required for temporal validity.
+      - name: expires_at
+        type: datetime
+        optional: true
+        help: Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations. Optional for rates whose validity is governed by another period convention.
+      - name: source
+        type: string(200)
+        help: Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision. Required for financial traceability.
+      - name: status
+        type: string
+        enum: ExchangeRateStatus
+        help: Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection.
+        default: ACTIVE
+  - name: UnitOfMeasure
+    help: Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted. Required for unambiguous measurement semantics.
+      - name: code
+        type: string(30)
+        unique: true
+        help: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.
+      - name: name
+        type: string(100)
+        help: Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users. Required for clear business interpretation.
+      - name: symbol
+        type: string(20)
+        optional: true
+        help: Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities. Optional when the unit has no standard symbol or display policy does not require one.
+      - name: category
+        type: string
+        enum: UnitOfMeasureCategory
+        help: Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility.
+      - name: conversion_factor
+        type: decimal
+        optional: true
+        help: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation. Optional for base units or units whose conversion requires a dedicated rule.
+      - name: base_unit_id
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+        help: Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities. Optional for a base unit itself.
+      - name: status
+        type: string
+        enum: UnitOfMeasureStatus
+        help: Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility.
+        default: ACTIVE
+  - name: Calendar
+    help: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Calendar. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Calendar is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Attachment
+    help: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Attachment. Identifies one governed record independently of mutable labels or state. Governance, workflow, integration and audit. Referenced by related enterprise records. Required.
+      - name: effective_at
+        type: datetime
+        optional: true
+        help: Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate effective timestamp.
+  - name: QualityCharacteristic
+    help: Reusable definition of one quality property that can be configured by quality plans and observed through quality measurements. QualityCharacteristic answers what property is being evaluated. It intentionally does not own plan-specific limits because the same property can have different acceptance criteria for different products, suppliers, processes, or inspection plans. Quality master data, inspection design, supplier quality, incoming inspection, process control, laboratory testing, compliance, analytics, and audit. QualityCharacteristic is the reusable semantic definition; QualityPlanCharacteristic configures it for a QualityPlan; QualityPlan selects the governed controls; QualityInspection executes them; QualityMeasurement records observations; Nonconformance may consume failed evidence. Draft → active → retired. Retirement preserves historical references and evidence. Changes to meaning, type, or lifecycle require impact analysis across QualityPlanCharacteristic, QualityPlan, open QualityInspection, QualityMeasurement, Nonconformance, and reporting workflows. Historical completed evidence must retain the definition applicable when it was captured. A WEIGHT characteristic has dataType DECIMAL. One QualityPlanCharacteristic may require 9.8–10.2 kg while another plan may require 9.5–10.5 kg; both use the same reusable QualityCharacteristic.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the reusable quality characteristic definition. Identifies what property is being measured or observed independently of any one QualityPlan or QualityInspection. Used to reference, reuse, version, search, audit, and integrate a quality characteristic across quality plans and measurements. QualityCharacteristic defines the semantic property; QualityPlanCharacteristic supplies plan-specific acceptance configuration; QualityMeasurement records an observation of it. Required because the characteristic cannot be reliably referenced without a stable identity.
+      - name: code
+        type: string(100)
+        unique: true
+        help: Business code identifying the quality characteristic. Provides a stable human-readable identifier such as WEIGHT, TEMPERATURE, LENGTH, or APPEARANCE. Used in quality plans, measurements, reports, integrations, and validation rules. The code identifies the characteristic, while QualityPlanCharacteristic determines how that characteristic is controlled in a particular plan. Required for reliable reuse and integration.
+      - name: name
+        type: string(300)
+        help: Human-readable name of the quality characteristic. States what property the characteristic represents in language understandable to quality personnel and other users. Used in quality-plan authoring, inspection screens, reports, analytics, and training. Complements code and provides the business-facing meaning of measurements referencing this characteristic. Required so the reusable definition remains understandable.
+      - name: description
+        type: string(2000)
+        optional: true
+        help: Detailed explanation of the characteristic and its intended interpretation. Clarifies exactly what is observed and prevents different processes from interpreting the same code differently. Quality-plan design, inspection execution, audit, integration, and governance. Explains the semantic property independently of plan-specific limits. Optional when the name and governed definition are already sufficient.
+      - name: data_type
+        type: string
+        enum: QualityCharacteristicDataType
+        help: Data representation expected for observations of this characteristic. Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid. Controls QualityMeasurement value selection, validation, user-interface behavior, and downstream analytics. QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria. A numeric observation that may contain fractional values. A whole-number observation. A textual or categorical observation represented as text. A true/false observation. An observation selected from a governed set of allowed values. Required because evaluation depends on the characteristic data type.
+      - name: status
+        type: string
+        enum: QualityCharacteristicStatus
+        help: Lifecycle state of the reusable characteristic definition. Controls whether the characteristic may be newly assigned to quality plans and used for new measurements. Governance, authoring, validation, and retirement control. Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations. Definition is being prepared and is not normally available for new governed use. Definition is approved for use in applicable QualityPlanCharacteristic records. Definition is no longer normally assigned to new configurations but remains available for historical traceability. Required to govern lifecycle behavior.
+        default: ACTIVE
+      - name: evaluation_method
+        type: string(500)
+        optional: true
+        help: General method or interpretation approach for observing this characteristic. Describes the expected measurement or observation approach when a reusable default is appropriate. Provides guidance for quality-plan authoring and inspection execution. Plan-specific method overrides or requirements belong to QualityPlanCharacteristic when they differ by plan. Optional because some characteristics are self-evident or fully governed by plan-specific configuration.
+  - name: QualityPlanCharacteristic
+    help: Plan-specific configuration of a reusable quality characteristic, including acceptance criteria, execution guidance, and optional sampling policy. QualityPlanCharacteristic answers how a QualityCharacteristic is controlled in one particular QualityPlan and, when required, how its observations are sampled. This separation allows reusable characteristics and sampling policies to be combined without duplicating definitions. Quality-plan authoring, incoming inspection, supplier quality, process inspection, laboratory testing, compliance, sampling, audit, and analytics. QualityPlan provides the governing plan; QualityCharacteristic provides reusable meaning; SamplingPlan and SamplingRule govern sample selection; QualityMeasurement records observations; QualityInspection executes the plan; Nonconformance may consume failed results. Define QualityCharacteristic → configure QualityPlanCharacteristic → assign SamplingPlan when sampling is required → activate QualityPlan → create QualityInspection → select required sample → capture QualityMeasurements → evaluate against criteria → finalize inspection → create Nonconformance or disposition when criteria fail. Draft through governed plan configuration to active use; changes after execution require controlled versioning or replacement rather than silent mutation. Changes affect QualityPlan authoring, SamplingPlan/SamplingRule selection, open QualityInspections, QualityMeasurements, nonconformance evaluation, reporting, and downstream supplier or corrective-action workflows. Historical inspection evidence must retain the configuration applicable at capture time. QualityCharacteristic WEIGHT is configured as required and sampled under a receiving plan. The associated SamplingPlan selects 20 units from the lot; each selected unit receives a QualityMeasurement evaluated against the configured weight limits.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of one characteristic configuration within a QualityPlan. Identifies the specific plan-level requirement that governs how one QualityCharacteristic is inspected. Traceability, configuration, inspection execution, audit, and integration. Links one QualityPlan to one reusable QualityCharacteristic and its plan-specific criteria. Required because plan-level requirements need an unambiguous identity.
+      - name: sequence_number
+        type: integer
+        help: Execution or presentation order of this quality characteristic within the plan. Determines where the characteristic appears in inspection instructions and can support ordered sampling or testing. Inspection forms, operator guidance, reports, and workflow orchestration. Sequence is scoped to the QualityPlan and does not change the reusable characteristic's identity. Required where plan execution requires deterministic ordering.
+      - name: required
+        type: boolean
+        help: Indicates whether evidence for this characteristic is mandatory for the governing plan. Determines whether the absence of a measurement can prevent inspection completion. Inspection validation, completion gating, audit, and exception handling. QualityInspection uses this setting when determining whether all required measurements have been evaluated. Required because optional and mandatory characteristics have different workflow consequences.
+        default: "true"
+      - name: lower_limit
+        type: decimal
+        optional: true
+        help: Plan-specific lower acceptance boundary for a numeric characteristic. Defines the minimum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit. Optional when the criterion has no lower numeric boundary.
+      - name: upper_limit
+        type: decimal
+        optional: true
+        help: Plan-specific upper acceptance boundary for a numeric characteristic. Defines the maximum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit. Optional when the criterion has no upper numeric boundary.
+      - name: target_value
+        type: decimal
+        optional: true
+        help: Preferred numeric target for the characteristic under this plan. Represents the desired value rather than the minimum or maximum acceptance boundary. Process optimization, inspection guidance, analytics, and trend analysis. Must be compatible with the characteristic data type and acceptance limits. Optional where only pass/fail boundaries are relevant.
+      - name: unit_of_measure
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+        help: Unit used for numeric limits and target values in this plan configuration. Gives dimensional meaning to the configured numeric criteria. Measurement evaluation, conversion, reporting, and audit. Must be dimensionally compatible with the QualityCharacteristic and QualityMeasurement unit. Optional for unitless or non-numeric characteristics.
+      - name: method
+        type: string(500)
+        optional: true
+        help: Plan-specific procedure or method required to evaluate the characteristic. Defines how the characteristic must be observed when this plan is executed. Inspection instructions, reproducibility, compliance, and audit. May refine or override the reusable QualityCharacteristic evaluationMethod. Optional when the reusable characteristic method is sufficient.
+      - name: sampling_required
+        type: boolean
+        help: Indicates whether this characteristic participates in explicit sampling controls under the plan. Distinguishes characteristics that require sampled observations from those evaluated on every applicable inspection item. Sampling workflow design and inspection execution. When true, the samplingPlan relationship identifies the governed selection policy used for this characteristic. Required to make sampling participation explicit.
+        default: "false"
+      - name: quality_characteristic_id
+        type: string
+        fk: true
+        help: Reusable quality property being controlled by this plan configuration. Identifies what is observed while this entity supplies the context-specific acceptance rules. Reuse, semantic interpretation, measurement linkage, and governance. Every configuration references exactly one reusable QualityCharacteristic. Separating reusable meaning from plan-specific criteria prevents conflicting definitions when the same property is used by multiple plans.
+      - name: quality_plan_id
+        type: string
+        fk: true
+        help: QualityPlan in which this characteristic requirement is configured. Provides the governing inspection context for the requirement. Plan authoring, inspection execution, traceability, and lifecycle control. Every configuration belongs to exactly one QualityPlan. The plan determines when and why the configured characteristic is evaluated.
+      - name: test_method_id
+        type: string
+        fk: true
+        optional: true
+        help: Governed reusable procedure required to evaluate this characteristic in the plan. Replaces ambiguous free-text method interpretation with an authoritative method definition while allowing method text to remain a historical or integration snapshot. Inspection execution, laboratory testing, reproducibility, training, compliance, and audit. A plan characteristic uses zero or one governed TestMethod when a reusable controlled method applies. TestMethod defines how evidence is produced; this entity defines what criteria that evidence must satisfy.
+      - name: sampling_plan_id
+        type: string
+        fk: true
+        optional: true
+        help: SamplingPlan governing how observations of this characteristic are selected when samplingRequired is true. Connects a plan-specific characteristic requirement to the deterministic sample-selection policy used during inspection. Sample-size calculation, inspection execution, completion gating, audit, and reproducibility. A characteristic requirement uses zero or one sampling plan; zero is appropriate when every applicable unit is evaluated or sampling is governed elsewhere. SamplingPlan defines selection policy; SamplingRule supplies conditional sample quantities and acceptance thresholds.
+  - name: QualityPlan
+    help: Governed definition of how a product or process is inspected. QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements, reusable SamplingPlan policies, and QualityInspection execution. Reusable quality meaning belongs to QualityCharacteristic and reusable sample selection belongs to SamplingPlan rather than being duplicated in every inspection. Quality master data, inspection processes, supplier quality, incoming inspection, process control, laboratory testing, compliance, forms, reports, integrations, and analytics. Product provides applicability; QualityPlanCharacteristic supplies detailed requirements; SamplingPlan and SamplingRule supply sample-selection controls; QualityInspection executes them; InspectionSample records actual selection; QualityMeasurement records observations; Nonconformance and disposition consume failed outcomes. Draft → active → suspended/retired under governed change control. Historical inspections retain the plan, characteristic, sampling plan, and sampling rule configuration applicable when executed. Material plan changes propagate to open inspections and measurements, sample-selection execution, requirement evaluation, nonconformance and disposition workflows, supplier performance evidence, reporting, and audit history. Completed evidence must not be rewritten. An incoming-receipt plan contains required WEIGHT and TEMPERATURE configurations and assigns an acceptance-sampling SamplingPlan. A QualityInspection selects the governed sample through its SamplingRule, captures measurements, and determines the overall result.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the quality plan. Identifies one governed collection of inspection and acceptance requirements. Referencing, authoring, inspection execution, audit, reporting, and integration. Connects the plan to Product, QualityPlanCharacteristic configurations, SamplingPlan configurations, and QualityInspection executions. Required for stable plan identity.
+      - name: code
+        type: string(100)
+        unique: true
+        help: Business code identifying the quality plan. Provides a stable human-readable reference for the governed inspection definition. Plan selection, search, reports, integrations, and operational instructions. Distinguishes the plan from its characteristic requirements, sampling policies, and inspection transactions. Required for operational identification.
+      - name: name
+        type: string(300)
+        help: Human-readable name of the quality plan. Explains the purpose of the inspection definition. Authoring, selection, inspection execution, reporting, and audit. Names the overall plan whose detailed controls are represented by QualityPlanCharacteristic and SamplingPlan. Required for understandable plan governance.
+      - name: status
+        type: string
+        enum: QualityPlanStatus
+        help: Lifecycle state of the quality plan. Controls whether the plan may normally govern new inspections. Plan selection, workflow gating, governance, and retirement. Status affects characteristic and sampling configurations and creation of new QualityInspection records; historical inspections remain evidence. Plan is being prepared and is not normally used for production inspection execution. Plan is approved for governed inspection use. Plan is temporarily unavailable for new governed use while retained for traceability. Plan is no longer normally selected for new inspections but remains historical evidence. Required to govern lifecycle behavior.
+        default: ACTIVE
+  - name: TestMethod
+    help: Reusable governed procedure for producing quality evidence. TestMethod separates how an observation is produced from what QualityCharacteristic is observed and what QualityPlanCharacteristic criteria apply. Quality planning, laboratory testing, incoming inspection, compliance, training, audit, and analytics. QualityPlanCharacteristic selects the method; QualityMeasurement records evidence produced under it. Draft → active → suspended/retired under controlled change. Method lifecycle or semantic changes revalidate affected open configurations and inspections while completed evidence remains historically stable.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the governed test method. Identifies one reusable procedure independently of plans and measurements. Quality planning, laboratory execution, audit, and integration. Referenced by quality configurations and test evidence. Required.
+      - name: code
+        type: string(100)
+        unique: true
+        help: Business code of the test method. Human-readable controlled identifier for the procedure. Authoring, execution, reporting, and integration. Remains stable within its governed version. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable test-method name. States the procedure understood by quality and laboratory personnel. Instructions, forms, reports, and training. Complements the controlled code. Required.
+      - name: instructions
+        type: string(10000)
+        optional: true
+        help: Governed execution instructions. Describes how evidence must be produced. Laboratory and inspection execution, reproducibility, and audit. May be supplemented by controlled external procedures. Optional when instructions are maintained in a linked governed document.
+      - name: status
+        type: string
+        enum: TestMethodStatus
+        help: Lifecycle state of the method. Controls whether the procedure may be selected for new governed work. Method governance and execution gating. Historical evidence retains the method/version used. Being authored and not normally executable. Approved for governed use. Temporarily unavailable for new use. No longer selected for new work but retained historically. Required.
+        default: DRAFT
+  - name: SamplingPlan
+    help: Reusable governed definition for selecting inspection samples. SamplingPlan separates the statistical or operational selection policy from the QualityInspection transaction that executes it. Incoming inspection, supplier quality, process control, laboratory testing, compliance, acceptance sampling, and audit. QualityPlan determines the broader quality controls; SamplingPlan defines how populations are sampled; SamplingRule defines conditional sample quantities and acceptance criteria; inspection execution records the actual selection. Draft → active → suspended/retired. Historical executions retain their governing configuration. Changes propagate to QualityPlans, open inspections, sample-selection transactions, measurement coverage, and inspection completion gating. Completed sample evidence is never silently reinterpreted. A receiving quality plan uses an acceptance-sampling SamplingPlan with different sample sizes for small, medium, and large lot-size ranges.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the sampling plan. Identifies one governed sampling definition independently of any inspection execution. Sampling configuration, inspection planning, audit, reporting, and integration. SamplingPlan may be assigned to a QualityPlan and contains SamplingRule records that determine how samples are selected. Required.
+      - name: code
+        type: string(100)
+        unique: true
+        help: Business code identifying the sampling plan. Provides a stable operational reference for a governed sampling definition. Plan selection, inspection authoring, reports, and integrations. Identifies the sampling definition rather than an individual sample or inspection. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of the sampling plan. Explains the purpose of the sampling strategy. Quality authoring, inspection execution, training, reporting, and audit. Describes the overall sampling definition whose detailed rules are represented by SamplingRule. Required.
+      - name: method
+        type: string
+        enum: SamplingPlanMethod
+        help: General method used to select inspection samples. Defines the governed selection approach rather than leaving sampling to operator discretion. Sampling execution, compliance, reproducibility, and audit. SamplingRule refines the method with lot and quantity parameters. Every applicable unit is inspected. Units are selected randomly from the eligible population. Units are selected using a defined interval or systematic pattern. Population is divided into defined strata and samples are selected within them. A fixed number of units is selected. A defined proportion of the population is selected. Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme. Required.
+      - name: status
+        type: string
+        enum: SamplingPlanStatus
+        help: Lifecycle state of the sampling plan. Controls whether the sampling definition may be assigned to new governed inspections. Governance, authoring, inspection planning, and retirement. Retirement preserves historical inspection evidence and does not invalidate completed samples. Being defined and not normally available for production use. Approved for governed sampling. Temporarily unavailable for new use. No longer normally assigned to new inspections but retained for history. Required.
+        default: DRAFT
+  - name: SamplingRule
+    help: Conditional sampling configuration that translates a SamplingPlan into a deterministic sample size and acceptance threshold. SamplingRule answers how many units to inspect for a qualifying population and, where applicable, how many failures are permitted before rejection. Acceptance sampling, incoming inspection, supplier quality, process control, laboratory sampling, compliance, and audit. SamplingPlan defines the sampling method; QualityPlan may consume the sampling definition; QualityPlanCharacteristic identifies characteristics that participate; QualityInspection executes the sample; QualityMeasurement records observations from selected samples. Draft → active → retired. Historical executions preserve the applicable rule. Changes affect open QualityInspections, sample selection, required measurement coverage, and final inspection evaluation. Completed inspection evidence remains governed by the rule in effect at execution. For lots of 101–500 units, an active rule may require 20 sampled units and accept the lot with no more than one failing sampled unit, with a rejection threshold of two failures.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the sampling rule. Identifies one conditional sampling configuration within a SamplingPlan. Sampling execution, audit, traceability, and integration. The rule belongs to a SamplingPlan and determines how a qualifying inspection population is sampled. Required.
+      - name: rule_number
+        type: string(100)
+        help: Business reference for the sampling rule. Identifies the rule within its sampling plan for authoring, review, and audit. Configuration, inspection execution, reporting, and integration. Rule identity is scoped to the SamplingPlan and is distinct from actual sample records. Required.
+      - name: population_min
+        type: integer
+        optional: true
+        help: Minimum population quantity for which this rule applies. Defines the lower boundary of the eligible lot or population range. Rule selection and deterministic sampling execution. Interpreted with populationMax and sampleSize. Optional when the rule has no lower population boundary.
+      - name: population_max
+        type: integer
+        optional: true
+        help: Maximum population quantity for which this rule applies. Defines the upper boundary of the eligible lot or population range. Rule selection and deterministic sampling execution. Interpreted with populationMin and sampleSize. Optional when the rule has no upper population boundary.
+      - name: sample_size
+        type: integer
+        help: Number of units or observations to select when this rule applies. Defines the required sample quantity before the inspection can satisfy the sampling requirement. Sample selection, inspection execution, and completion gating. Must not exceed the eligible population except where the governing method explicitly permits census behavior. Required.
+      - name: acceptance_number
+        type: integer
+        optional: true
+        help: Maximum number of failing sampled units permitted for acceptance under this rule. Defines the failure threshold for acceptance-sampling plans. Automated sample evaluation and inspection decision support. Used with rejectionNumber and sample results when method is acceptance sampling. Optional when the plan uses another acceptance mechanism.
+      - name: rejection_number
+        type: integer
+        optional: true
+        help: Number of failing sampled units at which the sampled population is rejected. Defines the rejection threshold for acceptance-sampling plans. Automated evaluation and inspection decision support. Must be greater than acceptanceNumber when both are configured. Optional when the plan uses another acceptance mechanism.
+      - name: status
+        type: string
+        enum: SamplingRuleStatus
+        help: Lifecycle state of the sampling rule. Controls whether the rule can be selected for new sample executions. Governance, authoring, and inspection execution. Retired rules remain available for historical sample traceability. Rule is being prepared and is not normally selectable. Rule is approved for sampling execution. Rule is no longer selected for new sampling but remains historical evidence. Required.
+        default: ACTIVE
+      - name: sampling_plan_id
+        type: string
+        fk: true
+        help: SamplingPlan that owns this conditional sampling rule. Provides the overall sampling method and governance context. Rule selection, execution, traceability, and audit. Every rule belongs to exactly one SamplingPlan. The plan supplies the method; the rule supplies conditional quantity and acceptance parameters.
+      - name: quality_plan_id
+        type: string
+        fk: true
+        optional: true
+        help: QualityPlan in which this rule is specifically used when a direct plan association is needed. Provides explicit traceability from a sampling rule to the quality plan it supports. Plan impact analysis, reporting, governance, and integration. A rule may be reusable or directly associated with one QualityPlan. When populated, the associated QualityPlan must agree with the SamplingPlan assignment.
+  - name: QualityInspection
+    help: Represents a quality inspection and its controlled sampling, measurements, result and disposition across inbound receiving and supplier-return workflows. QualityInspection provides the execution context and overall decision; InspectionSample records the actual selected sample; QualityMeasurement records individual factual observations. The inspection does not itself perform inventory or financial changes. Receiving quality, supplier quality, acceptance sampling, returns, quarantine, nonconformance, corrective action, compliance and audit. QualityPlan/QualityPlanCharacteristic define controls; SamplingPlan/SamplingRule define selection; InspectionSample records execution; QualityMeasurement provides test evidence; InventoryMovement records physical stock consequence; SupplierCreditNote records financial consequence; Nonconformance records deviations. QualityPlan → QualityPlanCharacteristic → SamplingPlan/SamplingRule → QualityInspection → InspectionSample selection → sample measurement → aggregate result → Nonconformance/disposition. For unsampled characteristics, measurement may be captured directly under the inspection. For supplier returns, SupplierReturn → inspection → sample/measurement/disposition → attributable InventoryMovement → SupplierCreditNote/exception completion. Open → in progress → sampling/evidence captured → passed/failed/conditional → dispositioned, with cancellation or controlled reinspection. Changes to receipt, supplier return, product, quality plan, characteristic configuration, sampling policy, unit definitions or measurement evidence affecting an open inspection trigger revalidation. Completed inspection and sample history is not silently rewritten; reinspection or correction creates explicit evidence. A received lot of 500 units is governed by a 20-unit SamplingRule. InspectionSample records the selected sample, QualityMeasurement records weight and purity observations, and the inspection aggregates those results before deciding release or quarantine.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the inspection record. Identifies one inspection event independently of the item, receipt, return, result or corrective action. Quality traceability, audit, reporting and integrations. Root of the inspection execution graph including sampling and measurement evidence. Stable reference through planning, sampling, execution, result and disposition. Required.
+      - name: inspection_number
+        type: string(100)
+        unique: true
+        help: Business-facing inspection reference. Identifies the inspection in quality operations and audit. Quality records, supplier disputes and reporting. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-recognizable traceability. Required.
+      - name: inspection_date
+        type: datetime
+        help: Date and time inspection was performed or initiated. Establishes quality chronology. Audit, release, supplier performance and compliance. May occur after receipt or return authorization and before final disposition. Anchors inspection evidence. Required.
+      - name: status
+        type: string
+        enum: QualityInspectionStatus
+        help: Lifecycle state of inspection. Indicates whether inspection is pending, executing, completed with a result, or cancelled. Controls release and disposition workflows. Inspection status is independent of sample status, receipt/return status, and inventory state. PASSED/FAILED/CONDITIONAL controls eligible disposition. Required.
+        default: OPEN
+      - name: result
+        type: string
+        optional: true
+        enum: QualityInspectionResult
+        help: Overall outcome of inspection or test. Records whether the inspected scope satisfies applicable requirements after evaluating relevant samples, measurements and other evidence. Drives acceptance, rejection, quarantine, return, repair or release decisions. May be derived from QualityMeasurement and InspectionSample evidence; it does not replace that evidence. Supplies aggregate evidence for controlled disposition. Optional until testing is complete.
+      - name: disposition
+        type: string
+        optional: true
+        enum: QualityInspectionDisposition
+        help: Controlled operational disposition resulting from inspection. Defines what happens to inspected material after quality evaluation. Controls inventory availability, supplier return, repair, scrap and release processes. RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted. Converts quality result into an authorized physical disposition. Optional until a disposition decision is made.
+      - name: notes
+        type: string(4000)
+        optional: true
+        help: Inspection observations and supporting context. Records qualitative evidence not represented by structured measurements. Quality review, supplier disputes and audit. Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence. Supports disposition decisions. Optional.
+      - name: quality_plan_id
+        type: string
+        fk: true
+        optional: true
+        help: Quality plan governing this inspection. Identifies requirements, characteristics, sampling policies and test procedures. Determines inspection scope and acceptance criteria. Provides expected quality controls.
+      - name: inspector_id
+        type: string
+        fk: true
+        references: Party
+        optional: true
+        help: Party performing or accountable for inspection. Identifies inspector or quality authority. Accountability, audit and compliance. Provides execution responsibility.
+  - name: InspectionSample
+    help: Execution record of the actual sample selected for a governed quality inspection. InspectionSample separates sampling policy from the physical or logical sample actually selected. SamplingPlan and SamplingRule define how selection should occur; InspectionSample records what was actually selected; QualityMeasurement records observations from it. Incoming inspection, supplier quality, acceptance sampling, laboratory testing, process quality, chain of custody, compliance, and audit. QualityInspection is the parent execution; SamplingPlan and SamplingRule define selection policy; Product and UnitOfMeasure identify population semantics; QualityMeasurement records test evidence; Nonconformance and disposition consume resulting quality decisions. QualityPlan → QualityPlanCharacteristic → SamplingPlan/SamplingRule → QualityInspection → InspectionSample selection → sample testing → QualityMeasurement capture/evaluation → aggregate inspection result → Nonconformance/disposition where required. Selected → in testing → tested → disposed/rejected/cancelled as applicable. Historical selection evidence is retained. Sampling policy changes affect open inspections that have not selected samples. Once a sample is selected, later policy changes do not silently change its historical basis. A 500-unit receipt is governed by a rule requiring 20 sampled units. InspectionSample records the selected 20 units and their quantity, preserves the governing rule, and links subsequent weight and purity QualityMeasurements to the sample.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the inspection sample record. Identifies one executed sample selection independently of the inspection and measurements performed on it. Traceability, audit, sample reconciliation, quality analytics, and integration. Connects the actual selected sample to QualityInspection and the SamplingRule that governed its selection. Required.
+      - name: sample_number
+        type: string(100)
+        unique: true
+        help: Human-facing identifier for the selected inspection sample. Provides an operational reference for labeling, handling, testing, and audit. Inspection execution, laboratory handling, reports, and traceability. Identifies the executed sample rather than the sampling policy or parent inspection. Required.
+      - name: selected_at
+        type: datetime
+        help: Time at which the sample was selected from the eligible population. Establishes when the actual sampling event occurred. Chain of custody, audit, reproducibility, and inspection chronology. Distinct from QualityInspection.inspectionDate and measuredAt on QualityMeasurement. Required.
+      - name: quantity
+        type: decimal
+        help: Quantity represented by the selected sample. States how much material or how many units the sample represents under its unit of measure. Sample reconciliation, measurement scope, inventory traceability, and audit. Must reconcile with the eligible inspection population and sample-selection rule. Required.
+      - name: unit_of_measure
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        help: Unit in which the sample quantity is expressed. Gives semantic meaning to the selected sample quantity. Reconciliation, reporting, conversion, and audit. Must be compatible with the source population and governing sampling configuration. Required.
+      - name: status
+        type: string
+        enum: InspectionSampleStatus
+        help: Lifecycle state of the selected sample. Shows whether the sample is awaiting testing, being tested, has completed testing, or has been otherwise dispositioned. Sample handling, measurement gating, chain of custody, and audit. Sample status is distinct from overall QualityInspection status and does not independently determine product disposition. Sample has been selected and is awaiting testing or handling. Sample is actively undergoing governed testing. Required testing for the sample has completed. Sample itself was rejected or invalidated for the governed purpose. Sample has been physically disposed of under an authorized process. Sample selection was cancelled under controlled workflow. Required.
+        default: SELECTED
+      - name: selection_basis
+        type: string(1000)
+        optional: true
+        help: Evidence or description of how this particular sample was selected. Preserves the operational selection basis needed to reproduce or audit the sampling event. Compliance, audit, supplier disputes, and statistical review. Complements the authoritative SamplingRule and does not replace it. Optional when selection is fully reproducible from the governed rule and execution metadata.
+      - name: quality_inspection_id
+        type: string
+        fk: true
+        help: QualityInspection for which this sample was selected. Provides the execution context and population being inspected. Sample traceability, inspection completion, measurement linkage, and audit. Every InspectionSample belongs to exactly one QualityInspection. Inspection status and result remain independent; the sample supplies evidence to the inspection.
+      - name: sampling_plan_id
+        type: string
+        fk: true
+        optional: true
+        help: SamplingPlan governing the sample-selection event. Preserves the reusable sampling policy applied at execution time. Audit, reproducibility, analytics, and change-impact analysis. A sample may reference zero or one sampling plan when sampling is not governed by an explicit reusable plan. When populated, the plan must agree with the governing SamplingRule.
+      - name: sampling_rule_id
+        type: string
+        fk: true
+        optional: true
+        help: SamplingRule used to determine this sample selection. Identifies the exact conditional rule that determined sample quantity and acceptance logic. Audit, reproducibility, sample reconciliation, and inspection completion. A sample may have zero or one rule only when an explicit rule is not applicable. When populated, the rule and SamplingPlan must be mutually consistent.
+  - name: QualityMeasurement
+    help: Structured auditable evidence for one quality characteristic observed during a QualityInspection. QualityMeasurement separates the factual observation from the inspection-level conclusion while retaining the exact plan configuration used for evaluation. Incoming inspection, supplier quality, laboratory testing, dimensional checks, sampling, process quality, compliance, nonconformance and corrective-action verification. QualityInspection is the execution context; InspectionSample supplies exact sample provenance when sampling applies; QualityPlanCharacteristic supplies authoritative plan-specific requirements; QualityCharacteristic supplies reusable meaning; QualityPlan supplies the parent definition; Product identifies material; UnitOfMeasure supplies dimensional semantics; Nonconformance may consume failed evidence. QualityPlan → QualityPlanCharacteristic → SamplingPlan/SamplingRule where required → QualityInspection → InspectionSample where required → measurement capture → validate characteristic/unit/method → evaluate against configured criteria → measurement result → aggregate inspection result → Nonconformance/disposition where required. Captured → evaluated → retained as completed inspection evidence; corrections use explicit amendment or remeasurement. Changes to governing plan characteristics, reusable characteristics, product or unit definitions affect open measurements and trigger revalidation. Completed measurements retain the configuration snapshots applicable when captured. A receiving plan configures WEIGHT at 9.8–10.2 KG. A QualityMeasurement records 10.35 KG, links to the governing QualityPlanCharacteristic and QualityCharacteristic, snapshots the applicable limits, and evaluates to FAIL.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of one quality measurement. Identifies one observation independently of its inspection and characteristic. Traceability, audit, analytics and integrations. Distinct from QualityInspection and the measured Product. Stable reference from capture through review. Required.
+      - name: measurement_number
+        type: string(100)
+        unique: true
+        help: Human-facing measurement reference. Provides an operational identifier for one observation. Inspection review, audit and integration. Distinct from the parent inspection number. Supports individual observation traceability. Required.
+      - name: characteristic_code
+        type: string(100)
+        help: Snapshot of the quality characteristic business code evaluated by this observation. Preserves the human-readable characteristic identifier applicable when evidence was captured. Audit, reporting, exports and legacy integration. Must correspond to the linked QualityCharacteristic through QualityPlanCharacteristic and must not be treated as the authoritative configuration key. Provides readable historical context while the relationship graph supplies authoritative semantics. Required for operational readability and historical evidence.
+      - name: measured_value
+        type: decimal
+        optional: true
+        help: Numeric value observed during inspection. Records the factual quantitative observation before evaluation. Acceptance evaluation, trend analysis and audit. Requires a compatible unit for dimensional characteristics. Supplies evidence used against configured acceptance criteria. Optional for categorical characteristics.
+      - name: measured_text
+        type: string(1000)
+        optional: true
+        help: Categorical or textual observation. Records observations such as color, grade, appearance or classification. Quality evaluation where numeric measurement is inappropriate. Used instead of measuredValue for categorical characteristics. Supplies structured qualitative evidence. Optional for numeric characteristics.
+      - name: unit_of_measure
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+        help: Unit in which a numeric measurement is expressed. Defines the dimensional interpretation of measuredValue. Comparison, conversion, reporting and audit. Must be compatible with the linked QualityPlanCharacteristic and QualityCharacteristic. Makes numeric observations semantically comparable. Optional for unitless or categorical characteristics.
+      - name: lower_limit
+        type: decimal
+        optional: true
+        help: Snapshot of the lower acceptance boundary applicable when the measurement was evaluated. Preserves the criterion used to evaluate the historical observation. Audit, reproducibility and review. Normally copied from QualityPlanCharacteristic rather than independently defining a new requirement. Makes the evaluation auditable even if the plan later changes. Optional when no lower boundary applies.
+      - name: upper_limit
+        type: decimal
+        optional: true
+        help: Snapshot of the upper acceptance boundary applicable when the measurement was evaluated. Preserves the criterion used to evaluate the historical observation. Audit, reproducibility and review. Normally copied from QualityPlanCharacteristic rather than independently defining a new requirement. Makes the evaluation auditable even if the plan later changes. Optional when no upper boundary applies.
+      - name: result
+        type: string
+        enum: QualityMeasurementResult
+        help: Evaluation of this measurement against its governing criterion. States whether the individual observation satisfies the applicable requirement. Inspection completion, nonconformance and analytics. Contributes evidence to QualityInspection.result but does not replace it. Supplies structured evidence for the overall inspection decision. Required.
+      - name: measured_at
+        type: datetime
+        help: Time when the observation was captured. Establishes chronology of the measured fact. Traceability, sampling, compliance and audit. Distinct from QualityInspection.inspectionDate. Preserves temporal measurement evidence. Required.
+      - name: method
+        type: string(500)
+        optional: true
+        help: Method or procedure used to obtain the observation. Identifies how the measurement or test was performed. Reproducibility, laboratory audit and compliance. Should align with the linked QualityPlanCharacteristic method where applicable. Establishes how evidence was produced. Optional when inherited unambiguously from the governing plan.
+      - name: notes
+        type: string(2000)
+        optional: true
+        help: Supporting context for the observation. Captures anomalies or conditions not represented structurally. Review and audit. Complements measured values and result without replacing them. Provides supporting evidence. Optional.
+      - name: quality_characteristic_id
+        type: string
+        fk: true
+        optional: true
+        help: Reusable quality property observed by this measurement. Identifies the semantic property independently of a particular plan. Traceability, analytics, reuse, and audit. Should agree with the QualityCharacteristic reached through qualityPlanCharacteristic when both are populated. Provides reusable semantic context.
+      - name: quality_plan_characteristic_id
+        type: string
+        fk: true
+        optional: true
+        help: Plan-specific requirement used to interpret and evaluate this measurement. Identifies the exact configured characteristic, limits, method, unit, and requiredness governing the observation. Requirement traceability, acceptance evaluation, audit, and completion gating. Supplies authoritative evaluation context for the measurement.
+      - name: test_method_id
+        type: string
+        fk: true
+        optional: true
+        help: Governed test procedure used to produce this observation. Identifies the authoritative reusable method applied during measurement. Reproducibility, compliance, laboratory audit, and analytics. Optional when no reusable controlled method applies. Must agree with the governing QualityPlanCharacteristic method configuration when that configuration requires a TestMethod.
+      - name: quality_inspection_id
+        type: string
+        fk: true
+        help: Inspection during which the measurement was captured. Provides the governing inspection context. Quality traceability and aggregate evaluation. Parent inspection controls measurement lifecycle.
+      - name: inspection_sample_id
+        type: string
+        fk: true
+        optional: true
+        help: Exact governed inspection sample from which this observation was produced when sample-specific testing applies. Preserves provenance from SamplingPlan and SamplingRule execution through selected material to the resulting observation. Sample-level traceability, laboratory chain of custody, acceptance sampling, audit, and reproducibility. A measurement references zero or one InspectionSample because non-sampled or population-level observations may not have a sample record. When populated, the sample must belong to the same QualityInspection and the measurement must satisfy the characteristic controls applicable to that sample.
+      - name: quality_plan_id
+        type: string
+        fk: true
+        optional: true
+        help: Quality plan under which the measurement was evaluated. Preserves the plan context for the observation. Audit, reporting, requirement traceability, and historical reconstruction. Identifies the governing plan when a direct plan relationship is needed for integration or historical evidence.
+      - name: certificate_of_analysis_id
+        type: string
+        fk: true
+        optional: true
+        help: The CertificateOfAnalysis this QualityMeasurement belongs to.
+  - name: Nonconformance
+    help: Represents a controlled quality deviation and its investigation, containment, disposition and corrective-action lifecycle. Nonconformance captures the quality problem; QualityInspection provides test evidence; ReturnDisposition records controlled operational outcomes; SupplierReturn provides physical response; CorrectiveAction addresses recurrence; CorrectiveActionVerification proves effectiveness. Supplier quality, incoming inspection, returns, CAPA, compliance, audit, supplier performance and risk management. A quality issue may begin at receiving, inspection, customer/supplier return or external complaint. Operational, inventory and financial consequences remain separate business facts linked through traceable relationships. Inspection/receipt/return evidence → Nonconformance → containment → ReturnDisposition where applicable → SupplierReturn/InventoryMovement → CorrectiveAction → effectiveness verification → closure. Financial consequences remain separate through authorized credit/debit workflows. Open → under review → contained → corrective action → closed, with rejection where the issue is invalid. Changes to inspection, receipt, return, disposition, product, corrective action or verification evidence affecting an open issue trigger revalidation. Financial and inventory consequences are never inferred solely from Nonconformance status. Incoming inspection detects defective units. Nonconformance records the defect, affected receipt lines are contained, a return disposition sends the units to quarantine, a supplier return and inventory movement execute the physical response, CorrectiveAction addresses the root cause, and an effective verification supplies closure evidence.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the nonconformance. Identifies one quality deviation independently of its inspection, product, receipt, return or corrective action. Quality history, supplier performance, audit and CAPA. Root identity for issue lifecycle. Required.
+      - name: number
+        type: string(100)
+        unique: true
+        help: Business-facing nonconformance reference. Identifies the issue for quality and supplier operations. Audit, reporting, CAPA and dispute handling. Human-recognizable issue reference. Required.
+      - name: severity
+        type: string
+        enum: NonconformanceSeverity
+        help: Business severity of the deviation. Indicates impact and urgency. Prioritization, containment and escalation. Determines response urgency. Required.
+      - name: status
+        type: string
+        enum: NonconformanceStatus
+        help: Lifecycle state of the quality issue. Indicates investigation, containment, corrective action and closure. Quality management and audit. Controls allowed responses and closure. Required.
+        default: OPEN
+      - name: description
+        type: string(4000)
+        help: Detailed explanation of the deviation. States what requirement or expected result was not met. Investigation, supplier communication, CAPA and audit. Provides issue evidence. Required.
+      - name: detected_at
+        type: datetime
+        help: Time the deviation was detected. Establishes chronology for containment and corrective action. Audit and quality analytics. Anchors issue occurrence. Required.
+      - name: closed_at
+        type: datetime
+        optional: true
+        help: Time the issue was formally closed. Establishes completion chronology. Quality performance and audit. Required for closure. Optional until closure.
+      - name: inspection_id
+        type: string
+        fk: true
+        references: QualityInspection
+        optional: true
+        help: Inspection that detected or evidenced the deviation. Connects issue to objective quality evaluation. Investigation and audit. Provides detection evidence.
+      - name: owner_id
+        type: string
+        fk: true
+        references: Party
+        optional: true
+        help: Party accountable for issue management. Identifies responsible quality owner or organizational party. Escalation, CAPA and audit. Owns investigation and closure.
+  - name: CorrectiveAction
+    help: Represents a controlled quality action from assignment through implementation and independent effectiveness verification. Nonconformance records the problem; CorrectiveAction records what is done to contain, correct or prevent it; CorrectiveActionVerification records whether the action worked. CAPA, supplier quality, compliance, audit, recurrence prevention and quality improvement. The action connects Nonconformance with responsible Party and one or more CorrectiveActionVerification records. Physical and financial consequences remain represented by their own transactions. Open → assigned → in progress → verification → completed, with cancellation and reopening paths. Nonconformance → action definition → assignment → implementation → verification → effective completion → Nonconformance closure when all required evidence is satisfied. Ineffective verification returns the action to controlled follow-up. Changes to the originating Nonconformance or quality evidence affecting the action trigger revalidation of scope and verification criteria. Verification results may reopen or create additional action work; historical records remain immutable. A supplier defect causes a corrective action to change packaging controls. The action is implemented, a verification evaluates subsequent lots, and only an EFFECTIVE verification permits completion when policy requires effectiveness evidence.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Immutable identity of the corrective action. Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification. CAPA, quality audit, supplier improvement and compliance. Distinct from Nonconformance and CorrectiveActionVerification identities. Stable reference through assignment, execution, verification and closure. Required.
+      - name: action_number
+        type: string(100)
+        unique: true
+        help: Human-facing corrective-action reference. Identifies the action for quality teams, responsible parties and auditors. Communication, reporting, CAPA tracking and integration. Distinct from the originating nonconformance number and verification number. Correlates action work across its lifecycle. Required.
+      - name: action_type
+        type: string
+        enum: CorrectiveActionActionType
+        help: Classification of the quality action. Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action. Determines evidence expectations, routing and effectiveness criteria. Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence. Determines the intended outcome that verification must assess. Required.
+      - name: description
+        type: string(4000)
+        help: Detailed statement of what the action will accomplish. Defines scope, intended outcome and work required to address the quality issue. Assignment, execution, audit and effectiveness assessment. Must remain traceable to the associated Nonconformance or approved quality objective. Defines the implementation target for verification. Required.
+      - name: status
+        type: string
+        enum: CorrectiveActionStatus
+        help: Lifecycle state of the action. Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled. Controls execution and closure. COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence. VERIFICATION gates final completion when effectiveness verification is required. Required.
+        default: OPEN
+      - name: due_date
+        type: date
+        optional: true
+        help: Target date for action implementation. Defines when the responsible party is expected to complete implementation. Work planning, escalation, SLA reporting and quality governance. Distinct from completedDate and verificationDate. Supports overdue detection and escalation. Optional when policy does not require a target date.
+      - name: completed_date
+        type: date
+        optional: true
+        help: Date implementation was formally completed. Records when the action work was declared complete, subject to any required effectiveness verification. CAPA metrics, audit and chronology. Does not replace verification evidence where effectiveness is required. Required when status is COMPLETED. Optional until completion.
+      - name: nonconformance_id
+        type: string
+        fk: true
+        optional: true
+        help: Quality issue that caused or requires this action. Connects the action to the deviation and its containment, disposition and closure requirements. CAPA traceability, root-cause analysis and audit. Supplies the problem context the action is intended to address.
+      - name: owner_id
+        type: string
+        fk: true
+        references: Party
+        optional: true
+        help: Party accountable for implementing the action. Identifies the responsible person or organization for execution. Assignment, escalation and accountability. Owns implementation evidence and completion proposal.
+  - name: CorrectiveActionVerification
+    help: Provides independent auditable evidence that a corrective or preventive action achieved its intended result. CorrectiveAction records what was done; CorrectiveActionVerification records whether it worked; Nonconformance records the original quality problem. CAPA supplier quality compliance audit recurrence prevention and issue closure. Verification closes the evidence loop between Nonconformance and CorrectiveAction without conflating implementation with effectiveness. Nonconformance → CorrectiveAction → implementation → effectiveness verification → effective closure or ineffective/reopened action → Nonconformance closure when all required evidence is satisfied. Open → in progress → completed, with reopened or cancelled paths. Ineffective verification reopens or creates additional CorrectiveAction work according to policy; it must not silently close the underlying Nonconformance. A supplier defect causes a corrective action requiring a packaging-process change. After implementation, verification evaluates subsequent lots, records EFFECTIVE, and provides evidence needed to complete the action and eventually close the nonconformance.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the verification record. Identifies one independent verification event assessing an implemented corrective or preventive action. Quality assurance CAPA audit supplier performance and closure evidence. Distinct from CorrectiveAction and Nonconformance identities. Provides traceable evidence for a completion decision. Required.
+      - name: verification_number
+        type: string(100)
+        unique: true
+        help: Human-facing verification reference. Identifies the verification event for quality operations and audit. Reporting approval audit and supplier communication. Distinct from actionNumber and nonconformance number. Correlates verification evidence throughout closure. Required.
+      - name: verification_date
+        type: datetime
+        help: Date and time effectiveness verification was performed. Establishes when evidence was evaluated against the intended outcome. Audit SLA quality reporting and closure chronology. Anchors the verification event. Required.
+      - name: result
+        type: string
+        enum: CorrectiveActionVerificationResult
+        help: Outcome of effectiveness verification. States whether the action achieved its intended quality outcome. Controls corrective-action completion recurrence handling and escalation. Does not rewrite original Nonconformance or CorrectiveAction evidence. Determines whether action may be completed or must be reopened. Required.
+      - name: status
+        type: string
+        enum: CorrectiveActionVerificationStatus
+        help: Lifecycle state of verification. Separates preparation evaluation completion and follow-up. Quality governance and audit. COMPLETED records final verification evidence; REOPENED signals additional action is required. Required.
+        default: OPEN
+      - name: findings
+        type: string(4000)
+        help: Evidence and observations supporting the verification result. Explains what was checked and why the result was reached. Audit quality review supplier improvement and recurrence analysis. Supports effectiveness decision. Required.
+      - name: verified_by
+        type: string
+        fk: true
+        references: Party
+        help: Party accountable for performing or approving effectiveness verification. Establishes accountability for the verification decision. Audit trail quality governance and segregation of duties. Provides verification authority. Required.
+      - name: nonconformance_id
+        type: string
+        fk: true
+        optional: true
+        help: Nonconformance for which the action was established. Connects effectiveness evidence to the original quality deviation. Issue closure and recurrence analysis. Provides context for determining whether the underlying issue is controlled.
+      - name: corrective_action_id
+        type: string
+        fk: true
+        help: Corrective action being evaluated. Connects verification evidence to the action whose implementation is assessed. CAPA closure audit and quality reporting. Verification result controls whether action can be completed.
+  - name: ReturnDisposition
+    help: Provides the controlled bridge between a returned quantity, its operational outcome, quality evidence and the physical inventory execution. ReturnDisposition decides what happens to returned material. InventoryMovement records what physically happened. CreditNote or SupplierCreditNote records any separate financial consequence. Reverse logistics, warehouse operations, quality, customer returns, supplier returns, inventory control, claims, audit and reconciliation. CustomerReturn/SupplierReturn establish reverse transactions; their lines establish quantities; QualityInspection supplies quality evidence; InventoryMovement records physical effects; CreditNote and SupplierCreditNote record financial adjustments. Return received → inspection where required → disposition authorized → execute attributable InventoryMovement where applicable → update return completion projection → create or release separate financial adjustment when eligible. No financial or inventory effect is inferred merely from authorization. Draft → authorized → executed, with cancellation and exception paths. Historical executed decisions are retained. Changes to return-line eligibility or inspection evidence affecting an unexecuted disposition trigger revalidation. Executed history is corrected through compensating evidence. Five customer-returned units are inspected and dispositioned as three RESTOCK and two QUARANTINE. One disposition records each outcome; InventoryMovement increases unrestricted inventory only for the three restocked units, while the two quarantined units remain unavailable.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the return disposition decision. Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects. Used for reverse logistics, inventory, quality, audit and reconciliation. CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence. Carries the disposition decision into execution and completion. Required.
+      - name: disposition_code
+        type: string
+        enum: ReturnDispositionDispositionCode
+        help: Controlled operational outcome selected for returned material. Defines what should happen to the returned quantity. Drives warehouse execution, quality containment and eligibility for inventory availability. The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote. Determines which downstream physical workflow is permitted. Required.
+      - name: disposition_date
+        type: datetime
+        help: Timestamp when the disposition became effective. Establishes chronology for the physical return decision. Supports audit, warehouse processing, SLA measurement and reconciliation. Distinct from returnDate, receiptDate and financial adjustment dates. Anchors execution of the disposition. Required.
+      - name: quantity
+        type: decimal
+        help: Quantity covered by this disposition. States how much returned material receives this outcome. Supports partial dispositions and inventory execution. Must reconcile with the related return line quantity and its UnitOfMeasure. Controls the quantity eligible for the resulting InventoryMovement. Required and must be positive.
+      - name: status
+        type: string
+        enum: ReturnDispositionStatus
+        help: Lifecycle state of the disposition decision. Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed. Controls whether downstream inventory execution is permitted. Does not replace CustomerReturn, SupplierReturn or QualityInspection status. EXECUTED requires attributable physical evidence where the disposition changes inventory. Required.
+        default: AUTHORIZED
+      - name: reason_code
+        type: string(100)
+        optional: true
+        help: Business reason supporting the selected disposition. Explains why the returned quantity received the selected operational outcome. Used for quality analysis, supplier/customer disputes and reporting. May derive from return reason or inspection evidence but remains disposition-specific. Supports authorization and exception handling. Optional when another controlled reason source is sufficient.
+      - name: nonconformance_id
+        type: string
+        fk: true
+        optional: true
+        help: The Nonconformance this ReturnDisposition belongs to.
+      - name: quality_inspection_id
+        type: string
+        fk: true
+        optional: true
+        help: Quality inspection supporting the disposition decision. Links the operational outcome to quality evidence where inspection is required. Supports release, quarantine, rejection, repair, scrap and return decisions. Provides controlled evidence for disposition authorization.
+  - name: CertificateOfAnalysis
+    help: Controlled certificate presenting quality evidence for governed material. CertificateOfAnalysis is a released representation of underlying evidence, not a substitute for QualityInspection or QualityMeasurement. Supplier quality, customer documentation, regulated release, shipments, receipts, compliance, audit, and integrations. Inspections and measurements supply evidence; Product and receipt/shipment provide material context. Draft → approved → issued → superseded/void under controlled document history. Changes to open source evidence invalidate draft/approved certificates for revalidation; issued certificates retain historical source references and are corrected by supersession.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the certificate. Identifies one issued quality certificate independently of its document number. Compliance, customer/supplier exchange, audit, and integration. Links certificate representation to source quality evidence. Required.
+      - name: certificate_number
+        type: string(120)
+        unique: true
+        help: Business-facing certificate reference. Controlled number used to identify the issued certificate. Documents, search, exchange, and audit. Distinct from inspection and shipment numbers. Required.
+      - name: issued_at
+        type: datetime
+        optional: true
+        help: Time the certificate was formally issued. Establishes when the quality statement became externally or operationally effective. Compliance, customer documentation, and audit. Required once status is ISSUED. Optional before issuance.
+      - name: status
+        type: string
+        enum: CertificateOfAnalysisStatus
+        help: Lifecycle state of the certificate. Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated. Release and document governance. Status does not alter underlying measurements. Being prepared. Reviewed and approved for issuance. Formally issued. Replaced by a later controlled certificate. Invalidated while retained as history. Required.
+        default: DRAFT
+relationships:
+  - from: Person
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: exactly-one
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: exactly-one
+  - from: Party
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Party
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Person
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+    label: employer_organizations
+  - from: Person
+    fromCardinality: exactly-one
+    to: Person
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Person
+    toCardinality: zero-or-more
+  - from: Person
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Person
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+    label: child_organizations
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: locations
+  - from: Person
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Party
+    fromCardinality: exactly-one
+    to: PartyRelationship
+    toCardinality: zero-or-more
+    label: from_party
+  - from: Organization
+    fromCardinality: exactly-one
+    to: BusinessUnit
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+  - from: Location
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+  - from: Party
+    fromCardinality: exactly-one
+    to: ContactPoint
+    toCardinality: zero-or-more
+  - from: Location
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: child_locations
+  - from: Address
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: exchange_rates_from
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: exchange_rates_to
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: from_currency_ref
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: to_currency_ref
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: UnitOfMeasure
+    toCardinality: zero-or-more
+    label: base_unit
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: UnitOfMeasure
+    toCardinality: zero-or-more
+    label: derived_units
+  - from: QualityCharacteristic
+    fromCardinality: exactly-one
+    to: QualityPlanCharacteristic
+    toCardinality: zero-or-more
+    label: quality_plan_characteristics
+  - from: QualityCharacteristic
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements
+  - from: QualityPlan
+    fromCardinality: exactly-one
+    to: QualityPlanCharacteristic
+    toCardinality: zero-or-more
+    label: characteristics
+  - from: TestMethod
+    fromCardinality: exactly-one
+    to: QualityPlanCharacteristic
+    toCardinality: zero-or-more
+    label: quality_plan_characteristics
+  - from: SamplingPlan
+    fromCardinality: exactly-one
+    to: QualityPlanCharacteristic
+    toCardinality: zero-or-more
+  - from: QualityPlanCharacteristic
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements
+  - from: QualityPlan
+    fromCardinality: zero-or-more
+    to: SamplingPlan
+    toCardinality: zero-or-more
+    label: sampling_plans
+  - from: QualityPlan
+    fromCardinality: exactly-one
+    to: QualityInspection
+    toCardinality: zero-or-more
+    label: inspections
+  - from: TestMethod
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements
+  - from: SamplingPlan
+    fromCardinality: exactly-one
+    to: SamplingRule
+    toCardinality: one-or-more
+    label: rules
+  - from: QualityPlan
+    fromCardinality: exactly-one
+    to: SamplingRule
+    toCardinality: zero-or-more
+  - from: Party
+    fromCardinality: exactly-one
+    to: QualityInspection
+    toCardinality: zero-or-more
+    label: inspector
+  - from: QualityInspection
+    fromCardinality: exactly-one
+    to: InspectionSample
+    toCardinality: zero-or-more
+    label: samples
+  - from: QualityInspection
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements
+  - from: QualityInspection
+    fromCardinality: zero-or-more
+    to: CertificateOfAnalysis
+    toCardinality: zero-or-more
+    label: certificates_of_analysis
+  - from: QualityInspection
+    fromCardinality: exactly-one
+    to: Nonconformance
+    toCardinality: zero-or-more
+    label: nonconformances
+  - from: SamplingPlan
+    fromCardinality: exactly-one
+    to: InspectionSample
+    toCardinality: zero-or-more
+  - from: SamplingRule
+    fromCardinality: exactly-one
+    to: InspectionSample
+    toCardinality: zero-or-more
+  - from: InspectionSample
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements
+  - from: QualityPlan
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+  - from: Nonconformance
+    fromCardinality: exactly-one
+    to: ReturnDisposition
+    toCardinality: zero-or-more
+    label: return_dispositions
+  - from: Party
+    fromCardinality: exactly-one
+    to: Nonconformance
+    toCardinality: zero-or-more
+    label: owner
+  - from: Nonconformance
+    fromCardinality: exactly-one
+    to: CorrectiveAction
+    toCardinality: zero-or-more
+    label: corrective_actions
+  - from: Nonconformance
+    fromCardinality: exactly-one
+    to: CorrectiveActionVerification
+    toCardinality: zero-or-more
+    label: verifications
+  - from: Party
+    fromCardinality: exactly-one
+    to: CorrectiveAction
+    toCardinality: zero-or-more
+    label: owner
+  - from: CorrectiveAction
+    fromCardinality: exactly-one
+    to: CorrectiveActionVerification
+    toCardinality: zero-or-more
+    label: verifications
+  - from: QualityInspection
+    fromCardinality: exactly-one
+    to: ReturnDisposition
+    toCardinality: zero-or-more
+  - from: CertificateOfAnalysis
+    fromCardinality: exactly-one
+    to: QualityMeasurement
+    toCardinality: zero-or-more
+    label: measurements

@@ -1,0 +1,15 @@
+entity:
+  name: ProfitCenter
+  namespace: cedm.domain
+  kind: management_accounting_dimension
+  description: A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.
+  identity: {key: profitCenterId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable ProfitCenter identity., businessMeaning: Identifies the governed ProfitCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+  relationships:
+  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+  invariants:
+  - {id: PROFITCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+  help: {summary: "A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROFIT-CENTER}

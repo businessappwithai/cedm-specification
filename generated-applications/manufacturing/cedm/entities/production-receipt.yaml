@@ -1,0 +1,31 @@
+entity:
+  name: ProductionReceipt
+  namespace: cedm.domain
+  kind: manufacturing_output_transaction
+  description: An auditable manufacturing output receipt recording accepted quantity produced by a ManufacturingWorkOrder, with inventory increase represented by attributable InventoryMovement and output genealogy preserved by Lot/SerialNumber.
+  identity: {key: productionReceiptId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: productionReceiptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of production receipt., businessMeaning: Identifies one governed output posting., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Connects work-order output to stock event., requiredMeaning: Required.}}
+  - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing production receipt reference., businessMeaning: Operational identifier for output posting., usage: "Shop floor, warehouse, quality, and audit.", relationshipContext: Distinct from inventory movement number., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Accepted output quantity received into inventory., businessMeaning: Quantity recognized as produced/receivable., usage: "Production completion, inventory, and costing.", relationshipContext: Rejected/scrap quantity is modeled separately., requiredMeaning: Required.}}
+  - {name: receivedAt, type: datetime, required: true, help: {summary: Effective output receipt time., businessMeaning: Establishes production and inventory chronology., usage: "Inventory, costing, genealogy, and reporting.", relationshipContext: Distinct from work-order completion time., requiredMeaning: Required.}}
+  relationships:
+  - {name: workOrder, target: ManufacturingWorkOrder, cardinality: "1", ownership: reference, help: {summary: Production order creating output., businessMeaning: "Supplies authorization, product, BOM/routing context.", usage: Completion and variance reconciliation., cardinalityMeaning: Exactly one work order., workflowRole: Output cannot exceed governed production quantity without authorized overproduction.}}
+  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Produced item received., businessMeaning: Identifies output inventory item., usage: Inventory and genealogy., cardinalityMeaning: Exactly one Product., workflowRole: Must reconcile with work-order output.}}
+  - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Output production lot., businessMeaning: Groups produced quantity for genealogy/quality/recall., usage: Traceability and quality release., cardinalityMeaning: Required according to lot-control policy., workflowRole: May remain quarantined pending required quality evidence.}}
+  - {name: serialNumbers, target: SerialNumber, cardinality: "0..*", ownership: reference, help: {summary: Serialized output units created/received., businessMeaning: Establishes unit-level output identity., usage: "Inventory, service, warranty, and recall.", cardinalityMeaning: Required according to serialization policy., workflowRole: Serial count must reconcile to quantity under product policy.}}
+  - {name: qualityInspection, target: QualityInspection, cardinality: 0..1, ownership: reference, help: {summary: Inspection evidence governing output acceptance/release., businessMeaning: Separates production from quality disposition., usage: Release and compliance., cardinalityMeaning: Optional unless quality plan requires it., workflowRole: Required quality gates constrain availability.}}
+  - {name: inventoryMovement, target: InventoryMovement, cardinality: '1', ownership: reference, help: {summary: Posted stock event implementing output receipt., businessMeaning: InventoryMovement remains authoritative inventory ledger., usage: Balance reconciliation and audit., cardinalityMeaning: Exactly one attributable posting per executed receipt., workflowRole: Must reconcile product/quantity/lot/serial and be idempotent.}}
+  invariants:
+  - {id: PRODUCTION-RECEIPT-001, rule: quantity must be greater than zero.}
+  - {id: PRODUCTION-RECEIPT-002, rule: Accepted cumulative output must not exceed authorized work-order quantity except by explicit overproduction policy.}
+  - {id: PRODUCTION-RECEIPT-003, rule: Required quality inspection must be complete before unrestricted release.}
+  - {id: PRODUCTION-RECEIPT-004, rule: Executed receipt must post inventory exactly once; correction uses compensating events.}
+  help:
+    summary: Accepted manufacturing output transaction with inventory and genealogy evidence.
+    businessMeaning: ProductionReceipt explains why finished/semi-finished stock increased; InventoryMovement records the stock consequence.
+    usage: Production completion, inventory receipt, costing, quality release, genealogy, and recall.
+    relationshipContext: Work order supplies production authorization; Lot/SerialNumber identify output; quality governs release; movement updates stock.
+    lifecycle: Prepared → quality/quantity validated → received/posted → immutable history.
+    changePropagation: Receipt updates inventory and production completion and connects consumed material genealogy to output identities.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCTION-RECEIPT}

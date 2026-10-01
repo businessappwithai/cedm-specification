@@ -1,0 +1,32 @@
+specification:
+  name: CEDM Authorization Semantics
+  version: 0.1.0
+  status: draft
+
+authorization:
+  principles:
+    - Authorization is separate from authentication.
+    - Permissions may depend on party, role, organization, resource, action, and context.
+    - Domain invariants cannot be bypassed by authorization.
+
+  permission:
+    fields:
+      - action
+      - resource
+      - subject
+      - scope
+      - effect
+    actions:
+      - create
+      - read
+      - update
+      - delete
+      - approve
+      - submit
+      - post
+      - cancel
+      - execute
+
+  policy:
+    effects: [allow, deny]
+    defaultEffect: deny

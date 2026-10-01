@@ -1,0 +1,23 @@
+entity:
+  name: Carrier
+  namespace: cedm.domain
+  kind: logistics_party
+  description: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
+  identity: {key: carrierId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: carrierId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Carrier., businessMeaning: Identifies one governed Carrier record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Carrier., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  relationships:
+  - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Canonical party providing carrier service., businessMeaning: Separates logistics role from Party identity., usage: Shipment tendering and performance., cardinalityMeaning: Exactly one Party., workflowRole: Carrier eligibility derives from governed party role/status.}}
+  invariants:
+  - {id: CARRIER-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  help:
+    summary: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
+    purpose: Provide canonical implementation-neutral semantics for Carrier across enterprise applications.
+    businessMeaning: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
+    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+    commonExamples: Enterprise sales and supply-chain operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CARRIER}

@@ -35,6 +35,17 @@ import type {
 import { defaultRelationshipName, END_CARDINALITY, lowerCedmModel, lowerType } from "./lower";
 import { camelCase, derivedReferenceTable, pascalCase, snakeCase, tableOf } from "./naming";
 
+/** Mirrors `MANAGED_COLUMNS` in `lower.ts`. */
+const MANAGED_COLUMNS = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by",
+]);
+
 /** A model this module cannot express in CEDM without changing what it means. */
 export class RaiseError extends Error {
   constructor(readonly problems: string[]) {
@@ -152,6 +163,9 @@ function raiseAttribute(
   }
   if (attribute.optional) raised.required = false;
   if (attribute.unique) raised.unique = true;
+  // Lowering leaves out a column the application already provides unless the
+  // model says to keep it; a model document that declares one keeps it.
+  if (MANAGED_COLUMNS.has(attribute.name) && !attribute.pk) raised.systemManaged = false;
 
   if (attribute.enum !== undefined) {
     const values = enums.get(attribute.enum);

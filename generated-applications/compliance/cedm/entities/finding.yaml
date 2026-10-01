@@ -1,0 +1,24 @@
+entity:
+  name: Finding
+  namespace: cedm.domain
+  kind: governance_finding
+  description: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
+  identity: {key: findingId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: findingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Finding., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  relationships:
+  - {name: control, target: Control, cardinality: 0..1, ownership: reference, help: {summary: Control associated with finding., businessMeaning: Identifies deficient or tested control., usage: Audit and remediation., cardinalityMeaning: Optional for findings not control-specific., workflowRole: Finding resolution does not erase original evidence.}}
+  - {name: risk, target: Risk, cardinality: 0..1, ownership: reference, help: {summary: Risk informed by finding., businessMeaning: Connects evidence to risk governance., usage: Risk assessment and treatment., cardinalityMeaning: Optional., workflowRole: May trigger reassessment/treatment.}}
+  invariants:
+  - {id: FINDING-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  help:
+    summary: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
+    purpose: Provide durable, implementation-neutral governance semantics for Finding.
+    businessMeaning: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
+    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
+    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
+    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
+    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
+    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FINDING}

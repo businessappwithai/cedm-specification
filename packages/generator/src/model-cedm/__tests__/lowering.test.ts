@@ -64,7 +64,12 @@ describe("relationships", () => {
     ]);
     const line = document.entities.find((entity) => entity.name === "SalesOrderLine");
     expect(line?.parent).toBe("SalesOrder");
-    expect(line?.attributes).toContainEqual({ name: "sales_order_id", type: "string", fk: true });
+    expect(line?.attributes).toContainEqual({
+      name: "sales_order_id",
+      type: "string",
+      fk: true,
+      help: "The SalesOrder this SalesOrderLine refers to.",
+    });
     // And the compiled child is a line item of its parent, linked on that key.
     const compiled = compileModelDocument(document);
     const child = compiled.entities.find((entity) => entity.name === "SalesOrderLine");
@@ -105,6 +110,7 @@ describe("relationships", () => {
       fk: true,
       optional: true,
       references: "Location",
+      help: "The Location this Shipment refers to.",
     });
     expect(document.relationships).toEqual([
       {
@@ -161,6 +167,7 @@ describe("relationships", () => {
       type: "string",
       fk: true,
       optional: true,
+      help: "The Location this Location refers to.",
     });
   });
 
@@ -234,6 +241,46 @@ describe("attributes", () => {
     });
     expect(document.entities[0]?.attributes).toEqual([{ name: "currency_id", type: "string" }]);
     expect(notes.map((note) => note.code)).toContain("CEDM120");
+  });
+});
+
+describe("what the application already provides", () => {
+  it("leaves out the audit fields CEDM calls system-managed, unless told to keep one", () => {
+    const { document, notes } = lower({
+      entities: [
+        {
+          name: "Thing",
+          attributes: [
+            { name: "code", type: "string" },
+            { name: "createdAt", type: "datetime" },
+            { name: "updatedBy", type: "string", systemManaged: false },
+          ],
+        },
+      ],
+    });
+    expect(document.entities[0]?.attributes.map((attribute) => attribute.name)).toEqual([
+      "code",
+      "updated_by",
+    ]);
+    expect(notes.map((note) => note.code)).toContain("CEDM141");
+  });
+
+  it("treats an optional neighbour outside the model as information, a required one as a warning", () => {
+    const { notes } = lower({
+      entities: [
+        {
+          name: "Order",
+          relationships: [
+            { name: "invoices", target: "Invoice", cardinality: "0..*" },
+            { name: "customer", target: "Customer", cardinality: "1" },
+          ],
+        },
+      ],
+    });
+    expect(notes.filter((note) => note.code === "CEDM121").map((note) => note.severity)).toEqual([
+      "info",
+      "warning",
+    ]);
   });
 });
 

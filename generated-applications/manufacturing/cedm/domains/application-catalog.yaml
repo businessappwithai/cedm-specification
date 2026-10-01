@@ -1,0 +1,243 @@
+# CEDM Application Catalog
+# Which applications are built from CEDM, and what each is made of.
+#
+# Each catalog domain (domains/catalog.yaml) that the entity library covers is
+# its own application. Every application imports one common foundation — the
+# parties, places, units and reference data every domain shares — and its own
+# domain entities, named here by capability (domains/capability-catalog.yaml)
+# and by entity. An imported entity also brings what it cannot exist without
+# (its required references), so an application is complete without listing
+# its dependencies.
+#
+# applications/*.cedm.yaml are generated from this file by
+# scripts/build-domain-applications.ts; edit this file, not those.
+catalog:
+  version: 1.0.0
+  common:
+    name: CEDM Common Foundation
+    description: The parties, organisations, places, units and reference data every domain application shares.
+    entities:
+      - Party
+      - Person
+      - Organization
+      - PartyRole
+      - PartyRelationship
+      - LegalEntity
+      - BusinessUnit
+      - Department
+      - Address
+      - ContactPoint
+      - Location
+      - Country
+      - Language
+      - Currency
+      - ExchangeRate
+      - UnitOfMeasure
+      - Calendar
+      - Attachment
+
+  applications:
+    - domain: enterprise
+      icon: building-2
+      entities: [ERP, Team, OrganizationMembership, Classification, Approval, Assignment, Activity, BusinessEvent, BusinessTransaction]
+    - domain: finance
+      icon: landmark
+      capabilities: [financial-accounting, accounts-payable, accounts-receivable, budgeting-planning]
+      entities:
+        - Ledger
+        - FiscalPeriod
+        - InvoiceLine
+        - PaymentAllocation
+        - PaymentInstruction
+        - CreditNote
+        - CreditNoteLine
+        - CreditNoteApplication
+        - TaxCode
+        - TaxJurisdiction
+        - TaxRate
+        - TaxRegistration
+        - TaxRule
+        - TaxTransaction
+        - BillingCycle
+        - Charge
+        - Subscription
+        - SubscriptionPlan
+        - UsageRecord
+        - AssetClass
+        - AssetAcquisition
+        - AssetDepreciation
+        - AssetDisposal
+        - AssetTransfer
+        - ForeignExchangeTransaction
+        - CashPosition
+        - Interest
+    - domain: banking
+      icon: piggy-bank
+      entities: [BankAccount, BankTransaction, BankReconciliation, BankLoan, Deposit, Credit, Collateral]
+    - domain: procurement
+      icon: shopping-bag
+      capabilities: [procurement]
+      entities:
+        - GoodsReceipt
+        - GoodsReceiptLine
+        - SupplierClaim
+        - SupplierClaimResolution
+        - SupplierCreditNote
+        - SupplierCreditNoteLine
+        - SupplierCreditNoteApplication
+        - SupplierDebitNote
+        - SupplierDebitNoteLine
+        - SupplierDebitNoteApplication
+        - SupplierPerformanceAssessment
+        - SupplierReturn
+        - SupplierReturnLine
+    - domain: sales
+      icon: badge-dollar-sign
+      capabilities: [sales, order-management, pricing, product-management]
+      entities: [QuotationLine, DiscountRule, Pricing, Promotion, Campaign, Prospect, Contact, CustomerReturn, CustomerReturnLine, Brand]
+    - domain: customer-service
+      icon: headphones
+      capabilities: [customer-service]
+      entities: [Incident, Escalation, ServiceLevelAgreement]
+    - domain: inventory
+      icon: boxes
+      capabilities: [inventory-management, warehouse-management]
+      entities: [Packaging]
+    - domain: logistics
+      icon: truck
+      capabilities: [transportation-management, fulfillment]
+      entities: [Carrier, Consignment, Delivery, DeliveryAttempt, FreightCharge, Fulfillment, Load, Route, TrackingEvent, Trip, TripSegment]
+    - domain: container-logistics
+      icon: container
+      entities: [Container, ContainerMovement, Yard, YardBlock, YardBay, YardTier, YardSlot]
+    - domain: manufacturing
+      icon: factory
+      capabilities: [manufacturing-management]
+      entities: [ProductionRecord, Scrap, ProductLifecycle]
+    - domain: maintenance
+      icon: wrench
+      capabilities: [maintenance-management, asset-management]
+      entities: [Equipment, Failure, SparePart]
+    - domain: quality
+      icon: badge-check
+      capabilities: [quality-management]
+    - domain: supply-chain
+      icon: network
+      entities: [SupplyPlan, SupplyPlanLine]
+    - domain: human-resources
+      icon: users
+      capabilities: [human-capital]
+      entities: [Job]
+    - domain: projects
+      icon: kanban
+      capabilities: [project-management]
+    - domain: document-management
+      icon: file-text
+      capabilities: [document-management]
+      entities: [DocumentClassification]
+    - domain: workflow
+      icon: workflow
+      capabilities: [workflow-orchestration]
+      entities: [ProcessDefinition, ProcessInstance]
+    - domain: compliance
+      icon: shield-check
+      capabilities: [compliance-management]
+      entities: [AuditCase, AuditEvent, ComplianceRequirement, Finding, RiskAssessment, RiskTreatment, Filing, Obligation, LossEvent]
+    - domain: legal
+      icon: scale
+      capabilities: [contract-management]
+      entities: [Agreement, ContractLine, ContractAmendment, ContractRenewal, ContractTermination, Renewal, LegalCase, LegalMatter]
+    - domain: insurance
+      icon: umbrella
+      entities: [InsurancePolicy, InsuranceClaim]
+    - domain: healthcare
+      icon: stethoscope
+      entities: [HealthcarePatient, HealthcareProvider, HealthcareEncounter, HealthcareOrder, Diagnosis, Procedure, Medication, Prescription, Allergy, CarePlan]
+    - domain: life-sciences
+      icon: flask-conical
+      entities: [Compound, Experiment, Sample, ChemicalBatch]
+    - domain: education
+      icon: graduation-cap
+      entities: [EducationProgram, EducationCourse, EducationStudent, Enrollment]
+    - domain: retail
+      icon: store
+      entities: [Store, RetailSale, RetailSaleLine]
+    - domain: ecommerce
+      icon: shopping-cart
+      entities: [ShoppingCart, ShoppingCartLine, ProductVariant, ProductAttribute]
+    - domain: hospitality
+      icon: hotel
+      entities: [Hotel, HotelRoom, HotelReservation]
+    - domain: travel
+      icon: plane
+      entities: [Flight, Aircraft]
+    - domain: real-estate
+      icon: home
+      entities: [Property, Lease, Facility]
+    - domain: construction
+      icon: hard-hat
+      entities: [ConstructionProject]
+    - domain: agriculture
+      icon: sprout
+      entities: [Farm, FarmField, Crop]
+    - domain: energy
+      icon: zap
+      entities: [EnergyAsset, EnergyMeter, EnergyTariff, MeterReading]
+    - domain: telecommunications
+      icon: radio-tower
+      entities: [TelecomService, TelecomSubscription]
+    - domain: media
+      icon: clapperboard
+      entities: [MediaContent, MediaRight]
+    - domain: public-sector
+      icon: landmark
+      entities: [GovernmentCase]
+    - domain: nonprofit
+      icon: heart-handshake
+      entities: [NonprofitCampaign]
+    - domain: security
+      icon: lock
+      capabilities: [identity-access]
+      entities: [AccessGrant, SecurityIncident]
+    - domain: analytics
+      icon: line-chart
+      capabilities: [reporting]
+      entities: [DataQualityAssessment]
+    - domain: artificial-intelligence
+      icon: brain
+      capabilities: [ai-decisioning]
+    - domain: technology
+      icon: server
+      capabilities: [integration]
+      entities: [IntegrationEndpoint]
+    - domain: food
+      icon: wheat
+      entities: [FoodBatch]
+    - domain: mining
+      icon: mountain
+      entities: [MiningSite]
+    - domain: automotive
+      icon: car
+      entities: [VehicleModel]
+    - domain: professional-services
+      icon: briefcase
+      entities: [ProfessionalEngagement]
+    - domain: research
+      icon: microscope
+      entities: [ResearchProject]
+    - domain: regulatory
+      icon: file-check
+      entities: [RegulatorySubmission]
+    - domain: trade
+      icon: globe
+      entities: [TradeDeclaration, CustomsDeclaration]
+    - domain: sustainability
+      icon: leaf
+      capabilities: [sustainability]
+
+  notCovered:
+    description: >-
+      Catalog domains the entity library has no entities for yet. Each becomes
+      an application the day the library gains its entities and they are
+      listed above.
+    domains: [aerospace, chemicals, pharmaceuticals, apparel, field-service, facilities, security-operations, environment]

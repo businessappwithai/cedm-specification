@@ -1,0 +1,74 @@
+entity:
+  name: SalesOrder
+  namespace: cedm.domain
+  kind: commercial_transaction
+  description: A formal customer commitment for specified products or services, establishing what is requested, for whom, under which commercial terms, and for what fulfillment requirements; it is the commercial source for allocation, shipment, invoicing, and revenue processes.
+  identity: {key: salesOrderId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: salesOrderId, type: uuid, required: true, immutable: true}
+  - {name: orderNumber, type: string, required: true, unique: true, maxLength: 100}
+  - {name: orderDate, type: datetime, required: true}
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
+    help:
+      summary: Order-level lifecycle state controlling commercial and fulfillment permissions.
+      usage: Drives confirmation, allocation, fulfillment, shipment readiness and cancellation.
+      relationshipContext: Summarizes downstream evidence; it is not an independent source of fulfillment quantity.
+      workflowRole: Status transitions are validated against line, reservation, shipment and fulfillment evidence.
+  - {name: currencyId, type: reference, target: Currency, required: false}
+  - {name: requestedDeliveryDate, type: date, required: false}
+  - {name: totalAmount, type: decimal, required: false, precision: 20, scale: 4}
+  relationships:
+  - name: customer
+    target: Customer
+    cardinality: '1'
+    ownership: reference
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+  - name: lines
+    target: SalesOrderLine
+    cardinality: 1..*
+    ownership: aggregate
+  - name: deliveryLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+  - name: shipments
+    target: Shipment
+    cardinality: 0..*
+    ownership: reference
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+  invariants:
+  - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
+  - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
+  - {id: SALES-ORDER-003, rule: totalAmount must reconcile with applicable line amounts and adjustments.}
+  - {id: SALES-ORDER-004, rule: CANCELLED orders must not create new allocation or fulfillment commitments.}
+  - {id: SALES-ORDER-005, rule: FULFILLED status requires all executable line quantities to have accepted fulfillment evidence according to the applicable workflow.}
+  - {id: SALES-ORDER-006, rule: "CONFIRMED status requires required customer, currency, product, UOM, pricing, tax and delivery context to pass validation before fulfillment work can begin."}
+  - {id: SALES-ORDER-007, rule: ALLOCATED status requires active reservation/allocation evidence for the executable quantities according to fulfillment policy; order status cannot create reservations implicitly without the allocation workflow.}
+  - {id: SALES-ORDER-008, rule: "PARTIALLY_FULFILLED and FULFILLED must be derived from accepted fulfillment evidence on SalesOrderLine, not merely Shipment status or invoice creation."}
+  - {id: SALES-ORDER-009, rule: A Shipment linked to this order may contribute fulfillment evidence only through validated shipment execution and corresponding fulfillment/inventory workflows; Shipment delivery alone cannot directly overwrite order quantities.}
+  - {id: SALES-ORDER-010, rule: "Cancelling an order with active reservations, open shipments, or downstream fulfillment requires controlled release/cancellation/reconciliation of those dependent workflows before remaining demand is terminated."}
+  - {id: SALES-ORDER-011, rule: "Cancellation must not erase accepted shipment, inventory, invoice or payment history; any already-posted effects require their own compensating workflows."}
+  - {id: SALES-ORDER-012, rule: "Changes to Customer, Product, UOM, Price, DiscountRule, TaxRule, Currency, DeliveryLocation or requested delivery date that affect an executable order require controlled revalidation and, where applicable, repricing/reallocation/rescheduling workflows."}
+  - {id: SALES-ORDER-013, rule: Invoice creation does not make an order FULFILLED and shipment delivery does not make an invoice PAID; each lifecycle is governed by its authoritative evidence.}
+  - {id: SALES-ORDER-014, rule: Order-level derived totals and status must be recalculated atomically or through an idempotent recoverable workflow whenever a dependent line/reservation/fulfillment event changes.}
+  help:
+    summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
+    businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.
+    usage: Order management, allocation, inventory, warehouse execution, transportation, invoicing, customer service and revenue processes.
+    relationshipContext: Customer supplies commercial context, SalesOrderLine supplies demand detail, InventoryReservation supplies committed stock, InventoryMovement supplies stock execution, Shipment supplies transport evidence, and Invoice supplies financial claim evidence.
+    workflowContext: Confirmed order → validation → availability check → reservation/allocation → pick/issue → Shipment → delivery/acceptance evidence → SalesOrderLine fulfillment → order status. Invoice is generated according to billing policy and remains independent evidence. Cancellation releases remaining reservations and stops new work while preserving historical downstream effects.
+    lifecycle: Draft → confirmed → allocated → partially fulfilled → fulfilled, with cancellation of remaining demand and controlled exception/recovery paths.
+    propagation: Entity changes must propagate through affected dependent workflows rather than directly mutating derived states. Line fulfillment changes recalculate order status; reservation changes affect allocation state; shipment events contribute fulfillment evidence; billing changes do not independently determine fulfillment.
+    concurrency: Allocation, fulfillment, cancellation and status transitions require concurrency control and idempotency to prevent double reservation, double fulfillment or contradictory terminal states.
+    example: An order for 20 units reserves 20, ships 12, and becomes PARTIALLY_FULFILLED from accepted fulfillment evidence. The remaining 8 stay executable. A cancellation then releases the remaining reservation and terminates the open demand without reversing the already accepted 12-unit fulfillment.
+specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER}

@@ -1,0 +1,82 @@
+entity:
+  name: CorrectiveAction
+  namespace: cedm.domain
+  kind: quality_process_entity
+  description: An authorized quality action that removes the cause of a detected Nonconformance, corrects an observed condition, contains immediate risk, or prevents recurrence. Implementation and effectiveness verification are separate controlled facts.
+  identity:
+    key: correctiveActionId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: correctiveActionId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Immutable identity of the corrective action., businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure.", requiredMeaning: Required.}
+  - name: actionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle., requiredMeaning: Required.}
+  - name: actionType
+    type: enum
+    required: true
+    values: [CONTAINMENT, CORRECTION, CORRECTIVE, PREVENTIVE]
+    help: {summary: Classification of the quality action., businessMeaning: "Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action.", usage: "Determines evidence expectations, routing and effectiveness criteria.", relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence., workflowRole: Determines the intended outcome that verification must assess., requiredMeaning: Required.}
+  - name: description
+    type: string
+    required: true
+    maxLength: 4000
+    help: {summary: Detailed statement of what the action will accomplish., businessMeaning: "Defines scope, intended outcome and work required to address the quality issue.", usage: "Assignment, execution, audit and effectiveness assessment.", relationshipContext: Must remain traceable to the associated Nonconformance or approved quality objective., workflowRole: Defines the implementation target for verification., requiredMeaning: Required.}
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, ASSIGNED, IN_PROGRESS, VERIFICATION, COMPLETED, CANCELLED]
+    help: {summary: Lifecycle state of the action., businessMeaning: "Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled.", usage: Controls execution and closure., relationshipContext: "COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.", workflowRole: VERIFICATION gates final completion when effectiveness verification is required., requiredMeaning: Required.}
+  - name: dueDate
+    type: date
+    required: false
+    help: {summary: Target date for action implementation., businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation., optionalMeaning: Optional when policy does not require a target date.}
+  - name: completedDate
+    type: date
+    required: false
+    help: {summary: Date implementation was formally completed., businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED., optionalMeaning: Optional until completion.}
+  relationships:
+  - name: nonconformance
+    target: Nonconformance
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Quality issue that caused or requires this action., businessMeaning: "Connects the action to the deviation and its containment, disposition and closure requirements.", usage: "CAPA traceability, root-cause analysis and audit.", workflowRole: Supplies the problem context the action is intended to address.}
+  - name: owner
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Party accountable for implementing the action., businessMeaning: Identifies the responsible person or organization for execution., usage: "Assignment, escalation and accountability.", workflowRole: Owns implementation evidence and completion proposal.}
+  - name: verifications
+    target: CorrectiveActionVerification
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Effectiveness verification records evaluating this action., businessMeaning: Connects implementation to objective evidence about whether the intended outcome was achieved., usage: "CAPA closure, audit and recurrence prevention.", cardinalityMeaning: "An action may require multiple verifications, including re-verification after an ineffective result.", workflowRole: Verification evidence gates completion where quality policy requires effectiveness confirmation.}
+  invariants:
+  - {id: CORRECTIVE-ACTION-001, rule: completedDate must be present when status is COMPLETED.}
+  - {id: CORRECTIVE-ACTION-002, rule: A COMPLETED action requiring effectiveness verification must have at least one completed EFFECTIVE CorrectiveActionVerification unless an explicit quality-policy exception is recorded.}
+  - {id: CORRECTIVE-ACTION-003, rule: "INEFFECTIVE or NOT_VERIFIABLE verification must not silently permit final completion; the action must remain open, be reopened, or have an authorized exception."}
+  - {id: CORRECTIVE-ACTION-004, rule: "CorrectiveAction implementation must not rewrite the originating Nonconformance, QualityInspection, receipt or return evidence."}
+  - {id: CORRECTIVE-ACTION-005, rule: "Posted or completed action history is retained; corrections use reopening, amendment or additional action records rather than destructive mutation."}
+  - {id: CORRECTIVE-ACTION-006, rule: Verification creation and completion must be idempotent and must not create conflicting effectiveness evidence on retry.}
+  help:
+    summary: Represents a controlled quality action from assignment through implementation and independent effectiveness verification.
+    businessMeaning: Nonconformance records the problem; CorrectiveAction records what is done to contain, correct or prevent it; CorrectiveActionVerification records whether the action worked.
+    usage: CAPA, supplier quality, compliance, audit, recurrence prevention and quality improvement.
+    relationshipContext: The action connects Nonconformance with responsible Party and one or more CorrectiveActionVerification records. Physical and financial consequences remain represented by their own transactions.
+    lifecycle: Open → assigned → in progress → verification → completed, with cancellation and reopening paths.
+    workflowContext: Nonconformance → action definition → assignment → implementation → verification → effective completion → Nonconformance closure when all required evidence is satisfied. Ineffective verification returns the action to controlled follow-up.
+    changePropagation: Changes to the originating Nonconformance or quality evidence affecting the action trigger revalidation of scope and verification criteria. Verification results may reopen or create additional action work; historical records remain immutable.
+    example: A supplier defect causes a corrective action to change packaging controls. The action is implemented, a verification evaluates subsequent lots, and only an EFFECTIVE verification permits completion when policy requires effectiveness evidence.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-CORRECTIVE-ACTION

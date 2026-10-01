@@ -1,0 +1,2766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>construction &mdash; Manual</title>
+<style>
+/* Inline, and deliberately: this file is opened from a Service Worker, from a
+   static directory, and by double-clicking it out of a zip. A stylesheet
+   reference survives only the first two. */
+:root {
+  --bg: #ffffff; --surface: #f7f7f6; --border: #e3e3e0; --text: #17171a;
+  --soft: #5f6066; --faint: #8a8b91; --accent: #0d6e6e; --accent-soft: #e6f2f2;
+  --warn: #b45309;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a; --surface: #1f1f23; --border: #33333a; --text: #ececee;
+    --soft: #a9aab0; --faint: #7e7f86; --accent: #4bb3b3; --accent-soft: #14312f;
+    --warn: #e0a355;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 60rem; margin: 0 auto; padding: 40px 24px 96px; }
+header.title { border-bottom: 2px solid var(--accent); padding-bottom: 18px; margin-bottom: 8px; }
+header.title h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+header.title p { margin: 0; color: var(--soft); }
+header.title .stamp { margin-top: 10px; font-size: 12.5px; color: var(--faint); }
+h2 { font-size: 21px; margin: 44px 0 10px; letter-spacing: -0.01em; }
+h3 { font-size: 18px; margin: 34px 0 6px; }
+h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em;
+     color: var(--soft); margin: 24px 0 8px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.5px 4px;
+}
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+       padding: 18px 22px; margin: 26px 0 8px; }
+.toc h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase;
+          letter-spacing: 0.07em; color: var(--soft); }
+.toc ol { margin: 0; padding-left: 20px; }
+.toc ul { margin: 4px 0 8px; padding-left: 18px; list-style: none; }
+.toc ul li { font-size: 14px; }
+.toc li { margin: 3px 0; }
+section { scroll-margin-top: 16px; }
+.entity { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 34px; }
+.entity .lede { color: var(--text); }
+.group { font-size: 12px; font-weight: 500; color: var(--accent);
+         background: var(--accent-soft); border-radius: 999px; padding: 2px 9px;
+         vertical-align: middle; margin-left: 6px; }
+.meta { font-size: 13px; color: var(--faint); }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 14.5px; display: block; overflow-x: auto; }
+thead th { text-align: left; background: var(--surface); color: var(--soft);
+           font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+           padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; font-size: 11.5px; color: var(--soft);
+       background: var(--surface); border: 1px solid var(--border);
+       border-radius: 4px; padding: 1px 6px; margin-right: 3px; }
+.missing { color: var(--muted); font-style: italic; }
+.unset { color: var(--muted); }
+.detail { margin-top: 5px; font-size: 13px; color: var(--soft); }
+.app-overview { margin: 18px 0; padding: 16px 20px; background: var(--surface); border-left: 4px solid var(--accent); border-radius: 4px; font-size: 15px; line-height: 1.7; }
+ul.plain { margin: 4px 0 12px; padding-left: 20px; }
+.process { border-left: 3px solid var(--border); padding-left: 16px; margin: 18px 0; }
+.back { margin-top: 18px; font-size: 13px; }
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+         color: var(--faint); font-size: 13px; }
+@media print {
+  .toc, .back { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+  <header class="title">
+    <h1>construction</h1>
+    <p>Generated application</p>
+    <!-- The full ISO instant rather than a friendly date, and deliberately so:
+         CI generates this application twice and diffs the two trees to police
+         the WASM overlay's footprint, blanking ISO timestamps first. A
+         "2026-08-22" would survive that blanking and make the two copies differ
+         whenever the pair of runs straddles midnight. -->
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T04:33:40.228Z">2026-10-01T04:33:40.228Z</time></div>
+  </header>
+
+      <nav class="toc" aria-label="Contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#overview">What this application is</a></li>
+          <li><a href="#signing-in">Signing in, and what each role sees</a></li>
+          <li><a href="#entities">The records it keeps</a>
+            <ul>
+              <li><a href="#entity-address">Address</a></li>
+              <li><a href="#entity-attachment">Attachment</a></li>
+              <li><a href="#entity-business-unit">Business Unit</a></li>
+              <li><a href="#entity-calendar">Calendar</a></li>
+              <li><a href="#entity-construction-project">Construction Project</a></li>
+              <li><a href="#entity-contact-point">Contact Point</a></li>
+              <li><a href="#entity-country">Country</a></li>
+              <li><a href="#entity-currency">Currency</a></li>
+              <li><a href="#entity-department">Department</a></li>
+              <li><a href="#entity-exchange-rate">Exchange Rate</a></li>
+              <li><a href="#entity-language">Language</a></li>
+              <li><a href="#entity-legal-entity">Legal Entity</a></li>
+              <li><a href="#entity-location">Location</a></li>
+              <li><a href="#entity-organization">Organization</a></li>
+              <li><a href="#entity-party">Party</a></li>
+              <li><a href="#entity-party-relationship">Party Relationship</a></li>
+              <li><a href="#entity-party-role">Party Role</a></li>
+              <li><a href="#entity-person">Person</a></li>
+              <li><a href="#entity-project">Project</a></li>
+              <li><a href="#entity-unit-of-measure">Unit Of Measure</a></li>
+            </ul>
+          </li>
+          <li><a href="#how-it-was-built">How this application was built</a></li>
+        </ol>
+      </nav>
+
+  <section id="overview">
+    <h2>What this application is</h2>
+    <div class="app-overview"><p>Construction and Engineering, built on the CEDM common foundation.</p></div>
+    <p>construction keeps 20 kinds of records, grouped into 2 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
+    <table>
+      <thead><tr><th>Area</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-project">Project</a></td></tr>
+        <tr><td>Construction and Engineering</td><td><a href="#entity-construction-project">Construction Project</a></td></tr>
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <section id="signing-in">
+    <h2>Signing in, and what each role sees</h2>
+    <p>The application is seeded with one account per role the model names, so each can be looked at as itself. The Administrator bypasses every restriction, which is what makes it the account to compare the others against.</p>
+    <table>
+      <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
+      <tbody>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 20</td></tr>
+        <tr><td>User</td><td><code>user@construction.example.com</code></td><td>20 of 20</td></tr>
+      </tbody>
+    </table>
+
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <section id="entities">
+    <h2>The records it keeps</h2>
+    <p>One section per record type. For each: what it is, every field it has and what that field is for, the records it connects to, the states it moves through, and who may use it.</p>
+
+    <section id="entity-address" class="entity">
+      <h3>Address <span class="group">Foundation</span></h3>
+      <p class="lede">Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.</p>
+      <p class="meta">Stored as <code>bus_address</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>address_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>RESIDENTIAL</code>, <code>BUSINESS</code>, <code>BILLING</code>, <code>SHIPPING</code>, <code>REGISTERED</code>, <code>POSTAL</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>line1</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>line2</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>line3</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>city</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 150</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>state_or_province</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 150</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>postal_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 30</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>country_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 2</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>latitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>longitude</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>is_primary</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Party that maintains or uses this reusable address. Provides party master-data context for address selection.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Person this Address belongs to.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Organization this Address belongs to.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        <tr>
+          <td><code>location_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Location associated with this address. Provides physical/place context for operational and geographic processes.<div class="detail">Points at <b>Location</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 17 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>address_type</code></td>
+            <td>Address Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>line1</code></td>
+            <td>Line1</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>line2</code></td>
+            <td>Line2</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>line3</code></td>
+            <td>Line3</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>city</code></td>
+            <td>City</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>state_or_province</code></td>
+            <td>State Or Province</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>postal_code</code></td>
+            <td>Postal Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>country_code</code></td>
+            <td>Country Code</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>latitude</code></td>
+            <td>Latitude</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>longitude</code></td>
+            <td>Longitude</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_primary</code></td>
+            <td>Is Primary</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>130</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>150</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>160</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>location_id</code></td>
+            <td>Location</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>170</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Address</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Address</b> belongs to one <a href="#entity-location">Location</a>.</li>
+          <li>Each <b>Address</b> has many <a href="#entity-location">Location</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-attachment" class="entity">
+      <h3>Attachment <span class="group">Foundation</span></h3>
+      <p class="lede">A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.</p>
+      <p class="meta">Stored as <code>bus_attachment</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of Attachment. Identifies one governed record independently of mutable labels or state. Governance, workflow, integration and audit. Referenced by related enterprise records. Required.</td>
+        </tr>
+        <tr>
+          <td><code>effective_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate effective timestamp.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Attachment</b> window, on the <b>Attachment</b> tab. These are its 2 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_at</code></td>
+            <td>Effective At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-business-unit" class="entity">
+      <h3>Business Unit <span class="group">Foundation</span></h3>
+      <p class="lede">A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_business_unit</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of BusinessUnit. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this BusinessUnit is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Business Unit</b> window, on the <b>Business Unit</b> tab. These are its 4 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Business Unit</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-calendar" class="entity">
+      <h3>Calendar <span class="group">Foundation</span></h3>
+      <p class="lede">A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_calendar</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of Calendar. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Calendar is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Calendar</b> window, on the <b>Calendar</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-construction-project" class="entity">
+      <h3>Construction Project <span class="group">Construction and Engineering</span></h3>
+      <p class="lede">Represents a construction entity called ConstructionProject within the CEDM business model. ConstructionProject is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ConstructionProject records. The entity participates in a wider business graph through relationships with Project, Location, Contract, Asset. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical ConstructionProject record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
+      <p class="meta">Stored as <code>bus_construction_project</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Identifies the construction project record associated with this ConstructionProject. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records, where applicable. Its meaning is specific to ConstructionProject; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>project_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span></td>
+          <td>Identifies the related Project associated with this ConstructionProject. It provides the link needed to navigate from this record to the related business object. Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records, where applicable. This field connects ConstructionProject to Project. The reference establishes business context between the two entities and lets processes navigate from this record to the related Project. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">Points at <b>Project</b></div></td>
+        </tr>
+        <tr>
+          <td><code>project_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Captures the business meaning of project type for the ConstructionProject. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records, where applicable. Its meaning is specific to ConstructionProject; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the building state or classification in the context of ConstructionProject. Represents the infrastructure state or classification in the context of ConstructionProject. Represents the civil state or classification in the context of ConstructionProject. Represents the industrial state or classification in the context of ConstructionProject. Represents the renovation state or classification in the context of ConstructionProject. Represents the other state or classification in the context of ConstructionProject. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>BUILDING</code>, <code>INFRASTRUCTURE</code>, <code>CIVIL</code>, <code>INDUSTRIAL</code>, <code>RENOVATION</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>site_condition</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 2000</span></td>
+          <td>Captures the business meaning of site condition for the ConstructionProject. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records, where applicable. Its meaning is specific to ConstructionProject; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating ConstructionProject records, where applicable. Its meaning is specific to ConstructionProject; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the planned state or classification in the context of ConstructionProject. Represents the design state or classification in the context of ConstructionProject. Represents the procurement state or classification in the context of ConstructionProject. Represents the construction state or classification in the context of ConstructionProject. Represents the commissioning state or classification in the context of ConstructionProject. Represents the completed state or classification in the context of ConstructionProject. Represents the cancelled state or classification in the context of ConstructionProject. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>PLANNED</code>, <code>DESIGN</code>, <code>PROCUREMENT</code>, <code>CONSTRUCTION</code>, <code>COMMISSIONING</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>project_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>Captures the business meaning of project code for the Project. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 4000</span></td>
+          <td>A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>start_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>end_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>budget_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Captures the business meaning of budget amount for the Project. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>site_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects ConstructionProject to Location so related business context can be navigated and enforced. Used when processes need to find or reason about Location records associated with a ConstructionProject. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Site</b></div></td>
+        </tr>
+        <tr>
+          <td><code>owner_organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Project to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Project. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Owner Organization</b></div></td>
+        </tr>
+        <tr>
+          <td><code>manager_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Project to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Project. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Manager</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Construction Project</b> window, on the <b>Construction Project</b> tab. These are its 14 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_id</code></td>
+            <td>Project</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_type</code></td>
+            <td>Project Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>site_condition</code></td>
+            <td>Site Condition</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_code</code></td>
+            <td>Project Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>start_date</code></td>
+            <td>Start Date</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>end_date</code></td>
+            <td>End Date</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>budget_amount</code></td>
+            <td>Budget Amount</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>site_id</code></td>
+            <td>Site</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>owner_organization_id</code></td>
+            <td>Owner Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>130</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>manager_id</code></td>
+            <td>Manager</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Construction Project</b> belongs to one <a href="#entity-project">Project</a>.</li>
+          <li>Each <b>Construction Project</b> belongs to one <a href="#entity-location">Location</a>.</li>
+          <li>Each <b>Construction Project</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Construction Project</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-contact-point" class="entity">
+      <h3>Contact Point <span class="group">Foundation</span></h3>
+      <p class="lede">A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_contact_point</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of ContactPoint. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this ContactPoint is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Contact Point</b> window, on the <b>Contact Point</b> tab. These are its 4 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Contact Point</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-country" class="entity">
+      <h3>Country <span class="group">Foundation</span></h3>
+      <p class="lede">A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Country</b> window, on the <b>Country</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-currency" class="entity">
+      <h3>Currency <span class="group">Foundation</span></h3>
+      <p class="lede">Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
+      <p class="meta">Stored as <code>bus_currency</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Required for unambiguous monetary interpretation.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 3</span></td>
+          <td>Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Required for usable currency master data.</td>
+        </tr>
+        <tr>
+          <td><code>symbol</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 10</span></td>
+          <td>Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without affecting financial calculations. Optional where no standard symbol or display policy exists.</td>
+        </tr>
+        <tr>
+          <td><code>decimal_places</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows. Required because monetary amounts must have predictable representation.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies. Available for normal financial activity. Temporarily unavailable for new normal activity. No longer available for new normal activity while historical financial records remain valid. Required for transaction eligibility.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Currency</b> window, on the <b>Currency</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>symbol</code></td>
+            <td>Symbol</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>decimal_places</code></td>
+            <td>Decimal Places</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-department" class="entity">
+      <h3>Department <span class="group">Foundation</span></h3>
+      <p class="lede">A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_department</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of Department. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Department is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Department</b> window, on the <b>Department</b> tab. These are its 4 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Department</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-exchange-rate" class="entity">
+      <h3>Exchange Rate <span class="group">Foundation</span></h3>
+      <p class="lede">Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
+      <p class="meta">Stored as <code>bus_exchange_rate</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used. Required for traceable currency conversion.</td>
+        </tr>
+        <tr>
+          <td><code>from_currency</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion. Required to prevent ambiguous conversion direction.</td>
+        </tr>
+        <tr>
+          <td><code>to_currency</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value. Required for an auditable conversion.</td>
+        </tr>
+        <tr>
+          <td><code>rate</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations. Required for conversion.</td>
+        </tr>
+        <tr>
+          <td><code>rate_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event. Market or transaction-time conversion rate. Rate established by an agreement or commercial contract. Published daily rate for a defined business date. Published rate intended for a defined monthly reporting period. Rate designated by accounting policy for ledger translation or reporting. Controlled rate established for a specific business purpose. Required to preserve conversion context.<div class="detail">One of: <code>SPOT</code>, <code>CONTRACT</code>, <code>DAILY</code>, <code>MONTHLY</code>, <code>ACCOUNTING</code>, <code>CUSTOM</code></div></td>
+        </tr>
+        <tr>
+          <td><code>effective_at</code></td>
+          <td>Date and time</td>
+          <td><span class="tag">required</span></td>
+          <td>Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion. Required for temporal validity.</td>
+        </tr>
+        <tr>
+          <td><code>expires_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate&#39;s validity window for transaction and reporting calculations. Optional for rates whose validity is governed by another period convention.</td>
+        </tr>
+        <tr>
+          <td><code>source</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision. Required for financial traceability.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>EXPIRED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Exchange Rate</b> window, on the <b>Exchange Rate</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>from_currency</code></td>
+            <td>From Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>to_currency</code></td>
+            <td>To Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>rate</code></td>
+            <td>Rate</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>rate_type</code></td>
+            <td>Rate Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_at</code></td>
+            <td>Effective At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>expires_at</code></td>
+            <td>Expires At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>source</code></td>
+            <td>Source</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Exchange Rate</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-language" class="entity">
+      <h3>Language <span class="group">Foundation</span></h3>
+      <p class="lede">A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_language</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Language</b> window, on the <b>Language</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-legal-entity" class="entity">
+      <h3>Legal Entity <span class="group">Foundation</span></h3>
+      <p class="lede">A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.</p>
+      <p class="meta">Stored as <code>bus_legal_entity</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of LegalEntity. Identifies one governed LegalEntity record. Governance, workflow, reporting and audit. Referenced by compatible enterprise records. Required.</td>
+        </tr>
+        <tr>
+          <td><code>occurred_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Legal Entity</b> window, on the <b>Legal Entity</b> tab. These are its 2 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>occurred_at</code></td>
+            <td>Occurred At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-location" class="entity">
+      <h3>Location <span class="group">Foundation</span></h3>
+      <p class="lede">Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred.</p>
+      <p class="meta">Stored as <code>bus_location</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>location_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td><span class="unset">&mdash;</span><div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>address_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td><span class="unset">&mdash;</span><div class="detail">Points at <b>Address</b></div></td>
+        </tr>
+        <tr>
+          <td><code>parent_location_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td><span class="unset">&mdash;</span><div class="detail">Points at <b>Parent Location</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Organization this Location refers to.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Location</b> window, on the <b>Location</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>location_type</code></td>
+            <td>Location Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>address_id</code></td>
+            <td>Address</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>parent_location_id</code></td>
+            <td>Parent Location</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Location</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-location">Location</a> records.</li>
+          <li>Each <b>Location</b> belongs to one <a href="#entity-address">Address</a>.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-construction-project">Construction Project</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-organization" class="entity">
+      <h3>Organization <span class="group">Foundation</span></h3>
+      <p class="lede">Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.</p>
+      <p class="meta">Stored as <code>bus_organization</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the Organization specialization. Used to navigate organizational identity details from the underlying Party. Party.partyId remains the canonical party identity; organizationId identifies the specialization record. Provides stable reference for organization-specific information. Required for specialization traceability.</td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span></td>
+          <td>Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when partyType is ORGANIZATION. Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization. Required to prevent duplicate party identity.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 50</span></td>
+          <td>Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope. Provides operational reference for organization hierarchy and business context. Required where the organization participates in governed operational processes.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required for operational recognition.</td>
+        </tr>
+        <tr>
+          <td><code>organization_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>legal_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 300</span></td>
+          <td>Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the organization is not a legal entity or the information is not yet known.</td>
+        </tr>
+        <tr>
+          <td><code>registration_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 100</span></td>
+          <td>Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verification and compliance controls. Optional for organizational units without separate registration.</td>
+        </tr>
+        <tr>
+          <td><code>tax_identifier</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 100</span></td>
+          <td>Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting. Optional when no tax identifier applies or is known.</td>
+        </tr>
+        <tr>
+          <td><code>party_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party&#39;s specialization and applicable business semantics depend on it.<div class="detail">One of: <code>PERSON</code>, <code>ORGANIZATION</code></div></td>
+        </tr>
+        <tr>
+          <td><code>display_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.</td>
+        </tr>
+        <tr>
+          <td><code>external_reference</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Person this Organization belongs to.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        <tr>
+          <td><code>parent_organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Immediate parent organizational unit. Supports enterprise hierarchy and organizational scope. Zero or one immediate parent. Determines inherited organizational context where explicitly supported.<div class="detail">Points at <b>Parent Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Organization</b> window, on the <b>Organization</b> tab. These are its 14 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_type</code></td>
+            <td>Organization Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>legal_name</code></td>
+            <td>Legal Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>registration_number</code></td>
+            <td>Registration Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>tax_identifier</code></td>
+            <td>Tax Identifier</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_type</code></td>
+            <td>Party Type</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>display_name</code></td>
+            <td>Display Name</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>external_reference</code></td>
+            <td>External Reference</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>130</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>parent_organization_id</code></td>
+            <td>Parent Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Organization</b> has one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-person">Person</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-location">Location</a> records.</li>
+          <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-business-unit">Business Unit</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-department">Department</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-construction-project">Construction Project</a> records.</li>
+          <li>Each <b>Organization</b> has many <a href="#entity-project">Project</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party" class="entity">
+      <h3>Party <span class="group">Foundation</span></h3>
+      <p class="lede">The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.</p>
+      <p class="meta">Stored as <code>bus_party</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity. Required because every party must have one stable identity.</td>
+        </tr>
+        <tr>
+          <td><code>party_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party&#39;s specialization and applicable business semantics depend on it.<div class="detail">One of: <code>PERSON</code>, <code>ORGANIZATION</code></div></td>
+        </tr>
+        <tr>
+          <td><code>display_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party&#39;s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>BLOCKED</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>external_reference</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_type</code></td>
+            <td>Party Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>display_name</code></td>
+            <td>Display Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>external_reference</code></td>
+            <td>External Reference</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Party</b> has one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Party</b> has one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-party-relationship">Party Relationship</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-contact-point">Contact Point</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-construction-project">Construction Project</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-project">Project</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-relationship" class="entity">
+      <h3>Party Relationship <span class="group">Foundation</span></h3>
+      <p class="lede">A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
+      <p class="meta">Stored as <code>bus_party_relationship</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of PartyRelationship. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this PartyRelationship is referenced. Required.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.</td>
+        </tr>
+        <tr>
+          <td><code>from_party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.<div class="detail">Points at <b>From Party</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Relationship</b> window, on the <b>Party Relationship</b> tab. These are its 4 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>from_party_id</code></td>
+            <td>From Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Party Relationship</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-party-role" class="entity">
+      <h3>Party Role <span class="group">Foundation</span></h3>
+      <p class="lede">The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.</p>
+      <p class="meta">Stored as <code>bus_party_role</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Immutable identity of this specific role relationship. Referenced by specialized entities and transactions requiring the party in a defined business capacity. Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId. Provides the stable role reference used throughout the role lifecycle. Required for independent role traceability.</td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity. Required because a role cannot exist without a participant.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        <tr>
+          <td><code>role_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 100</span></td>
+          <td>Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when partyRoleId is sufficient.</td>
+        </tr>
+        <tr>
+          <td><code>valid_from</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role. Optional for immediately effective roles.</td>
+        </tr>
+        <tr>
+          <td><code>valid_to</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution. Optional for open-ended roles.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Person this PartyRole belongs to.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Party Role</b> window, on the <b>Party Role</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>role_type</code></td>
+            <td>Role Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>valid_from</code></td>
+            <td>Valid From</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>valid_to</code></td>
+            <td>Valid To</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Party Role</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Party Role</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Party Role</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-person" class="entity">
+      <h3>Person <span class="group">Foundation</span></h3>
+      <p class="lede">Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.</p>
+      <p class="meta">Stored as <code>bus_person</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record. required for specialization traceability.</td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span></td>
+          <td>Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactions and roles use one stable person identity. Required to prevent duplicate identity.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 50</span></td>
+          <td>Personal title. documents and presentation. presentation attribute. supports person display. optional.</td>
+        </tr>
+        <tr>
+          <td><code>given_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 150</span></td>
+          <td>Given name. identity and documents. intrinsic person identity. identification. required.</td>
+        </tr>
+        <tr>
+          <td><code>middle_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 150</span></td>
+          <td>Middle name. identity and documents. intrinsic person identity. identification. optional.</td>
+        </tr>
+        <tr>
+          <td><code>family_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 150</span></td>
+          <td>Family name. identity and documents. intrinsic person identity. identification. required.</td>
+        </tr>
+        <tr>
+          <td><code>preferred_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 150</span></td>
+          <td>Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.</td>
+        </tr>
+        <tr>
+          <td><code>date_of_birth</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.</td>
+        </tr>
+        <tr>
+          <td><code>gender</code></td>
+          <td>Choice</td>
+          <td>&mdash;</td>
+          <td>Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>nationality</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 2</span></td>
+          <td>Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.</td>
+        </tr>
+        <tr>
+          <td><code>party_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party&#39;s specialization and applicable business semantics depend on it.<div class="detail">One of: <code>PERSON</code>, <code>ORGANIZATION</code></div></td>
+        </tr>
+        <tr>
+          <td><code>display_name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party&#39;s legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>BLOCKED</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>external_reference</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        <tr>
+          <td><code>organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Person</b> window, on the <b>Person</b> tab. These are its 16 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>Title</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>given_name</code></td>
+            <td>Given Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>middle_name</code></td>
+            <td>Middle Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>family_name</code></td>
+            <td>Family Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>preferred_name</code></td>
+            <td>Preferred Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>date_of_birth</code></td>
+            <td>Date Of Birth</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>gender</code></td>
+            <td>Gender</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>nationality</code></td>
+            <td>Nationality</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_type</code></td>
+            <td>Party Type</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>display_name</code></td>
+            <td>Display Name</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>120</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>130</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>external_reference</code></td>
+            <td>External Reference</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>140</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>150</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>160</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Person</b> has one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-person">Person</a> records.</li>
+          <li>Each <b>Person</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-project" class="entity">
+      <h3>Project <span class="group">Foundation</span></h3>
+      <p class="lede">Represents a project management entity called Project within the CEDM business model. Project is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Project records. The entity participates in a wider business graph through relationships with Organization, Party, ProjectTask, Milestone, ResourceAssignment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Project record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
+      <p class="meta">Stored as <code>bus_project</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Identifies the project record associated with this Project. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>project_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>Captures the business meaning of project code for the Project. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 4000</span></td>
+          <td>A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the draft state or classification in the context of Project. Represents the planned state or classification in the context of Project. Represents the active state or classification in the context of Project. Represents the on hold state or classification in the context of Project. Represents the completed state or classification in the context of Project. Represents the cancelled state or classification in the context of Project. Represents the closed state or classification in the context of Project. Required because the business model cannot reliably interpret the record for its declared purpose without this value.<div class="detail">One of: <code>DRAFT</code>, <code>PLANNED</code>, <code>ACTIVE</code>, <code>ON_HOLD</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>CLOSED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>start_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>end_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>budget_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Captures the business meaning of budget amount for the Project. It is interpreted together with the entity&#39;s other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable. Its meaning is specific to Project; it must be interpreted with the entity&#39;s relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.</td>
+        </tr>
+        <tr>
+          <td><code>owner_organization_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Project to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Project. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Owner Organization</b></div></td>
+        </tr>
+        <tr>
+          <td><code>manager_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Connects Project to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Project. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.<div class="detail">Points at <b>Manager</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Project</b> window, on the <b>Project</b> tab. These are its 10 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>project_code</code></td>
+            <td>Project Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>start_date</code></td>
+            <td>Start Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>end_date</code></td>
+            <td>End Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>budget_amount</code></td>
+            <td>Budget Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>owner_organization_id</code></td>
+            <td>Owner Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>manager_id</code></td>
+            <td>Manager</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Project</b> has many <a href="#entity-construction-project">Construction Project</a> records.</li>
+          <li>Each <b>Project</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Project</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-unit-of-measure" class="entity">
+      <h3>Unit Of Measure <span class="group">Foundation</span></h3>
+      <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
+      <p class="meta">Stored as <code>bus_unit_of_measure</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted. Required for unambiguous measurement semantics.</td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 30</span></td>
+          <td>Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 100</span></td>
+          <td>Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users. Required for clear business interpretation.</td>
+        </tr>
+        <tr>
+          <td><code>symbol</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 20</span></td>
+          <td>Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities. Optional when the unit has no standard symbol or display policy does not require one.</td>
+        </tr>
+        <tr>
+          <td><code>category</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility.<div class="detail">One of: <code>QUANTITY</code>, <code>LENGTH</code>, <code>AREA</code>, <code>VOLUME</code>, <code>MASS</code>, <code>TIME</code>, <code>COUNT</code>, <code>CURRENCY</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>conversion_factor</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation. Optional for base units or units whose conversion requires a dedicated rule.</td>
+        </tr>
+        <tr>
+          <td><code>base_unit_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities. Optional for a base unit itself.<div class="detail">Points at <b>Base Unit</b></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Unit Of Measure</b> window, on the <b>Unit Of Measure</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>symbol</code></td>
+            <td>Symbol</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>category</code></td>
+            <td>Category</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>conversion_factor</code></td>
+            <td>Conversion Factor</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>base_unit_id</code></td>
+            <td>Base Unit</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
+          <li>Each <b>Unit Of Measure</b> has many <a href="#entity-unit-of-measure">Unit Of Measure</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+  </section>
+
+
+
+
+
+  <section id="how-it-was-built">
+    <h2>How this application was built</h2>
+    <p>It was generated from a single model file &mdash; a YAML document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
+    <p>What it wrote is source you can read, edit and deploy: a Loco.rs API in Rust, a TanStack Start front end, and a <code>docker-compose.yml</code> that brings up PostgreSQL, the API and the web front end together.</p>
+    <p>Regenerating from an amended model rewrites all of it, this manual included. Nothing here is maintained by hand, which is why it cannot fall out of step with the application it describes.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <footer>
+    construction 1.0.0 &middot; 20 record types &middot; 0 rules &middot; 0 processes
+  </footer>
+</div>
+</body>
+</html>

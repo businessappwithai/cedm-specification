@@ -1,0 +1,100 @@
+entity:
+  name: Address
+  namespace: cedm.domain
+  kind: reusable_master_entity
+  description: A structured postal, physical, billing, shipping, registered, or other address that may be associated with a Party or Location and may be captured as transaction-time address evidence.
+  identity: {key: addressId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: addressId
+    type: uuid
+    required: true
+    immutable: true
+  - name: addressType
+    type: enum
+    required: true
+    values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
+  - name: line1
+    type: string
+    required: true
+    maxLength: 200
+  - name: line2
+    type: string
+    required: false
+    maxLength: 200
+  - name: line3
+    type: string
+    required: false
+    maxLength: 200
+  - name: city
+    type: string
+    required: true
+    maxLength: 150
+  - name: stateOrProvince
+    type: string
+    required: false
+    maxLength: 150
+  - name: postalCode
+    type: string
+    required: false
+    maxLength: 30
+  - name: countryCode
+    type: country_code
+    required: true
+  - name: latitude
+    type: decimal
+    required: false
+    precision: 10
+    scale: 7
+  - name: longitude
+    type: decimal
+    required: false
+    precision: 10
+    scale: 7
+  - name: isPrimary
+    type: boolean
+    required: true
+    default: false
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE, RETIRED]
+  relationships:
+  - name: party
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Party that maintains or uses this reusable address.
+      workflowRole: Provides party master-data context for address selection.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Location associated with this address.
+      workflowRole: Provides physical/place context for operational and geographic processes.
+  invariants:
+  - id: ADDRESS-001
+    rule: countryCode is required.
+  - id: ADDRESS-002
+    rule: latitude must be between -90 and 90 when supplied.
+  - id: ADDRESS-003
+    rule: longitude must be between -180 and 180 when supplied.
+  - id: ADDRESS-004
+    rule: An Address may be associated with a Party, a Location, both, or neither while being prepared, but an orphan reusable address must not be selected as an effective operational address.
+  - id: ADDRESS-005
+    rule: Changing or retiring an Address must not rewrite historical transaction address evidence; transactions requiring legal or operational reproducibility must retain a snapshot or equivalent effective-dated reference.
+  - id: ADDRESS-006
+    rule: At most one active primary Address of the same applicable addressType may exist for the same Party or Location under the configured scope.
+  - id: ADDRESS-007
+    rule: Address status changes that make an address unusable must trigger validation of dependent master-data references before the address becomes unavailable for new transactions.
+  help:
+    summary: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence.
+    businessMeaning: Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes.
+    usage: Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows.
+    relationshipContext: Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required.
+    workflowContext: Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
+    lifecycle: Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots.
+    example: A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-ADDRESS}

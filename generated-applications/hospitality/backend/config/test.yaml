@@ -1,0 +1,87 @@
+# hospitality — test configuration.
+#
+# Template tags use Loco's YAML-safe delimiters rather than Tera's native
+# doubled-brace form, which is not valid YAML at rest and gets rewritten by
+# formatters. Neither delimiter may be written out in a comment — Loco rewrites
+# those too. See config/development.yaml for the detail.
+
+logger:
+  enable: false
+  level: error
+  format: compact
+
+server:
+  port: <%= get_env(name="PORT", default="3000") %>
+  binding: localhost
+  host: http://localhost
+  middlewares:
+    limit_payload:
+      enable: true
+      body_limit: 5mb
+    logger:
+      enable: false
+    catch_panic:
+      enable: true
+    etag:
+      enable: true
+
+database:
+  uri: <%= get_env(name="DATABASE_URL", default="postgres://postgres@localhost:5432/hospitality_test") %>
+  enable_logging: false
+  # `connect_timeout` is how long a request waits to be handed a pooled
+  # connection, and `idle_timeout` is how long an unused one survives before
+  # the pool closes it. Both arrived as 500ms from the `loco new` scaffold, and
+  # at that value they defeat each other: half a second of idleness reaps the
+  # pool, so the next burst has to open fresh connections, and half a second is
+  # not long enough to open them while the machine is busy. The caller does not
+  # see a slow request — it sees HTTP 500, because a pool timeout surfaces from
+  # the JWT lookup as an internal error before the handler runs.
+  #
+  # Reproduced against the generated app: 10 concurrent writers with the box
+  # under CPU load fail on the fourth record with three
+  # "Connection pool timed out" errors; the same load with `connect_timeout`
+  # at 5000 passes with none. Timings are in milliseconds.
+  connect_timeout: 5000
+  idle_timeout: 30000
+  min_connections: 1
+  max_connections: 5
+  auto_migrate: true
+  # The request suites rely on a clean schema per run; `Hooks::truncate`
+  # empties the bus_* and audit tables between tests.
+  dangerously_truncate: true
+  dangerously_recreate: false
+
+auth:
+  jwt:
+    # Accept the token from either place: the cookie keeps the frontend's
+    # existing "cookie is set, call /api/auth/me" flow working; Bearer serves
+    # API clients. Order is the order they are tried.
+    location:
+      - from: Cookie
+        name: token
+      - from: Bearer
+    secret: dGVzdC1vbmx5LXNlY3JldC1ub3QtZm9yLXByb2R1Y3Rpb24=
+    expiration: 604800
+
+workers:
+  mode: ForegroundBlocking
+
+settings:
+  electric_url: <%= get_env(name="ELECTRIC_URL", default="http://localhost:3100") %>
+  admin_email: admin@admin.com
+  frontend_port: 3001
+  # Deliberately unset: the request suite asserts the unconfigured 503,
+  # which keeps the tests runnable with no model server present.
+  ai_base_url: ""
+  ai_model: ""
+  ai_api_key: "local"
+
+  # Rate limiting is off for the suites, deliberately. They drive volumes in
+  # seconds that no human session produces in an hour — the bulk-seed suite
+  # alone creates thousands of records through HTTP as one caller — so a budget
+  # here would be testing the limiter rather than the application. What covers
+  # the limiter is tests/requests/rate_limit.rs, which layers the middleware
+  # over a router of its own with a budget it sets itself.
+  rate_limit_max_per_minute: 0
+  rate_limit_auth_max_per_minute: 0
+  trust_proxy: false

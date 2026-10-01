@@ -1,0 +1,178 @@
+entity:
+  name: Container
+  namespace: cedm.domain
+  kind: logistics_asset
+  description: A reusable intermodal freight container identified and managed as a physical equipment asset across terminals, depots, vessels, rail, road, customer operations, maintenance, leasing, and commercial disposition.
+  identity:
+    key: containerId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: containerId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable CEDM identity of the physical container asset.
+      usage: Used as the stable technical-to-business key across yard, movement, repair, inventory, shipment, interchange, leasing, and reporting processes.
+      relationshipContext: ContainerMovement, YardSlot, RepairEstimate, Shipment, and Location use this identity to preserve one continuous asset history even as the container changes place, condition, owner, or commercial use.
+      requiredMeaning: Required because every event and transaction involving equipment must resolve to one unambiguous physical asset.
+  - name: containerNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 20
+    help:
+      summary: The industry-facing identification number assigned to the physical container.
+      usage: Used by carriers, terminals, depots, customs, gate operations, interchange messages, shipping documents, and customers to identify the equipment.
+      relationshipContext: It is the operational identifier of the same asset represented internally by containerId; it must remain stable across movements and commercial events.
+      requiredMeaning: Required because logistics actors normally identify equipment by its container number.
+  - name: isoCode
+    type: string
+    required: false
+    maxLength: 10
+    help:
+      summary: The standardized equipment code describing the container's equipment characteristics.
+      usage: Used for transport compatibility, yard allocation, vessel planning, depot handling, interchange, and equipment classification.
+      relationshipContext: Complements containerNumber and informs physical compatibility; it is not itself the container's identity.
+      optionalMeaning: Optional only while standardized classification is unavailable; operations requiring equipment compatibility should resolve it before execution.
+  - name: sizeCode
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The operational size classification of the container.
+      usage: Used for slot allocation, transport planning, pricing, capacity calculations, and TEU reporting.
+      relationshipContext: Size influences physical placement and transport constraints and should remain consistent with the authoritative equipment classification.
+      optionalMeaning: Optional when derived from isoCode or an equipment master.
+  - name: containerType
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The functional equipment category of the container, such as dry, refrigerated, tank, or open-top equipment.
+      usage: Drives handling, power, inspection, safety, maintenance, shipment compatibility, and yard-placement rules.
+      relationshipContext: Type determines operational capabilities and restrictions but does not replace Product or equipment-master classification where standardized definitions exist.
+      optionalMeaning: Optional when maintained by a controlled equipment master.
+  - name: tareWeight
+    type: decimal
+    required: false
+    precision: 14
+    scale: 3
+    help:
+      summary: The empty weight of the container without cargo.
+      usage: Combined with cargo weight for gross-weight calculations, transport compliance, loading decisions, and interchange.
+      relationshipContext: It is an equipment characteristic and should be interpreted with the applicable unit of measure and weighing source.
+      optionalMeaning: Optional when authoritative equipment specifications provide the value dynamically.
+  - name: maxGrossWeight
+    type: decimal
+    required: false
+    precision: 14
+    scale: 3
+    help:
+      summary: The maximum permitted gross weight of the container and its cargo under the applicable equipment and operating rules.
+      usage: Used for loading, transport planning, safety, vessel/rail/road compliance, and handling decisions.
+      relationshipContext: Must be evaluated with tare weight, cargo weight, transport-mode limits, and regulatory constraints.
+      optionalMeaning: Optional when maintained by an authoritative equipment specification.
+  - name: manufactureDate
+    type: date
+    required: false
+    help:
+      summary: The date on which the physical container equipment was manufactured.
+      usage: Used for equipment age, inspection, maintenance, depreciation, leasing, resale, and retirement analysis.
+      relationshipContext: Commonly combined with acquisition, depreciation, repair, and disposition history to understand economic and operational life.
+      optionalMeaning: Optional when provenance is incomplete, but its absence limits age-dependent analytics.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, IN_REPAIR, DAMAGED, SOLD, SCRAPPED, LOST, RETIRED]
+    help:
+      summary: The current lifecycle state governing whether the container is available for ordinary operational use.
+      usage: Controls equipment allocation, yard placement, shipment assignment, repair workflows, disposition, and exception handling.
+      relationshipContext: Status is an asset lifecycle state, not a location state or repair estimate result; transitions should be justified by corresponding business processes.
+      valueSemantics:
+        ACTIVE: Equipment is available for normal assignment subject to operational constraints.
+        IN_REPAIR: Equipment is undergoing repair or maintenance and should normally be excluded from ordinary transport assignment.
+        DAMAGED: Equipment has known damage and requires assessment, restriction, or repair before normal use.
+        SOLD: Ownership or commercial disposition has transferred through a sale process and the equipment is no longer ordinary available inventory unless explicitly returned.
+        SCRAPPED: Equipment has been designated for disposal and must not be assigned to operational movements.
+        LOST: Equipment cannot currently be located and requires investigation or recovery.
+        RETIRED: Equipment has permanently left normal operational service without necessarily being sold or scrapped.
+      requiredMeaning: Required because equipment availability decisions depend on an explicit lifecycle state.
+  - name: inventoryStatus
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The equipment's inventory classification within the owning or managing organization's asset inventory process.
+      usage: Supports fleet availability, ownership/lease reporting, depot inventory, and disposition workflows.
+      relationshipContext: Inventory classification is distinct from physical condition and lifecycle status and should not be used as a substitute for status.
+      optionalMeaning: Optional where a dedicated equipment-inventory model supplies the classification.
+  relationships:
+  - name: owner
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the party that owns the physical equipment or is recorded as its commercial owner.
+      usage: Supports asset accounting, leasing, billing, maintenance responsibility, sale, and fleet reporting.
+      cardinalityMeaning: At most one owner is represented at a point in time; absence means ownership is not modeled here.
+      context: Owner is distinct from the carrier, lessee, customer, terminal, depot, or party physically possessing the container.
+  - name: currentLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the current physical or operational location of the container.
+      usage: Provides present-state visibility for routing, pickup, inventory, customer service, and exception handling.
+      cardinalityMeaning: A container has at most one current location at a point in time.
+      context: This is a current-state projection; chronological location changes belong in ContainerMovement.
+  - name: currentSlot
+    target: YardSlot
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the exact YardSlot currently occupied when the container is physically positioned in a modeled yard.
+      usage: Enables precise yard visibility, crane instructions, retrieval planning, and rehandle optimization.
+      cardinalityMeaning: A container can occupy zero or one current slot.
+      context: currentSlot is more precise than currentLocation and must be consistent with the slot's current occupancy state.
+  - name: repairEstimates
+    target: RepairEstimate
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the container to assessments of damage, repair scope, cost, and disposition economics.
+      usage: Supports repair authorization, lease/sale/scrap decisions, cost analysis, and repair history.
+      cardinalityMeaning: A container can have many estimates over its lifecycle because estimates may be revised or created for different damage events.
+      context: RepairEstimate describes an assessment; it does not itself change the container's physical location or lifecycle without the corresponding business process.
+  - name: movements
+    target: ContainerMovement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the container to its chronological physical and operational movement history.
+      usage: Supports traceability, dwell analysis, yard optimization, movement costing, gate history, and reconstruction of asset location over time.
+      cardinalityMeaning: A container can have many movements across its lifecycle.
+      context: Movement history is event data; currentLocation and currentSlot are present-state projections derived from authoritative movement/location processing.
+  invariants:
+  - id: CONTAINER-001
+    rule: containerNumber must satisfy the applicable industry identification convention when an ISO container identifier is required.
+  - id: CONTAINER-002
+    rule: A container can occupy at most one active YardSlot at any point in time.
+  - id: CONTAINER-003
+    rule: currentSlot and the referenced YardSlot.container relationship must remain mutually consistent.
+  - id: CONTAINER-004
+    rule: SOLD, SCRAPPED, and RETIRED containers must not normally be assigned to new operational shipments or yard movements.
+  help:
+    summary: Represents a reusable intermodal freight container as a continuously identifiable physical logistics asset.
+    businessMeaning: Container is the equipment anchor connecting transport, depot, terminal, yard, maintenance, leasing, ownership, inventory, shipment, interchange, and commercial disposition processes.
+    usage: Used for gate events, yard placement, movement tracking, shipment assignment, inspection, repair, inventory, leasing, sale, scrap, and asset reporting.
+    relationshipContext: Party provides ownership context; Location provides present geographic context; YardSlot provides exact yard position; ContainerMovement provides chronological movement; RepairEstimate provides repair/disposition assessment. These concepts must remain separate because they represent different business facts.
+    lifecycle: A container can move from active service to damaged or repair state and eventually return to service, be sold, scrapped, lost, or retired. Lifecycle transitions should be tied to the corresponding operational, maintenance, commercial, or exception process.
+    example: A 40-foot dry container enters a depot, is assigned to YardSlot B03-012-04-02, moves to a repair area after damage, receives a RepairEstimate, returns to ACTIVE service, and later leaves the depot for a customer. The same containerId and containerNumber remain attached throughout the lifecycle while its location, slot, movement history, condition, and commercial context change.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-CONTAINER

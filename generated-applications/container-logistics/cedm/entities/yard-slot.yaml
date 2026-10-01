@@ -1,0 +1,124 @@
+entity:
+  name: YardSlot
+  namespace: cedm.domain
+  kind: logistics_location
+  description: The atomic physical storage position in a structured container yard at which one container can be placed, reserved, or explicitly made unavailable, providing the final address used by yard execution and movement operations.
+  identity:
+    key: yardSlotId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: yardSlotId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable CEDM identity of the physical yard position.
+      businessMeaning: Identifies one storage position independently of the container currently occupying it.
+      usage: Used by allocation, movement instructions, crane operations, digital-yard visualization, occupancy history, and integrations.
+      relationshipContext: Container.currentSlot references the current position while ContainerMovement records historical changes; the slot identity itself does not change when occupancy changes.
+      requiredMeaning: Required because every executable yard position must have a stable identity.
+  - name: slotCode
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The human-readable operational address of the exact yard position.
+      businessMeaning: Provides the address operators use to identify where a container should be placed or retrieved.
+      usage: Used in handheld devices, yard maps, gate/interchange documents, move orders, search, reports, and equipment instructions.
+      relationshipContext: Its meaning is derived from the YardBlock, YardBay, YardTier, and local position hierarchy; it is not a substitute for those structural relationships.
+      requiredMeaning: Required because yard execution needs an unambiguous physical address.
+  - name: position
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: The ordinal horizontal position of the slot within its parent YardTier according to the yard's addressing convention.
+      businessMeaning: Distinguishes adjacent storage positions on the same tier and provides deterministic placement/navigation.
+      usage: Used for physical addressing, yard visualization, movement planning, and layout validation.
+      relationshipContext: Position is scoped to the parent tier and should not be interpreted as a global coordinate or geographic distance.
+      requiredMeaning: Required to identify the exact position within the tier.
+  - name: status
+    type: enum
+    required: true
+    default: EMPTY
+    values: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]
+    help:
+      summary: The current operational state of the storage position.
+      businessMeaning: Determines whether the position is available, physically occupied, preallocated, temporarily restricted, or physically unavailable.
+      usage: Drives allocation, movement validation, yard optimization, equipment dispatch, and exception handling.
+      relationshipContext: OCCUPIED represents actual current placement; RESERVED represents intended future placement; BLOCKED and OUT_OF_SERVICE prevent normal placement regardless of whether the position is physically empty.
+      valueSemantics:
+        EMPTY: Physically available for a valid container placement.
+        OCCUPIED: Currently occupied by exactly one container.
+        RESERVED: Held for an expected move or planned placement but not yet physically occupied.
+        BLOCKED: Temporarily unavailable because of an operational restriction such as traffic, safety, inspection, congestion, or local control.
+        OUT_OF_SERVICE: Physically or administratively unavailable for an extended reason such as damage, maintenance, construction, or reconfiguration.
+      requiredMeaning: Required because slot state is an execution constraint for every placement or relocation.
+  - name: latitude
+    type: decimal
+    required: false
+    precision: 10
+    scale: 7
+    help:
+      summary: The geographic latitude of the physical slot or its defined mapping reference point.
+      businessMeaning: Allows the atomic yard position to participate in geospatial visualization and route calculations.
+      usage: Used by digital twins, mapping, equipment routing, geospatial analysis, and integration with external mapping services.
+      relationshipContext: Coordinates complement hierarchical addressing and should correspond to the same physical position represented by slotCode.
+      optionalMeaning: Optional where the yard operates entirely from a logical grid or local coordinate system.
+  - name: longitude
+    type: decimal
+    required: false
+    precision: 10
+    scale: 7
+    help:
+      summary: The geographic longitude of the physical slot or its defined mapping reference point.
+      businessMeaning: Completes the geographic coordinate for the exact storage position.
+      usage: Used with latitude for mapping, visualization, route calculation, and geospatial analysis.
+      relationshipContext: Longitude must describe the same physical reference point as latitude and does not replace the operational hierarchy.
+      optionalMeaning: Optional where geographic coordinates are not maintained at slot level.
+  relationships:
+  - name: tier
+    target: YardTier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Places the slot within its parent YardTier and therefore determines its complete physical yard hierarchy.
+      usage: Used to derive bay, block, and yard context and validate addressing and stacking rules.
+      cardinalityMeaning: Every YardSlot belongs to exactly one YardTier.
+      context: Tier provides vertical context; position supplies local horizontal context; together with the parent hierarchy they identify the atomic storage address.
+  - name: container
+    target: Container
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the container currently occupying the slot.
+      usage: Used for current yard visibility, retrieval planning, inventory lookup, movement validation, and operator instructions.
+      cardinalityMeaning: At most one container may occupy a slot at a time.
+      context: This is current-state occupancy. Historical occupants and previous locations must be derived from ContainerMovement rather than overwritten in this relationship.
+  invariants:
+  - id: YARD-SLOT-001
+    rule: slotCode must be unique within its Yard.
+  - id: YARD-SLOT-002
+    rule: An OCCUPIED slot must reference exactly one current container.
+  - id: YARD-SLOT-003
+    rule: A container may occupy at most one current YardSlot at any point in time.
+  - id: YARD-SLOT-004
+    rule: EMPTY, RESERVED, BLOCKED, and OUT_OF_SERVICE slots must not receive a normal placement unless an explicit transition or exception authorizes it.
+  - id: YARD-SLOT-005
+    rule: A container assignment and the corresponding slot state must be updated atomically with the placement/movement process.
+  help:
+    summary: Represents the final, atomic physical position used to place and retrieve a container in a structured yard.
+    businessMeaning: YardSlot answers the operational question "exactly where is this container?" It is the location at which a move becomes physically executable and where occupancy can be validated without ambiguity.
+    usage: Used by yard management, gate operations, dispatch, crane/handling equipment, inventory visibility, container tracking, rehandling optimization, digital twins, and movement execution.
+    relationshipContext: The physical hierarchy is Yard → YardBlock → YardBay → YardTier → YardSlot. Container references the current slot, while ContainerMovement records every meaningful relocation. YardSlot should therefore represent current physical state, not the movement history.
+    operationalSemantics: A valid placement requires the slot to be usable and compatible with the container's size, type, weight, hazardous classification, reefer requirements, stack rules, equipment access, and yard policy. A sophisticated allocator should also consider expected dwell time, retrieval priority, traffic distance, rehandle probability, and energy/equipment cost.
+    currentStateVsHistory: Slot occupancy is current state. When a container moves, the origin becomes available and the destination becomes occupied as part of one controlled movement transaction. Historical positions must remain queryable from ContainerMovement so audit, dwell-time, rehandle, and optimization analysis are not lost.
+    geospatialSemantics: Latitude and longitude enable mapping and route calculations but are supplementary. Hierarchical addressing remains the authoritative operational structure because adjacent slots, stack relationships, and equipment access cannot be inferred reliably from coordinates alone.
+    lifecycle: A slot is configured, may become active and empty, can be reserved for an expected placement, becomes occupied when a container arrives, and returns to empty after a successful departure. It can also be blocked or taken out of service without deleting its historical occupancy.
+    example: Slot B03-012-04-02 is an EMPTY ground position. The yard optimizer reserves it for an inbound 40-foot container. When the container is physically placed, the slot becomes OCCUPIED and the Container.currentSlot is updated. When the container later moves to a repair area, the movement records the origin and destination and the original slot returns to EMPTY.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-YARD-SLOT

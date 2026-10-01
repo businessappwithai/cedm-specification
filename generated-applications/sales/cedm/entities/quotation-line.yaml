@@ -1,0 +1,90 @@
+entity:
+  name: QuotationLine
+  namespace: cedm.domain
+  kind: transaction_line
+  description: A product or service offered on a quotation, with transaction-time quantity, unit, price, discount and calculated amount preserved as commercial evidence for downstream order conversion.
+  identity: {key: quotationLineId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: quotationLineId, type: uuid, required: true, immutable: true}
+  - {name: lineNumber, type: integer, required: true, minimum: 1}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6}
+  - name: unitPrice
+    type: Money
+    required: true
+    help:
+      summary: Transaction-time quoted price per unit, including its currency.
+      usage: Used for quotation valuation and, when accepted, as source evidence for downstream SalesOrder pricing.
+      relationshipContext: Must be interpreted with the quotation currency and UnitOfMeasure.
+      workflowRole: Price determination may source a current price rule, but the accepted quotation retains this effective price.
+      requiredMeaning: Required for a financially valued quotation line.
+  - name: amount
+    type: Money
+    required: true
+    help:
+      summary: Calculated gross commercial value of the quotation line before any separately represented adjustments.
+      usage: Supports quotation totals and conversion validation.
+      relationshipContext: Currency must match unitPrice and the quotation currency under the quotation's pricing policy.
+      workflowRole: Provides a reproducible quoted amount.
+      requiredMeaning: Required for a financially valued quotation line.
+  - name: discountAmount
+    type: Money
+    required: false
+    help:
+      summary: Transaction-time discount amount granted on the quoted line.
+      usage: Preserves the commercial concession used to derive the net amount.
+      relationshipContext: Must use the quotation currency.
+      workflowRole: Prevents later DiscountRule changes from rewriting an accepted quotation.
+      optionalMeaning: Optional when no discount applies.
+  - name: priceSource
+    type: enum
+    required: false
+    values: [PRICE_LIST, CONTRACT, CUSTOMER_AGREEMENT, MANUAL, PROMOTION, OTHER]
+    help:
+      summary: Records the business source used to determine the quoted price.
+      usage: Supports audit, margin analysis, pricing explanation, and downstream conversion.
+      relationshipContext: Source metadata does not replace the transaction-time unitPrice.
+      workflowRole: Explains why the quoted price was selected.
+      optionalMeaning: Optional when the quotation does not require source attribution.
+  - name: priceDeterminedAt
+    type: datetime
+    required: false
+    help:
+      summary: Timestamp at which the quoted price was determined.
+      usage: Supports effective-dated pricing audit and reproducibility.
+      relationshipContext: Distinct from quotation creation time when pricing is recalculated or manually overridden.
+      workflowRole: Provides temporal evidence for price determination.
+      optionalMeaning: Optional only where the quotation process does not capture determination timing.
+  - name: description
+    type: string
+    required: false
+    maxLength: 1000
+  relationships:
+  - name: quotation
+    target: Quotation
+    cardinality: '1'
+    ownership: reference
+    inverse: lines
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+  - name: unitOfMeasure
+    target: UnitOfMeasure
+    cardinality: 0..1
+    ownership: reference
+  invariants:
+  - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
+  - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}
+  - {id: QUOTATION-LINE-003, rule: amount.currency must equal unitPrice.currency.}
+  - {id: QUOTATION-LINE-004, rule: "amount must reconcile with quantity and unitPrice under the quotation's pricing and rounding policy, including explicitly represented discounts where applicable."}
+  - {id: QUOTATION-LINE-005, rule: "Changing a Product, PriceList, DiscountRule, Currency policy, or UnitOfMeasure after quotation acceptance must not silently rewrite the accepted quotation line."}
+  - {id: QUOTATION-LINE-006, rule: "Conversion from an accepted QuotationLine to SalesOrderLine must carry forward the effective quantity, UOM, unitPrice, currency, discount evidence, and applicable pricing source rather than re-querying master pricing without an explicit repricing action."}
+  help:
+    summary: Preserves the commercial terms offered to a customer and the evidence needed when those terms become an order.
+    businessMeaning: QuotationLine is a transaction-time commercial snapshot, not merely a pointer to current pricing master data.
+    usage: Quotation, negotiation, approval, sales conversion, margin analysis, audit, and customer communication.
+    relationshipContext: Product and UnitOfMeasure provide master context; the Quotation supplies customer and currency context; pricing sources explain determination but do not replace the stored effective price.
+    workflowContext: Product/customer/pricing inputs → price determination → QuotationLine snapshot → quotation approval → optional conversion to SalesOrderLine. Master-data changes affect future quotations unless an explicit repricing workflow is invoked.
+    lifecycle: Draft → priced → approved/issued → accepted/rejected/expired. Once accepted, commercial evidence is preserved.
+    example: A customer quotation is priced at USD 125 per unit using a customer agreement. The agreement later changes to USD 130. An accepted quotation remains at USD 125 unless the customer explicitly accepts a controlled repricing/revision.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-QUOTATION-LINE}

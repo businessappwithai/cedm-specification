@@ -1,0 +1,3047 @@
+/**
+ * Entity registry — generated from the ERD.
+ *
+ * This is the single source of truth the suites iterate over. Every entity in
+ * the model appears here with the field metadata the factory needs to invent
+ * realistic values and the relationship metadata the workflow suite needs to
+ * wire records together.
+ *
+ * Generated: 2026-10-01T04:35:21.994Z
+ * Project: quality
+ */
+
+export type FieldType =
+  | "string"
+  | "integer"
+  | "decimal"
+  | "boolean"
+  | "date"
+  | "datetime"
+  | "text"
+  | "json";
+
+export interface FieldMeta {
+  /** Physical column name — what the API expects in a payload. */
+  name: string;
+  /** Human-readable label from the Application Dictionary. */
+  displayName: string;
+  type: FieldType;
+  required: boolean;
+  unique: boolean;
+  /** True for *_id columns that point at another bus_ table. */
+  isForeignKey: boolean;
+  /**
+   * The entity a foreign key names outright, where its column name would
+   * resolve elsewhere (a CEDM reference). Wins over `referencedEntity`'s rule.
+   */
+  references?: string;
+  maxLength?: number;
+  /**
+   * The enum this column is bound to, when its `enum` key binds one.
+   *
+   * Matches a `ModelEnum.referenceId` in `model.ts`, which is where the values
+   * themselves live — one copy, so the vocabulary a payload is built from and
+   * the vocabulary the suites assert against cannot disagree.
+   */
+  enumReferenceId?: number;
+}
+
+export interface EntityMeta {
+  /** ERD entity name, e.g. "Customer". */
+  name: string;
+  /** Physical table, e.g. "bus_customer" — the identifier the rules API uses. */
+  tableName: string;
+  /** Path segment for /api/bus/:entity. */
+  route: string;
+  displayName: string;
+  primaryKey: string;
+  /**
+   * The entity this one is a line item of, when its `parent` says so.
+   *
+   * Carried from the model rather than read back from the dictionary the same
+   * generator wrote — a suite that asks the application what it did and then
+   * checks that answer against itself proves only self-consistency.
+   */
+  parentEntity?: string;
+  /** The child's foreign key back to `parentEntity`. */
+  parentLinkColumn?: string;
+  fields: FieldMeta[];
+}
+
+export interface RelationshipMeta {
+  name: string;
+  sourceEntity: string;
+  targetEntity: string;
+  cardinality: "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
+  foreignKey?: string;
+}
+
+/**
+ * Columns the server owns — never sent in a create/update payload.
+ *
+ * `is_active` is deliberately NOT here. The generator does not add it: when a
+ * bus table has one it is because the model declared it, often as a required
+ * field. Excluding it meant the harness could never build a valid payload for
+ * those entities, and every create in the suite failed on a missing field the
+ * factory was forbidden from supplying.
+ */
+export const SERVER_MANAGED_FIELDS = new Set([
+  "id",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "created_by",
+  "updated_by",
+  "version",
+  "doc_status",
+]);
+
+export const entities: EntityMeta[] = [
+  {
+    name: "Party",
+    tableName: "bus_party",
+    route: "bus_party",
+    displayName: "Party",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "party_type",
+        displayName: "Party Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1018,
+      },
+      {
+        name: "display_name",
+        displayName: "Display Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1021,
+      },
+      {
+        name: "external_reference",
+        displayName: "External Reference",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "person_id",
+        displayName: "Person",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Person",
+    tableName: "bus_person",
+    route: "bus_person",
+    displayName: "Person",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "party_id",
+        displayName: "Party",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: true,
+      },
+      {
+        name: "title",
+        displayName: "Title",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 50,
+      },
+      {
+        name: "given_name",
+        displayName: "Given Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "middle_name",
+        displayName: "Middle Name",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "family_name",
+        displayName: "Family Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "preferred_name",
+        displayName: "Preferred Name",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "date_of_birth",
+        displayName: "Date Of Birth",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "gender",
+        displayName: "Gender",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1022,
+      },
+      {
+        name: "nationality",
+        displayName: "Nationality",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 2,
+      },
+      {
+        name: "party_type",
+        displayName: "Party Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1023,
+      },
+      {
+        name: "display_name",
+        displayName: "Display Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1024,
+      },
+      {
+        name: "external_reference",
+        displayName: "External Reference",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "person_id",
+        displayName: "Person",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Organization",
+    tableName: "bus_organization",
+    route: "bus_organization",
+    displayName: "Organization",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "party_id",
+        displayName: "Party",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: true,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 50,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "organization_type",
+        displayName: "Organization Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1015,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1017,
+      },
+      {
+        name: "legal_name",
+        displayName: "Legal Name",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "registration_number",
+        displayName: "Registration Number",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "tax_identifier",
+        displayName: "Tax Identifier",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "party_type",
+        displayName: "Party Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1016,
+      },
+      {
+        name: "display_name",
+        displayName: "Display Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "external_reference",
+        displayName: "External Reference",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "person_id",
+        displayName: "Person",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "parent_organization_id",
+        displayName: "Parent Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "PartyRole",
+    tableName: "bus_party_role",
+    route: "bus_party_role",
+    displayName: "Party Role",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "party_id",
+        displayName: "Party",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "role_type",
+        displayName: "Role Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1019,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "valid_from",
+        displayName: "Valid From",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "valid_to",
+        displayName: "Valid To",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1020,
+      },
+      {
+        name: "person_id",
+        displayName: "Person",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "PartyRelationship",
+    tableName: "bus_party_relationship",
+    route: "bus_party_relationship",
+    displayName: "Party Relationship",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "from_party_id",
+        displayName: "From Party",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
+      },
+    ],
+  },
+  {
+    name: "LegalEntity",
+    tableName: "bus_legal_entity",
+    route: "bus_legal_entity",
+    displayName: "Legal Entity",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "occurred_at",
+        displayName: "Occurred At",
+        type: "datetime",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+    ],
+  },
+  {
+    name: "BusinessUnit",
+    tableName: "bus_business_unit",
+    route: "bus_business_unit",
+    displayName: "Business Unit",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Department",
+    tableName: "bus_department",
+    route: "bus_department",
+    displayName: "Department",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Address",
+    tableName: "bus_address",
+    route: "bus_address",
+    displayName: "Address",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "address_type",
+        displayName: "Address Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1000,
+      },
+      {
+        name: "line1",
+        displayName: "Line1",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "line2",
+        displayName: "Line2",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "line3",
+        displayName: "Line3",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "city",
+        displayName: "City",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "state_or_province",
+        displayName: "State Or Province",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 150,
+      },
+      {
+        name: "postal_code",
+        displayName: "Postal Code",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 30,
+      },
+      {
+        name: "country_code",
+        displayName: "Country Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 2,
+      },
+      {
+        name: "latitude",
+        displayName: "Latitude",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "longitude",
+        displayName: "Longitude",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "is_primary",
+        displayName: "Is Primary",
+        type: "boolean",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1001,
+      },
+      {
+        name: "party_id",
+        displayName: "Party",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "person_id",
+        displayName: "Person",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "location_id",
+        displayName: "Location",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "ContactPoint",
+    tableName: "bus_contact_point",
+    route: "bus_contact_point",
+    displayName: "Contact Point",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "party_id",
+        displayName: "Party",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Location",
+    tableName: "bus_location",
+    route: "bus_location",
+    displayName: "Location",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "location_type",
+        displayName: "Location Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1011,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1012,
+      },
+      {
+        name: "address_id",
+        displayName: "Address",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "parent_location_id",
+        displayName: "Parent Location",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "organization_id",
+        displayName: "Organization",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Country",
+    tableName: "bus_country",
+    route: "bus_country",
+    displayName: "Country",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+    ],
+  },
+  {
+    name: "Language",
+    tableName: "bus_language",
+    route: "bus_language",
+    displayName: "Language",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+    ],
+  },
+  {
+    name: "Currency",
+    tableName: "bus_currency",
+    route: "bus_currency",
+    displayName: "Currency",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 3,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "symbol",
+        displayName: "Symbol",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 10,
+      },
+      {
+        name: "decimal_places",
+        displayName: "Decimal Places",
+        type: "integer",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1007,
+      },
+    ],
+  },
+  {
+    name: "ExchangeRate",
+    tableName: "bus_exchange_rate",
+    route: "bus_exchange_rate",
+    displayName: "Exchange Rate",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "from_currency",
+        displayName: "From Currency",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+        references: "Currency",
+      },
+      {
+        name: "to_currency",
+        displayName: "To Currency",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+        references: "Currency",
+      },
+      {
+        name: "rate",
+        displayName: "Rate",
+        type: "decimal",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "rate_type",
+        displayName: "Rate Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1008,
+      },
+      {
+        name: "effective_at",
+        displayName: "Effective At",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "expires_at",
+        displayName: "Expires At",
+        type: "datetime",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "source",
+        displayName: "Source",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1009,
+      },
+    ],
+  },
+  {
+    name: "UnitOfMeasure",
+    tableName: "bus_unit_of_measure",
+    route: "bus_unit_of_measure",
+    displayName: "Unit Of Measure",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 30,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "symbol",
+        displayName: "Symbol",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 20,
+      },
+      {
+        name: "category",
+        displayName: "Category",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1038,
+      },
+      {
+        name: "conversion_factor",
+        displayName: "Conversion Factor",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "base_unit_id",
+        displayName: "Base Unit",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "UnitOfMeasure",
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1039,
+      },
+    ],
+  },
+  {
+    name: "Calendar",
+    tableName: "bus_calendar",
+    route: "bus_calendar",
+    displayName: "Calendar",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+    ],
+  },
+  {
+    name: "Attachment",
+    tableName: "bus_attachment",
+    route: "bus_attachment",
+    displayName: "Attachment",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "effective_at",
+        displayName: "Effective At",
+        type: "datetime",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+    ],
+  },
+  {
+    name: "QualityCharacteristic",
+    tableName: "bus_quality_characteristic",
+    route: "bus_quality_characteristic",
+    displayName: "Quality Characteristic",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "description",
+        displayName: "Description",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 2000,
+      },
+      {
+        name: "data_type",
+        displayName: "Data Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1025,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1026,
+      },
+      {
+        name: "evaluation_method",
+        displayName: "Evaluation Method",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 500,
+      },
+    ],
+  },
+  {
+    name: "QualityPlanCharacteristic",
+    tableName: "bus_quality_plan_characteristic",
+    route: "bus_quality_plan_characteristic",
+    displayName: "Quality Plan Characteristic",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "sequence_number",
+        displayName: "Sequence Number",
+        type: "integer",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "required",
+        displayName: "Required",
+        type: "boolean",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "lower_limit",
+        displayName: "Lower Limit",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "upper_limit",
+        displayName: "Upper Limit",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "target_value",
+        displayName: "Target Value",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "unit_of_measure",
+        displayName: "Unit Of Measure",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "UnitOfMeasure",
+      },
+      {
+        name: "method",
+        displayName: "Method",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 500,
+      },
+      {
+        name: "sampling_required",
+        displayName: "Sampling Required",
+        type: "boolean",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "quality_characteristic_id",
+        displayName: "Quality Characteristic",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_plan_id",
+        displayName: "Quality Plan",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "test_method_id",
+        displayName: "Test Method",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "sampling_plan_id",
+        displayName: "Sampling Plan",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "QualityPlan",
+    tableName: "bus_quality_plan",
+    route: "bus_quality_plan",
+    displayName: "Quality Plan",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1031,
+      },
+    ],
+  },
+  {
+    name: "TestMethod",
+    tableName: "bus_test_method",
+    route: "bus_test_method",
+    displayName: "Test Method",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "instructions",
+        displayName: "Instructions",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 10000,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1037,
+      },
+    ],
+  },
+  {
+    name: "SamplingPlan",
+    tableName: "bus_sampling_plan",
+    route: "bus_sampling_plan",
+    displayName: "Sampling Plan",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "method",
+        displayName: "Method",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1034,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1035,
+      },
+    ],
+  },
+  {
+    name: "SamplingRule",
+    tableName: "bus_sampling_rule",
+    route: "bus_sampling_rule",
+    displayName: "Sampling Rule",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "rule_number",
+        displayName: "Rule Number",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "population_min",
+        displayName: "Population Min",
+        type: "integer",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "population_max",
+        displayName: "Population Max",
+        type: "integer",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "sample_size",
+        displayName: "Sample Size",
+        type: "integer",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "acceptance_number",
+        displayName: "Acceptance Number",
+        type: "integer",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "rejection_number",
+        displayName: "Rejection Number",
+        type: "integer",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1036,
+      },
+      {
+        name: "sampling_plan_id",
+        displayName: "Sampling Plan",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_plan_id",
+        displayName: "Quality Plan",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "QualityInspection",
+    tableName: "bus_quality_inspection",
+    route: "bus_quality_inspection",
+    displayName: "Quality Inspection",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "inspection_number",
+        displayName: "Inspection Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "inspection_date",
+        displayName: "Inspection Date",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1029,
+      },
+      {
+        name: "result",
+        displayName: "Result",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1028,
+      },
+      {
+        name: "disposition",
+        displayName: "Disposition",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1027,
+      },
+      {
+        name: "notes",
+        displayName: "Notes",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 4000,
+      },
+      {
+        name: "quality_plan_id",
+        displayName: "Quality Plan",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "inspector_id",
+        displayName: "Inspector",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
+      },
+    ],
+  },
+  {
+    name: "InspectionSample",
+    tableName: "bus_inspection_sample",
+    route: "bus_inspection_sample",
+    displayName: "Inspection Sample",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "sample_number",
+        displayName: "Sample Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "selected_at",
+        displayName: "Selected At",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "quantity",
+        displayName: "Quantity",
+        type: "decimal",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "unit_of_measure",
+        displayName: "Unit Of Measure",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+        references: "UnitOfMeasure",
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1010,
+      },
+      {
+        name: "selection_basis",
+        displayName: "Selection Basis",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 1000,
+      },
+      {
+        name: "quality_inspection_id",
+        displayName: "Quality Inspection",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "sampling_plan_id",
+        displayName: "Sampling Plan",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "sampling_rule_id",
+        displayName: "Sampling Rule",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "QualityMeasurement",
+    tableName: "bus_quality_measurement",
+    route: "bus_quality_measurement",
+    displayName: "Quality Measurement",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "measurement_number",
+        displayName: "Measurement Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "characteristic_code",
+        displayName: "Characteristic Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "measured_value",
+        displayName: "Measured Value",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "measured_text",
+        displayName: "Measured Text",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 1000,
+      },
+      {
+        name: "unit_of_measure",
+        displayName: "Unit Of Measure",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "UnitOfMeasure",
+      },
+      {
+        name: "lower_limit",
+        displayName: "Lower Limit",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "upper_limit",
+        displayName: "Upper Limit",
+        type: "decimal",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "result",
+        displayName: "Result",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1030,
+      },
+      {
+        name: "measured_at",
+        displayName: "Measured At",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "method",
+        displayName: "Method",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 500,
+      },
+      {
+        name: "notes",
+        displayName: "Notes",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 2000,
+      },
+      {
+        name: "quality_characteristic_id",
+        displayName: "Quality Characteristic",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_plan_characteristic_id",
+        displayName: "Quality Plan Characteristic",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "test_method_id",
+        displayName: "Test Method",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_inspection_id",
+        displayName: "Quality Inspection",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "inspection_sample_id",
+        displayName: "Inspection Sample",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_plan_id",
+        displayName: "Quality Plan",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "certificate_of_analysis_id",
+        displayName: "Certificate Of Analysis",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "Nonconformance",
+    tableName: "bus_nonconformance",
+    route: "bus_nonconformance",
+    displayName: "Nonconformance",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "number",
+        displayName: "Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "severity",
+        displayName: "Severity",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1013,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1014,
+      },
+      {
+        name: "description",
+        displayName: "Description",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 4000,
+      },
+      {
+        name: "detected_at",
+        displayName: "Detected At",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "closed_at",
+        displayName: "Closed At",
+        type: "datetime",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "inspection_id",
+        displayName: "Inspection",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "QualityInspection",
+      },
+      {
+        name: "owner_id",
+        displayName: "Owner",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
+      },
+    ],
+  },
+  {
+    name: "CorrectiveAction",
+    tableName: "bus_corrective_action",
+    route: "bus_corrective_action",
+    displayName: "Corrective Action",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "action_number",
+        displayName: "Action Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "action_type",
+        displayName: "Action Type",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1003,
+      },
+      {
+        name: "description",
+        displayName: "Description",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 4000,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1004,
+      },
+      {
+        name: "due_date",
+        displayName: "Due Date",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "completed_date",
+        displayName: "Completed Date",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "nonconformance_id",
+        displayName: "Nonconformance",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "owner_id",
+        displayName: "Owner",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
+      },
+    ],
+  },
+  {
+    name: "CorrectiveActionVerification",
+    tableName: "bus_corrective_action_verification",
+    route: "bus_corrective_action_verification",
+    displayName: "Corrective Action Verification",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "verification_number",
+        displayName: "Verification Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "verification_date",
+        displayName: "Verification Date",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "result",
+        displayName: "Result",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1005,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1006,
+      },
+      {
+        name: "findings",
+        displayName: "Findings",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 4000,
+      },
+      {
+        name: "verified_by",
+        displayName: "Verified By",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
+      },
+      {
+        name: "nonconformance_id",
+        displayName: "Nonconformance",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "corrective_action_id",
+        displayName: "Corrective Action",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "ReturnDisposition",
+    tableName: "bus_return_disposition",
+    route: "bus_return_disposition",
+    displayName: "Return Disposition",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "disposition_code",
+        displayName: "Disposition Code",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1032,
+      },
+      {
+        name: "disposition_date",
+        displayName: "Disposition Date",
+        type: "datetime",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "quantity",
+        displayName: "Quantity",
+        type: "decimal",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1033,
+      },
+      {
+        name: "reason_code",
+        displayName: "Reason Code",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "nonconformance_id",
+        displayName: "Nonconformance",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+      {
+        name: "quality_inspection_id",
+        displayName: "Quality Inspection",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+      },
+    ],
+  },
+  {
+    name: "CertificateOfAnalysis",
+    tableName: "bus_certificate_of_analysis",
+    route: "bus_certificate_of_analysis",
+    displayName: "Certificate Of Analysis",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "certificate_number",
+        displayName: "Certificate Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 120,
+      },
+      {
+        name: "issued_at",
+        displayName: "Issued At",
+        type: "datetime",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1002,
+      },
+    ],
+  },
+];
+
+export const relationships: RelationshipMeta[] = [
+  {
+    name: "person_party",
+    sourceEntity: "Person",
+    targetEntity: "Party",
+    cardinality: "oneToOne",
+    foreignKey: "party_id",
+  },
+  {
+    name: "organization_party",
+    sourceEntity: "Organization",
+    targetEntity: "Party",
+    cardinality: "oneToOne",
+    foreignKey: "party_id",
+  },
+  {
+    name: "addresses",
+    sourceEntity: "Party",
+    targetEntity: "Address",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "party_roles",
+    sourceEntity: "Party",
+    targetEntity: "PartyRole",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "employer_organizations",
+    sourceEntity: "Person",
+    targetEntity: "Organization",
+    cardinality: "oneToMany",
+    foreignKey: "person_id",
+  },
+  {
+    name: "person_person",
+    sourceEntity: "Person",
+    targetEntity: "Person",
+    cardinality: "oneToMany",
+    foreignKey: "person_id",
+  },
+  {
+    name: "organization_person",
+    sourceEntity: "Organization",
+    targetEntity: "Person",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "addresses",
+    sourceEntity: "Person",
+    targetEntity: "Address",
+    cardinality: "oneToMany",
+    foreignKey: "person_id",
+  },
+  {
+    name: "party_roles",
+    sourceEntity: "Person",
+    targetEntity: "PartyRole",
+    cardinality: "oneToMany",
+    foreignKey: "person_id",
+  },
+  {
+    name: "child_organizations",
+    sourceEntity: "Organization",
+    targetEntity: "Organization",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "addresses",
+    sourceEntity: "Organization",
+    targetEntity: "Address",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "locations",
+    sourceEntity: "Organization",
+    targetEntity: "Location",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "person_organization",
+    sourceEntity: "Person",
+    targetEntity: "Organization",
+    cardinality: "oneToMany",
+    foreignKey: "person_id",
+  },
+  {
+    name: "organization_organization",
+    sourceEntity: "Organization",
+    targetEntity: "Organization",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "party_roles",
+    sourceEntity: "Organization",
+    targetEntity: "PartyRole",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "from_party",
+    sourceEntity: "Party",
+    targetEntity: "PartyRelationship",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "organization_businessunit",
+    sourceEntity: "Organization",
+    targetEntity: "BusinessUnit",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "organization_department",
+    sourceEntity: "Organization",
+    targetEntity: "Department",
+    cardinality: "oneToMany",
+    foreignKey: "organization_id",
+  },
+  {
+    name: "location_address",
+    sourceEntity: "Location",
+    targetEntity: "Address",
+    cardinality: "oneToMany",
+    foreignKey: "location_id",
+  },
+  {
+    name: "party_contactpoint",
+    sourceEntity: "Party",
+    targetEntity: "ContactPoint",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "child_locations",
+    sourceEntity: "Location",
+    targetEntity: "Location",
+    cardinality: "oneToMany",
+    foreignKey: "location_id",
+  },
+  {
+    name: "address_location",
+    sourceEntity: "Address",
+    targetEntity: "Location",
+    cardinality: "oneToMany",
+    foreignKey: "address_id",
+  },
+  {
+    name: "exchange_rates_from",
+    sourceEntity: "Currency",
+    targetEntity: "ExchangeRate",
+    cardinality: "oneToMany",
+    foreignKey: "currency_id",
+  },
+  {
+    name: "exchange_rates_to",
+    sourceEntity: "Currency",
+    targetEntity: "ExchangeRate",
+    cardinality: "oneToMany",
+    foreignKey: "currency_id",
+  },
+  {
+    name: "from_currency_ref",
+    sourceEntity: "Currency",
+    targetEntity: "ExchangeRate",
+    cardinality: "oneToMany",
+    foreignKey: "currency_id",
+  },
+  {
+    name: "to_currency_ref",
+    sourceEntity: "Currency",
+    targetEntity: "ExchangeRate",
+    cardinality: "oneToMany",
+    foreignKey: "currency_id",
+  },
+  {
+    name: "base_unit",
+    sourceEntity: "UnitOfMeasure",
+    targetEntity: "UnitOfMeasure",
+    cardinality: "oneToMany",
+    foreignKey: "unit_of_measure_id",
+  },
+  {
+    name: "derived_units",
+    sourceEntity: "UnitOfMeasure",
+    targetEntity: "UnitOfMeasure",
+    cardinality: "oneToMany",
+    foreignKey: "unit_of_measure_id",
+  },
+  {
+    name: "quality_plan_characteristics",
+    sourceEntity: "QualityCharacteristic",
+    targetEntity: "QualityPlanCharacteristic",
+    cardinality: "oneToMany",
+    foreignKey: "quality_characteristic_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "QualityCharacteristic",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "quality_characteristic_id",
+  },
+  {
+    name: "characteristics",
+    sourceEntity: "QualityPlan",
+    targetEntity: "QualityPlanCharacteristic",
+    cardinality: "oneToMany",
+    foreignKey: "quality_plan_id",
+  },
+  {
+    name: "quality_plan_characteristics",
+    sourceEntity: "TestMethod",
+    targetEntity: "QualityPlanCharacteristic",
+    cardinality: "oneToMany",
+    foreignKey: "test_method_id",
+  },
+  {
+    name: "samplingplan_qualityplancharacteristic",
+    sourceEntity: "SamplingPlan",
+    targetEntity: "QualityPlanCharacteristic",
+    cardinality: "oneToMany",
+    foreignKey: "sampling_plan_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "QualityPlanCharacteristic",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "quality_plan_characteristic_id",
+  },
+  {
+    name: "sampling_plans",
+    sourceEntity: "QualityPlan",
+    targetEntity: "SamplingPlan",
+    cardinality: "manyToMany",
+    foreignKey: "sampling_plan_id",
+  },
+  {
+    name: "inspections",
+    sourceEntity: "QualityPlan",
+    targetEntity: "QualityInspection",
+    cardinality: "oneToMany",
+    foreignKey: "quality_plan_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "TestMethod",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "test_method_id",
+  },
+  {
+    name: "rules",
+    sourceEntity: "SamplingPlan",
+    targetEntity: "SamplingRule",
+    cardinality: "oneToMany",
+    foreignKey: "sampling_plan_id",
+  },
+  {
+    name: "qualityplan_samplingrule",
+    sourceEntity: "QualityPlan",
+    targetEntity: "SamplingRule",
+    cardinality: "oneToMany",
+    foreignKey: "quality_plan_id",
+  },
+  {
+    name: "inspector",
+    sourceEntity: "Party",
+    targetEntity: "QualityInspection",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "samples",
+    sourceEntity: "QualityInspection",
+    targetEntity: "InspectionSample",
+    cardinality: "oneToMany",
+    foreignKey: "quality_inspection_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "QualityInspection",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "quality_inspection_id",
+  },
+  {
+    name: "certificates_of_analysis",
+    sourceEntity: "QualityInspection",
+    targetEntity: "CertificateOfAnalysis",
+    cardinality: "manyToMany",
+    foreignKey: "certificate_of_analysis_id",
+  },
+  {
+    name: "nonconformances",
+    sourceEntity: "QualityInspection",
+    targetEntity: "Nonconformance",
+    cardinality: "oneToMany",
+    foreignKey: "quality_inspection_id",
+  },
+  {
+    name: "samplingplan_inspectionsample",
+    sourceEntity: "SamplingPlan",
+    targetEntity: "InspectionSample",
+    cardinality: "oneToMany",
+    foreignKey: "sampling_plan_id",
+  },
+  {
+    name: "samplingrule_inspectionsample",
+    sourceEntity: "SamplingRule",
+    targetEntity: "InspectionSample",
+    cardinality: "oneToMany",
+    foreignKey: "sampling_rule_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "InspectionSample",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "inspection_sample_id",
+  },
+  {
+    name: "qualityplan_qualitymeasurement",
+    sourceEntity: "QualityPlan",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "quality_plan_id",
+  },
+  {
+    name: "return_dispositions",
+    sourceEntity: "Nonconformance",
+    targetEntity: "ReturnDisposition",
+    cardinality: "oneToMany",
+    foreignKey: "nonconformance_id",
+  },
+  {
+    name: "owner",
+    sourceEntity: "Party",
+    targetEntity: "Nonconformance",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "corrective_actions",
+    sourceEntity: "Nonconformance",
+    targetEntity: "CorrectiveAction",
+    cardinality: "oneToMany",
+    foreignKey: "nonconformance_id",
+  },
+  {
+    name: "verifications",
+    sourceEntity: "Nonconformance",
+    targetEntity: "CorrectiveActionVerification",
+    cardinality: "oneToMany",
+    foreignKey: "nonconformance_id",
+  },
+  {
+    name: "owner",
+    sourceEntity: "Party",
+    targetEntity: "CorrectiveAction",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
+  },
+  {
+    name: "verifications",
+    sourceEntity: "CorrectiveAction",
+    targetEntity: "CorrectiveActionVerification",
+    cardinality: "oneToMany",
+    foreignKey: "corrective_action_id",
+  },
+  {
+    name: "qualityinspection_returndisposition",
+    sourceEntity: "QualityInspection",
+    targetEntity: "ReturnDisposition",
+    cardinality: "oneToMany",
+    foreignKey: "quality_inspection_id",
+  },
+  {
+    name: "measurements",
+    sourceEntity: "CertificateOfAnalysis",
+    targetEntity: "QualityMeasurement",
+    cardinality: "oneToMany",
+    foreignKey: "certificate_of_analysis_id",
+  },
+];
+
+/** Fields a client is allowed to write. */
+export function writableFields(entity: EntityMeta): FieldMeta[] {
+  return entity.fields.filter((f) => !SERVER_MANAGED_FIELDS.has(f.name));
+}
+
+/** Writable fields excluding foreign keys — safe to populate without existing parents. */
+export function scalarFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => !f.isForeignKey && !f.name.endsWith("_id"));
+}
+
+export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
+  return writableFields(entity).filter((f) => f.isForeignKey || f.name.endsWith("_id"));
+}
+
+/**
+ * Columns whose contents the model constrains to a shape. Tests write arbitrary
+ * markers into a text field to assert round-tripping and search, so a column
+ * with a format rule is the wrong one to pick — writing `e2e-1785…` into
+ * `email` trips the email-format rule and the create is rejected.
+ */
+const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature/i;
+
+/**
+ * The first free-text field, used for search and update assertions.
+ *
+ * A column the model gives an enum is not free text: it holds one of the
+ * declared values, its dictionary reference is a list rather than a string, and
+ * the backend's `?search=` deliberately does not match against it. Writing a
+ * marker into one and searching for it tests nothing the application promises,
+ * so an entity whose only text columns are enums has no free-text field.
+ */
+export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
+  const textish = scalarFields(entity).filter(
+    (f) => (f.type === "string" || f.type === "text") && f.enumReferenceId === undefined
+  );
+  return (
+    textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
+    // Every text column is format-constrained — fall back rather than skip the
+    // assertion entirely; the suite tolerates a create failure better than a
+    // silent gap in coverage.
+    textish[0]
+  );
+}
+
+export function numericFields(entity: EntityMeta): FieldMeta[] {
+  return scalarFields(entity).filter((f) => f.type === "integer" || f.type === "decimal");
+}
+
+export function getEntity(name: string): EntityMeta {
+  const found = entities.find(
+    (e) => e.name === name || e.tableName === name || e.route === name
+  );
+  if (!found) throw new Error(`Unknown entity "${name}"`);
+  return found;
+}
+
+/**
+ * FK columns naming a person by the role they played rather than by entity.
+ * Mirrors `foreignKeys.personRoleColumns` in appwithai-language.json and the
+ * backend's own COLUMN_TABLE_ALIASES.
+ */
+const PERSON_ROLE_COLUMNS = new Set([
+  "assigned_to",
+  "author_id",
+  "lab_manager_id",
+  "manager_id",
+  "owner_id",
+  "pi_id",
+  "remediation_owner",
+  "remediation_owner_id",
+  "user_id",
+]);
+
+/**
+ * Prefixes naming the role a reference plays rather than a different entity.
+ * Mirrors `foreignKeys.qualifierPrefixes` in appwithai-language.json.
+ */
+const QUALIFIER_PREFIXES = ["parent_"];
+
+function entityByStem(stem: string): EntityMeta | null {
+  return (
+    entities.find(
+      (e) =>
+        e.route === stem || e.tableName === `bus_${stem}` || e.name.toLowerCase() === stem.toLowerCase()
+    ) ?? null
+  );
+}
+
+/**
+ * Map a foreign-key column (`customer_id`) to the entity it references.
+ *
+ * A `_by` column points at a user, so it resolves to the user entity rather
+ * than to the table its name would suggest — there is no `bus_reported_by`.
+ * Getting this wrong leaves a mandatory FK unset and every create in the
+ * suite fails validation.
+ */
+export function referencedEntity(columnName: string, references?: string): EntityMeta | null {
+  // A target the model named outright is the answer; the name is not consulted.
+  if (references) return entities.find((e) => e.name === references) ?? null;
+
+  if (
+    columnName.endsWith("_by_id") ||
+    columnName.endsWith("_by") ||
+    PERSON_ROLE_COLUMNS.has(columnName)
+  ) {
+    const user = entityByStem("user");
+    if (user) return user;
+  }
+
+  // A qualifier names the role the reference plays, not another entity: a
+  // Sample's `parent_sample_id` is a Sample, and there is no
+  // `bus_parent_sample` to create one in.
+  const qualified = QUALIFIER_PREFIXES.find((prefix) => columnName.startsWith(prefix));
+  if (qualified) {
+    const stripped = columnName.slice(qualified.length);
+    if (PERSON_ROLE_COLUMNS.has(stripped)) {
+      const user = entityByStem("user");
+      if (user) return user;
+    }
+    if (stripped.endsWith("_id")) {
+      const parent = entityByStem(stripped.slice(0, -3));
+      if (parent) return parent;
+    }
+  }
+
+  if (!columnName.endsWith("_id")) return null;
+  return entityByStem(columnName.slice(0, -3));
+}
+
+/**
+ * Entities ordered so that a record's foreign-key targets are created first —
+ * and so, reversed, that a record is deleted before anything it references.
+ * Falls back to declaration order for cycles.
+ *
+ * The edges are every foreign-key column resolved by `referencedEntity`, the
+ * same rule the suites use to fill those columns, plus the relationships the
+ * model declares. Relationships alone missed every reference a column name
+ * implies: `Compound.registered_by_id` is a User, but no relationship says so,
+ * so Compound sorted ahead of User, the bulk seed had no user to point at, and
+ * all 1000 compounds — then every alias of them — were refused.
+ */
+export function topologicalEntities(): EntityMeta[] {
+  const byName = new Map(entities.map((e) => [e.name, e]));
+  const dependencies = new Map<string, Set<string>>();
+
+  for (const entity of entities) {
+    const references = new Set<string>();
+    for (const field of foreignKeyFields(entity)) {
+      const target = referencedEntity(field.name, field.references);
+      if (target) references.add(target.name);
+    }
+    dependencies.set(entity.name, references);
+  }
+  for (const rel of relationships) {
+    // manyToOne / oneToOne: the source holds the FK, so the target must exist first.
+    if (rel.cardinality === "manyToOne" || rel.cardinality === "oneToOne") {
+      dependencies.get(rel.sourceEntity)?.add(rel.targetEntity);
+    } else if (rel.cardinality === "oneToMany") {
+      dependencies.get(rel.targetEntity)?.add(rel.sourceEntity);
+    }
+  }
+
+  const ordered: EntityMeta[] = [];
+  const visited = new Set<string>();
+  const visiting = new Set<string>();
+
+  const visit = (name: string): void => {
+    if (visited.has(name) || visiting.has(name)) return;
+    visiting.add(name);
+    for (const dep of dependencies.get(name) ?? []) {
+      if (dep !== name) visit(dep);
+    }
+    visiting.delete(name);
+    visited.add(name);
+    const entity = byName.get(name);
+    if (entity) ordered.push(entity);
+  };
+
+  for (const entity of entities) visit(entity.name);
+  return ordered;
+}

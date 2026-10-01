@@ -1,0 +1,184 @@
+entity:
+  name: Currency
+  namespace: cedm.domain
+  kind: reference_master_entity
+  description: A recognized monetary denomination used to give financial amounts their currency context across pricing, orders, invoices, payments, banking, settlements, and accounting.
+  identity:
+    key: currencyId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: currencyId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the currency master record.
+      usage: Referenced by monetary transactions and financial master data.
+      relationshipContext: Identifies the currency definition, not a monetary amount or an exchange-rate observation.
+      workflowRole: Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency.
+      requiredMeaning: Required for unambiguous monetary interpretation.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 3
+    help:
+      summary: Three-letter business currency code, normally an ISO 4217 code where one exists.
+      usage: Used in documents, APIs, integrations, reports, pricing, banking, and accounting.
+      relationshipContext: Code identifies the denomination and is not an exchange rate or amount.
+      workflowRole: Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows.
+      requiredMeaning: Required for interoperable monetary representation.
+  - name: name
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Human-readable currency name.
+      usage: Used in user interfaces, documents, reports, master-data management, and integrations.
+      relationshipContext: Describes the currency identified by code and currencyId.
+      workflowRole: Provides understandable monetary context to business users.
+      requiredMeaning: Required for usable currency master data.
+  - name: symbol
+    type: string
+    required: false
+    maxLength: 10
+    help:
+      summary: Common display symbol for the currency.
+      usage: Used in user interfaces, customer documents, reports, and formatted amounts.
+      relationshipContext: Presentation metadata; it must not be used as the canonical currency identity.
+      workflowRole: Improves human-readable display without affecting financial calculations.
+      optionalMeaning: Optional where no standard symbol or display policy exists.
+  - name: decimalPlaces
+    type: integer
+    required: true
+    default: 2
+    minimum: 0
+    maximum: 6
+    help:
+      summary: Standard number of decimal places normally used when representing amounts in this currency.
+      usage: Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation.
+      relationshipContext: Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy.
+      workflowRole: Supplies a currency-level precision baseline to monetary workflows.
+      requiredMeaning: Required because monetary amounts must have predictable representation.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE, RETIRED]
+    help:
+      summary: Controls whether the currency is available for new monetary transactions.
+      usage: Used by pricing, order, invoicing, payment, banking, and accounting validation.
+      relationshipContext: Retiring a currency must not invalidate historical transactions expressed in that currency.
+      workflowRole: New transactions should use ACTIVE currencies unless an authorized legacy exception applies.
+      valueSemantics:
+        ACTIVE: Available for normal financial activity.
+        INACTIVE: Temporarily unavailable for new normal activity.
+        RETIRED: No longer available for new normal activity while historical financial records remain valid.
+      requiredMeaning: Required for transaction eligibility.
+  relationships:
+  - name: products
+    target: Product
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to products whose standard or reference prices may be expressed in it.
+      usage: Supports catalog pricing and planning.
+      cardinalityMeaning: A currency may be used by many products.
+      workflowRole: Provides monetary context for optional Product standard pricing; transaction currency remains authoritative at transaction level.
+  - name: salesOrders
+    target: SalesOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to sales orders denominated in it.
+      usage: Supports order pricing, totals, customer commitments, and reporting.
+      cardinalityMeaning: One currency can be used by many sales orders.
+      workflowRole: Establishes the monetary denomination for SalesOrder totals and line values.
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to invoices denominated in it.
+      usage: Supports accounts receivable, billing, settlement, statements, and financial reporting.
+      cardinalityMeaning: One currency can be used by many invoices.
+      workflowRole: Defines the currency in which the financial claim and its settlement allocation are interpreted.
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to payments denominated in it.
+      usage: Supports settlement, payment allocation, reconciliation, refunds, and cash reporting.
+      cardinalityMeaning: One currency can be used by many payments.
+      workflowRole: Determines the payment-side monetary denomination; conversion is required before applying amounts across currencies when policy permits.
+  - name: paymentAllocations
+    target: PaymentAllocation
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to payment allocations carrying monetary settlement amounts.
+      usage: Supports invoice settlement and reconciliation.
+      cardinalityMeaning: One currency may be used by many allocations.
+      workflowRole: Helps distinguish payment currency from invoice currency and ensures any conversion is explicitly governed.
+  - name: bankTransactions
+    target: BankTransaction
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to external bank transaction amounts.
+      usage: Supports bank reconciliation and cash visibility.
+      cardinalityMeaning: One currency may occur on many bank transactions.
+      workflowRole: Provides monetary context for bank evidence used to reconcile Payment records.
+  - name: journalEntries
+    target: JournalEntry
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the currency to accounting journal entries whose monetary amounts are expressed in it.
+      usage: Supports accounting, reporting, consolidation, and audit.
+      cardinalityMeaning: One currency may be represented by many journal entries.
+      workflowRole: Provides currency context for accounting recognition; ledger/base-currency requirements may require additional currency amounts.
+  - name: exchangeRatesFrom
+    target: ExchangeRate
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Exchange rates in which this currency is the source denomination.
+      usage: Supports auditable conversion of Money values from this currency into another currency.
+      cardinalityMeaning: A currency can be the source for many rates over time and against many target currencies.
+      workflowRole: Supplies the source-side rate history used by multi-currency settlement and accounting workflows.
+  - name: exchangeRatesTo
+    target: ExchangeRate
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Exchange rates in which this currency is the target denomination.
+      usage: Supports auditable conversion of foreign Money values into this currency.
+      cardinalityMeaning: A currency can be the target for many rates over time and from many source currencies.
+      workflowRole: Supplies the target-side rate history used by settlement, reporting, and accounting conversion.
+  invariants:
+  - id: CURRENCY-001
+    rule: code must conform to the ISO 4217 three-letter currency-code convention where an ISO code exists.
+  - id: CURRENCY-002
+    rule: decimalPlaces must be between 0 and 6 inclusive.
+  - id: CURRENCY-003
+    rule: Retiring a currency must preserve the currency identity and value of historical orders, invoices, payments, bank transactions, allocations, and journal entries.
+  - id: CURRENCY-004
+    rule: Monetary amounts in different currencies must not be directly compared, summed, allocated, or reconciled without an explicit approved exchange-rate/conversion context.
+  - id: CURRENCY-005
+    rule: PaymentAllocation between a Payment and Invoice in different currencies requires an explicit ExchangeRate, effective timestamp, rate source, and rounding policy when permitted.
+  help:
+    summary: Defines the monetary denomination that gives financial amounts their business meaning.
+    businessMeaning: Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting.
+    usage: Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting.
+    relationshipContext: Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations.
+    workflowContext: Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record.
+    lifecycle: Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence.
+    example: A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-CURRENCY

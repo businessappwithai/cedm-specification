@@ -1,0 +1,56 @@
+# CEDM Canonical Specification Manifest
+specification:
+  id: CEDM
+  name: Common Enterprise Domain Model
+  namespace: cedm.domain
+  version: 0.2.0
+  status: draft
+
+source:
+  entityRegistry: domain/entities/index.yaml
+  entityDefinitions: domain/entities/*.yaml
+  vocabulary: specification/vocabulary.yaml
+  validation: specification/validation.yaml
+  graph: specification/graph.yaml
+  generation: specification/generation.yaml
+
+conformance:
+  structural: required
+  relational: required
+  semantic: required
+  executable: target
+
+artifacts:
+  canonical:
+    - domain/entities
+    - specification
+  generated:
+    - sql
+    - cds
+    - json-schema
+    - openapi
+    - graphql
+    - ui
+    - workflow
+
+principles:
+  implementationNeutral: true
+  yamlIsCanonical: true
+  generatedArtifactsAreDerived: true
+  domainIdentityIsStable: true
+  businessRulesAreDeclarative: true
+  relationshipsAreExplicit: true
+  lifecycleIsExplicit: true
+
+release:
+  maturity:
+    current: construction
+    next: validated-draft
+  promotionCriteria:
+    - allEntityFilesRegistered
+    - noDanglingReferences
+    - noInvalidCardinalities
+    - noInvalidInheritance
+    - noInvalidLifecycleTransitions
+    - vocabularyConforms
+    - generationContractConforms

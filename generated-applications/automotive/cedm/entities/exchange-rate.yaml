@@ -1,0 +1,154 @@
+entity:
+  name: ExchangeRate
+  namespace: cedm.domain
+  kind: financial_reference_entity
+  description: A time-effective, sourced conversion rate used to translate monetary amounts from one Currency into another for explicitly governed commercial, settlement, banking, or accounting calculations.
+  identity:
+    key: exchangeRateId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: exchangeRateId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: Stable identity of the exchange-rate observation or published rate record.
+      usage: Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations.
+      relationshipContext: Identifies one rate record rather than a currency or monetary amount.
+      workflowRole: Provides auditable linkage from a converted amount back to the rate used.
+      requiredMeaning: Required for traceable currency conversion.
+  - name: fromCurrency
+    type: reference
+    target: Currency
+    required: true
+    immutable: true
+    help:
+      summary: Currency from which an amount is converted.
+      usage: Identifies the source denomination of the monetary amount being converted.
+      relationshipContext: Must differ from toCurrency for a meaningful exchange-rate conversion.
+      workflowRole: Identifies the currency of the source Money value in an explicit conversion.
+      requiredMeaning: Required to prevent ambiguous conversion direction.
+  - name: toCurrency
+    type: reference
+    target: Currency
+    required: true
+    immutable: true
+    help:
+      summary: Currency into which an amount is converted.
+      usage: Identifies the target denomination of the converted monetary amount.
+      relationshipContext: Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence.
+      workflowRole: Identifies the currency of the resulting Money value.
+      requiredMeaning: Required for an auditable conversion.
+  - name: rate
+    type: decimal
+    required: true
+    precision: 24
+    scale: 12
+    help:
+      summary: Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention.
+      usage: Used to calculate converted monetary amounts while preserving the declared direction.
+      relationshipContext: Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType.
+      workflowRole: Supplies the mathematical conversion input used by settlement and accounting calculations.
+      requiredMeaning: Required for conversion.
+  - name: rateType
+    type: enum
+    required: true
+    values: [SPOT, CONTRACT, DAILY, MONTHLY, ACCOUNTING, CUSTOM]
+    help:
+      summary: Classifies the business purpose and provenance context of the exchange rate.
+      usage: Used to select an appropriate rate according to transaction and accounting policy.
+      relationshipContext: Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate.
+      workflowRole: Controls which rate is eligible for a conversion event.
+      valueSemantics:
+        SPOT: Market or transaction-time conversion rate.
+        CONTRACT: Rate established by an agreement or commercial contract.
+        DAILY: Published daily rate for a defined business date.
+        MONTHLY: Published rate intended for a defined monthly reporting period.
+        ACCOUNTING: Rate designated by accounting policy for ledger translation or reporting.
+        CUSTOM: Controlled rate established for a specific business purpose.
+      requiredMeaning: Required to preserve conversion context.
+  - name: effectiveAt
+    type: datetime
+    required: true
+    immutable: true
+    help:
+      summary: Date and time from which the exchange rate is applicable under its rate policy.
+      usage: Used to select the correct rate for a transaction, settlement, or accounting event.
+      relationshipContext: A rate without an effective time cannot be reliably reproduced when rates change over time.
+      workflowRole: Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion.
+      requiredMeaning: Required for temporal validity.
+  - name: expiresAt
+    type: datetime
+    required: false
+    immutable: true
+    help:
+      summary: Optional end of the period during which the rate is valid.
+      usage: Used to prevent application of expired rates.
+      relationshipContext: When supplied, expiresAt must be later than effectiveAt.
+      workflowRole: Defines the rate's validity window for transaction and reporting calculations.
+      optionalMeaning: Optional for rates whose validity is governed by another period convention.
+  - name: source
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: Identifies the provider or business authority from which the rate was obtained.
+      usage: Used for audit, reconciliation, regulatory reporting, and rate governance.
+      relationshipContext: Source identifies provenance; it does not by itself determine which rate is applicable.
+      workflowRole: Allows users and systems to reproduce or validate the conversion decision.
+      requiredMeaning: Required for financial traceability.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
+    help:
+      summary: Lifecycle state of the exchange-rate record.
+      usage: Used by conversion services to determine whether a rate may be applied.
+      relationshipContext: Historical calculations retain the rate record even after it expires.
+      workflowRole: Prevents use of draft, cancelled, or expired rates where policy does not permit them.
+      requiredMeaning: Required for controlled rate selection.
+  relationships:
+  - name: fromCurrencyRef
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Relationship to the source currency.
+      usage: Provides navigation from a rate to its source denomination.
+      cardinalityMeaning: Exactly one source currency is required.
+      workflowRole: Establishes the source side of every conversion.
+  - name: toCurrencyRef
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Relationship to the target currency.
+      usage: Provides navigation from a rate to its target denomination.
+      cardinalityMeaning: Exactly one target currency is required.
+      workflowRole: Establishes the target side of every conversion.
+  invariants:
+  - id: EXCHANGE-RATE-001
+    rule: fromCurrency and toCurrency must be different.
+  - id: EXCHANGE-RATE-002
+    rule: rate must be greater than zero.
+  - id: EXCHANGE-RATE-003
+    rule: expiresAt must be later than effectiveAt when supplied.
+  - id: EXCHANGE-RATE-004
+    rule: Historical financial calculations must retain the ExchangeRate reference actually used and must not be silently recalculated using a later rate.
+  - id: EXCHANGE-RATE-005
+    rule: A PaymentAllocation across different currencies requires an approved ExchangeRate and applicable rounding policy.
+  help:
+    summary: Represents an auditable conversion rate between two currencies for a defined time and business purpose.
+    businessMeaning: ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry.
+    usage: Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting.
+    relationshipContext: Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted.
+    workflowContext: Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision.
+    lifecycle: Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference.
+    example: A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-EXCHANGE-RATE

@@ -1,0 +1,24 @@
+entity:
+  name: BankReconciliation
+  namespace: cedm.domain
+  kind: treasury_reconciliation
+  description: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
+  identity: {key: bankReconciliationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: bankReconciliationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BankReconciliation., businessMeaning: Identifies one governed BankReconciliation record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  relationships:
+  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account reconciled., businessMeaning: Defines reconciliation boundary., usage: Treasury close and audit., cardinalityMeaning: Exactly one BankAccount., workflowRole: Matched evidence remains traceable.}}
+  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: External bank evidence in reconciliation., businessMeaning: Supplies statement-side transactions., usage: Matching and exception handling., cardinalityMeaning: Zero or many transactions., workflowRole: Reconciliation never rewrites bank evidence.}}
+  invariants:
+  - {id: BANK-RECONCILIATION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  help:
+    summary: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
+    purpose: Provide canonical enterprise semantics for BankReconciliation.
+    businessMeaning: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
+    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
+    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
+    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BANK-RECONCILIATION}

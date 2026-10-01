@@ -1,0 +1,78 @@
+# CEDM Specification Vocabulary
+specification:
+  name: CEDM
+  version: 0.2.0
+  status: draft
+  namespace: cedm.domain
+
+vocabulary:
+  scalarTypes:
+    uuid: globally unique identifier
+    string: UTF-8 text
+    integer: signed whole number
+    decimal: fixed precision numeric value
+    boolean: true or false
+    date: ISO calendar date
+    datetime: timezone-aware timestamp
+    object: structured implementation-neutral object
+    money: monetary amount with currency semantics
+    currency_code: ISO-style currency identifier
+    country_code: ISO-style country identifier
+    locale: locale identifier
+    timezone: IANA timezone identifier
+    reference: reference to another CEDM entity
+    enum: constrained symbolic value
+
+  entityKinds:
+    root_business_entity: independently identifiable business root
+    core_master_entity: reusable master data
+    reference_master_entity: controlled reference data
+    classification_entity: hierarchical classification
+    party_specialization: specialization of Party
+    party_role: business participation role
+    party_role_specialization: specialization of PartyRole
+    relationship_entity: relationship with independent identity
+    value_master_entity: structured reusable value
+    process_definition_entity: business process definition
+    process_runtime_entity: runtime business work
+    core_business_entity: business record or document
+    core_business_transaction: transactional business record
+    commercial_reference_entity: commercial reference data
+
+  cardinality:
+    allowed:
+      - "0..1"
+      - "1"
+      - "0..*"
+      - "1..*"
+
+  ownership:
+    allowed:
+      - aggregate
+      - reference
+
+  lifecycle:
+    statesMustBeStrings: true
+    transitionsRequireFromAndTo: true
+    terminalStatesMustBeExplicit: true
+
+  ruleOperators:
+    supported:
+      - equals
+      - notEquals
+      - greaterThan
+      - greaterThanOrEqual
+      - lessThan
+      - lessThanOrEqual
+      - required
+      - unique
+      - immutable
+      - references
+      - conditional
+
+  audit:
+    systemManagedFields:
+      - createdAt
+      - createdBy
+      - updatedAt
+      - updatedBy

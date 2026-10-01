@@ -24,6 +24,13 @@ import {
   readModelYaml,
   serializeModelDocument,
 } from "../../packages/generator/src/model-yaml/index";
+import { cedmOrder, lowerCedmModel, raiseModelDocument, resolveCedmImports } from "../cedm/index";
+import {
+  isCedmModelPath,
+  isCedmModelText,
+  readCedmModel,
+} from "../../packages/generator/src/model-cedm/read";
+import { serializeCedmDocument } from "../../packages/generator/src/model-cedm/canonical";
 import { type LanguageDefinition, setLanguageDefinition } from "../index";
 
 setLanguageDefinition(languageDefinition as unknown as LanguageDefinition);
@@ -44,8 +51,28 @@ export const validate = readModelYaml;
  */
 export const fix = checkAndFix;
 
+/**
+ * Validate a CEDM application model: `{ ok, document, resolved, diagnostics }`,
+ * every diagnostic at the CEDM line it concerns. A tab has no filesystem, so the
+ * library its `imports` name is passed in: `{ entity(name), module?(name) }`,
+ * where `entity` returns the library's definition of a CEDM entity.
+ */
+export const validateCedm = readCedmModel;
+
+/** A model document written in CEDM — `appwithai convert` in a page. */
+export const toCedm = (document: Parameters<typeof raiseModelDocument>[0]): string =>
+  serializeCedmDocument(raiseModelDocument(document));
+
 export {
   canonicalDocument,
+  cedmOrder,
+  isCedmModelPath,
+  isCedmModelText,
+  lowerCedmModel,
+  raiseModelDocument,
+  readCedmModel,
+  resolveCedmImports,
+  serializeCedmDocument,
   checkAndFix,
   fixModelYaml,
   isModelYamlPath,
@@ -64,4 +91,7 @@ export {
   canonicalDocument,
   isModelYamlPath,
   LANGUAGE_VERSION,
+  validateCedm,
+  toCedm,
+  isCedmModelText,
 };

@@ -81,6 +81,21 @@ export const CEDM_TYPE_TOKENS: Readonly<Record<string, string>> = {
   value_object: "json",
 };
 
+/**
+ * Columns every generated table carries already — the optimistic-lock counter,
+ * the audit pair and the soft-delete pair. Mirrors `MANAGED_COLUMN_NAMES` in
+ * the checker (EML103).
+ */
+const MANAGED_COLUMNS = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by",
+]);
+
 /** Types whose maximum length is written as a `(n)` suffix on the token. */
 const LENGTH_TYPES = new Set(["string", "varchar", "char"]);
 
@@ -267,6 +282,18 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
       const column = attribute.column ?? (isKey && singleKey ? "id" : snakeCase(attribute.name));
       state.columns.set(attribute.name, column);
       state.physical.add(column);
+      // CEDM's vocabulary calls the audit fields system-managed, and every
+      // generated table carries them already; declaring one again would put
+      // the column in the DDL twice. `systemManaged: false` keeps it.
+      if (MANAGED_COLUMNS.has(column) && !isKey && attribute.systemManaged !== false) {
+        note(
+          "info",
+          "CEDM141",
+          `${entity.name}.${attribute.name} is provided by the application itself (${column}).`,
+          at
+        );
+        return;
+      }
       const dangling =
         attribute.type.toLowerCase() === "reference" &&
         attribute.target !== undefined &&
@@ -330,8 +357,11 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
         }
       }
       if (!entityNames.has(relationship.target)) {
+        // A library entity is written for many applications, and most of its
+        // optional neighbours are in none of them: that is information. A
+        // required one missing is worth a warning.
         note(
-          "warning",
+          end === "zero-or-one" || end === "zero-or-more" ? "info" : "warning",
           "CEDM121",
           `${state.source.name}.${relationship.name} points at "${relationship.target}", which the model does not declare; the relationship is not generated.`,
           at
@@ -379,6 +409,11 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     if (relationship.name === defaultRelationshipName(relationship.target, many)) return undefined;
     return snakeCase(relationship.name);
   };
+  /** Help for a key column a to-one relationship is held in. */
+  const keyHelp = (relationship: CedmRelationship, holder: string): string =>
+    composeHelp(relationship.help) ??
+    relationship.description ??
+    `The ${relationship.target} this ${holder} refers to.`;
   const emit = (record: RelationshipDocument, at: DocumentPath) => {
     map(["relationships", relationships.length], at);
     relationships.push(record);
@@ -399,7 +434,8 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     foreignKey: string | false | undefined,
     hint: string,
     optional: boolean,
-    at: DocumentPath
+    at: DocumentPath,
+    help: string
   ) => {
     if (foreignKey === false) return;
     if (typeof foreignKey === "string") {
@@ -424,6 +460,7 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     const attribute: AttributeDocument = { name: column, type: "string", fk: true };
     if (optional) attribute.optional = true;
     if (derivedReferenceTable(column) !== tableOf(target)) attribute.references = target;
+    attribute.help = help;
     map(["entities", holder.index, "attributes", holder.document.attributes.length], at);
     holder.document.attributes.push(attribute);
     holder.physical.add(column);
@@ -493,7 +530,8 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
           relationship.foreignKey,
           relationship.name,
           end === "zero-or-one",
-          at
+          at,
+          keyHelp(relationship, entity.source.name)
         );
         continue;
       }
@@ -515,7 +553,8 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
         one.relationship.foreignKey,
         one.relationship.name,
         one.end === "zero-or-one",
-        many === item ? otherAt : at
+        many === item ? otherAt : at,
+        keyHelp(one.relationship, one.entity.source.name)
       );
       continue;
     }
@@ -546,7 +585,8 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
           relationship.foreignKey,
           target === entity ? `parent${entity.source.name}` : lowerFirst(entity.source.name),
           relationship.ownership !== "aggregate",
-          at
+          at,
+          `The ${entity.source.name} this ${target.source.name} belongs to.`
         );
       }
       continue;
@@ -584,7 +624,8 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
       relationship.foreignKey,
       relationship.name,
       end === "zero-or-one",
-      at
+      at,
+      keyHelp(relationship, entity.source.name)
     );
   }
 
@@ -807,7 +848,11 @@ function lowerLifecycle(entity: string, lifecycle: CedmLifecycle): StateMachineD
     })),
   };
   if (lifecycle.title !== undefined) machine.title = lifecycle.title;
-  if (lifecycle.initial !== undefined) machine.initial = lifecycle.initial;
+  // A lifecycle that names no initial state starts in the first state it lists:
+  // CEDM lists a lifecycle's states in the order a record passes through them,
+  // and the generated API needs a state to create a record in.
+  const initial = lifecycle.initial ?? lifecycle.states[0];
+  if (initial !== undefined) machine.initial = initial;
   if (lifecycle.terminal !== undefined) machine.final = [...lifecycle.terminal];
   return machine;
 }

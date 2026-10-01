@@ -1,0 +1,2 @@
+ALTER TABLE sys_window
+    DROP COLUMN IF EXISTS icon;

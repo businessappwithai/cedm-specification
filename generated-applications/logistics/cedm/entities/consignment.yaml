@@ -1,0 +1,22 @@
+entity:
+  name: Consignment
+  namespace: cedm.domain
+  kind: logistics_transaction
+  description: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
+  identity: {key: consignmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: consignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Consignment., businessMeaning: Identifies one governed Consignment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Consignment., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  relationships: []
+  invariants:
+  - {id: CONSIGNMENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  help:
+    summary: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
+    purpose: Provide canonical implementation-neutral semantics for Consignment across enterprise applications.
+    businessMeaning: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
+    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+    commonExamples: Enterprise sales and supply-chain operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONSIGNMENT}

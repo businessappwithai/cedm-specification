@@ -1,0 +1,129 @@
+entity:
+  name: PurchaseRequisition
+  namespace: cedm.domain
+  kind: procurement_demand_transaction
+  description: An internal procurement demand record through which a person or organizational unit requests goods or services before a PurchaseOrder is created or another approved sourcing outcome is selected.
+  identity:
+    key: purchaseRequisitionId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: purchaseRequisitionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable system identity of the procurement demand request.
+      usage: Used to trace approvals, requisition lines, sourcing decisions, resulting purchase orders, and audit history.
+      relationshipContext: Identifies the requisition itself; it is different from the business requisitionNumber and from any PurchaseOrder created later.
+      requiredMeaning: Required because procurement demand must remain traceable independently of downstream purchasing documents.
+  - name: requisitionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The business-facing reference used by employees, procurement teams, approvers, and reports to identify the request.
+      usage: Used in approval forms, sourcing communication, procurement reports, and links between internal demand and downstream purchase orders.
+      relationshipContext: It identifies the internal request, not the supplier's response or the eventual PurchaseOrder number.
+      requiredMeaning: Required for operational and approval traceability.
+  - name: requisitionDate
+    type: date
+    required: true
+    help:
+      summary: The date on which the internal procurement demand was formally created.
+      usage: Used for demand aging, approval turnaround, budgeting, sourcing analysis, and procurement planning.
+      relationshipContext: It represents internal demand creation and is distinct from PurchaseOrder.orderDate, supplier confirmation, and actual receipt.
+      requiredMeaning: Required so procurement demand has a defined point in time.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, SUBMITTED, APPROVED, REJECTED, ORDERED, CLOSED, CANCELLED]
+    help:
+      summary: Controls the lifecycle of the internal procurement request and whether it may progress toward sourcing or ordering.
+      usage: Drives approval workflow, buyer action, sourcing eligibility, conversion to PurchaseOrder, reporting, and cancellation rules.
+      relationshipContext: Requisition status describes internal demand authorization; PurchaseOrder status describes an external procurement commitment. Approval of a requisition does not itself mean a supplier has been ordered.
+      valueSemantics:
+        DRAFT: The requester is preparing the demand and may still change it.
+        SUBMITTED: The request has been submitted for review and approval.
+        APPROVED: The organization has authorized the requested procurement demand, subject to sourcing and purchasing policy.
+        REJECTED: The requested procurement demand was not approved.
+        ORDERED: The approved demand has been converted into or otherwise satisfied by a PurchaseOrder or equivalent procurement commitment.
+        CLOSED: The requisition lifecycle is complete and no further procurement action is required.
+        CANCELLED: The request has been intentionally withdrawn before completion.
+      requiredMeaning: Required because procurement workflows need an authoritative demand state.
+  - name: justification
+    type: string
+    required: false
+    maxLength: 2000
+    help:
+      summary: The business reason explaining why the requested goods or services are needed.
+      usage: Used by approvers to evaluate necessity, budget owners to validate spend, and procurement teams to understand sourcing context.
+      relationshipContext: Justification explains the reason for demand; it does not replace line-level product, quantity, delivery, or commercial information.
+      optionalMeaning: Optional when organizational policy does not require a written justification for the particular request.
+  relationships:
+  - name: requester
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Identifies the person or party that originated the procurement demand.
+      usage: Used for approval routing, clarification, accountability, notifications, and audit.
+      cardinalityMeaning: Exactly one requester is responsible for originating the requisition.
+      context: Requester is the demand originator and is not necessarily the buyer, approver, supplier, or eventual receiver.
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies the organizational context responsible for the procurement demand.
+      usage: Used for budget ownership, approval routing, purchasing policy, cost attribution, and reporting.
+      cardinalityMeaning: Zero or one organization may be explicit when inherited from the requester or surrounding procurement context.
+      context: The organization is the internal demand context and is distinct from the Supplier that may eventually fulfill the request.
+  - name: lines
+    target: PurchaseRequisitionLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Contains the individual goods or service demands that make up the requisition.
+      usage: Defines requested products or services, quantities, units, required dates, and other demand details used by procurement and approval workflows.
+      cardinalityMeaning: A submitted or approved requisition must contain at least one line so there is a concrete procurement demand to evaluate.
+      context: Lines express what is needed; the requisition provides requester, justification, approval, and sourcing context.
+  - name: supplier
+    target: Supplier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Identifies a preferred or known Supplier when the requester or procurement process already has a supplier in mind.
+      usage: Used for preferred-supplier sourcing, direct procurement, catalog requests, and buyer guidance.
+      cardinalityMeaning: Optional because supplier selection may occur only after the requisition is approved and sourced competitively.
+      context: A supplier on a requisition is a sourcing preference or known fulfillment candidate; it does not establish a PurchaseOrder commitment.
+  - name: requestsForQuotation
+    target: RequestForQuotation
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Governed sourcing solicitations created for this approved demand., businessMeaning: Connects internal authorization to competitive or controlled supplier sourcing., usage: "Demand-to-source traceability, procurement governance, and audit.", cardinalityMeaning: A requisition may be sourced through zero or multiple RFQs., workflowRole: RFQs solicit offers but do not themselves create supplier commitments.}
+  invariants:
+  - id: PURCHASE-REQUISITION-001
+    rule: SUBMITTED or APPROVED requisitions must contain at least one PurchaseRequisitionLine.
+  - id: PURCHASE-REQUISITION-002
+    rule: CANCELLED and REJECTED requisitions must not create new procurement commitments.
+  - id: PURCHASE-REQUISITION-003
+    rule: ORDERED status requires an explicit link or traceable conversion record to the resulting PurchaseOrder or equivalent procurement commitment.
+  - id: PURCHASE-REQUISITION-004
+    rule: A requisition approval authorizes demand but does not itself establish a supplier contract or PurchaseOrder.
+  lifecycle:
+    states: [DRAFT, SUBMITTED, APPROVED, REJECTED, ORDERED, CLOSED, CANCELLED]
+  help:
+    summary: Represents internal demand for goods or services before that demand becomes an external procurement commitment.
+    businessMeaning: PurchaseRequisition is the demand and authorization layer of procurement. It answers what the organization needs, why it is needed, who requested it, and whether the organization authorized procurement. PurchaseOrder answers what was actually committed to a Supplier.
+    usage: Used by employees, managers, budget owners, procurement teams, sourcing functions, inventory planners, maintenance organizations, and approval workflows.
+    relationshipContext: PurchaseRequisition connects requester, organization, requested lines, and optional preferred supplier. Once approved, procurement may source the demand and create a PurchaseOrder. The resulting order establishes supplier commitments; receipts and InventoryMovement record physical fulfillment; invoices and payments handle financial settlement.
+    lifecycle: Demand starts as DRAFT, is SUBMITTED for review, may be APPROVED or REJECTED, and becomes ORDERED when an authorized procurement commitment satisfies it. CLOSED indicates completion of the requisition process; CANCELLED terminates the demand without creating further obligations.
+    example: A depot maintenance team discovers that 200 replacement components are required for upcoming repairs. A technician creates a PurchaseRequisition with the required Product lines and quantities, provides a justification, and submits it. After approval, procurement sources the items and creates a PurchaseOrder for the selected Supplier. The requisition remains the evidence of internal demand while the purchase order becomes the external commercial commitment.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-PURCHASE-REQUISITION

@@ -1,0 +1,29 @@
+entity:
+  name: HandlingUnit
+  namespace: cedm.domain
+  kind: warehouse_logistics_master
+  description: A uniquely identifiable physical logistics unit such as pallet, carton, tote, cage, or containerized package that groups inventory for warehouse and shipment handling.
+  identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable handling-unit identity., businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units., requiredMeaning: Required.}}
+  - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: Scannable operational handling-unit reference., businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number., requiredMeaning: Required.}}
+  - name: type
+    type: enum
+    required: true
+    values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
+    help: {summary: Physical handling-unit classification., businessMeaning: Describes packaging/handling form., usage: "Capacity, equipment, packing and carrier planning.", relationshipContext: Does not determine contents by itself., valueSemantics: {PALLET: Palletized logistics unit., CARTON: Carton/box., TOTE: Reusable tote/bin., CAGE: Roll cage or similar unit., DRUM: Drum/container., PACKAGE: General package., OTHER: Governed other type.}, requiredMeaning: Required.}
+  relationships:
+  - {name: inventoryLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference, help: {summary: Current warehouse location when stored., businessMeaning: Provides operational custody position., usage: "Putaway, picking and count.", cardinalityMeaning: Optional while in transit/shipped., workflowRole: Changes must reconcile to execution evidence.}}
+  - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference, help: {summary: Shipment carrying the handling unit when dispatched., businessMeaning: Connects package identity to transport., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Optional before shipment assignment., workflowRole: Shipment execution controls transit state.}}
+  - {name: parentHandlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Outer handling unit containing this unit., businessMeaning: Supports pallet/carton/tote nesting., usage: Packing and logistics hierarchy., cardinalityMeaning: At most one parent., workflowRole: Nesting must remain acyclic.}}
+  invariants:
+  - {id: HANDLING-UNIT-001, rule: A HandlingUnit hierarchy must be acyclic.}
+  - {id: HANDLING-UNIT-002, rule: A HandlingUnit cannot simultaneously be stored at a warehouse location and confirmed as externally dispatched without governed transition evidence.}
+  help:
+    summary: Physical logistics identity for grouping and moving inventory.
+    businessMeaning: HandlingUnit represents the package/pallet/tote being handled; InventoryMovement remains authoritative for stock quantity/location.
+    usage: Receiving, putaway, replenishment, picking, packing, staging, loading, shipment and tracking.
+    relationshipContext: Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment.
+    lifecycle: Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused.
+    changePropagation: Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HANDLING-UNIT}

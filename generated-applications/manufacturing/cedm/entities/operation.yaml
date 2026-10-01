@@ -1,0 +1,27 @@
+entity:
+  name: Operation
+  namespace: cedm.domain
+  kind: manufacturing_operation_definition
+  description: A sequenced manufacturing process step defining work, resource assignment, standard time, and optional quality requirements within a Routing.
+  identity: {key: operationId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: operationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the operation definition., businessMeaning: Identifies one governed process step., usage: "Routing, scheduling, execution, and costing.", relationshipContext: Belongs to one Routing and normally uses a WorkCenter., requiredMeaning: Required.}}
+  - {name: sequence, type: integer, required: true, minimum: 1, help: {summary: Execution order within routing., businessMeaning: Defines process precedence., usage: Scheduling and shop-floor control., relationshipContext: Unique within Routing., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Name of work performed., businessMeaning: Communicates operation purpose., usage: "Instructions, planning, and reporting.", relationshipContext: Interpreted within Routing., requiredMeaning: Required.}}
+  - {name: standardMinutes, type: decimal, required: false, precision: 12, scale: 3, help: {summary: Standard processing duration., businessMeaning: Planning/costing expectation rather than actual elapsed time., usage: Capacity scheduling and costing., relationshipContext: Actual execution may differ., optionalMeaning: Optional when time standard is unavailable.}}
+  relationships:
+  - {name: routing, target: Routing, cardinality: '1', ownership: reference, inverse: operations, help: {summary: Parent manufacturing process definition., businessMeaning: Supplies product/process context., usage: Sequencing and version control., cardinalityMeaning: Exactly one Routing., workflowRole: Routing lifecycle controls eligibility.}}
+  - {name: workCenter, target: WorkCenter, cardinality: 0..1, ownership: reference, help: {summary: Default capacity resource for the step., businessMeaning: Defines where/by whom work is normally executed., usage: Scheduling and costing., cardinalityMeaning: Optional for non-capacity-controlled steps., workflowRole: Resource availability constrains execution.}}
+  - {name: qualityPlan, target: QualityPlan, cardinality: 0..1, ownership: reference, help: {summary: Quality requirements applicable at this process step., businessMeaning: Embeds inspection/control into production routing., usage: In-process quality gates., cardinalityMeaning: Optional when no formal quality plan applies., workflowRole: Required inspections may gate operation/order completion.}}
+  invariants:
+  - {id: OPERATION-001, rule: sequence must be unique within Routing.}
+  - {id: OPERATION-002, rule: standardMinutes must be greater than zero when specified.}
+  - {id: OPERATION-003, rule: Required quality evidence must complete before governed operation completion or downstream release.}
+  help:
+    summary: Standard process step within a manufacturing routing.
+    businessMeaning: Defines work to perform, while ManufacturingWorkOrder records production authorization/execution.
+    usage: Routing, scheduling, costing, shop-floor instructions, and in-process quality.
+    relationshipContext: Routing sequences operations; WorkCenter provides capacity; QualityPlan governs inspection.
+    lifecycle: Governed by parent routing version; historical released work retains its definition snapshot/reference.
+    changePropagation: Definition/resource/quality changes affect future or unreleased work and trigger impact analysis for active work.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OPERATION}

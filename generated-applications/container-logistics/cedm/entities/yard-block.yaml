@@ -1,0 +1,94 @@
+entity:
+  name: YardBlock
+  namespace: cedm.domain
+  kind: logistics_location
+  description: A major operational subdivision of a container yard used to organize storage capacity, group bays, apply common handling rules, and support yard planning and optimization.
+  identity:
+    key: yardBlockId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: yardBlockId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable identity of the yard block.
+      businessMeaning: Identifies one storage-area subdivision within a specific Yard regardless of later changes to layout, capacity, or operating rules.
+      usage: Used by yard allocation, planning, reporting, navigation, movement planning, and integrations to address an area above bay level.
+      relationshipContext: The block belongs to one Yard and contains YardBays; its identity is therefore part of the physical hierarchy but remains stable across configuration changes.
+      requiredMeaning: Required because every operational storage subdivision must be uniquely addressable.
+  - name: code
+    type: string
+    required: true
+    maxLength: 50
+    help:
+      summary: The operational code used by people and systems to identify the block.
+      businessMeaning: Provides the concise block designation shown on yard maps, operator instructions, dashboards, gate/move messages, and integrations.
+      usage: Used for navigation, slot addressing, capacity reporting, movement planning, and exception handling.
+      relationshipContext: The code is interpreted within its parent Yard and should be unique within that yard; it is not the identity of a bay or slot.
+      requiredMeaning: Required because operators and systems need a practical hierarchical address.
+  - name: name
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: A descriptive name for the block used in user-facing operations and reporting.
+      businessMeaning: Allows a block to be identified by operational purpose, physical area, or local terminology in addition to its code.
+      usage: Used in yard maps, dashboards, reports, planning screens, and operator interfaces.
+      relationshipContext: Describes the same block identified by yardBlockId and code and should not replace those technical/business identifiers.
+      optionalMeaning: Optional when the operational code is sufficient.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, BLOCKED, CLOSED]
+    help:
+      summary: The operational availability of the entire block for container storage and movement activity.
+      businessMeaning: Determines whether subordinate bays may normally be selected for placement, relocation, or planning.
+      usage: Used by allocation and optimization algorithms to exclude unavailable storage areas.
+      relationshipContext: "Block status is an upper-level constraint: a BLOCKED or CLOSED block can make otherwise ACTIVE bays and slots unusable for new placement."
+      valueSemantics:
+        ACTIVE: The block may participate in normal yard operations subject to bay, tier, slot, equipment, safety, and container constraints.
+        BLOCKED: The block is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.
+        CLOSED: The block is administratively or permanently unavailable for normal operations.
+      requiredMeaning: Required because block availability affects all subordinate storage positions.
+  relationships:
+  - name: yard
+    target: Yard
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Places the block within its parent Yard facility.
+      usage: Supplies facility identity, location, operating status, capacity context, and the top-level yard rules governing the block.
+      cardinalityMeaning: Every YardBlock belongs to exactly one Yard.
+      context: Yard is the facility boundary; YardBlock is a subdivision within that facility.
+  - name: bays
+    target: YardBay
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Defines the YardBays that subdivide this block into more precise storage positions.
+      usage: Supports navigation from block-level capacity and strategy to bay-level placement and eventually atomic slots.
+      cardinalityMeaning: A modeled operational block contains one or more bays.
+      context: Bay codes are scoped by the block. The block provides the physical and operational context for its bays.
+  invariants:
+  - id: YARD-BLOCK-001
+    rule: code must be unique within its Yard.
+  - id: YARD-BLOCK-002
+    rule: A BLOCKED or CLOSED block must not receive new normal placement allocations unless an explicit exception process permits them.
+  - id: YARD-BLOCK-003
+    rule: Blocking or closing a block must account for containers already occupying subordinate slots; status changes must not silently invalidate existing physical positions.
+  help:
+    summary: Represents a major storage subdivision within a container yard and the planning boundary above individual bays and slots.
+    businessMeaning: YardBlock organizes physical capacity into a manageable operational area, commonly grouping bays that share layout, equipment, traffic, cargo, container-type, or handling characteristics. It is a zoning and planning concept as well as a physical hierarchy element.
+    usage: Used for yard zoning, capacity management, container placement strategy, traffic planning, congestion management, navigation, reporting, and movement optimization.
+    relationshipContext: The hierarchy is Yard → YardBlock → YardBay → YardTier → YardSlot. Yard supplies the facility boundary; YardBlock groups related bays; YardBay represents a longitudinal storage row; YardTier represents vertical stacking; YardSlot identifies an atomic physical position. Container placement should ultimately resolve to a YardSlot rather than stopping at block level.
+    operationalSemantics: Block-level rules can constrain all subordinate locations. A placement algorithm should evaluate block status before bay/tier/slot capacity, compatibility, accessibility, safety, and movement cost. A block can also be a useful optimization unit for balancing density, minimizing rehandles, separating container classes, and controlling traffic.
+    lifecycle: A block may be configured before the yard opens, activated for operations, temporarily blocked, or closed. Blocking does not automatically mean that containers disappear or move; existing occupancy must be preserved and any required relocation should be represented by explicit ContainerMovement events.
+    example: A depot operates Block B03 for export dry containers. B03 contains bays B03-01 through B03-20. Each bay contains tiers and atomic slots. When a container arrives, the yard-planning process evaluates B03 and its subordinate locations for compatibility, availability, travel distance, rehandle impact, and operational rules before assigning a precise slot.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-YARD-BLOCK

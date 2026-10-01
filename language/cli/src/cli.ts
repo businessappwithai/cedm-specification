@@ -1,5 +1,5 @@
 /**
- * EML CLI — validate a model (`*.eml.yaml`) and generate applications from it.
+ * EML CLI — validate a model (`*.cedm.yaml` or `*.eml.yaml`) and generate applications from it.
  *
  * The model is read by the language's own reader, so every command sees the
  * same findings `appwithai validate` reports, at the same YAML lines. Runs
@@ -162,7 +162,7 @@ ${c.bold("COMMANDS")}
   help       Show this help
 
 ${c.bold("OPTIONS")}
-  -i, --input <file>        Model file (.eml.yaml); or first positional arg
+  -i, --input <file>        Model file (.cedm.yaml or .eml.yaml); or first positional arg
   -o, --output <dir>        Output directory for the generated app
   -n, --name <name>         Application name (default: derived from the model)
       --stack <stack>       Target stack: node-rest (default) | tanstack-astryx-loco
@@ -218,15 +218,18 @@ async function readInput(f: Flags, autofix: boolean): Promise<Input> {
   if (!file) throw new CliError("No input file. Use -i <file> or pass it as an argument.");
   if (!existsSync(file)) throw new CliError(`Input file not found: ${file}`);
   if (!isModelPath(file)) {
-    throw new CliError(`${file} is not a model. A model is a YAML document (*.eml.yaml).`);
+    throw new CliError(
+      `${file} is not a model. A model is a YAML document (*.cedm.yaml or *.eml.yaml).`
+    );
   }
-  const read = await readModel(readFileSync(file, "utf8"), { autofix });
+  const read = await readModel(readFileSync(file, "utf8"), { autofix, file });
   return { file, ...read };
 }
 
 /** A model that did not validate cannot be read further. */
 function requireValid(input: Input): { document: ModelDocument; model: EmlModel } {
-  if (input.ok && input.document) return { document: input.document, model: toEmlModel(input.document) };
+  if (input.ok && input.document)
+    return { document: input.document, model: toEmlModel(input.document) };
   console.log(c.bold(`\n${input.file}`));
   printDiagnostics(input.diagnostics);
   const errors = input.diagnostics.filter((d) => d.severity === "error").length;
@@ -336,7 +339,9 @@ async function cmdGenerate(f: Flags): Promise<number> {
   console.log(c.bold(`\nGenerating from ${file}`) + c.dim(`  [stack: ${stack}]`));
   if (input.fixes.length) {
     printDiagnostics(input.fixes);
-    console.log(c.cyan(`  applied ${input.fixes.length} correction(s) in memory; ${file} is unchanged`));
+    console.log(
+      c.cyan(`  applied ${input.fixes.length} correction(s) in memory; ${file} is unchanged`)
+    );
   }
   const { document, model } = requireValid(input);
   const findings = input.diagnostics.filter((d) => d.severity !== "info");

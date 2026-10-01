@@ -1,0 +1,22 @@
+entity:
+  name: Pricing
+  namespace: cedm.domain
+  kind: commercial_pricing
+  description: A governed pricing definition or decision context establishing base prices and applicability conditions before discounts, promotions, quotations, or orders.
+  identity: {key: pricingId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: pricingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Pricing., businessMeaning: Identifies one governed Pricing record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Pricing., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  relationships: []
+  invariants:
+  - {id: PRICING-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  help:
+    summary: A governed pricing definition or decision context establishing base prices and applicability conditions before discounts, promotions, quotations, or orders.
+    purpose: Provide canonical implementation-neutral semantics for Pricing across enterprise applications.
+    businessMeaning: A governed pricing definition or decision context establishing base prices and applicability conditions before discounts, promotions, quotations, or orders.
+    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
+    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
+    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
+    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
+    commonExamples: Enterprise sales and supply-chain operations.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRICING}

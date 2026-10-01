@@ -1,0 +1,30 @@
+entity:
+  name: Wave
+  namespace: cedm.domain
+  kind: warehouse_orchestration_transaction
+  description: A governed grouping of warehouse execution work released together for coordinated picking, putaway, packing, staging, or shipping.
+  identity: {key: waveId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: waveId, type: uuid, required: true, immutable: true, help: {summary: Stable wave identity., businessMeaning: Identifies one coordinated work release., usage: WMS planning and execution., relationshipContext: Groups tasks without replacing individual evidence., requiredMeaning: Required.}}
+  - {name: waveNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing wave reference., businessMeaning: Operational identifier for grouped work., usage: Warehouse planning and reporting., relationshipContext: Distinct from task and shipment identifiers., requiredMeaning: Required.}}
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
+    help: {summary: Wave orchestration state., businessMeaning: Controls grouped task release and closure., usage: WMS execution., relationshipContext: Wave completion cannot substitute for task or inventory evidence., valueSemantics: {PLANNED: Work being grouped., RELEASED: Tasks authorized., IN_PROGRESS: Tasks executing., COMPLETED: Included work reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
+  relationships:
+  - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Warehouse executing wave., businessMeaning: Defines operating facility., usage: Labor/task orchestration., cardinalityMeaning: Exactly one Warehouse., workflowRole: Included tasks must be compatible with warehouse.}}
+  - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., cardinalityMeaning: Zero or many picks., workflowRole: Each pick retains independent execution evidence.}}
+  - {name: putaways, target: Putaway, cardinality: 0..*, ownership: reference, help: {summary: Putaway tasks grouped in wave., businessMeaning: Coordinates storage work., usage: Labor orchestration., cardinalityMeaning: Zero or many tasks., workflowRole: Each task remains independently reconcilable.}}
+  invariants:
+  - {id: WAVE-001, rule: RELEASED wave must contain at least one executable task.}
+  - {id: WAVE-002, rule: Cancelling a wave cannot erase or reverse already posted task or inventory effects.}
+  - {id: WAVE-003, rule: COMPLETED requires included released tasks to be terminal or explicitly excepted.}
+  help:
+    summary: Warehouse work-release grouping for coordinated execution.
+    businessMeaning: Wave organizes tasks; it does not itself move inventory or fulfill orders.
+    usage: Labor planning, batch/zone picking, putaway and shipping-cutoff execution.
+    relationshipContext: Warehouse supplies facility; Picking and Putaway supply executable tasks.
+    lifecycle: Planned to released to in progress to completed or cancelled.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAVE}

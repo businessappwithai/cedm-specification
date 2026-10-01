@@ -1,0 +1,1687 @@
+# Compiled from model.cedm.yaml, which is the source of this application.
+# Regenerate rather than edit: a change here is lost on the next run.
+eml: "1.0"
+name: Inventory and Warehouse
+version: 1.0.0
+description: Inventory and Warehouse, built on the CEDM common foundation.
+enums:
+  - name: PartyPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PartyStatus
+    values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+  - name: PersonGender
+    values: [FEMALE, MALE, NON_BINARY, OTHER, UNSPECIFIED]
+  - name: PersonPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PersonStatus
+    values: [ACTIVE, INACTIVE, BLOCKED, RETIRED]
+  - name: OrganizationOrganizationType
+    values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
+  - name: OrganizationStatus
+    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+  - name: OrganizationPartyType
+    values: [PERSON, ORGANIZATION]
+  - name: PartyRoleRoleType
+    values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
+  - name: PartyRoleStatus
+    values: [ACTIVE, INACTIVE, EXPIRED]
+  - name: AddressAddressType
+    values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
+  - name: AddressStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: LocationLocationType
+    values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
+  - name: LocationStatus
+    values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
+  - name: CurrencyStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: ExchangeRateRateType
+    values: [SPOT, CONTRACT, DAILY, MONTHLY, ACCOUNTING, CUSTOM]
+  - name: ExchangeRateStatus
+    values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
+  - name: UnitOfMeasureCategory
+    values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
+  - name: UnitOfMeasureStatus
+    values: [ACTIVE, INACTIVE, RETIRED]
+  - name: InventoryMovementMovementType
+    values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
+  - name: InventoryReservationStatus
+    values: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
+  - name: InventoryTransferStatus
+    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
+  - name: LotStatus
+    values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
+  - name: SerialNumberStatus
+    values: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
+  - name: ProductProductType
+    values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
+  - name: ProductStatus
+    values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+  - name: InventoryLocationLocationType
+    values: [RECEIVING, BIN, SHELF, RACK, FLOOR, PICK, STAGING, QUARANTINE, YARD_SLOT, OTHER]
+  - name: InventoryLocationStatus
+    values: [ACTIVE, BLOCKED, INACTIVE]
+  - name: WarehouseWarehouseType
+    values: [GENERAL, COLD_STORAGE, BONDED, DISTRIBUTION, RETAIL, OTHER]
+  - name: WarehouseStatus
+    values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+  - name: WarehouseLocationType
+    values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
+  - name: WarehouseZoneZoneType
+    values: [RECEIVING, RESERVE, PICKING, STAGING, SHIPPING, QUARANTINE, RETURNS, COLD_STORAGE, HAZARDOUS, GENERAL]
+  - name: DockDockType
+    values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
+  - name: HandlingUnitType
+    values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
+  - name: PutawayStatus
+    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
+  - name: PickingStatus
+    values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
+  - name: PackingStatus
+    values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
+  - name: WaveStatus
+    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
+categories:
+  - name: Foundation
+    description: Parties, places, units and reference data every domain shares
+    icon: Library
+    default: true
+    entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment]
+  - name: Inventory Management
+    icon: boxes
+    entities: [InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product]
+  - name: Warehouse Management
+    entities: [Warehouse, HandlingUnit, Putaway, Picking, Packing, Wave]
+entities:
+  - name: Party
+    help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity. Required because every party must have one stable identity.
+      - name: party_type
+        type: string
+        enum: PartyPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: status
+        type: string
+        enum: PartyStatus
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        default: ACTIVE
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
+  - name: Person
+    help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record. required for specialization traceability.
+      - name: party_id
+        type: string
+        fk: true
+        unique: true
+        help: Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactions and roles use one stable person identity. Required to prevent duplicate identity.
+      - name: title
+        type: string(50)
+        optional: true
+        help: Personal title. documents and presentation. presentation attribute. supports person display. optional.
+      - name: given_name
+        type: string(150)
+        help: Given name. identity and documents. intrinsic person identity. identification. required.
+      - name: middle_name
+        type: string(150)
+        optional: true
+        help: Middle name. identity and documents. intrinsic person identity. identification. optional.
+      - name: family_name
+        type: string(150)
+        help: Family name. identity and documents. intrinsic person identity. identification. required.
+      - name: preferred_name
+        type: string(150)
+        optional: true
+        help: Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
+      - name: date_of_birth
+        type: date
+        optional: true
+        help: Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
+      - name: gender
+        type: string
+        optional: true
+        enum: PersonGender
+        help: Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional.
+      - name: nationality
+        type: string(2)
+        optional: true
+        help: Nationality. applicable identity/compliance processes. not Party identity. process-specific. optional.
+      - name: party_type
+        type: string
+        enum: PersonPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: status
+        type: string
+        enum: PersonStatus
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        default: ACTIVE
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
+  - name: Organization
+    help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the Organization specialization. Used to navigate organizational identity details from the underlying Party. Party.partyId remains the canonical party identity; organizationId identifies the specialization record. Provides stable reference for organization-specific information. Required for specialization traceability.
+      - name: party_id
+        type: string
+        fk: true
+        unique: true
+        help: Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when partyType is ORGANIZATION. Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization. Required to prevent duplicate party identity.
+      - name: code
+        type: string(50)
+        help: Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope. Provides operational reference for organization hierarchy and business context. Required where the organization participates in governed operational processes.
+      - name: name
+        type: string(200)
+        help: Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required for operational recognition.
+      - name: organization_type
+        type: string
+        enum: OrganizationOrganizationType
+        help: Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation.
+      - name: status
+        type: string
+        enum: OrganizationStatus
+        help: Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks.
+        default: ACTIVE
+      - name: legal_name
+        type: string(300)
+        optional: true
+        help: Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the organization is not a legal entity or the information is not yet known.
+      - name: registration_number
+        type: string(100)
+        optional: true
+        help: Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verification and compliance controls. Optional for organizational units without separate registration.
+      - name: tax_identifier
+        type: string(100)
+        optional: true
+        help: Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting. Optional when no tax identifier applies or is known.
+      - name: party_type
+        type: string
+        enum: OrganizationPartyType
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+      - name: display_name
+        type: string(300)
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+      - name: external_reference
+        type: string(200)
+        optional: true
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this Organization belongs to.
+      - name: parent_organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Immediate parent organizational unit. Supports enterprise hierarchy and organizational scope. Zero or one immediate parent. Determines inherited organizational context where explicitly supported.
+  - name: PartyRole
+    help: The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Immutable identity of this specific role relationship. Referenced by specialized entities and transactions requiring the party in a defined business capacity. Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId. Provides the stable role reference used throughout the role lifecycle. Required for independent role traceability.
+      - name: party_id
+        type: string
+        fk: true
+        help: Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity. Required because a role cannot exist without a participant.
+      - name: role_type
+        type: string
+        enum: PartyRoleRoleType
+        help: Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation.
+      - name: code
+        type: string(100)
+        optional: true
+        help: Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when partyRoleId is sufficient.
+      - name: valid_from
+        type: date
+        optional: true
+        help: Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role. Optional for immediately effective roles.
+      - name: valid_to
+        type: date
+        optional: true
+        help: Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution. Optional for open-ended roles.
+      - name: status
+        type: string
+        enum: PartyRoleStatus
+        help: Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions.
+        default: ACTIVE
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this PartyRole belongs to.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
+  - name: PartyRelationship
+    help: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of PartyRelationship. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this PartyRelationship is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: from_party_id
+        type: string
+        fk: true
+        references: Party
+        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - name: LegalEntity
+    help: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of LegalEntity. Identifies one governed LegalEntity record. Governance, workflow, reporting and audit. Referenced by compatible enterprise records. Required.
+      - name: occurred_at
+        type: datetime
+        optional: true
+        help: Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+  - name: BusinessUnit
+    help: A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of BusinessUnit. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this BusinessUnit is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: organization_id
+        type: string
+        fk: true
+        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - name: Department
+    help: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Department. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Department is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: organization_id
+        type: string
+        fk: true
+        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - name: Address
+    help: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: address_type
+        type: string
+        enum: AddressAddressType
+      - name: line1
+        type: string(200)
+      - name: line2
+        type: string(200)
+        optional: true
+      - name: line3
+        type: string(200)
+        optional: true
+      - name: city
+        type: string(150)
+      - name: state_or_province
+        type: string(150)
+        optional: true
+      - name: postal_code
+        type: string(30)
+        optional: true
+      - name: country_code
+        type: string(2)
+      - name: latitude
+        type: decimal
+        optional: true
+      - name: longitude
+        type: decimal
+        optional: true
+      - name: is_primary
+        type: boolean
+        default: "false"
+      - name: status
+        type: string
+        enum: AddressStatus
+        default: ACTIVE
+      - name: party_id
+        type: string
+        fk: true
+        optional: true
+        help: Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+      - name: person_id
+        type: string
+        fk: true
+        optional: true
+        help: The Person this Address belongs to.
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The Organization this Address belongs to.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
+  - name: ContactPoint
+    help: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of ContactPoint. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this ContactPoint is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+      - name: party_id
+        type: string
+        fk: true
+        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - name: Location
+    help: "Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred."
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+      - name: name
+        type: string(200)
+      - name: location_type
+        type: string
+        enum: LocationLocationType
+      - name: status
+        type: string
+        enum: LocationStatus
+        default: ACTIVE
+      - name: address_id
+        type: string
+        fk: true
+        optional: true
+      - name: parent_location_id
+        type: string
+        fk: true
+        optional: true
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The Organization this Location refers to.
+      - name: product_id
+        type: string
+        fk: true
+        optional: true
+        help: The Product this Location belongs to.
+      - name: warehouse_id
+        type: string
+        fk: true
+        optional: true
+        help: The Warehouse this Location belongs to.
+  - name: Country
+    help: A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed country or territory reference used consistently for addresses, tax, trade, localization, compliance, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Country. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Country. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Country. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Language
+    help: A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Currency
+    help: Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Required for unambiguous monetary interpretation.
+      - name: code
+        type: string(3)
+        unique: true
+        help: Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.
+      - name: name
+        type: string(100)
+        help: Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Required for usable currency master data.
+      - name: symbol
+        type: string(10)
+        optional: true
+        help: Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without affecting financial calculations. Optional where no standard symbol or display policy exists.
+      - name: decimal_places
+        type: integer
+        help: Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows. Required because monetary amounts must have predictable representation.
+        default: "2"
+        min: 0
+        max: 6
+      - name: status
+        type: string
+        enum: CurrencyStatus
+        help: Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies. Available for normal financial activity. Temporarily unavailable for new normal activity. No longer available for new normal activity while historical financial records remain valid. Required for transaction eligibility.
+        default: ACTIVE
+  - name: ExchangeRate
+    help: Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used. Required for traceable currency conversion.
+      - name: from_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion. Required to prevent ambiguous conversion direction.
+      - name: to_currency
+        type: string
+        fk: true
+        references: Currency
+        help: Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value. Required for an auditable conversion.
+      - name: rate
+        type: decimal
+        help: Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations. Required for conversion.
+      - name: rate_type
+        type: string
+        enum: ExchangeRateRateType
+        help: Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event. Market or transaction-time conversion rate. Rate established by an agreement or commercial contract. Published daily rate for a defined business date. Published rate intended for a defined monthly reporting period. Rate designated by accounting policy for ledger translation or reporting. Controlled rate established for a specific business purpose. Required to preserve conversion context.
+      - name: effective_at
+        type: datetime
+        help: Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion. Required for temporal validity.
+      - name: expires_at
+        type: datetime
+        optional: true
+        help: Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations. Optional for rates whose validity is governed by another period convention.
+      - name: source
+        type: string(200)
+        help: Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision. Required for financial traceability.
+      - name: status
+        type: string
+        enum: ExchangeRateStatus
+        help: Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection.
+        default: ACTIVE
+  - name: UnitOfMeasure
+    help: Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted. Required for unambiguous measurement semantics.
+      - name: code
+        type: string(30)
+        unique: true
+        help: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.
+      - name: name
+        type: string(100)
+        help: Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users. Required for clear business interpretation.
+      - name: symbol
+        type: string(20)
+        optional: true
+        help: Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities. Optional when the unit has no standard symbol or display policy does not require one.
+      - name: category
+        type: string
+        enum: UnitOfMeasureCategory
+        help: Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility.
+      - name: conversion_factor
+        type: decimal
+        optional: true
+        help: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation. Optional for base units or units whose conversion requires a dedicated rule.
+      - name: base_unit_id
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+        help: Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities. Optional for a base unit itself.
+      - name: status
+        type: string
+        enum: UnitOfMeasureStatus
+        help: Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility.
+        default: ACTIVE
+  - name: Calendar
+    help: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Calendar. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Calendar is referenced. Required.
+      - name: code
+        type: string(100)
+        help: Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+      - name: name
+        type: string(300)
+        help: Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - name: Attachment
+    help: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of Attachment. Identifies one governed record independently of mutable labels or state. Governance, workflow, integration and audit. Referenced by related enterprise records. Required.
+      - name: effective_at
+        type: datetime
+        optional: true
+        help: Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate effective timestamp.
+  - name: InventoryBalance
+    help: Current inventory state projection maintained from authoritative inventory events and reservation workflows. InventoryBalance answers the current operational question of what is on hand, reserved and available. InventoryMovement remains the historical ledger; reservation events explain commitment state. Inventory control, warehouse management, order fulfillment, purchasing, maintenance, replenishment, planning and availability. Product defines the stocked item, UnitOfMeasure defines quantity semantics, InventoryLocation defines where stock is held, InventoryMovement records physical/logical stock events, and reservation workflows govern committed quantity. Source transaction → authorization → posted inventory event → InventoryBalance projection. Reservations update commitment state without physical movement. Product/UOM/Location changes trigger dependent-workflow validation rather than direct balance mutation. Allocation and issue must protect against concurrent consumption of the same available quantity using transactional locking, optimistic concurrency or equivalent controls. Created when a Product/location combination becomes inventory-relevant → continuously projected from events → reconciled through controlled stock counts/adjustments → retained at zero when history remains relevant. 100 units are received, 20 are reserved, and 3 are issued. The projection becomes 97 on-hand and, depending on the reservation workflow, 17 reserved and 80 available. If the product UOM conversion later changes, existing stock is not silently reinterpreted; a controlled conversion/reconciliation workflow is required.
+    parent: InventoryLocation
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Immutable identity of the inventory state projection. Used to reference and reconcile current stock state independently of movement events. Identifies one Product/location state projection rather than a Product or location itself. Provides the current state consumed by allocation, fulfillment, replenishment and inventory control.
+      - name: quantity_on_hand
+        type: decimal
+        help: Physical quantity currently recorded as present at the location. Stock visibility, replenishment, counting, fulfillment and inventory control. Represents physical stock and is distinct from reserved and available quantities. Derived from posted receipt, issue, transfer, return and adjustment movements.
+        default: "0"
+      - name: quantity_reserved
+        type: decimal
+        help: Portion of on-hand stock committed to approved demand. Allocation and fulfillment planning. Reservations normally do not change physical on-hand quantity. Derived from active reservation/release workflows and adjusted when fulfillment consumes or releases a reservation.
+        default: "0"
+      - name: quantity_available
+        type: decimal
+        help: Quantity eligible for new allocation after reservations and applicable restrictions. Availability checks, fulfillment, replenishment and planning. Normally equals on-hand minus reserved before additional restrictions. Must be recalculated atomically with reservation and movement state changes.
+        default: "0"
+      - name: last_updated_at
+        type: datetime
+        help: Timestamp of the latest material projection update. Concurrency, synchronization, cache freshness, audit and integration. Does not replace movement or reservation event timestamps. Supports stale-state detection during allocation and issue processing.
+      - name: product_id
+        type: string
+        fk: true
+        help: The Product this InventoryBalance refers to.
+      - name: inventory_location_id
+        type: string
+        fk: true
+        help: The InventoryLocation this InventoryBalance refers to.
+      - name: lot_id
+        type: string
+        fk: true
+        optional: true
+        help: Lot segment represented by this balance when lot-controlled. Separates stock state by batch for quality, expiry, and recall. Allocation, FEFO, recall, and reconciliation. Optional for non-lot-controlled products. Balance must reconcile to lot-attributed movements.
+  - name: InventoryMovement
+    help: Represents one auditable change to inventory state, including stock reductions caused by supplier returns. InventoryMovement is the event ledger from which InventoryBalance is maintained. SupplierReturnLine is the operational authorization for supplier-return quantity; InventoryMovement is the physical stock consequence. Receiving, warehouse execution, procurement, order fulfillment, maintenance, customer and supplier returns, stock counting, reconciliation and analytics. Product identifies what is stocked. InventoryLocation identifies where. InventoryBalance is current state. InventoryMovement is historical event evidence. GoodsReceiptLine explains original accepted receipt. SupplierReturnLine explains later return quantity. SupplierCreditNote explains financial consequence separately. GoodsReceiptLine accepted → RECEIPT movement → InventoryBalance increase. Later SupplierReturn authorization → SupplierReturnLine execution → attributable ISSUE/RETURN movement reducing internal stock → SupplierCreditNote financial adjustment → payable application. Customer returns remain separately attributable through their own return workflow. Prepared → validated → posted → immutable history. Errors use compensating events. SupplierReturn quantity or disposition changes require movement eligibility/reconciliation before posting. Posted movement changes require reversal or compensating movement, never destructive editing. Ten accepted units are returned to a supplier from RACK-A. A movement records the exact quantity and source location and references SupplierReturnLine. A retry of the workflow does not create a second reduction. The supplier credit is accounted for separately.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Immutable identity of the inventory event. Used for stock-ledger traceability, audit, reconciliation, integration and investigation. Identifies the event independently of Product, location, quantity and originating transaction. Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation. Required.
+      - name: movement_number
+        type: string(100)
+        unique: true
+        help: Human-facing inventory movement reference. Used by warehouse operators, inventory controllers, auditors and integrations. Distinct from Product and source transaction numbers. Traces stock change from execution through reconciliation. Required.
+      - name: movement_type
+        type: string
+        enum: InventoryMovementMovementType
+        help: Identifies inventory operation and state transition. Determines how on-hand, reserved, available and location balances change. Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable. Maps business workflow outcomes to inventory ledger. Accepted inbound quantity becomes inventory at a target location. Quantity leaves available inventory for shipment, consumption, maintenance, production or authorized outbound use. Quantity moves between inventory locations. Quantity is corrected through approved reconciliation. Previously controlled quantity is returned or otherwise processed under return semantics. Quantity is committed to demand without physical movement. Previous reservation is removed. Required.
+      - name: quantity
+        type: decimal
+        help: Quantity affected by the inventory event. Drives balance changes and allocation calculations. Interpreted with Product, UOM, movementType and source/target locations. Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release. Required.
+      - name: movement_date
+        type: datetime
+        help: Timestamp at which inventory event is recognized. Stock history, period-end balances, reporting, audit and reconciliation. Distinct from source order date and record creation timestamp. Establishes effective chronology. Required.
+      - name: reason
+        type: string(500)
+        optional: true
+        help: Business explanation for movement. Audit, investigation, approval and reporting. Supplements movementType and source relationships. Especially important for adjustments, returns and exceptions. Optional when source context fully explains event.
+      - name: unit_of_measure_id
+        type: string
+        fk: true
+        optional: true
+        help: The UnitOfMeasure this InventoryMovement belongs to.
+      - name: inventory_balance_id
+        type: string
+        fk: true
+        optional: true
+        help: The InventoryBalance this InventoryMovement belongs to.
+      - name: product_id
+        type: string
+        fk: true
+        help: Product whose inventory state is affected. Connects event to product master, units and policies. Exactly one product is affected. Identifies stock item.
+      - name: source_location_id
+        type: string
+        fk: true
+        references: InventoryLocation
+        optional: true
+        help: Location from which inventory is removed or transferred. Transfer, issue and return-to-supplier reconciliation. Optional for inbound movements from outside network. Required when stock leaves an internal location.
+      - name: party_id
+        type: string
+        fk: true
+        optional: true
+        help: Party associated with inventory event when ownership or custody matters. Supplier receipts, customer returns, consignment and audit. Optional for internal movements. Connects event to external party.
+      - name: lot_id
+        type: string
+        fk: true
+        optional: true
+        help: Lot identity carried by this movement when the Product is lot-controlled. Preserves batch genealogy through every stock event. Traceability, expiry, quality, recall, and reconciliation. Optional for products not requiring lot control. Lot Product and movement Product must agree.
+      - name: inventory_transfer_id
+        type: string
+        fk: true
+        optional: true
+        help: Transfer authorization causing this relocation event. Explains source/target relocation purpose. Transfer reconciliation and audit. Optional outside controlled transfer. Product, locations, quantity, lot and serial must reconcile.
+      - name: inventory_adjustment_id
+        type: string
+        fk: true
+        optional: true
+        help: Approved discrepancy correction causing this adjustment event. Supplies reason and evidence for stock correction. Count reconciliation and audit. Optional outside adjustment. Signed ledger effect must reconcile with approved delta.
+  - name: InventoryReservation
+    help: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement. Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it. Sales fulfillment, maintenance demand, allocation, picking, replenishment, production and inventory control. Product identifies stock, InventoryLocation identifies where it is reserved, InventoryBalance supplies available state, and SalesOrderLine supplies one possible demand source. Demand approved → availability checked → reservation created → InventoryBalance reserved/available updated → pick/issue/fulfillment → reservation consumed and InventoryMovement posted. Cancellation/expiry releases reserved quantity. Master or location changes trigger revalidation. Pending → Active → Partially consumed → Consumed, or Active → Released/Cancelled/Expired. Terminal states preserve history. Reservation creation, increase, consumption and release require transactional concurrency control so available inventory cannot be reserved twice. 100 units are available. A SalesOrderLine reserves 30, making 70 available. Picking consumes 10 reserved units and posts the corresponding issue movement; the reservation has 20 remaining. If the location is blocked, the reservation must be transferred or released before the stock can be considered available elsewhere.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: quantity_reserved
+        type: decimal
+      - name: quantity_consumed
+        type: decimal
+        default: "0"
+      - name: quantity_released
+        type: decimal
+        default: "0"
+      - name: status
+        type: string
+        enum: InventoryReservationStatus
+        default: ACTIVE
+      - name: priority
+        type: integer
+        optional: true
+        default: "100"
+      - name: expires_at
+        type: datetime
+        optional: true
+      - name: product_id
+        type: string
+        fk: true
+        help: The Product this InventoryReservation refers to.
+      - name: inventory_location_id
+        type: string
+        fk: true
+        help: The InventoryLocation this InventoryReservation refers to.
+      - name: inventory_balance_id
+        type: string
+        fk: true
+        help: The InventoryBalance this InventoryReservation refers to.
+  - name: InventoryTransfer
+    help: Warehouse/inventory relocation authorization separated from stock ledger events. InventoryTransfer explains why and where stock should move; InventoryMovement records what stock actually changed location. Putaway, replenishment, staging, inter-bin relocation and controlled warehouse transfers. Product/Lot/Serial identify stock; InventoryLocation supplies origin/destination; InventoryMovement provides authoritative physical effect. Planned → released → in progress → completed or cancelled. Release reserves/validates eligible stock where policy requires; execution updates balances only through movements.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable transfer identity. Identifies one governed relocation independently of stock postings. Warehouse transfer, staging, replenishment and audit. Groups attributable InventoryMovement events. Required.
+      - name: transfer_number
+        type: string(100)
+        unique: true
+        help: Human-facing transfer reference. Operational identifier for relocation work. Warehouse execution and reconciliation. Distinct from movement numbers. Required.
+      - name: requested_quantity
+        type: decimal
+        help: Quantity authorized for relocation. Defines transfer demand. Execution and variance reconciliation. Interpreted with Product and traceability identities. Required.
+      - name: status
+        type: string
+        enum: InventoryTransferStatus
+        help: Transfer lifecycle state. Controls warehouse execution eligibility. Transfer orchestration and audit. Posted movements remain immutable regardless of header state. Prepared but not executable. Authorized. Physical relocation underway. Authorized quantity reconciled. Remaining work terminated. Required.
+        default: PLANNED
+      - name: product_id
+        type: string
+        fk: true
+        help: Product being relocated. Defines inventory item affected. Validation and reconciliation. Exactly one Product. All movements must match.
+      - name: source_location_id
+        type: string
+        fk: true
+        references: InventoryLocation
+        help: Location inventory leaves. Defines transfer origin. Availability and warehouse execution. Exactly one source. Must differ from target and hold eligible stock.
+      - name: lot_id
+        type: string
+        fk: true
+        optional: true
+        help: Lot being transferred. Preserves batch identity across relocation. Traceability and FEFO. Required under lot-control policy. Source/target stock remains same lot.
+  - name: InventoryCount
+    help: Physical inventory observation used for controlled reconciliation. A count states what was observed; it does not rewrite what the ledger says happened. Cycle count, annual stocktake, serial verification and inventory-control audit. Product/location/lot/serial define count scope; InventoryAdjustment resolves approved variance. Planned/performed → reviewed → reconciled → closed; evidence retained. Approved variance may create adjustments; observations themselves never post inventory.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of count observation. Identifies one count evidence record. Cycle count, stocktake, reconciliation and audit. May cause InventoryAdjustment after approval. Required.
+      - name: count_number
+        type: string(100)
+        unique: true
+        help: Human-facing count reference. Operational identifier for count activity. Warehouse execution and audit. Distinct from adjustment reference. Required.
+      - name: counted_quantity
+        type: decimal
+        help: Quantity physically/systematically observed. Evidence of stock reality at count time. Variance calculation and approval. Does not itself alter InventoryBalance. Required.
+      - name: counted_at
+        type: datetime
+        help: Effective observation time. Anchors the count against ledger chronology. Cutoff and reconciliation. Movements around count time require controlled cutoff treatment. Required.
+      - name: product_id
+        type: string
+        fk: true
+        help: Product counted. Identifies observed item. Reconciliation. Exactly one Product. Must match stock context.
+      - name: inventory_location_id
+        type: string
+        fk: true
+        help: Location counted. Defines physical/accountable stock scope. Cycle counting and stocktake. Exactly one location. Ledger cutoff uses this location.
+      - name: lot_id
+        type: string
+        fk: true
+        optional: true
+        help: Lot counted where applicable. Preserves batch-specific observation. Traceability and reconciliation. Required under lot-controlled count scope. Variance is lot-specific.
+  - name: InventoryAdjustment
+    help: Controlled discrepancy correction with explicit evidence and stock posting. InventoryAdjustment authorizes why stock should be corrected; InventoryMovement remains the physical ledger. Cycle counts, reconciliation, damage/loss corrections and audited inventory control. Usually follows InventoryCount but may use other authorized evidence. Proposed → approved → posted → immutable historical evidence. Posting updates balances and variance analytics; corrections compensate rather than rewrite.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable adjustment identity. Identifies one approved stock correction independently of ledger posting. Cycle count, damage, reconciliation and audit. Groups adjustment evidence and movement. Required.
+      - name: adjustment_number
+        type: string(100)
+        unique: true
+        help: Human-facing adjustment reference. Operational/audit identifier. Approval, investigation and reconciliation. Distinct from movement number. Required.
+      - name: quantity_delta
+        type: decimal
+        help: Signed quantity correction. Positive increases and negative decreases the evidenced stock position. Inventory reconciliation. Must be supported by reason and evidence. Required.
+      - name: reason_code
+        type: string(100)
+        help: Controlled reason for correction. Explains why ledger stock differs from evidenced reality. Approval, root-cause and audit. Must not be used to conceal ordinary receipts/issues. Required.
+      - name: inventory_count_id
+        type: string
+        fk: true
+        optional: true
+        help: Count evidence causing correction. Connects observed discrepancy to adjustment. Cycle-count audit. Optional for non-count adjustments. Delta must reconcile with approved count variance.
+      - name: product_id
+        type: string
+        fk: true
+        help: Product being corrected. Identifies affected inventory item. Reconciliation. Exactly one Product. Must match movement.
+      - name: inventory_location_id
+        type: string
+        fk: true
+        help: Location whose stock is corrected. Defines physical/accountable stock context. Count and reconciliation. Exactly one location. Must match movement.
+      - name: inventory_movement_id
+        type: string
+        fk: true
+        help: Authoritative stock-ledger correction. Implements approved quantity delta. Balance reconciliation and audit. Exactly one posting for executed adjustment. Must be idempotent and match product/location/quantity.
+  - name: Lot
+    help: Batch-level inventory identity for end-to-end genealogy and recall. Product identifies what an item is; Lot identifies which production or receipt batch a quantity belongs to. Inventory, WMS, manufacturing, quality, procurement, sales fulfillment, expiry management, recall, and regulatory traceability. Lot follows Product quantities through InventoryMovement and InventoryBalance and may later connect to receipt, production, shipment, inspection, and certificate evidence. Created/received → active or quarantined → released/held → consumed/expired/rejected → closed. Status, expiry, or quality changes immediately revalidate availability, reservations, picking, shipment, production consumption, and disposition without altering historical movements.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable system identity of the lot. Identifies the traceability group independently of printed lot number. Inventory, quality, recall, manufacturing, receiving, shipping, and audit. Groups quantities of one Product across locations and movements. Required.
+      - name: lot_number
+        type: string(150)
+        help: Business-facing lot or batch identifier. Traceability code used operationally and externally. Receiving, labels, picking, quality, recall, and certificates. Uniqueness is governed with Product and organizational policy. Required.
+      - name: manufactured_at
+        type: datetime
+        optional: true
+        help: Time the lot was manufactured or produced. Anchors production age and provenance. Shelf-life, quality, genealogy, and recall. Distinct from receipt date. Optional when unknown or not applicable.
+      - name: expires_at
+        type: datetime
+        optional: true
+        help: Expiry or use-by time for the lot. Controls eligibility where shelf life applies. FEFO allocation, quarantine, disposal, and compliance. Does not itself post inventory movement. Optional for non-expiring products.
+      - name: status
+        type: string
+        enum: LotStatus
+        help: Governed usability state of the lot. Controls allocation and operational eligibility while preserving stock history. Quality release, warehouse allocation, production, recall, and disposition. Status restrictions affect availability but do not rewrite movement history. Operationally recognized. Temporarily restricted. Segregated pending decision. Approved for governed use. Past governed shelf life. Not approved for intended use. Quantity fully consumed under tracked processes. Traceability lifecycle closed. Required.
+        default: ACTIVE
+      - name: product_id
+        type: string
+        fk: true
+        help: Product represented by this lot. Defines item identity for all lot quantities. Inventory and quality validation. Exactly one Product. Movements and balances must use the same product.
+  - name: SerialNumber
+    help: Unit-level identity and custody traceability for serialized products. Product identifies the type, Lot identifies a batch, and SerialNumber identifies one physical unit. Inventory, warehouse, logistics, manufacturing, service, maintenance, warranty, returns, recall, and asset management. SerialNumber travels through InventoryMovement and may be associated with a Lot while preserving unique unit identity. Expected → available/reserved → in transit/installed/consumed/returned/quarantined → scrapped/retired as applicable. Status and custody changes revalidate inventory, reservation, shipment, service, return, and asset workflows; historical custody is never rewritten.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable system identity of the serialized unit. Identifies the unit independently of its printed serial code. Inventory, service, warranty, asset, recall, and audit. One serialized identity represents one governed physical unit. Required.
+      - name: serial_code
+        type: string(200)
+        help: Business/manufacturer serial identifier. Operational code used to recognize the individual unit. Scanning, receiving, picking, shipment, service, returns, and warranty. Uniqueness is governed for the Product or global namespace. Required.
+      - name: status
+        type: string
+        enum: SerialNumberStatus
+        help: Operational lifecycle state of the serialized unit. Controls eligibility and custody transitions for the individual unit. Allocation, shipment, service, returns, and disposal. Status is reconciled from authoritative business and inventory events rather than freely edited. Known before receipt. Eligible inventory. Committed to demand. Under logistics movement. Deployed or installed. Used in a process. Entered governed return flow. Restricted pending decision. Physically disposed as scrap. Lifecycle closed. Required.
+        default: AVAILABLE
+      - name: inventory_transfer_id
+        type: string
+        fk: true
+        optional: true
+        help: The InventoryTransfer this SerialNumber belongs to.
+      - name: inventory_count_id
+        type: string
+        fk: true
+        optional: true
+        help: The InventoryCount this SerialNumber belongs to.
+      - name: product_id
+        type: string
+        fk: true
+        help: Product model represented by the serial. Defines the standardized item type. Validation and master-data context. Exactly one Product. Every serial movement must use the same Product.
+      - name: lot_id
+        type: string
+        fk: true
+        optional: true
+        help: Lot or batch from which this serialized unit originates when applicable. Connects unit identity to batch genealogy. Recall, quality, manufacturing, and provenance. Optional for products not lot-controlled. Serial and lot provenance must remain consistent.
+  - name: Product
+    help: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules. Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts. Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics. Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts. Product create/update → validate category/unit/tax/location/supplier dependencies → propagate eligibility changes to open SalesOrderLine/PurchaseOrderLine and inventory workflows → resolve exceptions → permit future transactions. Product changes never silently recalculate issued documents or historical movements. Draft → active → discontinued/blocked → retired. Lifecycle transitions require dependent-workflow validation and preserve historical references. SalesOrderLine eligibility. PurchaseOrderLine eligibility. inventory operations. fulfillment eligibility. future InvoiceLine creation. open order quantities. receipt quantities. inventory operations. conversion rules. future TaxRule determination. future InvoiceLine calculation. future default pricing only. catalog. assortment. reporting. policy eligibility. future sourcing and PurchaseOrder eligibility. future operational availability and inventory configuration. If a Product is blocked, the system validates open SalesOrders and PurchaseOrders, prevents new incompatible use, and identifies dependent inventory/fulfillment workflows. Existing invoices and inventory movements remain unchanged. If its tax category changes, future tax determination uses the new category while issued invoices retain their historical tax evidence.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+      - name: name
+        type: string(300)
+      - name: description
+        type: string(4000)
+        optional: true
+      - name: product_type
+        type: string
+        enum: ProductProductType
+      - name: status
+        type: string
+        enum: ProductStatus
+        default: ACTIVE
+      - name: sku
+        type: string(100)
+        optional: true
+      - name: unit_of_measure
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+      - name: standard_price
+        type: money
+        optional: true
+      - name: tax_category
+        type: string(100)
+        optional: true
+      - name: currency_id
+        type: string
+        fk: true
+        optional: true
+        help: The Currency this Product belongs to.
+  - name: InventoryLocation
+    help: Granular inventory position whose lifecycle controls future execution while preserving historical inventory state. A location is operational infrastructure, not merely an address. Changing its status can affect receiving, put-away, reservations, picking, transfers, replenishment and shipment staging. Receiving, warehouse execution, picking, replenishment, stock counting, transfers, reservation, fulfillment, quarantine and yard operations. Warehouse supplies facility context. InventoryLocation supplies operational position. InventoryBalance supplies current state. InventoryMovement supplies historical event evidence. InventoryReservation supplies committed demand. Location create → configure capacity/type → activate → participate in receiving/put-away/reservation/picking/transfer → block or quarantine when necessary → resolve dependent stock/reservations → inactive. Status changes trigger dependency validation rather than simply toggling a flag. Location status changes affect future transaction eligibility; location hierarchy/warehouse changes require validation of balances and open reservations; capacity/type changes require validation of affected put-away and transfer rules; historical movements remain unchanged. Configured → ACTIVE → BLOCKED/QUARANTINE operational state → resolved or INACTIVE. Existing stock is retained and must be deliberately relocated or handled through authorized workflow. A storage rack is blocked because of damage. New put-away and allocation are stopped. Existing stock and reservations are identified; reservations are moved or released and stock is transferred to valid locations. Historical movements still point to the original rack.
+    parent: Warehouse
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+      - name: location_type
+        type: string
+        enum: InventoryLocationLocationType
+      - name: status
+        type: string
+        enum: InventoryLocationStatus
+        help: Controls whether the location can participate in normal future inventory operations. Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging. Status constrains future operations; it never deletes current balances or historical movements. Status changes trigger dependent-workflow validation before operational eligibility changes become effective.
+        default: ACTIVE
+      - name: capacity
+        type: decimal
+        optional: true
+      - name: warehouse_id
+        type: string
+        fk: true
+        help: The Warehouse this InventoryLocation refers to.
+      - name: warehouse_zone_id
+        type: string
+        fk: true
+        optional: true
+        help: Operational warehouse zone containing this inventory location. Supplies storage/process/control classification. Putaway, picking, quarantine, replenishment and reporting. Optional for locations outside zoned warehouses. Location eligibility must comply with zone controls.
+  - name: Warehouse
+    help: "Represents a managed facility where inventory is physically or operationally received, stored, controlled, fulfilled, and dispatched. Warehouse is more than an address: it is an operational capability with storage structure, inventory processes, capacity constraints, and an operating lifecycle. It provides the facility context in which InventoryLocation and InventoryMovement events occur. Used by procurement, receiving, inventory control, warehouse management, order fulfillment, shipping, transportation, capacity planning, and stock reporting. Warehouse specializes Location for inventory operations. InventoryLocation defines where stock is held inside the facility. InventoryMovement records stock events. Shipment and PurchaseOrder/SalesOrder provide inbound or outbound business context. Warehouse should not itself be used as a substitute for the current stock balance. A planned warehouse is configured before operation. Active warehouses can participate in normal inventory flows. Suspended warehouses temporarily restrict operations. Closed warehouses stop normal activity while retaining historical inventory, shipment, and transaction records for audit and reconciliation. A distribution center is represented as a Warehouse with a physical Location, warehouse code DC01, and multiple InventoryLocations for receiving, reserve storage, picking, staging, and dispatch. A PurchaseOrder receipt creates InventoryMovement into receiving, put-away transfers stock into reserve locations, and an outbound Shipment consumes stock from picking or staging locations."
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The immutable system identity of the warehouse. Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse. Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode. Required because warehouse operations need one stable identity.
+      - name: location_id
+        type: string
+        fk: true
+        unique: true
+        help: Identifies the Location record that supplies the address and geographic context for the warehouse. Used for routing, delivery, tax, service coverage, mapping, and operational location management. Warehouse specializes Location; this reference connects warehouse-specific operational semantics with the reusable CEDM location model rather than duplicating address data. Required because a warehouse must have a defined physical or operational location.
+      - name: warehouse_code
+        type: string(100)
+        unique: true
+        help: The organization-assigned business code used by warehouse personnel and systems to identify the facility. Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing. It is a human/system operational identifier and should not be confused with warehouseId or the Location identity. Required because warehouse operations need a concise stable business reference.
+      - name: warehouse_type
+        type: string
+        enum: WarehouseWarehouseType
+        help: Classifies the operating model and handling characteristics of the warehouse. Drives storage rules, temperature controls, customs controls, fulfillment workflows, capacity planning, and reporting. Type describes operational capability and regulatory context; it does not by itself define individual storage locations or inventory status. A warehouse supporting ordinary storage and handling requirements without a specialized operating classification. A facility or controlled area designed to maintain inventory within specified low-temperature conditions. A facility operating under customs or bonded-storage controls where goods may remain subject to customs restrictions. A facility optimized for inbound receipt, order fulfillment, consolidation, cross-docking, and outbound distribution. A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment. A warehouse whose operating model is not adequately represented by the standard classifications. Required because operational processes depend on facility capabilities and controls.
+      - name: capacity
+        type: decimal
+        optional: true
+        help: The nominal storage or handling capacity of the warehouse under a defined capacity measurement convention. Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints. Capacity must be interpreted with the warehouse's UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure. Optional when capacity is managed at detailed InventoryLocation or slot level instead of as a warehouse aggregate.
+      - name: status
+        type: string
+        enum: WarehouseStatus
+        help: The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes. Controls receiving, storage, picking, shipping, allocation, and operational reporting. Warehouse status describes facility availability; InventoryLocation status and InventoryMovement events govern detailed stock behavior within the facility. The facility is being prepared and is not yet available for normal warehouse operations. The facility is operational and may accept the business processes allowed by its capabilities. Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions. The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities. Required because inventory processes need to know whether the facility can operate.
+        default: ACTIVE
+      - name: code
+        type: string(100)
+        unique: true
+      - name: name
+        type: string(200)
+      - name: location_type
+        type: string
+        enum: WarehouseLocationType
+      - name: address_id
+        type: string
+        fk: true
+        optional: true
+      - name: parent_location_id
+        type: string
+        fk: true
+        optional: true
+      - name: organization_id
+        type: string
+        fk: true
+        optional: true
+        help: The Organization this Warehouse refers to.
+  - name: WarehouseZone
+    help: Operational grouping between Warehouse and InventoryLocation. Warehouse is the facility, WarehouseZone is the process/storage area, InventoryLocation is the stock-control position. Receiving, putaway, reserve/pick storage, quarantine, returns, staging and shipping. Zone rules guide InventoryTransfer and WMS tasks but do not themselves alter inventory. Configured → active/restricted → retired while historical transactions retain zone context. Zone control changes revalidate future putaway/picking/transfer destinations without rewriting completed movements.
+    parent: Warehouse
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of warehouse zone. Identifies an operational storage/handling area. Putaway, picking, replenishment, capacity and controls. Groups InventoryLocations within one Warehouse. Required.
+      - name: zone_code
+        type: string(100)
+        help: Human-facing zone code. Operational identifier used by warehouse workers and systems. Routing, labels and reporting. Unique within Warehouse. Required.
+      - name: zone_type
+        type: string
+        enum: WarehouseZoneZoneType
+        help: Primary operational purpose of zone. Governs eligible warehouse processes and stock. Putaway/picking routing and compliance. Location-level controls may further restrict eligibility. Inbound receiving area. Bulk/reserve storage. Forward picking area. Temporary process staging. Outbound dispatch area. Restricted inventory pending disposition. Reverse-logistics processing. Temperature-controlled storage. Controlled hazardous-material area. General-purpose storage/handling. Required.
+      - name: warehouse_id
+        type: string
+        fk: true
+        help: Parent warehouse. Supplies facility and operating context. WMS hierarchy. Exactly one Warehouse. Warehouse status constrains zone use.
+  - name: Dock
+    help: Warehouse loading/receiving execution resource. Dock is a physical process resource, not an inventory location unless separately represented by stagingLocation. Inbound, outbound, cross-dock, appointment, staging and loading workflows. Warehouse owns operational context; InventoryLocation supplies stock-control context; Shipment supplies transport work. Configured → active/restricted → retired with historical execution retained.
+    parent: Warehouse
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable dock identity. Identifies one loading/receiving resource. Appointment, staging, loading and receiving. Belongs to one Warehouse. Required.
+      - name: dock_code
+        type: string(100)
+        help: Operational dock code. Human/scanner identifier for the physical position. Yard and warehouse execution. Unique within Warehouse. Required.
+      - name: dock_type
+        type: string
+        enum: DockDockType
+        help: Allowed dock operating purpose. Controls eligible receiving/shipping work. Scheduling and execution. Warehouse policy may add constraints. Receiving-focused. Shipping-focused. Supports both directions. Supports direct inbound-to-outbound flow. Required.
+      - name: warehouse_id
+        type: string
+        fk: true
+        help: Parent warehouse. Supplies facility context. Dock scheduling and control. Exactly one Warehouse. Warehouse status constrains dock use.
+      - name: staging_location_id
+        type: string
+        fk: true
+        references: InventoryLocation
+        optional: true
+        help: Default inventory staging position associated with dock. Connects loading resource to stock-control location. Receiving and shipping staging. Optional. Physical stock changes still require InventoryMovement.
+  - name: HandlingUnit
+    help: Physical logistics identity for grouping and moving inventory. HandlingUnit represents the package/pallet/tote being handled; InventoryMovement remains authoritative for stock quantity/location. Receiving, putaway, replenishment, picking, packing, staging, loading, shipment and tracking. Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment. Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused. Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable handling-unit identity. Identifies one physical logistics unit independently of label changes. Receiving, putaway, picking, packing, staging and shipping. May contain product/lot/serial inventory and nested handling units. Required.
+      - name: handling_unit_number
+        type: string(150)
+        unique: true
+        help: Scannable operational handling-unit reference. Label/barcode identifier used in physical execution. WMS scanning and logistics documents. Distinct from Shipment or inventory movement number. Required.
+      - name: type
+        type: string
+        enum: HandlingUnitType
+        help: Physical handling-unit classification. Describes packaging/handling form. Capacity, equipment, packing and carrier planning. Does not determine contents by itself. Palletized logistics unit. Carton/box. Reusable tote/bin. Roll cage or similar unit. Drum/container. General package. Governed other type. Required.
+      - name: inventory_location_id
+        type: string
+        fk: true
+        optional: true
+        help: Current warehouse location when stored. Provides operational custody position. Putaway, picking and count. Optional while in transit/shipped. Changes must reconcile to execution evidence.
+      - name: parent_handling_unit_id
+        type: string
+        fk: true
+        optional: true
+        help: Outer handling unit containing this unit. Supports pallet/carton/tote nesting. Packing and logistics hierarchy. At most one parent. Nesting must remain acyclic.
+  - name: Putaway
+    help: Directed inbound/staging-to-storage warehouse task. Putaway says where stock should be stored; InventoryTransfer/InventoryMovement prove physical relocation. Receiving, cross-dock exceptions, replenishment and storage optimization. InventoryLocation/Zone define eligibility; HandlingUnit supports physical execution. Planned → released → in progress → completed, cancelled or exception.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable putaway-task identity. Identifies one directed storage action. Receiving and WMS execution. Connects source staging to target storage. Required.
+      - name: quantity
+        type: decimal
+        help: Quantity directed for storage. Defines task execution quantity. Putaway confirmation and variance. Must reconcile with transfer/movement. Required.
+      - name: status
+        type: string
+        enum: PutawayStatus
+        help: Putaway task state. Controls executable storage work. WMS orchestration. Completion alone does not alter stock without inventory posting. Proposed. Authorized. Being executed. Confirmed and reconciled. Terminated. Requires resolution. Required.
+        default: PLANNED
+      - name: product_id
+        type: string
+        fk: true
+        help: Product being stored. Identifies handled inventory. Location eligibility. Exactly one Product. Must match transfer.
+      - name: source_location_id
+        type: string
+        fk: true
+        references: InventoryLocation
+        help: Receiving/staging origin. Current controlled position. Execution. Exactly one source. Must contain eligible stock.
+      - name: handling_unit_id
+        type: string
+        fk: true
+        optional: true
+        help: Physical pallet/carton/tote moved as unit. Supports scan-based execution. WMS mobility. Optional for loose stock. Handling-unit location must reconcile.
+      - name: inventory_transfer_id
+        type: string
+        fk: true
+        help: Inventory relocation authorization/execution associated with putaway. Separates warehouse task from stock ledger. Reconciliation. Exactly one governed transfer. Completed task must reconcile to posted movement.
+      - name: wave_id
+        type: string
+        fk: true
+        optional: true
+        help: The Wave this Putaway belongs to.
+  - name: Picking
+    help: Warehouse inventory-selection task for authorized demand. Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately. Sales fulfillment, production staging, transfer and service demand. Reservation supplies commitment; InventoryLocation supplies source; ShipmentLine may supply outbound demand. Planned → released → in progress → picked/short, cancelled or exception.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable pick-task identity. Identifies one directed inventory-selection action. WMS execution and audit. Links reservation/source stock to staging/fulfillment. Required.
+      - name: quantity
+        type: decimal
+        help: Quantity directed to pick. Defines execution demand. Pick confirmation and variance. Must reconcile with reservation and inventory events. Required.
+      - name: status
+        type: string
+        enum: PickingStatus
+        help: Picking execution state. Controls warehouse task progression. Wave/pick orchestration. PICKED is warehouse evidence, not shipment delivery. Proposed. Authorized. Being picked. Required quantity confirmed. Quantity short. Terminated. Requires resolution. Required.
+        default: PLANNED
+      - name: reservation_id
+        type: string
+        fk: true
+        references: InventoryReservation
+        optional: true
+        help: Inventory commitment supplying pick demand. Prevents picking unallocated demand where reservation is required. Fulfillment. Optional under non-reservation workflows. Consumption must reconcile.
+      - name: source_location_id
+        type: string
+        fk: true
+        references: InventoryLocation
+        help: Storage position picked from. Defines source custody. WMS execution. Exactly one source. Must hold eligible stock.
+      - name: handling_unit_id
+        type: string
+        fk: true
+        optional: true
+        help: Handling unit used for picked stock. Supports tote/carton/pallet execution. Scanning and packing. Optional. Custody must reconcile.
+      - name: wave_id
+        type: string
+        fk: true
+        optional: true
+        help: The Wave this Picking belongs to.
+  - name: Packing
+    help: Warehouse packaging execution between picking and shipping. Packing establishes physical package composition/readiness; Shipment and InventoryMovement separately govern transport and stock effects. Fulfillment, package labeling, staging, carrier handoff and traceability. Picking supplies goods; HandlingUnit identifies package; Shipment/ShipmentLine supply transport context. Planned → in progress → packed, cancelled or exception.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable packing-task identity. Identifies one governed packaging execution. Fulfillment, labeling, shipment preparation and audit. Links picked goods to handling unit and shipment. Required.
+      - name: packed_quantity
+        type: decimal
+        help: Quantity confirmed packed. Measures goods prepared for transport. Shipment readiness and reconciliation. Must not exceed eligible picked quantity. Required.
+      - name: status
+        type: string
+        enum: PackingStatus
+        help: Packing task state. Controls packaging workflow. WMS and shipping readiness. PACKED is not dispatch/delivery evidence. Awaiting work. Packaging underway. Confirmed complete. Terminated. Requires resolution. Required.
+        default: PLANNED
+      - name: picking_id
+        type: string
+        fk: true
+        optional: true
+        help: Pick task supplying goods. Preserves pick-to-pack provenance. Fulfillment reconciliation. Optional for packing not driven by a single pick. Packed quantity cannot exceed eligible picked quantity.
+      - name: handling_unit_id
+        type: string
+        fk: true
+        help: Package/pallet/tote receiving packed goods. Establishes physical logistics identity. Labels, staging, loading and tracking. Exactly one target handling unit per packing record. Contents/custody remain traceable.
+  - name: Wave
+    help: Warehouse work-release grouping for coordinated execution. Wave organizes tasks; it does not itself move inventory or fulfill orders. Labor planning, batch/zone picking, putaway and shipping-cutoff execution. Warehouse supplies facility; Picking and Putaway supply executable tasks. Planned to released to in progress to completed or cancelled.
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable wave identity. Identifies one coordinated work release. WMS planning and execution. Groups tasks without replacing individual evidence. Required.
+      - name: wave_number
+        type: string(100)
+        unique: true
+        help: Human-facing wave reference. Operational identifier for grouped work. Warehouse planning and reporting. Distinct from task and shipment identifiers. Required.
+      - name: status
+        type: string
+        enum: WaveStatus
+        help: Wave orchestration state. Controls grouped task release and closure. WMS execution. Wave completion cannot substitute for task or inventory evidence. Work being grouped. Tasks authorized. Tasks executing. Included work reconciled. Remaining work terminated. Required.
+        default: PLANNED
+      - name: warehouse_id
+        type: string
+        fk: true
+        help: Warehouse executing wave. Defines operating facility. Labor/task orchestration. Exactly one Warehouse. Included tasks must be compatible with warehouse.
+  - name: Packaging
+    help: Product packaging and pack-quantity master. Packaging describes commercial/logistics containment; HandlingUnit identifies an actual pallet/carton/tote/package occurrence. PIM, procurement, sales, WMS, shipping and labeling. Product defines contents, UOM defines quantity semantics, HandlingUnit represents physical execution instances. Created/activated → revised/retired under controlled master-data change.
+    parent: Product
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable packaging identity. Identifies one governed pack configuration. PIM, procurement, WMS, sales and logistics. References Product and quantity/UOM semantics. Required.
+      - name: code
+        type: string(100)
+        help: Packaging configuration code. Operational identifier for pack form. Catalog, labels and integration. Unique within applicable Product context. Required.
+      - name: quantity_per_package
+        type: decimal
+        help: Product quantity contained in one package. Defines pack conversion. Ordering, storage, picking and shipping. Interpreted with UnitOfMeasure. Required.
+      - name: product_id
+        type: string
+        fk: true
+        help: Product packaged. Defines package contents. PIM and logistics. Exactly one Product. Product eligibility applies.
+      - name: unit_of_measure_id
+        type: string
+        fk: true
+        help: Measurement unit for quantityPerPackage. Makes pack quantity unambiguous. Conversion and validation. Exactly one UOM. Must be compatible with Product quantity semantics.
+relationships:
+  - from: Person
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: exactly-one
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: exactly-one
+  - from: Party
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Party
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Person
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+    label: employer_organizations
+  - from: Person
+    fromCardinality: exactly-one
+    to: Person
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Person
+    toCardinality: zero-or-more
+  - from: Person
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Person
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+    label: child_organizations
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+    label: addresses
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: locations
+  - from: Person
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Organization
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: PartyRole
+    toCardinality: zero-or-more
+    label: party_roles
+  - from: Party
+    fromCardinality: exactly-one
+    to: PartyRelationship
+    toCardinality: zero-or-more
+    label: from_party
+  - from: Organization
+    fromCardinality: exactly-one
+    to: BusinessUnit
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Department
+    toCardinality: zero-or-more
+  - from: Location
+    fromCardinality: exactly-one
+    to: Address
+    toCardinality: zero-or-more
+  - from: Party
+    fromCardinality: exactly-one
+    to: ContactPoint
+    toCardinality: zero-or-more
+  - from: Location
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: child_locations
+  - from: Address
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+  - from: Currency
+    fromCardinality: exactly-one
+    to: Product
+    toCardinality: zero-or-more
+    label: products
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: exchange_rates_from
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: exchange_rates_to
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: from_currency_ref
+  - from: Currency
+    fromCardinality: exactly-one
+    to: ExchangeRate
+    toCardinality: zero-or-more
+    label: to_currency_ref
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: UnitOfMeasure
+    toCardinality: zero-or-more
+    label: base_unit
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: UnitOfMeasure
+    toCardinality: zero-or-more
+    label: derived_units
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: Product
+    toCardinality: zero-or-more
+    label: products
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryBalance
+    toCardinality: zero-or-more
+    label: inventory_balances
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryBalance
+    toCardinality: zero-or-more
+    label: inventory_balances
+  - from: Lot
+    fromCardinality: exactly-one
+    to: InventoryBalance
+    toCardinality: zero-or-more
+    label: inventory_balances
+  - from: InventoryBalance
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: source_location
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: target_location
+  - from: Party
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+  - from: Lot
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: InventoryMovement
+    fromCardinality: zero-or-more
+    to: SerialNumber
+    toCardinality: zero-or-more
+    label: serial_numbers
+  - from: InventoryTransfer
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: InventoryAdjustment
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryReservation
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryReservation
+    toCardinality: zero-or-more
+    label: open_reservations
+  - from: InventoryBalance
+    fromCardinality: exactly-one
+    to: InventoryReservation
+    toCardinality: zero-or-more
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryTransfer
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryTransfer
+    toCardinality: zero-or-more
+    label: source_location
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryTransfer
+    toCardinality: zero-or-more
+    label: target_location
+  - from: Lot
+    fromCardinality: exactly-one
+    to: InventoryTransfer
+    toCardinality: zero-or-more
+  - from: InventoryTransfer
+    fromCardinality: exactly-one
+    to: SerialNumber
+    toCardinality: zero-or-more
+    label: serial_numbers
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryCount
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryCount
+    toCardinality: zero-or-more
+  - from: Lot
+    fromCardinality: exactly-one
+    to: InventoryCount
+    toCardinality: zero-or-more
+  - from: InventoryCount
+    fromCardinality: exactly-one
+    to: SerialNumber
+    toCardinality: zero-or-more
+    label: serial_numbers
+  - from: InventoryCount
+    fromCardinality: exactly-one
+    to: InventoryAdjustment
+    toCardinality: zero-or-more
+    label: adjustments
+  - from: Product
+    fromCardinality: exactly-one
+    to: InventoryAdjustment
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryAdjustment
+    toCardinality: zero-or-more
+  - from: InventoryMovement
+    fromCardinality: exactly-one
+    to: InventoryAdjustment
+    toCardinality: zero-or-more
+  - from: Product
+    fromCardinality: exactly-one
+    to: Lot
+    toCardinality: zero-or-more
+    label: lots
+  - from: Product
+    fromCardinality: exactly-one
+    to: SerialNumber
+    toCardinality: zero-or-more
+    label: serial_numbers
+  - from: Lot
+    fromCardinality: exactly-one
+    to: SerialNumber
+    toCardinality: zero-or-more
+  - from: Product
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: locations
+  - from: Product
+    fromCardinality: exactly-one
+    to: Packaging
+    toCardinality: zero-or-more
+    label: packaging_configurations
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: InventoryLocation
+    toCardinality: zero-or-more
+    label: inventory_locations
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: InventoryMovement
+    toCardinality: zero-or-more
+    label: inventory_movements
+  - from: WarehouseZone
+    fromCardinality: exactly-one
+    to: InventoryLocation
+    toCardinality: zero-or-more
+    label: inventory_locations
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: HandlingUnit
+    toCardinality: zero-or-more
+    label: handling_units
+  - from: Location
+    fromCardinality: exactly-one
+    to: Warehouse
+    toCardinality: zero-or-more
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: WarehouseZone
+    toCardinality: zero-or-more
+    label: zones
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: Dock
+    toCardinality: zero-or-more
+    label: docks
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: Wave
+    toCardinality: zero-or-more
+    label: waves
+  - from: Location
+    fromCardinality: exactly-one
+    to: Warehouse
+    toCardinality: zero-or-more
+    label: parent_location
+  - from: Warehouse
+    fromCardinality: exactly-one
+    to: Location
+    toCardinality: zero-or-more
+    label: child_locations
+  - from: Address
+    fromCardinality: exactly-one
+    to: Warehouse
+    toCardinality: zero-or-more
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Warehouse
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: Dock
+    toCardinality: zero-or-more
+    label: staging_location
+  - from: HandlingUnit
+    fromCardinality: exactly-one
+    to: HandlingUnit
+    toCardinality: zero-or-more
+    label: parent_handling_unit
+  - from: Product
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+    label: source_location
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+    label: target_location
+  - from: HandlingUnit
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+  - from: InventoryTransfer
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+  - from: InventoryReservation
+    fromCardinality: exactly-one
+    to: Picking
+    toCardinality: zero-or-more
+    label: reservation
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: Picking
+    toCardinality: zero-or-more
+    label: source_location
+  - from: InventoryLocation
+    fromCardinality: exactly-one
+    to: Picking
+    toCardinality: zero-or-more
+    label: staging_location
+  - from: HandlingUnit
+    fromCardinality: exactly-one
+    to: Picking
+    toCardinality: zero-or-more
+  - from: Picking
+    fromCardinality: exactly-one
+    to: Packing
+    toCardinality: zero-or-more
+  - from: HandlingUnit
+    fromCardinality: exactly-one
+    to: Packing
+    toCardinality: zero-or-more
+  - from: Wave
+    fromCardinality: exactly-one
+    to: Picking
+    toCardinality: zero-or-more
+    label: picks
+  - from: Wave
+    fromCardinality: exactly-one
+    to: Putaway
+    toCardinality: zero-or-more
+    label: putaways
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: Packaging
+    toCardinality: zero-or-more

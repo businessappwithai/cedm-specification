@@ -1,0 +1,188 @@
+entity:
+  name: RepairEstimate
+  namespace: cedm.domain
+  kind: asset_maintenance_transaction
+  description: A controlled assessment of the technical scope, expected cost, and commercial or operational disposition of maintenance work for a specific Container or other maintainable asset.
+  identity:
+    key: repairEstimateId
+    type: uuid
+    generated: true
+    immutable: true
+  attributes:
+  - name: repairEstimateId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The immutable system identity of the repair estimate.
+      usage: Connects the assessment to revisions, line items, approvals, work orders, documents, analytics, and integrations.
+      relationshipContext: Identifies the assessment record; Container identifies the asset and RepairEstimateLine identifies its detailed technical scope.
+      requiredMeaning: Required so the decision and its history remain independently traceable.
+  - name: estimateNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The human-facing business reference for the repair assessment.
+      usage: Used by depot, maintenance, fleet, owners, approvers, customers, and reports.
+      relationshipContext: Unlike repairEstimateId, this is intended for business communication and documents.
+      requiredMeaning: Required for operational and approval workflows.
+  - name: revision
+    type: integer
+    required: true
+    default: 1
+    minimum: 1
+    help:
+      summary: The version number of the technical and commercial assessment.
+      usage: Preserves changes in damage scope, material pricing, labor assumptions, disposition, or approval values.
+      relationshipContext: A revision is historical decision context and must not silently overwrite an earlier approved assessment.
+      requiredMeaning: Required for traceable estimate evolution.
+  - name: estimateDate
+    type: date
+    required: true
+    help:
+      summary: The business date on which this estimate revision was prepared or recognized.
+      usage: Supports approval chronology, estimate aging, repair-cycle analysis, and financial reporting.
+      relationshipContext: Distinct from Container manufacture date, damage date, repair completion date, or sale date.
+      requiredMeaning: Required to establish decision chronology.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, SUBMITTED, APPROVED, REJECTED, COMPLETED, CANCELLED]
+    help:
+      summary: The lifecycle state of the assessment and its authorization status.
+      usage: Controls preparation, review, approval, rejection, completion, and cancellation workflows.
+      relationshipContext: Estimate status describes the decision artifact; it does not mean that repair execution or sale execution has completed.
+      valueSemantics:
+        DRAFT: Assessment is still being prepared.
+        SUBMITTED: Assessment is awaiting review or authorization.
+        APPROVED: The proposed decision/scope has been authorized; execution remains a separate process.
+        REJECTED: The proposed assessment or decision was not authorized.
+        COMPLETED: The estimate's decision process is concluded.
+        CANCELLED: Assessment was intentionally terminated and must not drive active downstream work.
+      requiredMeaning: Required to separate assessment preparation from authorization and execution.
+  - name: disposition
+    type: enum
+    required: false
+    values: [LEASE, SALE, SCRAP, REPAIR, HOLD]
+    help:
+      summary: The intended operational or commercial outcome selected after evaluating condition and economics.
+      usage: Determines whether the asset returns to lease-related use, enters a sale process, is scrapped, requires repair, or remains pending.
+      relationshipContext: Disposition is a decision about the asset, not a physical repair status. REPAIR may create a MaintenanceWorkOrder; SALE may create a SalesOrder or disposition transaction.
+      valueSemantics:
+        LEASE: Asset is intended to remain available for lease-related use after the applicable process.
+        SALE: Asset is intended for commercial sale rather than return to the active lease fleet.
+        SCRAP: Asset is intended for disposal and removal from productive inventory.
+        REPAIR: Repair is justified and maintenance execution is required or expected.
+        HOLD: No final disposition has been executed; further information or approval is required.
+      optionalMeaning: Optional until a disposition decision is reached.
+  - name: estimatedRepairAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: The estimated cost of the repair scope represented by the assessment.
+      usage: Supports repair-vs-sale-vs-scrap economics, approval thresholds, budgets, and predictive analysis.
+      relationshipContext: Should reconcile to RepairEstimateLine values and Currency; it is an estimate, not an actual posted maintenance cost.
+      optionalMeaning: Optional until sufficient repair scope is known.
+  - name: estimatedSaleAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: The expected realization from selling the asset under the current valuation assumptions.
+      usage: Supports disposition economics and comparison with repair cost, book value, residual value, and lease alternatives.
+      relationshipContext: It is decision-support data, not an executed sale amount or payment.
+      optionalMeaning: Optional when sale is not under consideration.
+  - name: approvedAmount
+    type: decimal
+    required: false
+    precision: 20
+    scale: 4
+    help:
+      summary: The monetary amount explicitly authorized by the approval decision.
+      usage: Establishes the financial boundary for downstream repair execution or approved disposition activity.
+      relationshipContext: Approval amount is not the same as final actual maintenance cost; actual cost belongs to execution and financial records.
+      optionalMeaning: Optional before approval or for non-monetary decisions.
+  - name: currencyId
+    type: reference
+    target: Currency
+    required: false
+    help:
+      summary: The currency that gives monetary estimate values their denomination.
+      usage: Required to interpret repair, sale, and approval amounts consistently.
+      relationshipContext: Currency qualifies amounts; it does not identify ownership, supplier, or asset identity.
+      optionalMeaning: Optional while monetary assessment is incomplete.
+  relationships:
+  - name: container
+    target: Container
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The physical container whose condition, repair economics, and disposition are being assessed.
+      usage: Connects the estimate to equipment identity, current location, ownership/lease context, condition, and maintenance history.
+      cardinalityMeaning: Exactly one Container is assessed.
+      context: Container is the asset; RepairEstimate records a decision assessment about that asset without duplicating master data.
+  - name: lines
+    target: RepairEstimateLine
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: The detailed damage, component, material, labor, or repair requirements supporting the estimate.
+      usage: Provides the technical basis for estimated cost, approval, execution planning, and audit.
+      cardinalityMeaning: Lines may be absent while an estimate is being drafted but sufficient detail is normally expected for an approved REPAIR decision.
+      context: RepairEstimateLine explains scope; RepairEstimate aggregates that scope into a decision and financial context.
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The organization responsible for preparing, owning, or approving the assessment.
+      usage: Supports depot responsibility, approval authority, cost attribution, and reporting.
+      cardinalityMeaning: Optional when organization is inherited from operating context.
+      context: This organization may differ from Container owner, lessor, lessee, customer, or repair vendor.
+  - name: document
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Primary supporting evidence associated with the assessment, such as inspection reports, photographs, surveys, or approval evidence.
+      usage: Supports audit, damage evidence, dispute resolution, and maintenance traceability.
+      cardinalityMeaning: Zero or one primary document is directly linked here; broader document associations can hold additional evidence.
+      context: Evidence supports the structured estimate but does not replace its business data.
+  - name: maintenanceWorkOrders
+    target: MaintenanceWorkOrder
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Links the estimate to maintenance work orders created from an approved REPAIR decision.
+      usage: Provides traceability from approved repair scope and amount into actual maintenance execution, including cases where one estimate is executed through multiple work orders or phases.
+      cardinalityMeaning: Zero or many work orders may be linked because an estimate may be rejected, held, cancelled, or executed through multiple controlled work orders.
+      context: RepairEstimate authorizes or informs the proposed repair decision; MaintenanceWorkOrder controls execution. Creation of a work order does not prove completion of the repair.
+  invariants:
+  - id: REPAIR-ESTIMATE-001
+    rule: revision must be positive and must preserve prior approved decision history.
+  - id: REPAIR-ESTIMATE-002
+    rule: APPROVED estimate requires approvedAmount or an explicit zero-cost authorization.
+  - id: REPAIR-ESTIMATE-003
+    rule: Monetary estimate fields must not be negative.
+  - id: REPAIR-ESTIMATE-004
+    rule: A REPAIR disposition should have sufficient RepairEstimateLine detail to establish the approved repair scope.
+  - id: REPAIR-ESTIMATE-005
+    rule: Only an APPROVED, non-CANCELLED estimate with disposition REPAIR may originate a repair MaintenanceWorkOrder under the standard workflow.
+  help:
+    summary: Represents the controlled decision assessment between asset condition and the eventual repair or commercial disposition action.
+    businessMeaning: RepairEstimate is not the repair itself. It evaluates what is wrong, what it is expected to cost, and which outcome is economically or operationally appropriate. It therefore sits between inspection/condition evidence and downstream execution or disposition.
+    usage: Used by depot maintenance, fleet management, repair vendors, asset managers, finance, approval workflows, and predictive analytics. Historical estimates can also provide labeled data for disposition and sale-value prediction.
+    relationshipContext: Container identifies the asset. RepairEstimateLine explains technical scope. MaintenanceWorkOrder executes approved repair. SalesOrder or a disposition transaction executes sale. Inventory and financial transactions record actual operational and monetary outcomes. Currency qualifies monetary values and Document supplies evidence.
+    lifecycle: DRAFT → SUBMITTED → APPROVED or REJECTED, followed by COMPLETED or CANCELLED according to policy. Approval authorizes a decision but does not itself perform repair or sale. Revisions preserve decision history rather than overwriting earlier approved facts.
+    workflowImpact: When disposition is REPAIR, an approved estimate may create one or more MaintenanceWorkOrders. The work order must reference the originating estimate, remain within the approved scope unless an authorized estimate revision is made, and record actual execution separately. Work-order completion does not automatically make the estimate's estimated amounts actual costs.
+    example: A returned container has damaged flooring, side panels, and door hardware. The estimate contains line-level components and labor, compares expected repair cost with sale value and asset economics, and is approved with disposition REPAIR. A MaintenanceWorkOrder is then created for execution. The final actual repair cost is recorded separately from the estimate.
+specification:
+  version: 0.2.0
+  status: draft
+  identifier: CEDM-ENTITY-REPAIR-ESTIMATE

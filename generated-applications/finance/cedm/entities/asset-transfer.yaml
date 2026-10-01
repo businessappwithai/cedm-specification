@@ -1,0 +1,23 @@
+entity:
+  name: AssetTransfer
+  namespace: cedm.domain
+  kind: asset_transaction
+  description: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
+  identity: {key: assetTransferId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetTransfer., businessMeaning: Identifies one governed AssetTransfer record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  relationships:
+  - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+  invariants:
+  - {id: ASSET-TRANSFER-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  help:
+    summary: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
+    purpose: Provide canonical enterprise semantics for AssetTransfer.
+    businessMeaning: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
+    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
+    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
+    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
+    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
+    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-TRANSFER}

@@ -1,0 +1,29 @@
+entity:
+  name: InventoryAdjustment
+  namespace: cedm.domain
+  kind: inventory_control_transaction
+  description: A governed authorization to correct an evidenced inventory discrepancy, with actual quantity correction represented by attributable InventoryMovement adjustment events.
+  identity: {key: inventoryAdjustmentId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: inventoryAdjustmentId, type: uuid, required: true, immutable: true, help: {summary: Stable adjustment identity., businessMeaning: Identifies one approved stock correction independently of ledger posting., usage: "Cycle count, damage, reconciliation and audit.", relationshipContext: Groups adjustment evidence and movement., requiredMeaning: Required.}}
+  - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing adjustment reference., businessMeaning: Operational/audit identifier., usage: "Approval, investigation and reconciliation.", relationshipContext: Distinct from movement number., requiredMeaning: Required.}}
+  - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Signed quantity correction., businessMeaning: Positive increases and negative decreases the evidenced stock position., usage: Inventory reconciliation., relationshipContext: Must be supported by reason and evidence., requiredMeaning: Required.}}
+  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Controlled reason for correction., businessMeaning: Explains why ledger stock differs from evidenced reality., usage: "Approval, root-cause and audit.", relationshipContext: Must not be used to conceal ordinary receipts/issues., requiredMeaning: Required.}}
+  relationships:
+  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being corrected., businessMeaning: Identifies affected inventory item., usage: Reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: Must match movement.}}
+  - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location whose stock is corrected., businessMeaning: Defines physical/accountable stock context., usage: Count and reconciliation., cardinalityMeaning: Exactly one location., workflowRole: Must match movement.}}
+  - {name: inventoryCount, target: InventoryCount, cardinality: 0..1, ownership: reference, help: {summary: Count evidence causing correction., businessMeaning: Connects observed discrepancy to adjustment., usage: Cycle-count audit., cardinalityMeaning: Optional for non-count adjustments., workflowRole: Delta must reconcile with approved count variance.}}
+  - {name: inventoryMovement, target: InventoryMovement, cardinality: '1', ownership: reference, help: {summary: Authoritative stock-ledger correction., businessMeaning: Implements approved quantity delta., usage: Balance reconciliation and audit., cardinalityMeaning: Exactly one posting for executed adjustment., workflowRole: Must be idempotent and match product/location/quantity.}}
+  invariants:
+  - {id: INVENTORY-ADJUSTMENT-001, rule: quantityDelta must not be zero.}
+  - {id: INVENTORY-ADJUSTMENT-002, rule: Every executed adjustment requires approved evidence and exactly one attributable inventory posting.}
+  - {id: INVENTORY-ADJUSTMENT-003, rule: "Adjustment must not substitute for known receipt, issue, transfer, return or production transactions."}
+  - {id: INVENTORY-ADJUSTMENT-004, rule: Posted correction is immutable; subsequent correction uses compensating adjustment.}
+  help:
+    summary: Controlled discrepancy correction with explicit evidence and stock posting.
+    businessMeaning: InventoryAdjustment authorizes why stock should be corrected; InventoryMovement remains the physical ledger.
+    usage: Cycle counts, reconciliation, damage/loss corrections and audited inventory control.
+    relationshipContext: Usually follows InventoryCount but may use other authorized evidence.
+    lifecycle: Proposed → approved → posted → immutable historical evidence.
+    changePropagation: Posting updates balances and variance analytics; corrections compensate rather than rewrite.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-ADJUSTMENT}

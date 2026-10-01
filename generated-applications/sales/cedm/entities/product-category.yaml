@@ -1,0 +1,68 @@
+entity:
+  name: ProductCategory
+  namespace: cedm.domain
+  kind: classification_entity
+  description: A governed classification node used to organize Product master records into a navigable business taxonomy for assortment, reporting, procurement, sales, inventory, and analytics. Category changes are controlled because classification can drive downstream rules and reporting.
+  identity: {key: productCategoryId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: productCategoryId
+      type: uuid
+      required: true
+      immutable: true
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+    - name: description
+      type: string
+      required: false
+      maxLength: 2000
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+      help:
+        summary: Lifecycle state controlling whether the category can be used for new classification.
+        workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
+  relationships:
+    - name: parentCategory
+      target: ProductCategory
+      cardinality: 0..1
+      ownership: reference
+      inverse: childCategories
+    - name: childCategories
+      target: ProductCategory
+      cardinality: 0..*
+      ownership: reference
+      inverse: parentCategory
+    - name: products
+      target: Product
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Products classified directly under this category.
+        workflowRole: Category changes must identify affected Products before becoming effective.
+  invariants:
+    - {id: PRODUCT-CATEGORY-001, rule: A category cannot reference itself as its parent.}
+    - {id: PRODUCT-CATEGORY-002, rule: The parentCategory hierarchy must be acyclic.}
+    - {id: PRODUCT-CATEGORY-003, rule: A RETIRED category must not be assigned to newly created Products unless an explicit migration or reinstatement process permits it.}
+    - {id: PRODUCT-CATEGORY-004, rule: "Changing parentCategory, status, or governed classification meaning must identify affected Products and dependent classification-driven rules before the change becomes effective."}
+    - {id: PRODUCT-CATEGORY-005, rule: Category changes must not rewrite historical transaction classification evidence where the transaction or document requires reproducibility.}
+    - {id: PRODUCT-CATEGORY-006, rule: Moving a category in the hierarchy must preserve hierarchy integrity and must not silently alter historical reporting classifications that were effective at transaction time.}
+    - {id: PRODUCT-CATEGORY-007, rule: "If Product classification drives tax, pricing, sourcing, inventory, reporting, or eligibility rules in a consuming application, those dependent workflows must be revalidated before the classification change is activated."}
+  help:
+    summary: Represents one governed node in the Product classification hierarchy.
+    businessMeaning: ProductCategory provides taxonomy rather than operational state. It groups Products so people and systems can navigate, report, analyze, and govern the portfolio consistently.
+    usage: Product master-data management, catalogs, sales, procurement, inventory, reporting, analytics, search, tax, pricing, and eligibility rules where explicitly configured.
+    relationshipContext: Product references a category to establish classification. Parent and child categories form the taxonomy. Category hierarchy is distinct from Product composition, BillOfMaterial structure, or organizational hierarchy.
+    workflowContext: Category create/update/retire → validate hierarchy → identify affected Products → identify dependent tax/pricing/sourcing/inventory/reporting rules → validate open workflows → activate change → preserve historical transaction classification.
+    changePropagation: Code/name/description changes primarily affect presentation and integration; parent/status/semantic changes can affect Product eligibility and downstream rules and therefore require dependency analysis.
+    lifecycle: Categories can be introduced, activated, made inactive, and retired. Lifecycle changes govern future classification without deleting historical product relationships or transaction evidence.
+    example: If "Dry Containers" moves from "Shipping Containers" to another parent, the Product master classification can change for future reporting, but an already issued invoice or historical sales report that requires point-in-time classification must retain the classification effective when the transaction occurred.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-CATEGORY}

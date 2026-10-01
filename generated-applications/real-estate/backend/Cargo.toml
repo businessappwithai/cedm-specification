@@ -1,0 +1,107 @@
+[workspace]
+members = [".", "migration"]
+
+[package]
+name = "real_estate"
+version = "1.0.0"
+edition = "2021"
+publish = false
+description = "Generated application"
+
+[dependencies]
+loco-rs = { version = "1.0", features = ["cli", "with-db", "auth", "worker"] }
+migration = { path = "migration" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Automations built in the app are stored as YAML and parsed at write time.
+# Already in the lock through loco-rs, so this adds no crate to the build.
+serde_yaml = "0.9"
+tokio = { version = "1", default-features = false, features = [
+  "rt-multi-thread",
+] }
+async-trait = "0.1"
+tracing = "0.1"
+anyhow = "1"
+thiserror = "2"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+rust_decimal = { version = "1", features = ["serde-with-str"] }
+axum = "0.8"
+
+# OpenAPI. Deliberately utoipa directly rather than `loco-openapi`: that crate
+# is a thin initializer over these same libraries but depends on `loco-rs ^0.16`,
+# so adding it to a 1.0 app links two copies of loco-rs and its `Initializer` is
+# then a different type from the one `Hooks::initializers` returns — it does not
+# compile. utoipa is framework-agnostic and mounts through Loco's own `Routes`.
+utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
+# Redoc and Scalar embed their assets in the crate. `utoipa-swagger-ui` is
+# deliberately absent: its build script downloads a zip from GitHub, so a
+# generated app could not be compiled without reaching the network — a poor
+# property for a project someone is meant to build in CI or behind a firewall.
+utoipa-redoc = { version = "6", features = ["axum"] }
+utoipa-scalar = { version = "0.3", features = ["axum"] }
+moka = { version = "0.12", features = ["future"] }
+
+# The same GoRules engine the TypeScript stack used through @gorules/zen-engine
+# — that package is a Node binding around this crate, so JDM documents port
+# byte-for-byte and evaluation no longer crosses an N-API boundary.
+zen-engine = "0.55"
+reqwest = { version = "0.12", default-features = false, features = [
+  "json",
+  "rustls-tls",
+] }
+sha2 = "0.10"
+quick-xml = "0.37"
+
+sea-orm = { version = "2.0", features = [
+  "sqlx-postgres",
+  "runtime-tokio-rustls",
+  "macros",
+] }
+# sqlx 0.9 split the old `runtime-tokio-rustls` feature into a runtime and a
+# TLS feature; naming the combined one fails to resolve.
+sqlx = { version = "0.9", default-features = false, features = [
+  "postgres",
+  "macros",
+  "runtime-tokio",
+  "tls-rustls-ring",
+  "chrono",
+  "uuid",
+  "json",
+  "rust_decimal",
+] }
+sea-query = { version = "1.0", features = [
+  "backend-postgres",
+  "with-chrono",
+  "with-json",
+  "with-uuid",
+  "with-rust_decimal",
+] }
+sea-query-sqlx = { version = "0.9", features = [
+  "sqlx-postgres",
+  "with-chrono",
+  "with-json",
+  "with-uuid",
+  "with-rust_decimal",
+] }
+
+[dev-dependencies]
+loco-rs = { version = "1.0", features = ["testing"] }
+serial_test = "3"
+# Already in the tree through axum and loco; naming it here only turns on the
+# `util` feature, which is what `ServiceExt::oneshot` lives behind. It lets
+# `tests/requests/rate_limit.rs` drive the middleware over a router of its own
+# rather than through the application, whose test configuration switches both
+# budgets off.
+tower = { version = "0.5", features = ["util"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+# No direct `axum-test`: loco-rs pins its own and re-exports `TestServer`, and
+# a second copy in the tree is a different type by the same name — the suites
+# would not compile against the server loco actually hands them.
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+
+[[bin]]
+name = "real_estate-cli"
+path = "src/bin/main.rs"

@@ -1,0 +1,118 @@
+entity:
+  name: Product
+  namespace: cedm.domain
+  kind: core_master_entity
+  description: A canonical business offering or managed item that can be purchased, sold, stocked, consumed, delivered, subscribed to, or otherwise referenced by commercial and operational processes.
+  identity: {key: productId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: productId, type: uuid, required: true, immutable: true}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100}
+  - {name: name, type: string, required: true, maxLength: 300}
+  - {name: description, type: string, required: false, maxLength: 4000}
+  - name: productType
+    type: enum
+    required: true
+    values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
+  - {name: sku, type: string, required: false, maxLength: 100}
+  - {name: unitOfMeasure, type: reference, target: UnitOfMeasure, required: false}
+  - {name: standardPrice, type: money, required: false}
+  - {name: taxCategory, type: string, required: false, maxLength: 100}
+  - {name: createdAt, type: datetime, required: true, systemManaged: true}
+  - {name: updatedAt, type: datetime, required: true, systemManaged: true}
+  relationships:
+  - name: category
+    target: ProductCategory
+    cardinality: 0..1
+    ownership: reference
+  - name: suppliers
+    target: Supplier
+    cardinality: 0..*
+    ownership: reference
+  - name: locations
+    target: Location
+    cardinality: 0..*
+    ownership: reference
+  - name: salesOrderLines
+    target: SalesOrderLine
+    cardinality: 0..*
+    ownership: reference
+  - name: purchaseOrderLines
+    target: PurchaseOrderLine
+    cardinality: 0..*
+    ownership: reference
+  - name: inventoryBalances
+    target: InventoryBalance
+    cardinality: 0..*
+    ownership: reference
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+  - name: lots
+    target: Lot
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Traceable batches associated with the Product., businessMeaning: Provides batch genealogy for produced or received quantities., usage: "Inventory, quality, expiry, and recall.", cardinalityMeaning: Many lots may exist over product lifetime., workflowRole: Lot status constrains future inventory use without changing Product identity.}
+  - name: serialNumbers
+    target: SerialNumber
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Individually traceable units of the Product., businessMeaning: Provides unit-level identity and custody history., usage: "Inventory, logistics, service, warranty, returns, and assets.", cardinalityMeaning: Many serialized units may exist., workflowRole: Serial lifecycle constrains unit eligibility independently of product master status.}
+  - name: brand
+    target: Brand
+    cardinality: 0..1
+    ownership: reference
+    help: {summary: Commercial/manufacturer brand of Product., businessMeaning: Supplies market identity independently of category., usage: "PIM, catalog, sales, sourcing and reporting.", cardinalityMeaning: Optional for unbranded products., workflowRole: Brand lifecycle affects future catalog/master eligibility without rewriting historical transactions.}
+  - name: variants
+    target: ProductVariant
+    cardinality: 0..*
+    ownership: aggregate
+    help: {summary: Governed configurations belonging to this product family., businessMeaning: "Represents specific option combinations such as size, color, grade or pack.", usage: "Catalog, commerce, inventory and manufacturing.", cardinalityMeaning: Zero or many variants., workflowRole: Parent Product restrictions propagate to variants.}
+  - {name: attributes, target: ProductAttribute, cardinality: "0..*", ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: "PIM, search and variant configuration.", cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}}
+  - {name: packagingConfigurations, target: Packaging, cardinality: "0..*", ownership: aggregate, help: {summary: Governed pack configurations for Product., businessMeaning: Defines quantity/containment options for commercial and logistics use., usage: "Procurement, sales, WMS and shipping.", cardinalityMeaning: Zero or many configurations., workflowRole: Conversion changes require open-work impact analysis.}}
+  - {name: lifecycleHistory, target: ProductLifecycle, cardinality: 0..*, ownership: aggregate, help: {summary: Effective-dated lifecycle transition history., businessMeaning: Preserves why/when Product eligibility changed., usage: Governance and audit., cardinalityMeaning: Zero or many lifecycle events., workflowRole: Current status must reconcile to effective history.}}
+  invariants:
+  - id: PRODUCT-001
+    rule: code must be unique within its ERP context.
+  - id: PRODUCT-002
+    rule: DISCONTINUED, BLOCKED, or RETIRED products cannot be newly introduced into incompatible transactions without an explicit exception or lifecycle transition.
+  - id: PRODUCT-003
+    rule: A Product status change must trigger dependency validation across active SalesOrderLine, PurchaseOrderLine, inventory, fulfillment, and billing workflows before future use is restricted.
+  - id: PRODUCT-004
+    rule: Product master changes must not rewrite historical transaction descriptions, units, prices, tax determinations, quantities, or other evidence required to reproduce completed transactions.
+  - id: PRODUCT-005
+    rule: Any transaction quantity referencing a Product must use a compatible UnitOfMeasure or an approved conversion rule.
+  - id: PRODUCT-006
+    rule: Changing the default UnitOfMeasure must trigger validation of open transaction lines and inventory processes; it must not silently reinterpret existing quantities.
+  - id: PRODUCT-007
+    rule: Changing taxCategory must trigger re-evaluation of applicable future tax determination but must not rewrite issued InvoiceLine tax evidence.
+  - id: PRODUCT-008
+    rule: Changing standardPrice must not overwrite negotiated, contracted, quoted, or already-captured transaction prices.
+  - id: PRODUCT-009
+    rule: Retiring a Product must validate open commitments and dependent inventory before retirement becomes effective; existing obligations require their own controlled continuation, substitution, cancellation, or exception workflow.
+  help:
+    summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
+    businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.
+    usage: Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics.
+    relationshipContext: Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts.
+    workflowContext: Product create/update → validate category/unit/tax/location/supplier dependencies → propagate eligibility changes to open SalesOrderLine/PurchaseOrderLine and inventory workflows → resolve exceptions → permit future transactions. Product changes never silently recalculate issued documents or historical movements.
+    lifecycle: Draft → active → discontinued/blocked → retired. Lifecycle transitions require dependent-workflow validation and preserve historical references.
+    changePropagation:
+      status: [SalesOrderLine eligibility, PurchaseOrderLine eligibility, inventory operations, fulfillment eligibility, future InvoiceLine creation]
+      unitOfMeasure: [open order quantities, receipt quantities, inventory operations, conversion rules]
+      taxCategory: [future TaxRule determination, future InvoiceLine calculation]
+      standardPrice: [future default pricing only]
+      category: [catalog, assortment, reporting, policy eligibility]
+      supplierRelationship: [future sourcing and PurchaseOrder eligibility]
+      locationRelationship: [future operational availability and inventory configuration]
+    example: If a Product is blocked, the system validates open SalesOrders and PurchaseOrders, prevents new incompatible use, and identifies dependent inventory/fulfillment workflows. Existing invoices and inventory movements remain unchanged. If its tax category changes, future tax determination uses the new category while issued invoices retain their historical tax evidence.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PRODUCT}
