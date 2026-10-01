@@ -69,15 +69,15 @@ const ENTITIES: string[] = [
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
-  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
+  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference'],
+  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference'],
   'Organization': ['id', 'party_id', 'code', 'name', 'organization_type', 'status', 'legal_name', 'registration_number', 'tax_identifier', 'party_type', 'display_name', 'external_reference', 'person_id', 'parent_organization_id'],
   'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id'],
   'PartyRelationship': ['id', 'code', 'name', 'from_party_id'],
   'LegalEntity': ['id', 'occurred_at'],
   'BusinessUnit': ['id', 'code', 'name', 'organization_id'],
   'Department': ['id', 'code', 'name', 'organization_id'],
-  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id', 'location_id'],
+  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id'],
   'ContactPoint': ['id', 'code', 'name', 'party_id'],
   'Location': ['id', 'code', 'name', 'location_type', 'status', 'address_id', 'parent_location_id', 'organization_id', 'product_id'],
   'Country': ['id', 'code', 'name'],
@@ -98,10 +98,10 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'ProductionReceipt': ['id', 'receipt_number', 'quantity', 'received_at', 'work_order_id', 'product_id', 'lot_id', 'quality_inspection_id', 'inventory_movement_id'],
   'Lot': ['id', 'lot_number', 'manufactured_at', 'expires_at', 'status', 'product_id'],
   'SerialNumber': ['id', 'serial_code', 'status', 'product_id', 'material_issue_id', 'production_receipt_id', 'lot_id', 'scrap_id'],
-  'InventoryMovement': ['id', 'movement_number', 'movement_type', 'quantity', 'movement_date', 'reason', 'unit_of_measure_id', 'product_id', 'lot_id', 'party_id', 'material_issue_id', 'production_receipt_id', 'scrap_id'],
+  'InventoryMovement': ['id', 'movement_number', 'movement_type', 'quantity', 'movement_date', 'reason', 'unit_of_measure_id', 'product_id', 'lot_id', 'party_id', 'scrap_id'],
   'QualityInspection': ['id', 'inspection_number', 'inspection_date', 'status', 'result', 'disposition', 'notes', 'product_id', 'inspector_id'],
   'ProductionRecord': ['id', 'production_date', 'quantity', 'status', 'product_id', 'location_id', 'work_order_id'],
-  'Scrap': ['id', 'scrap_number', 'quantity', 'reason_code', 'scrapped_at', 'work_order_id', 'product_id', 'lot_id', 'inventory_movement_id'],
+  'Scrap': ['id', 'scrap_number', 'quantity', 'reason_code', 'scrapped_at', 'work_order_id', 'product_id', 'lot_id'],
   'ProductLifecycle': ['id', 'effective_at', 'lifecycle_status', 'reason', 'product_id'],
 };
 

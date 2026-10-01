@@ -294,10 +294,27 @@ fn label(attribute: &BusAttribute, entity: &BusEntity, index: usize) -> String {
     // Distinct within the table by its index, which is all a unique column
     // needs — the constraint is per table. See `label` in `business-seed.ts`.
     let limit = attribute.max_length.unwrap_or(255) as usize;
-    if body.chars().count() > limit {
-        body.chars().take(limit).collect()
+    if body.chars().count() <= limit {
+        return body;
+    }
+    // Too long for the column: shorten the words and keep the number. See
+    // `label` in `business-seed.ts` for why cutting from the end is wrong.
+    let suffix = (index + 1).to_string();
+    if limit <= suffix.len() {
+        return suffix.chars().take(limit).collect();
+    }
+    let chars: Vec<char> = body.chars().collect();
+    let words: String = chars[..chars.len() - suffix.len()].iter().collect();
+    let words = words.trim_end();
+    let head: String = words
+        .chars()
+        .take(limit.saturating_sub(suffix.len() + 1))
+        .collect();
+    let head = head.trim_end();
+    if head.is_empty() {
+        suffix
     } else {
-        body
+        format!("{head} {suffix}")
     }
 }
 
@@ -388,6 +405,37 @@ fn order_by_dependency(
         }
     }
 
+    // The foreign-key columns themselves. A CEDM entity holds most of its
+    // references as attributes (`currencyId: reference -> Currency`) with no
+    // relationship drawn, and the migration constrains every one of them, so a
+    // row written before the row it points at fails its insert. A column adds
+    // an edge only where no relationship already did.
+    let tables: HashSet<String> = entities
+        .iter()
+        .map(|entity| entity.table_name.clone())
+        .collect();
+    for entity in entities {
+        for attribute in &entity.attributes {
+            if !attribute.is_foreign_key || attribute.column_name == entity.primary_key {
+                continue;
+            }
+            let Some(target) = foreign_key_target_table(
+                &attribute.column_name,
+                &tables,
+                attribute.references_table.as_deref(),
+            ) else {
+                continue;
+            };
+            if target == entity.table_name {
+                continue;
+            }
+            let edges = depends_on.entry(entity.table_name.clone()).or_default();
+            if !edges.iter().any(|(table, _)| *table == target) {
+                edges.push((target, attribute.column_name.clone()));
+            }
+        }
+    }
+
     let mut ordered: Vec<BusEntity> = Vec::new();
     let mut done: HashSet<String> = HashSet::new();
     let mut on_stack: Vec<String> = Vec::new();
@@ -407,6 +455,63 @@ fn order_by_dependency(
     (ordered, deferred)
 }
 
+/// Record a column to be written by the trailing UPDATE.
+///
+/// A relationship's edge names its column by guess (`<source>_id`), and the child
+/// may hold that key under another name: there is nothing to UPDATE then, and an
+/// UPDATE of a column the table lacks fails the whole seed.
+fn defer(
+    by_table: &HashMap<&str, &BusEntity>,
+    deferred: &mut HashMap<String, HashSet<String>>,
+    table_name: &str,
+    column: &str,
+) {
+    let exists = by_table.get(table_name).is_some_and(|entity| {
+        entity
+            .attributes
+            .iter()
+            .any(|attribute| attribute.column_name == column)
+    });
+    if exists {
+        deferred
+            .entry(table_name.to_string())
+            .or_default()
+            .insert(column.to_string());
+    }
+}
+
+/// Whether a column is NOT NULL: it cannot be written empty and updated later.
+fn required_column(by_table: &HashMap<&str, &BusEntity>, table_name: &str, column: &str) -> bool {
+    by_table
+        .get(table_name)
+        .and_then(|entity| {
+            entity
+                .attributes
+                .iter()
+                .find(|attribute| attribute.column_name == column)
+        })
+        .is_some_and(|attribute| attribute.required)
+}
+
+/// Every table a table cannot be written without, through required columns alone.
+fn required_reach(
+    by_table: &HashMap<&str, &BusEntity>,
+    depends_on: &HashMap<String, Vec<(String, String)>>,
+    start: &str,
+) -> HashSet<String> {
+    let mut reach: HashSet<String> = HashSet::new();
+    reach.insert(start.to_string());
+    let mut pending = vec![start.to_string()];
+    while let Some(table) = pending.pop() {
+        for (parent, column) in depends_on.get(&table).into_iter().flatten() {
+            if required_column(by_table, &table, column) && reach.insert(parent.clone()) {
+                pending.push(parent.clone());
+            }
+        }
+    }
+    reach
+}
+
 fn visit(
     table_name: &str,
     by_table: &HashMap<&str, &BusEntity>,
@@ -424,10 +529,20 @@ fn visit(
     if let Some(edges) = depends_on.get(table_name) {
         for (parent, column) in edges {
             if on_stack.iter().any(|entry| entry == parent) {
-                deferred
-                    .entry(table_name.to_string())
-                    .or_default()
-                    .insert(column.clone());
+                // The edge that closes the cycle. Written by the trailing UPDATE.
+                defer(by_table, deferred, table_name, column);
+                continue;
+            }
+            // An optional reference is only worth walking into if that cannot
+            // force a required one to be deferred: see `visit` in
+            // `business-seed.ts`.
+            if !required_column(by_table, table_name, column)
+                && !done.contains(parent)
+                && required_reach(by_table, depends_on, parent)
+                    .iter()
+                    .any(|table| on_stack.iter().any(|entry| entry == table))
+            {
+                defer(by_table, deferred, table_name, column);
                 continue;
             }
             visit(

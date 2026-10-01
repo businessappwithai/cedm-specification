@@ -102,9 +102,9 @@ function DashboardPage() {
 
   const query = searchQuery.toLowerCase().trim();
   const matches = (table: DashboardTable) =>
-    table.name.toLowerCase().includes(query) ||
-    table.table_name.toLowerCase().includes(query) ||
-    (table.description?.toLowerCase().includes(query) ?? false);
+    table.window_name.toLowerCase().includes(query) ||
+    (table.window_description?.toLowerCase().includes(query) ?? false) ||
+    (table.window_help?.toLowerCase().includes(query) ?? false);
 
   // The admin cards are the dictionary's own, through the same helper the
   // sidebar uses — a map written here was keyed by window *name*, and a window
@@ -230,9 +230,11 @@ function DashboardPage() {
                   {group.entities.map((table) => (
                     <Dashlet
                       key={table.table_name}
-                      name={table.name}
-                      description={table.description || `Manage ${table.name} records`}
-                      icon={table.icon}
+                      name={table.window_name}
+                      description={
+                        table.window_help || table.window_description || `Open ${table.window_name}`
+                      }
+                      icon={table.window_icon}
                       href={entityHref(table)}
                     />
                   ))}

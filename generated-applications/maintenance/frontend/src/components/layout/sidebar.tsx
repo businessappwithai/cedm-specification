@@ -21,7 +21,7 @@
  * - Neither list was scoped to the caller, so the menu offered entities the API
  *   would refuse.
  *
- * Generated: 2026-10-01T04:34:48.999Z
+ * Generated: 2026-10-01T05:18:32.912Z
  */
 
 import { useState } from 'react';
@@ -69,9 +69,9 @@ export function Sidebar({ className }: SidebarProps) {
 
   const entities: NavEntry[] = (dashboard?.data ?? []).flatMap((group) =>
     group.entities.map((table) => ({
-      title: table.name,
+      title: table.window_name,
       href: entityHref(table),
-      icon: table.icon ?? null,
+      icon: table.window_icon ?? null,
     }))
   );
 

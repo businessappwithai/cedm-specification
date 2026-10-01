@@ -245,6 +245,7 @@ export function resolveCedmImports(
     const local = indexOf.has(entity.extends)
       ? entities[indexOf.get(entity.extends) as number]
       : undefined;
+    const parentName = entity.extends;
     const parentSource = local ?? library.entity(entity.extends);
     if (!parentSource) {
       note(
@@ -264,8 +265,21 @@ export function resolveCedmImports(
     const inherited: CedmAttribute[] = (parent.attributes ?? []).filter(
       (attribute) => !parentKeys.has(attribute.name) && !own.has(attribute.name)
     );
+    // A parent's links to its own specializations (`Party.person`,
+    // `Party.organization`) say which kinds of Party exist. They belong to the
+    // parent: copied onto `Person`, they link a Person to an Organization it
+    // has nothing to do with, and make a cycle of the two.
+    const definitionOf = (name: string): CedmEntity | undefined =>
+      entities[indexOf.get(name) ?? -1] ?? library.entity(name);
+    const specializes = (name: string, root: string, seen: string[] = []): boolean => {
+      const next = definitionOf(name)?.extends;
+      if (next === undefined || seen.includes(name)) return false;
+      return next === root || specializes(next, root, [...seen, name]);
+    };
     const inheritedRelationships: CedmRelationship[] = (parent.relationships ?? []).filter(
-      (relationship) => !ownRelationships.has(relationship.name)
+      (relationship) =>
+        !ownRelationships.has(relationship.name) &&
+        !specializes(relationship.target, parentName)
     );
     return {
       ...entity,

@@ -96,6 +96,28 @@ export function useSysTabs() {
 }
 
 /**
+ * What a person calls an entity: the name of the window it opens in.
+ *
+ * A table's own `name` is the dictionary's, not the screen's. The window an
+ * entity opens in is found through its top tab (`tab_level` 0), and its name —
+ * or, for a line item that has no window of its own, its tab's — is what every
+ * picker, heading and list draws. Returns `undefined` until the lists load, so a
+ * caller shows nothing rather than a table name in the meantime.
+ */
+export function useEntityLabel(): (table: { sys_table_id: string }) => string | undefined {
+  const { data: windows } = useSysWindows();
+  const { data: tabs } = useSysTabs();
+  return (table) => {
+    const tab = (tabs ?? [])
+      .filter((candidate) => candidate.sys_table_id === table.sys_table_id)
+      .sort((a, b) => a.tab_level - b.tab_level || a.seq_no - b.seq_no)[0];
+    if (!tab) return undefined;
+    const window = (windows ?? []).find((w) => w.sys_window_id === tab.sys_window_id);
+    return tab.tab_level === 0 ? (window?.name ?? tab.name) : tab.name;
+  };
+}
+
+/**
  * The `sys_table` row for a `bus_` entity slug.
  *
  * Accepts both spellings a route can carry: `sales-order` and `sales_order`

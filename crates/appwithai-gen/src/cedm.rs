@@ -622,6 +622,31 @@ impl Resolver<'_> {
         Ok(())
     }
 
+    /// The `extends` of an entity the model or the library defines.
+    fn extends_of(&self, name: &str) -> Option<String> {
+        let definition = self
+            .index_of
+            .get(name)
+            .map(|&i| self.entities[i].clone())
+            .or_else(|| self.library.entity(name))?;
+        get_str(&definition, "extends").map(str::to_string)
+    }
+
+    /// Whether `name` is, directly or through a chain, a specialization of `root`.
+    fn specializes(&self, name: &str, root: &str, seen: &mut Vec<String>) -> bool {
+        let Some(next) = self.extends_of(name) else {
+            return false;
+        };
+        if seen.iter().any(|s| s == name) {
+            return false;
+        }
+        if next == root {
+            return true;
+        }
+        seen.push(name.to_string());
+        self.specializes(&next, root, seen)
+    }
+
     fn flatten(&mut self, entity: Value, seen: &[String]) -> Value {
         let Some(parent_name) = get_str(&entity, "extends").map(str::to_string) else {
             return entity;
@@ -662,9 +687,17 @@ impl Resolver<'_> {
                 })
                 .cloned(),
         );
+        // A parent's links to its own specializations (`Party.person`,
+        // `Party.organization`) belong to the parent: see `flatten` in
+        // `language/cedm/imports.ts`.
         let inherited: Vec<Value> = get_seq(&parent, "relationships")
             .iter()
-            .filter(|r| get_str(r, "name").is_some_and(|n| !own_relationships.contains(n)))
+            .filter(|r| {
+                get_str(r, "name").is_some_and(|n| !own_relationships.contains(n))
+                    && !get_str(r, "target").is_some_and(|target| {
+                        self.specializes(target, &parent_name, &mut Vec::new())
+                    })
+            })
             .cloned()
             .collect();
         let mut map = entity.as_mapping().cloned().unwrap_or_default();
@@ -1327,11 +1360,9 @@ fn lower(cedm: &Value) -> Result<Value> {
         if outgoing != 1 || candidates.len() != 1 {
             return None;
         }
-        let other = candidates[0];
-        if !item.end.many() && !pending[other].end.many() {
-            return None;
-        }
-        Some(other)
+        // Two to-one relationships that point at each other are the two halves
+        // of a one-to-one.
+        Some(candidates[0])
     };
 
     let mut relationships: Vec<Value> = Vec::new();
@@ -1373,26 +1404,56 @@ fn lower(cedm: &Value) -> Result<Value> {
                 continue;
             }
             if !many_end.many() {
-                let both = if many_end == End::ZeroOrOne && one_end == End::ZeroOrOne {
+                // One-to-one, declared on both sides. The key sits on the side
+                // that cannot exist without the other (cardinality 1); failing
+                // that, on the side that already holds a reference to the
+                // other; failing that, on the one declared first.
+                let (a, b) = (item_index, other_index);
+                let holds_reference = |side: usize, referenced: &str| {
+                    states[pending[side].entity]
+                        .references
+                        .iter()
+                        .any(|(_, target)| target.as_deref() == Some(referenced))
+                };
+                let (a_end, b_end) = (pending[a].end, pending[b].end);
+                let holder = if a_end == End::ExactlyOne && b_end != End::ExactlyOne {
+                    a
+                } else if (b_end == End::ExactlyOne && a_end != End::ExactlyOne)
+                    || (holds_reference(b, &states[pending[a].entity].name)
+                        && !holds_reference(a, &states[pending[b].entity].name))
+                {
+                    b
+                } else {
+                    a
+                };
+                let both = if a_end == End::ZeroOrOne && b_end == End::ZeroOrOne {
                     End::ZeroOrOne
                 } else {
                     End::ExactlyOne
                 };
+                let holder_relationship = pending[holder].relationship.clone();
+                let holder_entity = pending[holder].entity;
+                let holder_target = rel_str(&holder_relationship, "target")
+                    .unwrap_or("")
+                    .to_string();
+                let holder_name = states[holder_entity].name.clone();
                 relationships.push(relationship_doc(
-                    &target_name,
+                    &holder_target,
                     both,
-                    &entity_name,
+                    &holder_name,
                     both,
-                    label_of(&relationship, false),
+                    label_of(&holder_relationship, false),
                 ));
-                let hint = rel_str(&relationship, "name").unwrap_or("").to_string();
-                let help = key_help(&relationship, &entity_name);
+                let hint = rel_str(&holder_relationship, "name")
+                    .unwrap_or("")
+                    .to_string();
+                let help = key_help(&holder_relationship, &holder_name);
                 ensure_foreign_key(
-                    &mut states[entity],
-                    &target_name,
-                    foreign_key_of(&relationship),
+                    &mut states[holder_entity],
+                    &holder_target,
+                    foreign_key_of(&holder_relationship),
                     &hint,
-                    end == End::ZeroOrOne,
+                    pending[holder].end == End::ZeroOrOne,
                     help,
                     &mut errors,
                 );

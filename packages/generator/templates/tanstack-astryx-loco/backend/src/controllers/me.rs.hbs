@@ -178,15 +178,32 @@ pub async fn dashboard(
     .fetch_all(pool)
     .await?;
 
+    // Each entity is offered as the window it opens in: the screens label a
+    // card, a menu entry and a heading with the window's own name, description,
+    // help and icon, never with the dictionary table's. A table with no window
+    // has no screen, so it is not offered.
     let tables = sqlx::query(
-        r"SELECT * FROM sys_table t
-           WHERE COALESCE(t.is_active, true) = true
-             AND t.table_name LIKE 'bus\_%'
-             AND NOT EXISTS (
-                   SELECT 1 FROM sys_tab tb
-                    WHERE tb.sys_table_id = t.sys_table_id
-                      AND tb.tab_level > 0)
-           ORDER BY t.name",
+        r"SELECT * FROM (
+             SELECT DISTINCT ON (t.sys_table_id)
+                    t.*,
+                    w.sys_window_id AS window_id,
+                    w.name          AS window_name,
+                    w.description   AS window_description,
+                    w.help          AS window_help,
+                    w.icon          AS window_icon
+               FROM sys_table t
+               JOIN sys_tab    tb ON tb.sys_table_id = t.sys_table_id AND tb.tab_level = 0
+               JOIN sys_window w  ON w.sys_window_id = tb.sys_window_id
+                                 AND COALESCE(w.is_active, true) = true
+              WHERE COALESCE(t.is_active, true) = true
+                AND t.table_name LIKE 'bus\_%'
+                AND NOT EXISTS (
+                      SELECT 1 FROM sys_tab tl
+                       WHERE tl.sys_table_id = t.sys_table_id
+                         AND tl.tab_level > 0)
+              ORDER BY t.sys_table_id, tb.seq_no NULLS LAST
+           ) entity
+           ORDER BY entity.window_name",
     )
     .fetch_all(pool)
     .await?;

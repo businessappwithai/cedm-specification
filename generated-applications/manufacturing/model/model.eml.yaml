@@ -106,16 +106,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Person
     help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
     attributes:
@@ -175,16 +165,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Organization
     help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
     attributes:
@@ -405,11 +385,6 @@ entities:
         fk: true
         optional: true
         help: The Organization this Address belongs to.
-      - name: location_id
-        type: string
-        fk: true
-        optional: true
-        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
   - name: ContactPoint
     help: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
     attributes:
@@ -1029,16 +1004,6 @@ entities:
         fk: true
         optional: true
         help: Party associated with inventory event when ownership or custody matters. Supplier receipts, customer returns, consignment and audit. Optional for internal movements. Connects event to external party.
-      - name: material_issue_id
-        type: string
-        fk: true
-        optional: true
-        help: Manufacturing material-consumption transaction causing this stock event. Explains production reason for component issue. Genealogy, costing, and reconciliation. Optional outside manufacturing consumption. Product, quantity, lot and serial evidence must reconcile.
-      - name: production_receipt_id
-        type: string
-        fk: true
-        optional: true
-        help: Manufacturing output transaction causing this stock receipt. Explains production reason for finished/semi-finished stock increase. Genealogy, costing, quality, and reconciliation. Optional outside manufacturing output. Product, quantity, lot and serial evidence must reconcile.
       - name: scrap_id
         type: string
         fk: true
@@ -1155,11 +1120,6 @@ entities:
         fk: true
         optional: true
         help: Lot affected by scrap. Preserves batch genealogy and disposition. Recall, quality and inventory. Required under lot-control policy. Lot quantity/state must reconcile.
-      - name: inventory_movement_id
-        type: string
-        fk: true
-        optional: true
-        help: Stock-ledger event implementing scrap quantity reduction where inventory is affected. Separates scrap business reason from authoritative stock effect. Inventory reconciliation and audit. Required when on-hand inventory is reduced; optional for process loss never received into inventory. Must reconcile product/quantity/lot/serial and be idempotent.
   - name: ProductLifecycle
     help: Effective-dated audit trail of product eligibility changes. Product.status is current state; ProductLifecycle preserves governed transition history and reason. PIM governance, product introduction, blocking, discontinuation and retirement. Changes propagate to open dependent workflows while historical evidence remains immutable. Append-only governed transition history for Product.
     parent: Product
@@ -1183,13 +1143,13 @@ entities:
         fk: true
         help: Product whose lifecycle changes. Supplies governed master context. Eligibility and audit. Exactly one Product. Transition triggers dependency validation.
 relationships:
-  - from: Person
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Person
     toCardinality: exactly-one
-  - from: Organization
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Organization
     toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
@@ -1206,14 +1166,6 @@ relationships:
     to: Organization
     toCardinality: zero-or-more
     label: employer_organizations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
   - from: Person
     fromCardinality: exactly-one
     to: Address
@@ -1239,14 +1191,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: locations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
   - from: Organization
     fromCardinality: exactly-one
     to: PartyRole
@@ -1265,10 +1209,10 @@ relationships:
     fromCardinality: exactly-one
     to: Department
     toCardinality: zero-or-more
-  - from: Location
-    fromCardinality: exactly-one
-    to: Address
-    toCardinality: zero-or-more
+  - from: Address
+    fromCardinality: zero-or-one
+    to: Location
+    toCardinality: zero-or-one
   - from: Party
     fromCardinality: exactly-one
     to: ContactPoint
@@ -1278,10 +1222,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: child_locations
-  - from: Address
-    fromCardinality: exactly-one
-    to: Location
-    toCardinality: zero-or-more
   - from: Currency
     fromCardinality: exactly-one
     to: Product
@@ -1436,7 +1376,7 @@ relationships:
   - from: InventoryMovement
     fromCardinality: exactly-one
     to: MaterialIssue
-    toCardinality: zero-or-more
+    toCardinality: exactly-one
   - from: Product
     fromCardinality: exactly-one
     to: ProductionReceipt
@@ -1457,7 +1397,7 @@ relationships:
   - from: InventoryMovement
     fromCardinality: exactly-one
     to: ProductionReceipt
-    toCardinality: zero-or-more
+    toCardinality: exactly-one
   - from: Lot
     fromCardinality: exactly-one
     to: InventoryMovement
@@ -1476,18 +1416,10 @@ relationships:
     fromCardinality: exactly-one
     to: InventoryMovement
     toCardinality: zero-or-more
-  - from: MaterialIssue
-    fromCardinality: exactly-one
-    to: InventoryMovement
-    toCardinality: zero-or-more
-  - from: ProductionReceipt
-    fromCardinality: exactly-one
-    to: InventoryMovement
-    toCardinality: zero-or-more
   - from: Scrap
-    fromCardinality: exactly-one
+    fromCardinality: zero-or-one
     to: InventoryMovement
-    toCardinality: zero-or-more
+    toCardinality: zero-or-one
   - from: Product
     fromCardinality: exactly-one
     to: QualityInspection
@@ -1523,7 +1455,3 @@ relationships:
     to: SerialNumber
     toCardinality: zero-or-more
     label: serial_numbers
-  - from: InventoryMovement
-    fromCardinality: exactly-one
-    to: Scrap
-    toCardinality: zero-or-more

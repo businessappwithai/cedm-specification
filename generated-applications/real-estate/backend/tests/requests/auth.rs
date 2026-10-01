@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-01T04:35:24.292Z
+//! Generated: 2026-10-01T05:19:09.867Z
 //! Project: real-estate
 
 use serde_json::{json, Value};

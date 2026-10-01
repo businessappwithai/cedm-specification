@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-01T04:35:38.905Z
+//! Generated: 2026-10-01T05:19:25.109Z
 //! Project: sales
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -342,18 +342,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: false,
                 ref_table: ref_table_for("external_reference", false),
             },
-            FieldMeta {
-                name: "person_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("person_id", true),
-            },
-            FieldMeta {
-                name: "organization_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("organization_id", true),
-            },
         ],
     },
     EntityMeta {
@@ -444,18 +432,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", false),
                 required: false,
                 ref_table: ref_table_for("external_reference", false),
-            },
-            FieldMeta {
-                name: "person_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("person_id", true),
-            },
-            FieldMeta {
-                name: "organization_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("organization_id", true),
             },
         ],
     },
@@ -608,18 +584,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
-            },
-            FieldMeta {
-                name: "customer_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_customer"),
-            },
-            FieldMeta {
-                name: "supplier_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_supplier"),
             },
         ],
     },
@@ -835,12 +799,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
-            },
-            FieldMeta {
-                name: "location_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("location_id", true),
             },
             FieldMeta {
                 name: "customer_id",
@@ -1290,18 +1248,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
             },
-            FieldMeta {
-                name: "customer_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_customer"),
-            },
-            FieldMeta {
-                name: "supplier_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_supplier"),
-            },
         ],
     },
     EntityMeta {
@@ -1417,12 +1363,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: Some("bus_party"),
-            },
-            FieldMeta {
-                name: "lead_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("lead_id", true),
             },
             FieldMeta {
                 name: "sales_order_id",
@@ -1994,18 +1934,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
-            },
-            FieldMeta {
-                name: "customer_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_customer"),
-            },
-            FieldMeta {
-                name: "supplier_role_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_supplier"),
             },
         ],
     },

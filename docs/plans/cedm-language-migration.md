@@ -1,6 +1,6 @@
 # Plan: CEDM becomes the base of the model language
 
-**Branch**: `claude/cedm-spec-language-migration-ejg2yj` · **Status**: proposed, awaiting approval
+**Branch**: `claude/cedm-spec-language-migration-ejg2yj` · **Status**: approved and implemented; see "As built" at the end
 **Constraint, above everything else**: at every commit on this branch, `generate`
 over every model that works today still produces a complete, compiling, passing
 application — byte-identical to today's unless a phase says otherwise and says why.
@@ -327,3 +327,36 @@ that need them are reported as not run, never as passed.
    change in §3.2? Without it only models whose FK names match their targets can
    be generated, which excludes most of the CEDM library.
 5. **Scope of this branch** — all phases, or stop after Phase 2/3 for review?
+
+---
+
+## As built
+
+Approved with the recommendations in section 7, plus two additions: each domain
+is its own application with the common CEDM specification bundled in all of
+them, and the Rust/WASM port is wholly Rust.
+
+| Phase | Delivered |
+|---|---|
+| 0 | `docs/qa/2026-10-01-cedm-migration-baseline.md` |
+| 1 | `language/cedm/` (schema, types, README), `specification/application-profile.yaml`, vocabulary in `appwithai-language.json` |
+| 2 | `lower.ts`, `raise.ts`, `imports.ts`, the reader, `appwithai validate/info/generate/convert` on `*.cedm.yaml`, corpus equivalence over every repository model |
+| 3 | m0018 `sys_column.ref_table_name` and every resolver; checker EML118 |
+| 4 | `crates/appwithai-gen/src/cedm.rs`, native and `wasm32-wasip1`; `scripts/cedm-lowering-parity.ts` in `bun run parity` |
+| 5 | `eml` CLI and browser bundle read CEDM (Chromium held to Node's reading). **The web tool still saves the model document**; its generation path is unchanged and bundles `cedm/` |
+| 6 | `domains/application-catalog.yaml` → 47 `applications/*.cedm.yaml` + the common module → `generated-applications/` |
+| 7 | README, CLAUDE.md, this document |
+
+Deviations from the plan, and why:
+
+- **Pairing.** Two to-one relationships that name each other are one
+  one-to-one (found by seeding the `sales` application: a required-FK cycle).
+- **Library defects fixed.** 721 split-text lines, an unparseable catalog.
+- **`systemManaged` audit fields** are left to the application unless the model
+  says `systemManaged: false` (every generated table carries them already).
+- **Web tool.** Making CEDM the stored form of a project touches the
+  Postgres-backed consistency suite; it was left as a separate step rather than
+  risked here.
+- **Still open:** `.eml.yaml` is kept as the compiled form and a convert target
+  (decision 2); a full run of the generated applications' own suites has been
+  done for the explicit-reference model and the screenshot set, not for all 47.

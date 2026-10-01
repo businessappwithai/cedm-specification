@@ -105,8 +105,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -114,8 +112,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -124,8 +120,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   person: {
@@ -145,8 +139,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -163,8 +155,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -182,8 +172,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   organization: {
@@ -376,7 +364,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 1',
         person_id: 'Test Person 1',
         organization_id: 'Test Organization 1',
-        location_id: 'Test Location 1',
       },
       {
         id: 'test-id-2',
@@ -395,7 +382,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 2',
         person_id: 'Test Person 2',
         organization_id: 'Test Organization 2',
-        location_id: 'Test Location 2',
       },
     ],
     single: {
@@ -415,7 +401,6 @@ export const mockApiResponses = {
       party_id: 'Test Party',
       person_id: 'Test Person',
       organization_id: 'Test Organization',
-      location_id: 'Test Location',
     },
   },
   contactPoint: {
@@ -702,7 +687,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 1',
         lot_id: 'Test Lot 1',
         inventory_transfer_id: 'Test Inventory Transfer 1',
-        inventory_adjustment_id: 'Test Inventory Adjustment 1',
       },
       {
         id: 'test-id-2',
@@ -718,7 +702,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 2',
         lot_id: 'Test Lot 2',
         inventory_transfer_id: 'Test Inventory Transfer 2',
-        inventory_adjustment_id: 'Test Inventory Adjustment 2',
       },
     ],
     single: {
@@ -735,7 +718,6 @@ export const mockApiResponses = {
       party_id: 'Test Party',
       lot_id: 'Test Lot',
       inventory_transfer_id: 'Test Inventory Transfer',
-      inventory_adjustment_id: 'Test Inventory Adjustment',
     },
   },
   inventoryReservation: {
@@ -847,20 +829,20 @@ export const mockApiResponses = {
         adjustment_number: 'Test Adjustment Number 1',
         quantity_delta: 10.99,
         reason_code: 'Test Reason Code 1',
+        inventory_movement_id: 'Test Inventory Movement 1',
         inventory_count_id: 'Test Inventory Count 1',
         product_id: 'Test Product 1',
         inventory_location_id: 'Test Inventory Location 1',
-        inventory_movement_id: 'Test Inventory Movement 1',
       },
       {
         id: 'test-id-2',
         adjustment_number: 'Test Adjustment Number 2',
         quantity_delta: 20.99,
         reason_code: 'Test Reason Code 2',
+        inventory_movement_id: 'Test Inventory Movement 2',
         inventory_count_id: 'Test Inventory Count 2',
         product_id: 'Test Product 2',
         inventory_location_id: 'Test Inventory Location 2',
-        inventory_movement_id: 'Test Inventory Movement 2',
       },
     ],
     single: {
@@ -868,10 +850,10 @@ export const mockApiResponses = {
       adjustment_number: 'Test Adjustment Number',
       quantity_delta: 10.99,
       reason_code: 'Test Reason Code',
+      inventory_movement_id: 'Test Inventory Movement',
       inventory_count_id: 'Test Inventory Count',
       product_id: 'Test Product',
       inventory_location_id: 'Test Inventory Location',
-      inventory_movement_id: 'Test Inventory Movement',
     },
   },
   lot: {

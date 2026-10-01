@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T04:34:33.051Z
+ * Generated: 2026-10-01T05:18:17.728Z
  * Project: inventory
  */
 

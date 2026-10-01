@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T04:34:11.014Z">2026-10-01T04:34:11.014Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T05:17:55.626Z">2026-10-01T05:17:55.626Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -457,12 +457,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The Organization this Address belongs to.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         <tr>
-          <td><code>location_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Location associated with this address. Provides physical/place context for operational and geographic processes.<div class="detail">Points at <b>Location</b></div></td>
-        </tr>
-        <tr>
           <td><code>supplier_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -477,7 +471,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 19 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 18 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -610,19 +604,11 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>location_id</code></td>
-            <td>Location</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>170</td>
-            <td>No</td>
-          </tr>
-          <tr>
             <td><code>supplier_id</code></td>
             <td>Supplier</td>
             <td>Yes</td>
             <td>No</td>
-            <td>180</td>
+            <td>170</td>
             <td>No</td>
           </tr>
           <tr>
@@ -630,7 +616,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Customer</td>
             <td>Yes</td>
             <td>No</td>
-            <td>190</td>
+            <td>180</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -640,8 +626,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Address</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Address</b> belongs to one <a href="#entity-location">Location</a>.</li>
-          <li>Each <b>Address</b> has many <a href="#entity-location">Location</a> records.</li>
+          <li>Each <b>Address</b> has one <a href="#entity-location">Location</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-supplier">Supplier</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-customer">Customer</a>.</li>
       </ul>
@@ -3020,18 +3005,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         <tr>
-          <td><code>customer_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.<div class="detail">Points at <b>Customer Role</b></div></td>
-        </tr>
-        <tr>
-          <td><code>supplier_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.<div class="detail">Points at <b>Supplier Role</b></div></td>
-        </tr>
-        <tr>
           <td><code>tax_rule_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -3040,7 +3013,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Customer</b> window, on the <b>Customer</b> tab. These are its 17 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Customer</b> window, on the <b>Customer</b> tab. These are its 15 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -3157,44 +3130,24 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>customer_role_id</code></td>
-            <td>Customer Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>150</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>supplier_role_id</code></td>
-            <td>Supplier Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>160</td>
-            <td>No</td>
-          </tr>
-          <tr>
             <td><code>tax_rule_id</code></td>
             <td>Tax Rule</td>
             <td>Yes</td>
             <td>No</td>
-            <td>170</td>
+            <td>150</td>
             <td>No</td>
           </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
       <ul class="plain">
-          <li>Each <b>Customer</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Customer</b> has one <a href="#entity-party-role">Party Role</a>.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-invoice">Invoice</a> records.</li>
-          <li>Each <b>Customer</b> has many <a href="#entity-supplier">Supplier</a> records.</li>
-          <li>Each <b>Customer</b> belongs to one <a href="#entity-party-role">Party Role</a>.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-payment">Payment</a> records.</li>
           <li>Each <b>Customer</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Customer</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Customer</b> has many <a href="#entity-customer">Customer</a> records.</li>
-          <li>Each <b>Customer</b> belongs to one <a href="#entity-supplier">Supplier</a>.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-credit-note">Credit Note</a> records.</li>
           <li>Each <b>Customer</b> belongs to one <a href="#entity-tax-rule">Tax Rule</a>.</li>
           <li>Each <b>Customer</b> has many <a href="#entity-charge">Charge</a> records.</li>
@@ -4981,9 +4934,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Location</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Location</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Location</b> has one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-location">Location</a> records.</li>
-          <li>Each <b>Location</b> belongs to one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-purchase-order">Purchase Order</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-sales-order">Sales Order</a> records.</li>
           <li>Each <b>Location</b> has many <a href="#entity-tax-rule">Tax Rule</a> records.</li>
@@ -5225,12 +5177,9 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Organization</b> has one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
-          <li>Each <b>Organization</b> has many <a href="#entity-person">Person</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-location">Location</a> records.</li>
-          <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
-          <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-business-unit">Business Unit</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-department">Department</a> records.</li>
@@ -5299,18 +5248,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
         </tr>
         <tr>
-          <td><code>person_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
-        </tr>
-        <tr>
-          <td><code>organization_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
-        </tr>
-        <tr>
           <td><code>bank_account_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -5319,7 +5256,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -5364,27 +5301,11 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>person_id</code></td>
-            <td>Person</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>60</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>organization_id</code></td>
-            <td>Organization</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>70</td>
-            <td>No</td>
-          </tr>
-          <tr>
             <td><code>bank_account_id</code></td>
             <td>Bank Account</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>80</td>
+            <td>60</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -5550,22 +5471,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
-        <tr>
-          <td><code>customer_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.<div class="detail">Points at <b>Customer Role</b></div></td>
-        </tr>
-        <tr>
-          <td><code>supplier_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.<div class="detail">Points at <b>Supplier Role</b></div></td>
-        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Party Role</b> window, on the <b>Party Role</b> tab. These are its 11 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Party Role</b> window, on the <b>Party Role</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -5641,22 +5550,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>90</td>
             <td>No</td>
           </tr>
-          <tr>
-            <td><code>customer_role_id</code></td>
-            <td>Customer Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>100</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>supplier_role_id</code></td>
-            <td>Supplier Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>110</td>
-            <td>No</td>
-          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
@@ -5664,10 +5557,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party Role</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Party Role</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Party Role</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Party Role</b> belongs to one <a href="#entity-customer">Customer</a>.</li>
-          <li>Each <b>Party Role</b> belongs to one <a href="#entity-supplier">Supplier</a>.</li>
-          <li>Each <b>Party Role</b> has many <a href="#entity-supplier">Supplier</a> records.</li>
-          <li>Each <b>Party Role</b> has many <a href="#entity-customer">Customer</a> records.</li>
+          <li>Each <b>Party Role</b> has one <a href="#entity-customer">Customer</a>.</li>
+          <li>Each <b>Party Role</b> has one <a href="#entity-supplier">Supplier</a>.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
@@ -6274,22 +6165,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><span class="tag">max 200</span></td>
           <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
         </tr>
-        <tr>
-          <td><code>person_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
-        </tr>
-        <tr>
-          <td><code>organization_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
-        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Person</b> window, on the <b>Person</b> tab. These are its 16 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Person</b> window, on the <b>Person</b> tab. These are its 14 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -6405,33 +6284,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>140</td>
             <td>No</td>
           </tr>
-          <tr>
-            <td><code>person_id</code></td>
-            <td>Person</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>150</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>organization_id</code></td>
-            <td>Organization</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>160</td>
-            <td>No</td>
-          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Person</b> has one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
-          <li>Each <b>Person</b> has many <a href="#entity-person">Person</a> records.</li>
-          <li>Each <b>Person</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Person</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
-          <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
@@ -7764,22 +7624,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
-        <tr>
-          <td><code>customer_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.<div class="detail">Points at <b>Customer Role</b></div></td>
-        </tr>
-        <tr>
-          <td><code>supplier_role_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.<div class="detail">Points at <b>Supplier Role</b></div></td>
-        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Supplier</b> window, on the <b>Supplier</b> tab. These are its 15 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Supplier</b> window, on the <b>Supplier</b> tab. These are its 13 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -7887,38 +7735,18 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>130</td>
             <td>No</td>
           </tr>
-          <tr>
-            <td><code>customer_role_id</code></td>
-            <td>Customer Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>140</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>supplier_role_id</code></td>
-            <td>Supplier Role</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>150</td>
-            <td>No</td>
-          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
       <ul class="plain">
-          <li>Each <b>Supplier</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Supplier</b> has one <a href="#entity-party-role">Party Role</a>.</li>
           <li>Each <b>Supplier</b> has many <a href="#entity-invoice">Invoice</a> records.</li>
-          <li>Each <b>Supplier</b> belongs to one <a href="#entity-party-role">Party Role</a>.</li>
           <li>Each <b>Supplier</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Supplier</b> has many <a href="#entity-purchase-order">Purchase Order</a> records.</li>
           <li>Each <b>Supplier</b> has many <a href="#entity-payment">Payment</a> records.</li>
           <li>Each <b>Supplier</b> is linked to many <a href="#entity-product">Product</a> records.</li>
           <li>Each <b>Supplier</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Supplier</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Supplier</b> belongs to one <a href="#entity-customer">Customer</a>.</li>
-          <li>Each <b>Supplier</b> has many <a href="#entity-supplier">Supplier</a> records.</li>
-          <li>Each <b>Supplier</b> has many <a href="#entity-customer">Customer</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>

@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-01T04:35:58.968Z
+ * Generated: 2026-10-01T05:19:45.875Z
  * Project: telecommunications
  */
 
@@ -148,22 +148,6 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
         maxLength: 200,
       },
-      {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
     ],
   },
   {
@@ -295,22 +279,6 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: false,
         maxLength: 200,
-      },
-      {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
       },
     ],
   },
@@ -526,15 +494,6 @@ export const entities: EntityMeta[] = [
         required: false,
         unique: false,
         isForeignKey: true,
-      },
-      {
-        name: "customer_role_id",
-        displayName: "Customer Role",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-        references: "Customer",
       },
     ],
   },
@@ -832,14 +791,6 @@ export const entities: EntityMeta[] = [
       {
         name: "organization_id",
         displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "location_id",
-        displayName: "Location",
         type: "string",
         required: false,
         unique: false,
@@ -1600,33 +1551,24 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: true,
       },
-      {
-        name: "customer_role_id",
-        displayName: "Customer Role",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-        references: "Customer",
-      },
     ],
   },
 ];
 
 export const relationships: RelationshipMeta[] = [
   {
-    name: "person_party",
-    sourceEntity: "Person",
-    targetEntity: "Party",
+    name: "party_person",
+    sourceEntity: "Party",
+    targetEntity: "Person",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "person_id",
   },
   {
-    name: "organization_party",
-    sourceEntity: "Organization",
-    targetEntity: "Party",
+    name: "party_organization",
+    sourceEntity: "Party",
+    targetEntity: "Organization",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -1648,20 +1590,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Organization",
     cardinality: "oneToMany",
     foreignKey: "person_id",
-  },
-  {
-    name: "person_person",
-    sourceEntity: "Person",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_person",
-    sourceEntity: "Organization",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -1699,20 +1627,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "person_organization",
-    sourceEntity: "Person",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_organization",
-    sourceEntity: "Organization",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
-  },
-  {
     name: "party_roles",
     sourceEntity: "Organization",
     targetEntity: "PartyRole",
@@ -1720,10 +1634,10 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "customer_role",
-    sourceEntity: "Customer",
-    targetEntity: "PartyRole",
-    cardinality: "oneToMany",
+    name: "partyrole_customer",
+    sourceEntity: "PartyRole",
+    targetEntity: "Customer",
+    cardinality: "oneToOne",
     foreignKey: "customer_id",
   },
   {
@@ -1748,10 +1662,10 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "location_address",
-    sourceEntity: "Location",
-    targetEntity: "Address",
-    cardinality: "oneToMany",
+    name: "address_location",
+    sourceEntity: "Address",
+    targetEntity: "Location",
+    cardinality: "oneToOne",
     foreignKey: "location_id",
   },
   {
@@ -1767,13 +1681,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Location",
     cardinality: "oneToMany",
     foreignKey: "location_id",
-  },
-  {
-    name: "address_location",
-    sourceEntity: "Address",
-    targetEntity: "Location",
-    cardinality: "oneToMany",
-    foreignKey: "address_id",
   },
   {
     name: "exchange_rates_from",
@@ -1846,13 +1753,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "telecom_service_id",
   },
   {
-    name: "partyrole_customer",
-    sourceEntity: "PartyRole",
-    targetEntity: "Customer",
-    cardinality: "oneToMany",
-    foreignKey: "party_role_id",
-  },
-  {
     name: "addresses",
     sourceEntity: "Customer",
     targetEntity: "Address",
@@ -1872,13 +1772,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Customer",
     cardinality: "oneToMany",
     foreignKey: "organization_id",
-  },
-  {
-    name: "customer_role",
-    sourceEntity: "Customer",
-    targetEntity: "Customer",
-    cardinality: "oneToMany",
-    foreignKey: "customer_id",
   },
 ];
 

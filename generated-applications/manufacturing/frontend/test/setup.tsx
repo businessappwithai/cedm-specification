@@ -105,8 +105,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -114,8 +112,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -124,8 +120,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   person: {
@@ -145,8 +139,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -163,8 +155,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -182,8 +172,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   organization: {
@@ -376,7 +364,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 1',
         person_id: 'Test Person 1',
         organization_id: 'Test Organization 1',
-        location_id: 'Test Location 1',
       },
       {
         id: 'test-id-2',
@@ -395,7 +382,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 2',
         person_id: 'Test Person 2',
         organization_id: 'Test Organization 2',
-        location_id: 'Test Location 2',
       },
     ],
     single: {
@@ -415,7 +401,6 @@ export const mockApiResponses = {
       party_id: 'Test Party',
       person_id: 'Test Person',
       organization_id: 'Test Organization',
-      location_id: 'Test Location',
     },
   },
   contactPoint: {
@@ -1018,8 +1003,6 @@ export const mockApiResponses = {
         product_id: 'Test Product 1',
         lot_id: 'Test Lot 1',
         party_id: 'Test Party 1',
-        material_issue_id: 'Test Material Issue 1',
-        production_receipt_id: 'Test Production Receipt 1',
         scrap_id: 'Test Scrap 1',
       },
       {
@@ -1033,8 +1016,6 @@ export const mockApiResponses = {
         product_id: 'Test Product 2',
         lot_id: 'Test Lot 2',
         party_id: 'Test Party 2',
-        material_issue_id: 'Test Material Issue 2',
-        production_receipt_id: 'Test Production Receipt 2',
         scrap_id: 'Test Scrap 2',
       },
     ],
@@ -1049,8 +1030,6 @@ export const mockApiResponses = {
       product_id: 'Test Product',
       lot_id: 'Test Lot',
       party_id: 'Test Party',
-      material_issue_id: 'Test Material Issue',
-      production_receipt_id: 'Test Production Receipt',
       scrap_id: 'Test Scrap',
     },
   },
@@ -1133,7 +1112,6 @@ export const mockApiResponses = {
         work_order_id: 'Test Work Order 1',
         product_id: 'Test Product 1',
         lot_id: 'Test Lot 1',
-        inventory_movement_id: 'Test Inventory Movement 1',
       },
       {
         id: 'test-id-2',
@@ -1144,7 +1122,6 @@ export const mockApiResponses = {
         work_order_id: 'Test Work Order 2',
         product_id: 'Test Product 2',
         lot_id: 'Test Lot 2',
-        inventory_movement_id: 'Test Inventory Movement 2',
       },
     ],
     single: {
@@ -1156,7 +1133,6 @@ export const mockApiResponses = {
       work_order_id: 'Test Work Order',
       product_id: 'Test Product',
       lot_id: 'Test Lot',
-      inventory_movement_id: 'Test Inventory Movement',
     },
   },
   productLifecycle: {

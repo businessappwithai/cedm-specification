@@ -13,54 +13,54 @@
 -- re-running adds nothing and regenerating does not duplicate the rows.
 
 -- Party (bus_party)
-INSERT INTO bus_party (id, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('dd3588df-1060-54f9-b533-6474e9950d0b', 'PERSON', 'Party 1', 'ACTIVE', 'External Reference 1', '6c7c737d-5f6d-59dd-876a-63a55ce38842', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
+INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('dd3588df-1060-54f9-b533-6474e9950d0b', 'PERSON', 'Party 1', 'ACTIVE', 'External Reference 1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_party (id, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('60caa376-c947-5072-ba9c-14379e338a10', 'ORGANIZATION', 'Party 2', 'INACTIVE', 'External Reference 2', 'f82337d5-ef71-5710-be06-bce22e7cba09', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
+INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('60caa376-c947-5072-ba9c-14379e338a10', 'ORGANIZATION', 'Party 2', 'INACTIVE', 'External Reference 2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_party (id, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('11add255-0e3c-5dba-91a1-8020b44ecfed', 'PERSON', 'Party 3', 'BLOCKED', 'External Reference 3', '655d3dda-92d1-522c-a5bf-0b19f50581a1', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
+INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('11add255-0e3c-5dba-91a1-8020b44ecfed', 'PERSON', 'Party 3', 'BLOCKED', 'External Reference 3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_party (id, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'ORGANIZATION', 'Party 4', 'RETIRED', 'External Reference 4', 'd3f377c5-c9d4-59d7-a34c-3285247aba9a', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
+INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'ORGANIZATION', 'Party 4', 'RETIRED', 'External Reference 4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_party (id, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('51e4d6be-d507-520a-a049-13e5ef84c784', 'PERSON', 'Party 5', 'ACTIVE', 'External Reference 5', '5bb7b13b-eea7-5903-bc39-42a11e97bf14', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
--- Organization (bus_organization)
-INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'Code 1', 'Organization 1', 'ENTERPRISE', 'DRAFT', 'Legal Name 1', 'Registration Number 1', 'Tax Identifier 1', 'PERSON', 'Display Name 1', 'External Reference 1', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', '60caa376-c947-5072-ba9c-14379e338a10', 'Code 2', 'Organization 2', 'COMPANY', 'ACTIVE', 'Legal Name 2', 'Registration Number 2', 'Tax Identifier 2', 'ORGANIZATION', 'Display Name 2', 'External Reference 2', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('d9d1f95c-0ab8-5922-b9db-46539d79d0ee', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'Code 3', 'Organization 3', 'BUSINESS_UNIT', 'INACTIVE', 'Legal Name 3', 'Registration Number 3', 'Tax Identifier 3', 'PERSON', 'Display Name 3', 'External Reference 3', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('bd6b294d-346f-5696-a4c3-0d00bc99a60e', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'Code 4', 'Organization 4', 'DIVISION', 'RETIRED', 'Legal Name 4', 'Registration Number 4', 'Tax Identifier 4', 'ORGANIZATION', 'Display Name 4', 'External Reference 4', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, parent_organization_id, doc_status, created_at, updated_at)
-VALUES ('ee123a8d-a1ec-50a5-a32c-78b6290b9de5', '51e4d6be-d507-520a-a049-13e5ef84c784', 'Code 5', 'Organization 5', 'DEPARTMENT', 'DRAFT', 'Legal Name 5', 'Registration Number 5', 'Tax Identifier 5', 'PERSON', 'Display Name 5', 'External Reference 5', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
+INSERT INTO bus_party (id, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('51e4d6be-d507-520a-a049-13e5ef84c784', 'PERSON', 'Party 5', 'ACTIVE', 'External Reference 5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Person (bus_person)
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('6c7c737d-5f6d-59dd-876a-63a55ce38842', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'Title 1', 'Given Name 1', 'Middle Name 1', 'Family Name 1', 'Preferred Name 1', NULL, 'FEMALE', 'Na', 'PERSON', 'Person 1', 'ACTIVE', 'External Reference 1', '6c7c737d-5f6d-59dd-876a-63a55ce38842', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('6c7c737d-5f6d-59dd-876a-63a55ce38842', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'Title 1', 'Given Name 1', 'Middle Name 1', 'Family Name 1', 'Preferred Name 1', NULL, 'FEMALE', '1', 'PERSON', 'Person 1', 'ACTIVE', 'External Reference 1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('f82337d5-ef71-5710-be06-bce22e7cba09', '60caa376-c947-5072-ba9c-14379e338a10', 'Title 2', 'Given Name 2', 'Middle Name 2', 'Family Name 2', 'Preferred Name 2', NULL, 'MALE', 'Na', 'ORGANIZATION', 'Person 2', 'INACTIVE', 'External Reference 2', 'f82337d5-ef71-5710-be06-bce22e7cba09', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('f82337d5-ef71-5710-be06-bce22e7cba09', '60caa376-c947-5072-ba9c-14379e338a10', 'Title 2', 'Given Name 2', 'Middle Name 2', 'Family Name 2', 'Preferred Name 2', NULL, 'MALE', '2', 'ORGANIZATION', 'Person 2', 'INACTIVE', 'External Reference 2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('655d3dda-92d1-522c-a5bf-0b19f50581a1', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'Title 3', 'Given Name 3', 'Middle Name 3', 'Family Name 3', 'Preferred Name 3', NULL, 'NON_BINARY', 'Na', 'PERSON', 'Person 3', 'BLOCKED', 'External Reference 3', '655d3dda-92d1-522c-a5bf-0b19f50581a1', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('655d3dda-92d1-522c-a5bf-0b19f50581a1', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'Title 3', 'Given Name 3', 'Middle Name 3', 'Family Name 3', 'Preferred Name 3', NULL, 'NON_BINARY', '3', 'PERSON', 'Person 3', 'BLOCKED', 'External Reference 3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('d3f377c5-c9d4-59d7-a34c-3285247aba9a', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'Title 4', 'Given Name 4', 'Middle Name 4', 'Family Name 4', 'Preferred Name 4', NULL, 'OTHER', 'Na', 'ORGANIZATION', 'Person 4', 'RETIRED', 'External Reference 4', 'd3f377c5-c9d4-59d7-a34c-3285247aba9a', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('d3f377c5-c9d4-59d7-a34c-3285247aba9a', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'Title 4', 'Given Name 4', 'Middle Name 4', 'Family Name 4', 'Preferred Name 4', NULL, 'OTHER', '4', 'ORGANIZATION', 'Person 4', 'RETIRED', 'External Reference 4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, person_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('5bb7b13b-eea7-5903-bc39-42a11e97bf14', '51e4d6be-d507-520a-a049-13e5ef84c784', 'Title 5', 'Given Name 5', 'Middle Name 5', 'Family Name 5', 'Preferred Name 5', NULL, 'UNSPECIFIED', 'Na', 'PERSON', 'Person 5', 'ACTIVE', 'External Reference 5', '5bb7b13b-eea7-5903-bc39-42a11e97bf14', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
+INSERT INTO bus_person (id, party_id, title, given_name, middle_name, family_name, preferred_name, date_of_birth, gender, nationality, party_type, display_name, status, external_reference, doc_status, created_at, updated_at)
+VALUES ('5bb7b13b-eea7-5903-bc39-42a11e97bf14', '51e4d6be-d507-520a-a049-13e5ef84c784', 'Title 5', 'Given Name 5', 'Middle Name 5', 'Family Name 5', 'Preferred Name 5', NULL, 'UNSPECIFIED', '5', 'PERSON', 'Person 5', 'ACTIVE', 'External Reference 5', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Organization (bus_organization)
+INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
+VALUES ('fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'Code 1', 'Organization 1', 'ENTERPRISE', 'DRAFT', 'Legal Name 1', 'Registration Number 1', 'Tax Identifier 1', 'PERSON', 'Display Name 1', 'External Reference 1', '6c7c737d-5f6d-59dd-876a-63a55ce38842', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
+VALUES ('f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', '60caa376-c947-5072-ba9c-14379e338a10', 'Code 2', 'Organization 2', 'COMPANY', 'ACTIVE', 'Legal Name 2', 'Registration Number 2', 'Tax Identifier 2', 'ORGANIZATION', 'Display Name 2', 'External Reference 2', 'f82337d5-ef71-5710-be06-bce22e7cba09', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
+VALUES ('d9d1f95c-0ab8-5922-b9db-46539d79d0ee', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'Code 3', 'Organization 3', 'BUSINESS_UNIT', 'INACTIVE', 'Legal Name 3', 'Registration Number 3', 'Tax Identifier 3', 'PERSON', 'Display Name 3', 'External Reference 3', '655d3dda-92d1-522c-a5bf-0b19f50581a1', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
+VALUES ('bd6b294d-346f-5696-a4c3-0d00bc99a60e', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'Code 4', 'Organization 4', 'DIVISION', 'RETIRED', 'Legal Name 4', 'Registration Number 4', 'Tax Identifier 4', 'ORGANIZATION', 'Display Name 4', 'External Reference 4', 'd3f377c5-c9d4-59d7-a34c-3285247aba9a', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_organization (id, party_id, code, name, organization_type, status, legal_name, registration_number, tax_identifier, party_type, display_name, external_reference, person_id, parent_organization_id, doc_status, created_at, updated_at)
+VALUES ('ee123a8d-a1ec-50a5-a32c-78b6290b9de5', '51e4d6be-d507-520a-a049-13e5ef84c784', 'Code 5', 'Organization 5', 'DEPARTMENT', 'DRAFT', 'Legal Name 5', 'Registration Number 5', 'Tax Identifier 5', 'PERSON', 'Display Name 5', 'External Reference 5', '5bb7b13b-eea7-5903-bc39-42a11e97bf14', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Party Role (bus_party_role)
@@ -148,38 +148,21 @@ INSERT INTO bus_department (id, code, name, organization_id, doc_status, created
 VALUES ('dbf7c248-8a1a-530f-bad7-b2b049db8804', 'Code 5', 'Department 5', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
--- Location (bus_location)
-INSERT INTO bus_location (id, code, name, location_type, status, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4', 'Code 1', 'Location 1', 'SITE', 'PLANNED', '6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_location (id, code, name, location_type, status, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('aaf480d9-afec-56f7-b6fb-cc8393c77c41', 'Code 2', 'Location 2', 'WAREHOUSE', 'ACTIVE', 'aaf480d9-afec-56f7-b6fb-cc8393c77c41', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_location (id, code, name, location_type, status, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3', 'Code 3', 'Location 3', 'STORE', 'INACTIVE', '72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_location (id, code, name, location_type, status, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('b015ef4c-f122-5a93-9672-ada24a7bdc91', 'Code 4', 'Location 4', 'OFFICE', 'CLOSED', 'b015ef4c-f122-5a93-9672-ada24a7bdc91', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-INSERT INTO bus_location (id, code, name, location_type, status, parent_location_id, organization_id, doc_status, created_at, updated_at)
-VALUES ('6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'Code 5', 'Location 5', 'FACTORY', 'RETIRED', '6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
-ON CONFLICT DO NOTHING;
-
 -- Address (bus_address)
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('ebc113d4-109a-53a2-b333-029fd29cd532', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City 1', 'State Or Province 1', 'Postal Code 1', 'Co', 10.50, 10.50, TRUE, 'ACTIVE', 'dd3588df-1060-54f9-b533-6474e9950d0b', '6c7c737d-5f6d-59dd-876a-63a55ce38842', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', '6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('ebc113d4-109a-53a2-b333-029fd29cd532', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City 1', 'State Or Province 1', 'Postal Code 1', '1', 10.50, 10.50, TRUE, 'ACTIVE', 'dd3588df-1060-54f9-b533-6474e9950d0b', '6c7c737d-5f6d-59dd-876a-63a55ce38842', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('e509b0c7-011d-5af6-9478-477d3422520a', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City 2', 'State Or Province 2', 'Postal Code 2', 'Co', 21.00, 21.00, FALSE, 'INACTIVE', '60caa376-c947-5072-ba9c-14379e338a10', 'f82337d5-ef71-5710-be06-bce22e7cba09', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'aaf480d9-afec-56f7-b6fb-cc8393c77c41', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('e509b0c7-011d-5af6-9478-477d3422520a', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City 2', 'State Or Province 2', 'Postal Code 2', '2', 21.00, 21.00, FALSE, 'INACTIVE', '60caa376-c947-5072-ba9c-14379e338a10', 'f82337d5-ef71-5710-be06-bce22e7cba09', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('ac61d3fe-c09b-5101-a321-1e258b8230fb', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City 3', 'State Or Province 3', 'Postal Code 3', 'Co', 31.50, 31.50, TRUE, 'RETIRED', '11add255-0e3c-5dba-91a1-8020b44ecfed', '655d3dda-92d1-522c-a5bf-0b19f50581a1', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', '72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('ac61d3fe-c09b-5101-a321-1e258b8230fb', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City 3', 'State Or Province 3', 'Postal Code 3', '3', 31.50, 31.50, TRUE, 'RETIRED', '11add255-0e3c-5dba-91a1-8020b44ecfed', '655d3dda-92d1-522c-a5bf-0b19f50581a1', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('d2b97886-a63b-5301-956b-92ee2d37a597', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City 4', 'State Or Province 4', 'Postal Code 4', 'Co', 42.00, 42.00, FALSE, 'ACTIVE', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'd3f377c5-c9d4-59d7-a34c-3285247aba9a', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'b015ef4c-f122-5a93-9672-ada24a7bdc91', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('d2b97886-a63b-5301-956b-92ee2d37a597', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City 4', 'State Or Province 4', 'Postal Code 4', '4', 42.00, 42.00, FALSE, 'ACTIVE', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'd3f377c5-c9d4-59d7-a34c-3285247aba9a', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('f2ec3416-7c1f-5263-b89e-7dac0e5268fd', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City 5', 'State Or Province 5', 'Postal Code 5', 'Co', 52.50, 52.50, TRUE, 'INACTIVE', '51e4d6be-d507-520a-a049-13e5ef84c784', '5bb7b13b-eea7-5903-bc39-42a11e97bf14', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', '6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'final', NOW(), NOW())
+INSERT INTO bus_address (id, address_type, line1, line2, line3, city, state_or_province, postal_code, country_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('f2ec3416-7c1f-5263-b89e-7dac0e5268fd', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City 5', 'State Or Province 5', 'Postal Code 5', '5', 52.50, 52.50, TRUE, 'INACTIVE', '51e4d6be-d507-520a-a049-13e5ef84c784', '5bb7b13b-eea7-5903-bc39-42a11e97bf14', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -197,6 +180,23 @@ VALUES ('76bd186c-51c8-50e8-ac65-2234b7fc31ff', 'Code 4', 'Contact Point 4', '14
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_contact_point (id, code, name, party_id, doc_status, created_at, updated_at)
 VALUES ('8fa526ef-1471-50e4-858e-a7950a26792f', 'Code 5', 'Contact Point 5', '51e4d6be-d507-520a-a049-13e5ef84c784', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Location (bus_location)
+INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4', 'Code 1', 'Location 1', 'SITE', 'PLANNED', 'ebc113d4-109a-53a2-b333-029fd29cd532', '6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4', 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('aaf480d9-afec-56f7-b6fb-cc8393c77c41', 'Code 2', 'Location 2', 'WAREHOUSE', 'ACTIVE', 'e509b0c7-011d-5af6-9478-477d3422520a', 'aaf480d9-afec-56f7-b6fb-cc8393c77c41', 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3', 'Code 3', 'Location 3', 'STORE', 'INACTIVE', 'ac61d3fe-c09b-5101-a321-1e258b8230fb', '72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3', 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('b015ef4c-f122-5a93-9672-ada24a7bdc91', 'Code 4', 'Location 4', 'OFFICE', 'CLOSED', 'd2b97886-a63b-5301-956b-92ee2d37a597', 'b015ef4c-f122-5a93-9672-ada24a7bdc91', 'bd6b294d-346f-5696-a4c3-0d00bc99a60e', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_location (id, code, name, location_type, status, address_id, parent_location_id, organization_id, doc_status, created_at, updated_at)
+VALUES ('6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'Code 5', 'Location 5', 'FACTORY', 'RETIRED', 'f2ec3416-7c1f-5263-b89e-7dac0e5268fd', '6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2', 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Country (bus_country)
@@ -235,19 +235,19 @@ ON CONFLICT DO NOTHING;
 
 -- Currency (bus_currency)
 INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('153a07a8-feba-554c-b3e7-db28eee24365', 'Cod', 'Currency 1', 'Symbol 1', 1, 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('153a07a8-feba-554c-b3e7-db28eee24365', 'C 1', 'Currency 1', 'Symbol 1', 1, 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('48e5206a-5434-5f57-a91d-120ff9624f62', 'Cod', 'Currency 2', 'Symbol 2', 2, 'INACTIVE', 'final', NOW(), NOW())
+VALUES ('48e5206a-5434-5f57-a91d-120ff9624f62', 'C 2', 'Currency 2', 'Symbol 2', 2, 'INACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('a1fd42da-ef1f-5351-a2a4-b743720246cb', 'Cod', 'Currency 3', 'Symbol 3', 3, 'RETIRED', 'final', NOW(), NOW())
+VALUES ('a1fd42da-ef1f-5351-a2a4-b743720246cb', 'C 3', 'Currency 3', 'Symbol 3', 3, 'RETIRED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('526e1ffe-1285-5f74-8648-62ec04db20df', 'Cod', 'Currency 4', 'Symbol 4', 4, 'ACTIVE', 'final', NOW(), NOW())
+VALUES ('526e1ffe-1285-5f74-8648-62ec04db20df', 'C 4', 'Currency 4', 'Symbol 4', 4, 'ACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_currency (id, code, name, symbol, decimal_places, status, doc_status, created_at, updated_at)
-VALUES ('8eec5195-1b8d-59b2-9f7e-5c9b4d165ea3', 'Cod', 'Currency 5', 'Symbol 5', 5, 'INACTIVE', 'final', NOW(), NOW())
+VALUES ('8eec5195-1b8d-59b2-9f7e-5c9b4d165ea3', 'C 5', 'Currency 5', 'Symbol 5', 5, 'INACTIVE', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
@@ -521,22 +521,3 @@ ON CONFLICT DO NOTHING;
 INSERT INTO bus_loss_event (id, occurred_at, doc_status, created_at, updated_at)
 VALUES ('dc4119c8-3b05-54ec-a44f-604b3e95badb', NULL, 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-
--- --------------------------------------------------------------------------
--- References that could not be written with the row
--- --------------------------------------------------------------------------
---
--- These entities point at each other, so neither can be inserted second.
--- The row goes in without the reference and the reference is set here, once
--- both sides exist — the same order the dictionary seed uses for
--- `sys_tab.link_column_id`.
-UPDATE bus_organization SET person_id = '6c7c737d-5f6d-59dd-876a-63a55ce38842' WHERE id = 'fd8e6d1b-3bcc-5174-85c5-aa75ec02b7d0' AND person_id IS NULL;
-UPDATE bus_organization SET person_id = 'f82337d5-ef71-5710-be06-bce22e7cba09' WHERE id = 'f4d4dcd2-4890-5d7c-abfe-7a1a7addf087' AND person_id IS NULL;
-UPDATE bus_organization SET person_id = '655d3dda-92d1-522c-a5bf-0b19f50581a1' WHERE id = 'd9d1f95c-0ab8-5922-b9db-46539d79d0ee' AND person_id IS NULL;
-UPDATE bus_organization SET person_id = 'd3f377c5-c9d4-59d7-a34c-3285247aba9a' WHERE id = 'bd6b294d-346f-5696-a4c3-0d00bc99a60e' AND person_id IS NULL;
-UPDATE bus_organization SET person_id = '5bb7b13b-eea7-5903-bc39-42a11e97bf14' WHERE id = 'ee123a8d-a1ec-50a5-a32c-78b6290b9de5' AND person_id IS NULL;
-UPDATE bus_location SET address_id = 'ebc113d4-109a-53a2-b333-029fd29cd532' WHERE id = '6f1381eb-3cfa-5818-85ea-b5c1f5bce5a4' AND address_id IS NULL;
-UPDATE bus_location SET address_id = 'e509b0c7-011d-5af6-9478-477d3422520a' WHERE id = 'aaf480d9-afec-56f7-b6fb-cc8393c77c41' AND address_id IS NULL;
-UPDATE bus_location SET address_id = 'ac61d3fe-c09b-5101-a321-1e258b8230fb' WHERE id = '72e657cf-3b1b-57f2-96e6-c1dbc3b19fe3' AND address_id IS NULL;
-UPDATE bus_location SET address_id = 'd2b97886-a63b-5301-956b-92ee2d37a597' WHERE id = 'b015ef4c-f122-5a93-9672-ada24a7bdc91' AND address_id IS NULL;
-UPDATE bus_location SET address_id = 'f2ec3416-7c1f-5263-b89e-7dac0e5268fd' WHERE id = '6a6f6cba-6e6b-5df9-92a7-7bc0b3f5b6b2' AND address_id IS NULL;

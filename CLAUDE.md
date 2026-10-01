@@ -1174,6 +1174,64 @@ bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-
   **The Loco backend does not yet run `automatic` sagas**: a workflow starts
   only from a rule's `trigger-workflow` action or `/api/workflow/{id}/execute`.
 
+## CEDM application models (`language/cedm/`) — the base of the model language
+
+An application is written in **CEDM**: entities in the library's own shape
+(`domain/entities/*.yaml`, `schema/cedm-entity.schema.yaml`), imported by name
+or declared in the model, plus the application profile
+(`specification/application-profile.yaml`). Reference: `language/cedm/README.md`;
+schema: `language/cedm/cedm-model.schema.json`. A model is `*.cedm.yaml`, opens
+with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
+`eml` CLI, the Rust generator, the browser bundle) reads it.
+
+- **A CEDM model is lowered, never compiled directly.** `lowerCedmModel`
+  (`language/cedm/lower.ts`) turns it into the `*.eml.yaml` model document both
+  generators already compile; `resolveCedmImports` folds imports, modules,
+  `extends` and the closure over required references in first. The Rust port is
+  `crates/appwithai-gen/src/cedm.rs`, and **the two lowerings must agree**:
+  `scripts/cedm-lowering-parity.ts` (run by `bun run parity`) compares them
+  document for document, native and `wasm32-wasip1` alike. A lowering change
+  is a change in both files, the same day.
+- **The gates.** `model-cedm/__tests__/cedm-equivalence.test.ts` raises every
+  model in the repository to CEDM and lowers it back (must equal the original in
+  *entity order* — `cedmOrder`: a CEDM model declares a relationship on its
+  entity, and relationship order is visible in generated output);
+  `pipeline/__tests__/cedm-source.test.ts` generates drug-discovery from CEDM and
+  from the model document and compares every file; `cedm-examples-in-sync` holds
+  each checked-in `.cedm.yaml` to the conversion of its `.eml.yaml`
+  (`appwithai convert --force`).
+- **A reference names its target.** `deliveryLocation → Location` is held in
+  `delivery_location_id`, which would derive `bus_delivery_location`. The model
+  document's attribute `references` states it, the dictionary seed stores it in
+  `sys_column.ref_table_name` (m0018, by a trailing `UPDATE` — only where it
+  differs from the derived one, so every model without one seeds as before), and
+  every resolver prefers it: `resolve_ref_table`, `field_meta`, both generated
+  test harnesses, `foreignKeyTargetTable`/`foreign_key_target_table`, parent
+  links and the checker (EML118). Add a resolver, give it the stored target.
+- **Two to-one relationships that point at each other are one one-to-one**, with
+  the key on the side that is `1`. Treating them as two one-to-many gave a
+  required-FK cycle (`Supplier.party_role_id` ↔ `PartyRole.supplier_role_id`) that
+  the business seed could not insert.
+- **One application per domain.** `domains/application-catalog.yaml` →
+  `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
+  holds them in sync) → `scripts/generate-domain-applications.sh` →
+  `generated-applications/<domain>/`. Every generated application bundles the
+  common CEDM specification under `cedm/` (`pipeline/cedm-bundle.ts`).
+  **Commit source and generated source only** — never a `target/`, a
+  `node_modules/` or a built executable. `scripts/run-and-screenshot.sh` runs
+  an application from a scratch copy for exactly this reason.
+- **Corpus walkers skip `generated-applications/`** (as they skip
+  `generated-projects/`): each holds a `model/model.eml.yaml`.
+- **The library had defects the schema found.** 721 invariants and help entries
+  were unquoted flow mappings that YAML split at their commas
+  (`tools/repair_flow_text.py`; `tools/validate.py` now refuses it), and
+  `domains/capability-catalog.yaml` did not parse. `validate.py` parses every
+  specification file now.
+- **The web tool still saves the model document** (`model/model.eml.yaml`), and
+  generation from a project goes through it; CEDM is an input to the CLIs and
+  the generators. Its snapshot allow-list already admits `.yaml`/`.md`, so
+  `cedm/` and `model/model.cedm.yaml` publish.
+
 ## EML — AppWithAI Modeling Language (`language/`)
 
 EML is a Mermaid-based language describing an app's **ERD**, **business rules**,

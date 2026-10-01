@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T04:34:47.775Z
+//! Generated: 2026-10-01T05:18:31.728Z
 //! Project: maintenance
 
 use serde_json::Value;

@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-01T04:33:24.245Z
+//! Generated: 2026-10-01T05:17:04.417Z
 //! Project: artificial-intelligence
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -342,18 +342,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: false,
                 ref_table: ref_table_for("external_reference", false),
             },
-            FieldMeta {
-                name: "person_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("person_id", true),
-            },
-            FieldMeta {
-                name: "organization_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("organization_id", true),
-            },
         ],
     },
     EntityMeta {
@@ -444,18 +432,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", false),
                 required: false,
                 ref_table: ref_table_for("external_reference", false),
-            },
-            FieldMeta {
-                name: "person_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("person_id", true),
-            },
-            FieldMeta {
-                name: "organization_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("organization_id", true),
             },
         ],
     },
@@ -823,12 +799,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("organization_id", true),
-            },
-            FieldMeta {
-                name: "location_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: ref_table_for("location_id", true),
             },
         ],
     },
@@ -1223,12 +1193,6 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: Some("bus_organization"),
-            },
-            FieldMeta {
-                name: "policy_id",
-                field_type: FieldType::from_model("string", true),
-                required: false,
-                ref_table: Some("bus_ai_policy"),
             },
         ],
     },

@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T04:34:28.216Z
+//! Generated: 2026-10-01T05:18:12.865Z
 //! Project: insurance
 
 use serde_json::Value;

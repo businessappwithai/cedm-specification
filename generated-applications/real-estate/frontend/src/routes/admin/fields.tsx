@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 import { useState, useEffect } from 'react';
+import { useEntityLabel } from '@/hooks/use-dictionary-lists';
 import { Box, HStack, Heading, Text, VStack } from "@/components/ui/layout";
 
 export const Route = createFileRoute('/admin/fields')({
@@ -30,6 +31,7 @@ interface SysTable {
 
 function FieldLayoutPageContent() {
   const search = Route.useSearch();
+  const entityLabel = useEntityLabel();
   const [selectedTable, setSelectedTable] = useState<string>(search.entity ?? '');
 
   const { data: tablesResponse, isLoading: tablesLoading } = useQuery({
@@ -84,7 +86,7 @@ function FieldLayoutPageContent() {
             ) : (
               sysTables.map((table) => (
                 <SelectItem key={table.sys_table_id} value={table.table_name}>
-                  {table.name} ({table.table_name})
+                  {entityLabel(table) ?? ''}
                 </SelectItem>
               ))
             )}
@@ -92,7 +94,7 @@ function FieldLayoutPageContent() {
         </Select>
         {selectedTableMeta && (
           <Badge variant="secondary" className="whitespace-nowrap">
-            {selectedTableMeta.name}
+            {entityLabel(selectedTableMeta)}
           </Badge>
         )}
       </HStack>

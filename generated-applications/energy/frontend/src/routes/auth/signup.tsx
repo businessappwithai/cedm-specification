@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T04:34:02.404Z
+ * Generated: 2026-10-01T05:17:45.898Z
  * Project: energy
  */
 

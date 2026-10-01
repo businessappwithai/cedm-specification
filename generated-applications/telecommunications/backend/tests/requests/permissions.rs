@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T04:35:57.764Z
+//! Generated: 2026-10-01T05:19:44.643Z
 //! Project: telecommunications
 
 use serde_json::Value;

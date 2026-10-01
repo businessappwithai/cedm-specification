@@ -56,15 +56,15 @@ const ENTITIES: string[] = [
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
-  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
+  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference'],
+  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference'],
   'Organization': ['id', 'party_id', 'code', 'name', 'organization_type', 'status', 'legal_name', 'registration_number', 'tax_identifier', 'party_type', 'display_name', 'external_reference', 'person_id', 'parent_organization_id'],
-  'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id', 'customer_role_id'],
+  'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id'],
   'PartyRelationship': ['id', 'code', 'name', 'from_party_id'],
   'LegalEntity': ['id', 'occurred_at'],
   'BusinessUnit': ['id', 'code', 'name', 'organization_id'],
   'Department': ['id', 'code', 'name', 'organization_id'],
-  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id', 'location_id', 'customer_id'],
+  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id', 'customer_id'],
   'ContactPoint': ['id', 'code', 'name', 'party_id'],
   'Location': ['id', 'code', 'name', 'location_type', 'status', 'address_id', 'parent_location_id', 'organization_id'],
   'Country': ['id', 'code', 'name'],
@@ -76,7 +76,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'Attachment': ['id', 'effective_at'],
   'TelecomService': ['id', 'service_number', 'service_type', 'status', 'activation_date', 'termination_date', 'customer_id', 'location_id'],
   'TelecomSubscription': ['id', 'subscription_number', 'status', 'start_date', 'end_date', 'customer_id', 'service_id'],
-  'Customer': ['id', 'party_role_id', 'customer_code', 'customer_type', 'credit_status', 'credit_limit', 'payment_terms', 'status', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'organization_id', 'customer_role_id'],
+  'Customer': ['id', 'party_role_id', 'customer_code', 'customer_type', 'credit_status', 'credit_limit', 'payment_terms', 'status', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'organization_id'],
 };
 
 /** A rule as the endpoint returns it, in either casing. */

@@ -488,9 +488,6 @@ export function FieldLayoutEditor({ entityName }: FieldLayoutEditorProps) {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium">{field.name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {field.column_name}
-                            </Badge>
                             <Badge variant="secondary" className="text-xs">
                               {REFERENCE_TYPE_LABELS[field.sys_reference_id] || "Unknown"}
                             </Badge>

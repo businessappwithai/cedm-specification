@@ -23,6 +23,7 @@ use uuid::Uuid;
 /// `bus_compound`, `compound`, `Compound` and `chemical-inventory` all have
 /// to reach the same handlers, or a hook would fire from one route and not
 /// another.
+#[allow(dead_code)]
 fn key(entity: &str) -> String {
     let trimmed = entity.strip_prefix("bus_").unwrap_or(entity);
     trimmed

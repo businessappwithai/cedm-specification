@@ -24,8 +24,6 @@ const GRID_COLUMNS: string[] = [
   'display_name',
   'status',
   'external_reference',
-  'person_id',
-  'organization_id',
   'nonprofit_campaign_id',
 ];
 const GRID_FIELDS: FieldMetadata[] = GRID_COLUMNS.map((column, index) => ({

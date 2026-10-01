@@ -8,7 +8,7 @@
 //! the reminder arrives from the test suite rather than from whoever was
 //! reading the docs when they needed them.
 //!
-//! Generated: 2026-10-01T04:35:43.088Z
+//! Generated: 2026-10-01T05:19:29.634Z
 //! Project: security
 
 use loco_rs::controller::Routes;

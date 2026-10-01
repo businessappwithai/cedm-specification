@@ -24,8 +24,6 @@ const GRID_COLUMNS: string[] = [
   'display_name',
   'status',
   'external_reference',
-  'person_id',
-  'organization_id',
   'e_rp_id',
   'business_transaction_id',
 ];

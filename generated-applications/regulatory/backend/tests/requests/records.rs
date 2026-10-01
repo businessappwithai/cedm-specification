@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T04:35:27.818Z
+//! Generated: 2026-10-01T05:19:13.829Z
 //! Project: regulatory
 
 use serde_json::{json, Value};

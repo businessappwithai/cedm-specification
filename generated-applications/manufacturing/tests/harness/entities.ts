@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-01T04:34:52.988Z
+ * Generated: 2026-10-01T05:18:36.759Z
  * Project: manufacturing
  */
 
@@ -148,22 +148,6 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
         maxLength: 200,
       },
-      {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
     ],
   },
   {
@@ -295,22 +279,6 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: false,
         maxLength: 200,
-      },
-      {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
       },
     ],
   },
@@ -823,14 +791,6 @@ export const entities: EntityMeta[] = [
       {
         name: "organization_id",
         displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "location_id",
-        displayName: "Location",
         type: "string",
         required: false,
         unique: false,
@@ -2199,22 +2159,6 @@ export const entities: EntityMeta[] = [
         isForeignKey: true,
       },
       {
-        name: "material_issue_id",
-        displayName: "Material Issue",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "production_receipt_id",
-        displayName: "Production Receipt",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
         name: "scrap_id",
         displayName: "Scrap",
         type: "string",
@@ -2452,14 +2396,6 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: true,
       },
-      {
-        name: "inventory_movement_id",
-        displayName: "Inventory Movement",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
     ],
   },
   {
@@ -2519,18 +2455,18 @@ export const entities: EntityMeta[] = [
 
 export const relationships: RelationshipMeta[] = [
   {
-    name: "person_party",
-    sourceEntity: "Person",
-    targetEntity: "Party",
+    name: "party_person",
+    sourceEntity: "Party",
+    targetEntity: "Person",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "person_id",
   },
   {
-    name: "organization_party",
-    sourceEntity: "Organization",
-    targetEntity: "Party",
+    name: "party_organization",
+    sourceEntity: "Party",
+    targetEntity: "Organization",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -2552,20 +2488,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Organization",
     cardinality: "oneToMany",
     foreignKey: "person_id",
-  },
-  {
-    name: "person_person",
-    sourceEntity: "Person",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_person",
-    sourceEntity: "Organization",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -2603,20 +2525,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "person_organization",
-    sourceEntity: "Person",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_organization",
-    sourceEntity: "Organization",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
-  },
-  {
     name: "party_roles",
     sourceEntity: "Organization",
     targetEntity: "PartyRole",
@@ -2645,10 +2553,10 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "location_address",
-    sourceEntity: "Location",
-    targetEntity: "Address",
-    cardinality: "oneToMany",
+    name: "address_location",
+    sourceEntity: "Address",
+    targetEntity: "Location",
+    cardinality: "oneToOne",
     foreignKey: "location_id",
   },
   {
@@ -2664,13 +2572,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Location",
     cardinality: "oneToMany",
     foreignKey: "location_id",
-  },
-  {
-    name: "address_location",
-    sourceEntity: "Address",
-    targetEntity: "Location",
-    cardinality: "oneToMany",
-    foreignKey: "address_id",
   },
   {
     name: "products",
@@ -2900,8 +2801,8 @@ export const relationships: RelationshipMeta[] = [
     name: "inventorymovement_materialissue",
     sourceEntity: "InventoryMovement",
     targetEntity: "MaterialIssue",
-    cardinality: "oneToMany",
-    foreignKey: "inventory_movement_id",
+    cardinality: "oneToOne",
+    foreignKey: "material_issue_id",
   },
   {
     name: "product_productionreceipt",
@@ -2935,8 +2836,8 @@ export const relationships: RelationshipMeta[] = [
     name: "inventorymovement_productionreceipt",
     sourceEntity: "InventoryMovement",
     targetEntity: "ProductionReceipt",
-    cardinality: "oneToMany",
-    foreignKey: "inventory_movement_id",
+    cardinality: "oneToOne",
+    foreignKey: "production_receipt_id",
   },
   {
     name: "inventory_movements",
@@ -2967,25 +2868,11 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "party_id",
   },
   {
-    name: "materialissue_inventorymovement",
-    sourceEntity: "MaterialIssue",
-    targetEntity: "InventoryMovement",
-    cardinality: "oneToMany",
-    foreignKey: "material_issue_id",
-  },
-  {
-    name: "productionreceipt_inventorymovement",
-    sourceEntity: "ProductionReceipt",
-    targetEntity: "InventoryMovement",
-    cardinality: "oneToMany",
-    foreignKey: "production_receipt_id",
-  },
-  {
     name: "scrap_inventorymovement",
     sourceEntity: "Scrap",
     targetEntity: "InventoryMovement",
-    cardinality: "oneToMany",
-    foreignKey: "scrap_id",
+    cardinality: "oneToOne",
+    foreignKey: "inventory_movement_id",
   },
   {
     name: "product_qualityinspection",
@@ -3042,13 +2929,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "SerialNumber",
     cardinality: "oneToMany",
     foreignKey: "scrap_id",
-  },
-  {
-    name: "inventorymovement_scrap",
-    sourceEntity: "InventoryMovement",
-    targetEntity: "Scrap",
-    cardinality: "oneToMany",
-    foreignKey: "inventory_movement_id",
   },
 ];
 

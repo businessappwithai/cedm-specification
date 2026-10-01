@@ -193,9 +193,6 @@ function FieldCard({
               {field.is_mandatory && <span className="text-red-500 text-xs font-bold">*</span>}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-muted-foreground font-mono">
-                {field.column_name}
-              </span>
               <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0">
                 {typeLabel}
               </Badge>
@@ -932,9 +929,6 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                             )}
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-muted-foreground font-mono">
-                              {field.column_name}
-                            </span>
                             <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0">
                               {FIELD_TYPE_LABELS[field.sys_reference_id] ??
                                 field.reference_name ??

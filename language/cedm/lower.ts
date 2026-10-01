@@ -389,7 +389,9 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     const named = candidates.find((other) => other.relationship.inverse === relationship.name);
     if (named) return named;
     if (candidates.some((other) => other.relationship.inverse !== undefined)) return undefined;
-    // Unnamed pairing: exactly one relationship each way, one of them to-many.
+    // Unnamed pairing: exactly one relationship each way. Two to-one
+    // relationships that point at each other are the two halves of a
+    // one-to-one (`PartyRole.supplierRole 0..1` and `Supplier.partyRole 1`).
     const outgoing = pending.filter(
       (other) =>
         other.entity === entity &&
@@ -399,7 +401,6 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     );
     if (outgoing.length !== 1 || candidates.length !== 1) return undefined;
     const [other] = candidates;
-    if (!other || (!isMany(item.end) && !isMany(other.end))) return undefined;
     return other;
   };
 
@@ -510,28 +511,44 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
         continue;
       }
       if (!isMany(many.end)) {
-        // One-to-one, declared on both sides.
+        // One-to-one, declared on both sides. The key sits on the side that
+        // cannot exist without the other (cardinality 1); failing that, on the
+        // side that already holds a reference to the other; failing that, on
+        // the one declared first.
+        const holdsReference = (side: PendingRelationship, referenced: string) =>
+          [...side.entity.references.values()].includes(referenced);
+        const a = item;
+        const b = other;
+        const holder =
+          a.end === "exactly-one" && b.end !== "exactly-one"
+            ? a
+            : b.end === "exactly-one" && a.end !== "exactly-one"
+              ? b
+              : holdsReference(b, a.entity.source.name) && !holdsReference(a, b.entity.source.name)
+                ? b
+                : a;
         const both: RelationshipEnd =
-          many.end === "zero-or-one" && one.end === "zero-or-one" ? "zero-or-one" : "exactly-one";
-        const label = labelOf(item.relationship, false);
+          a.end === "zero-or-one" && b.end === "zero-or-one" ? "zero-or-one" : "exactly-one";
+        const label = labelOf(holder.relationship, false);
+        const holderAt = holder === a ? at : otherAt;
         emit(
           {
-            from: item.relationship.target,
+            from: holder.relationship.target,
             fromCardinality: both,
-            to: entity.source.name,
+            to: holder.entity.source.name,
             toCardinality: both,
             ...(label !== undefined ? { label } : {}),
           },
-          at
+          holderAt
         );
         ensureForeignKey(
-          entity,
-          relationship.target,
-          relationship.foreignKey,
-          relationship.name,
-          end === "zero-or-one",
-          at,
-          keyHelp(relationship, entity.source.name)
+          holder.entity,
+          holder.relationship.target,
+          holder.relationship.foreignKey,
+          holder.relationship.name,
+          holder.end === "zero-or-one",
+          holderAt,
+          keyHelp(holder.relationship, holder.entity.source.name)
         );
         continue;
       }

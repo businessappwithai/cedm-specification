@@ -90,16 +90,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Person
     help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
     attributes:
@@ -159,16 +149,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Organization
     help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
     attributes:
@@ -271,12 +251,6 @@ entities:
         fk: true
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
-      - name: customer_role_id
-        type: string
-        fk: true
-        references: Customer
-        optional: true
-        help: Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.
   - name: PartyRelationship
     help: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
     attributes:
@@ -395,11 +369,6 @@ entities:
         fk: true
         optional: true
         help: The Organization this Address belongs to.
-      - name: location_id
-        type: string
-        fk: true
-        optional: true
-        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
       - name: customer_id
         type: string
         fk: true
@@ -741,20 +710,14 @@ entities:
         fk: true
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
-      - name: customer_role_id
-        type: string
-        fk: true
-        references: Customer
-        optional: true
-        help: Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.
 relationships:
-  - from: Person
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Person
     toCardinality: exactly-one
-  - from: Organization
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Organization
     toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
@@ -771,14 +734,6 @@ relationships:
     to: Organization
     toCardinality: zero-or-more
     label: employer_organizations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
   - from: Person
     fromCardinality: exactly-one
     to: Address
@@ -804,24 +759,15 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: locations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
   - from: Organization
     fromCardinality: exactly-one
     to: PartyRole
     toCardinality: zero-or-more
     label: party_roles
-  - from: Customer
+  - from: PartyRole
     fromCardinality: exactly-one
-    to: PartyRole
-    toCardinality: zero-or-more
-    label: customer_role
+    to: Customer
+    toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
     to: PartyRelationship
@@ -835,10 +781,10 @@ relationships:
     fromCardinality: exactly-one
     to: Department
     toCardinality: zero-or-more
-  - from: Location
-    fromCardinality: exactly-one
-    to: Address
-    toCardinality: zero-or-more
+  - from: Address
+    fromCardinality: zero-or-one
+    to: Location
+    toCardinality: zero-or-one
   - from: Party
     fromCardinality: exactly-one
     to: ContactPoint
@@ -848,10 +794,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: child_locations
-  - from: Address
-    fromCardinality: exactly-one
-    to: Location
-    toCardinality: zero-or-more
   - from: Currency
     fromCardinality: exactly-one
     to: ExchangeRate
@@ -899,10 +841,6 @@ relationships:
     to: TelecomSubscription
     toCardinality: zero-or-more
     label: service
-  - from: PartyRole
-    fromCardinality: exactly-one
-    to: Customer
-    toCardinality: zero-or-more
   - from: Customer
     fromCardinality: exactly-one
     to: Address
@@ -916,8 +854,3 @@ relationships:
     fromCardinality: exactly-one
     to: Customer
     toCardinality: zero-or-more
-  - from: Customer
-    fromCardinality: exactly-one
-    to: Customer
-    toCardinality: zero-or-more
-    label: customer_role

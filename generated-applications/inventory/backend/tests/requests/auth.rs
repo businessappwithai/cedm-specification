@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-01T04:34:31.850Z
+//! Generated: 2026-10-01T05:18:16.570Z
 //! Project: inventory
 
 use serde_json::{json, Value};

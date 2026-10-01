@@ -508,32 +508,38 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         // The window comes first: `sys_table.sys_window_id` points at it. A child
         // reuses its parent's, which the stable partition above already emitted.
         if !is_child {
-            out.push(insert(
-                "sys_window",
-                &[
-                    ("sys_window_id", text(window_id.clone())),
-                    ("name", text(entity.display_name.clone())),
-                    (
-                        "description",
-                        text(format!("Maintain {} records", entity.display_name)),
-                    ),
-                    (
-                        "help",
-                        entity_help
-                            .map(|h| text(h.window.clone()))
-                            .unwrap_or(Sql::Null),
-                    ),
-                    ("window_type", text("M")),
-                    ("is_sales_transaction", Sql::Bool(false)),
-                    ("is_default", Sql::Bool(true)),
-                    ("entity_type", text("U")),
-                    ("is_active", Sql::Bool(true)),
-                    ("created_by", text(created_by)),
-                    ("updated_by", text(created_by)),
-                    ("created_at", now()),
-                    ("updated_at", now()),
-                ],
-            ));
+            let mut window_columns: Vec<(&str, Sql)> = vec![
+                ("sys_window_id", text(window_id.clone())),
+                ("name", text(entity.display_name.clone())),
+                (
+                    "description",
+                    text(format!("Maintain {} records", entity.display_name)),
+                ),
+                (
+                    "help",
+                    entity_help
+                        .map(|h| text(h.window.clone()))
+                        .unwrap_or(Sql::Null),
+                ),
+            ];
+            // The icon the dashboard card and the menu draw, from the window like
+            // every other label on them. Written only when the model declares one,
+            // so a model without icons seeds exactly what it always did.
+            if let Some(icon) = entity.icon.as_ref().filter(|icon| !icon.is_empty()) {
+                window_columns.push(("icon", text(icon.clone())));
+            }
+            window_columns.extend([
+                ("window_type", text("M")),
+                ("is_sales_transaction", Sql::Bool(false)),
+                ("is_default", Sql::Bool(true)),
+                ("entity_type", text("U")),
+                ("is_active", Sql::Bool(true)),
+                ("created_by", text(created_by)),
+                ("updated_by", text(created_by)),
+                ("created_at", now()),
+                ("updated_at", now()),
+            ]);
+            out.push(insert("sys_window", &window_columns));
         }
 
         // Written only when the model declares one — see the TypeScript seed.

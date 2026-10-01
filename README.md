@@ -64,15 +64,28 @@ This repository also carries the AppWithAI application platform (imported from
 TanStack Start + Astryx frontend on a Loco.rs backend, the modelling web tool,
 and the Rust generator. See `README.platform.md` and `CLAUDE.md`.
 
-Application models are written in the **YAML model language** (`*.eml.yaml`),
-defined by `language/yaml/eml.schema.json` and documented in
-`language/yaml/README.md`. YAML is the source of truth; the Mermaid rendering of
-a model is a derived view. `CEDM_YAML_Architecture_Design.md` sets out the
-architecture, what has been delivered and verified, and the remaining phases.
+Application models are written in **CEDM**: an application is a CEDM document
+whose entities are the library's own (`domain/entities/`), imported by name or
+declared in the model, plus the application profile
+(`specification/application-profile.yaml`) for what CEDM does not describe —
+dashboards, access, hooks, executable rules, processes and reports. The schema
+is `language/cedm/cedm-model.schema.json` and the reference
+`language/cedm/README.md`. A CEDM model is lowered into the YAML model
+language (`*.eml.yaml`, `language/yaml/`) that both generators already compile,
+so nothing downstream knows which language a model was written in; the older
+`*.eml.yaml` models still generate, and `appwithai convert` goes either way.
+
+Each catalog domain is its own application. `applications/<domain>.cedm.yaml`
+(48 files: the common foundation module and 47 domains, built from
+`domains/application-catalog.yaml`) imports the common foundation and its own
+entities; `generated-applications/<domain>/` holds the generated application,
+and every one bundles the common CEDM specification under `cedm/`.
 
 ```bash
 bun install
 bun --filter @appwithai/core build && bun --filter @appwithai/generator build
 bun packages/generator/dist/cli/generate.js generate \
-  -i examples/drug-discovery.eml.yaml -o generated-projects/drug-discovery -n drug-discovery
+  -i applications/sales.cedm.yaml -o generated-projects/sales -n sales
+bash scripts/generate-domain-applications.sh            # all 47 domains
+bun scripts/build-domain-applications.ts --check        # applications/ in sync with the catalog
 ```

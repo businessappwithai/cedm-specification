@@ -178,16 +178,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
       - name: bank_account_id
         type: string
         fk: true
@@ -252,16 +242,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Organization
     help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
     attributes:
@@ -369,18 +349,6 @@ entities:
         fk: true
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
-      - name: customer_role_id
-        type: string
-        fk: true
-        references: Customer
-        optional: true
-        help: Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.
-      - name: supplier_role_id
-        type: string
-        fk: true
-        references: Supplier
-        optional: true
-        help: Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.
   - name: PartyRelationship
     help: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
     attributes:
@@ -499,11 +467,6 @@ entities:
         fk: true
         optional: true
         help: The Organization this Address belongs to.
-      - name: location_id
-        type: string
-        fk: true
-        optional: true
-        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
       - name: supplier_id
         type: string
         fk: true
@@ -1051,18 +1014,6 @@ entities:
         fk: true
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
-      - name: customer_role_id
-        type: string
-        fk: true
-        references: Customer
-        optional: true
-        help: Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.
-      - name: supplier_role_id
-        type: string
-        fk: true
-        references: Supplier
-        optional: true
-        help: Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.
   - name: PurchaseOrder
     help: Represents the formal commercial procurement commitment between a buying organization and a Supplier. PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that goods arrived or that later returns occurred. Purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning and analytics. PurchaseRequisition represents internal demand. PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the commitment. GoodsReceipt records actual receipt and acceptance. InventoryMovement records stock effects. SupplierReturn reverses eligible fulfillment. Invoice records the supplier claim. SupplierCreditNote records authorized financial reduction. Payment settles claims. Draft, approval, issuance, receipt, return, cancellation and closure are distinct stages. Financial settlement can continue after physical fulfillment or return. PurchaseOrder → GoodsReceipt → acceptance → InventoryMovement; when goods must be returned, eligible receipt → SupplierReturn → InventoryMovement reversal → SupplierCreditNote → payable reconciliation. A depot orders 100 parts, receives 96 and accepts 94. Later, three accepted parts are returned as defective. The original order and receipt remain unchanged; SupplierReturn and its inventory/credit workflows record the reversal.
     attributes:
@@ -1174,18 +1125,6 @@ entities:
         fk: true
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
-      - name: customer_role_id
-        type: string
-        fk: true
-        references: Customer
-        optional: true
-        help: Optional role specialization corresponding to the roleType. Connects generic PartyRole identity to role-specific business controls such as customer credit or supplier qualification. At most one specialization is represented by this relationship in the current core model. Allows specialized workflows to extend the role without duplicating Party identity.
-      - name: supplier_role_id
-        type: string
-        fk: true
-        references: Supplier
-        optional: true
-        help: Links the generic PartyRole to the specialized Supplier role record when applicable. Provides direct navigation from role assignment to specialized supplier commercial data. Optional because not every PartyRole represents a supplier. Connects supplier-role eligibility to governed procurement and supplier-management workflows.
       - name: tax_rule_id
         type: string
         fk: true
@@ -2294,13 +2233,13 @@ entities:
         optional: true
         help: The TaxRule this Product belongs to.
 relationships:
-  - from: Person
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Person
     toCardinality: exactly-one
-  - from: Organization
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Organization
     toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
@@ -2317,14 +2256,6 @@ relationships:
     to: Organization
     toCardinality: zero-or-more
     label: employer_organizations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
   - from: Person
     fromCardinality: exactly-one
     to: Address
@@ -2350,29 +2281,19 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: locations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
   - from: Organization
     fromCardinality: exactly-one
     to: PartyRole
     toCardinality: zero-or-more
     label: party_roles
-  - from: Customer
+  - from: PartyRole
     fromCardinality: exactly-one
-    to: PartyRole
-    toCardinality: zero-or-more
-    label: customer_role
-  - from: Supplier
+    to: Customer
+    toCardinality: exactly-one
+  - from: PartyRole
     fromCardinality: exactly-one
-    to: PartyRole
-    toCardinality: zero-or-more
-    label: supplier_role
+    to: Supplier
+    toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
     to: PartyRelationship
@@ -2386,10 +2307,10 @@ relationships:
     fromCardinality: exactly-one
     to: Department
     toCardinality: zero-or-more
-  - from: Location
-    fromCardinality: exactly-one
-    to: Address
-    toCardinality: zero-or-more
+  - from: Address
+    fromCardinality: zero-or-one
+    to: Location
+    toCardinality: zero-or-one
   - from: Party
     fromCardinality: exactly-one
     to: ContactPoint
@@ -2399,10 +2320,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: child_locations
-  - from: Address
-    fromCardinality: exactly-one
-    to: Location
-    toCardinality: zero-or-more
   - from: Currency
     fromCardinality: exactly-one
     to: Product
@@ -2585,10 +2502,6 @@ relationships:
     to: CreditNote
     toCardinality: zero-or-more
     label: credit_notes
-  - from: PartyRole
-    fromCardinality: exactly-one
-    to: Supplier
-    toCardinality: zero-or-more
   - from: Supplier
     fromCardinality: exactly-one
     to: Address
@@ -2617,16 +2530,6 @@ relationships:
     fromCardinality: exactly-one
     to: Supplier
     toCardinality: zero-or-more
-  - from: Customer
-    fromCardinality: exactly-one
-    to: Supplier
-    toCardinality: zero-or-more
-    label: customer_role
-  - from: Supplier
-    fromCardinality: exactly-one
-    to: Supplier
-    toCardinality: zero-or-more
-    label: supplier_role
   - from: Organization
     fromCardinality: exactly-one
     to: PurchaseOrder
@@ -2641,10 +2544,6 @@ relationships:
     to: PurchaseOrder
     toCardinality: zero-or-more
     label: delivery_location
-  - from: PartyRole
-    fromCardinality: exactly-one
-    to: Customer
-    toCardinality: zero-or-more
   - from: Customer
     fromCardinality: exactly-one
     to: Address
@@ -2668,16 +2567,6 @@ relationships:
     fromCardinality: exactly-one
     to: Customer
     toCardinality: zero-or-more
-  - from: Customer
-    fromCardinality: exactly-one
-    to: Customer
-    toCardinality: zero-or-more
-    label: customer_role
-  - from: Supplier
-    fromCardinality: exactly-one
-    to: Customer
-    toCardinality: zero-or-more
-    label: supplier_role
   - from: Organization
     fromCardinality: exactly-one
     to: SalesOrder

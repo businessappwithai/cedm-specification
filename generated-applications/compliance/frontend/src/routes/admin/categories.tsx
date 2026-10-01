@@ -4,7 +4,7 @@
  * Maintains the categories the dashboard groups business entities by, and lets
  * an administrator move entities between them.
  *
- * Generated: 2026-10-01T04:33:36.305Z
+ * Generated: 2026-10-01T05:17:18.095Z
  * Project: compliance
  */
 
@@ -26,6 +26,7 @@ import { ADSidebar } from '@/components/admin/ad-sidebar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { apiClient } from '@/lib/api-client';
+import { useEntityLabel } from '@/hooks/use-dictionary-lists';
 import { Icon } from '@/components/ui/icon';
 import { HStack, Heading, Text, VStack } from "@/components/ui/layout";
 
@@ -97,6 +98,7 @@ function slugify(value: string): string {
 
 function CategoriesPage() {
   const queryClient = useQueryClient();
+  const entityLabel = useEntityLabel();
   const [editing, setEditing] = useState<Category | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<CategoryForm>(EMPTY_FORM);
@@ -123,8 +125,9 @@ function CategoriesPage() {
     () =>
       (tablesQuery.data?.data ?? [])
         .filter((t) => t.table_name?.startsWith('bus_'))
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [tablesQuery.data],
+        .sort((a, b) => (entityLabel(a) ?? '').localeCompare(entityLabel(b) ?? '')),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tablesQuery.data, entityLabel],
   );
 
   const invalidate = () => {
@@ -494,7 +497,6 @@ function CategoriesPage() {
                 <thead className="border-b border-border">
                   <tr className="text-left text-muted-foreground">
                     <th className="px-4 py-2 font-medium">Entity</th>
-                    <th className="px-4 py-2 font-medium">Table</th>
                     <th className="px-4 py-2 font-medium w-72">Category</th>
                   </tr>
                 </thead>
@@ -505,10 +507,7 @@ function CategoriesPage() {
                       className="border-b border-border last:border-0"
                       data-testid={`assign-row-${table.table_name}`}
                     >
-                      <td className="px-4 py-2.5 font-medium">{table.name}</td>
-                      <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">
-                        {table.table_name}
-                      </td>
+                      <td className="px-4 py-2.5 font-medium">{entityLabel(table)}</td>
                       <td className="px-4 py-2.5">
                         <select
                           className="swiss-input h-8 px-2 text-sm w-full"
@@ -519,7 +518,7 @@ function CategoriesPage() {
                               categoryId: e.target.value,
                             })
                           }
-                          aria-label={`Category for ${table.name}`}
+                          aria-label={`Category for ${entityLabel(table) ?? ''}`}
                         >
                           <option value="">— Uncategorized —</option>
                           {categories

@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T04:35:07.142Z
+ * Generated: 2026-10-01T05:18:51.691Z
  * Project: procurement
  */
 

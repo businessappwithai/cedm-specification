@@ -24,15 +24,28 @@ import { apiClient } from "@/lib/api-client";
 export interface DictionaryEntity {
   /** Physical table, e.g. `bus_compound`. What the rule is stored against. */
   value: string;
-  /** Display name from the dictionary, e.g. `Compound`. */
+  /** The window the entity opens in, e.g. `Compound`. Never the table's name. */
   label: string;
   table: string;
 }
 
 interface TableRow {
+  sys_table_id: string;
   table_name: string;
-  name?: string;
   is_active?: boolean;
+}
+
+interface WindowRow {
+  sys_window_id: string;
+  name: string;
+}
+
+interface TabRow {
+  sys_window_id: string;
+  sys_table_id: string;
+  name: string;
+  tab_level: number;
+  seq_no?: number;
 }
 
 interface ColumnRow {
@@ -53,14 +66,30 @@ export function useDictionaryEntities() {
   return useQuery<DictionaryEntity[]>({
     queryKey: ["dictionary-entities"],
     queryFn: async () => {
-      const response = await apiClient.get<unknown>("/sys/tables", { limit: 500 });
-      return rows<TableRow>(response)
+      const [tables, windows, tabs] = await Promise.all([
+        apiClient.get<unknown>("/sys/tables", { limit: 500 }),
+        apiClient.get<unknown>("/sys/windows", { limit: 500 }),
+        apiClient.get<unknown>("/sys/tabs", { limit: 500 }),
+      ]);
+      const windowRows = rows<WindowRow>(windows);
+      const tabRows = rows<TabRow>(tabs);
+      // The label is the window's (or, for a line item, its tab's) name.
+      const labelOf = (table: TableRow): string | undefined => {
+        const tab = tabRows
+          .filter((candidate) => candidate.sys_table_id === table.sys_table_id)
+          .sort((a, b) => a.tab_level - b.tab_level || (a.seq_no ?? 0) - (b.seq_no ?? 0))[0];
+        if (!tab) return undefined;
+        return tab.tab_level === 0
+          ? (windowRows.find((w) => w.sys_window_id === tab.sys_window_id)?.name ?? tab.name)
+          : tab.name;
+      };
+      return rows<TableRow>(tables)
         .filter((table) => table.table_name?.startsWith("bus_") && table.is_active !== false)
-        .map((table) => ({
-          value: table.table_name,
-          label: table.name || table.table_name.replace(/^bus_/, ""),
-          table: table.table_name,
-        }))
+        .flatMap((table) => {
+          const label = labelOf(table);
+          // An entity with no window and no tab has no screen to name.
+          return label ? [{ value: table.table_name, label, table: table.table_name }] : [];
+        })
         .sort((a, b) => a.label.localeCompare(b.label));
     },
     // The dictionary changes when the model is regenerated, not while someone

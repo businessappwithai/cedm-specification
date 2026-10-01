@@ -23,6 +23,7 @@ import {
   STEP_TYPES,
   type StepType,
 } from "@/lib/workflow/step-types";
+import { useDictionaryEntities } from "./use-dictionary-entities";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -382,22 +383,13 @@ interface ColumnRow {
   name: string;
 }
 
+/**
+ * The entities a step can name, labelled by the window each opens in — never by
+ * the dictionary table's own name.
+ */
 function useBusTables(): TableRow[] {
-  const [tables, setTables] = useState<TableRow[]>([]);
-  useEffect(() => {
-    fetch("/api/sys/tables?limit=200", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => {
-        const rows = (Array.isArray(d) ? d : (d?.data ?? [])) as any[];
-        setTables(
-          rows
-            .filter((t) => t.table_name?.startsWith("bus_"))
-            .map((t) => ({ table_name: t.table_name, name: t.name || t.table_name }))
-        );
-      })
-      .catch(() => {});
-  }, []);
-  return tables;
+  const { data } = useDictionaryEntities();
+  return (data ?? []).map((entity) => ({ table_name: entity.table, name: entity.label }));
 }
 
 const SKIP_COLS = new Set([
@@ -429,7 +421,8 @@ function useBusColumns(tableName: string): ColumnRow[] {
         setColumns(
           rows
             .filter((c) => !SKIP_COLS.has(c.column_name))
-            .map((c) => ({ column_name: c.column_name, name: c.name || c.column_name }))
+            // The field's name is the label; the column name is only the key.
+            .map((c) => ({ column_name: c.column_name, name: c.name ?? "" }))
         );
       })
       .catch(() => {});
@@ -970,7 +963,7 @@ function PropertyFields({
           <SelectContent>
             {tables.map((t) => (
               <SelectItem key={t.table_name} value={t.table_name} className="text-xs">
-                {t.name} <Text color="secondary" className="ml-1">({t.table_name})</Text>
+                {t.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1011,7 +1004,7 @@ function PropertyFields({
             <SelectContent>
               {options.map((c) => (
                 <SelectItem key={c.column_name} value={c.column_name} className="text-xs">
-                  {c.name} <Text color="secondary" className="ml-1">({c.column_name})</Text>
+                  {c.name}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T04:36:04.910Z
+//! Generated: 2026-10-01T05:19:52.069Z
 //! Project: travel
 
 use serde_json::Value;

@@ -116,16 +116,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Person
     help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
     attributes:
@@ -185,16 +175,6 @@ entities:
         type: string(200)
         optional: true
         help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
-      - name: person_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.
-      - name: organization_id
-        type: string
-        fk: true
-        optional: true
-        help: Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.
   - name: Organization
     help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
     attributes:
@@ -415,11 +395,6 @@ entities:
         fk: true
         optional: true
         help: The Organization this Address belongs to.
-      - name: location_id
-        type: string
-        fk: true
-        optional: true
-        help: Location associated with this address. Provides physical/place context for operational and geographic processes.
   - name: ContactPoint
     help: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
     attributes:
@@ -729,11 +704,6 @@ entities:
         fk: true
         optional: true
         help: Transfer authorization causing this relocation event. Explains source/target relocation purpose. Transfer reconciliation and audit. Optional outside controlled transfer. Product, locations, quantity, lot and serial must reconcile.
-      - name: inventory_adjustment_id
-        type: string
-        fk: true
-        optional: true
-        help: Approved discrepancy correction causing this adjustment event. Supplies reason and evidence for stock correction. Count reconciliation and audit. Optional outside adjustment. Signed ledger effect must reconcile with approved delta.
   - name: InventoryReservation
     help: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement. Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it. Sales fulfillment, maintenance demand, allocation, picking, replenishment, production and inventory control. Product identifies stock, InventoryLocation identifies where it is reserved, InventoryBalance supplies available state, and SalesOrderLine supplies one possible demand source. Demand approved → availability checked → reservation created → InventoryBalance reserved/available updated → pick/issue/fulfillment → reservation consumed and InventoryMovement posted. Cancellation/expiry releases reserved quantity. Master or location changes trigger revalidation. Pending → Active → Partially consumed → Consumed, or Active → Released/Cancelled/Expired. Terminal states preserve history. Reservation creation, increase, consumption and release require transactional concurrency control so available inventory cannot be reserved twice. 100 units are available. A SalesOrderLine reserves 30, making 70 available. Picking consumes 10 reserved units and posts the corresponding issue movement; the reservation has 20 remaining. If the location is blocked, the reservation must be transferred or released before the stock can be considered available elsewhere.
     attributes:
@@ -851,6 +821,10 @@ entities:
       - name: reason_code
         type: string(100)
         help: Controlled reason for correction. Explains why ledger stock differs from evidenced reality. Approval, root-cause and audit. Must not be used to conceal ordinary receipts/issues. Required.
+      - name: inventory_movement_id
+        type: string
+        fk: true
+        help: Authoritative stock-ledger correction. Implements approved quantity delta. Balance reconciliation and audit. Exactly one posting for executed adjustment. Must be idempotent and match product/location/quantity.
       - name: inventory_count_id
         type: string
         fk: true
@@ -864,10 +838,6 @@ entities:
         type: string
         fk: true
         help: Location whose stock is corrected. Defines physical/accountable stock context. Count and reconciliation. Exactly one location. Must match movement.
-      - name: inventory_movement_id
-        type: string
-        fk: true
-        help: Authoritative stock-ledger correction. Implements approved quantity delta. Balance reconciliation and audit. Exactly one posting for executed adjustment. Must be idempotent and match product/location/quantity.
   - name: Lot
     help: Batch-level inventory identity for end-to-end genealogy and recall. Product identifies what an item is; Lot identifies which production or receipt batch a quantity belongs to. Inventory, WMS, manufacturing, quality, procurement, sales fulfillment, expiry management, recall, and regulatory traceability. Lot follows Product quantities through InventoryMovement and InventoryBalance and may later connect to receipt, production, shipment, inspection, and certificate evidence. Created/received → active or quarantined → released/held → consumed/expired/rejected → closed. Status, expiry, or quality changes immediately revalidate availability, reservations, picking, shipment, production consumption, and disposition without altering historical movements.
     attributes:
@@ -1259,13 +1229,13 @@ entities:
         fk: true
         help: Measurement unit for quantityPerPackage. Makes pack quantity unambiguous. Conversion and validation. Exactly one UOM. Must be compatible with Product quantity semantics.
 relationships:
-  - from: Person
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Person
     toCardinality: exactly-one
-  - from: Organization
+  - from: Party
     fromCardinality: exactly-one
-    to: Party
+    to: Organization
     toCardinality: exactly-one
   - from: Party
     fromCardinality: exactly-one
@@ -1282,14 +1252,6 @@ relationships:
     to: Organization
     toCardinality: zero-or-more
     label: employer_organizations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Person
-    toCardinality: zero-or-more
   - from: Person
     fromCardinality: exactly-one
     to: Address
@@ -1315,14 +1277,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: locations
-  - from: Person
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
-  - from: Organization
-    fromCardinality: exactly-one
-    to: Organization
-    toCardinality: zero-or-more
   - from: Organization
     fromCardinality: exactly-one
     to: PartyRole
@@ -1341,10 +1295,10 @@ relationships:
     fromCardinality: exactly-one
     to: Department
     toCardinality: zero-or-more
-  - from: Location
-    fromCardinality: exactly-one
-    to: Address
-    toCardinality: zero-or-more
+  - from: Address
+    fromCardinality: zero-or-one
+    to: Location
+    toCardinality: zero-or-one
   - from: Party
     fromCardinality: exactly-one
     to: ContactPoint
@@ -1354,10 +1308,6 @@ relationships:
     to: Location
     toCardinality: zero-or-more
     label: child_locations
-  - from: Address
-    fromCardinality: exactly-one
-    to: Location
-    toCardinality: zero-or-more
   - from: Currency
     fromCardinality: exactly-one
     to: Product
@@ -1457,10 +1407,10 @@ relationships:
     to: InventoryMovement
     toCardinality: zero-or-more
     label: inventory_movements
-  - from: InventoryAdjustment
+  - from: InventoryMovement
     fromCardinality: exactly-one
-    to: InventoryMovement
-    toCardinality: zero-or-more
+    to: InventoryAdjustment
+    toCardinality: exactly-one
   - from: Product
     fromCardinality: exactly-one
     to: InventoryReservation
@@ -1524,10 +1474,6 @@ relationships:
     to: InventoryAdjustment
     toCardinality: zero-or-more
   - from: InventoryLocation
-    fromCardinality: exactly-one
-    to: InventoryAdjustment
-    toCardinality: zero-or-more
-  - from: InventoryMovement
     fromCardinality: exactly-one
     to: InventoryAdjustment
     toCardinality: zero-or-more

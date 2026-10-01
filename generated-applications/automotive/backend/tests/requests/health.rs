@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T04:33:27.817Z
+//! Generated: 2026-10-01T05:17:08.477Z
 //! Project: automotive
 
 use serde_json::Value;

@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-01T04:36:08.677Z
+//! Generated: 2026-10-01T05:19:55.807Z
 //! Project: workflow
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who

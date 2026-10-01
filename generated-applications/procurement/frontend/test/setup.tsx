@@ -105,8 +105,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -114,8 +112,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -124,8 +120,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   person: {
@@ -145,8 +139,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 1',
         status: 'Test Status 1',
         external_reference: 'Test External Reference 1',
-        person_id: 'Test Person 1',
-        organization_id: 'Test Organization 1',
       },
       {
         id: 'test-id-2',
@@ -163,8 +155,6 @@ export const mockApiResponses = {
         display_name: 'Test Display Name 2',
         status: 'Test Status 2',
         external_reference: 'Test External Reference 2',
-        person_id: 'Test Person 2',
-        organization_id: 'Test Organization 2',
       },
     ],
     single: {
@@ -182,8 +172,6 @@ export const mockApiResponses = {
       display_name: 'Test Display Name',
       status: 'Test Status',
       external_reference: 'Test External Reference',
-      person_id: 'Test Person',
-      organization_id: 'Test Organization',
     },
   },
   organization: {
@@ -250,7 +238,6 @@ export const mockApiResponses = {
         status: 'Test Status 1',
         person_id: 'Test Person 1',
         organization_id: 'Test Organization 1',
-        supplier_role_id: 'Test Supplier Role 1',
       },
       {
         id: 'test-id-2',
@@ -262,7 +249,6 @@ export const mockApiResponses = {
         status: 'Test Status 2',
         person_id: 'Test Person 2',
         organization_id: 'Test Organization 2',
-        supplier_role_id: 'Test Supplier Role 2',
       },
     ],
     single: {
@@ -275,7 +261,6 @@ export const mockApiResponses = {
       status: 'Test Status',
       person_id: 'Test Person',
       organization_id: 'Test Organization',
-      supplier_role_id: 'Test Supplier Role',
     },
   },
   partyRelationship: {
@@ -379,7 +364,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 1',
         person_id: 'Test Person 1',
         organization_id: 'Test Organization 1',
-        location_id: 'Test Location 1',
         supplier_id: 'Test Supplier 1',
       },
       {
@@ -399,7 +383,6 @@ export const mockApiResponses = {
         party_id: 'Test Party 2',
         person_id: 'Test Person 2',
         organization_id: 'Test Organization 2',
-        location_id: 'Test Location 2',
         supplier_id: 'Test Supplier 2',
       },
     ],
@@ -420,7 +403,6 @@ export const mockApiResponses = {
       party_id: 'Test Party',
       person_id: 'Test Person',
       organization_id: 'Test Organization',
-      location_id: 'Test Location',
       supplier_id: 'Test Supplier',
     },
   },
@@ -671,7 +653,6 @@ export const mockApiResponses = {
         valid_from: '2024-01-15',
         valid_to: '2024-01-15',
         organization_id: 'Test Organization 1',
-        supplier_role_id: 'Test Supplier Role 1',
       },
       {
         id: 'test-id-2',
@@ -687,7 +668,6 @@ export const mockApiResponses = {
         valid_from: '2024-01-16',
         valid_to: '2024-01-16',
         organization_id: 'Test Organization 2',
-        supplier_role_id: 'Test Supplier Role 2',
       },
     ],
     single: {
@@ -704,7 +684,6 @@ export const mockApiResponses = {
       valid_from: '2024-01-15',
       valid_to: '2024-01-15',
       organization_id: 'Test Organization',
-      supplier_role_id: 'Test Supplier Role',
     },
   },
   purchaseRequisition: {

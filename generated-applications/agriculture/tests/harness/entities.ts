@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-01T04:33:17.931Z
+ * Generated: 2026-10-01T05:16:58.382Z
  * Project: agriculture
  */
 
@@ -149,22 +149,6 @@ export const entities: EntityMeta[] = [
         maxLength: 200,
       },
       {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
         name: "farm_id",
         displayName: "Farm",
         type: "string",
@@ -303,22 +287,6 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: false,
         maxLength: 200,
-      },
-      {
-        name: "person_id",
-        displayName: "Person",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "organization_id",
-        displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
       },
     ],
   },
@@ -831,14 +799,6 @@ export const entities: EntityMeta[] = [
       {
         name: "organization_id",
         displayName: "Organization",
-        type: "string",
-        required: false,
-        unique: false,
-        isForeignKey: true,
-      },
-      {
-        name: "location_id",
-        displayName: "Location",
         type: "string",
         required: false,
         unique: false,
@@ -1511,18 +1471,18 @@ export const entities: EntityMeta[] = [
 
 export const relationships: RelationshipMeta[] = [
   {
-    name: "person_party",
-    sourceEntity: "Person",
-    targetEntity: "Party",
+    name: "party_person",
+    sourceEntity: "Party",
+    targetEntity: "Person",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "person_id",
   },
   {
-    name: "organization_party",
-    sourceEntity: "Organization",
-    targetEntity: "Party",
+    name: "party_organization",
+    sourceEntity: "Party",
+    targetEntity: "Organization",
     cardinality: "oneToOne",
-    foreignKey: "party_id",
+    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -1544,20 +1504,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Organization",
     cardinality: "oneToMany",
     foreignKey: "person_id",
-  },
-  {
-    name: "person_person",
-    sourceEntity: "Person",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_person",
-    sourceEntity: "Organization",
-    targetEntity: "Person",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
   },
   {
     name: "addresses",
@@ -1595,20 +1541,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "person_organization",
-    sourceEntity: "Person",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "person_id",
-  },
-  {
-    name: "organization_organization",
-    sourceEntity: "Organization",
-    targetEntity: "Organization",
-    cardinality: "oneToMany",
-    foreignKey: "organization_id",
-  },
-  {
     name: "party_roles",
     sourceEntity: "Organization",
     targetEntity: "PartyRole",
@@ -1637,10 +1569,10 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "organization_id",
   },
   {
-    name: "location_address",
-    sourceEntity: "Location",
-    targetEntity: "Address",
-    cardinality: "oneToMany",
+    name: "address_location",
+    sourceEntity: "Address",
+    targetEntity: "Location",
+    cardinality: "oneToOne",
     foreignKey: "location_id",
   },
   {
@@ -1656,13 +1588,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "Location",
     cardinality: "oneToMany",
     foreignKey: "location_id",
-  },
-  {
-    name: "address_location",
-    sourceEntity: "Address",
-    targetEntity: "Location",
-    cardinality: "oneToMany",
-    foreignKey: "address_id",
   },
   {
     name: "exchange_rates_from",

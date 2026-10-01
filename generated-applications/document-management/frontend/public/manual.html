@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T04:33:51.989Z">2026-10-01T04:33:51.989Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-01T05:17:34.154Z">2026-10-01T05:17:34.154Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -268,16 +268,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>The Organization this Address belongs to.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
-        <tr>
-          <td><code>location_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Location associated with this address. Provides physical/place context for operational and geographic processes.<div class="detail">Points at <b>Location</b></div></td>
-        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 17 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Address</b> window, on the <b>Address</b> tab. These are its 16 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -409,14 +403,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>160</td>
             <td>No</td>
           </tr>
-          <tr>
-            <td><code>location_id</code></td>
-            <td>Location</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>170</td>
-            <td>No</td>
-          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
@@ -424,8 +410,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Address</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-person">Person</a>.</li>
           <li>Each <b>Address</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Address</b> belongs to one <a href="#entity-location">Location</a>.</li>
-          <li>Each <b>Address</b> has many <a href="#entity-location">Location</a> records.</li>
+          <li>Each <b>Address</b> has one <a href="#entity-location">Location</a>.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
@@ -1643,9 +1628,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Location</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
-          <li>Each <b>Location</b> has many <a href="#entity-address">Address</a> records.</li>
+          <li>Each <b>Location</b> has one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-location">Location</a> records.</li>
-          <li>Each <b>Location</b> belongs to one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-document">Document</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
@@ -1869,12 +1853,9 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Organization</b> has one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
-          <li>Each <b>Organization</b> has many <a href="#entity-person">Person</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-location">Location</a> records.</li>
-          <li>Each <b>Organization</b> belongs to one <a href="#entity-person">Person</a>.</li>
-          <li>Each <b>Organization</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-business-unit">Business Unit</a> records.</li>
           <li>Each <b>Organization</b> has many <a href="#entity-department">Department</a> records.</li>
@@ -1923,18 +1904,6 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
         </tr>
         <tr>
-          <td><code>person_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
-        </tr>
-        <tr>
-          <td><code>organization_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
-        </tr>
-        <tr>
           <td><code>document_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -1943,7 +1912,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -1988,27 +1957,11 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>person_id</code></td>
-            <td>Person</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>60</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>organization_id</code></td>
-            <td>Organization</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>70</td>
-            <td>No</td>
-          </tr>
-          <tr>
             <td><code>document_id</code></td>
             <td>Document</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>80</td>
+            <td>60</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -2353,22 +2306,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><span class="tag">max 200</span></td>
           <td>An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.</td>
         </tr>
-        <tr>
-          <td><code>person_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies person-specific identity and demographic information for a Party classified as PERSON. Used when a party participates in processes requiring individual information. At most one Person specialization may describe the party. The specialization is selected by partyType and must not coexist with Organization.<div class="detail">Points at <b>Person</b></div></td>
-        </tr>
-        <tr>
-          <td><code>organization_id</code></td>
-          <td>Lookup</td>
-          <td>&mdash;</td>
-          <td>Supplies organization-specific legal and organizational information for a Party classified as ORGANIZATION. Used for companies, agencies, institutions, nonprofits, and other organizational actors. At most one Organization specialization may describe the party. The specialization is selected by partyType and must not coexist with Person.<div class="detail">Points at <b>Organization</b></div></td>
-        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Person</b> window, on the <b>Person</b> tab. These are its 16 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Person</b> window, on the <b>Person</b> tab. These are its 14 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2484,33 +2425,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>140</td>
             <td>No</td>
           </tr>
-          <tr>
-            <td><code>person_id</code></td>
-            <td>Person</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>150</td>
-            <td>No</td>
-          </tr>
-          <tr>
-            <td><code>organization_id</code></td>
-            <td>Organization</td>
-            <td>Yes</td>
-            <td>No</td>
-            <td>160</td>
-            <td>No</td>
-          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Person</b> has one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
-          <li>Each <b>Person</b> has many <a href="#entity-person">Person</a> records.</li>
-          <li>Each <b>Person</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Person</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
-          <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>

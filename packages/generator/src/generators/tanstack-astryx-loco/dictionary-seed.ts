@@ -533,6 +533,10 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
           name: entity.displayName,
           description: `Maintain ${entity.displayName} records`,
           help: entityHelp?.window ?? null,
+          // The icon the dashboard card and the menu draw, from the window like
+          // every other label on them. Written only when the model declares one,
+          // so a model without icons seeds exactly what it always did.
+          ...(entity.icon ? { icon: entity.icon } : {}),
           window_type: "M",
           is_sales_transaction: false,
           is_default: true,

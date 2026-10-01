@@ -23,12 +23,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 
+/**
+ * An entity as the front page offers it: the window it opens in.
+ *
+ * Every label the screens draw for an entity — the card, the menu entry, the
+ * heading — is the **window's** (`window_name`, `window_description`,
+ * `window_help`, `window_icon`), and a tab's or a field's inside it. The
+ * dictionary's table and column names (`table_name`, `name`, `description`,
+ * `icon` of `sys_table`) are what the application stores things in, not what a
+ * person reads, and nothing on a screen is drawn from them. `table_name` stays
+ * because it keys the entity to the API.
+ */
 export interface DashboardTable {
   sys_table_id: string;
+  /** The key to the API. Never drawn. */
   table_name: string;
-  name: string;
-  description?: string;
-  icon?: string | null;
+  window_id: string;
+  window_name: string;
+  window_description?: string | null;
+  window_help?: string | null;
+  window_icon?: string | null;
   is_active: boolean;
 }
 
@@ -78,8 +92,8 @@ export function useDashboard() {
  * `/chemical_inventory` and 404. One helper so the dashboard's cards and the
  * sidebar's links cannot disagree about it.
  */
-export function entityHref(table: Pick<DashboardTable, "name">): string {
-  return `/${table.name.toLowerCase().replace(/\s+/g, "-")}`;
+export function entityHref(table: Pick<DashboardTable, "window_name">): string {
+  return `/${table.window_name.toLowerCase().replace(/\s+/g, "-")}`;
 }
 
 /** The admin windows this caller may open, in the order the dictionary gives. */

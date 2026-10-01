@@ -19,8 +19,6 @@ CREATE TABLE IF NOT EXISTS bus_party (
   , display_name VARCHAR(300) NOT NULL
   , status VARCHAR(255) NOT NULL
   , external_reference VARCHAR(200)
-  , person_id UUID
-  , organization_id UUID
   , bank_account_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -54,8 +52,6 @@ CREATE TABLE IF NOT EXISTS bus_person (
   , display_name VARCHAR(300) NOT NULL
   , status VARCHAR(255) NOT NULL
   , external_reference VARCHAR(200)
-  , person_id UUID
-  , organization_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -117,8 +113,6 @@ CREATE TABLE IF NOT EXISTS bus_party_role (
   , status VARCHAR(255) NOT NULL
   , person_id UUID
   , organization_id UUID
-  , customer_role_id UUID
-  , supplier_role_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -242,7 +236,6 @@ CREATE TABLE IF NOT EXISTS bus_address (
   , party_id UUID
   , person_id UUID
   , organization_id UUID
-  , location_id UUID
   , supplier_id UUID
   , customer_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
@@ -643,8 +636,6 @@ CREATE TABLE IF NOT EXISTS bus_supplier (
   , valid_from DATE
   , valid_to DATE
   , organization_id UUID
-  , customer_role_id UUID
-  , supplier_role_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -705,8 +696,6 @@ CREATE TABLE IF NOT EXISTS bus_customer (
   , valid_from DATE
   , valid_to DATE
   , organization_id UUID
-  , customer_role_id UUID
-  , supplier_role_id UUID
   , tax_rule_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -1752,40 +1741,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_person
-    ADD CONSTRAINT fk_bus_person_person_id
-    FOREIGN KEY (person_id)
-    REFERENCES bus_person(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_person
-    ADD CONSTRAINT fk_bus_person_organization_id
-    FOREIGN KEY (organization_id)
-    REFERENCES bus_organization(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_address
     ADD CONSTRAINT fk_bus_address_person_id
     FOREIGN KEY (person_id)
@@ -1871,78 +1826,10 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_organization
-    ADD CONSTRAINT fk_bus_organization_person_id
-    FOREIGN KEY (person_id)
-    REFERENCES bus_person(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_organization
-    ADD CONSTRAINT fk_bus_organization_organization_id
-    FOREIGN KEY (organization_id)
-    REFERENCES bus_organization(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_party_role
     ADD CONSTRAINT fk_bus_party_role_organization_id
     FOREIGN KEY (organization_id)
     REFERENCES bus_organization(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_party_role
-    ADD CONSTRAINT fk_bus_party_role_customer_id
-    FOREIGN KEY (customer_id)
-    REFERENCES bus_customer(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_party_role
-    ADD CONSTRAINT fk_bus_party_role_supplier_id
-    FOREIGN KEY (supplier_id)
-    REFERENCES bus_supplier(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2007,23 +1894,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_address
-    ADD CONSTRAINT fk_bus_address_location_id
-    FOREIGN KEY (location_id)
-    REFERENCES bus_location(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_contact_point
     ADD CONSTRAINT fk_bus_contact_point_party_id
     FOREIGN KEY (party_id)
@@ -2045,23 +1915,6 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_location_location_id
     FOREIGN KEY (location_id)
     REFERENCES bus_location(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_location
-    ADD CONSTRAINT fk_bus_location_address_id
-    FOREIGN KEY (address_id)
-    REFERENCES bus_address(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2670,23 +2523,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_supplier
-    ADD CONSTRAINT fk_bus_supplier_party_role_id
-    FOREIGN KEY (party_role_id)
-    REFERENCES bus_party_role(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_address
     ADD CONSTRAINT fk_bus_address_supplier_id
     FOREIGN KEY (supplier_id)
@@ -2772,40 +2608,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_supplier
-    ADD CONSTRAINT fk_bus_supplier_customer_id
-    FOREIGN KEY (customer_id)
-    REFERENCES bus_customer(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_supplier
-    ADD CONSTRAINT fk_bus_supplier_supplier_id
-    FOREIGN KEY (supplier_id)
-    REFERENCES bus_supplier(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_purchase_order
     ADD CONSTRAINT fk_bus_purchase_order_organization_id
     FOREIGN KEY (organization_id)
@@ -2844,23 +2646,6 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_purchase_order_location_id
     FOREIGN KEY (location_id)
     REFERENCES bus_location(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_customer
-    ADD CONSTRAINT fk_bus_customer_party_role_id
-    FOREIGN KEY (party_role_id)
-    REFERENCES bus_party_role(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2946,40 +2731,6 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_customer_organization_id
     FOREIGN KEY (organization_id)
     REFERENCES bus_organization(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_customer
-    ADD CONSTRAINT fk_bus_customer_customer_id
-    FOREIGN KEY (customer_id)
-    REFERENCES bus_customer(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_customer
-    ADD CONSTRAINT fk_bus_customer_supplier_id
-    FOREIGN KEY (supplier_id)
-    REFERENCES bus_supplier(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;

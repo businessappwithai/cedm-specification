@@ -78,15 +78,15 @@ const ENTITIES: string[] = [
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
-  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
-  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference', 'person_id', 'organization_id'],
+  'Party': ['id', 'party_type', 'display_name', 'status', 'external_reference'],
+  'Person': ['id', 'party_id', 'title', 'given_name', 'middle_name', 'family_name', 'preferred_name', 'date_of_birth', 'gender', 'nationality', 'party_type', 'display_name', 'status', 'external_reference'],
   'Organization': ['id', 'party_id', 'code', 'name', 'organization_type', 'status', 'legal_name', 'registration_number', 'tax_identifier', 'party_type', 'display_name', 'external_reference', 'person_id', 'parent_organization_id'],
-  'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id', 'supplier_role_id'],
+  'PartyRole': ['id', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'status', 'person_id', 'organization_id'],
   'PartyRelationship': ['id', 'code', 'name', 'from_party_id'],
   'LegalEntity': ['id', 'occurred_at'],
   'BusinessUnit': ['id', 'code', 'name', 'organization_id'],
   'Department': ['id', 'code', 'name', 'organization_id'],
-  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id', 'location_id', 'supplier_id'],
+  'Address': ['id', 'address_type', 'line1', 'line2', 'line3', 'city', 'state_or_province', 'postal_code', 'country_code', 'latitude', 'longitude', 'is_primary', 'status', 'party_id', 'person_id', 'organization_id', 'supplier_id'],
   'ContactPoint': ['id', 'code', 'name', 'party_id'],
   'Location': ['id', 'code', 'name', 'location_type', 'status', 'address_id', 'parent_location_id', 'organization_id', 'product_id'],
   'Country': ['id', 'code', 'name'],
@@ -96,7 +96,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'UnitOfMeasure': ['id', 'code', 'name', 'symbol', 'category', 'conversion_factor', 'base_unit_id', 'status'],
   'Calendar': ['id', 'code', 'name'],
   'Attachment': ['id', 'effective_at'],
-  'Supplier': ['id', 'party_role_id', 'supplier_code', 'supplier_type', 'qualification_status', 'payment_terms', 'status', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'organization_id', 'supplier_role_id'],
+  'Supplier': ['id', 'party_role_id', 'supplier_code', 'supplier_type', 'qualification_status', 'payment_terms', 'status', 'party_id', 'role_type', 'code', 'valid_from', 'valid_to', 'organization_id'],
   'PurchaseRequisition': ['id', 'requisition_number', 'requisition_date', 'status', 'justification', 'requester_id', 'organization_id', 'supplier_id'],
   'PurchaseRequisitionLine': ['id', 'line_number', 'quantity', 'requested_date', 'description', 'requisition_id', 'product_id', 'unit_of_measure_id'],
   'RequestForQuotation': ['id', 'rfq_number', 'issued_at', 'response_due_at', 'status'],

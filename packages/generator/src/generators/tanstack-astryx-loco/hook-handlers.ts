@@ -311,6 +311,7 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
     `/// \`bus_compound\`, \`compound\`, \`Compound\` and \`chemical-inventory\` all have\n` +
     `/// to reach the same handlers, or a hook would fire from one route and not\n` +
     `/// another.\n` +
+    `#[allow(dead_code)]\n` +
     `fn key(entity: &str) -> String {\n` +
     `    let trimmed = entity.strip_prefix("bus_").unwrap_or(entity);\n` +
     `    trimmed\n` +

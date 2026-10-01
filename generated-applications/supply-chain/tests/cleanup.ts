@@ -20,7 +20,7 @@
  *   --dry-run    Report what would be deleted without deleting it.
  *   --yes        Skip the confirmation prompt for --all.
  *
- * Generated: 2026-10-01T04:35:48.248Z
+ * Generated: 2026-10-01T05:19:34.882Z
  * Project: supply-chain
  */
 
