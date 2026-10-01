@@ -14,19 +14,19 @@
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('5c7548d7-a91d-5a99-913c-b96c0210ae79', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '0f2fa929-37aa-5664-b886-dba8ad6b0528', '2ad52f83-7b81-576c-b742-3e4429b66240', 'cd6fa877-e5cb-58e9-942f-1f6892b1077e', 'final', NOW(), NOW())
+VALUES ('5c7548d7-a91d-5a99-913c-b96c0210ae79', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '0f2fa929-37aa-5664-b886-dba8ad6b0528', '2ad52f83-7b81-576c-b742-3e4429b66240', 'cd6fa877-e5cb-58e9-942f-1f6892b1077e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('4a05f1a3-fa02-5c4b-93ba-4aa2e2473f56', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '06daeca7-be08-5f25-b0eb-f2d43582f294', '01331c7c-3a50-51f7-ab5f-0b3cbf799847', '6a9e8cbb-8741-50cf-a6ea-ab26207b73ac', 'final', NOW(), NOW())
+VALUES ('4a05f1a3-fa02-5c4b-93ba-4aa2e2473f56', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '06daeca7-be08-5f25-b0eb-f2d43582f294', '01331c7c-3a50-51f7-ab5f-0b3cbf799847', '6a9e8cbb-8741-50cf-a6ea-ab26207b73ac', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('2354311f-0178-5c63-a66f-39fb98696770', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '5ee9fff3-e0b1-5948-af78-30c424ed81e4', '6b6b9436-a903-5ce1-8e4f-4ee69a0b8a74', '8d93d836-aa28-50a0-96a8-75da6692a9cf', 'final', NOW(), NOW())
+VALUES ('2354311f-0178-5c63-a66f-39fb98696770', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '5ee9fff3-e0b1-5948-af78-30c424ed81e4', '6b6b9436-a903-5ce1-8e4f-4ee69a0b8a74', '8d93d836-aa28-50a0-96a8-75da6692a9cf', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('843fa91d-f23f-56e3-b1f5-51df6f7b3e41', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '40aad703-86f7-5c38-b265-f3e6ede0f5ed', '4afd8aba-a995-5dd8-9d54-2debd3e461b0', 'df9ef0e6-c552-56f8-abbb-1a3ebdde5cc7', 'final', NOW(), NOW())
+VALUES ('843fa91d-f23f-56e3-b1f5-51df6f7b3e41', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '40aad703-86f7-5c38-b265-f3e6ede0f5ed', '4afd8aba-a995-5dd8-9d54-2debd3e461b0', 'df9ef0e6-c552-56f8-abbb-1a3ebdde5cc7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('c5ee6506-e00a-5a61-866d-defd9b2a4f3a', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '522410f7-1038-5ad6-91ef-e0e7e0419ef7', 'ecb60961-0daf-55b4-aad9-05318cdce91b', 'df20f81b-21b6-5c6d-a55a-adc025c0659f', 'final', NOW(), NOW())
+VALUES ('c5ee6506-e00a-5a61-866d-defd9b2a4f3a', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '522410f7-1038-5ad6-91ef-e0e7e0419ef7', 'ecb60961-0daf-55b4-aad9-05318cdce91b', 'df20f81b-21b6-5c6d-a55a-adc025c0659f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Location (bus_location)
@@ -303,19 +303,19 @@ ON CONFLICT DO NOTHING;
 
 -- Farm Field (bus_farm_field)
 INSERT INTO bus_farm_field (id, field_code, area, area_unit, soil_type, status, farm_id, doc_status, created_at, updated_at)
-VALUES ('455a4d09-4383-5ad4-b028-dc461a0dc836', 'Field Code 1', 10.50, '6e746321-a439-516d-ae83-b4fa3d21db41', 'Soil Type 1', 'ACTIVE', 'd8b4b147-7ad9-52f5-b9c1-dfc394397915', 'final', NOW(), NOW())
+VALUES ('455a4d09-4383-5ad4-b028-dc461a0dc836', 'Farm Field 1', 10.50, '6e746321-a439-516d-ae83-b4fa3d21db41', 'Soil Type 1', 'ACTIVE', 'd8b4b147-7ad9-52f5-b9c1-dfc394397915', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_farm_field (id, field_code, area, area_unit, soil_type, status, farm_id, doc_status, created_at, updated_at)
-VALUES ('2d104541-8753-5e64-9a18-9d00ea2fa362', 'Field Code 2', 21.00, '3924e8b8-d9c0-57e9-8c0f-083507d3ebe0', 'Soil Type 2', 'ACTIVE', '8c91879f-87de-5d8f-8313-aac6fa431949', 'final', NOW(), NOW())
+VALUES ('2d104541-8753-5e64-9a18-9d00ea2fa362', 'Farm Field 2', 21.00, '3924e8b8-d9c0-57e9-8c0f-083507d3ebe0', 'Soil Type 2', 'ACTIVE', '8c91879f-87de-5d8f-8313-aac6fa431949', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_farm_field (id, field_code, area, area_unit, soil_type, status, farm_id, doc_status, created_at, updated_at)
-VALUES ('bd608963-c2ff-5b82-ba48-790ecfb583a6', 'Field Code 3', 31.50, '7a28202b-88e1-5854-90e8-f1b3d0c28b07', 'Soil Type 3', 'ACTIVE', '6fa4a455-670a-53c4-ae4e-56c862b44921', 'final', NOW(), NOW())
+VALUES ('bd608963-c2ff-5b82-ba48-790ecfb583a6', 'Farm Field 3', 31.50, '7a28202b-88e1-5854-90e8-f1b3d0c28b07', 'Soil Type 3', 'ACTIVE', '6fa4a455-670a-53c4-ae4e-56c862b44921', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_farm_field (id, field_code, area, area_unit, soil_type, status, farm_id, doc_status, created_at, updated_at)
-VALUES ('8d14d22f-6d4b-5423-9a71-af7b4b710c9a', 'Field Code 4', 42.00, '930cca81-8788-5290-a082-99158a5f9e35', 'Soil Type 4', 'ACTIVE', '3effdc2b-ba56-551c-b89d-8225d2b4a6ab', 'final', NOW(), NOW())
+VALUES ('8d14d22f-6d4b-5423-9a71-af7b4b710c9a', 'Farm Field 4', 42.00, '930cca81-8788-5290-a082-99158a5f9e35', 'Soil Type 4', 'ACTIVE', '3effdc2b-ba56-551c-b89d-8225d2b4a6ab', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_farm_field (id, field_code, area, area_unit, soil_type, status, farm_id, doc_status, created_at, updated_at)
-VALUES ('9c909fe3-cafb-5aba-a64c-3ca7ab08d130', 'Field Code 5', 52.50, '835058d8-b5c0-5d53-b814-e7425f6e1b6a', 'Soil Type 5', 'ACTIVE', '3554bb73-137a-5e96-8378-a72d0e5ac4f1', 'final', NOW(), NOW())
+VALUES ('9c909fe3-cafb-5aba-a64c-3ca7ab08d130', 'Farm Field 5', 52.50, '835058d8-b5c0-5d53-b814-e7425f6e1b6a', 'Soil Type 5', 'ACTIVE', '3554bb73-137a-5e96-8378-a72d0e5ac4f1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Crop (bus_crop)

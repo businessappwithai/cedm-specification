@@ -7052,6 +7052,7 @@ var appwithai_language_default = {
       reference: "An independent target: a foreign key and nothing more."
     },
     names: "camelCase attributes compile to snake_case columns; a single identity key is stored as id; `column` overrides either.",
+    enumerationTables: "`application.enumerationTables: true` gives every value list an attribute names a business table: an entity of the list's name (id, code, name, description, sequence, is_active) with a row per value, listed under the Reference Data category. The list's enum is marked `table`, with `labels` (help.valueLabels) and `descriptions` (help.valueSemantics) per value; the dictionary then makes the list a Table reference over that table instead of a fixed list. See specification/enumeration-semantics.yaml.",
     references: "A reference names its target. Where the column name would resolve elsewhere, the target is written to the attribute's `references`, which the dictionary stores and every lookup resolver prefers.",
     lifecycle: "A lifecycle compiles to a state machine; each transition's action is its trigger.",
     invariants: "An invariant with violatedWhen compiles to a validation-error rule action; one without is documentation.",
@@ -18640,6 +18641,7 @@ function attributeOf(attribute) {
     ...attribute.pk ? { pk: true } : {},
     ...attribute.fk ? { fk: true } : {},
     ...present("references", attribute.references),
+    ...present("narrowedBy", attribute.narrowedBy),
     ...attribute.unique ? { unique: true } : {},
     ...attribute.optional ? { optional: true } : {},
     ...present("enum", attribute.enum),
@@ -18662,6 +18664,7 @@ function entityOf(entity) {
     ...present("prefix", entity.prefix),
     ...present("softDelete", entity.softDelete),
     ...present("audited", entity.audited),
+    ...present("data", entity.data),
     attributes: entity.attributes.map(attributeOf),
     ...nonEmpty("indexes", entity.indexes?.map((index) => ({
       columns: [...index.columns],
@@ -18673,7 +18676,13 @@ function enumsOf(enums) {
   if (!enums)
     return;
   const seen = new Set;
-  return enums.filter((declared) => !seen.has(declared.name) && seen.add(declared.name)).map((declared) => ({ name: declared.name, values: [...declared.values] }));
+  return enums.filter((declared) => !seen.has(declared.name) && seen.add(declared.name)).map((declared) => ({
+    name: declared.name,
+    values: [...declared.values],
+    ...declared.table ? { table: true } : {},
+    ...declared.labels && Object.keys(declared.labels).length ? { labels: { ...declared.labels } } : {},
+    ...declared.descriptions && Object.keys(declared.descriptions).length ? { descriptions: { ...declared.descriptions } } : {}
+  }));
 }
 function categoryOf(category) {
   return {
@@ -20191,6 +20200,20 @@ var eml_schema_default = {
           type: "array",
           minItems: 1,
           items: { $ref: "#/$defs/line" }
+        },
+        table: {
+          description: "The enum has a business table: an entity of the same name holds a row per value and the dropdown reads it.",
+          type: "boolean"
+        },
+        labels: {
+          description: "A short label per value, where it is not the value split into words.",
+          type: "object",
+          additionalProperties: { $ref: "#/$defs/line" }
+        },
+        descriptions: {
+          description: "What each value means to the business, keyed by value.",
+          type: "object",
+          additionalProperties: { $ref: "#/$defs/line" }
         }
       }
     },
@@ -20242,6 +20265,22 @@ var eml_schema_default = {
           type: "string",
           pattern: "^[\\w.-]+$"
         },
+        data: {
+          description: "Rows the application ships with: reference data shared by every application of the common specification. Keys are physical columns; a foreign key column holds the natural key of the row it points at, and `key` names the column that is the natural key of this entity's own rows.",
+          type: "object",
+          additionalProperties: false,
+          required: ["key", "rows"],
+          properties: {
+            key: { type: "string", pattern: "^[a-z][a-z0-9_]*$" },
+            rows: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: { type: ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        },
         parent: {
           description: "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent.",
           $ref: "#/$defs/identifier"
@@ -20278,7 +20317,7 @@ var eml_schema_default = {
       type: "object",
       additionalProperties: false,
       required: ["name", "type"],
-      dependentRequired: { references: ["fk"] },
+      dependentRequired: { references: ["fk"], narrowedBy: ["fk"] },
       properties: {
         name: { $ref: "#/$defs/identifier" },
         type: {
@@ -20294,6 +20333,12 @@ var eml_schema_default = {
         references: {
           description: "The entity a foreign key points at, for a column whose name does not say it: `delivery_location_id` referencing `Location`. Written only where it differs from what the name resolves to; requires `fk`.",
           $ref: "#/$defs/entityName"
+        },
+        narrowedBy: {
+          description: "Foreign-key columns of this entity that narrow the choices of this lookup, most specific first: a state is narrowed by `country_id`, a city by `state_province_id` then `country_id`. Requires `fk`.",
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/identifier" }
         },
         unique: { description: "Unique.", type: "boolean" },
         optional: {
@@ -21259,6 +21304,7 @@ function resolveCedmImports(document3, library) {
       return entity;
     }
     const local = indexOf.has(entity.extends) ? entities[indexOf.get(entity.extends)] : undefined;
+    const parentName = entity.extends;
     const parentSource = local ?? library.entity(entity.extends);
     if (!parentSource) {
       note("warning", "CEDM105", `${entity.name} extends "${entity.extends}", which neither the model nor the library declares; nothing is inherited.`, []);
@@ -21269,7 +21315,14 @@ function resolveCedmImports(document3, library) {
     const own = new Set((entity.attributes ?? []).map((attribute) => attribute.name));
     const ownRelationships = new Set((entity.relationships ?? []).map((relationship) => relationship.name));
     const inherited = (parent.attributes ?? []).filter((attribute) => !parentKeys.has(attribute.name) && !own.has(attribute.name));
-    const inheritedRelationships = (parent.relationships ?? []).filter((relationship) => !ownRelationships.has(relationship.name));
+    const definitionOf = (name) => entities[indexOf.get(name) ?? -1] ?? library.entity(name);
+    const specializes = (name, root, seen2 = []) => {
+      const next = definitionOf(name)?.extends;
+      if (next === undefined || seen2.includes(name))
+        return false;
+      return next === root || specializes(next, root, [...seen2, name]);
+    };
+    const inheritedRelationships = (parent.relationships ?? []).filter((relationship) => !ownRelationships.has(relationship.name) && !specializes(relationship.target, parentName));
     return {
       ...entity,
       attributes: [...entity.attributes ?? [], ...inherited],
@@ -21417,7 +21470,23 @@ function lowerCedmModel(cedm) {
     map2(["enums", enums.length], ["enums", index]);
     enums.push({ name: declared.name, values: [...declared.values] });
   });
-  const publishEnum = (name, values, at) => {
+  const enumDetails = new Map;
+  const publishEnum = (name, values, at, source) => {
+    const details = enumDetails.get(name) ?? { labels: {}, descriptions: {} };
+    enumDetails.set(name, details);
+    const help = source?.help;
+    if (help && typeof help === "object") {
+      const labelled = help.valueLabels;
+      const meant = help.valueSemantics;
+      for (const value of values) {
+        const label = labelled && labelled[value];
+        const meaning = meant && meant[value];
+        if (typeof label === "string")
+          details.labels[value] ??= label;
+        if (typeof meaning === "string")
+          details.descriptions[value] ??= meaning;
+      }
+    }
     const existing = enumIndex.get(name);
     if (existing !== undefined) {
       const known = enums[existing]?.values ?? [];
@@ -21503,8 +21572,9 @@ function lowerCedmModel(cedm) {
       document4.attributes.push(lowered.attribute);
       if (lowered.reference)
         state.references.set(column, attribute.target);
-      if (lowered.enumValues)
-        publishEnum(lowered.attribute.enum, lowered.enumValues, at);
+      if (lowered.enumValues) {
+        publishEnum(lowered.attribute.enum, lowered.enumValues, at, attribute);
+      }
       if (dangling) {
         note("warning", "CEDM120", `${entity.name}.${attribute.name} references "${attribute.target}", which the model does not contain; it is kept as a plain value.`, at);
       }
@@ -21561,8 +21631,6 @@ function lowerCedmModel(cedm) {
     if (outgoing.length !== 1 || candidates.length !== 1)
       return;
     const [other] = candidates;
-    if (!other || !isMany(item.end) && !isMany(other.end))
-      return;
     return other;
   };
   const relationships = [];
@@ -21637,16 +21705,21 @@ function lowerCedmModel(cedm) {
         continue;
       }
       if (!isMany(many.end)) {
-        const both = many.end === "zero-or-one" && one.end === "zero-or-one" ? "zero-or-one" : "exactly-one";
-        const label3 = labelOf(item.relationship, false);
+        const holdsReference = (side, referenced) => [...side.entity.references.values()].includes(referenced);
+        const a = item;
+        const b = other;
+        const holder = a.end === "exactly-one" && b.end !== "exactly-one" ? a : b.end === "exactly-one" && a.end !== "exactly-one" ? b : holdsReference(b, a.entity.source.name) && !holdsReference(a, b.entity.source.name) ? b : a;
+        const both = a.end === "zero-or-one" && b.end === "zero-or-one" ? "zero-or-one" : "exactly-one";
+        const label3 = labelOf(holder.relationship, false);
+        const holderAt = holder === a ? at : otherAt;
         emit({
-          from: item.relationship.target,
+          from: holder.relationship.target,
           fromCardinality: both,
-          to: entity.source.name,
+          to: holder.entity.source.name,
           toCardinality: both,
           ...label3 !== undefined ? { label: label3 } : {}
-        }, at);
-        ensureForeignKey(entity, relationship.target, relationship.foreignKey, relationship.name, end === "zero-or-one", at, keyHelp(relationship, entity.source.name));
+        }, holderAt);
+        ensureForeignKey(holder.entity, holder.relationship.target, holder.relationship.foreignKey, holder.relationship.name, holder.end === "zero-or-one", holderAt, keyHelp(holder.relationship, holder.entity.source.name));
         continue;
       }
       const label2 = labelOf(many.relationship, true);
@@ -21751,6 +21824,49 @@ function lowerCedmModel(cedm) {
       });
     }
   });
+  const entitySagas = [];
+  states.forEach((state) => {
+    const declared = state.source.workflows ?? [];
+    if (!declared.length)
+      return;
+    const event = (workflow) => workflow.event ?? "afterUpdate";
+    const byEvent = new Map;
+    for (const workflow of declared) {
+      const sagaName = `${state.source.name}${workflow.name}`;
+      entitySagas.push({
+        name: sagaName,
+        ...workflow.title !== undefined ? { title: workflow.title } : {},
+        entity: state.source.name,
+        operation: "UPDATE",
+        trigger: "rule",
+        ...workflow.description !== undefined ? { description: workflow.description } : {},
+        steps: workflow.steps.map((step) => lowerWorkflowStep(step, entityNames))
+      });
+      byEvent.set(event(workflow), [...byEvent.get(event(workflow)) ?? [], workflow]);
+    }
+    for (const [eventName, group] of byEvent) {
+      rules.push({
+        name: `${lowerFirst(state.source.name)}Workflows${pascalCase2(eventName)}`,
+        title: `${state.source.name} workflows (${eventName})`,
+        entity: state.source.name,
+        event: eventName,
+        nodes: [
+          { id: "S", label: `Start: ${state.source.name} ${eventName}`, type: "start" },
+          { id: "E", label: "End: workflows started", type: "end" }
+        ],
+        edges: [{ from: "S", to: "E" }],
+        actions: group.map((workflow) => ({
+          name: workflow.name,
+          type: "trigger-workflow",
+          when: workflow.when,
+          props: {
+            workflow: `${state.source.name}${workflow.name}`,
+            ...workflow.message !== undefined ? { message: workflow.message } : {}
+          }
+        }))
+      });
+    }
+  });
   const rbac = [];
   (cedm.authorization?.permissions ?? []).forEach((permission, index) => {
     const at = ["authorization", "permissions", index];
@@ -21768,6 +21884,66 @@ function lowerCedmModel(cedm) {
       action: permission.action,
       roles: Array.isArray(permission.subject) ? [...permission.subject] : [permission.subject]
     });
+  });
+  states.forEach((state) => {
+    const physical = new Set(state.document.attributes.map((attribute) => attribute.name));
+    const relationshipNames = new Set((state.source.relationships ?? []).map((r) => r.name));
+    const columnOf = (name) => {
+      const declared = state.columns.get(name);
+      if (declared !== undefined && physical.has(declared))
+        return declared;
+      const key = `${snakeCase4(name)}_id`;
+      return relationshipNames.has(name) && physical.has(key) ? key : undefined;
+    };
+    const apply = (holder, names) => {
+      const column = columnOf(holder);
+      const target = state.document.attributes.find((attribute) => attribute.name === column);
+      const columns = names.map(columnOf);
+      if (!target || columns.some((name) => name === undefined)) {
+        note("error", "CEDM182", `${state.source.name}.${holder} is narrowed by ${names.join(", ")}, which are not all references of the entity.`, ["entities", state.index]);
+        return;
+      }
+      target.narrowedBy = columns;
+    };
+    for (const relationship of state.source.relationships ?? []) {
+      if (relationship.narrowedBy?.length)
+        apply(relationship.name, relationship.narrowedBy);
+    }
+    for (const attribute of state.source.attributes ?? []) {
+      if (attribute.narrowedBy?.length)
+        apply(attribute.name, attribute.narrowedBy);
+    }
+  });
+  states.forEach((state) => {
+    const data = state.source.data;
+    if (!data)
+      return;
+    const physical = new Set(state.document.attributes.map((attribute) => attribute.name));
+    const columnOf = (name) => {
+      const declared = state.columns.get(name);
+      if (declared !== undefined)
+        return declared;
+      const key = `${snakeCase4(name)}_id`;
+      return (state.source.relationships ?? []).some((relationship) => relationship.name === name) && physical.has(key) ? key : physical.has(snakeCase4(name)) ? snakeCase4(name) : undefined;
+    };
+    const keyColumn = columnOf(data.key);
+    if (keyColumn === undefined) {
+      note("error", "CEDM180", `${state.source.name} data names the key "${data.key}", which is not one of its columns.`, ["entities", state.index]);
+      return;
+    }
+    const rows = data.rows.map((row) => {
+      const lowered = {};
+      for (const [name, value] of Object.entries(row)) {
+        const column = columnOf(name);
+        if (column === undefined) {
+          note("error", "CEDM181", `${state.source.name} data has a value for "${name}", which is not one of its columns.`, ["entities", state.index]);
+          continue;
+        }
+        lowered[column] = value;
+      }
+      return lowered;
+    });
+    state.document.data = { key: keyColumn, rows };
   });
   const document3 = { eml: "1.0", entities: states.map((state) => state.document) };
   if (cedm.application?.name !== undefined)
@@ -21800,6 +21976,8 @@ function lowerCedmModel(cedm) {
   if (stateMachines.length)
     document3.stateMachines = stateMachines;
   passThrough("sagas", cedm.processes, ["processes"]);
+  if (entitySagas.length)
+    document3.sagas = [...document3.sagas ?? [], ...entitySagas];
   if (document3.hooks) {
     document3.hooks = document3.hooks.map((hook) => {
       const state = stateByName.get(hook.entity);
@@ -21807,6 +21985,9 @@ function lowerCedmModel(cedm) {
         return hook;
       return { ...hook, fields: hook.fields.map((field) => state.columns.get(field) ?? field) };
     });
+  }
+  if (cedm.application?.enumerationTables) {
+    addEnumerationTables(document3, enums, enumDetails, note);
   }
   return { document: document3, notes, sources };
 }
@@ -21829,6 +22010,70 @@ function lowerType(type, attribute) {
     return { token: `${type}(${attribute.maxLength})`, reference: false };
   }
   return { token: type, reference: false };
+}
+var ENUMERATION_CATEGORY = "Reference Data";
+function addEnumerationTables(document3, enums, details, note) {
+  const taken = new Set(document3.entities.map((entity) => entity.name));
+  const used = new Set(document3.entities.flatMap((entity) => entity.attributes.flatMap((attribute) => attribute.enum ? [attribute.enum] : [])));
+  const made = [];
+  enums.forEach((declared, index) => {
+    if (!used.has(declared.name))
+      return;
+    if (taken.has(declared.name)) {
+      note("error", "CEDM170", `Enumeration "${declared.name}" cannot have a business table: the model has an entity of that name.`, ["enums", index]);
+      return;
+    }
+    taken.add(declared.name);
+    made.push(declared.name);
+    const known = details.get(declared.name);
+    declared.table = true;
+    if (known && Object.keys(known.labels).length)
+      declared.labels = known.labels;
+    if (known && Object.keys(known.descriptions).length)
+      declared.descriptions = known.descriptions;
+    document3.entities.push({
+      name: declared.name,
+      help: `The values of ${wordsOf(declared.name)}, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.`,
+      icon: "list",
+      attributes: [
+        { name: "id", type: "uuid", pk: true },
+        { name: "code", type: "string(100)", unique: true, help: "The value stored on every record that uses this list. Fixed once created." },
+        { name: "name", type: "string(200)", help: "What a person reads in the dropdown and on a record." },
+        { name: "description", type: "text", optional: true, help: "What the value means to the business." },
+        { name: "sequence", type: "integer", help: "The position of the value in a dropdown, lowest first." },
+        { name: "is_active", type: "boolean", default: "true", help: "Whether the value is offered on new records." }
+      ]
+    });
+  });
+  if (!made.length)
+    return;
+  const categories = document3.categories = (document3.categories ?? []).map((category) => ({
+    ...category
+  }));
+  const existing = categories.find((category) => category.name === ENUMERATION_CATEGORY);
+  if (existing)
+    existing.entities = [...existing.entities ?? [], ...made];
+  else
+    categories.push({ name: ENUMERATION_CATEGORY, icon: "list", entities: made });
+}
+function wordsOf(name) {
+  return name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z])([A-Z][a-z])/g, "$1 $2").toLowerCase();
+}
+function lowerWorkflowStep(step, entityNames) {
+  const properties = {};
+  for (const [name, value] of Object.entries(step.properties ?? {})) {
+    if (typeof value === "string") {
+      properties[name] = name === "entity" && entityNames.has(value) ? tableOf(value) : value;
+    } else {
+      properties[name] = JSON.stringify(value);
+    }
+  }
+  return {
+    id: step.id,
+    type: step.type,
+    ...step.label !== undefined ? { label: step.label } : {},
+    ...Object.keys(properties).length ? { properties } : {}
+  };
 }
 function lowerAttribute(entity, attribute, column, isKey, dangling) {
   const typed = lowerType(attribute.type, attribute);
@@ -22247,6 +22492,10 @@ var cedm_model_schema_default = {
         domain: {
           description: "The catalog domain (domains/catalog.yaml) the application serves.",
           $ref: "#/$defs/line"
+        },
+        enumerationTables: {
+          description: "Give every enumeration a business table, maintained in its own window and read by the dropdowns (specification/enumeration-semantics.yaml).",
+          type: "boolean"
         }
       }
     },
@@ -22408,6 +22657,12 @@ var cedm_model_schema_default = {
       },
       properties: {
         name: { $ref: "#/$defs/attributeName" },
+        narrowedBy: {
+          description: "Other relationships or reference attributes of this entity that narrow the choices of this one, most specific first: a city is narrowed by its stateProvince and then its country. The lookup offers only the rows that belong to the values the record holds, and a write naming any other is refused.",
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/attributeName" }
+        },
         column: {
           description: "The physical column, where it is not the snake_case of the name (or `id`, for the identity key).",
           type: "string",
@@ -22489,6 +22744,12 @@ var cedm_model_schema_default = {
           type: "string",
           pattern: '^[^\\s"](?:[^"\\n\\r]*[^\\s"])?$'
         },
+        narrowedBy: {
+          description: "Other relationships or reference attributes of this entity that narrow the choices of this one, most specific first: a city is narrowed by its stateProvince and then its country. The lookup offers only the rows that belong to the values the record holds, and a write naming any other is refused.",
+          type: "array",
+          minItems: 1,
+          items: { $ref: "#/$defs/attributeName" }
+        },
         foreignKey: {
           description: "The attribute holding a to-one relationship's key (on the target, for a to-many one). Found by name when omitted and created when none exists; false says the key is kept elsewhere.",
           oneOf: [{ $ref: "#/$defs/attributeName" }, { const: false }]
@@ -22532,6 +22793,37 @@ var cedm_model_schema_default = {
         initial: { type: "string" },
         terminal: { type: "array", items: { type: "string" } },
         transitions: { type: "array", items: { $ref: "#/$defs/transition" } }
+      }
+    },
+    workflow: {
+      type: "object",
+      additionalProperties: false,
+      required: ["name", "when", "steps"],
+      properties: {
+        name: { type: "string", pattern: "^[A-Z][A-Za-z0-9]*$" },
+        title: { $ref: "#/$defs/line" },
+        description: { $ref: "#/$defs/prose" },
+        when: {
+          description: "A condition over the record, in the rules engine's expression language over physical columns. On an update `_previous_<column>` is the column as it was.",
+          $ref: "#/$defs/line"
+        },
+        event: { type: "string", pattern: "^\\S+$" },
+        message: { $ref: "#/$defs/line" },
+        steps: {
+          type: "array",
+          minItems: 1,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["id", "type"],
+            properties: {
+              id: { type: "string", pattern: "^\\S+$" },
+              type: { enum: ["CreateEntity", "UpdateEntity", "DeleteEntity", "Decision", "Formula", "REST", "Agent"] },
+              label: { $ref: "#/$defs/line" },
+              properties: { type: "object" }
+            }
+          }
+        }
       }
     },
     invariant: {
@@ -22593,6 +22885,31 @@ var cedm_model_schema_default = {
           ]
         },
         invariants: { type: "array", items: { $ref: "#/$defs/invariant" } },
+        referenceData: {
+          description: "A file under domain/ holding the rows this entity ships with; the library inlines it as `data`.",
+          type: "string"
+        },
+        data: {
+          description: "Rows the entity ships with, keyed by attribute or relationship name. A reference holds the natural key of the row it points at.",
+          type: "object",
+          additionalProperties: false,
+          required: ["key", "rows"],
+          properties: {
+            key: { type: "string" },
+            rows: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: { type: ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        },
+        workflows: {
+          description: "Workflows the entity starts when a record meets a condition. Each lowers to a saga and a rule that triggers it.",
+          type: "array",
+          items: { $ref: "#/$defs/workflow" }
+        },
         audit: { type: "object" },
         help: { $ref: "#/$defs/help" },
         ui: {
