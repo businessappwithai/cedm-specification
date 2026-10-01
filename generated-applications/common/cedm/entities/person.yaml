@@ -1,0 +1,119 @@
+entity:
+  name: Person
+  namespace: cedm.domain
+  kind: party_specialization
+  extends: Party
+  description: A natural person participating in business activities as a specialization of Party. Person supplies intrinsic individual identity; business participation is represented through PartyRole and specialized roles.
+  ui:
+    icon: user
+  identity: {key: personId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: personId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Stable identity of the Person specialization, usage: individual identity processes, relationshipContext: Party.partyId remains canonical, workflowRole: identifies person-specific record, requiredMeaning: required for specialization traceability.}
+  - name: partyId
+    type: reference
+    target: Party
+    required: true
+    unique: true
+    immutable: true
+    help:
+      summary: Canonical Party identity represented by this Person specialization.
+      usage: Connects person-specific data to common Party identity and all PartyRoles.
+      relationshipContext: Exactly one Person specialization may represent a Party classified as PERSON.
+      workflowRole: Ensures transactions and roles use one stable person identity.
+      requiredMeaning: Required to prevent duplicate identity.
+  - name: title
+    type: string
+    required: false
+    maxLength: 50
+    help: {summary: Personal title, usage: documents and presentation, relationshipContext: presentation attribute, workflowRole: supports person display, optionalMeaning: optional.}
+  - name: givenName
+    type: string
+    required: true
+    maxLength: 150
+    help: {summary: Given name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
+  - name: middleName
+    type: string
+    required: false
+    maxLength: 150
+    help: {summary: Middle name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, optionalMeaning: optional.}
+  - name: familyName
+    type: string
+    required: true
+    maxLength: 150
+    help: {summary: Family name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
+  - name: preferredName
+    type: string
+    required: false
+    maxLength: 150
+    help: {summary: Preferred display name, usage: communication and UI, relationshipContext: presentation not canonical identity, workflowRole: human interaction, optionalMeaning: optional.}
+  - name: dateOfBirth
+    type: date
+    required: false
+    help: {summary: Date of birth, usage: processes requiring verified individual identity, relationshipContext: sensitive person attribute subject to access policy, workflowRole: eligibility/verification where applicable, optionalMeaning: optional.}
+  - name: gender
+    type: enum
+    required: false
+    values:
+    - FEMALE
+    - MALE
+    - NON_BINARY
+    - OTHER
+    - UNSPECIFIED
+    help:
+      summary: Gender classification where required by the business process
+      usage: permitted business processes only
+      relationshipContext: person attribute and not role
+      workflowRole: process-specific
+      optionalMeaning: optional.
+      valueSemantics:
+        FEMALE: The gender of the person is female; set it when that is what the business means for this record.
+        MALE: The gender of the person is male; set it when that is what the business means for this record.
+        NON_BINARY: The gender of the person is non binary; set it when that is what the business means for this record.
+        OTHER: The gender of the person is other; set it when that is what the business means for this record.
+        UNSPECIFIED: The gender of the person is unspecified; set it when that is what the business means for this record.
+  - name: nationalityId
+    type: reference
+    target: Country
+    required: false
+    help: {summary: "The country whose nationality the person holds.", usage: "Chosen from the list of countries; used by identity and compliance processes.", relationshipContext: "Not Party identity; process-specific.", optionalMeaning: "Optional."}
+  relationships:
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    inverse: person
+    help:
+      summary: Canonical Party represented by this Person specialization.
+      usage: Navigates to common party identity and PartyRoles.
+      cardinalityMeaning: Exactly one Party.
+      workflowRole: Connects intrinsic person identity to business participation.
+  - name: employerOrganizations
+    target: Organization
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Organizations associated with the person as employers or organizational contexts.
+      usage: Supports employment and organizational relationships.
+      cardinalityMeaning: Zero or many.
+      workflowRole: Provides context for employment/worker workflows; it does not itself establish an Employee role.
+  invariants:
+  - {id: PERSON-001, rule: partyType must equal PERSON for the referenced Party.}
+  - {id: PERSON-002, rule: givenName and familyName must be present.}
+  - {id: PERSON-003, rule: One Party cannot have multiple Person specializations.}
+  - {id: PERSON-004, rule: Person status/attributes must not be used as a substitute for PartyRole eligibility.}
+  - {id: PERSON-005, rule: Changes to Person identity attributes must preserve historical transaction snapshots or references according to the transaction's audit policy.}
+  audit: {enabled: true}
+  tags: [person, party, specialization, identity]
+  help:
+    summary: Person is the individual specialization of Party, not a business role.
+    businessMeaning: Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates.
+    usage: Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity.
+    relationshipContext: Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context.
+    workflowContext: Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles.
+    lifecycle: Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole.
+    example: One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
+specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PERSON}

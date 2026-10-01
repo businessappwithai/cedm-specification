@@ -1,0 +1,26 @@
+entity:
+  name: Language
+  namespace: cedm.domain
+  kind: reference_data
+  description: A governed language reference used for localization, communication preferences, content, and reporting.
+  ui:
+    icon: languages
+  referenceData: reference-data/language.yaml
+  identity: {key: languageId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Language., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  relationships: []
+  invariants:
+  - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  help:
+    summary: A governed language reference used for localization, communication preferences, content, and reporting.
+    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
+    businessMeaning: A governed language reference used for localization, communication preferences, content, and reporting.
+    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
+    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
+    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
+    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
+    commonExamples: Enterprise configuration and cross-domain business workflows.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LANGUAGE}

@@ -1,0 +1,116 @@
+# CEDM Business Logic
+#
+# What an entity states so that an application generated from it enforces the
+# domain's rules and runs its workflows, without a developer re-reading prose.
+# Three constructs carry it, each written in the entity's own file:
+#
+#   lifecycle   the states of a status attribute and the moves between them
+#   invariants  business rules; one with `violatedWhen` is executable
+#   processes   workflows that run when a rule fires (domains/processes/)
+#
+# `tools/validate.py` enforces BL-001…BL-014; the generators compile what
+# conforms: a lifecycle to a state machine (`sys_workflow_transitions`, which
+# every write to the status column is checked against), an executable invariant
+# to a validation rule (`/admin/rules`), a process to a workflow definition
+# (`/admin/workflow-definitions`). A generated application also ships tests for
+# each one, so a rule that stops being enforced fails a build rather than a
+# customer.
+specification:
+  name: CEDM Business Logic
+  version: 1.0.0
+  status: draft
+  appliesTo: [domain/entities, domains/processes, specification/lifecycle.yaml, specification/business-rules.yaml]
+
+lifecycle:
+  where: "An entity's top-level `lifecycle` key."
+  keys:
+    attribute: "The enum attribute the lifecycle governs — `status`, `state` or `stage`, in that order of preference."
+    states: Exactly the attribute's values. A state the lifecycle does not name is a value the application accepts on create and can never leave.
+    initial: The state a new record starts in. It is the attribute's default where the entity states one.
+    terminal: States with no outgoing move. A record in one is finished; correcting it is a new record or a reversal, never an edit.
+    transitions: "Each `{from, to, action}`; `action` is the command that makes the move and is unique per `(from, to)`."
+  guarantees:
+    - Topology is enforced for every caller, the master role included. A move the diagram never drew is a move that does not exist.
+    - A transition may carry `authorization` (roles that may make it) and `guard` (a condition over the record).
+    - A generated application presents the machine on the record itself: the current state and one button per move that leaves it (the move's `action`, title-cased), written through the ordinary update so these guarantees still apply. A state with no outgoing move says so. An entity with no lifecycle shows nothing.
+  derivation: >-
+    Where an entity states only its status values, tools/derive_business_logic.py draws the lifecycle
+    from them: the values are sorted into a starting run, detours that are left and returned to
+    (SUSPENDED, ON_HOLD, BLOCKED, INACTIVE…), ends that mean it ran its course (COMPLETED, CLOSED…)
+    and ends that mean it did not or is no longer in use (CANCELLED, REJECTED, RETIRED…). A derived
+    lifecycle is a default an author refines by editing the entity file; the tool never overwrites one.
+
+rules:
+  where: "An entity's `invariants`; an item with `violatedWhen` is executable."
+  keys:
+    id: "Unique in the specification; derived ones are `<ENTITY>-EXE-NNN`."
+    rule: The rule as a business reader states it.
+    violatedWhen: A condition over the record, true when the rule is broken, in the rules engine's expression language.
+    message: What the person who broke it reads.
+    severity: error (refuses the write) — the default; warning and info are carried and not enforced.
+    events: beforeCreate and beforeUpdate unless stated.
+  expression:
+    identifiers: The entity's columns, snake_case, exactly as the generated table names them.
+    literals: numbers, double-quoted strings, true, false, null
+    operators: [==, "!=", "<", "<=", ">", ">=", and, or, not]
+    nullSafety: "A comparison against a column that may be empty names the emptiness first (`x != null and x < 0`); an unguarded one is refused by BL-008."
+  derived:
+    - id: dates
+      rule: "An end date is not earlier than its start (`startDate`/`endDate`, `effectiveFrom`/`effectiveTo`, \u2026)."
+    - id: quantities
+      rule: "A quantity, amount, price, cost, total, fee, charge or rate is not negative \u2014 except on entities that are signed by convention (journals, ledgers, adjustments, movements)."
+    - id: percentages
+      rule: "A percentage is between 0 and 100."
+    - id: reasons
+      rule: "A record that is cancelled, rejected, held, suspended, blocked, failed, reversed or voided states why, where the entity has an attribute for it."
+    - id: stamps
+      rule: "A record that is completed, closed, approved, posted, cancelled, shipped, delivered or retired states when, where the entity has a date attribute for it."
+
+processes:
+  where: domains/processes/<domain>.yaml, folded into the domain's application.
+  contract: "A process names the entity whose change starts it (`entity`, `trigger: rule`), the condition (the rule that fires it) and its steps. It is one of the saga step types the generated backend runs."
+  firing: "A process runs when a rule's `trigger-workflow` action names it. It is never started by being defined, so a process with no rule is documentation and BL-012 says so."
+
+checks:
+  - id: BL-001
+    severity: error
+    rule: "A lifecycle's `states` are exactly the governed attribute's values."
+  - id: BL-002
+    severity: error
+    rule: "`initial` is a state, and `terminal` states are states."
+  - id: BL-003
+    severity: error
+    rule: "Every transition goes from a state to a state, and no two share `(from, to)`."
+  - id: BL-004
+    severity: error
+    rule: "A terminal state has no outgoing transition."
+  - id: BL-005
+    severity: error
+    rule: "Every state is reachable from `initial`."
+  - id: BL-006
+    severity: error
+    rule: "Every non-terminal state can reach a terminal state, or the lifecycle declares no terminal state."
+  - id: BL-007
+    severity: error
+    rule: "Every executable invariant has a message and a unique id."
+  - id: BL-008
+    severity: error
+    rule: "A `violatedWhen` uses only the entity's columns, literals and the listed operators, and guards a nullable column before comparing it."
+  - id: BL-009
+    severity: error
+    rule: "A `violatedWhen` that names a state names one the lifecycle declares."
+  - id: BL-010
+    severity: error
+    rule: "The record's initial state does not break an executable invariant \u2014 a new record must be creatable."
+  - id: BL-011
+    severity: warning
+    rule: "An entity with a status enum and no lifecycle says so; it accepts any move."
+  - id: BL-012
+    severity: warning
+    rule: "A process no rule triggers is documentation."
+  - id: BL-013
+    severity: error
+    rule: "A process's steps name entities and fields that exist."
+  - id: BL-014
+    severity: error
+    rule: "Every domain with transaction entities defines at least one process."

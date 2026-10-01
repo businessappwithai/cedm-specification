@@ -1,0 +1,24 @@
+entity:
+  name: LegalEntity
+  namespace: cedm.domain
+  kind: legal_master
+  description: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
+  ui:
+    icon: database
+  identity: {key: legalEntityId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalEntity., businessMeaning: Identifies one governed LegalEntity record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+  relationships: []
+  invariants:
+  - {id: LEGAL-ENTITY-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  help:
+    summary: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
+    purpose: Provide canonical governance semantics for LegalEntity.
+    businessMeaning: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
+    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
+    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
+    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
+    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
+    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-ENTITY}

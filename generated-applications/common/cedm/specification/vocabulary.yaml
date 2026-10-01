@@ -1,0 +1,109 @@
+# CEDM Specification Vocabulary
+specification:
+  name: CEDM
+  version: 0.3.0
+  status: draft
+  namespace: cedm.domain
+
+vocabulary:
+  scalarTypes:
+    uuid: globally unique identifier
+    string: UTF-8 text
+    integer: signed whole number
+    decimal: fixed precision numeric value
+    boolean: true or false
+    date: ISO calendar date
+    datetime: timezone-aware timestamp
+    object: structured implementation-neutral object
+    money: monetary amount with currency semantics
+    currency_code: ISO-style currency identifier
+    country_code: ISO-style country identifier
+    locale: locale identifier
+    timezone: IANA timezone identifier
+    reference: reference to another CEDM entity
+    enum: constrained symbolic value
+
+  entityKinds:
+    root_business_entity: independently identifiable business root
+    core_master_entity: reusable master data
+    reference_master_entity: controlled reference data
+    classification_entity: hierarchical classification
+    party_specialization: specialization of Party
+    party_role: business participation role
+    party_role_specialization: specialization of PartyRole
+    relationship_entity: relationship with independent identity
+    value_master_entity: structured reusable value
+    process_definition_entity: business process definition
+    process_runtime_entity: runtime business work
+    core_business_entity: business record or document
+    core_business_transaction: transactional business record
+    commercial_reference_entity: commercial reference data
+
+  cardinality:
+    allowed:
+      - "0..1"
+      - "1"
+      - "0..*"
+      - "1..*"
+
+  ownership:
+    allowed:
+      - aggregate
+      - reference
+
+  lifecycle:
+    statesMustBeStrings: true
+    transitionsRequireFromAndTo: true
+    terminalStatesMustBeExplicit: true
+
+  ruleOperators:
+    supported:
+      - equals
+      - notEquals
+      - greaterThan
+      - greaterThanOrEqual
+      - lessThan
+      - lessThanOrEqual
+      - required
+      - unique
+      - immutable
+      - references
+      - conditional
+
+  audit:
+    systemManagedFields:
+      - createdAt
+      - createdBy
+      - updatedAt
+      - updatedBy
+
+  # Entity kinds are open (a domain names its own: `healthcare_transaction`), but
+  # the dictionary needs a closed set of classes to decide how a window behaves.
+  # A kind resolves to the class of the first rule whose pattern matches; the
+  # last rule matches everything, so the resolution is total (DICT-002). An
+  # entity with no kind is class `entity`. See dictionary-mapping.yaml.
+  kindClasses:
+    classes:
+      line: a line item that has no life apart from its document
+      event: an append-only record of something that happened
+      transaction: a business document with a lifecycle
+      reference: controlled reference data or a classification
+      definition: a definition, policy or configuration others follow
+      master: a party, role, asset or other reusable master record
+      entity: any other business record
+    rules:
+      - {class: line, pattern: '(^|_)line$|_line_|_lines$'}
+      - {class: event, pattern: '(^|_)event$'}
+      - {class: transaction, pattern: 'transaction'}
+      - {class: reference, pattern: 'reference|classification'}
+      - {class: definition, pattern: 'definition|policy|configuration'}
+      - {class: master, pattern: 'master|party|role|specialization|asset'}
+      - {class: entity, pattern: '.*'}
+    windowType:
+      master: M
+      reference: M
+      definition: M
+      entity: M
+      transaction: T
+      line: T
+      event: T

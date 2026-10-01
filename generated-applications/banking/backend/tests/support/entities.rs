@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-01T16:10:30.371Z
+//! Generated: 2026-10-01T16:42:09.481Z
 //! Project: banking
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -235,9 +235,16 @@ impl EntityMeta {
     }
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
+    ///
+    /// A lifecycle column (`status`, `state`, `stage` — `LIFECYCLE_COLUMN_NAMES`
+    /// in the language checker) is not free text: when the entity draws a state
+    /// machine, writing an arbitrary string to it is a move the machine refuses,
+    /// correctly, and the test would be asserting against the guard.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && !matches!(f.name, "status" | "state" | "stage")
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.
