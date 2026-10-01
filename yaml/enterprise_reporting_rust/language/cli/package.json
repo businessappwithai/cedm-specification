@@ -1,0 +1,24 @@
+{
+  "name": "@erdwithai/eml-cli",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Build enterprise reporting code from a model (.eml.yaml) describing an ERD, business rules, and workflows.",
+  "bin": {
+    "eml": "./eml.ts"
+  },
+  "scripts": {
+    "start": "bun eml.ts",
+    "validate:examples": "bun eml.ts validate -i ../examples/crm.eml.yaml",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "engines": {
+    "bun": ">=1.0",
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "22",
+    "bun-types": "^1.3.14",
+    "typescript": "5.6.3"
+  }
+}

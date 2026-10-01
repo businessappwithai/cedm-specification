@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · Reference — Build a CRM with APPWITHAI</title>
+<meta name="description" content="Every EML directive, type, modifier, cardinality, hook and step type on one page, plus the commands and the checker codes worth knowing.">
+<link rel="stylesheet" href="assets/guide.css">
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <a class="brand" href="index.html"><span class="brand-mark">E</span><span class="brand-name">APPWITHAI</span></a>
+  <p class="brand-sub">Build a CRM, end to end</p>
+  <div class="nav-heading">Start here</div>
+  <ul class="nav"><li><a href="index.html"><span class="nav-num">00</span> Overview</a></li></ul>
+  <div class="nav-heading">Write the model</div>
+  <ul class="nav">
+    <li><a href="01-data-model.html"><span class="nav-num">01</span> The data model</a></li>
+    <li><a href="02-business-rules.html"><span class="nav-num">02</span> Business rules</a></li>
+    <li><a href="03-workflows.html"><span class="nav-num">03</span> Workflows</a></li>
+  </ul>
+  <div class="nav-heading">Generate and run</div>
+  <ul class="nav">
+    <li><a href="04-generate.html"><span class="nav-num">04</span> Generate the app</a></li>
+    <li><a href="05-application.html"><span class="nav-num">05</span> Tour the app</a></li>
+    <li><a href="06-dictionary.html"><span class="nav-num">06</span> Application Dictionary</a></li>
+  </ul>
+  <div class="nav-heading">Prove it</div>
+  <ul class="nav">
+    <li><a href="07-it-runs.html"><span class="nav-num">07</span> Watch it run</a></li>
+    <li><a href="08-reference.html" aria-current="page"><span class="nav-num">08</span> Reference</a></li>
+    <li><a href="run-in-browser.html"><span class="nav-num">09</span> Run it here</a></li>
+  </ul>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>examples/crm.eml.yaml</code></div>
+</aside>
+
+<main class="main">
+<div class="content">
+
+<span class="eyebrow">Chapter 08</span>
+<h1>Reference</h1>
+<p class="lede">
+  Everything the language offers, on one page. Two files are the authority:
+  <code>language/yaml/eml.schema.json</code> says which keys a model may carry, and
+  <code>language/appwithai-language.json</code> says what the values in them mean — when this page and
+  either file disagree, the file wins.
+</p>
+
+<h2>The document</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Key</th><th>Each entry carries</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>eml</code>, <code>name</code>, <code>version</code>, <code>description</code></td><td>—</td><td>The language version (<code>"1.0"</code>, required) and the application's name, version and description.</td></tr>
+    <tr><td><code>enums</code></td><td><code>name</code>, <code>values</code></td><td>A closed vocabulary, reusable by attributes and states.</td></tr>
+    <tr><td><code>categories</code></td><td><code>name</code>; <code>description</code>, <code>icon</code>, <code>color</code>, <code>seq</code>, <code>default</code>, <code>entities</code></td><td>Dashboard grouping. Only <code>name</code> is required.</td></tr>
+    <tr><td><code>entities</code></td><td><code>name</code>, <code>attributes</code>; <code>help</code>, <code>icon</code>, <code>parent</code>, <code>label</code>, <code>prefix</code>, <code>audited</code>, <code>softDelete</code>, <code>indexes</code></td><td>The tables. Required, and the only required list.</td></tr>
+    <tr><td><code>relationships</code></td><td><code>from</code>, <code>fromCardinality</code>, <code>to</code>, <code>toCardinality</code>; <code>label</code></td><td>How entities relate, and which side carries the foreign key.</td></tr>
+    <tr><td><code>rules</code></td><td><code>name</code>, <code>entity</code>, <code>event</code>, <code>nodes</code>, <code>edges</code>; <code>priority</code>, <code>actions</code>, <code>decisionTable</code></td><td>A decision bound to an entity and a lifecycle event.</td></tr>
+    <tr><td><code>stateMachines</code></td><td><code>name</code>, <code>entity</code>, <code>states</code>, <code>transitions</code>; <code>initial</code>, <code>final</code></td><td>A lifecycle: the legal moves of a status column.</td></tr>
+    <tr><td><code>sagas</code></td><td><code>name</code>, <code>entity</code>, <code>steps</code>; <code>trigger</code>, <code>operation</code></td><td>A multi-step process across entities.</td></tr>
+    <tr><td><code>hooks</code></td><td><code>entity</code>, <code>event</code>, <code>handler</code>; <code>fields</code></td><td>Binds a handler to a lifecycle event.</td></tr>
+    <tr><td><code>hookFlows</code></td><td><code>name</code>, <code>entity</code>, <code>nodes</code>, <code>edges</code></td><td>The hooks of one entity drawn as a process, for the reader and the viewer.</td></tr>
+    <tr><td><code>rbac</code></td><td><code>entity</code>, <code>action</code>, <code>roles</code></td><td>Restricts an operation (<code>create</code>, <code>read</code>, <code>update</code>, <code>delete</code>) or a transition's trigger to roles.</td></tr>
+    <tr><td><code>triggers</code></td><td><code>entity</code>, <code>source</code>, <code>handler</code></td><td>An event source: <code>cron:</code>, <code>webhook:</code>, <code>message:</code>.</td></tr>
+    <tr><td><code>reports</code></td><td><code>name</code>, <code>sql</code>; <code>title</code>, <code>entity</code>, <code>chart</code>, <code>x</code>, <code>y</code>, <code>help</code></td><td>A question the application's users ask, as the single read-only query that answers it.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Types</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Canonical</th><th>Aliases that normalize to it</th></tr></thead>
+  <tbody>
+    <tr><td><code>string</code></td><td><code>varchar</code>, <code>char</code>, <code>uuid</code>, <code>guid</code>, <code>id</code>, <code>email</code>, <code>url</code>, <code>phone</code>, <code>password</code>, <code>color</code></td></tr>
+    <tr><td><code>text</code></td><td><code>longtext</code></td></tr>
+    <tr><td><code>integer</code></td><td><code>int</code>, <code>bigint</code>, <code>smallint</code></td></tr>
+    <tr><td><code>decimal</code></td><td><code>number</code>, <code>float</code>, <code>double</code>, <code>money</code>, <code>amount</code></td></tr>
+    <tr><td><code>boolean</code></td><td><code>bool</code></td></tr>
+    <tr><td><code>date</code></td><td>—</td></tr>
+    <tr><td><code>datetime</code></td><td><code>timestamp</code>, <code>time</code></td></tr>
+    <tr><td><code>json</code></td><td><code>jsonb</code>, <code>object</code>, <code>array</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Length is written on the type: <code>{ name: display_name, type: string(120) }</code>.</p>
+
+<h2>Attribute keys</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Key</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td><code>pk: true</code></td><td>Primary key; unique; a string <code>id</code> key is added if absent.</td></tr>
+    <tr><td><code>fk: true</code></td><td>Foreign key; the target is derived from the column name.</td></tr>
+    <tr><td><code>unique: true</code></td><td>Unique index.</td></tr>
+    <tr><td><code>optional: true</code></td><td>Nullable. Everything is required by default.</td></tr>
+    <tr><td><code>enum</code></td><td>Binds the column to an enum: a dropdown of its values.</td></tr>
+    <tr><td><code>help</code></td><td>The column's help text in the application and its manual.</td></tr>
+    <tr><td><code>ui</code>, <code>default</code>, <code>min</code>, <code>max</code>, <code>format</code>, <code>comment</code></td><td>Field presentation, defaults, bounds and notes.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Cardinalities</h2>
+<p>Each end is one of <code>exactly-one</code>, <code>zero-or-one</code>, <code>zero-or-more</code>,
+<code>one-or-more</code>. Eight pairs are relationships:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th><code>fromCardinality</code> → <code>toCardinality</code></th><th>Kind</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><code>exactly-one</code> → <code>exactly-one</code></td><td>one to one</td><td>User has Profile</td></tr>
+    <tr><td><code>exactly-one</code> → <code>zero-or-more</code></td><td>one to many</td><td>Account employs Contact</td></tr>
+    <tr><td><code>exactly-one</code> → <code>one-or-more</code></td><td>one to many (at least one)</td><td>Order contains OrderItem</td></tr>
+    <tr><td><code>zero-or-more</code> → <code>exactly-one</code></td><td>many to one</td><td>Deal in_stage Stage</td></tr>
+    <tr><td><code>one-or-more</code> → <code>exactly-one</code></td><td>many to one (at least one)</td><td>OrderItem belongs_to Order</td></tr>
+    <tr><td><code>zero-or-more</code> → <code>zero-or-more</code></td><td>many to many</td><td>Student enrolls Course</td></tr>
+    <tr><td><code>one-or-more</code> → <code>one-or-more</code></td><td>many to many (at least one)</td><td>Author writes Book</td></tr>
+    <tr><td><code>zero-or-one</code> → <code>zero-or-one</code></td><td>zero or one, both sides</td><td>Employee assigned Desk</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Lifecycle hooks</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Hook</th><th>Phase · op</th><th>Typical use</th></tr></thead>
+  <tbody>
+    <tr><td><code>beforeCreate</code></td><td>before · create</td><td>Normalize, mint a number, set defaults</td></tr>
+    <tr><td><code>afterCreate</code></td><td>after · create</td><td>Welcome email, emit an event</td></tr>
+    <tr><td><code>beforeUpdate</code></td><td>before · update</td><td>Snapshot, transform, recompute</td></tr>
+    <tr><td><code>afterUpdate</code></td><td>after · update</td><td>Sync outward, invalidate a cache</td></tr>
+    <tr><td><code>beforeDelete</code></td><td>before · delete</td><td>Block a delete — return <code>false</code></td></tr>
+    <tr><td><code>afterDelete</code></td><td>after · delete</td><td>Clean up files or related rows</td></tr>
+    <tr><td><code>beforeQuery</code> / <code>afterQuery</code></td><td>query</td><td>Tenant scoping; post-process results</td></tr>
+    <tr><td><code>beforeRead</code> / <code>afterRead</code></td><td>read</td><td>Guard a record; redact fields</td></tr>
+    <tr><td><code>beforeList</code> / <code>afterList</code></td><td>list</td><td>Filter or sort; annotate a page</td></tr>
+    <tr><td><code>customValidate</code></td><td>validate · any</td><td>Cross-field validation — <strong>throw</strong> to reject</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Rule actions</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type</th><th>Required</th><th>Optional</th></tr></thead>
+  <tbody>
+    <tr><td><code>trigger-workflow</code></td><td><code>workflow</code></td><td><code>message</code></td></tr>
+    <tr><td><code>validation-error</code></td><td><code>message</code></td><td>—</td></tr>
+    <tr><td><code>transform</code></td><td><code>field</code>, <code>value</code></td><td><code>message</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Saga step types</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type</th><th>Required</th><th>Optional</th><th>Publishes</th></tr></thead>
+  <tbody>
+    <tr><td><code>Decision</code></td><td>one of <code>decisionTable</code> / <code>rule</code></td><td><code>publish</code></td><td>One variable per output column of the matching row</td></tr>
+    <tr><td><code>CreateEntity</code></td><td><code>entity</code>, <code>fields</code></td><td><code>as</code></td><td>The new row's id under <code>as</code></td></tr>
+    <tr><td><code>UpdateEntity</code></td><td><code>field</code> + one of <code>source</code>/<code>value</code></td><td><code>entity</code>, <code>targetField</code>, <code>targetSource</code></td><td>—</td></tr>
+    <tr><td><code>DeleteEntity</code></td><td>—</td><td><code>entity</code>, <code>targetField</code>, <code>targetSource</code>, <code>hard</code></td><td>—</td></tr>
+    <tr><td><code>Formula</code></td><td><code>target</code>, <code>operation</code></td><td><code>source</code>, <code>operand</code>, <code>value</code></td><td>Its result under <code>target</code></td></tr>
+    <tr><td><code>REST</code></td><td><code>url</code></td><td><code>method</code>, <code>bodyTemplate</code></td><td>—</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  <code>Formula</code> operations: <code>multiply</code>, <code>divide</code>, <code>add</code>,
+  <code>subtract</code> (need <code>source</code> + <code>operand</code>), <code>set</code> (needs
+  <code>value</code>, stored unchanged — the only way to pass text), <code>copy</code> (needs
+  <code>source</code>).
+</p>
+
+<div class="note warn">
+  <div class="note-title">Two syntax rules that bite</div>
+  <p>
+    <code>fields</code> and <code>decisionTable</code> carry JSON inside a YAML string: wrap the whole
+    value in single quotes so JSON's double quotes survive. And quote any scalar holding
+    <code>: </code>, a leading <code>*</code> or a <code>#</code> — a cron source, a colour, a label like
+    <code>"Start: Lead Captured"</code> — or YAML reads it as something else.
+  </p>
+</div>
+
+<h2>Checker codes worth recognising</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Code</th><th>Means</th><th>Do</th></tr></thead>
+  <tbody>
+    <tr><td>EML114</td><td>FK column does not end in <code>_id</code></td><td>Rename it, or accept a plain string with no lookup</td></tr>
+    <tr><td>EML117</td><td>Entity has no primary key</td><td>Add <code>{ name: id, type: string, pk: true }</code> (auto-fixable)</td></tr>
+    <tr><td>EML262</td><td>A step is missing a required property</td><td>Check the table above</td></tr>
+    <tr><td>EML264</td><td>A step reads a variable nothing published</td><td>Publish it with <code>as</code> / <code>target</code>, or it is a column of the triggering row</td></tr>
+    <tr><td>EML265</td><td>Cross-entity write with no row targeting</td><td>Add <code>targetSource</code> or <code>targetField</code></td></tr>
+    <tr><td>EML272</td><td>A decision row leaves an output unset</td><td>Give every row every column — the engine discards incomplete rows silently</td></tr>
+    <tr><td>EML284</td><td>An action names a workflow that does not exist</td><td>Fix the name, or declare the workflow</td></tr>
+    <tr><td>EML286</td><td>A <code>trigger: rule</code> saga nothing names</td><td>Add the action, or make it <code>automatic</code></td></tr>
+    <tr><td>EML421 / EML424</td><td>No initial state / a state with no path to a terminal</td><td>Fix the machine — a record will get stuck there</td></tr>
+    <tr><td>EML426 / EML427</td><td>Enum and state machine disagree</td><td>Make the value sets identical</td></tr>
+    <tr><td>EML502</td><td>An FK with no matching relationship</td><td>Declare the relationship; lookups depend on it</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Generator targets</h2>
+
+<p>One model, three <code>--stack</code> values. They differ in what they write,
+never in what they understand — all three read the same parsed model, so a
+directive that changes meaning changes it for all of them.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th><code>--stack</code></th><th>Writes</th><th>Standalone?</th></tr></thead>
+  <tbody>
+    <tr><td><code>node-rest</code> <em>(default)</em></td><td>A dependency-free <code>node:http</code> app over a JSON-file datastore</td><td>Yes — <code>npm start</code>, no install</td></tr>
+    <tr><td><code>tanstack-astryx-loco</code></td><td>The whole application: a Loco.rs (Rust) backend crate — migrations, dictionary, access rules, workflows, reports and hook handlers — and a TanStack Start&nbsp;+&nbsp;Astryx front end, <code>manual.html</code> — the application this guide builds</td><td>Yes</td></tr>
+    <tr><td><code>enterprise-reporting</code></td><td>TanStack Start server functions, list and detail routes, and a Kysely <strong>PostgreSQL</strong> migration, shaped to drop into an <code>enterprise_reporting_rust</code> checkout</td><td><strong>No</strong>, by design</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note warn">
+  <div class="note-title">What the reporting target does not compile</div>
+  <p>It generates less on purpose: that repository already holds auth, two layers
+  of RBAC, an encrypted data-source connection manager, an NL&rarr;SQL pipeline, a
+  job runner and a UI shell, and a generated copy of any of them would be a fork
+  of a moving part. So <strong>workflows and <code>rbac</code> are not
+  compiled</strong> there, and rules are emitted as GoRules JDM but not wired up.
+  The generated handlers call <code>requireAuth()</code>, which establishes who is
+  calling; adding <code>requirePermission()</code> and the role strings is an
+  integration step you do by hand.</p>
+  <p>Write the model in full anyway. What this target skips is still what the
+  checker validates, what the viewers render, and what
+  <code>tanstack-astryx-loco</code> compiles from the very same file.</p>
+</div>
+
+<h2>Commands</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Command</th><th>Does</th></tr></thead>
+  <tbody>
+    <tr><td><code>bun language/cli/eml.ts validate -i &lt;file&gt;</code></td><td>Check a model: YAML, schema, then the language. <code>--json</code> for CI.</td></tr>
+    <tr><td><code>bun language/cli/eml.ts info -i &lt;file&gt;</code></td><td>Summarise a model: entity, rule, workflow, hook and index counts.</td></tr>
+    <tr><td><code>bun run generate:tanstack -- -i &lt;file&gt; -o &lt;dir&gt; -n &lt;name&gt;</code></td><td>Generate an application.</td></tr>
+    <tr><td><code>bun language/cli/eml.ts generate -i &lt;file&gt; -o &lt;dir&gt; --stack &lt;stack&gt;</code></td><td>Generate for any of the three targets above.</td></tr>
+    <tr><td><code>appwithai convert &lt;model.mmd&gt;</code></td><td>Convert a model written in the retired Mermaid notation to YAML, once.</td></tr>
+    <tr><td><code>cargo loco db migrate &amp;&amp; cargo loco db seed</code></td><td>In a generated app's <code>backend/</code>: migrate, then seed.</td></tr>
+    <tr><td><code>cargo loco start --server-and-worker</code></td><td>In a generated app's <code>backend/</code>: the API on :3000.</td></tr>
+    <tr><td><code>LOCO_ENV=test cargo test --test app</code></td><td>The generated backend's request suites.</td></tr>
+    <tr><td><code>bun run test:e2e:fast</code></td><td>The generated bun end-to-end suite, minus the volume tests.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Where things live</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Path</th><th>What</th></tr></thead>
+  <tbody>
+    <tr><td><code>language/yaml/eml.schema.json</code></td><td>The schema every model is validated with — the keys on this page</td></tr>
+    <tr><td><code>language/appwithai-language.json</code></td><td>The language definition — types, cardinalities, events, step contracts</td></tr>
+    <tr><td><code>language/yaml/README.md</code></td><td>The YAML model language, in prose</td></tr>
+    <tr><td><code>language/yaml/examples/crm.eml.yaml</code></td><td>The model this guide builds</td></tr>
+    <tr><td><code>packages/generator/src/model-yaml/</code></td><td>The reader: YAML → schema → the compiled model</td></tr>
+    <tr><td><code>packages/generator/templates/</code></td><td>Every template the generated app is made of</td></tr>
+    <tr><td><code>generated-projects/crm/</code></td><td>The application, as generated</td></tr>
+    <tr><td><code>language/cli/src/generate/</code></td><td>One module per <code>--stack</code> target: <code>app.ts</code>, <code>loco.ts</code>, <code>enterprise-reporting.ts</code></td></tr>
+    <tr><td><code>website/llmtext/llms-full.txt</code></td><td>This whole system, written as one context file for language models</td></tr>
+    <tr><td><code>website/llmtext/llms-reporting.txt</code></td><td>The same, for the enterprise reporting platform</td></tr>
+  </tbody>
+</table>
+</div>
+
+<nav class="pager">
+  <a href="07-it-runs.html"><span class="dir">Previous</span><div class="ttl">← 07 · Watch it run</div></a>
+  <a class="next" href="index.html"><span class="dir">Back to</span><div class="ttl">00 · Overview →</div></a>
+</nav>
+
+</div>
+</main>
+</div>
+<script src="assets/guide.js"></script>
+</body>
+</html>

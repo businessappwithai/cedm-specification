@@ -1,0 +1,45 @@
+# Loco configuration. Every value that the Node service also reads comes from
+# the same environment variable, so one .env drives both backends.
+logger:
+  enable: true
+  pretty_backtrace: false
+  level: <%= get_env(name="LOG_LEVEL", default="info") %>
+  format: json
+
+server:
+  port: <%= get_env(name="PORT", default="5150") %>
+  binding: <%= get_env(name="BINDING", default="0.0.0.0") %>
+  host: <%= get_env(name="APP_URL", default="http://localhost:5150") %>
+  middlewares:
+    # The Node API has no fallback page; unknown /api paths are plain 404s.
+    fallback:
+      enable: false
+
+database:
+  uri: <%= get_env(name="DATABASE_URL", default="postgres://enterprise:password@localhost:5432/enterprise_config") %>
+  enable_logging: false
+  connect_timeout: 5000
+  idle_timeout: 300000
+  min_connections: 1
+  max_connections: 10
+  # The Rust-owned tables (ers_cron_ticks) and the idempotent bootstrap baseline.
+  auto_migrate: true
+  dangerously_truncate: false
+  dangerously_recreate: false
+
+queue:
+  kind: Postgres
+  uri: <%= get_env(name="DATABASE_URL", default="postgres://enterprise:password@localhost:5432/enterprise_config") %>
+  dangerously_flush: false
+  num_workers: <%= get_env(name="WORKER_CONCURRENCY", default="5") %>
+
+workers:
+  mode: BackgroundQueue
+
+scheduler:
+  output: stdout
+  jobs:
+    cron_tick:
+      # Every minute at second 0 (tokio-cron-scheduler takes a seconds field).
+      run: "cron_tick"
+      schedule: "0 * * * * *"

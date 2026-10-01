@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "types": [
+      "node",
+      "bun"
+    ],
+    "paths": {
+      "@appwithai/core/*": [
+        "../../../packages/core/src/*"
+      ],
+      "@appwithai/core": [
+        "../../../packages/core/src"
+      ]
+    }
+  },
+  "include": [
+    "build/**/*.ts",
+    "scripts/**/*.ts"
+  ]
+}

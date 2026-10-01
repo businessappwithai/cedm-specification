@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{reportName}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background-color: #f5f5f5; }
+    .container { max-width: 1400px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .header-info { border-bottom: 2px solid {{borderColor}}; padding-bottom: 15px; margin-bottom: 20px; }
+    h1 { font-size: 24px; margin-bottom: 10px; color: #1a1a1a; }
+    .meta { font-size: 12px; color: #666; }
+    .meta-line { margin: 4px 0; }
+    h2 { font-size: 14px; font-weight: 600; margin-top: 15px; color: #333; }
+    .controls { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; align-items: center; }
+    input, select { padding: 8px 12px; border: 1px solid {{borderColor}}; border-radius: 4px; font-size: 14px; }
+    button { padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    button:hover { background-color: #2563eb; }
+    .table-wrapper { overflow-x: auto; border: 1px solid {{borderColor}}; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background-color: {{headerBg}}; color: {{headerText}}; }
+    th { padding: 12px; text-align: left; font-weight: 600; border: 1px solid {{borderColor}}; color: {{headerText}}; }
+    tbody tr { border-bottom: 1px solid {{borderColor}}; }
+    tbody tr:nth-child(odd) { background-color: {{rowBg}}; }
+    tbody tr:nth-child(odd) td { color: {{rowText}}; }
+    tbody tr:nth-child(even) { background-color: {{altRowBg}}; }
+    tbody tr:nth-child(even) td { color: {{altRowText}}; }
+    td { padding: 12px; border: 1px solid {{borderColor}}; }
+    .pagination { display: flex; gap: 8px; margin-top: 20px; align-items: center; }
+    .pagination button { padding: 6px 12px; min-width: 40px; }
+    .pagination button:disabled { background-color: #d1d5db; cursor: not-allowed; }
+    .pagination span { padding: 0 8px; }
+    .info { font-size: 12px; color: #666; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-info">
+      <h1>{{reportName}}</h1>
+      <div class="meta">
+        <div class="meta-line"><strong>Exported:</strong> {{exportTime}}</div>
+        <div class="meta-line"><strong>Exported by:</strong> {{exportedBy}}</div>
+      </div>
+    </div>
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Search all columns...">
+      <select id="pageSizeSelect">
+        <option value="10">10 rows</option>
+        <option value="20">20 rows</option>
+        <option value="50" selected>50 rows</option>
+        <option value="100">100 rows</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <button id="firstBtn">First</button>
+      <button id="prevBtn">Previous</button>
+      <span>Page <span id="pageNum">1</span> of <span id="pageCount">1</span></span>
+      <button id="nextBtn">Next</button>
+      <button id="lastBtn">Last</button>
+    </div>
+    <div class="info">
+      <p>Total rows: <span id="totalRows">{{totalRows}}</span> | Showing <span id="showing">0</span>-<span id="showingEnd">0</span></p>
+    </div>
+  </div>
+  <script>
+    const data = {{dataJson}};
+    const headers = {{headersJson}};
+    let pageSize = 50;
+    let currentPage = 1;
+    let filteredData = [...data];
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text).replace(/[&<>"']/g, c => map[c]);
+    }
+
+    function renderTable() {
+      const tableHead = document.getElementById('tableHead');
+      const headerCells = headers.map(h => '<th>' + escapeHtml(h) + '</th>').join('');
+      tableHead.textContent = '';
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = headerCells;
+      tableHead.appendChild(headerRow);
+
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredData.slice(start, end);
+
+      const tableBody = document.getElementById('tableBody');
+      tableBody.textContent = '';
+      pageData.forEach(row => {
+        const tr = document.createElement('tr');
+        const cells = headers.map(h => '<td>' + escapeHtml(row[h] || '') + '</td>').join('');
+        tr.innerHTML = cells;
+        tableBody.appendChild(tr);
+      });
+
+      const pageCount = Math.ceil(filteredData.length / pageSize);
+      document.getElementById('pageNum').textContent = currentPage;
+      document.getElementById('pageCount').textContent = pageCount;
+      document.getElementById('showing').textContent = start + 1;
+      document.getElementById('showingEnd').textContent = Math.min(end, filteredData.length);
+
+      document.getElementById('firstBtn').disabled = currentPage === 1;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= pageCount;
+      document.getElementById('lastBtn').disabled = currentPage >= pageCount;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const search = e.target.value.toLowerCase();
+      filteredData = data.filter(row =>
+        Object.values(row).some(v => String(v || '').toLowerCase().includes(search))
+      );
+      currentPage = 1;
+      renderTable();
+    });
+
+    document.getElementById('pageSizeSelect').addEventListener('change', (e) => {
+      pageSize = parseInt(e.target.value);
+      currentPage = 1;
+      renderTable();
+    });
+
+    document.getElementById('firstBtn').addEventListener('click', () => {
+      currentPage = 1;
+      renderTable();
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentPage > 1) currentPage--;
+      renderTable();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const pageCount = Math.ceil(filteredData.length / pageSize);
+      if (currentPage < pageCount) currentPage++;
+      renderTable();
+    });
+
+    document.getElementById('lastBtn').addEventListener('click', () => {
+      currentPage = Math.ceil(filteredData.length / pageSize);
+      renderTable();
+    });
+
+    renderTable();
+  </script>
+</body>
+</html>

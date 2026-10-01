@@ -1,0 +1,63 @@
+[package]
+name = "ers-backend"
+version = "0.1.0"
+edition = "2021"
+publish = false
+default-run = "ers-backend-cli"
+description = "Enterprise Reporting backend on Loco.rs — the Rust port of the Node API, workers and cron"
+
+[[bin]]
+name = "ers-backend-cli"
+path = "src/bin/main.rs"
+
+[dependencies]
+loco-rs = { version = "1.1.0" }
+sea-orm = { version = "2.0", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+sea-orm-migration = { version = "2.0", features = ["runtime-tokio-rustls", "sqlx-postgres"] }
+sqlx = { version = "0.9", default-features = false, features = [
+  "runtime-tokio",
+  "tls-rustls-ring-webpki",
+  "postgres",
+  "mysql",
+  "chrono",
+  "json",
+  "uuid",
+  "rust_decimal",
+  "derive",
+] }
+
+axum = { version = "0.8", features = ["ws", "multipart"] }
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+tracing = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+uuid = { version = "1", features = ["v4", "serde"] }
+rust_decimal = "1.36"
+thiserror = "2"
+
+# Crypto — byte-compatible with the Node implementations
+aes-gcm = "0.10.3"
+scrypt = { version = "0.11", default-features = false }
+hmac = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+hex = "0.4"
+rand = "0.8"
+bcrypt = "0.17"
+percent-encoding = "2.3"
+
+sqlparser = { version = "0.59", features = ["visitor"] }
+regex = "1"
+csv = "1.3"
+lettre = { version = "0.11", default-features = false, features = ["builder", "hostname", "smtp-transport", "pool", "tokio1", "tokio1-rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
+url = "2"
+rust_xlsxwriter = { version = "0.90", default-features = false }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+loco-rs = { version = "1.1.0", features = ["testing"] }
+serial_test = "3"
