@@ -322,6 +322,7 @@ function AdminRulesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label={`Edit rule ${rule.ruleName}`}
                       className="h-8 w-8 p-0 hover:bg-black hover:text-white rounded-none"
                     >
                       <Edit size={16} />
@@ -331,6 +332,7 @@ function AdminRulesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(rule)}
+                    aria-label={`Deactivate rule ${rule.ruleName}`}
                     className="h-8 w-8 p-0 hover:bg-red-600 hover:text-white rounded-none"
                     disabled={!rule.isActive}
                   >

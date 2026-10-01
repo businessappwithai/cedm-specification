@@ -20,7 +20,7 @@
  *   --dry-run    Report what would be deleted without deleting it.
  *   --yes        Skip the confirmation prompt for --all.
  *
- * Generated: 2026-10-01T12:07:43.774Z
+ * Generated: 2026-10-01T12:26:18.115Z
  * Project: sales
  */
 
