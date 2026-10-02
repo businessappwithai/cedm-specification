@@ -12,7 +12,7 @@
  * 3× the time is a scaling curve while 1× the data costing 3× the time is a
  * regression, and only the reader knows which question was asked.
  *
- * Generated: 2026-10-02T04:10:24.270Z
+ * Generated: 2026-10-02T06:44:08.048Z
  * Project: legal
  */
 
