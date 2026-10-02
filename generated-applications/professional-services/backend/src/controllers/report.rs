@@ -9,7 +9,7 @@
 //! which render one record as a printable document. This is analysis over the
 //! whole database.
 //!
-//! Generated: 2026-10-01T09:33:50.381Z
+//! Generated: 2026-10-02T10:52:30.677Z
 //! Project: professional-services
 
 use axum::{
