@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T09:34:19.188Z
+ * Generated: 2026-10-02T13:06:06.514Z
  * Project: regulatory
  */
 
