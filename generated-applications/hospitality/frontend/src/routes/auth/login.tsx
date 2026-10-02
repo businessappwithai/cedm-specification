@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T09:32:32.511Z
+ * Generated: 2026-10-02T02:37:04.181Z
  * Project: hospitality
  */
 
