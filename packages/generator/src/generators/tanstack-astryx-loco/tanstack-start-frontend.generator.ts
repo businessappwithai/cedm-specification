@@ -91,6 +91,20 @@ export interface TanStackStartFrontendOptions {
   testsWorkspace?: boolean;
 }
 
+/** File names TanStack Router gives a meaning to, or that collide with a route directory. */
+export const RESERVED_ROUTE_SLUGS = new Set([
+  "route",
+  "index",
+  "__root",
+  "lazy",
+  "api",
+  "auth",
+  "admin",
+  "ask",
+  "reports",
+  "dashboard",
+]);
+
 export class TanStackStartFrontendGenerator extends BaseGenerator {
   private options: TanStackStartFrontendOptions;
   private resolvedTemplateDir: string;
@@ -847,6 +861,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const entityContext = { ...context, entity: { ...busEntity, displayName } };
     await fs.mkdir(path.join(outputDir, "src/routes"), { recursive: true });
 
+    // An entity named like a TanStack Router file convention (`Route` -> route.tsx
+    // is the reserved layout file, which resolves to an empty path and breaks the
+    // whole router) gets no explicit files: the `$entity` catch-all serves it.
+    if (RESERVED_ROUTE_SLUGS.has(kebabCase(busEntity.name))) return;
+
     const listPageFilename = `${kebabCase(busEntity.name)}.tsx`;
     const listPageContent = await this.renderTemplate(
       "src/routes/$entity/index.tsx.hbs",
@@ -880,6 +899,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       busEntities[0];
 
     await this.generateSingleEntityRoutes(busEntity, context, outputDir);
+    if (RESERVED_ROUTE_SLUGS.has(kebabCase(entity.name))) {
+      console.log(`  ✓ ${entity.name} is served by the $entity route (reserved file name)`);
+      return;
+    }
 
     const listFile = `${kebabCase(entity.name)}.tsx`;
     const detailFile = `${kebabCase(entity.name)}.$id.tsx`;
