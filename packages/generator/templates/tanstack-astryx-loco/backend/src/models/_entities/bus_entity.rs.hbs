@@ -36,7 +36,14 @@ pub struct Model {
     pub {{entity.primaryKey}}: Uuid,
 {{#each entity.attributes}}
 {{#unless (or (eq name ../entity.primaryKey) (eq name 'created_at') (eq name 'updated_at') (eq name 'deleted_at') (eq name 'version'))}}
+{{#if (or (eq name 'type') (eq name 'ref') (eq name 'match') (eq name 'mod') (eq name 'move') (eq name 'loop') (eq name 'use') (eq name 'fn') (eq name 'impl') (eq name 'in') (eq name 'for') (eq name 'if') (eq name 'else') (eq name 'as') (eq name 'let') (eq name 'enum') (eq name 'struct') (eq name 'trait') (eq name 'where') (eq name 'while') (eq name 'static') (eq name 'const') (eq name 'crate') (eq name 'mut') (eq name 'pub') (eq name 'return') (eq name 'break') (eq name 'continue') (eq name 'dyn') (eq name 'async') (eq name 'await') (eq name 'abstract') (eq name 'final') (eq name 'override') (eq name 'virtual') (eq name 'yield') (eq name 'try') (eq name 'box') (eq name 'do') (eq name 'macro') (eq name 'priv') (eq name 'typeof') (eq name 'unsized') (eq name 'become') (eq name 'extern') (eq name 'unsafe') (eq name 'union'))}}
+    /// `{{name}}` is a Rust keyword: the field is a raw identifier, and the column
+    /// keeps its own name.
+    #[sea_orm(column_name = "{{name}}")]
+    pub r#{{name}}: {{seaOrmType (typeToReferenceId type) required isForeignKey}},
+{{else}}
     pub {{name}}: {{seaOrmType (typeToReferenceId type) required isForeignKey}},
+{{/if}}
 {{/unless}}
 {{/each}}
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an

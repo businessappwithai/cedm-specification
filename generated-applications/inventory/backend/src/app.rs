@@ -4,8 +4,8 @@ use std::path::Path;
 
 use async_trait::async_trait;
 use loco_rs::{
-    bgworker::BackgroundWorker,
     app::{AppContext, Hooks},
+    bgworker::BackgroundWorker,
     bgworker::Queue,
     boot::{create_app, BootResult, StartMode},
     config::Config,
@@ -17,15 +17,15 @@ use loco_rs::{
 use migration::Migrator;
 
 use crate::controllers;
-use crate::tasks;
-use crate::workers;
-use crate::services::dictionary::DictionaryCache;
-use crate::services::system_config::SystemConfig;
 use crate::services::audit::AuditService;
+use crate::services::dictionary::DictionaryCache;
 use crate::services::dynamic_repo::DynamicRepo;
 use crate::services::promotion::PromotionService;
 use crate::services::rules_engine::RulesEngine;
+use crate::services::system_config::SystemConfig;
 use crate::services::workflow::WorkflowExecutor;
+use crate::tasks;
+use crate::workers;
 
 pub struct App;
 
@@ -63,7 +63,10 @@ impl Hooks for App {
             // Its own executor, not the shared one: a rule's `trigger-workflow`
             // action runs the workflow it names, and both are cheap clones of a
             // pool handle.
-            WorkflowExecutor::new(DynamicRepo::new(pool.clone()), DictionaryCache::new(pool.clone())),
+            WorkflowExecutor::new(
+                DynamicRepo::new(pool.clone()),
+                DictionaryCache::new(pool.clone()),
+            ),
         ));
         ctx.shared_store.insert(WorkflowExecutor::new(
             DynamicRepo::new(pool.clone()),
@@ -135,16 +138,24 @@ impl Hooks for App {
             // 401 from the JWT extractor and a 404 for a route that does not
             // exist, neither of which reaches a handler. See
             // `common::http_log` for why that placement is the whole point.
-            .layer(axum::middleware::from_fn(crate::common::http_log::log_request)))
+            .layer(axum::middleware::from_fn(
+                crate::common::http_log::log_request,
+            )))
     }
 
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         // Entity promotion is deliberately NOT registered here: it runs inline
         // so the create/update response can carry the final doc_status
         // (§6.7 option A). Only genuinely asynchronous work is queued.
-        queue.register(workers::email::EmailWorker::build(ctx)).await?;
-        queue.register(workers::report::ReportWorker::build(ctx)).await?;
-        queue.register(workers::sync::SyncWorker::build(ctx)).await?;
+        queue
+            .register(workers::email::EmailWorker::build(ctx))
+            .await?;
+        queue
+            .register(workers::report::ReportWorker::build(ctx))
+            .await?;
+        queue
+            .register(workers::sync::SyncWorker::build(ctx))
+            .await?;
         Ok(())
     }
 
@@ -206,7 +217,9 @@ impl Hooks for App {
         use loco_rs::task::{Task, Vars};
 
         let vars = Vars::default();
-        tasks::seed_dictionary::SeedDictionary.run(ctx, &vars).await?;
+        tasks::seed_dictionary::SeedDictionary
+            .run(ctx, &vars)
+            .await?;
         // Rules before workflows: a saga step may invoke a rule by name, and a
         // definition naming one that is not there yet is a step that does nothing.
         tasks::seed_rules::SeedRules.run(ctx, &vars).await?;

@@ -44,7 +44,9 @@ pub async fn list(
 ) -> AppResult<Response> {
     let pool = ctx.db.get_postgres_connection_pool();
 
-    let entity = params.get("entityName").or_else(|| params.get("entity_name"));
+    let entity = params
+        .get("entityName")
+        .or_else(|| params.get("entity_name"));
     let operation = params.get("operation");
     let is_active = params
         .get("isActive")
@@ -521,10 +523,11 @@ pub async fn migrate(_auth: auth::JWT, State(ctx): State<AppContext>) -> AppResu
     use sea_orm::ConnectionTrait;
 
     let pool = ctx.db.get_postgres_connection_pool();
-    let before: i64 = sqlx::query_scalar("SELECT COALESCE(SUM(version), 0) FROM sys_rule_definitions")
-        .fetch_one(pool)
-        .await
-        .unwrap_or(0);
+    let before: i64 =
+        sqlx::query_scalar("SELECT COALESCE(SUM(version), 0) FROM sys_rule_definitions")
+            .fetch_one(pool)
+            .await
+            .unwrap_or(0);
 
     // `SET LOCAL` rather than `SET`: the connection goes back to a pool
     // afterwards, and a session-level setting would leave the next request's
@@ -536,11 +539,10 @@ pub async fn migrate(_auth: auth::JWT, State(ctx): State<AppContext>) -> AppResu
         ))
         .await?;
 
-    let (after, total): (i64, i64) = sqlx::query_as(
-        "SELECT COALESCE(SUM(version), 0), COUNT(*) FROM sys_rule_definitions",
-    )
-    .fetch_one(pool)
-    .await?;
+    let (after, total): (i64, i64) =
+        sqlx::query_as("SELECT COALESCE(SUM(version), 0), COUNT(*) FROM sys_rule_definitions")
+            .fetch_one(pool)
+            .await?;
 
     // Every overwrite bumps `version` by one, so the difference is the number
     // of rules the model actually replaced — an install that changed nothing

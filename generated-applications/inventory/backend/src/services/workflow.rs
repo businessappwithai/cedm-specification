@@ -167,34 +167,32 @@ pub fn parse_tasks(xml: &str) -> AppResult<Vec<BpmnTask>> {
             }
             // Self-closing elements never produce an `End`, so a service task
             // written as `<serviceTask …/>` is complete the moment it is seen.
-            Ok(Event::Empty(e)) => {
-                match local_name(e.name().as_ref()).as_str() {
-                    "serviceTask" => {
-                        tasks.push(BpmnTask {
-                            id: attribute(&e, "id").unwrap_or_default(),
-                            name: attribute(&e, "name").unwrap_or_default(),
-                            node_type: "Unknown".to_string(),
-                            properties: HashMap::new(),
-                        });
-                    }
-                    "property" => {
-                        if let Some(task) = current.as_mut() {
-                            if let Some(prop_name) = attribute(&e, "name") {
-                                task.properties
-                                    .insert(prop_name, attribute(&e, "value").unwrap_or_default());
-                            }
-                        }
-                    }
-                    "sequenceFlow" => {
-                        if let (Some(from), Some(to)) =
-                            (attribute(&e, "sourceRef"), attribute(&e, "targetRef"))
-                        {
-                            flows.push((from, to));
-                        }
-                    }
-                    _ => {}
+            Ok(Event::Empty(e)) => match local_name(e.name().as_ref()).as_str() {
+                "serviceTask" => {
+                    tasks.push(BpmnTask {
+                        id: attribute(&e, "id").unwrap_or_default(),
+                        name: attribute(&e, "name").unwrap_or_default(),
+                        node_type: "Unknown".to_string(),
+                        properties: HashMap::new(),
+                    });
                 }
-            }
+                "property" => {
+                    if let Some(task) = current.as_mut() {
+                        if let Some(prop_name) = attribute(&e, "name") {
+                            task.properties
+                                .insert(prop_name, attribute(&e, "value").unwrap_or_default());
+                        }
+                    }
+                }
+                "sequenceFlow" => {
+                    if let (Some(from), Some(to)) =
+                        (attribute(&e, "sourceRef"), attribute(&e, "targetRef"))
+                    {
+                        flows.push((from, to));
+                    }
+                }
+                _ => {}
+            },
             Ok(Event::Text(text)) => {
                 if let (Some(task), Some(prop)) = (current.as_mut(), pending_property.take()) {
                     let value = text.unescape().unwrap_or_default().trim().to_string();
@@ -288,7 +286,7 @@ fn local_name(raw: &[u8]) -> String {
 /// the whole document unreadable.
 fn attribute(element: &quick_xml::events::BytesStart<'_>, key: &str) -> Option<String> {
     element.attributes().flatten().find_map(|attr| {
-        (local_name(attr.key.as_ref() ) == key).then(|| {
+        (local_name(attr.key.as_ref()) == key).then(|| {
             attr.unescape_value().map_or_else(
                 |_| String::from_utf8_lossy(&attr.value).to_string(),
                 |value| value.into_owned(),
@@ -350,7 +348,11 @@ impl WorkflowExecutor {
     }
 
     async fn execute(&self, task: &BpmnTask, ctx: &mut WorkflowContext) -> AppResult<()> {
-        crate::log_event!(workflow_node_executing, node = task.node_type, name = task.name);
+        crate::log_event!(
+            workflow_node_executing,
+            node = task.node_type,
+            name = task.name
+        );
         match task.node_type.as_str() {
             "UpdateEntity" => self.update_entity(task, ctx).await,
             "CreateEntity" => self.create_entity(task, ctx).await,
@@ -423,7 +425,9 @@ impl WorkflowExecutor {
                 .bind(name)
                 .fetch_optional(self.repo.pool())
                 .await
-                .map_err(|err| AppError::Internal(anyhow::anyhow!("looking up rule {name}: {err}")))?;
+                .map_err(|err| {
+                    AppError::Internal(anyhow::anyhow!("looking up rule {name}: {err}"))
+                })?;
 
                 // A named rule that is not there is a modelling error, not a
                 // condition to shrug at: the step would otherwise publish
@@ -451,13 +455,17 @@ impl WorkflowExecutor {
             input.insert(key.clone(), value.clone());
         }
 
-        let content: zen_engine::model::DecisionContent = serde_json::from_str(&jdm)
-            .map_err(|err| AppError::BadRequest(format!("Decision table is not valid JDM: {err}")))?;
+        let content: zen_engine::model::DecisionContent =
+            serde_json::from_str(&jdm).map_err(|err| {
+                AppError::BadRequest(format!("Decision table is not valid JDM: {err}"))
+            })?;
 
         let evaluated = RulesEngine::new()
             .evaluate_raw(&ctx.entity_name, content, &input, RuleOperation::Update)
             .await
-            .map_err(|err| AppError::Internal(anyhow::anyhow!("Decision evaluation failed: {err}")))?;
+            .map_err(|err| {
+                AppError::Internal(anyhow::anyhow!("Decision evaluation failed: {err}"))
+            })?;
 
         let allow: Option<Vec<String>> = task.properties.get("publish").map(|list| {
             list.split(',')
@@ -599,7 +607,11 @@ impl WorkflowExecutor {
 /// the executor ignored it and silently wrote to the triggering record
 /// instead, which on a cross-entity step is the wrong row in the wrong table.
 fn target_id(task: &BpmnTask, ctx: &WorkflowContext, node: &str) -> AppResult<uuid::Uuid> {
-    let raw = match task.properties.get("targetSource").filter(|s| !s.is_empty()) {
+    let raw = match task
+        .properties
+        .get("targetSource")
+        .filter(|s| !s.is_empty())
+    {
         Some(key) => ctx
             .resolve(key)
             .map(|value| match value {
@@ -607,7 +619,9 @@ fn target_id(task: &BpmnTask, ctx: &WorkflowContext, node: &str) -> AppResult<uu
                 other => other.to_string(),
             })
             .ok_or_else(|| {
-                AppError::BadRequest(format!("{node} targetSource \"{key}\" is not in the run context"))
+                AppError::BadRequest(format!(
+                    "{node} targetSource \"{key}\" is not in the run context"
+                ))
             })?,
         None => ctx
             .entity_id
@@ -967,8 +981,10 @@ mod tests {
     #[test]
     fn create_entity_fields_resolve_context_keys_and_keep_literals() {
         let mut ctx = WorkflowContext::default();
-        ctx.vars
-            .insert("newAccountId".into(), json!("6f1c1f16-0000-4000-8000-000000000001"));
+        ctx.vars.insert(
+            "newAccountId".into(),
+            json!("6f1c1f16-0000-4000-8000-000000000001"),
+        );
         ctx.entity_data.insert("first_name".into(), json!("Ada"));
 
         let declared: Map<String, Value> = serde_json::from_str(
@@ -979,7 +995,10 @@ mod tests {
 
         // A published variable and a field of the triggering record both
         // resolve; the model writes their names, not their values.
-        assert_eq!(resolved["account_id"], json!("6f1c1f16-0000-4000-8000-000000000001"));
+        assert_eq!(
+            resolved["account_id"],
+            json!("6f1c1f16-0000-4000-8000-000000000001")
+        );
         assert_eq!(resolved["first_name"], json!("Ada"));
         // A string naming nothing in context is the value itself.
         assert_eq!(resolved["status"], json!("active"));

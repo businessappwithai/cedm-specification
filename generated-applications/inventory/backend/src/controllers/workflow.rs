@@ -104,7 +104,11 @@ pub async fn create(
     let name = required_str(&payload, "name")?;
     let entity_name = required_str(&payload, "entityName")?;
 
-    match payload.get("kind").and_then(Value::as_str).unwrap_or("bpmn") {
+    match payload
+        .get("kind")
+        .and_then(Value::as_str)
+        .unwrap_or("bpmn")
+    {
         "bpmn" => {}
         "automation" => return create_automation(&ctx, &payload, &name, &entity_name).await,
         other => {
@@ -424,7 +428,11 @@ pub async fn execute(
 
     // Every run is recorded, successful or not — sys_workflow_runs is the
     // operator's only view into what a workflow actually did.
-    let status = if outcome.is_ok() { "completed" } else { "failed" };
+    let status = if outcome.is_ok() {
+        "completed"
+    } else {
+        "failed"
+    };
     let error = outcome.as_ref().err().map(ToString::to_string);
     let _ = sqlx::query(
         r"INSERT INTO sys_workflow_runs
@@ -432,7 +440,11 @@ pub async fn execute(
           VALUES ($1, $2, 'TRIGGER', $3, $4, $5, NOW())",
     )
     .bind(&run.entity_name)
-    .bind(run.entity_id.as_deref().and_then(|id| Uuid::parse_str(id).ok()))
+    .bind(
+        run.entity_id
+            .as_deref()
+            .and_then(|id| Uuid::parse_str(id).ok()),
+    )
     .bind(status)
     .bind(error.as_deref())
     .bind(started)
@@ -495,15 +507,17 @@ pub async fn transitions(
 
     let moves: Vec<Value> = rows
         .into_iter()
-        .map(|(table_name, status_field, from_state, to_state, transition)| {
-            json!({
-                "tableName": table_name,
-                "statusField": status_field,
-                "from": from_state,
-                "to": to_state,
-                "transition": transition,
-            })
-        })
+        .map(
+            |(table_name, status_field, from_state, to_state, transition)| {
+                json!({
+                    "tableName": table_name,
+                    "statusField": status_field,
+                    "from": from_state,
+                    "to": to_state,
+                    "transition": transition,
+                })
+            },
+        )
         .collect();
     Ok(Json(moves).into_response())
 }
@@ -544,7 +558,11 @@ pub async fn runs(
            ORDER BY created_at DESC
            LIMIT $4",
     )
-    .bind(params.get("entityName").or_else(|| params.get("entity_name")))
+    .bind(
+        params
+            .get("entityName")
+            .or_else(|| params.get("entity_name")),
+    )
     .bind(params.get("status"))
     .bind(params.get("operation"))
     .bind(limit)

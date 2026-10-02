@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-02T03:46:59.565Z
+//! Generated: 2026-10-02T03:50:33.509Z
 //! Project: inventory
 
 use sea_orm::entity::prelude::*;
@@ -35,7 +35,10 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub handling_unit_number: String,
-    pub type: String,
+    /// `type` is a Rust keyword: the field is a raw identifier, and the column
+    /// keeps its own name.
+    #[sea_orm(column_name = "type")]
+    pub r#type: String,
     pub inventory_location_id: Option<Uuid>,
     pub parent_handling_unit_id: Option<Uuid>,
     /// `TIMESTAMPTZ DEFAULT NOW()` — defaulted, not `NOT NULL`, so it is an

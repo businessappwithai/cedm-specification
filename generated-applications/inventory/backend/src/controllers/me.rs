@@ -387,7 +387,11 @@ async fn granted_windows(pool: &PgPool, principal: &Principal) -> AppResult<Vec<
 /// with no `bus_` table behind it. A business window is named by its first
 /// tab's table, minus the `bus_` prefix, which is exactly the segment
 /// `/api/bus/{entity}` accepts.
-fn route_for(is_system: bool, description: Option<&str>, table_name: Option<&str>) -> Option<String> {
+fn route_for(
+    is_system: bool,
+    description: Option<&str>,
+    table_name: Option<&str>,
+) -> Option<String> {
     if is_system {
         return description
             .filter(|d| d.starts_with('/'))

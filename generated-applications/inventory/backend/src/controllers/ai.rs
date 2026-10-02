@@ -13,7 +13,7 @@
 //! another costume, and the parity gate cannot see a file that both generators
 //! agree to omit.
 //!
-//! Generated: 2026-10-02T03:46:59.259Z
+//! Generated: 2026-10-02T03:50:33.308Z
 //! Project: inventory
 
 use axum::{
@@ -79,15 +79,8 @@ pub async fn query(
     let pool = ctx.db.get_postgres_connection_pool();
     let principal = authz::principal(pool, &auth.user).await?;
 
-    let answer = nl_query::answer(
-        pool,
-        &principal,
-        &dictionary,
-        &repo,
-        &settings,
-        question,
-    )
-    .await?;
+    let answer =
+        nl_query::answer(pool, &principal, &dictionary, &repo, &settings, question).await?;
 
     Ok(Json(answer).into_response())
 }

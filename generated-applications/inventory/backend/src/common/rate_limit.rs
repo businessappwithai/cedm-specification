@@ -42,7 +42,7 @@
 //! and an orchestrator polling it every second must not consume the budget of
 //! whoever shares its address.
 //!
-//! Generated: 2026-10-02T03:46:59.423Z
+//! Generated: 2026-10-02T03:50:33.380Z
 //! Project: inventory
 
 use std::{
@@ -167,7 +167,10 @@ impl Limiter {
                 max: number("rate_limit_max_per_minute", DEFAULT_MAX_PER_MINUTE),
             },
             auth: Budget {
-                max: number("rate_limit_auth_max_per_minute", DEFAULT_AUTH_MAX_PER_MINUTE),
+                max: number(
+                    "rate_limit_auth_max_per_minute",
+                    DEFAULT_AUTH_MAX_PER_MINUTE,
+                ),
             },
             trust_proxy,
             jwt_secret: ctx
@@ -416,7 +419,11 @@ pub async fn enforce(
 fn write_budget_headers(response: &mut Response, decision: &Decision, refused: bool) {
     let headers = response.headers_mut();
     insert_number(headers, "ratelimit-limit", u64::from(decision.limit));
-    insert_number(headers, "ratelimit-remaining", u64::from(decision.remaining));
+    insert_number(
+        headers,
+        "ratelimit-remaining",
+        u64::from(decision.remaining),
+    );
     insert_number(headers, "ratelimit-reset", decision.reset);
     if refused {
         insert_number(headers, "retry-after", decision.reset);
@@ -475,13 +482,21 @@ mod tests {
         let budget = Budget { max: 1 };
         let now = Instant::now();
 
-        assert!(limiter.spend("addr:10.0.0.1".to_string(), budget, now).allowed);
-        assert!(!limiter
-            .spend("addr:10.0.0.1".to_string(), budget, at(now, 59))
-            .allowed);
-        assert!(limiter
-            .spend("addr:10.0.0.1".to_string(), budget, at(now, 60))
-            .allowed);
+        assert!(
+            limiter
+                .spend("addr:10.0.0.1".to_string(), budget, now)
+                .allowed
+        );
+        assert!(
+            !limiter
+                .spend("addr:10.0.0.1".to_string(), budget, at(now, 59))
+                .allowed
+        );
+        assert!(
+            limiter
+                .spend("addr:10.0.0.1".to_string(), budget, at(now, 60))
+                .allowed
+        );
     }
 
     #[test]
@@ -514,17 +529,23 @@ mod tests {
         let limiter = Limiter::with_budgets(10, 1);
         let now = Instant::now();
 
-        assert!(limiter
-            .spend("auth:user:a".to_string(), limiter.auth, now)
-            .allowed);
-        assert!(!limiter
-            .spend("auth:user:a".to_string(), limiter.auth, now)
-            .allowed);
+        assert!(
+            limiter
+                .spend("auth:user:a".to_string(), limiter.auth, now)
+                .allowed
+        );
+        assert!(
+            !limiter
+                .spend("auth:user:a".to_string(), limiter.auth, now)
+                .allowed
+        );
         // Exhausting the credential budget must not close the rest of the
         // application to the same caller — which is what the scope prefix in
         // `caller` is for.
-        assert!(limiter
-            .spend("api:user:a".to_string(), limiter.general, now)
-            .allowed);
+        assert!(
+            limiter
+                .spend("api:user:a".to_string(), limiter.general, now)
+                .allowed
+        );
     }
 }

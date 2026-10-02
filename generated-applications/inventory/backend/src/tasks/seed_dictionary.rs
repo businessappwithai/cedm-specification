@@ -30,8 +30,7 @@ impl Task for SeedDictionary {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "seed_dictionary".to_string(),
-            detail: "Populate sys_* Application Dictionary metadata for inventory"
-                .to_string(),
+            detail: "Populate sys_* Application Dictionary metadata for inventory".to_string(),
         }
     }
 

@@ -19,15 +19,13 @@ use serde_json::{json, Map, Value};
 use uuid::Uuid;
 
 use crate::errors::{AppError, AppResult};
-use crate::models::_entities::users;
 use crate::hooks;
+use crate::models::_entities::users;
 use crate::services::audit::{AuditEntry, AuditOperation, AuditService};
 use crate::services::authz;
 use crate::services::dictionary::DictionaryCache;
+use crate::services::dynamic_repo::{DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions};
 use crate::services::field_meta::{self, FieldLayout};
-use crate::services::dynamic_repo::{
-    DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions,
-};
 use crate::services::promotion::{
     PromotionOutcome, PromotionService, STATUS_DRAFT, STATUS_REJECTED,
 };
@@ -82,7 +80,12 @@ pub async fn list(
     let filters = filters_from(&params, &dictionary, &entity).await?;
 
     let mut result = repo
-        .find_all(&meta, &opts, &filters, params.get("search").map(String::as_str))
+        .find_all(
+            &meta,
+            &opts,
+            &filters,
+            params.get("search").map(String::as_str),
+        )
         .await?;
 
     // `total` is the count the query reported and is deliberately not
@@ -507,9 +510,7 @@ pub async fn lookup(
         .column(&column)
         .ok_or_else(|| AppError::NotFound(format!("No column '{column}' on this entity")))?;
     let Some(target) = source.ref_table_name.clone() else {
-        return Err(AppError::BadRequest(format!(
-            "'{column}' is not a lookup"
-        )));
+        return Err(AppError::BadRequest(format!("'{column}' is not a lookup")));
     };
     let target_meta = dictionary.meta(&target).await?;
     let principal = authz::principal(ctx.db.get_postgres_connection_pool(), &auth.user).await?;
@@ -611,7 +612,10 @@ async fn verify_narrowing(
                     .column(&rule.by)
                     .map_or(rule.by.as_str(), |c| c.name.as_str());
                 return Err(AppError::Validation {
-                    message: format!("{} does not belong to the chosen {controlling}", column.name),
+                    message: format!(
+                        "{} does not belong to the chosen {controlling}",
+                        column.name
+                    ),
                     errors: vec![format!(
                         "{} does not belong to the chosen {controlling}",
                         column.name
@@ -688,7 +692,9 @@ fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
         .trim_start_matches('v')
         .parse::<i32>()
         .map_err(|_| {
-            AppError::BadRequest(format!("Malformed If-Match header: expected \"v{{n}}\", got {raw}"))
+            AppError::BadRequest(format!(
+                "Malformed If-Match header: expected \"v{{n}}\", got {raw}"
+            ))
         })?;
     Ok(Some(version))
 }
@@ -697,7 +703,9 @@ fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
 fn with_etag(row: &Value, mut response: Response) -> Response {
     if let Some(version) = row.get("version").and_then(Value::as_i64) {
         if let Ok(value) = format!("\"v{version}\"").parse() {
-            response.headers_mut().insert(axum::http::header::ETAG, value);
+            response
+                .headers_mut()
+                .insert(axum::http::header::ETAG, value);
         }
     }
     response
@@ -815,7 +823,10 @@ async fn run_promotion(
     // no rules promotes unconditionally.
     let jdms = load_entity_jdms(ctx, &meta.table_name).await;
 
-    match promotion.promote(meta, row, operation, &jdms, previous).await {
+    match promotion
+        .promote(meta, row, operation, &jdms, previous)
+        .await
+    {
         Ok(outcome) => outcome,
         Err(err) => {
             crate::log_event!(entity_promotion_failed, error = ?err, table = meta.table_name);
@@ -882,7 +893,11 @@ async fn restore_columns(
     };
     let restored: Map<String, Value> = body
         .keys()
-        .filter_map(|column| previous.get(column).map(|value| (column.clone(), value.clone())))
+        .filter_map(|column| {
+            previous
+                .get(column)
+                .map(|value| (column.clone(), value.clone()))
+        })
         .collect();
     if restored.is_empty() {
         return;

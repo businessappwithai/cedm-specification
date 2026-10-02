@@ -236,7 +236,11 @@ fn issue_token(ctx: &AppContext, pid: &str) -> AppResult<String> {
     // NOTE: `auth` from the prelude is the *extractor* module
     // (`controller::extractor::auth`); the JWT type lives at the crate root.
     loco_rs::auth::jwt::JWT::new(&jwt.secret)
-        .generate_token(jwt.expiration, pid.to_string(), serde_json::Map::<String, serde_json::Value>::new())
+        .generate_token(
+            jwt.expiration,
+            pid.to_string(),
+            serde_json::Map::<String, serde_json::Value>::new(),
+        )
         .map_err(|err| AppError::Internal(err.into()))
 }
 
@@ -249,7 +253,8 @@ fn session_cookie(ctx: &AppContext, token: &str) -> AppResult<HeaderValue> {
     } else {
         ""
     };
-    let cookie = format!("token={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age={max_age}{secure}");
+    let cookie =
+        format!("token={token}; HttpOnly; SameSite=Lax; Path=/; Max-Age={max_age}{secure}");
     HeaderValue::from_str(&cookie).map_err(|err| AppError::Internal(err.into()))
 }
 
