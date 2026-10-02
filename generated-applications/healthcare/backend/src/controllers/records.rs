@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T09:32:24.498Z
+//! Generated: 2026-10-02T02:10:08.262Z
 //! Project: healthcare
 //!
 //! Two things a person looking at a record wants that the CRUD routes cannot
