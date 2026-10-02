@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T09:33:00.689Z
+//! Generated: 2026-10-02T07:07:54.322Z
 //! Project: life-sciences
 
 use serde_json::{json, Value};
