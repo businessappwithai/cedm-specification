@@ -39,10 +39,14 @@ page.on("console", (m) => {
   if (m.type() !== "error") return;
   const t = m.text();
   if (/401|Unauthorized|favicon/i.test(t)) return;
+  // A 429 is counted once, below, rather than once per console line it produces.
+  if (/429|Too Many Requests|Slow down/i.test(t)) return;
   note("console", t);
 });
+let refused = 0;
 page.on("response", (r) => {
   const s = r.status();
+  if (s === 429) refused++;
   if (s >= 500) note("http" + s, r.url());
 });
 
@@ -203,6 +207,13 @@ for (const path of ["/admin/rules", "/admin/workflow-definitions", "/admin/workf
   note("smoke-crash", e?.message ?? e);
 }
 
+if (refused > 0) {
+  where = "rate-limit";
+  note(
+    "rate-limited",
+    `${refused} request(s) were refused with 429. The smoke test is faster than a person; start the backend with RATE_LIMIT_MAX_PER_MINUTE=0 (tests/qa.sh does).`
+  );
+}
 await browser.close();
 const result = { domain, cards, windows: visited, records, creates, themes: themesApplied, stateBars, findings };
 console.log(JSON.stringify(result));

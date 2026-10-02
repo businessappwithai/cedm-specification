@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-01T23:12:26.384Z
+//! Generated: 2026-10-02T00:15:48.719Z
 //! Project: agriculture
 
 use serde_json::Value;

@@ -42,7 +42,7 @@ export CARGO_TARGET_DIR="$SCRATCH/target-$domain"
   && cargo run -q --bin "${crate}-cli" -- db seed >"$SCRATCH/$domain-seed.log" 2>&1 ) \
   || { echo "backend setup failed (see $SCRATCH/$domain-*.log)"; exit 1; }
 
-( cd "$app/backend" && exec cargo run -q --bin "${crate}-cli" -- start --server-and-worker >"$SCRATCH/$domain-server.log" 2>&1 ) &
+( cd "$app/backend" && RATE_LIMIT_MAX_PER_MINUTE=0 exec cargo run -q --bin "${crate}-cli" -- start --server-and-worker >"$SCRATCH/$domain-server.log" 2>&1 ) &
 echo $! >"$SCRATCH/$domain.backend.pid"
 for _ in $(seq 1 60); do curl -sf http://localhost:3000/api/me/health >/dev/null 2>&1 && break; sleep 1; done
 
