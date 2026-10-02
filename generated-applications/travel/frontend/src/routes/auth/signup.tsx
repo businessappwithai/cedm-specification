@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T09:35:16.238Z
+ * Generated: 2026-10-02T17:26:18.434Z
  * Project: travel
  */
 
