@@ -168,12 +168,14 @@ impl PromotionService {
     ) -> AppResult<PromotionOutcome> {
         if jdms.is_empty() {
             // No rules configured for this entity: nothing can block it.
-            return self
-                .finalize(meta, row, STATUS_FINAL, None, Map::new(), false)
+            return self.finalize(meta, row, STATUS_FINAL, None, Map::new(), false)
                 .await;
         }
 
-        let mut data: Map<String, Value> = row.as_object().cloned().unwrap_or_default();
+        let mut data: Map<String, Value> = row
+            .as_object()
+            .cloned()
+            .unwrap_or_default();
 
         // On an update the rules also see the record as it was, under
         // `_previous_<column>`. A condition that says "when the record *enters*
@@ -250,10 +252,7 @@ impl PromotionService {
 
             // Set before the action runs: one that fails part-way may still
             // have written.
-            if matches!(
-                action.action_type.as_str(),
-                "trigger-workflow" | "cascade-update"
-            ) {
+            if matches!(action.action_type.as_str(), "trigger-workflow" | "cascade-update") {
                 side_effects_ran = true;
             }
             if let Err(err) = self.run_action(meta, row, action).await {

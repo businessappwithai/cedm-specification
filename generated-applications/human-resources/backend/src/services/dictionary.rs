@@ -150,9 +150,7 @@ impl DictionaryCache {
     /// singularise, `bus_` prefix) but, unlike it, requires a matching
     /// `sys_table` row — an unknown entity is a 404 before any SQL is built.
     pub async fn resolve(&self, entity: &str) -> AppResult<TableName> {
-        self.meta(entity)
-            .await
-            .map(|m| TableName(m.table_name.clone()))
+        self.meta(entity).await.map(|m| TableName(m.table_name.clone()))
     }
 
     /// Resolve and return the full table metadata, from cache when possible.
@@ -453,9 +451,8 @@ mod tests {
             "bus_instrument_booking"
         );
         // The physical name passed straight through still works.
-        assert!(
-            table_name_candidates("bus_vendor_request").contains(&"bus_vendor_request".to_string())
-        );
+        assert!(table_name_candidates("bus_vendor_request")
+            .contains(&"bus_vendor_request".to_string()));
     }
 
     #[test]
@@ -483,10 +480,7 @@ mod tests {
             resolve_ref_table(Some(""), "compound_id", table).as_deref(),
             Some("bus_compound")
         );
-        assert_eq!(
-            resolve_ref_table(Some("bus_location"), "x_id", Some(10)),
-            None
-        );
+        assert_eq!(resolve_ref_table(Some("bus_location"), "x_id", Some(10)), None);
     }
 
     #[test]

@@ -26,12 +26,7 @@ impl BackgroundWorker<EmailArgs> for EmailWorker {
         // permanently retries un-sendable mail is worse than a visible no-op.
         match self.ctx.mailer.as_ref() {
             Some(_) => {
-                crate::log_event!(
-                    jobs_queued,
-                    worker = "email",
-                    to = args.to,
-                    subject = args.subject
-                );
+                crate::log_event!(jobs_queued, worker = "email", to = args.to, subject = args.subject);
             }
             None => {
                 crate::log_event!(jobs_mailer_absent, to = args.to, subject = args.subject);

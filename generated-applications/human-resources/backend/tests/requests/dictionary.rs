@@ -1,6 +1,6 @@
 //! The Application Dictionary — the metadata every screen is built from.
 //!
-//! Generated: 2026-10-01T09:32:36.432Z
+//! Generated: 2026-10-02T02:59:49.766Z
 //! Project: human-resources
 
 use serde_json::Value;
@@ -24,10 +24,7 @@ async fn lists_tables_in_the_paginated_envelope() {
             body.get("data").and_then(Value::as_array).is_some(),
             "expected a data array — a bare list breaks every paginated screen"
         );
-        assert!(
-            total(&body) > 0,
-            "the dictionary should describe at least one table"
-        );
+        assert!(total(&body) > 0, "the dictionary should describe at least one table");
         assert_eq!(rows(&body).len(), 1, "limit=1 should return one row");
     })
     .await;
@@ -62,9 +59,7 @@ async fn describes_every_entity_in_the_model() {
 #[serial]
 async fn filters_tables_by_name() {
     support::with_app(|request, _ctx, _token| async move {
-        let Some(first) = ENTITIES.first() else {
-            return;
-        };
+        let Some(first) = ENTITIES.first() else { return };
 
         let response = request
             .get(&format!("/api/sys/tables?name={}", first.table_name))
@@ -84,9 +79,7 @@ async fn filters_tables_by_name() {
 #[serial]
 async fn serves_the_form_and_grid_field_layouts() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(first) = ENTITIES.first() else {
-            return;
-        };
+        let Some(first) = ENTITIES.first() else { return };
 
         for layout in ["form", "grid"] {
             let response = request
@@ -94,11 +87,7 @@ async fn serves_the_form_and_grid_field_layouts() {
                 .add_header("authorization", bearer(&token))
                 .await;
 
-            assert_eq!(
-                response.status_code(),
-                200,
-                "{layout} layout should be served"
-            );
+            assert_eq!(response.status_code(), 200, "{layout} layout should be served");
             let fields = response.json::<Value>();
             assert!(
                 fields.as_array().is_some_and(|f| !f.is_empty()),
@@ -191,10 +180,7 @@ async fn gives_every_entity_a_tab_and_every_column_a_field() {
         .fetch_all(pool)
         .await
         .expect("query for orphan tabs");
-        assert!(
-            orphan_tabs.is_empty(),
-            "tabs with no window: {orphan_tabs:?}"
-        );
+        assert!(orphan_tabs.is_empty(), "tabs with no window: {orphan_tabs:?}");
     })
     .await;
 }
@@ -433,12 +419,13 @@ async fn provisions_a_window_tab_and_field_for_anything_added_at_run_time() {
             .expect("the new column's id")
             .to_string();
 
-        let fields: i64 =
-            sqlx::query_scalar("SELECT count(*) FROM sys_field WHERE sys_column_id = $1::uuid")
-                .bind(&column_id)
-                .fetch_one(pool)
-                .await
-                .expect("count the new column's fields");
+        let fields: i64 = sqlx::query_scalar(
+            "SELECT count(*) FROM sys_field WHERE sys_column_id = $1::uuid",
+        )
+        .bind(&column_id)
+        .fetch_one(pool)
+        .await
+        .expect("count the new column's fields");
         assert_eq!(
             fields, 1,
             "a column added at run time got no field, so it is invisible on the form",
@@ -559,9 +546,7 @@ async fn provisions_a_window_tab_and_field_for_anything_added_at_run_time() {
 #[serial]
 async fn stores_and_returns_a_report_design() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else {
-            return;
-        };
+        let Some(entity) = ENTITIES.first() else { return };
         let layout = serde_json::json!({
             "orientation": "portrait",
             "sections": [{ "kind": "header", "text": "Report" }],
@@ -637,10 +622,7 @@ async fn stores_and_returns_a_report_design() {
         // The layout is returned as the JSON it was given, not as a string and
         // not reshaped. The designer is the only thing that reads it.
         assert_eq!(
-            found
-                .get("layout")
-                .and_then(|l| l.get("orientation"))
-                .and_then(Value::as_str),
+            found.get("layout").and_then(|l| l.get("orientation")).and_then(Value::as_str),
             Some("portrait"),
             "the layout did not survive the round trip: {found}"
         );

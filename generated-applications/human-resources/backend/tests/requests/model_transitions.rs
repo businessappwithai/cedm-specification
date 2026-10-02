@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-01T09:32:36.448Z
+//! Generated: 2026-10-02T02:59:49.776Z
 //! Project: human-resources
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -107,7 +107,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
 ];
 
 /// The entity and starting state of the first machine, for the live check.
-const FIRST_MACHINE: (&str, &str, &str) = ("Party", "status", "ACTIVE");
+const FIRST_MACHINE: (&str, &str, &str) = (
+    "Party",
+    "status",
+    "ACTIVE",
+);
 
 /// Every edge the diagram draws reached `sys_workflow_transitions`.
 #[tokio::test]
@@ -178,15 +182,17 @@ async fn a_move_the_diagram_does_not_draw_is_refused() {
         }
         let meta = entity(entity_name);
 
-        let Some(created) =
-            create_with_parents(&request, &token, meta, &[(status_field, json!(initial))]).await
+        let Some(created) = create_with_parents(
+            &request,
+            &token,
+            meta,
+            &[(status_field, json!(initial))],
+        )
+        .await
         else {
             return;
         };
-        let id = created["id"]
-            .as_str()
-            .expect("create returns an id")
-            .to_string();
+        let id = created["id"].as_str().expect("create returns an id").to_string();
 
         let refused = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))

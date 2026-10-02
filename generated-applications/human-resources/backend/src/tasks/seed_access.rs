@@ -63,12 +63,14 @@ struct RoleAccount {
     description: &'static str,
 }
 
-const ROLE_ACCOUNTS: &[RoleAccount] = &[RoleAccount {
-    email: "user@human-resources.example.com",
-    name: "User",
-    role_name: "User",
-    description: "Holds User and nothing else",
-}];
+const ROLE_ACCOUNTS: &[RoleAccount] = &[
+    RoleAccount {
+        email: "user@human-resources.example.com",
+        name: "User",
+        role_name: "User",
+        description: "Holds User and nothing else",
+    },
+];
 
 pub struct SeedAccess;
 
@@ -168,10 +170,7 @@ impl Task for SeedAccess {
             .execute(pool)
             .await
             .map_err(|err| {
-                Error::Message(format!(
-                    "granting {} to {}: {err}",
-                    account.role_name, account.email
-                ))
+                Error::Message(format!("granting {} to {}: {err}", account.role_name, account.email))
             })?;
 
             // The credential row. Unlike `ensure_admin`, a re-run does NOT
@@ -194,10 +193,7 @@ impl Task for SeedAccess {
             .execute(pool)
             .await
             .map_err(|err| {
-                Error::Message(format!(
-                    "upserting credentials for {}: {err}",
-                    account.email
-                ))
+                Error::Message(format!("upserting credentials for {}: {err}", account.email))
             })?;
         }
 

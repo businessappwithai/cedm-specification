@@ -4,7 +4,7 @@
 //! checks it actually governs a write. A rule that evaluates but does not
 //! change what the API accepts is not enforcing anything.
 //!
-//! Generated: 2026-10-01T09:32:36.547Z
+//! Generated: 2026-10-02T02:59:49.969Z
 //! Project: human-resources
 
 use serde_json::{json, Value};
@@ -61,9 +61,7 @@ fn prevent_negative_jdm(rule_name: &str, field: &str) -> String {
 async fn validates_the_jdm_it_builds() {
     support::with_app(|request, _ctx, token| async move {
         let meta = entity(ENTITY);
-        let Some(numeric) = meta.first_numeric_field() else {
-            return;
-        };
+        let Some(numeric) = meta.first_numeric_field() else { return };
 
         let response = request
             .post("/api/rules/validate")
@@ -108,10 +106,7 @@ async fn rejects_malformed_jdm_without_failing_the_request() {
         // document: an invalid graph is an answer, not an error.
         assert_eq!(response.status_code(), 200);
         assert_eq!(
-            response
-                .json::<Value>()
-                .get("valid")
-                .and_then(Value::as_bool),
+            response.json::<Value>().get("valid").and_then(Value::as_bool),
             Some(false)
         );
     })
@@ -123,9 +118,7 @@ async fn rejects_malformed_jdm_without_failing_the_request() {
 async fn creates_evaluates_and_enforces_a_rule() {
     support::with_app(|request, _ctx, token| async move {
         let meta = entity(ENTITY);
-        let Some(numeric) = meta.first_numeric_field() else {
-            return;
-        };
+        let Some(numeric) = meta.first_numeric_field() else { return };
 
         let rule_name = format!("e2e-{}-{}", meta.table_name, uuid::Uuid::new_v4());
         let created = request
@@ -139,12 +132,7 @@ async fn creates_evaluates_and_enforces_a_rule() {
             }))
             .await;
 
-        assert_eq!(
-            created.status_code(),
-            201,
-            "rule create failed: {}",
-            created.text()
-        );
+        assert_eq!(created.status_code(), 201, "rule create failed: {}", created.text());
         let rule_id = created
             .json::<Value>()
             .get("id")
@@ -166,10 +154,7 @@ async fn creates_evaluates_and_enforces_a_rule() {
             .await;
         assert_eq!(dry_run.status_code(), 200);
         assert_eq!(
-            dry_run
-                .json::<Value>()
-                .get("matched")
-                .and_then(Value::as_bool),
+            dry_run.json::<Value>().get("matched").and_then(Value::as_bool),
             Some(true),
             "a negative value should match the rule"
         );
@@ -218,10 +203,7 @@ async fn creates_evaluates_and_enforces_a_rule() {
         assert_eq!(removed.status_code(), 204);
 
         let listed = request
-            .get(&format!(
-                "/api/rules?entityName={}&isActive=true",
-                meta.table_name
-            ))
+            .get(&format!("/api/rules?entityName={}&isActive=true", meta.table_name))
             .add_header("authorization", bearer(&token))
             .await;
         let still_active = listed
@@ -233,10 +215,7 @@ async fn creates_evaluates_and_enforces_a_rule() {
                     .any(|r| r.get("id").and_then(Value::as_str) == Some(rule_id.as_str()))
             })
             .unwrap_or(false);
-        assert!(
-            !still_active,
-            "a deactivated rule is still listed as active"
-        );
+        assert!(!still_active, "a deactivated rule is still listed as active");
     })
     .await;
 }

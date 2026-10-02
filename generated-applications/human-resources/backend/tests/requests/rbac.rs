@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-01T09:32:36.465Z
+//! Generated: 2026-10-02T02:59:49.800Z
 //! Project: human-resources
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who
@@ -16,9 +16,9 @@
 //! left a `read` restriction behind would fail the next twenty tests for a
 //! reason none of them names.
 
-use loco_rs::TestServer;
 use serde_json::{json, Value};
 use serial_test::serial;
+use loco_rs::TestServer;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -39,7 +39,11 @@ const OTHER_ROLE: &str = "rbac_other_role";
 /// The grant matters: without it the dictionary's own gate refuses the request
 /// before any access rule is consulted, and a test built on that would pass
 /// with the rules doing nothing at all.
-async fn granted_probe(request: &TestServer, pool: &PgPool, table_name: &str) -> Option<String> {
+async fn granted_probe(
+    request: &TestServer,
+    pool: &PgPool,
+    table_name: &str,
+) -> Option<String> {
     let email = format!("rbac-probe-{}@example.test", Uuid::new_v4().simple());
     let password = "Sufficiently-Long-Passw0rd";
 
@@ -146,11 +150,7 @@ async fn granted_probe(request: &TestServer, pool: &PgPool, table_name: &str) ->
         .post("/api/auth/login")
         .json(&json!({ "email": &email, "password": password }))
         .await;
-    assert_eq!(
-        logged_in.status_code(),
-        200,
-        "the probe account could not sign in"
-    );
+    assert_eq!(logged_in.status_code(), 200, "the probe account could not sign in");
     Some(
         logged_in.json::<Value>()["token"]
             .as_str()
@@ -304,14 +304,12 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
         let pool = ctx.db.get_postgres_connection_pool();
 
         let Some(created) =
-            create_with_parents(&request, &token, entity, &[("status", json!("draft"))]).await
+            create_with_parents(&request, &token, entity, &[("status", json!("draft"))])
+                .await
         else {
             return;
         };
-        let id = created["id"]
-            .as_str()
-            .expect("create returns an id")
-            .to_string();
+        let id = created["id"].as_str().expect("create returns an id").to_string();
 
         // One edge, so the table has a machine at all. Without any rows the
         // guard has nothing to enforce and every move is legitimate.
@@ -574,9 +572,7 @@ async fn dashboard_tables(request: &TestServer, token: &str) -> Vec<String> {
 #[serial]
 async fn a_read_rule_removes_the_entity_from_the_dashboard() {
     support::with_app(|request, ctx, admin_token| async move {
-        let Some(entity) = ENTITIES.first() else {
-            return;
-        };
+        let Some(entity) = ENTITIES.first() else { return };
         let pool = ctx.db.get_postgres_connection_pool();
 
         clear_rules(pool, entity.table_name).await;
@@ -585,10 +581,7 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
         };
 
         assert!(
-            dashboard_tables(&request, &token)
-                .await
-                .iter()
-                .any(|t| t == entity.table_name),
+            dashboard_tables(&request, &token).await.iter().any(|t| t == entity.table_name),
             "{} is granted and unrestricted, so the dashboard must offer it",
             entity.table_name
         );
@@ -596,10 +589,7 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
         // Closed to a role nobody holds.
         restrict(pool, entity.table_name, "read", OTHER_ROLE).await;
         assert!(
-            !dashboard_tables(&request, &token)
-                .await
-                .iter()
-                .any(|t| t == entity.table_name),
+            !dashboard_tables(&request, &token).await.iter().any(|t| t == entity.table_name),
             "{} is closed to this caller and must not be offered",
             entity.table_name
         );
@@ -608,20 +598,14 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
         // still offered it — which is what says the card disappeared because of
         // the rule rather than because the seed or the query lost the row.
         assert!(
-            dashboard_tables(&request, &admin_token)
-                .await
-                .iter()
-                .any(|t| t == entity.table_name),
+            dashboard_tables(&request, &admin_token).await.iter().any(|t| t == entity.table_name),
             "the master role bypasses role rules, so {} must still be offered to it",
             entity.table_name
         );
 
         clear_rules(pool, entity.table_name).await;
         assert!(
-            dashboard_tables(&request, &token)
-                .await
-                .iter()
-                .any(|t| t == entity.table_name),
+            dashboard_tables(&request, &token).await.iter().any(|t| t == entity.table_name),
             "removing the rule must put {} back on the dashboard",
             entity.table_name
         );
@@ -646,9 +630,7 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
 #[serial]
 async fn the_dashboard_scope_agrees_with_the_request_guard() {
     support::with_app(|request, ctx, _admin_token| async move {
-        let Some(first) = ENTITIES.first() else {
-            return;
-        };
+        let Some(first) = ENTITIES.first() else { return };
         let pool = ctx.db.get_postgres_connection_pool();
 
         clear_rules(pool, first.table_name).await;

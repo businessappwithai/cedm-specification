@@ -11,7 +11,7 @@
 //! statement, and the backend's refusal is the last of the three guards
 //! standing between that column and the database.
 //!
-//! Generated: 2026-10-01T09:32:36.480Z
+//! Generated: 2026-10-02T02:59:49.894Z
 //! Project: human-resources
 
 use serde_json::{json, Value};
@@ -20,7 +20,8 @@ use serial_test::serial;
 use crate::support::{self, bearer, rows};
 
 /// The names of this model's `reports`, in order.
-const DECLARED: &[&str] = &[];
+const DECLARED: &[&str] = &[
+];
 
 #[tokio::test]
 #[serial]
@@ -237,3 +238,4 @@ async fn columns_come_back_in_the_order_the_select_declares() {
     })
     .await;
 }
+

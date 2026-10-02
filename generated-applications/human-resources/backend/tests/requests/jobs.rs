@@ -1,6 +1,6 @@
 //! Background jobs — enqueue, list, cancel.
 //!
-//! Generated: 2026-10-01T09:32:36.462Z
+//! Generated: 2026-10-02T02:59:49.787Z
 //! Project: human-resources
 //!
 //! These run under `workers.mode: ForegroundBlocking` (config/test.yaml), so an
@@ -21,10 +21,7 @@ use crate::support::{self, bearer};
 async fn every_registered_worker_can_be_enqueued() {
     support::with_app(|request, _ctx, token| async move {
         let payloads = [
-            (
-                "email",
-                json!({ "to": "someone@example.test", "subject": "Hi", "body": "Test" }),
-            ),
+            ("email", json!({ "to": "someone@example.test", "subject": "Hi", "body": "Test" })),
             ("report", json!({ "entity": "bus_user" })),
             ("sync", json!({ "entity": "bus_user" })),
         ];
@@ -45,9 +42,7 @@ async fn every_registered_worker_can_be_enqueued() {
             let body = response.json::<Value>();
             assert_eq!(body.get("kind").and_then(Value::as_str), Some(kind));
             assert!(
-                body.get("id")
-                    .and_then(Value::as_str)
-                    .is_some_and(|id| !id.is_empty()),
+                body.get("id").and_then(Value::as_str).is_some_and(|id| !id.is_empty()),
                 "{kind} was accepted without a job id: {body}"
             );
         }
@@ -117,20 +112,11 @@ async fn the_listing_reports_whether_the_mode_keeps_a_record() {
             "the listing does not say whether this mode keeps a record: {body}"
         );
         assert!(
-            body["meta"]["mode"]
-                .as_str()
-                .is_some_and(|mode| !mode.is_empty()),
+            body["meta"]["mode"].as_str().is_some_and(|mode| !mode.is_empty()),
             "the listing does not name the worker mode: {body}"
         );
-        let kinds = body["meta"]["kinds"]
-            .as_array()
-            .cloned()
-            .unwrap_or_default();
-        assert_eq!(
-            kinds.len(),
-            3,
-            "expected the three registered kinds: {body}"
-        );
+        let kinds = body["meta"]["kinds"].as_array().cloned().unwrap_or_default();
+        assert_eq!(kinds.len(), 3, "expected the three registered kinds: {body}");
     })
     .await;
 }

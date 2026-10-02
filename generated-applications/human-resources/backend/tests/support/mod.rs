@@ -6,7 +6,7 @@
 //! while the toolchain, the port juggling and the "is the backend up yet?"
 //! polling all disappear.
 //!
-//! Generated: 2026-10-01T09:32:36.405Z
+//! Generated: 2026-10-02T02:59:49.612Z
 //! Project: human-resources
 
 #![allow(dead_code)]
@@ -15,9 +15,9 @@ pub mod entities;
 pub mod factory;
 
 use loco_rs::app::Hooks;
+use loco_rs::TestServer;
 use loco_rs::prelude::*;
 use loco_rs::testing::request::request as boot_request;
-use loco_rs::TestServer;
 use serde_json::Value;
 use std::sync::Once;
 

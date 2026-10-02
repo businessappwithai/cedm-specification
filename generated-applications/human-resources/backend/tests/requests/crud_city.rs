@@ -3,7 +3,7 @@
 //! One module per entity, so a failure names the entity that broke instead of
 //! collapsing every entity into one suite.
 //!
-//! Generated: 2026-10-01T09:32:36.544Z
+//! Generated: 2026-10-02T02:59:49.965Z
 //! Project: human-resources
 
 use serde_json::{json, Value};
@@ -12,7 +12,7 @@ use serial_test::serial;
 use crate::support::{
     self, bearer,
     entities::entity,
-    factory::{build_invalid_record, build_record, create_with_parents},
+    factory::{build_invalid_record, build_record, create_with_parents, marked},
     rows, total,
 };
 
@@ -31,10 +31,7 @@ async fn lists_records_with_pagination_metadata() {
         assert_eq!(response.status_code(), 200);
         let body = response.json::<Value>();
         assert!(rows(&body).len() <= 10, "limit=10 should cap the page");
-        assert!(
-            body.pointer("/meta/total").is_some(),
-            "no meta.total to paginate on"
-        );
+        assert!(body.pointer("/meta/total").is_some(), "no meta.total to paginate on");
         let _ = total(&body);
     })
     .await;
@@ -74,11 +71,9 @@ async fn creates_and_reads_back_a_record() {
 async fn persists_the_values_it_was_given() {
     support::with_app(|request, _ctx, token| async move {
         let meta = entity(ENTITY);
-        let Some(text_field) = meta.first_text_field() else {
-            return;
-        };
+        let Some(text_field) = meta.first_text_field() else { return };
 
-        let marker = format!("marker-{}", uuid::Uuid::new_v4());
+        let marker = marked(text_field, "marker");
         let created = create_with_parents(
             &request,
             &token,
@@ -88,21 +83,14 @@ async fn persists_the_values_it_was_given() {
         .await
         .unwrap_or_else(|| panic!("could not create a {ENTITY}"));
 
-        let id = created
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap()
-            .to_string();
+        let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
         let fetched = request
             .get(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
             .await;
 
         assert_eq!(
-            fetched
-                .json::<Value>()
-                .get(text_field.name)
-                .and_then(Value::as_str),
+            fetched.json::<Value>().get(text_field.name).and_then(Value::as_str),
             Some(marker.as_str())
         );
     })
@@ -114,37 +102,24 @@ async fn persists_the_values_it_was_given() {
 async fn updates_with_patch_and_bumps_the_version() {
     support::with_app(|request, _ctx, token| async move {
         let meta = entity(ENTITY);
-        let Some(text_field) = meta.first_text_field() else {
-            return;
-        };
+        let Some(text_field) = meta.first_text_field() else { return };
 
         let created = create_with_parents(&request, &token, meta, &[])
             .await
             .unwrap_or_else(|| panic!("could not create a {ENTITY}"));
-        let id = created
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap()
-            .to_string();
+        let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
         let before = created.get("version").and_then(Value::as_i64).unwrap_or(0);
 
-        let updated = format!("patched-{}", uuid::Uuid::new_v4());
+        let updated = marked(text_field, "patched");
         let response = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
             .json(&json!({ text_field.name: updated.clone() }))
             .await;
 
-        assert!(
-            response.status_code().is_success(),
-            "PATCH failed: {}",
-            response.text()
-        );
+        assert!(response.status_code().is_success(), "PATCH failed: {}", response.text());
         let body = response.json::<Value>();
-        assert_eq!(
-            body.get(text_field.name).and_then(Value::as_str),
-            Some(updated.as_str())
-        );
+        assert_eq!(body.get(text_field.name).and_then(Value::as_str), Some(updated.as_str()));
         assert!(
             body.get("version").and_then(Value::as_i64).unwrap_or(0) > before,
             "the version should advance so optimistic concurrency can detect a stale write"
@@ -161,11 +136,7 @@ async fn replaces_a_record_with_put() {
         let created = create_with_parents(&request, &token, meta, &[])
             .await
             .unwrap_or_else(|| panic!("could not create a {ENTITY}"));
-        let id = created
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap()
-            .to_string();
+        let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
 
         let response = request
             .put(&format!("/api/bus/{}/{id}", meta.route))
@@ -189,9 +160,7 @@ async fn replaces_a_record_with_put() {
 async fn rejects_a_payload_missing_a_required_field() {
     support::with_app(|request, _ctx, token| async move {
         let meta = entity(ENTITY);
-        let Some(invalid) = build_invalid_record(meta) else {
-            return;
-        };
+        let Some(invalid) = build_invalid_record(meta) else { return };
 
         let response = request
             .post(&format!("/api/bus/{}", meta.route))
@@ -243,11 +212,7 @@ async fn soft_deletes_a_record() {
         let created = create_with_parents(&request, &token, meta, &[])
             .await
             .unwrap_or_else(|| panic!("could not create a {ENTITY}"));
-        let id = created
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap()
-            .to_string();
+        let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
 
         let deleted = request
             .delete(&format!("/api/bus/{}/{id}", meta.route))
@@ -259,11 +224,7 @@ async fn soft_deletes_a_record() {
             .get(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
             .await;
-        assert_eq!(
-            after.status_code(),
-            404,
-            "a soft-deleted row should not be readable"
-        );
+        assert_eq!(after.status_code(), 404, "a soft-deleted row should not be readable");
     })
     .await;
 }
@@ -316,11 +277,7 @@ async fn clears_an_optional_field_with_an_explicit_null() {
         let created = create_with_parents(&request, &token, meta, &[])
             .await
             .unwrap_or_else(|| panic!("could not create a {ENTITY}"));
-        let id = created
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap()
-            .to_string();
+        let id = created.get("id").and_then(Value::as_str).unwrap().to_string();
 
         // One field at a time, so a failure names the column. `null` is the
         // only way a caller can clear an optional value, and it is what the

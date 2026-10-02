@@ -131,30 +131,15 @@ pub async fn layout_fields(
         );
         field.insert("column_name".into(), json!(column_name));
         field.insert("sys_reference_id".into(), json!(sys_reference_id));
-        field.insert(
-            "is_mandatory".into(),
-            json!(flag(row, "is_mandatory", false)),
-        );
+        field.insert("is_mandatory".into(), json!(flag(row, "is_mandatory", false)));
         // What the record is called. The screens title a record by its first
         // identifier field; without this every entity fell through to a list of
         // guessed names, and a compound identified by `smiles` was titled with
         // its UUID.
-        field.insert(
-            "is_identifier".into(),
-            json!(flag(row, "is_identifier", false)),
-        );
-        field.insert(
-            "is_updateable".into(),
-            json!(flag(row, "is_updateable", true)),
-        );
-        field.insert(
-            "is_read_only".into(),
-            json!(flag(row, "is_read_only", false)),
-        );
-        field.insert(
-            "is_displayed".into(),
-            json!(flag(row, "is_displayed", false)),
-        );
+        field.insert("is_identifier".into(), json!(flag(row, "is_identifier", false)));
+        field.insert("is_updateable".into(), json!(flag(row, "is_updateable", true)));
+        field.insert("is_read_only".into(), json!(flag(row, "is_read_only", false)));
+        field.insert("is_displayed".into(), json!(flag(row, "is_displayed", false)));
         field.insert(
             "is_displayed_grid".into(),
             json!(flag(row, "is_displayed_grid", false)),
@@ -195,9 +180,7 @@ pub async fn layout_fields(
             .try_get::<Option<String>, _>("narrowed_by_json")
             .ok()
             .flatten()
-            .and_then(|json| {
-                serde_json::from_str::<Vec<crate::services::dictionary::Narrowing>>(&json).ok()
-            })
+            .and_then(|json| serde_json::from_str::<Vec<crate::services::dictionary::Narrowing>>(&json).ok())
             .unwrap_or_default()
             .into_iter()
             .map(|n| n.by)

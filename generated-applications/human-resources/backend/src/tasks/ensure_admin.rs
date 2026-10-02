@@ -147,7 +147,9 @@ impl Task for EnsureAdmin {
             if created { "Created" } else { "Updated" }
         );
         if password == DEFAULT_ADMIN_PASSWORD {
-            println!("  WARNING: using the default password. Set ADMIN_PASSWORD before deploying.");
+            println!(
+                "  WARNING: using the default password. Set ADMIN_PASSWORD before deploying."
+            );
         }
 
         Ok(())

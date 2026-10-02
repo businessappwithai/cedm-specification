@@ -77,8 +77,7 @@ fn column_to_json(row: &PgRow, column: &sqlx::postgres::PgColumn) -> Value {
         // If a model ever needs the full 18 digits faithfully, the fix is to
         // emit NUMERIC as a JSON string here rather than to widen the float.
         "NUMERIC" => opt(row.try_get::<Option<Decimal>, _>(idx), |v| {
-            v.to_f64()
-                .map_or_else(|| Value::String(v.to_string()), f64_value)
+            v.to_f64().map_or_else(|| Value::String(v.to_string()), f64_value)
         }),
         "JSON" | "JSONB" => opt(row.try_get::<Option<Value>, _>(idx), |v| v),
         "TIMESTAMPTZ" => opt(row.try_get::<Option<DateTime<Utc>>, _>(idx), |v| {
@@ -106,15 +105,16 @@ fn column_to_json(row: &PgRow, column: &sqlx::postgres::PgColumn) -> Value {
         //
         // Postgres arrays may contain NULL elements; those become JSON `null`
         // rather than collapsing the array.
-        "TEXT[]" | "VARCHAR[]" | "CHAR[]" | "NAME[]" => {
-            opt(row.try_get::<Option<Vec<Option<String>>>, _>(idx), |v| {
+        "TEXT[]" | "VARCHAR[]" | "CHAR[]" | "NAME[]" => opt(
+            row.try_get::<Option<Vec<Option<String>>>, _>(idx),
+            |v| {
                 Value::Array(
                     v.into_iter()
                         .map(|item| item.map_or(Value::Null, Value::String))
                         .collect(),
                 )
-            })
-        }
+            },
+        ),
         "UUID[]" => opt(row.try_get::<Option<Vec<Option<Uuid>>>, _>(idx), |v| {
             Value::Array(
                 v.into_iter()
@@ -130,7 +130,10 @@ fn column_to_json(row: &PgRow, column: &sqlx::postgres::PgColumn) -> Value {
 /// Lift a `sqlx` decode result into JSON, mapping both NULL and a decode
 /// failure to `null`. A decode failure is logged rather than swallowed: it
 /// means this module is missing a type mapping.
-fn opt<T>(decoded: Result<Option<T>, sqlx::Error>, to_json: impl FnOnce(T) -> Value) -> Value {
+fn opt<T>(
+    decoded: Result<Option<T>, sqlx::Error>,
+    to_json: impl FnOnce(T) -> Value,
+) -> Value {
     match decoded {
         Ok(Some(value)) => to_json(value),
         Ok(None) => Value::Null,
@@ -155,10 +158,7 @@ mod tests {
     fn f64_value_rejects_non_finite() {
         assert_eq!(f64_value(f64::NAN), Value::Null);
         assert_eq!(f64_value(f64::INFINITY), Value::Null);
-        assert_eq!(
-            f64_value(1.5),
-            Value::Number(Number::from_f64(1.5).unwrap())
-        );
+        assert_eq!(f64_value(1.5), Value::Number(Number::from_f64(1.5).unwrap()));
     }
 
     /// Render a decimal exactly as `column_to_json` would, then serialize it.
