@@ -23,7 +23,7 @@
  * Phase C deletes everything Tailwind on this page: the three `tailwindcss/*`
  * imports and the bridge import, leaving only the Astryx ones.
  *
- * Generated: 2026-10-01T09:35:10.767Z
+ * Generated: 2026-10-02T17:02:29.897Z
  * Project: trade
  */
 
@@ -141,6 +141,126 @@
   .swiss-input:focus-visible {
     outline: 2px solid var(--color-text-accent);
     outline-offset: 1px;
+  }
+
+  /* One signal hue per theme. Astryx's own accent is monochrome in `neutral`
+   * and `gothic`, so tints derived from it vanish there; this is the colour the
+   * highlights below are made from. Chosen to sit apart from each theme's
+   * surfaces and to keep contrast on both its light and dark backgrounds. */
+  [data-astryx-theme="neutral"]   { --ad-highlight: #2563eb; }
+  [data-astryx-theme="butter"]    { --ad-highlight: #d97706; }
+  [data-astryx-theme="chocolate"] { --ad-highlight: #ea580c; }
+  [data-astryx-theme="matcha"]    { --ad-highlight: #16a34a; }
+  [data-astryx-theme="stone"]     { --ad-highlight: #0d9488; }
+  [data-astryx-theme="gothic"]    { --ad-highlight: #a78bfa; }
+  [data-astryx-theme="y2k"]       { --ad-highlight: #db2777; }
+
+  /* ---- Highlights ------------------------------------------------------
+   * Every tint is a mix of the *theme's own* accent and its own surface, so
+   * each of the seven themes gets its own colour and light and dark both keep
+   * their contrast. Nothing here names a hex value. The mix percentages are
+   * deliberately strong enough to read as a signal rather than decoration:
+   * what the user acts on (primary action, current page, table header, the
+   * selected row, a form's focus) is tinted, what they only read is not. */
+  .swiss-card {
+    border-top: 3px solid var(--ad-highlight, var(--color-accent));
+  }
+
+  table thead th {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 14%, var(--color-background-card));
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--ad-highlight, var(--color-accent));
+  }
+
+  /* Alternate rows: every other row a slight shade of the theme's own
+     highlight, so a long list can be followed across. Written before the
+     hover and selected rules, which share its specificity and must win. */
+  table tbody tr:nth-child(even) {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 6%, transparent);
+  }
+
+  table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 10%, transparent);
+  }
+
+  table tbody tr[aria-selected="true"],
+  table tbody tr[data-selected="true"] {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 20%, transparent);
+    box-shadow: inset 3px 0 0 var(--ad-highlight, var(--color-accent));
+  }
+
+  /* The page the user is on, in the navigation. */
+  nav a[aria-current="page"],
+  nav [data-active="true"] {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 18%, transparent);
+    color: var(--color-text-accent);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--ad-highlight, var(--color-accent));
+  }
+
+  /* Links and the field the user is typing in. */
+  a:not([role="button"]):not([class*="button"]) {
+    color: var(--color-text-accent);
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="combobox"]:focus-visible {
+    outline: 2px solid var(--ad-highlight, var(--color-accent));
+    outline-offset: 1px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 25%, transparent);
+  }
+
+  /* ---- Business palette -------------------------------------------------
+   * A small set of muted, mid-tone hues for telling features apart at a glance
+   * (dashboard sections, toolbar actions, the navigation). They are tints,
+   * never fills: backgrounds come from a few percent of the hue over the
+   * theme's own surface, so a light theme stays light and a dark one stays
+   * dark, and text keeps the theme's own colour. */
+  :where([data-astryx-theme]) {
+    --ad-c1: #5b7db1; /* steel blue */
+    --ad-c2: #4f9a94; /* teal */
+    --ad-c3: #7a9a5b; /* sage */
+    --ad-c4: #c39a4a; /* ochre */
+    --ad-c5: #9a7bb0; /* heather */
+  }
+
+  /* Dashboard cards and sections: one muted hue each, cycling. */
+  .grid > .swiss-card { border-top-color: var(--ad-c1); background-image: linear-gradient(color-mix(in srgb, var(--ad-c1) 7%, transparent), transparent 60%); }
+  .grid > .swiss-card:nth-child(5n + 2) { border-top-color: var(--ad-c2); background-image: linear-gradient(color-mix(in srgb, var(--ad-c2) 7%, transparent), transparent 60%); }
+  .grid > .swiss-card:nth-child(5n + 3) { border-top-color: var(--ad-c3); background-image: linear-gradient(color-mix(in srgb, var(--ad-c3) 7%, transparent), transparent 60%); }
+  .grid > .swiss-card:nth-child(5n + 4) { border-top-color: var(--ad-c4); background-image: linear-gradient(color-mix(in srgb, var(--ad-c4) 7%, transparent), transparent 60%); }
+  .grid > .swiss-card:nth-child(5n + 5) { border-top-color: var(--ad-c5); background-image: linear-gradient(color-mix(in srgb, var(--ad-c5) 7%, transparent), transparent 60%); }
+
+  /* Actions. A primary action is the theme's highlight; a secondary one (the
+     toolbar's Search and New) is a light tint of it, so the screen reads as
+     "one thing to do" and "things you can also do". */
+  .astryx-button.secondary {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 12%, var(--color-background-card));
+    border: 1px solid color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 30%, transparent);
+  }
+  .astryx-button.secondary:hover {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 22%, var(--color-background-card));
+  }
+
+  /* The bar above every screen, and the navigation. */
+  header.sticky {
+    border-bottom: 2px solid color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 55%, transparent);
+  }
+  aside a:hover,
+  nav a:hover {
+    background-color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 12%, transparent);
+  }
+  aside a svg,
+  nav a svg {
+    color: color-mix(in srgb, var(--ad-highlight, var(--color-accent)) 75%, var(--color-text-primary));
+  }
+
+  /* A required field's marker and a validation message must be unmissable. */
+  [aria-invalid="true"] {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 25%, transparent);
   }
 }
 

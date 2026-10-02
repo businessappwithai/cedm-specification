@@ -24,6 +24,8 @@ bun install
 bun run test          # everything, in order (starts the backend for you)
 bun run test:fast     # skip the 1000-record bulk seed
 bun run test:attach   # attach to a backend you already started
+bun run qa            # smoke test every screen in a browser, then the Rust request suite
+bun run smoke         # the browser smoke test only (screenshots land in smoke-output/)
 ```
 
 Target one group:
