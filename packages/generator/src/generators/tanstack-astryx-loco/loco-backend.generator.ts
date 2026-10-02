@@ -306,7 +306,7 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   { tpl: "tests/requests/records.rs.hbs", out: "tests/requests/records.rs" },
   { tpl: "tests/requests/rbac.rs.hbs", out: "tests/requests/rbac.rs" },
   { tpl: "tests/requests/workflow.rs.hbs", out: "tests/requests/workflow.rs" },
-  { tpl: "tests/requests/rules_workflow.rs.hbs", out: "tests/requests/rules_workflow.rs" },
+  { tpl: "tests/requests/workflow_rules.rs.hbs", out: "tests/requests/workflow_rules.rs" },
   { tpl: "tests/requests/saga_execution.rs.hbs", out: "tests/requests/saga_execution.rs" },
   { tpl: "tests/requests/http_log.rs.hbs", out: "tests/requests/http_log.rs" },
   { tpl: "tests/requests/system_config.rs.hbs", out: "tests/requests/system_config.rs" },

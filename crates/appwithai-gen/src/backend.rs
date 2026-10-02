@@ -271,8 +271,8 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "tests/requests/workflow.rs",
     ),
     (
-        "tests/requests/rules_workflow.rs.hbs",
-        "tests/requests/rules_workflow.rs",
+        "tests/requests/workflow_rules.rs.hbs",
+        "tests/requests/workflow_rules.rs",
     ),
     (
         "tests/requests/saga_execution.rs.hbs",

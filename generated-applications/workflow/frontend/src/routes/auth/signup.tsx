@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-02T17:49:25.362Z
+ * Generated: 2026-10-02T18:05:01.055Z
  * Project: workflow
  */
 
