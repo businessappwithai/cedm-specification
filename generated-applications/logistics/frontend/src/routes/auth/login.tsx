@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-01T09:33:08.925Z
+ * Generated: 2026-10-02T07:34:29.748Z
  * Project: logistics
  */
 
