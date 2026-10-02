@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-01T09:33:25.172Z
+//! Generated: 2026-10-02T09:01:52.394Z
 //! Project: media
 
 mod ai;
