@@ -9,7 +9,7 @@
  * Fallback: when Electric is not yet synced the hooks fall back to the
  * HTTP API so the UI never blocks on the initial sync completing.
  *
- * Generated: 2026-10-02T18:05:01.073Z
+ * Generated: 2026-10-02T20:12:46.722Z
  * Project: workflow
  */
 
