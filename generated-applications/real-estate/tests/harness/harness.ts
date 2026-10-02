@@ -8,7 +8,7 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-10-01T09:34:14.288Z
+ * Generated: 2026-10-02T12:40:45.875Z
  * Project: real-estate
  */
 
@@ -128,7 +128,9 @@ class TestHarness {
       const parent = this.resolveParentEntity(fk.name, fk.references);
       if (!parent) continue;
 
-      const existing = await this.anyRecordId(parent);
+      const choice = await this.narrowedChoice(entity, fk.name, foreignKeys);
+      if (choice === "none-fits" && !fk.required) continue;
+      const existing = typeof choice === "string" ? choice : await this.anyRecordId(parent);
       if (existing) foreignKeys[fk.name] = existing;
     }
 
@@ -164,11 +166,41 @@ class TestHarness {
     for (const fk of foreignKeyFields(entity)) {
       const parent = this.resolveParentEntity(fk.name, fk.references);
       if (!parent) continue;
-      const id = await this.anyRecordId(parent);
+      const choice = await this.narrowedChoice(entity, fk.name, foreignKeys);
+      if (choice === "none-fits" && !fk.required) continue;
+      const id = typeof choice === "string" ? choice : await this.anyRecordId(parent);
       if (id) foreignKeys[fk.name] = id;
     }
 
     return buildRecord(entity, { foreignKeys, overrides });
+  }
+
+  /**
+   * The first row a lookup offers for `column`, given the references already
+   * chosen for this record.
+   *
+   * A narrowed lookup (a state within a country, a city within a state) only
+   * accepts a row the record's other choices allow, so the parent comes from the
+   * lookup the form itself uses. A column that is not narrowed answers with the
+   * target's rows unfiltered, which is what `anyRecordId` returns too.
+   * `"none-fits"` means the lookup answered and offered nothing: an optional
+   * reference is then left unset, because a mismatched one is refused.
+   */
+  async narrowedChoice(
+    entity: EntityMeta,
+    column: string,
+    chosen: Record<string, string>
+  ): Promise<string | "none-fits" | null> {
+    const controls = Object.entries(chosen)
+      .map(([name, id]) => `&${encodeURIComponent(name)}=${encodeURIComponent(id)}`)
+      .join("");
+    const response = await this.client.get<{ data?: Array<{ id: string }> }>(
+      `/bus/${entity.route}/lookup/${column}?limit=1${controls}`,
+      { allowFailure: true }
+    );
+    if (!response.ok) return null;
+    const id = response.data?.data?.[0]?.id;
+    return id ?? "none-fits";
   }
 
   /** An existing record id for an entity, creating one if the table is empty. */

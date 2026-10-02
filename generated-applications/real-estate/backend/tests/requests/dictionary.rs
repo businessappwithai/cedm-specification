@@ -1,6 +1,6 @@
 //! The Application Dictionary — the metadata every screen is built from.
 //!
-//! Generated: 2026-10-01T09:34:12.406Z
+//! Generated: 2026-10-02T12:40:43.704Z
 //! Project: real-estate
 
 use serde_json::Value;
