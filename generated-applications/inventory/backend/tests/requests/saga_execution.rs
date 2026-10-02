@@ -16,7 +16,7 @@
 //! `factory::create_with_parents` already creates parents recursively, which is
 //! the same machinery the CRUD suites use.
 //!
-//! Generated: 2026-10-02T03:50:33.370Z
+//! Generated: 2026-10-02T06:30:48.302Z
 //! Project: inventory
 
 use serde_json::{json, Value};

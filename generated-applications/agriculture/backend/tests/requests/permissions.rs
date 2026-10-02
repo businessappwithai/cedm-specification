@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-02T00:15:48.737Z
+//! Generated: 2026-10-02T06:06:38.931Z
 //! Project: agriculture
 
 use serde_json::Value;

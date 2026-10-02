@@ -11,7 +11,7 @@
 # the Rust suite uses its own `<crate>_test` database, created here if missing.
 # Exits non-zero if either check fails, so it is a CI gate as is.
 #
-# Generated: 2026-10-02T03:50:35.649Z
+# Generated: 2026-10-02T06:30:50.227Z
 # Project: inventory
 set -uo pipefail
 cd "$(dirname "$0")/.."

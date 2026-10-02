@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-02T00:15:48.747Z
+//! Generated: 2026-10-02T06:06:38.943Z
 //! Project: agriculture
 
 use serde_json::{json, Value};
