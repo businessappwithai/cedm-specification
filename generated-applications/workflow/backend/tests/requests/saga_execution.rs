@@ -16,7 +16,7 @@
 //! `factory::create_with_parents` already creates parents recursively, which is
 //! the same machinery the CRUD suites use.
 //!
-//! Generated: 2026-10-01T09:35:20.194Z
+//! Generated: 2026-10-02T17:49:23.549Z
 //! Project: workflow
 
 use serde_json::{json, Value};
