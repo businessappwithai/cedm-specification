@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T09:35:03.310Z
+//! Generated: 2026-10-02T16:37:07.255Z
 //! Project: telecommunications
 
 use serde_json::{json, Value};

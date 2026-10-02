@@ -15,9 +15,9 @@ pub mod entities;
 pub mod factory;
 
 use loco_rs::app::Hooks;
-use loco_rs::TestServer;
 use loco_rs::prelude::*;
 use loco_rs::testing::request::request as boot_request;
+use loco_rs::TestServer;
 use serde_json::Value;
 use std::sync::Once;
 

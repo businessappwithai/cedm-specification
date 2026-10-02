@@ -28,7 +28,9 @@ fn minimal_bpmn(name: &str) -> String {
 #[serial]
 async fn creates_lists_and_executes_a_workflow_definition() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let name = format!("e2e-wf-{}", uuid::Uuid::new_v4());
 
         let created = request
@@ -42,7 +44,12 @@ async fn creates_lists_and_executes_a_workflow_definition() {
             }))
             .await;
 
-        assert_eq!(created.status_code(), 201, "workflow create failed: {}", created.text());
+        assert_eq!(
+            created.status_code(),
+            201,
+            "workflow create failed: {}",
+            created.text()
+        );
         let id = created
             .json::<Value>()
             .get("id")
@@ -77,7 +84,10 @@ async fn creates_lists_and_executes_a_workflow_definition() {
             .add_header("authorization", bearer(&token))
             .await;
         assert_eq!(runs.status_code(), 200);
-        assert!(runs.json::<Value>().as_array().is_some(), "runs should be an array");
+        assert!(
+            runs.json::<Value>().as_array().is_some(),
+            "runs should be an array"
+        );
     })
     .await;
 }
@@ -86,7 +96,9 @@ async fn creates_lists_and_executes_a_workflow_definition() {
 #[serial]
 async fn rejects_a_definition_whose_bpmn_does_not_parse() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
 
         let response = request
             .post("/api/workflow")
@@ -119,7 +131,9 @@ fn automation_yaml(entity: &str, name: &str) -> String {
 #[serial]
 async fn stores_an_automation_as_its_yaml_document() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let name = format!("e2e-auto-{}", uuid::Uuid::new_v4());
         let definition = automation_yaml(entity.table_name, &name);
 
@@ -133,9 +147,17 @@ async fn stores_an_automation_as_its_yaml_document() {
                 "definition": definition,
             }))
             .await;
-        assert_eq!(created.status_code(), 201, "automation create failed: {}", created.text());
+        assert_eq!(
+            created.status_code(),
+            201,
+            "automation create failed: {}",
+            created.text()
+        );
         let row = created.json::<Value>();
-        let id = row["id"].as_str().expect("automation create returned no id").to_string();
+        let id = row["id"]
+            .as_str()
+            .expect("automation create returned no id")
+            .to_string();
         assert_eq!(row["kind"], "automation");
         assert_eq!(row["definition_yaml"], definition.as_str());
         assert!(row["bpmn_xml"].is_null(), "an automation carries no BPMN");
@@ -171,7 +193,12 @@ async fn stores_an_automation_as_its_yaml_document() {
             .add_header("authorization", bearer(&token))
             .json(&json!({ "definition": edited, "isActive": true }))
             .await;
-        assert_eq!(updated.status_code(), 200, "automation update failed: {}", updated.text());
+        assert_eq!(
+            updated.status_code(),
+            200,
+            "automation update failed: {}",
+            updated.text()
+        );
         assert_eq!(updated.json::<Value>()["definition_yaml"], edited.as_str());
 
         // The execute endpoint runs BPMN; an automation has none, and saying so
@@ -181,7 +208,12 @@ async fn stores_an_automation_as_its_yaml_document() {
             .add_header("authorization", bearer(&token))
             .json(&json!({}))
             .await;
-        assert_eq!(executed.status_code(), 400, "execute on an automation: {}", executed.text());
+        assert_eq!(
+            executed.status_code(),
+            400,
+            "execute on an automation: {}",
+            executed.text()
+        );
 
         let removed = request
             .delete(&format!("/api/workflow-definitions/{id}"))
@@ -196,14 +228,25 @@ async fn stores_an_automation_as_its_yaml_document() {
 #[serial]
 async fn refuses_an_automation_that_is_not_an_automation_document() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let valid = automation_yaml(entity.table_name, "probe");
 
         for (label, definition) in [
             ("not YAML", "automation: [unclosed".to_string()),
-            ("wrong version", valid.replace("automation: \"1.0\"", "automation: \"9.9\"")),
-            ("no entity", valid.replace(&format!("  entity: {}\n", entity.table_name), "")),
-            ("steps not a list", valid.replace("steps:\n  - id: s1", "steps: nope\nextra:\n  - id: s1")),
+            (
+                "wrong version",
+                valid.replace("automation: \"1.0\"", "automation: \"9.9\""),
+            ),
+            (
+                "no entity",
+                valid.replace(&format!("  entity: {}\n", entity.table_name), ""),
+            ),
+            (
+                "steps not a list",
+                valid.replace("steps:\n  - id: s1", "steps: nope\nextra:\n  - id: s1"),
+            ),
         ] {
             let response = request
                 .post("/api/workflow-definitions")
@@ -238,7 +281,9 @@ async fn refuses_an_automation_that_is_not_an_automation_document() {
 #[serial]
 async fn audits_a_business_write_and_verifies_the_chain() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
 
         create_with_parents(&request, &token, entity, &[])
             .await
@@ -249,7 +294,10 @@ async fn audits_a_business_write_and_verifies_the_chain() {
             .add_header("authorization", bearer(&token))
             .await;
         assert_eq!(log.status_code(), 200);
-        assert!(!rows(&log.json::<Value>()).is_empty(), "a write left no audit entry");
+        assert!(
+            !rows(&log.json::<Value>()).is_empty(),
+            "a write left no audit entry"
+        );
 
         let types = request
             .get("/api/audit/entity-types")
@@ -265,7 +313,10 @@ async fn audits_a_business_write_and_verifies_the_chain() {
             .await;
         assert_eq!(verified.status_code(), 200);
         assert_eq!(
-            verified.json::<Value>().get("verified").and_then(Value::as_bool),
+            verified
+                .json::<Value>()
+                .get("verified")
+                .and_then(Value::as_bool),
             Some(true),
             "the audit hash chain does not verify"
         );
