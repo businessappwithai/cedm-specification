@@ -5,7 +5,7 @@
  * `phone` gets a phone number) and its declared type second. The faker seed is
  * fixed in config, so a failing bulk run reproduces byte-for-byte.
  *
- * Generated: 2026-10-02T04:07:52.329Z
+ * Generated: 2026-10-02T08:03:22.126Z
  * Project: sales
  */
 
@@ -123,6 +123,20 @@ function byType(field: FieldMeta): unknown {
 
 let shortValueCounter = 0;
 const SHORT_SYMBOLS = "!#$%&*+=?@^~";
+
+/**
+ * A fresh value for `field` that carries `label` when the column is long enough,
+ * for the tests that write a marker and read it back (or search for it).
+ *
+ * A column of two or three characters has a few hundred possible values and this
+ * suite's database keeps its rows between runs, so a unique one can collide with
+ * an earlier run's (409). `bun run clean` between runs clears them; the Rust
+ * suite resets its database every run and does not see this.
+ */
+export function marked(field: FieldMeta, label: string): string {
+  const readable = `${label}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+  return String(truncate(readable, field));
+}
 
 /**
  * Fit a string to its column.

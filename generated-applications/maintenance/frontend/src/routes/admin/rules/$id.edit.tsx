@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { apiClient } from "@/lib/api-client";
 import { Box, Grid, HStack, Heading, Text } from "@/components/ui/layout";
-import { useDictionaryEntityFields } from "@/components/admin/use-dictionary-entities";
+import { useDictionaryEntities, useDictionaryEntityFields } from "@/components/admin/use-dictionary-entities";
 
 export const Route = createFileRoute("/admin/rules/$id/edit")({
   component: EditRulePage,
@@ -157,6 +157,15 @@ function EditRulePage() {
     }
   };
 
+  // Called before the early returns below: a hook after them runs on some renders
+  // and not others, and React stops the page with "rendered more hooks".
+  const { data: entityFields } = useDictionaryEntityFields(rule?.entityName);
+  const { data: dictionaryEntities } = useDictionaryEntities();
+  // The screen names an entity by its window, never by its table.
+  const entityLabel = (table: string) =>
+    dictionaryEntities?.find((e) => e.value === table)?.label ??
+    table.replace(/^bus_/, "").replace(/_/g, " ");
+
   if (isLoading) {
     return (
       <HStack align="center" justify="center" className="min-h-screen bg-white">
@@ -180,7 +189,6 @@ function EditRulePage() {
     );
   }
 
-  const { data: entityFields } = useDictionaryEntityFields(rule.entityName);
 
   return (
     <div className="min-h-screen bg-white">
@@ -210,7 +218,7 @@ function EditRulePage() {
                 {rule.operation}
               </Badge>
               <Badge variant="secondary" className="text-xs">
-                {rule.entityName}
+                {entityLabel(rule.entityName)}
               </Badge>
             </HStack>
           </HStack>
@@ -230,7 +238,7 @@ function EditRulePage() {
                   <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
                     Entity
                   </Label>
-                  <Text weight="medium" block className="mt-1">{rule.entityName}</Text>
+                  <Text weight="medium" block className="mt-1">{entityLabel(rule.entityName)}</Text>
                 </div>
                 <div>
                   <Label className="text-xs font-semibold uppercase tracking-wider text-gray-400">
