@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T22:47:39.604Z
+ * Generated: 2026-10-02T01:49:13.118Z
  * Project: food
  */
 

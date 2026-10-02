@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-01T22:47:39.922Z
+ * Generated: 2026-10-02T01:49:13.327Z
  * Project: food
  */
 
