@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-02T03:49:58.431Z
+ * Generated: 2026-10-02T04:10:24.074Z
  * Project: legal
  */
 

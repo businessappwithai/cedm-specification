@@ -125,6 +125,20 @@ let shortValueCounter = 0;
 const SHORT_SYMBOLS = "!#$%&*+=?@^~";
 
 /**
+ * A fresh value for `field` that carries `label` when the column is long enough,
+ * for the tests that write a marker and read it back (or search for it).
+ *
+ * A column of two or three characters has a few hundred possible values and this
+ * suite's database keeps its rows between runs, so a unique one can collide with
+ * an earlier run's (409). `bun run clean` between runs clears them; the Rust
+ * suite resets its database every run and does not see this.
+ */
+export function marked(field: FieldMeta, label: string): string {
+  const readable = `${label}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+  return String(truncate(readable, field));
+}
+
+/**
  * Fit a string to its column.
  *
  * Cutting a long value to the limit made every value for a short column the

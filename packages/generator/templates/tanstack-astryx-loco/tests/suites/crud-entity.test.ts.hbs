@@ -14,6 +14,7 @@ import {
   firstTextField,
   getEntity,
   harness,
+  marked,
   scalarFields,
   writableFields,
 } from "../harness";
@@ -68,7 +69,7 @@ describe("{{entity.displayName}} CRUD", () => {
     const textField = firstTextField(entity);
     if (!textField) return; // nothing text-shaped to assert on
 
-    const marker = `e2e-${Date.now()}`;
+    const marker = marked(textField, "e2e");
     const created = await harness.createWithParents(entity, { [textField.name]: marker });
     expect(created).not.toBeNull();
 
@@ -84,7 +85,7 @@ describe("{{entity.displayName}} CRUD", () => {
     const textField = firstTextField(entity);
     if (!textField) return;
 
-    const updated = `patched-${Date.now()}`;
+    const updated = marked(textField, "patched");
     const response = await harness.client.patch<Record<string, unknown>>(
       `/bus/${entity.route}/${createdId}`,
       { [textField.name]: updated }
@@ -104,7 +105,7 @@ describe("{{entity.displayName}} CRUD", () => {
 
     const response = await harness.client.patch<Record<string, unknown>>(
       `/bus/${entity.route}/${created?.id}`,
-      { [textField.name]: `v-${Date.now()}` }
+      { [textField.name]: marked(textField, "v") }
     );
 
     expect(Number(response.data.version ?? 0)).toBeGreaterThan(before);
@@ -172,7 +173,7 @@ describe("{{entity.displayName}} CRUD", () => {
     const textField = firstTextField(entity);
     if (!textField) return;
 
-    const needle = `find-${Date.now()}`;
+    const needle = marked(textField, "find");
     await harness.createWithParents(entity, { [textField.name]: needle });
 
     const response = await harness.client.get<{ data: Array<Record<string, unknown>> }>(
