@@ -12,7 +12,7 @@
  *
  * `qa.sh` runs this and the Rust request suite together.
  *
- * Generated: 2026-10-02T18:38:16.154Z
+ * Generated: 2026-10-02T19:11:16.287Z
  * Project: logistics
  */
 import { chromium } from "playwright";

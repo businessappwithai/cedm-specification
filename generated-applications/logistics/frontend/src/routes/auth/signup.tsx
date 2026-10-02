@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-02T18:38:15.990Z
+ * Generated: 2026-10-02T19:11:16.155Z
  * Project: logistics
  */
 
