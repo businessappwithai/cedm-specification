@@ -85,7 +85,12 @@ async fn a_model_declared_saga_runs_and_writes_to_another_entity() {
             .get("/api/workflow")
             .add_header("authorization", bearer(&token))
             .await;
-        assert_eq!(listed.status_code(), 200, "workflow list failed: {}", listed.text());
+        assert_eq!(
+            listed.status_code(),
+            200,
+            "workflow list failed: {}",
+            listed.text()
+        );
 
         let body = listed.json::<Value>();
         let Some(workflow) = model_workflow(&body) else {
@@ -93,7 +98,10 @@ async fn a_model_declared_saga_runs_and_writes_to_another_entity() {
             return;
         };
 
-        let id = workflow.get("id").and_then(Value::as_str).expect("workflow has no id");
+        let id = workflow
+            .get("id")
+            .and_then(Value::as_str)
+            .expect("workflow has no id");
         let bound = workflow
             .get("entity_name")
             .and_then(Value::as_str)
@@ -159,7 +167,11 @@ async fn a_model_declared_saga_runs_and_writes_to_another_entity() {
             "the saga did not complete: {outcome}"
         );
         assert!(
-            outcome.get("tasksExecuted").and_then(Value::as_u64).unwrap_or(0) > 0,
+            outcome
+                .get("tasksExecuted")
+                .and_then(Value::as_u64)
+                .unwrap_or(0)
+                > 0,
             "the saga reported success having executed no tasks — {outcome}"
         );
 

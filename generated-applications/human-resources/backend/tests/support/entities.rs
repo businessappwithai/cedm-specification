@@ -278,17 +278,17 @@ impl EntityMeta {
 
     /// Foreign keys that have to be satisfied before this entity can exist.
     pub fn foreign_keys(&self) -> impl Iterator<Item = &FieldMeta> {
-        self.writable_fields().filter(|f| f.field_type == FieldType::Reference)
+        self.writable_fields()
+            .filter(|f| f.field_type == FieldType::Reference)
     }
 }
 
 /// Look an entity up by its ERD name. Panics on a miss: the name comes from
 /// generated code, so a miss is a generator bug, not a runtime condition.
 pub fn entity(name: &str) -> &'static EntityMeta {
-    ENTITIES
-        .iter()
-        .find(|e| e.name == name)
-        .unwrap_or_else(|| panic!("unknown entity '{name}' — the registry is generated, so this is a generator bug"))
+    ENTITIES.iter().find(|e| e.name == name).unwrap_or_else(|| {
+        panic!("unknown entity '{name}' — the registry is generated, so this is a generator bug")
+    })
 }
 
 /// Find the entity behind a `bus_*` table name.

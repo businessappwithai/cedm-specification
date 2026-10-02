@@ -18,11 +18,16 @@ use crate::support::{self, bearer, entities::ENTITIES, factory::create_with_pare
 #[serial]
 async fn a_record_carries_the_history_of_its_own_writes() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let Some(created) = create_with_parents(&request, &token, entity, &[]).await else {
             return;
         };
-        let id = created["id"].as_str().expect("create returns an id").to_string();
+        let id = created["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
 
         let response = request
             .get(&format!("/api/records/{}/{id}/history", entity.route))
@@ -70,11 +75,16 @@ async fn a_record_carries_the_history_of_its_own_writes() {
 #[serial]
 async fn a_note_is_stored_against_the_record_and_attributed_to_its_author() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let Some(created) = create_with_parents(&request, &token, entity, &[]).await else {
             return;
         };
-        let id = created["id"].as_str().expect("create returns an id").to_string();
+        let id = created["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
         let path = format!("/api/records/{}/{id}/notes", entity.route);
 
         let first = request
@@ -85,7 +95,10 @@ async fn a_note_is_stored_against_the_record_and_attributed_to_its_author() {
         assert_eq!(first.status_code(), 201, "add note: {}", first.text());
 
         let stored = first.json::<Value>();
-        assert_eq!(stored.get("note").and_then(Value::as_str), Some("First note"));
+        assert_eq!(
+            stored.get("note").and_then(Value::as_str),
+            Some("First note")
+        );
         // Attribution comes from the token, never the body — a note whose
         // author the caller chooses is not attribution.
         assert_eq!(
@@ -101,7 +114,10 @@ async fn a_note_is_stored_against_the_record_and_attributed_to_its_author() {
             .await;
         assert_eq!(second.status_code(), 201);
         assert_eq!(
-            second.json::<Value>().get("user_email").and_then(Value::as_str),
+            second
+                .json::<Value>()
+                .get("user_email")
+                .and_then(Value::as_str),
             Some(support::ADMIN_EMAIL),
             "a caller set its own attribution by putting user_email in the body"
         );
@@ -128,11 +144,16 @@ async fn a_note_is_stored_against_the_record_and_attributed_to_its_author() {
 #[serial]
 async fn an_empty_note_is_refused() {
     support::with_app(|request, _ctx, token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let Some(created) = create_with_parents(&request, &token, entity, &[]).await else {
             return;
         };
-        let id = created["id"].as_str().expect("create returns an id").to_string();
+        let id = created["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
 
         for body in [json!({ "note": "   " }), json!({})] {
             let response = request
@@ -161,11 +182,16 @@ async fn an_empty_note_is_refused() {
 #[serial]
 async fn an_ungranted_caller_is_refused_the_trail_and_the_notes() {
     support::with_app(|request, _ctx, admin_token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let Some(created) = create_with_parents(&request, &admin_token, entity, &[]).await else {
             return;
         };
-        let id = created["id"].as_str().expect("create returns an id").to_string();
+        let id = created["id"]
+            .as_str()
+            .expect("create returns an id")
+            .to_string();
 
         // A freshly registered account: authenticated, and holding nothing.
         let email = format!("notes-probe-{}@example.test", uuid::Uuid::new_v4().simple());

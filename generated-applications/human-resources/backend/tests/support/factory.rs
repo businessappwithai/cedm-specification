@@ -20,8 +20,8 @@ use std::sync::OnceLock;
 
 use loco_rs::TestServer;
 
-use super::entities::{parent_of, EntityMeta, FieldMeta, FieldType};
 use super::bearer;
+use super::entities::{parent_of, EntityMeta, FieldMeta, FieldType};
 
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 static RUN: OnceLock<(String, u64)> = OnceLock::new();
@@ -70,7 +70,9 @@ pub fn value_for(field: &FieldMeta) -> Value {
         // A reference with no resolved parent still has to be a UUID or the
         // API rejects the shape before it ever checks the row exists.
         FieldType::Reference => json!("00000000-0000-4000-8000-000000000000"),
-        FieldType::String | FieldType::Text => json!(fit(field, format!("e2e-{}-{token}-{n}", field.name), n)),
+        FieldType::String | FieldType::Text => {
+            json!(fit(field, format!("e2e-{}-{token}-{n}", field.name), n))
+        }
     }
 }
 
@@ -190,7 +192,9 @@ async fn payload_with_parents(
     let mut payload = build_record(entity);
 
     for fk in entity.foreign_keys() {
-        let Some(parent) = parent_of(fk) else { continue };
+        let Some(parent) = parent_of(fk) else {
+            continue;
+        };
         // A narrowed lookup (a state within a country, a city within a state)
         // only accepts a row the record's other choices allow, so the parent is
         // taken from the lookup the form itself would use, given what has
@@ -255,9 +259,9 @@ async fn create_inner(
     let mut minimal: Map<String, Value> = payload
         .iter()
         .filter(|(key, _)| {
-            entity
-                .writable_fields()
-                .any(|f| f.name == key.as_str() && (f.required || f.field_type == FieldType::Reference))
+            entity.writable_fields().any(|f| {
+                f.name == key.as_str() && (f.required || f.field_type == FieldType::Reference)
+            })
         })
         .map(|(k, v)| (k.clone(), v.clone()))
         .collect();

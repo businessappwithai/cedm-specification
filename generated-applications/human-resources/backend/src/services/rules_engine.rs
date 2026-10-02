@@ -203,7 +203,10 @@ impl RulesEngine {
         operation: RuleOperation,
     ) -> Result<Value, String> {
         let mut input = data.clone();
-        input.insert("_operation".into(), Value::String(operation.as_str().into()));
+        input.insert(
+            "_operation".into(),
+            Value::String(operation.as_str().into()),
+        );
 
         let engine = Arc::clone(&self.engine);
         let payload = Value::Object(input);
@@ -249,7 +252,10 @@ impl RulesEngine {
         let mut input = data.clone();
         // See the module comment: the verb is `_operation`, and the payload is
         // otherwise passed through untouched.
-        input.insert("_operation".into(), Value::String(operation.as_str().into()));
+        input.insert(
+            "_operation".into(),
+            Value::String(operation.as_str().into()),
+        );
 
         let engine = Arc::clone(&self.engine);
         let payload = Value::Object(input);
@@ -413,7 +419,10 @@ mod tests {
     #[test]
     fn payload_fields_tolerate_json_encoded_strings() {
         let as_string = Value::String(r#"{"status":"closed"}"#.to_string());
-        assert_eq!(as_object(&as_string), serde_json::json!({"status":"closed"}));
+        assert_eq!(
+            as_object(&as_string),
+            serde_json::json!({"status":"closed"})
+        );
 
         let as_object_already = serde_json::json!({"status":"open"});
         assert_eq!(as_object(&as_object_already), as_object_already);

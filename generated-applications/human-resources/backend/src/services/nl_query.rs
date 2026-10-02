@@ -245,12 +245,7 @@ pub async fn answer(
     // `Arc` away instead of letting deref coercion do it at the call site.
     let meta = dictionary.meta(&valid.entity).await?;
     let result = repo
-        .find_all(
-            &meta,
-            &valid.opts,
-            &valid.filters,
-            valid.search.as_deref(),
-        )
+        .find_all(&meta, &valid.opts, &valid.filters, valid.search.as_deref())
         .await?;
 
     Ok(json!({
@@ -285,7 +280,10 @@ async fn readable_schema(
 
     let mut schema = Vec::new();
     for table_name in table_names {
-        if authz::require_read(pool, principal, &table_name).await.is_err() {
+        if authz::require_read(pool, principal, &table_name)
+            .await
+            .is_err()
+        {
             continue;
         }
         let Ok(meta) = dictionary.meta(&table_name).await else {
@@ -483,10 +481,7 @@ async fn validate(dictionary: &DictionaryCache, plan: &QueryPlan) -> AppResult<V
         table_name,
         entity: plan.entity.clone(),
         filters,
-        search: plan
-            .search
-            .clone()
-            .filter(|term| !term.trim().is_empty()),
+        search: plan.search.clone().filter(|term| !term.trim().is_empty()),
         opts: PaginationOptions {
             page: 1,
             limit,
@@ -544,7 +539,10 @@ mod tests {
     /// rather than by restating its conditions here.
     #[test]
     fn a_question_must_be_non_empty_and_bounded() {
-        assert_eq!(validate_question("  how many compounds?  ").unwrap(), "how many compounds?");
+        assert_eq!(
+            validate_question("  how many compounds?  ").unwrap(),
+            "how many compounds?"
+        );
         assert!(validate_question("").is_err());
         assert!(validate_question("   \n\t ").is_err());
         assert!(validate_question(&"a".repeat(MAX_QUESTION_CHARS)).is_ok());
@@ -564,7 +562,9 @@ mod tests {
         assert!(AiSettings::from_settings(Some(&json!({}))).is_none());
         assert!(AiSettings::from_settings(Some(&json!({ "ai_base_url": "" }))).is_none());
         // A base URL with no model is a half-configuration and stays off.
-        assert!(AiSettings::from_settings(Some(&json!({ "ai_base_url": "http://x/v1" }))).is_none());
+        assert!(
+            AiSettings::from_settings(Some(&json!({ "ai_base_url": "http://x/v1" }))).is_none()
+        );
 
         let configured = AiSettings::from_settings(Some(&json!({
             "ai_base_url": "http://localhost:8000/v1/",

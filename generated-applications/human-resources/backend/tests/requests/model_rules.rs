@@ -23,12 +23,28 @@ use crate::support::{self, bearer};
 
 /// `(rule_name, entity_name, operation)` for every rule the model declares.
 const MODEL_RULES: &[(&str, &str, &str)] = &[
-    ("partyRoleInvariantsBeforeCreate", "bus_party_role", "CREATE"),
-    ("partyRoleInvariantsBeforeUpdate", "bus_party_role", "UPDATE"),
+    (
+        "partyRoleInvariantsBeforeCreate",
+        "bus_party_role",
+        "CREATE",
+    ),
+    (
+        "partyRoleInvariantsBeforeUpdate",
+        "bus_party_role",
+        "UPDATE",
+    ),
     ("addressInvariantsBeforeCreate", "bus_address", "CREATE"),
     ("addressInvariantsBeforeUpdate", "bus_address", "UPDATE"),
-    ("exchangeRateInvariantsBeforeCreate", "bus_exchange_rate", "CREATE"),
-    ("exchangeRateInvariantsBeforeUpdate", "bus_exchange_rate", "UPDATE"),
+    (
+        "exchangeRateInvariantsBeforeCreate",
+        "bus_exchange_rate",
+        "CREATE",
+    ),
+    (
+        "exchangeRateInvariantsBeforeUpdate",
+        "bus_exchange_rate",
+        "UPDATE",
+    ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
     ("positionInvariantsBeforeCreate", "bus_position", "CREATE"),
@@ -36,7 +52,11 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ("payrollInvariantsBeforeCreate", "bus_payroll", "CREATE"),
     ("payrollInvariantsBeforeUpdate", "bus_payroll", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
-    ("exchangeRateWorkflowsAfterUpdate", "bus_exchange_rate", "UPDATE"),
+    (
+        "exchangeRateWorkflowsAfterUpdate",
+        "bus_exchange_rate",
+        "UPDATE",
+    ),
     ("payrollWorkflowsAfterUpdate", "bus_payroll", "UPDATE"),
 ];
 
@@ -50,7 +70,12 @@ async fn every_rule_the_model_declares_was_seeded() {
             .get("/api/rules")
             .add_header("authorization", bearer(&token))
             .await;
-        assert_eq!(response.status_code(), 200, "GET /api/rules: {}", response.text());
+        assert_eq!(
+            response.status_code(),
+            200,
+            "GET /api/rules: {}",
+            response.text()
+        );
 
         let body = response.json::<Value>();
         let rows = body.as_array().cloned().unwrap_or_default();
@@ -85,7 +110,11 @@ async fn every_rule_the_model_declares_was_seeded() {
             // nobody reads.
             let jdm = row.get("jdmContent").and_then(Value::as_str).unwrap_or("");
             match serde_json::from_str::<Value>(jdm) {
-                Ok(graph) if graph.get("nodes").and_then(Value::as_array).is_some_and(|n| !n.is_empty()) => {}
+                Ok(graph)
+                    if graph
+                        .get("nodes")
+                        .and_then(Value::as_array)
+                        .is_some_and(|n| !n.is_empty()) => {}
                 Ok(_) => unparsable.push(format!("{name}: JDM has no nodes")),
                 Err(error) => unparsable.push(format!("{name}: {error}")),
             }
@@ -96,8 +125,14 @@ async fn every_rule_the_model_declares_was_seeded() {
             "the model declares these rules and the application has none of them — \
              seed/rules.sql was generated but never applied: {missing:?}"
         );
-        assert!(misbound.is_empty(), "rules bound to the wrong table or operation: {misbound:#?}");
-        assert!(unparsable.is_empty(), "rules whose JDM the engine cannot read: {unparsable:#?}");
+        assert!(
+            misbound.is_empty(),
+            "rules bound to the wrong table or operation: {misbound:#?}"
+        );
+        assert!(
+            unparsable.is_empty(),
+            "rules whose JDM the engine cannot read: {unparsable:#?}"
+        );
     })
     .await;
 }
@@ -164,7 +199,10 @@ async fn re_seeding_leaves_an_existing_rule_alone() {
         for ((name, count, version), (_, count_after, version_after)) in
             before.iter().zip(after.iter())
         {
-            assert_eq!(*count, 1, "{name} was listed {count} times before the re-seed");
+            assert_eq!(
+                *count, 1,
+                "{name} was listed {count} times before the re-seed"
+            );
             assert_eq!(*count_after, 1, "{name} was seeded a second time");
             assert_eq!(
                 version, version_after,
@@ -185,7 +223,9 @@ async fn re_seeding_leaves_an_existing_rule_alone() {
 #[serial]
 async fn migrating_replaces_an_edited_rule_with_the_model_version() {
     support::with_app(|request, _ctx, token| async move {
-        let Some((name, _, _)) = MODEL_RULES.first() else { return };
+        let Some((name, _, _)) = MODEL_RULES.first() else {
+            return;
+        };
 
         let listed = request
             .get("/api/rules")

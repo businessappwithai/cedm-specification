@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-01T09:32:42.267Z
+//! Generated: 2026-10-02T03:24:05.489Z
 //! Project: insurance
 
 use serde_json::{json, Value};

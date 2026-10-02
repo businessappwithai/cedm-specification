@@ -20,8 +20,7 @@ use serial_test::serial;
 use crate::support::{self, bearer, rows};
 
 /// The names of this model's `reports`, in order.
-const DECLARED: &[&str] = &[
-];
+const DECLARED: &[&str] = &[];
 
 #[tokio::test]
 #[serial]
@@ -238,4 +237,3 @@ async fn columns_come_back_in_the_order_the_select_declares() {
     })
     .await;
 }
-

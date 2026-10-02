@@ -88,7 +88,9 @@ async fn serves_the_openapi_document() {
             Some("human-resources API"),
         );
         assert!(
-            doc.get("paths").and_then(Value::as_object).is_some_and(|p| !p.is_empty()),
+            doc.get("paths")
+                .and_then(Value::as_object)
+                .is_some_and(|p| !p.is_empty()),
             "the document describes no paths",
         );
 
@@ -196,8 +198,14 @@ async fn describes_the_dictionary_driven_routes_generically() {
         let doc = request.get("/openapi.json").await.json::<Value>();
         let paths = doc.get("paths").and_then(Value::as_object).unwrap();
 
-        assert!(paths.contains_key("/api/bus/{entity}"), "the generic bus path is missing");
-        assert!(paths.contains_key("/api/sys/{segment}"), "the generic sys path is missing");
+        assert!(
+            paths.contains_key("/api/bus/{entity}"),
+            "the generic bus path is missing"
+        );
+        assert!(
+            paths.contains_key("/api/sys/{segment}"),
+            "the generic sys path is missing"
+        );
 
         let per_table: Vec<&String> = paths
             .keys()

@@ -21,11 +21,20 @@ const GUARDED_ROUTES: &[(&str, &str)] = &[
     ("GET", "/api/workflow-definitions"),
     ("GET", "/api/workflows/runs"),
     ("GET", "/api/workflows/transitions"),
-    ("GET", "/api/workflows/entity/bus_nothing/00000000-0000-0000-0000-000000000000"),
+    (
+        "GET",
+        "/api/workflows/entity/bus_nothing/00000000-0000-0000-0000-000000000000",
+    ),
     ("GET", "/api/audit"),
     ("GET", "/api/jobs"),
-    ("GET", "/api/records/bus_user/00000000-0000-4000-8000-000000000000/history"),
-    ("GET", "/api/records/bus_user/00000000-0000-4000-8000-000000000000/notes"),
+    (
+        "GET",
+        "/api/records/bus_user/00000000-0000-4000-8000-000000000000/history",
+    ),
+    (
+        "GET",
+        "/api/records/bus_user/00000000-0000-4000-8000-000000000000/notes",
+    ),
     ("GET", "/api/rules"),
     ("GET", "/api/rules/entities"),
     // A report's rows are business data, and the list names every table the
@@ -148,7 +157,10 @@ async fn seeds_the_administrator_role() {
             .map(str::to_lowercase)
             .collect();
 
-        assert!(names.iter().any(|n| n == "administrator"), "got roles: {names:?}");
+        assert!(
+            names.iter().any(|n| n == "administrator"),
+            "got roles: {names:?}"
+        );
     })
     .await;
 }
@@ -184,13 +196,23 @@ async fn grants_the_administrator_master_access() {
         let body = response.json::<Value>();
         assert_eq!(body.get("isMaster").and_then(Value::as_bool), Some(true));
 
-        let windows = body.get("windows").and_then(Value::as_array).cloned().unwrap_or_default();
-        assert!(!windows.is_empty(), "a master role sees every window; got none");
+        let windows = body
+            .get("windows")
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
+        assert!(
+            !windows.is_empty(),
+            "a master role sees every window; got none"
+        );
 
         // The dashboard builds its navigation from these, so a window with no
         // route is a dead entry in the UI.
         for window in &windows {
-            assert!(window.get("name").is_some(), "window without a name: {window}");
+            assert!(
+                window.get("name").is_some(),
+                "window without a name: {window}"
+            );
             assert!(
                 matches!(
                     window.get("category").and_then(Value::as_str),
@@ -221,7 +243,9 @@ async fn grants_the_administrator_master_access() {
 #[serial]
 async fn an_authenticated_user_without_a_grant_is_refused_the_data() {
     support::with_app(|request, _ctx, admin_token| async move {
-        let Some(entity) = ENTITIES.first() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
         let path = format!("/api/bus/{}", entity.route);
 
         let email = format!("ungranted-{}@example.test", uuid::Uuid::new_v4().simple());
@@ -246,7 +270,11 @@ async fn an_authenticated_user_without_a_grant_is_refused_the_data() {
             .post("/api/auth/login")
             .json(&serde_json::json!({ "email": &email, "password": password }))
             .await;
-        assert_eq!(logged_in.status_code(), 200, "probe account could not sign in");
+        assert_eq!(
+            logged_in.status_code(),
+            200,
+            "probe account could not sign in"
+        );
         let token = logged_in.json::<Value>()["token"]
             .as_str()
             .expect("login returns a token")

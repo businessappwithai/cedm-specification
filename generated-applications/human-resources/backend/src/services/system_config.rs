@@ -127,19 +127,18 @@ impl SystemConfig {
             return Some(hit);
         }
 
-        let rows: Vec<(String, Option<String>, bool)> = sqlx::query_as(
-            "SELECT config_key, config_value, is_active FROM sys_system",
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|err| {
-            // Not an error the caller can act on: the resolver falls through to
-            // the settings block. Recorded because a table that has stopped
-            // answering explains an operator's change not taking effect, and
-            // nothing else in the request would mention it.
-            crate::log_event!(dictionary_config_unreadable, error = %err);
-        })
-        .ok()?;
+        let rows: Vec<(String, Option<String>, bool)> =
+            sqlx::query_as("SELECT config_key, config_value, is_active FROM sys_system")
+                .fetch_all(&self.pool)
+                .await
+                .map_err(|err| {
+                    // Not an error the caller can act on: the resolver falls through to
+                    // the settings block. Recorded because a table that has stopped
+                    // answering explains an operator's change not taking effect, and
+                    // nothing else in the request would mention it.
+                    crate::log_event!(dictionary_config_unreadable, error = %err);
+                })
+                .ok()?;
 
         let map = rows
             .into_iter()

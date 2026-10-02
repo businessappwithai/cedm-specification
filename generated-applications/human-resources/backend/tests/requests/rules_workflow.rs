@@ -161,7 +161,12 @@ async fn create_rule(
         }))
         .await;
 
-    assert_eq!(response.status_code(), 201, "rule create failed: {}", response.text());
+    assert_eq!(
+        response.status_code(),
+        201,
+        "rule create failed: {}",
+        response.text()
+    );
     response
         .json::<Value>()
         .get("id")
@@ -199,13 +204,18 @@ async fn clear_test_rules(request: &loco_rs::TestServer, token: &str) {
             .add_header("authorization", bearer(token))
             .await;
 
-        let Some(rules) = listed.json::<Value>().as_array().cloned() else { continue };
+        let Some(rules) = listed.json::<Value>().as_array().cloned() else {
+            continue;
+        };
         for rule in rules {
             let is_ours = rule
                 .get("ruleName")
                 .and_then(Value::as_str)
                 .is_some_and(|name| name.starts_with("e2e-wf-"));
-            let active = rule.get("isActive").and_then(Value::as_bool).unwrap_or(false);
+            let active = rule
+                .get("isActive")
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
             if is_ours && active {
                 if let Some(id) = rule.get("id").and_then(Value::as_str) {
                     deactivate(request, token, id).await;
@@ -221,8 +231,12 @@ async fn a_rule_can_trigger_a_workflow_on_a_business_write() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some(entity) = ENTITIES.first() else { return };
-        let Some(field) = entity.first_text_field() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
+        let Some(field) = entity.first_text_field() else {
+            return;
+        };
 
         // A workflow for the rule to name.
         let workflow_name = format!("e2e-flow-{}", uuid::Uuid::new_v4());
@@ -247,7 +261,12 @@ async fn a_rule_can_trigger_a_workflow_on_a_business_write() {
                 ),
             }))
             .await;
-        assert_eq!(workflow.status_code(), 201, "workflow create failed: {}", workflow.text());
+        assert_eq!(
+            workflow.status_code(),
+            201,
+            "workflow create failed: {}",
+            workflow.text()
+        );
 
         let rule_id = create_rule(
             &request,
@@ -300,15 +319,25 @@ async fn a_rule_can_cascade_an_update_into_a_related_entity() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some((child, parent, link_field)) = linked_pair() else { return };
-        let Some(child_trigger) = child.first_text_field() else { return };
-        let Some(parent_field) = parent.first_text_field() else { return };
+        let Some((child, parent, link_field)) = linked_pair() else {
+            return;
+        };
+        let Some(child_trigger) = child.first_text_field() else {
+            return;
+        };
+        let Some(parent_field) = parent.first_text_field() else {
+            return;
+        };
 
         // A parent to cascade into, and a marker to look for afterwards.
         let parent_row = create_with_parents(&request, &token, parent, &[])
             .await
             .expect("could not create the parent to cascade into");
-        let parent_id = parent_row.get("id").and_then(Value::as_str).unwrap().to_string();
+        let parent_id = parent_row
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap()
+            .to_string();
         let before = parent_row
             .get(parent_field.name)
             .and_then(Value::as_str)
@@ -384,8 +413,12 @@ async fn a_rule_can_create_a_record_in_another_entity() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some((child, parent, _)) = linked_pair() else { return };
-        let Some(trigger_field) = child.first_text_field() else { return };
+        let Some((child, parent, _)) = linked_pair() else {
+            return;
+        };
+        let Some(trigger_field) = child.first_text_field() else {
+            return;
+        };
 
         let before = count_rows(&request, &token, parent).await;
 
@@ -400,7 +433,12 @@ async fn a_rule_can_create_a_record_in_another_entity() {
                 &[
                     ("action", json!("create-record")),
                     ("targetEntity", json!(parent.table_name)),
-                    ("createData", json!(Value::Object(build_record_with_parents(&request, &token, parent).await))),
+                    (
+                        "createData",
+                        json!(Value::Object(
+                            build_record_with_parents(&request, &token, parent).await
+                        )),
+                    ),
                 ],
             ),
         )
@@ -432,14 +470,24 @@ async fn a_multi_step_rule_runs_every_action_it_matched() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some((child, parent, link_field)) = linked_pair() else { return };
-        let Some(trigger_field) = child.first_text_field() else { return };
-        let Some(parent_field) = parent.first_text_field() else { return };
+        let Some((child, parent, link_field)) = linked_pair() else {
+            return;
+        };
+        let Some(trigger_field) = child.first_text_field() else {
+            return;
+        };
+        let Some(parent_field) = parent.first_text_field() else {
+            return;
+        };
 
         let parent_row = create_with_parents(&request, &token, parent, &[])
             .await
             .expect("could not create the parent for the multi-step case");
-        let parent_id = parent_row.get("id").and_then(Value::as_str).unwrap().to_string();
+        let parent_id = parent_row
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap()
+            .to_string();
 
         // One rule, two actions: fire a workflow *and* cascade an update. A
         // pipeline that stops at the first matched action passes every
@@ -471,7 +519,12 @@ async fn a_multi_step_rule_runs_every_action_it_matched() {
             .add_header("authorization", bearer(&token))
             .json(&Value::Object(payload))
             .await;
-        assert_eq!(created.status_code(), 201, "multi-step create failed: {}", created.text());
+        assert_eq!(
+            created.status_code(),
+            201,
+            "multi-step create failed: {}",
+            created.text()
+        );
 
         // The write itself succeeded, the cascade reached the parent, and the
         // audit trail recorded both — three checks because a partial pipeline
@@ -497,7 +550,10 @@ async fn a_multi_step_rule_runs_every_action_it_matched() {
             .add_header("authorization", bearer(&token))
             .await;
         assert_eq!(
-            verified.json::<Value>().get("verified").and_then(Value::as_bool),
+            verified
+                .json::<Value>()
+                .get("verified")
+                .and_then(Value::as_bool),
             Some(true),
             "the cascade broke the audit hash chain"
         );
@@ -513,14 +569,24 @@ async fn a_cascade_carries_a_value_from_the_triggering_record() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some((child, parent, link_field)) = linked_pair() else { return };
-        let Some(child_field) = child.first_text_field() else { return };
-        let Some(parent_field) = parent.first_text_field() else { return };
+        let Some((child, parent, link_field)) = linked_pair() else {
+            return;
+        };
+        let Some(child_field) = child.first_text_field() else {
+            return;
+        };
+        let Some(parent_field) = parent.first_text_field() else {
+            return;
+        };
 
         let parent_row = create_with_parents(&request, &token, parent, &[])
             .await
             .expect("could not create the parent for the pass-through case");
-        let parent_id = parent_row.get("id").and_then(Value::as_str).unwrap().to_string();
+        let parent_id = parent_row
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap()
+            .to_string();
 
         // The value the child is written with. Nothing in the rule knows it —
         // the rule references the *field*, so whatever arrives has to travel
@@ -625,17 +691,29 @@ async fn a_blocking_rule_refuses_the_write_under_either_name() {
     support::with_app(|request, _ctx, token| async move {
         clear_test_rules(&request, &token).await;
 
-        let Some(entity) = ENTITIES.first() else { return };
-        let Some(field) = entity.first_text_field() else { return };
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
+        let Some(field) = entity.first_text_field() else {
+            return;
+        };
 
         // Created before any rule exists: the create path is not under test,
         // and this gives the update a row that already satisfies the model.
-        let Some(record) = create_with_parents(&request, &token, entity, &[]).await else { return };
-        let Some(id) = record.get("id").and_then(Value::as_str).map(str::to_string) else { return };
+        let Some(record) = create_with_parents(&request, &token, entity, &[]).await else {
+            return;
+        };
+        let Some(id) = record.get("id").and_then(Value::as_str).map(str::to_string) else {
+            return;
+        };
 
         // Write the column back the value it already holds, so the payload is
         // known-good by construction rather than by the factory's guess.
-        let Some(probe) = record.get(field.name).filter(|value| !value.is_null()).cloned() else {
+        let Some(probe) = record
+            .get(field.name)
+            .filter(|value| !value.is_null())
+            .cloned()
+        else {
             return;
         };
         let body = json!({ field.name: probe });
