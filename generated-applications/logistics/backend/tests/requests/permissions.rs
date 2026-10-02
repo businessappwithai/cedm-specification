@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-02T07:34:27.968Z
+//! Generated: 2026-10-02T18:38:14.344Z
 //! Project: logistics
 
 use serde_json::Value;

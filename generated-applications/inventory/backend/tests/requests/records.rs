@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-02T06:30:48.291Z
+//! Generated: 2026-10-02T18:05:52.090Z
 //! Project: inventory
 
 use serde_json::{json, Value};

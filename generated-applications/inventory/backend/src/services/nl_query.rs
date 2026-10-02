@@ -34,7 +34,7 @@
 //! usability measure; the check is the control, and it runs even if the model
 //! returns something the filter should have excluded.
 //!
-//! Generated: 2026-10-02T06:30:48.319Z
+//! Generated: 2026-10-02T18:05:52.310Z
 //! Project: inventory
 
 use std::time::Instant;
