@@ -56,7 +56,7 @@ with no primary key at all is `EML117`, which the fixer resolves by adding `id`.
 
 | Key | Meaning |
 |---|---|
-| **`name`** | The column name, `snake_case`, unique in the entity (a duplicate is `EML112`). |
+| **`name`** | The column name, `snake_case`, unique in the entity (a duplicate is `EML112`). A name that is a Rust keyword (`type`, `ref`, `match`, …) is legal: the generated model writes the field as a raw identifier (`r#type`) and keeps the column name. |
 | **`type`** | A type from the vocabulary, optionally with a length: `string(120)`. See [04](04-types-and-cardinalities.md). An unknown type is `EML115` and is generated as a string. |
 | `pk` | Primary key: unique, never required on a create (the generator supplies it), the entity's key. One per entity (`EML113`). |
 | `fk` | Foreign key: the column is a reference. See [Foreign keys](#foreign-keys). |

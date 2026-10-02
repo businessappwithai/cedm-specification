@@ -5,7 +5,7 @@
  * `phone` gets a phone number) and its declared type second. The faker seed is
  * fixed in config, so a failing bulk run reproduces byte-for-byte.
  *
- * Generated: 2026-10-01T16:23:24.686Z
+ * Generated: 2026-10-02T04:07:52.329Z
  * Project: sales
  */
 
@@ -121,11 +121,27 @@ function byType(field: FieldMeta): unknown {
   }
 }
 
+let shortValueCounter = 0;
+const SHORT_SYMBOLS = "!#$%&*+=?@^~";
+
+/**
+ * Fit a string to its column.
+ *
+ * Cutting a long value to the limit made every value for a short column the
+ * same prefix, so a unique two-letter code collided on the second record. A
+ * value that does not fit is replaced by a symbol followed by the counter in
+ * base 36: distinct for as long as the limit allows, and never equal to a
+ * seeded ISO code, which is letters or digits.
+ */
 function truncate(value: unknown, field: FieldMeta): unknown {
-  if (typeof value === "string" && field.maxLength && value.length > field.maxLength) {
-    return value.slice(0, field.maxLength);
+  if (typeof value !== "string" || !field.maxLength || value.length <= field.maxLength) {
+    return value;
   }
-  return value;
+  const n = shortValueCounter++ + Math.floor(Math.random() * 1_000_000);
+  const tail = Math.max(field.maxLength - 1, 0);
+  const low = n.toString(36).padStart(tail, "0").slice(-tail || undefined);
+  const lead = SHORT_SYMBOLS[Math.floor(n / 36 ** tail) % SHORT_SYMBOLS.length] ?? "~";
+  return (lead + (tail ? low : "")).slice(0, field.maxLength);
 }
 
 /**

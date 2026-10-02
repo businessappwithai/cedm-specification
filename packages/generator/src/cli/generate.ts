@@ -680,7 +680,10 @@ program
             `   Rust suite:     cd ${outputDir}/backend && LOCO_ENV=test cargo test --test app`
           );
           console.log(`   bun suite:      cd ${outputDir}/tests && ${pm} run test`);
-          console.log(`                   (test:fast skips the bulk-seed volume suite)\n`);
+          console.log(`                   (test:fast skips the bulk-seed volume suite)`);
+          // One command for both checks: a browser smoke test of every screen
+          // and the Rust request suite (tests/qa.sh).
+          console.log(`   Whole app QA:   cd ${outputDir}/tests && ${pm} run qa\n`);
         }
       }
 

@@ -2035,6 +2035,23 @@ honours `FieldMeta::max_length` (a two-letter country code cannot hold
 ISO code, and takes a narrowed reference from the lookup the form uses —
 otherwise Country cannot be created and everything holding one fails.
 
+**Every generated application ships its own automated QA** — `tests/smoke.mjs`
+(browser) and `tests/qa.sh` (smoke + the Rust suite), run by `bun run qa` in the
+app's `tests/`. The generated copy is the one source: edit
+`tests/smoke.mjs.hbs` / `tests/qa.sh.hbs`, never a copy. The CLI prints the
+command at the end of a run, and `docs/TESTING.md` describes it. Start the
+backend for a smoke run with `RATE_LIMIT_MAX_PER_MINUTE=0` — it navigates faster
+than a person and trips the 300/min limiter, which has its own request test.
+
+**A column named like a Rust keyword is legal.** `bus_entity.rs.hbs` writes it as
+a raw identifier (`pub r#type`) with `column_name` kept; `HandlingUnit.type` made
+`inventory` fail to compile, and no corpus model had such a column. The keyword
+list is in the template; `entity-model-keywords.test.ts` pins it. Test values must
+fit their column in **both** generated harnesses (`tests/support/factory.rs`
+and `tests/harness/factory.ts`), narrowed references come from the lookup in both
+(`narrowed_choice` / `narrowedChoice`), and neither picks a lifecycle column
+(`status`, `state`, `stage`) as its "first text field".
+
 **The serial QA loop** is `bash scripts/qa/qa-loop.sh <domain>… | --all`: per
 domain it regenerates, builds, starts, smoke-tests every screen
 (the application's own `tests/smoke.mjs`), runs its `cargo test`,
