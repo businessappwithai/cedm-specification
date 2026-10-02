@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-01T09:34:08.825Z
+ * Generated: 2026-10-02T12:07:58.964Z
  * Project: quality
  */
 
@@ -5718,8 +5718,14 @@ const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|sig
  * so an entity whose only text columns are enums has no free-text field.
  */
 export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
+  // A lifecycle column (`status`, `state`, `stage`) is not free text even when
+  // the model bound it to no enum: where the entity draws a state machine, an
+  // arbitrary string is a move the machine refuses.
   const textish = scalarFields(entity).filter(
-    (f) => (f.type === "string" || f.type === "text") && f.enumReferenceId === undefined
+    (f) =>
+      (f.type === "string" || f.type === "text") &&
+      f.enumReferenceId === undefined &&
+      !["status", "state", "stage"].includes(f.name)
   );
   return (
     textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
