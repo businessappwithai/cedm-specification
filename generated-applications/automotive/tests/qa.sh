@@ -11,7 +11,7 @@
 # the Rust suite uses its own `<crate>_test` database, created here if missing.
 # Exits non-zero if either check fails, so it is a CI gate as is.
 #
-# Generated: 2026-10-01T15:42:40.463Z
+# Generated: 2026-10-02T01:02:24.311Z
 # Project: automotive
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -28,7 +28,9 @@ api=0
 
 if [ "$MODE" != "--api" ]; then
   up "http://localhost:3000/api/me/health" || {
-    ( cd backend && exec cargo loco start --server-and-worker >"$ROOT/tests/backend.log" 2>&1 ) &
+    # The general rate limit is off for the run: the smoke test is far faster than a
+    # person. The limiter has its own request test.
+    ( cd backend && RATE_LIMIT_MAX_PER_MINUTE=0 exec cargo loco start --server-and-worker >"$ROOT/tests/backend.log" 2>&1 ) &
     STARTED+=($!)
     for _ in $(seq 1 120); do up "http://localhost:3000/api/me/health" && break; sleep 1; done
   }

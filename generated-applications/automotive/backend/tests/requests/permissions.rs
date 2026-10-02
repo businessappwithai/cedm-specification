@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T15:42:38.550Z
+//! Generated: 2026-10-02T01:02:22.856Z
 //! Project: automotive
 
 use serde_json::Value;
