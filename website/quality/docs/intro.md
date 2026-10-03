@@ -10,6 +10,7 @@ description: "Quality Management, built on the CEDM common foundation."
 
 Quality Management, built on the CEDM common foundation.
 
+![The Quality Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

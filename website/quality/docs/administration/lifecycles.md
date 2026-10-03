@@ -8,6 +8,7 @@ description: "Every state a record can be in and every move between states."
 
 A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **21** lifecycles.
 
+![The workflow monitor](/img/admin/workflows.jpg)
 
 ## Party: Party lifecycle
 
@@ -83,6 +84,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Address lifecycle bar](/img/entities/address-record.jpg)
 
 See [Address](/entities/foundation/address/) for the record itself.
 
@@ -104,6 +106,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Location lifecycle bar](/img/entities/location-record.jpg)
 
 See [Location](/entities/foundation/location/) for the record itself.
 
@@ -122,6 +125,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Currency lifecycle bar](/img/entities/currency-record.jpg)
 
 See [Currency](/entities/foundation/currency/) for the record itself.
 
@@ -140,6 +144,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Exchange Rate lifecycle bar](/img/entities/exchange-rate-record.jpg)
 
 See [Exchange Rate](/entities/foundation/exchange-rate/) for the record itself.
 
@@ -158,6 +163,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Unit Of Measure lifecycle bar](/img/entities/unit-of-measure-record.jpg)
 
 See [Unit Of Measure](/entities/foundation/unit-of-measure/) for the record itself.
 
@@ -191,6 +197,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Task lifecycle bar](/img/entities/task-record.jpg)
 
 See [Task](/entities/foundation/task/) for the record itself.
 
@@ -208,6 +215,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Quality Characteristic lifecycle bar](/img/entities/quality-characteristic-record.jpg)
 
 See [Quality Characteristic](/entities/quality-management/quality-characteristic/) for the record itself.
 
@@ -228,6 +236,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Quality Plan lifecycle bar](/img/entities/quality-plan-record.jpg)
 
 See [Quality Plan](/entities/quality-management/quality-plan/) for the record itself.
 
@@ -248,6 +257,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Test Method lifecycle bar](/img/entities/test-method-record.jpg)
 
 See [Test Method](/entities/quality-management/test-method/) for the record itself.
 
@@ -268,6 +278,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Sampling Plan lifecycle bar](/img/entities/sampling-plan-record.jpg)
 
 See [Sampling Plan](/entities/quality-management/sampling-plan/) for the record itself.
 
@@ -285,6 +296,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Sampling Rule lifecycle bar](/img/entities/sampling-rule-record.jpg)
 
 See [Sampling Rule](/entities/quality-management/sampling-rule/) for the record itself.
 
@@ -307,6 +319,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Quality Inspection lifecycle bar](/img/entities/quality-inspection-record.jpg)
 
 See [Quality Inspection](/entities/quality-management/quality-inspection/) for the record itself.
 
@@ -331,6 +344,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Inspection Sample lifecycle bar](/img/entities/inspection-sample-record.jpg)
 
 See [Inspection Sample](/entities/quality-management/inspection-sample/) for the record itself.
 
@@ -356,6 +370,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Nonconformance lifecycle bar](/img/entities/nonconformance-record.jpg)
 
 See [Nonconformance](/entities/quality-management/nonconformance/) for the record itself.
 
@@ -378,6 +393,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Corrective Action lifecycle bar](/img/entities/corrective-action-record.jpg)
 
 See [Corrective Action](/entities/quality-management/corrective-action/) for the record itself.
 
@@ -398,6 +414,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Corrective Action Verification lifecycle bar](/img/entities/corrective-action-verification-record.jpg)
 
 See [Corrective Action Verification](/entities/quality-management/corrective-action-verification/) for the record itself.
 
@@ -419,6 +436,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Return Disposition lifecycle bar](/img/entities/return-disposition-record.jpg)
 
 See [Return Disposition](/entities/quality-management/return-disposition/) for the record itself.
 
@@ -441,6 +459,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Certificate Of Analysis lifecycle bar](/img/entities/certificate-of-analysis-record.jpg)
 
 See [Certificate Of Analysis](/entities/quality-management/certificate-of-analysis/) for the record itself.
 
