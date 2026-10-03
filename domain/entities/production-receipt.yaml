@@ -15,16 +15,119 @@ entity:
       summary: The permanent system identifier of the production receipt record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a production receipt store this identifier. The number or code people quote is a separate field.
-  - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing production receipt reference., businessMeaning: Operational identifier for output posting., usage: "Shop floor, warehouse, quality, and audit.", relationshipContext: Distinct from inventory movement number., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Accepted output quantity received into inventory., businessMeaning: Quantity recognized as produced/receivable., usage: "Production completion, inventory, and costing.", relationshipContext: Rejected/scrap quantity is modeled separately., requiredMeaning: Required.}}
-  - {name: receivedAt, type: datetime, required: true, help: {summary: Effective output receipt time., businessMeaning: Establishes production and inventory chronology., usage: "Inventory, costing, genealogy, and reporting.", relationshipContext: Distinct from work-order completion time., requiredMeaning: Required.}}
+  - name: receiptNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the receipt of finished goods.
+      businessMeaning: Operational identifier for output posting.
+      usage: Printed on pallet labels and receipt documents.
+      relationshipContext: Unique.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How much good output was received into stock.
+      businessMeaning: Quantity recognized as produced/receivable.
+      usage: Counted or scanned at the end of the line.
+      relationshipContext: In the product's stock unit.
+  - name: receivedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the output was received into stock.
+      businessMeaning: Establishes production and inventory chronology.
+      usage: Recorded at receipt.
+      relationshipContext: Not in the future.
+  - name: scrapQuantity
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: How much output was rejected at receipt.
+      usage: Recorded for yield measurement.
+      relationshipContext: Not added to stock.
+  - name: isFinalReceipt
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether this receipt completes the production order.
+      usage: Set on the last receipt; the order can then be closed.
+      relationshipContext: Remaining quantity is written off.
   relationships:
-  - {name: workOrder, target: ManufacturingWorkOrder, cardinality: "1", ownership: reference, help: {summary: Production order creating output., businessMeaning: "Supplies authorization, product, BOM/routing context.", usage: Completion and variance reconciliation., cardinalityMeaning: Exactly one work order., workflowRole: Output cannot exceed governed production quantity without authorized overproduction.}}
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Produced item received., businessMeaning: Identifies output inventory item., usage: Inventory and genealogy., cardinalityMeaning: Exactly one Product., workflowRole: Must reconcile with work-order output.}}
-  - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Output production lot., businessMeaning: Groups produced quantity for genealogy/quality/recall., usage: Traceability and quality release., cardinalityMeaning: Required according to lot-control policy., workflowRole: May remain quarantined pending required quality evidence.}}
-  - {name: serialNumbers, target: SerialNumber, cardinality: "0..*", ownership: reference, help: {summary: Serialized output units created/received., businessMeaning: Establishes unit-level output identity., usage: "Inventory, service, warranty, and recall.", cardinalityMeaning: Required according to serialization policy., workflowRole: Serial count must reconcile to quantity under product policy.}, inverseCardinality: 0..*}
-  - {name: qualityInspection, target: QualityInspection, cardinality: 0..1, ownership: reference, help: {summary: Inspection evidence governing output acceptance/release., businessMeaning: Separates production from quality disposition., usage: Release and compliance., cardinalityMeaning: Optional unless quality plan requires it., workflowRole: Required quality gates constrain availability.}}
-  - {name: inventoryMovement, target: InventoryMovement, cardinality: '1', ownership: reference, help: {summary: Posted stock event implementing output receipt., businessMeaning: InventoryMovement remains authoritative inventory ledger., usage: Balance reconciliation and audit., cardinalityMeaning: Exactly one attributable posting per executed receipt., workflowRole: Must reconcile product/quantity/lot/serial and be idempotent.}}
+  - name: workOrder
+    target: ManufacturingWorkOrder
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The production order that made the output.
+      businessMeaning: "Supplies authorization, product, BOM/routing context."
+      workflowRole: Output cannot exceed governed production quantity without authorized overproduction.
+      usage: Chosen at receipt.
+      cardinalityMeaning: Exactly one.
+      context: The order's received quantity is summed from its receipts.
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product received.
+      businessMeaning: Identifies output inventory item.
+      workflowRole: Must reconcile with work-order output.
+      usage: The order's product.
+      cardinalityMeaning: Exactly one.
+      context: Its stock increases.
+  - name: lot
+    target: Lot
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The lot the output was made in.
+      businessMeaning: Groups produced quantity for genealogy/quality/recall.
+      workflowRole: May remain quarantined pending required quality evidence.
+      usage: Created or chosen at receipt.
+      cardinalityMeaning: At most one.
+      context: Traceability starts here.
+  - name: serialNumbers
+    target: SerialNumber
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: The serial numbers produced.
+      businessMeaning: Establishes unit-level output identity.
+      workflowRole: Serial count must reconcile to quantity under product policy.
+      usage: Registered at receipt.
+      cardinalityMeaning: Any number.
+      context: A many-to-many relation.
+    inverseCardinality: 0..*
+  - name: qualityInspection
+    target: QualityInspection
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The final inspection of the output.
+      businessMeaning: Separates production from quality disposition.
+      workflowRole: Required quality gates constrain availability.
+      usage: Linked when output must be inspected before release.
+      cardinalityMeaning: At most one.
+      context: Stock may be blocked until it passes.
+  - name: inventoryMovement
+    target: InventoryMovement
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The stock movement that records the receipt.
+      businessMeaning: InventoryMovement remains authoritative inventory ledger.
+      workflowRole: Must reconcile product/quantity/lot/serial and be idempotent.
+      usage: Created at receipt.
+      cardinalityMeaning: Exactly one.
+      context: Updates the stock balance.
   invariants:
   - {id: PRODUCTION-RECEIPT-001, rule: quantity must be greater than zero.}
   - {id: PRODUCTION-RECEIPT-002, rule: Accepted cumulative output must not exceed authorized work-order quantity except by explicit overproduction policy.}

@@ -15,27 +15,138 @@ entity:
       summary: The permanent system identifier of the inventory transfer record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a inventory transfer store this identifier. The number or code people quote is a separate field.
-  - {name: transferNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing transfer reference., businessMeaning: Operational identifier for relocation work., usage: Warehouse execution and reconciliation., relationshipContext: Distinct from movement numbers., requiredMeaning: Required.}}
-  - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity authorized for relocation., businessMeaning: Defines transfer demand., usage: Execution and variance reconciliation., relationshipContext: Interpreted with Product and traceability identities., requiredMeaning: Required.}}
+  - name: transferNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the transfer.
+      businessMeaning: Operational identifier for relocation work.
+      usage: Printed on the transfer document.
+      relationshipContext: Unique.
+  - name: requestedQuantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How much stock is to be moved.
+      businessMeaning: Defines transfer demand.
+      usage: Entered when the transfer is requested.
+      relationshipContext: In the product's stock unit.
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
-    help: {summary: Transfer lifecycle state., businessMeaning: Controls warehouse execution eligibility., usage: Transfer orchestration and audit., relationshipContext: Posted movements remain immutable regardless of header state., valueSemantics: {PLANNED: Prepared but not executable., RELEASED: Authorized., IN_PROGRESS: Physical relocation underway., COMPLETED: Authorized quantity reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
+    help:
+      summary: Where the transfer stands.
+      businessMeaning: Controls warehouse execution eligibility.
+      usage: Moved on by release and completion.
+      relationshipContext: Stock changes location on completion.
+      valueSemantics:
+        PLANNED: Requested, not yet released.
+        RELEASED: Released to the warehouse.
+        IN_PROGRESS: Being moved.
+        COMPLETED: Moved and confirmed.
+        CANCELLED: Called off.
+  - name: movedQuantity
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: How much was actually moved.
+      usage: Confirmed when the transfer is completed.
+      relationshipContext: Less than requested means a partial transfer.
+  - name: reason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the stock is moved, such as replenishment or consolidation.
+      usage: Recorded when requesting the transfer.
+      relationshipContext: Free text.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the transfer was completed.
+      usage: Recorded on completion.
+      relationshipContext: Present once completed.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being relocated., businessMeaning: Defines inventory item affected., usage: Validation and reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: All movements must match.}}
-  - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location inventory leaves., businessMeaning: Defines transfer origin., usage: Availability and warehouse execution., cardinalityMeaning: Exactly one source., workflowRole: Must differ from target and hold eligible stock.}}
-  - {name: targetLocation, target: InventoryLocation, cardinality: "1", ownership: reference, help: {summary: Location inventory enters., businessMeaning: Defines transfer destination., usage: "Putaway, replenishment and staging.", cardinalityMeaning: Exactly one target., workflowRole: Must be eligible for product/status.}}
-  - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Lot being transferred., businessMeaning: Preserves batch identity across relocation., usage: Traceability and FEFO., cardinalityMeaning: Required under lot-control policy., workflowRole: Source/target stock remains same lot.}}
-  - {name: serialNumbers, target: SerialNumber, cardinality: 0..*, ownership: reference, help: {summary: Serialized units relocated., businessMeaning: Preserves unit custody., usage: Scanning and audit., cardinalityMeaning: Required under serialization policy., workflowRole: Serial custody moves atomically.}, inverseCardinality: 0..*}
-  - {name: inventoryMovements, target: InventoryMovement, cardinality: 0..*, ownership: reference, help: {summary: Posted stock events executing transfer., businessMeaning: InventoryMovement remains authoritative ledger., usage: Balance reconciliation and audit., cardinalityMeaning: One or more movements may represent execution/reversal., workflowRole: Completed quantity must reconcile exactly and retries be idempotent.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product moved.
+      businessMeaning: Defines inventory item affected.
+      workflowRole: All movements must match.
+      usage: Set when requesting the transfer.
+      cardinalityMeaning: Exactly one.
+      context: Its stock moves between the two locations.
+  - name: sourceLocation
+    target: InventoryLocation
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Where the stock is taken from.
+      businessMeaning: Defines transfer origin.
+      workflowRole: Must differ from target and hold eligible stock.
+      usage: Set when requesting the transfer.
+      cardinalityMeaning: Exactly one.
+      context: Must hold enough stock.
+  - name: targetLocation
+    target: InventoryLocation
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: Where the stock goes.
+      businessMeaning: Defines transfer destination.
+      workflowRole: Must be eligible for product/status.
+      usage: Set when requesting the transfer.
+      cardinalityMeaning: Exactly one.
+      context: Different from the source.
+  - name: lot
+    target: Lot
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The lot moved, for lot-tracked products.
+      businessMeaning: Preserves batch identity across relocation.
+      workflowRole: Source/target stock remains same lot.
+      usage: Chosen when requesting.
+      cardinalityMeaning: At most one.
+      context: Lot identity is kept through the move.
+  - name: serialNumbers
+    target: SerialNumber
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The serial numbers moved.
+      businessMeaning: Preserves unit custody.
+      workflowRole: Serial custody moves atomically.
+      usage: Scanned during the move.
+      cardinalityMeaning: Any number.
+      context: A many-to-many relation.
+    inverseCardinality: 0..*
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The stock movements that carry out the transfer.
+      businessMeaning: InventoryMovement remains authoritative ledger.
+      workflowRole: Completed quantity must reconcile exactly and retries be idempotent.
+      usage: Created on completion.
+      cardinalityMeaning: Any number; each movement belongs to one transfer.
+      context: The movement records its transfer.
   invariants:
-  - {id: INVENTORY-TRANSFER-001, rule: requestedQuantity must be greater than zero and sourceLocation must differ from targetLocation.}
-  - {id: INVENTORY-TRANSFER-002, rule: Execution requires eligible available source stock and compatible target location.}
-  - {id: INVENTORY-TRANSFER-003, rule: COMPLETED requires posted transfer movement quantity to reconcile to governed executed quantity.}
-  - {id: INVENTORY-TRANSFER-004, rule: Posted transfers are corrected through reversal/compensating movement rather than history rewrite.}
+  - {id: INVENTORY-TRANSFER-001, rule: A completed transfer records when it finished., violatedWhen: status == "COMPLETED" and completed_at == null, message: Record when the transfer was completed.}
   - {id: INVENTORY-TRANSFER-EXE-001, rule: "Requested Quantity cannot be negative.", violatedWhen: "requested_quantity != null and requested_quantity < 0", message: "Requested Quantity cannot be negative."}
+  - {id: INVENTORY-TRANSFER-EXE-002, rule: "Moved Quantity cannot be negative.", violatedWhen: "moved_quantity != null and moved_quantity < 0", message: "Moved Quantity cannot be negative."}
   lifecycle:
     title: Inventory Transfer Lifecycle
     attribute: status

@@ -15,16 +15,121 @@ entity:
       summary: The permanent system identifier of the material issue record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a material issue store this identifier. The number or code people quote is a separate field.
-  - {name: issueNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing issue reference., businessMeaning: Operational traceability identifier., usage: "Shop floor, warehouse, and audit.", relationshipContext: Distinct from inventory movement number., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Component quantity issued., businessMeaning: Amount authorized for production consumption., usage: "Material reconciliation, variance, and costing.", relationshipContext: Interpreted with component Product/UOM/lot/serial., requiredMeaning: Required.}}
-  - {name: issuedAt, type: datetime, required: true, help: {summary: Effective material issue time., businessMeaning: Establishes production consumption chronology., usage: "Inventory, genealogy, costing, and audit.", relationshipContext: Must align with attributable movement., requiredMeaning: Required.}}
+  - name: issueNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the issue.
+      businessMeaning: Operational traceability identifier.
+      usage: Printed on the issue slip.
+      relationshipContext: Unique.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How much material was issued.
+      businessMeaning: Amount authorized for production consumption.
+      usage: Entered or scanned at issue.
+      relationshipContext: In the product's stock unit.
+  - name: issuedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the material was issued.
+      businessMeaning: Establishes production consumption chronology.
+      usage: Recorded at issue; cost is booked to the order from this time.
+      relationshipContext: Not in the future.
+  - name: issueType
+    type: enum
+    required: true
+    default: ISSUE
+    values: [ISSUE, RETURN]
+    help:
+      summary: Whether material goes to the order or comes back from it.
+      usage: Returns reverse earlier issues.
+      relationshipContext: Return quantities are entered as positive with this type.
+      valueSemantics:
+        ISSUE: Material issued to the order.
+        RETURN: Unused material returned from the order.
+  - name: costAmount
+    type: Money
+    required: false
+    help:
+      summary: The cost of the material issued.
+      usage: Booked to the production order.
+      relationshipContext: At the product's current cost.
   relationships:
-  - {name: workOrder, target: ManufacturingWorkOrder, cardinality: '1', ownership: reference, help: {summary: Production order consuming material., businessMeaning: Identifies authorized manufacturing demand., usage: Material reconciliation and genealogy., cardinalityMeaning: Exactly one work order., workflowRole: Must be released/in progress according to policy.}}
-  - {name: bomComponent, target: BOMComponent, cardinality: 0..1, ownership: reference, help: {summary: Planned BOM requirement being consumed., businessMeaning: Connects actual issue to standard material demand., usage: Variance and genealogy., cardinalityMeaning: Optional for authorized unplanned material., workflowRole: Quantity/product normally reconcile with effective BOM.}}
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Component material issued., businessMeaning: Identifies consumed item., usage: Inventory and costing., cardinalityMeaning: Exactly one Product., workflowRole: Must match BOM component or approved substitution.}}
-  - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Consumed component lot., businessMeaning: Preserves input batch genealogy., usage: Traceability and recall., cardinalityMeaning: Required when product is lot-controlled., workflowRole: Lot must be eligible and available.}}
-  - {name: serialNumbers, target: SerialNumber, cardinality: "0..*", ownership: reference, help: {summary: Serialized component units consumed., businessMeaning: Preserves unit-level input genealogy., usage: "Traceability, service, and recall.", cardinalityMeaning: Required according to serialization policy., workflowRole: Serial units must be eligible at issue location.}, inverseCardinality: 0..*}
-  - {name: inventoryMovement, target: InventoryMovement, cardinality: '1', ownership: reference, help: {summary: Posted stock event implementing physical issue., businessMeaning: InventoryMovement remains authoritative stock ledger., usage: Reconciliation and audit., cardinalityMeaning: Exactly one attributable posting for executed issue., workflowRole: Posting must be idempotent and reconcile quantity/product/lot/serial.}}
+  - name: workOrder
+    target: ManufacturingWorkOrder
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The production order the material is for.
+      businessMeaning: Identifies authorized manufacturing demand.
+      workflowRole: Must be released/in progress according to policy.
+      usage: Chosen at issue.
+      cardinalityMeaning: Exactly one.
+      context: The order's actual material cost is summed from its issues.
+  - name: bomComponent
+    target: BOMComponent
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The bill-of-materials line the issue fulfils.
+      businessMeaning: Connects actual issue to standard material demand.
+      workflowRole: Quantity/product normally reconcile with effective BOM.
+      usage: Set when issuing against the order's component list.
+      cardinalityMeaning: At most one.
+      context: Lets planned and actual usage be compared.
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The material issued.
+      businessMeaning: Identifies consumed item.
+      workflowRole: Must match BOM component or approved substitution.
+      usage: Chosen or scanned at issue.
+      cardinalityMeaning: Exactly one.
+      context: Its stock decreases.
+  - name: lot
+    target: Lot
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The lot issued, for lot-tracked materials.
+      businessMeaning: Preserves input batch genealogy.
+      workflowRole: Lot must be eligible and available.
+      usage: Scanned at issue.
+      cardinalityMeaning: At most one.
+      context: Traceability from finished goods back to material lots relies on it.
+  - name: serialNumbers
+    target: SerialNumber
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: The serial numbers issued.
+      businessMeaning: Preserves unit-level input genealogy.
+      workflowRole: Serial units must be eligible at issue location.
+      usage: Scanned at issue.
+      cardinalityMeaning: Any number.
+      context: A many-to-many relation.
+    inverseCardinality: 0..*
+  - name: inventoryMovement
+    target: InventoryMovement
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The stock movement that records the issue.
+      businessMeaning: InventoryMovement remains authoritative stock ledger.
+      workflowRole: Posting must be idempotent and reconcile quantity/product/lot/serial.
+      usage: Created at issue.
+      cardinalityMeaning: Exactly one.
+      context: Updates the stock balance.
   invariants:
   - {id: MATERIAL-ISSUE-001, rule: quantity must be greater than zero.}
   - {id: MATERIAL-ISSUE-002, rule: Executed material issue must have exactly one attributable posted inventory effect and retries must not duplicate consumption.}

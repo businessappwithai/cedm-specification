@@ -157,7 +157,7 @@ entity:
     lifecycle: Pending until first activated; active while in use; locked automatically after repeated failed sign-ins and unlocked by an administrator; disabled when access must be suspended; retired when the person leaves for good. A retired user is never reused, so the audit trail keeps pointing at the right person.
     example: User m.lopez (Maria Lopez, Accounts Payable), active since 1 April 2024, roles Accounts Payable Clerk and Employee Self-Service, last signed in 4 June 08:12.
   invariants:
-  - {id: USER-001, rule: 'A user is locked or not, consistently with its failed sign-ins.', violatedWhen: failed_login_count != null and failed_login_count < 0, message: The failed sign-in count cannot be negative.}
+  - {id: USER-001, rule: The failed sign-in count is not negative., violatedWhen: failed_login_count != null and failed_login_count < 0, message: The failed sign-in count cannot be negative.}
 specification:
   version: 0.1.0
   status: draft

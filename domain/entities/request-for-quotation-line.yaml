@@ -5,6 +5,7 @@ entity:
   description: A line-level sourcing requirement within a RequestForQuotation that preserves traceability to approved internal demand and defines the quantity and requirement suppliers are invited to quote.
   ui:
     icon: list
+    recordLabel: [lineNumber, description]
   identity: {key: requestForQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: requestForQuotationLineId
@@ -15,15 +16,112 @@ entity:
       summary: The permanent system identifier of the request for quotation line record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a request for quotation line store this identifier. The number or code people quote is a separate field.
-  - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Business sequence within the RFQ., businessMeaning: Human-facing reference for the requirement., usage: "Supplier communication, response matching, and audit.", relationshipContext: Unique within the parent RFQ., requiredMeaning: Required.}}
-  - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity suppliers are requested to quote., businessMeaning: Defines the sourcing magnitude for this requirement., usage: Bid comparison and award allocation., relationshipContext: Must reconcile with originating requisition demand and UOM., requiredMeaning: Required.}}
-  - {name: description, type: string, required: true, maxLength: 2000, help: {summary: Sourcing description and requirement detail., businessMeaning: Communicates what suppliers must price or propose., usage: Solicitation and comparison., relationshipContext: Supplements Product and originating demand., requiredMeaning: Required.}}
+  - name: lineNumber
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: The number of the line within the request for quotation.
+      businessMeaning: Human-facing reference for the requirement.
+      usage: Suppliers quote line by line, quoting this number.
+      relationshipContext: Unique within the request.
+  - name: requestedQuantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How much the buyer asks suppliers to quote for.
+      businessMeaning: Defines the sourcing magnitude for this requirement.
+      usage: Taken from the requisition or entered by the buyer.
+      relationshipContext: In the line's unit of measure.
+  - name: description
+    type: string
+    required: true
+    maxLength: 2000
+    help:
+      summary: What is to be quoted, as suppliers will read it.
+      businessMeaning: Communicates what suppliers must price or propose.
+      usage: Taken from the product or written by the buyer.
+      relationshipContext: Should be specific enough for suppliers to price.
+  - name: requiredDate
+    type: date
+    required: false
+    help:
+      summary: When the goods or services are needed.
+      usage: Suppliers quote their delivery against it.
+      relationshipContext: Taken from the requisition.
+  - name: specification
+    type: text
+    required: false
+    help:
+      summary: The technical or quality requirements suppliers must meet.
+      usage: Attached to the request so quotes are comparable.
+      relationshipContext: Drawings and documents are attachments.
+  - name: targetPrice
+    type: Money
+    required: false
+    help:
+      summary: The price the buyer aims for, kept internal.
+      usage: Used to judge the quotes.
+      relationshipContext: Not shown to suppliers.
   relationships:
-  - {name: requestForQuotation, target: RequestForQuotation, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent sourcing solicitation., businessMeaning: "Supplies invited suppliers, deadlines, and sourcing lifecycle.", usage: RFQ execution and audit., cardinalityMeaning: Exactly one parent RFQ., workflowRole: Controls solicitation lifecycle.}}
-  - {name: requisitionLine, target: PurchaseRequisitionLine, cardinality: "0..1", ownership: reference, help: {summary: Approved internal demand being sourced., businessMeaning: Preserves exact demand provenance., usage: Demand reconciliation and audit., cardinalityMeaning: Optional only for authorized sourcing not originating from a requisition line., workflowRole: "Supplies requested product, quantity, and need context."}}
-  - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Standardized product being sourced., businessMeaning: Identifies the requested item when master data exists., usage: Supplier comparison and order conversion., cardinalityMeaning: Optional for free-text services., workflowRole: Must reconcile with originating demand.}}
-  - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: 0..1, ownership: reference, help: {summary: Unit qualifying requestedQuantity., businessMeaning: Makes sourcing quantity comparable., usage: Quote normalization and conversion., cardinalityMeaning: Optional only when quantity semantics are otherwise unambiguous., workflowRole: Supports compatible quotation and order units.}}
-  - {name: supplierQuotationLines, target: SupplierQuotationLine, cardinality: 0..*, ownership: reference, help: {summary: Supplier responses to this exact requirement., businessMeaning: Enables line-by-line commercial comparison., usage: Award analysis and audit., cardinalityMeaning: Zero or many supplier responses., workflowRole: Accepted response lines may feed PurchaseOrderLine.}}
+  - name: requestForQuotation
+    target: RequestForQuotation
+    cardinality: "1"
+    ownership: reference
+    inverse: lines
+    help:
+      summary: The request the line belongs to.
+      businessMeaning: "Supplies invited suppliers, deadlines, and sourcing lifecycle."
+      workflowRole: Controls solicitation lifecycle.
+      usage: Set when the line is added.
+      cardinalityMeaning: Every line belongs to exactly one request.
+      context: Listed under the request.
+  - name: requisitionLine
+    target: PurchaseRequisitionLine
+    cardinality: "0..1"
+    ownership: reference
+    help:
+      summary: The requisition line the demand came from.
+      businessMeaning: Preserves exact demand provenance.
+      workflowRole: "Supplies requested product, quantity, and need context."
+      usage: Linked when the request is built from requisitions.
+      cardinalityMeaning: At most one.
+      context: Keeps the trace from need to purchase.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The product to be quoted.
+      businessMeaning: Identifies the requested item when master data exists.
+      workflowRole: Must reconcile with originating demand.
+      usage: Chosen when the product is known.
+      cardinalityMeaning: At most one.
+      context: Services may be described without a product.
+  - name: unitOfMeasure
+    target: UnitOfMeasure
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The unit the quantity is in.
+      businessMeaning: Makes sourcing quantity comparable.
+      workflowRole: Supports compatible quotation and order units.
+      usage: Taken from the product or chosen.
+      cardinalityMeaning: At most one.
+      context: Quotes must use the same unit or be converted.
+  - name: supplierQuotationLines
+    target: SupplierQuotationLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The suppliers' answers to this line.
+      businessMeaning: Enables line-by-line commercial comparison.
+      workflowRole: Accepted response lines may feed PurchaseOrderLine.
+      usage: Listed for comparison.
+      cardinalityMeaning: Any number; each quotation line answers one request line.
+      context: The quotation line records the request line.
   invariants:
   - {id: RFQ-LINE-001, rule: requestedQuantity must be greater than zero.}
   - {id: RFQ-LINE-002, rule: lineNumber must be unique within RequestForQuotation.}
