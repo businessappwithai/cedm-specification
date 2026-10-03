@@ -128,7 +128,7 @@ function generateHooksFile(model: EmlModel): string {
 
     const fieldNote = hook.fields.length ? ` [fields: ${hook.fields.join(", ")}]` : "";
     fnDefs.push(
-      `// %%hook ${hook.type} ${hook.handler} on ${hook.entity}${fieldNote}\n` +
+      `// hook ${hook.type} ${hook.handler} on ${hook.entity}${fieldNote}\n` +
         `async function ${fnName}(data, ctx) {\n` +
         `  // TODO: implement "${hook.handler}". Return the (possibly modified) data.\n` +
         `  return data;\n` +
@@ -141,7 +141,7 @@ function generateHooksFile(model: EmlModel): string {
     .join("\n");
 
   return (
-    `// Lifecycle hook handlers generated from the EML %%hook directives.\n` +
+    `// Lifecycle hook handlers generated from the model's hooks.\n` +
     `// Each handler is a stub — implement your business logic and return data.\n` +
     `// Handlers run in registration order around the entity's CRUD lifecycle.\n\n` +
     (fnDefs.length ? `${fnDefs.join("\n\n")}\n\n` : "") +
@@ -166,7 +166,7 @@ function generatePackageJson(appName: string): string {
       version: "1.0.0",
       private: true,
       type: "module",
-      description: "Application generated from an EML (.mmd) model by the Enterprise Reporting EML CLI.",
+      description: "Application generated from an EML model (.eml.yaml) by the Enterprise Reporting EML CLI.",
       scripts: {
         start: "node src/server.js",
         dev: "node --watch src/server.js",

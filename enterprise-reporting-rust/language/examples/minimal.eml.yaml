@@ -1,0 +1,144 @@
+# ============================================================================
+# EML Minimal Example — smallest complete model with all three sections.
+#
+# ============================================================================
+
+# ---- Section 1: ERD (structure) -------------------------------------------
+
+eml: "1.0"
+name: Minimal Blog
+enums:
+  - name: PostStatus
+    values: [draft, published, archived]
+entities:
+  - name: Author
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Post
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: author_id
+        type: string
+        fk: true
+      - name: title
+        type: string
+      - name: slug
+        type: string
+        unique: true
+      - name: body
+        type: text
+      - name: status
+        type: string
+        enum: PostStatus
+      - name: published_at
+        type: datetime
+        optional: true
+    indexes:
+      - columns: [slug]
+        unique: true
+relationships:
+  - from: Author
+    fromCardinality: exactly-one
+    to: Post
+    toCardinality: zero-or-more
+    label: writes
+hooks:
+  - entity: Post
+    event: beforeCreate
+    handler: generateSlug
+    fields: [slug]
+  - entity: Post
+    event: afterUpdate
+    handler: reindexSearch
+hookFlows:
+  # ---- Section 3: Workflow (lifecycle hooks) --------------------------------
+  - name: PostAuthoring
+    title: Post Authoring
+    entity: Post
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: generateSlug
+      - id: D
+        label: Process Post
+      - id: E
+        event: afterUpdate
+        handler: reindexSearch
+      - id: F
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+rules:
+  # ---- Section 2: Business rule (declarative decision flow) ------------------
+  - name: publishGate
+    title: Publish Eligibility
+    entity: Post
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Publish Requested"
+        type: start
+      - id: B
+        label: Body length >= 100?
+        type: decision
+      - id: R1
+        label: "Reject: Too Short"
+        type: expression
+      - id: C
+        label: Author is_active?
+        type: decision
+      - id: R2
+        label: "Reject: Inactive Author"
+        type: expression
+      - id: P
+        label: Approve Publish
+        type: expression
+      - id: E
+        label: End
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: R1
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: R2
+        label: No
+      - from: C
+        to: P
+        label: Yes
+      - from: R1
+        to: E
+      - from: R2
+        to: E
+      - from: P
+        to: E

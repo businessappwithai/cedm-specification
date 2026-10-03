@@ -57,6 +57,8 @@ const RUNTIME_WORKFLOWS_PATCH: [string, string] = [
  */
 export const WORDING: Array<[string, string]> = [
   ["an EML (.mmd) model by the Enterprise Reporting EML CLI", "an EML model (.eml.yaml) by the Enterprise Reporting EML CLI"],
+  ["// Lifecycle hook handlers generated from the EML %%hook directives.", "// Lifecycle hook handlers generated from the model's hooks."],
+  ["// %%hook ", "// hook "],
 ];
 
 export interface OutputComparison {
@@ -167,7 +169,7 @@ export function compareOutputs(mermaidDir: string, yamlDir: string, rounded: Set
     for (const [from, to] of WORDING)
       if (left.includes(from) && right.includes(to)) {
         left = left.replaceAll(from, to);
-        result.explained.push(`${name}: names the model as .eml.yaml`);
+        result.explained.push(`${name}: YAML-era wording — ${JSON.stringify(to)}`);
       }
     if (left === right) {
       if (MIGRATION.test(relative(mermaidDir, a)) && relative(mermaidDir, a) !== relative(yamlDir, b))

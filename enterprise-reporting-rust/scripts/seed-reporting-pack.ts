@@ -51,7 +51,7 @@
  * `buildReportingPack` in `app-with-ai-tanstack`'s generator
  * (`packages/generator/src/reporting/pack.ts`). Nothing in it is invented:
  * every query comes from something the model declares, and every role mirrors
- * a `%%rbac` role's `read` rules. This file only writes it down.
+ * the `read` rules the model's `rbac` declares for a role. This file only writes it down.
  */
 
 import { randomUUID } from "node:crypto";
@@ -694,7 +694,7 @@ async function upsertDashboards(
  *
  *   - a platform user + role + link, which is what signing in produces;
  *   - a `ds_role` scoped to this data source, with one `ds_entity_permissions`
- *     row per table the role may read. That is the part derived from `%%rbac`.
+ *     row per table the role may read. That is the part derived from the model's `rbac`.
  */
 async function upsertAccess(
   db: Db,

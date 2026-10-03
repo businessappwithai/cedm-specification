@@ -2,7 +2,7 @@
 /**
  * EML CLI executable shim.
  *
- * Build applications from an EML (.mmd) model describing an ERD, business
+ * Build applications from a model (`*.eml.yaml`) describing an ERD, business
  * rules, and workflows. Run with Bun:
  *
  *   bun language/cli/eml.ts <command> [options]

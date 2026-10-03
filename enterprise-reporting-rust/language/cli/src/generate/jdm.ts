@@ -1,32 +1,19 @@
 /**
  * GoRules JDM emitter.
  *
- * Converts each EML business-rule flow into a GoRules JDM decision graph using
- * the SHIPPED converter, vendored into this repository at:
- *   language/cli/src/vendor/jdm-converter.ts  (convertToJdm)
- *
- * It is a copy of app-with-ai-tanstack's packages/web/src/lib/jdm-converter.ts.
- * cli.ts imports this module statically, so while that import reached across a
- * repository boundary that does not exist here, every command died at module
- * load — validate and info included, neither of which emits JDM at all.
- *
- * The EML parser has already produced a clean, correctly-shaped node/edge graph
- * for each rule (input/decision/expression/function/output), so we build the
- * shipped `FlowAST` structure directly from it and hand it to `convertToJdm` —
- * the same shape-to-JDM mapping the web app uses (stadium→input/output,
- * diamond→switch, circle→function, rect→expression). The result is wrapped in a
- * GoRules decision document and written as `<out>/rules/<rule>.jdm.json`.
+ * Converts each rule's decision graph into a GoRules JDM document with the
+ * generator's own converter (`packages/generator/src/rules/jdm-converter.ts`),
+ * so a rule compiles here exactly as it compiles into a generated application:
+ * `start` → inputNode, `end` → outputNode, `decision` → switchNode,
+ * `expression` → expressionNode, `function` → functionNode. The result is
+ * wrapped in a GoRules decision document and written as
+ * `<out>/rules/<rule>.jdm.json`.
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { convertToJdm } from "../vendor/jdm-converter.ts";
-import type {
-  FlowAST,
-  FlowNode,
-  NodeShape,
-} from "../vendor/mermaid-flowchart-parser.ts";
-import type { EmlModel, EmlRule, RuleNodeShape } from "../model.ts";
+import { ruleGraphToJdm } from "../../../../../app-with-ai-rust/packages/generator/src/rules/jdm-converter.ts";
+import type { EmlModel, EmlRule } from "../model.ts";
 import { kebabCase } from "../util.ts";
 
 export interface JdmDocument {
@@ -38,35 +25,21 @@ export interface JdmDocument {
   edges: Array<{ id: string; name?: string; sourceId: string; targetId: string }>;
 }
 
-// EML node shapes -> the shipped FlowAST NodeShape vocabulary.
-const SHAPE_MAP: Record<RuleNodeShape, NodeShape> = {
-  stadium: "stadium",
-  diamond: "diamond",
-  circle: "circle",
-  rounded: "circle", // rounded = computation step, same JDM role as circle (functionNode)
-  rect: "rect",
-};
-
-/** Build the shipped FlowAST from an EML rule's parsed nodes/edges. */
-export function ruleToFlowAst(rule: EmlRule): FlowAST {
-  const nodes = new Map<string, FlowNode>();
-  for (const n of rule.nodes) {
-    nodes.set(n.id, { id: n.id, label: n.label, shape: SHAPE_MAP[n.shape] });
-  }
-  const edges = rule.edges.map((e) => ({ source: e.source, target: e.target, label: e.label }));
-  return { nodes, edges };
-}
-
-/** Convert one EML rule to a GoRules JDM document via the shipped converter. */
+/** Convert one rule to a GoRules JDM document. */
 export function ruleToJdm(rule: EmlRule): JdmDocument {
-  const graph = convertToJdm(ruleToFlowAst(rule));
+  const graph = ruleGraphToJdm(
+    rule.nodes.map((node) => ({ id: node.id, label: node.label, type: node.type })),
+    rule.edges
+  );
   return {
     contentType: "application/vnd.gorules.decision",
     version: "1",
     name: rule.name,
     meta: { entity: rule.entity, event: rule.event, priority: rule.priority },
-    nodes: graph.nodes.map((n, i) => ({
-      ...n,
+    nodes: graph.nodes.map((node, i) => ({
+      id: node.id,
+      name: node.name,
+      type: node.type,
       position: { x: 80 + (i % 4) * 220, y: 80 + Math.floor(i / 4) * 140 },
     })),
     edges: graph.edges,

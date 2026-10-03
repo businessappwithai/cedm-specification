@@ -1,11 +1,16 @@
 # EML CLI (`eml`)
 
-A zero-runtime-dependency TypeScript CLI that reads the
-[Enterprise Reporting Modeling Language](../README.md) definition, parses an
-`.mmd` EML model (ERD + business rules + workflows), validates it with
-self-correction, and generates a complete, runnable application from it.
+Reads a model (`*.eml.yaml`: ERD + business rules + workflows), validates it
+with the language's own reader, and generates code for this platform from it.
 
-Runs under **Bun** (source). No project install required.
+The reader is `app-with-ai-rust`'s, from the checkout beside this repository
+([`language/cli/src/document.ts`](../../../app-with-ai-rust/language/cli/src/document.ts) over
+`app-with-ai-rust/packages/generator/src/model-yaml`): YAML syntax, the JSON Schema, the full
+language checker, and every finding located at its YAML line and column. The
+generators — `enterprise-reporting` and `node-rest` — are this platform's own.
+
+Runs under **Bun**, with `app-with-ai-rust` checked out beside this repository
+and installed (the reader resolves its `yaml` and `ajv` from that install).
 
 ```bash
 bun language/cli/eml.ts --help
@@ -15,74 +20,72 @@ bun language/cli/eml.ts --help
 
 | Command | Purpose |
 |---------|---------|
-| `generate` | Parse → validate (self-correct) → generate app |
-| `validate` | Parse and validate a model; report diagnostics; exit 1 on errors |
-| `info` | Print a summary of the parsed model |
+| `generate` | Validate (correcting what is mechanically correctable, in memory) → generate |
+| `validate` | Validate a model; report every finding at its YAML line; exit 1 on errors |
+| `info` | Print a summary of the model |
 | `help` | Show usage |
 
 ## Options
 
 ```
--i, --input <file>        Input .mmd EML file (or first positional arg)
--o, --output <dir>        Output directory for the generated app
+-i, --input <file>        Model file (.eml.yaml); or first positional arg
+-o, --output <dir>        Output directory for the generated code
 -n, --name <name>         Application name (default: derived from the model)
     --stack <stack>       enterprise-reporting (default) | node-rest
     --docker              Also emit Dockerfile + docker-compose.yml (node-rest only)
     --github <owner/repo> Publish the generated app to a GitHub repository
     --github-token <tok>  GitHub token (else GITHUB_TOKEN / GH_TOKEN)
     --private | --public  Visibility of the created GitHub repo (default private)
-    --no-autofix          Disable validation self-correction
+    --no-autofix          Do not correct mechanically fixable findings before generating
     --force               Overwrite a non-empty output directory
     --json                Machine-readable output (validate/info)
 -h, --help                Show help
 -v, --version             Show version
 ```
 
+`validate` reports the model as written; `generate` applies the language's
+fixer in memory first (the file on disk is never changed) unless
+`--no-autofix` is given.
+
 ## Examples
 
 ```bash
-# Validate a model (with self-correction preview)
-bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
+# Validate a model
+bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.yaml
 
-# Summarize the parsed model
-bun language/cli/eml.ts info -i language/examples/helpdesk.eml.mmd
+# Summarise it
+bun language/cli/eml.ts info -i language/examples/helpdesk.eml.yaml
 
 # Generate TanStack Start + Kysely code (enterprise-reporting, the default)
-bun language/cli/eml.ts generate -i model.mmd -o ./out
-
-# Explicitly specify the stack
-bun language/cli/eml.ts generate -i model.mmd -o ./out --stack enterprise-reporting
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out
 
 # Generate a prototype Node REST app
-bun language/cli/eml.ts generate -i model.mmd -o ./out --stack node-rest --docker
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out --stack node-rest --docker
 
 # Generate and publish to GitHub (needs GITHUB_TOKEN)
-bun language/cli/eml.ts generate -i model.mmd -o ./out --github me/my-app --public
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out --github me/my-app --public
 ```
 
 ## Stacks
 
 ### `enterprise-reporting` (default)
 
-Generates **TanStack Start + Kysely + MariaDB** code that slots directly into
-this repository. For each entity the generator produces:
+Generates **TanStack Start + Kysely + PostgreSQL** code that slots into this
+repository. For each entity:
 
 - `src/server-fns/<entity>.ts` — five CRUD server functions, each using
-  `.inputValidator()` (never `.validator()`), `requireAuth()`, and Kysely
-  via `getDb()`. Includes a Zod schema and TypeScript type.
+  `.inputValidator()` (never `.validator()`), `requireAuth()`, and Kysely via
+  `getDb()`, with a Zod schema and TypeScript type.
 - `src/routes/_authed/<entity>/index.tsx` — paginated list page with TanStack
   Table and shadcn/ui components.
-- `src/routes/_authed/<entity>/$id.tsx` — detail / edit page with an inline
-  form and delete button.
+- `src/routes/_authed/<entity>/$id.tsx` — detail / edit page.
 
 Shared outputs:
 
-- `src/lib/db/migrations/<ts>_create_tables.ts` — Kysely migration with
-  MariaDB DDL (`CREATE TABLE IF NOT EXISTS`, `DATETIME`, `UUID()` default).
-- `KYSELY_TYPES.md` — a ready-to-paste snippet for the `Database` interface
-  in `src/lib/db/kysely-db.ts`.
-
-Generated output structure:
+- `src/lib/db/migrations/<ts>_create_tables.ts` — a Kysely migration with
+  PostgreSQL DDL (`CREATE TABLE IF NOT EXISTS`).
+- `KYSELY_TYPES.md` — a snippet for the `Database` interface in
+  `src/lib/db/kysely-db.ts`.
 
 ```
 out/
@@ -92,6 +95,7 @@ out/
 │   │   ├── index.tsx
 │   │   └── $id.tsx
 │   └── lib/db/migrations/<ts>_create_tables.ts
+├── rules/<rule>.jdm.json
 ├── KYSELY_TYPES.md
 └── README.md
 ```
@@ -99,42 +103,25 @@ out/
 ### `node-rest`
 
 A self-contained, **dependency-free** Node app (`node:http` + JSON-file
-datastore). Useful for prototyping without the full reporting stack. With
-`--docker` it also emits a `Dockerfile`, `docker-compose.yml`, and a GitHub
-Actions workflow at `.github/workflows/app-ci.yml`.
+datastore) — `runtime/src/` plus the model as `src/model.js` and hook stubs in
+`src/hooks.js`. With `--docker` it also emits a `Dockerfile`,
+`docker-compose.yml`, and a GitHub Actions workflow at
+`.github/workflows/app-ci.yml`.
 
 ## Business rules → GoRules JDM
 
-For either stack, each EML business rule section is converted to a GoRules JDM
-decision document and written to `<out>/rules/`. Node shapes map to JDM roles
-(stadium→input/output, diamond→switch, circle→function, rect→expression).
+For either stack, each rule is converted to a GoRules JDM decision document by
+the generator's own converter (`packages/generator/src/rules/jdm-converter.ts`)
+and written to `<out>/rules/`: `start` → inputNode, `end` → outputNode,
+`decision` → switchNode, `expression` → expressionNode, `function` →
+functionNode.
 
 ## Architecture
 
 ```
-.mmd EML ──parser.ts──▶ EmlModel ──validator.ts──▶ (self-corrected) ──generate/*──▶ app
-                ▲
-    language/erdwithai-language.json  (types, cardinalities, directives, …)
+model.eml.yaml ──readModel──▶ ModelDocument ──toEmlModel──▶ EmlModel ──generate/*──▶ code
+                  (root: language/cli/src/document.ts, packages/generator/src/model-yaml)
 ```
-
-## Validation & self-correction
-
-`validate` and `generate` share the same validator. With self-correction on
-(default), fixable problems are repaired in place and reported as `fix`
-diagnostics; without it (`--no-autofix`) they are reported as errors/warnings.
-
-| Code | Problem | Auto-fix |
-|------|---------|----------|
-| `EML001` | No document name | derive a name |
-| `EML101` | Duplicate entity | merge attributes |
-| `EML102` | Duplicate attribute | drop the duplicate |
-| `EML103` | Entity has no primary key | add `string id PK` |
-| `EML120` | Relationship endpoint not an entity | synthesize a minimal entity |
-| `EML130` | Field references unknown enum | warn (treated as free string) |
-| `EML202` | Unknown hook type | error (not auto-fixable) |
-| `EML210` | Hook bound to unknown entity | synthesize a minimal entity |
-| `EML300` | Rule missing input/output node | warn |
-| `EML400` | State workflow has no transitions | warn |
 
 ## Development
 

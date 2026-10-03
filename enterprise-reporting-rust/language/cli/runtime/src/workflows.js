@@ -22,7 +22,8 @@ function buildStateMachines() {
       (transitions[t.from] ??= {})[t.event || `${t.from}_to_${t.to}`] = t.to;
     }
     machines[wf.entity] = {
-      initial: initial ?? wf.states?.[0] ?? null,
+      // A YAML model states the start (`initial`); a drawing drew it as `[*] --> s`.
+      initial: wf.initial ?? initial ?? wf.states?.[0] ?? null,
       states: wf.states ?? [],
       statusField: "status",
       transitions,
