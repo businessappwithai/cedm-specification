@@ -1268,6 +1268,15 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   **Commit source and generated source only** — never a `target/`, a
   `node_modules/` or a built executable. `scripts/run-and-screenshot.sh` runs
   an application from a scratch copy for exactly this reason.
+- **Entity route files: reserved names and stale files are the generator's job.**
+  An entity slug the router reads as a file convention gets no
+  `routes/<slug>.tsx` (`Route` → `route.tsx` is TanStack's layout file and
+  broke the whole frontend). `isReservedRouteSlug` derives it — convention
+  names, anything opening `_ - ( $` or holding a `.`, plus every top-level name
+  the template routes, read from the template directory — so there is no list to
+  extend. `$entity` serves those entities. `removeStaleEntityRoutes` deletes a
+  marked (`// Generated thin wrapper`) file for an entity the model no longer has;
+  `--force` overwrote but never deleted. Gate: `reserved-route-slugs.test.ts`.
 - **Corpus walkers skip `generated-applications/`** (as they skip
   `generated-projects/`): each holds a `model/model.eml.yaml`.
 - **The library had defects the schema found.** 721 invariants and help entries

@@ -12,7 +12,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 #[command(
     name = "appwithai",
     version,
-    about = "Generate full-stack applications from a model (*.eml.yaml)",
+    about = "Generate full-stack applications from a CEDM application (*.cedm.yaml) or model document (*.eml.yaml)",
     propagate_version = true
 )]
 pub struct Cli {
@@ -82,7 +82,7 @@ impl Theme {
 #[derive(Debug, Args)]
 pub struct GenerateArgs {
     // ── Input sources ─────────────────────────────────────────────────────
-    /// The model (*.eml.yaml)
+    /// The model (*.cedm.yaml or *.eml.yaml)
     #[arg(short, long)]
     pub input: PathBuf,
 

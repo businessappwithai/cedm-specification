@@ -91,19 +91,37 @@ export interface TanStackStartFrontendOptions {
   testsWorkspace?: boolean;
 }
 
-/** File names TanStack Router gives a meaning to, or that collide with a route directory. */
-export const RESERVED_ROUTE_SLUGS = new Set([
-  "route",
-  "index",
-  "__root",
-  "lazy",
-  "api",
-  "auth",
-  "admin",
-  "ask",
-  "reports",
-  "dashboard",
-]);
+/** File names TanStack Router's file convention gives a meaning to, wherever they appear. */
+const ROUTER_CONVENTION_SLUGS = new Set(["route", "index", "__root", "lazy"]);
+
+/**
+ * Whether an entity's slug cannot be written as a top-level route file.
+ *
+ * Two rules, neither a list somebody has to remember to extend: the router's
+ * own convention (`route`, `index`, `__root`, `lazy`, and any name opening with
+ * `_`, `-`, `(`, `$` or holding a `.`, which the file convention reads as
+ * layout, ignore, group, param or nesting), and every top-level name the
+ * template already routes (`admin`, `auth`, `api`, `ask`, `dashboard`,
+ * `reports`, ...), read from the template directory itself so a route added
+ * there is protected the day it lands. Such an entity is served by `$entity`.
+ */
+export function isReservedRouteSlug(slug: string, staticRouteNames: ReadonlySet<string>): boolean {
+  return (
+    ROUTER_CONVENTION_SLUGS.has(slug) ||
+    /^[_\-($]|\./.test(slug) ||
+    staticRouteNames.has(slug)
+  );
+}
+
+/** First path segment of every route the template ships: `reports.$name.tsx` -> `reports`. */
+export async function templateRouteNames(routesDir: string): Promise<Set<string>> {
+  const names = new Set<string>();
+  for (const entry of await fs.readdir(routesDir)) {
+    const first = entry.split(".")[0] ?? "";
+    if (first && !first.startsWith("$")) names.add(first);
+  }
+  return names;
+}
 
 export class TanStackStartFrontendGenerator extends BaseGenerator {
   private options: TanStackStartFrontendOptions;
@@ -864,7 +882,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // An entity named like a TanStack Router file convention (`Route` -> route.tsx
     // is the reserved layout file, which resolves to an empty path and breaks the
     // whole router) gets no explicit files: the `$entity` catch-all serves it.
-    if (RESERVED_ROUTE_SLUGS.has(kebabCase(busEntity.name))) return;
+    const staticNames = await templateRouteNames(path.join(this.resolvedTemplateDir, "src/routes"));
+    if (isReservedRouteSlug(kebabCase(busEntity.name), staticNames)) return;
 
     const listPageFilename = `${kebabCase(busEntity.name)}.tsx`;
     const listPageContent = await this.renderTemplate(
@@ -899,7 +918,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       busEntities[0];
 
     await this.generateSingleEntityRoutes(busEntity, context, outputDir);
-    if (RESERVED_ROUTE_SLUGS.has(kebabCase(entity.name))) {
+    const staticNames = await templateRouteNames(path.join(this.resolvedTemplateDir, "src/routes"));
+    if (isReservedRouteSlug(kebabCase(entity.name), staticNames)) {
       console.log(`  ✓ ${entity.name} is served by the $entity route (reserved file name)`);
       return;
     }
@@ -910,7 +930,38 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     console.log(`  ✓ frontend/src/routes/${detailFile}`);
   }
 
+  /**
+   * Remove the per-entity route files an earlier run wrote for an entity the
+   * model no longer has, or whose name has since become reserved. `--force`
+   * overwrites; it never deleted, so a renamed entity left its old screen
+   * behind and a newly reserved name left a file that breaks the router.
+   * Only files carrying the generator's own marker are touched.
+   */
+  private async removeStaleEntityRoutes(outputDir: string, context: any): Promise<void> {
+    const routesDir = path.join(outputDir, "src/routes");
+    const staticNames = await templateRouteNames(path.join(this.resolvedTemplateDir, "src/routes"));
+    const live = new Set<string>(
+      (context.entities as any[])
+        .map((e) => kebabCase(e.name))
+        .filter((slug) => !isReservedRouteSlug(slug, staticNames))
+    );
+    let entries: string[];
+    try {
+      entries = await fs.readdir(routesDir);
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const match = /^([^.$]+)(\.\$id)?\.tsx$/.exec(entry);
+      if (!match || live.has(match[1] as string)) continue;
+      const file = path.join(routesDir, entry);
+      const text = await fs.readFile(file, "utf8");
+      if (text.includes("// Generated thin wrapper")) await fs.rm(file);
+    }
+  }
+
   private async generateEntityPages(outputDir: string, context: any): Promise<void> {
+    await this.removeStaleEntityRoutes(outputDir, context);
     for (const busEntity of context.entities) {
       await this.generateSingleEntityRoutes(busEntity, context, outputDir);
     }

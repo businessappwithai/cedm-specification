@@ -1,7 +1,7 @@
 # YAML as the source of truth for enterprise application models
 
 **Repository**: `cedm-specification` · **Branch**: `claude/cedm-yaml-architecture-uxneqi`
-**Status**: Phases 1–2 delivered and verified; phases 3–6 planned below.
+**Status**: Phases 1–6 delivered. Applications are written in CEDM (`language/cedm/`), which lowers to the model document this design describes; 47 domain applications generate, build and pass QA (`docs/qa/2026-10-02-domain-applications-qa-pass.md`).
 
 > This document replaces an earlier draft of the same name. That draft proposed
 > a new schema ("CEDL") designed without reference to what the generator
