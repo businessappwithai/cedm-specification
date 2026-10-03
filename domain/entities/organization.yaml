@@ -59,14 +59,14 @@ entity:
       workflowRole: Controls applicable organizational hierarchy and operating-context rules.
       requiredMeaning: Required for organizational interpretation.
       valueSemantics:
-        ENTERPRISE: The organization type of the organization is enterprise; set it when that is what the business means for this record.
-        COMPANY: The organization type of the organization is company; set it when that is what the business means for this record.
-        BUSINESS_UNIT: The organization type of the organization is business unit; set it when that is what the business means for this record.
-        DIVISION: The organization type of the organization is division; set it when that is what the business means for this record.
-        DEPARTMENT: The organization type of the organization is department; set it when that is what the business means for this record.
-        BRANCH: The organization type of the organization is branch; set it when that is what the business means for this record.
-        SUBSIDIARY: The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-        OTHER: The organization type of the organization is other; set it when that is what the business means for this record.
+        ENTERPRISE: The top-level group.
+        COMPANY: A legal entity.
+        BUSINESS_UNIT: A unit with its own business responsibility.
+        DIVISION: A major part of a company.
+        DEPARTMENT: An organisational department.
+        BRANCH: A local office or establishment.
+        SUBSIDIARY: A company controlled by another.
+        OTHER: Any other kind of body.
   - name: status
     type: enum
     required: true
@@ -79,10 +79,10 @@ entity:
       workflowRole: Governs organizational use while preserving historical relationships.
       requiredMeaning: Required for eligibility checks.
       valueSemantics:
-        DRAFT: The status of the organization is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the organization is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the organization is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the organization is retired; set it when that is what the business means for this record.
+        DRAFT: Being set up.
+        ACTIVE: In use.
+        INACTIVE: Temporarily not in use.
+        RETIRED: Dissolved or no longer used.
   - name: legalName
     type: string
     required: false

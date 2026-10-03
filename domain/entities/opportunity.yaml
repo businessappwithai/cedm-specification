@@ -5,6 +5,7 @@ entity:
   description: A qualified potential commercial transaction.
   ui:
     icon: trending-up
+    recordLabel: [opportunityNumber, name]
   identity:
     key: opportunityId
     type: uuid
@@ -25,100 +26,95 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of opportunity number for the Opportunity. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The number of the opportunity.
+      usage: Used in sales meetings and forecasts.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What is being sold, to whom, in a few words.
+      usage: Shown in the pipeline.
+      relationshipContext: Names the customer's need.
   - name: stage
     type: enum
     required: true
-    values:
-    - QUALIFICATION
-    - DISCOVERY
-    - PROPOSAL
-    - NEGOTIATION
-    - WON
-    - LOST
+    default: QUALIFICATION
+    values: [QUALIFICATION, DISCOVERY, PROPOSAL, NEGOTIATION, WON, LOST]
     help:
-      summary: Captures the business meaning of stage for the Opportunity. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The step of the sales process the opportunity has reached.
+      usage: Moved on by the salesperson; drives the forecast.
+      relationshipContext: Won and lost are final.
       valueSemantics:
-        QUALIFICATION: Represents the qualification state or classification in the context of Opportunity.
-        DISCOVERY: Represents the discovery state or classification in the context of Opportunity.
-        PROPOSAL: Represents the proposal state or classification in the context of Opportunity.
-        NEGOTIATION: Represents the negotiation state or classification in the context of Opportunity.
-        WON: Represents the won state or classification in the context of Opportunity.
-        LOST: Represents the lost state or classification in the context of Opportunity.
+        QUALIFICATION: Checking need, budget and timing.
+        DISCOVERY: Understanding requirements.
+        PROPOSAL: An offer has been made.
+        NEGOTIATION: Terms are being agreed.
+        WON: The customer ordered.
+        LOST: The customer did not order.
   - name: probability
     type: decimal
     required: false
     precision: 5
     scale: 2
     help:
-      summary: Captures the business meaning of probability for the Opportunity. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The chance of winning, in percent.
+      usage: Weights the expected value in the forecast.
+      relationshipContext: Between 0 and 100.
   - name: expectedValue
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of expected value for the Opportunity. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The revenue expected if won.
+      usage: Summed in the pipeline and forecast.
+      relationshipContext: Not negative.
   - name: expectedCloseDate
     type: date
     required: false
     help:
-      summary: Records the business date associated with the expected close. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Opportunity records, where applicable.
-      relationshipContext: Its meaning is specific to Opportunity; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: When the decision is expected.
+      usage: Places the opportunity in a forecast period.
+      relationshipContext: Updated as the deal progresses.
   relationships:
   - name: customer
     target: Customer
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Opportunity to Customer so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Customer records associated with a Opportunity.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The customer the opportunity is with.
+      usage: Set when qualifying.
+      cardinalityMeaning: At most one customer.
+      context: Prospects become customers when they first order.
   - name: owner
     target: Party
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Opportunity to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Opportunity.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The salesperson responsible.
+      usage: Assigned when the opportunity is created.
+      cardinalityMeaning: At most one owner.
+      context: Credited in sales reports.
   - name: lead
     target: Lead
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Opportunity to Lead so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Lead records associated with a Opportunity.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The lead the opportunity came from.
+      usage: Set when a lead is converted.
+      cardinalityMeaning: At most one lead.
+      context: Used to measure lead conversion.
   - name: salesOrder
     target: SalesOrder
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Opportunity to SalesOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about SalesOrder records associated with a Opportunity.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The order placed when the opportunity was won.
+      usage: Linked on winning.
+      cardinalityMeaning: At most one order.
+      context: Present for won opportunities.
   invariants:
   - id: OPPORTUNITY-001
     rule: probability must be between 0 and 100 when supplied.
@@ -127,28 +123,25 @@ entity:
     attribute: stage
     states: [QUALIFICATION, DISCOVERY, PROPOSAL, NEGOTIATION, WON, LOST]
     initial: QUALIFICATION
-    terminal: [LOST]
+    terminal: [WON, LOST]
     transitions:
-    - {from: QUALIFICATION, to: DISCOVERY, action: mark_discovery}
-    - {from: DISCOVERY, to: PROPOSAL, action: mark_proposal}
-    - {from: PROPOSAL, to: WON, action: mark_won}
-    - {from: DISCOVERY, to: NEGOTIATION, action: mark_negotiation}
-    - {from: NEGOTIATION, to: DISCOVERY, action: resume}
-    - {from: PROPOSAL, to: NEGOTIATION, action: mark_negotiation}
-    - {from: NEGOTIATION, to: PROPOSAL, action: resume}
-    - {from: WON, to: NEGOTIATION, action: mark_negotiation}
-    - {from: NEGOTIATION, to: WON, action: resume}
-    - {from: DISCOVERY, to: LOST, action: mark_lost}
-    - {from: PROPOSAL, to: LOST, action: mark_lost}
-    - {from: WON, to: LOST, action: mark_lost}
-    - {from: NEGOTIATION, to: LOST, action: mark_lost}
+    - {from: QUALIFICATION, to: DISCOVERY, action: discover}
+    - {from: DISCOVERY, to: PROPOSAL, action: propose}
+    - {from: PROPOSAL, to: NEGOTIATION, action: negotiate}
+    - {from: NEGOTIATION, to: PROPOSAL, action: revise_proposal}
+    - {from: PROPOSAL, to: WON, action: win}
+    - {from: NEGOTIATION, to: WON, action: win}
+    - {from: QUALIFICATION, to: LOST, action: lose}
+    - {from: DISCOVERY, to: LOST, action: lose}
+    - {from: PROPOSAL, to: LOST, action: lose}
+    - {from: NEGOTIATION, to: LOST, action: lose}
   help:
     summary: Represents a crm entity called Opportunity within the CEDM business model.
     businessMeaning: Opportunity is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Opportunity records.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, Party, Lead, SalesOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Opportunity record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Salespeople work each opportunity through the stages of the sales process, estimating its value, probability and closing date; managers forecast revenue from the pipeline; a won opportunity becomes a sales order.
+    lifecycle: An opportunity moves from qualification through discovery and proposal to negotiation, may go back from negotiation to proposal, and ends won or lost.
+    example: Opportunity OP-3301 'Warehouse automation for Bauer GmbH', negotiation, 180,000 EUR, 60 %, expected close 30 June 2024, owner Lisa Weber.
 specification:
   version: 0.1.0
   status: draft

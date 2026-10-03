@@ -5,6 +5,7 @@ entity:
   description: A significant planned achievement or checkpoint within a project or process.
   ui:
     icon: table
+    recordLabel: [code, name]
   identity:
     key: milestoneId
     type: uuid
@@ -24,24 +25,24 @@ entity:
     required: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Milestone records, where applicable.
-      relationshipContext: Its meaning is specific to Milestone; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The short code of the milestone within its project.
+      usage: Used in plans and status reports.
+      relationshipContext: Unique within the project.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Milestone records, where applicable.
-      relationshipContext: Its meaning is specific to Milestone; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What is achieved at the milestone.
+      usage: Shown on timelines and reports.
+      relationshipContext: Stated as an outcome.
   - name: targetDate
     type: date
     required: true
     help:
-      summary: Records the business date associated with the target. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Milestone records, where applicable.
-      relationshipContext: Its meaning is specific to Milestone; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The date the milestone should be reached.
+      usage: Progress is reported against it.
+      relationshipContext: Changes are recorded in the project's history.
   - name: status
     type: enum
     required: true
@@ -53,74 +54,75 @@ entity:
     - MISSED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Milestone records, where applicable.
-      relationshipContext: Its meaning is specific to Milestone; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the milestone is on track, reached or missed.
+      usage: Updated by the project manager.
+      relationshipContext: Achieved and missed milestones are final.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Milestone.
-        AT_RISK: Represents the at risk state or classification in the context of Milestone.
-        ACHIEVED: Represents the achieved state or classification in the context of Milestone.
-        MISSED: Represents the missed state or classification in the context of Milestone.
-        CANCELLED: Represents the cancelled state or classification in the context of Milestone.
+        PLANNED: On track.
+        AT_RISK: The target date is threatened.
+        ACHIEVED: Reached.
+        MISSED: Not reached by its date.
+        CANCELLED: No longer relevant.
   relationships:
   - name: project
     target: Project
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Milestone to Project so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Project records associated with a Milestone.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The project the milestone belongs to.
+      usage: Set when the milestone is created.
+      cardinalityMeaning: Each milestone belongs to one project.
+      context: Shown on the project's timeline.
   - name: tasks
     target: ProjectTask
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Milestone to ProjectTask so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProjectTask records associated with a Milestone.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The tasks that must finish to reach the milestone.
+      usage: Linked when planning.
+      cardinalityMeaning: Any number of tasks.
+      context: Late tasks put the milestone at risk.
   lifecycle:
     title: Milestone Lifecycle
     attribute: status
     states: [PLANNED, AT_RISK, ACHIEVED, MISSED, CANCELLED]
     initial: PLANNED
-    terminal: [CANCELLED]
+    terminal: [ACHIEVED, MISSED, CANCELLED]
     transitions:
-    - {from: PLANNED, to: AT_RISK, action: mark_at_risk}
-    - {from: AT_RISK, to: ACHIEVED, action: mark_achieved}
-    - {from: ACHIEVED, to: MISSED, action: mark_missed}
+    - {from: PLANNED, to: AT_RISK, action: flag_at_risk}
+    - {from: AT_RISK, to: PLANNED, action: recover}
+    - {from: PLANNED, to: ACHIEVED, action: achieve}
+    - {from: AT_RISK, to: ACHIEVED, action: achieve}
+    - {from: PLANNED, to: MISSED, action: miss}
+    - {from: AT_RISK, to: MISSED, action: miss}
     - {from: PLANNED, to: CANCELLED, action: cancel}
     - {from: AT_RISK, to: CANCELLED, action: cancel}
-    - {from: ACHIEVED, to: CANCELLED, action: cancel}
-    - {from: MISSED, to: CANCELLED, action: cancel}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a milestone is ended"
-    description: "When a milestone is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "MILESTONE-FOLLOW-UP-{{id}}"
-          name: "Follow up on milestone {{name}}"
-          description: "Milestone {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a milestone is ended"
+      description: "When a milestone is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "MILESTONE-FOLLOW-UP-{{id}}"
+              name: "Follow up on milestone {{name}}"
+              description: "Milestone {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a project management entity called Milestone within the CEDM business model.
     businessMeaning: Milestone is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Milestone records.
     relationshipContext: The entity participates in a wider business graph through relationships with Project, ProjectTask. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Milestone record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Project managers set milestones with target dates, link the tasks that lead to them, flag those at risk, and report which were achieved or missed to sponsors.
+    lifecycle: A milestone is planned, flagged at risk when its date is threatened and back to planned when recovered, and ends achieved, missed, or cancelled.
+    example: Milestone M3 'Go-live of the new warehouse system', project WMS-2024, target 30 September 2024, at risk.
 specification:
   version: 0.1.0
   status: draft
