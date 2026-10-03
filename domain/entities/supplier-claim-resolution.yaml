@@ -7,7 +7,14 @@ entity:
     icon: factory
   identity: {key: supplierClaimResolutionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierClaimResolutionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim resolution., businessMeaning: Identifies one authorized resolution decision independently of the originating claim and downstream transactions., usage: Used for approvals reconciliation audit and supplier performance., relationshipContext: SupplierClaim records the case; this record captures the agreed outcome; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment provide execution evidence., workflowRole: Stable reference across approval execution and closure., requiredMeaning: Required.}}
+  - name: supplierClaimResolutionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the supplier claim resolution record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier claim resolution store this identifier. The number or code people quote is a separate field.
   - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing resolution reference., businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity., requiredMeaning: Required.}}
   - {name: resolutionDate, type: datetime, required: true, help: {summary: Date and time the resolution was authorized., businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution., requiredMeaning: Required.}}
   - name: resolutionType

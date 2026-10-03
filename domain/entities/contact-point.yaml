@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: contactPointId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContactPoint., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this ContactPoint is referenced., requiredMeaning: Required.}}
+  - name: contactPointId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the contact point record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a contact point store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for ContactPoint., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of ContactPoint., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
   relationships:

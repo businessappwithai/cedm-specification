@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: "The location id of the location: an identifier the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its location id."
+      summary: The permanent system identifier of the location record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a location store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -166,13 +165,13 @@ entity:
     initial: PLANNED
     terminal: [CLOSED, RETIRED]
     transitions:
-      - {from: PLANNED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: PLANNED, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: PLANNED, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
     businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."

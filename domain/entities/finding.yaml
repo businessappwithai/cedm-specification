@@ -8,7 +8,14 @@ entity:
     recordLabel: [findingNumber, title]
   identity: {key: findingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: findingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Finding., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: findingId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the finding record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a finding store this identifier. The number or code people quote is a separate field.
   - name: findingNumber
     type: string
     required: true

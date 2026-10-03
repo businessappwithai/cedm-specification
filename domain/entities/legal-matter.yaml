@@ -8,7 +8,14 @@ entity:
     recordLabel: [matterNumber, title]
   identity: {key: legalMatterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: legalMatterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalMatter., businessMeaning: Identifies one governed LegalMatter record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - name: legalMatterId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the legal matter record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a legal matter store this identifier. The number or code people quote is a separate field.
   - name: matterNumber
     type: string
     required: true
@@ -180,24 +187,24 @@ entity:
     - {from: OPEN, to: CLOSED, action: close}
     - {from: ON_HOLD, to: CLOSED, action: close}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a legal matter is stopped"
-      description: "When a legal matter is on hold, a high-priority task asks someone to resolve it."
-      when: "status == \"ON_HOLD\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "LEGAL-MATTER-EXCEPTION-{{id}}"
-              name: "Resolve legal matter {{title}}"
-              description: "Legal matter {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a legal matter is stopped"
+    description: "When a legal matter is on hold, a high-priority task asks someone to resolve it."
+    when: "status == \"ON_HOLD\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "LEGAL-MATTER-EXCEPTION-{{id}}"
+          name: "Resolve legal matter {{title}}"
+          description: "Legal matter {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: One legal file the legal team is working on, from opening to its outcome.
     businessMeaning: Legal work costs money and carries risk. A matter gathers everything about one piece of work — what it is, who handles it inside and outside, how much it is expected to cost, how likely an adverse outcome is and what was decided — so the legal department can manage its workload, its spend on outside counsel, and the exposures it reports to finance.

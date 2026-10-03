@@ -8,7 +8,14 @@ entity:
     recordLabel: [taxTransactionNumber]
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: taxTransactionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the tax transaction record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a tax transaction store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true
@@ -153,42 +160,42 @@ entity:
     - {from: POSTED, to: REVERSED, action: reverse}
     - {from: CALCULATED, to: REVERSED, action: reverse}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a tax transaction is ended"
-      description: "When a tax transaction is reversed, a task asks someone to settle what depended on it."
-      when: "status == \"REVERSED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-TRANSACTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax transaction {{tax_transaction_number}}"
-              description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a tax transaction is done"
-      description: "When a tax transaction is posted, a task asks someone to confirm the outcome."
-      when: "status == \"POSTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-TRANSACTION-COMPLETED-{{id}}"
-              name: "Confirm tax transaction {{tax_transaction_number}}"
-              description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a tax transaction is ended"
+    description: "When a tax transaction is reversed, a task asks someone to settle what depended on it."
+    when: "status == \"REVERSED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "TAX-TRANSACTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on tax transaction {{tax_transaction_number}}"
+          description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a tax transaction is done"
+    description: "When a tax transaction is posted, a task asks someone to confirm the outcome."
+    when: "status == \"POSTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "TAX-TRANSACTION-COMPLETED-{{id}}"
+          name: "Confirm tax transaction {{tax_transaction_number}}"
+          description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: The tax charged or paid on one transaction line, as it will be reported.
     businessMeaning: Tax returns are built from transactions, and tax audits ask how each amount was computed. Keeping a tax record per taxable line — base, code, rate, amount, jurisdiction, date and whether it is output or input tax — makes returns reproducible and lets every reported figure be traced to the invoice it came from.

@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the asset master record.
-      usage: Used to connect maintenance, depreciation, movements, ownership, location, and other lifecycle records to the same physical or accountable asset.
-      relationshipContext: assetId identifies the asset itself; assetNumber and serialNumber are business-facing or manufacturer identifiers and must not replace the stable CEDM identity.
-      requiredMeaning: Every managed asset requires a stable identity so its operational and financial history remains continuous.
+      summary: The permanent system identifier of the asset record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a asset store this identifier. The number or code people quote is a separate field.
   - name: assetNumber
     type: string
     required: true
@@ -153,37 +152,37 @@ entity:
     initial: PLANNED
     terminal: [DISPOSED, RETIRED]
     transitions:
-      - {from: PLANNED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: UNDER_MAINTENANCE, action: mark_under_maintenance}
-      - {from: UNDER_MAINTENANCE, to: ACTIVE, action: return_to_service}
-      - {from: ACTIVE, to: HELD, action: mark_held}
-      - {from: HELD, to: ACTIVE, action: resume}
-      - {from: ACTIVE, to: DISPOSED, action: mark_disposed}
-      - {from: UNDER_MAINTENANCE, to: DISPOSED, action: mark_disposed}
-      - {from: HELD, to: DISPOSED, action: mark_disposed}
-      - {from: PLANNED, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: UNDER_MAINTENANCE, to: RETIRED, action: retire}
-      - {from: HELD, to: RETIRED, action: retire}
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: UNDER_MAINTENANCE, action: mark_under_maintenance}
+    - {from: UNDER_MAINTENANCE, to: ACTIVE, action: return_to_service}
+    - {from: ACTIVE, to: HELD, action: mark_held}
+    - {from: HELD, to: ACTIVE, action: resume}
+    - {from: ACTIVE, to: DISPOSED, action: mark_disposed}
+    - {from: UNDER_MAINTENANCE, to: DISPOSED, action: mark_disposed}
+    - {from: HELD, to: DISPOSED, action: mark_disposed}
+    - {from: PLANNED, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: UNDER_MAINTENANCE, to: RETIRED, action: retire}
+    - {from: HELD, to: RETIRED, action: retire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when an asset is stopped"
-      description: "When an asset is held, a high-priority task asks someone to resolve it."
-      when: "status == \"HELD\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ASSET-EXCEPTION-{{id}}"
-              name: "Resolve asset {{name}}"
-              description: "Asset {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when an asset is stopped"
+    description: "When an asset is held, a high-priority task asks someone to resolve it."
+    when: "status == \"HELD\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ASSET-EXCEPTION-{{id}}"
+          name: "Resolve asset {{name}}"
+          description: "Asset {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents the long-lived business object for a durable resource whose identity, ownership, location, maintenance, financial treatment, and lifecycle must be managed over time.
     businessMeaning: Asset is the instance-level concept used when an organization must manage a specific physical or accountable resource rather than merely a product type. A container, vehicle, machine, aircraft, or facility equipment item can be represented as an Asset when individual lifecycle and accountability matter.

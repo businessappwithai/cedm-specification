@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the repair estimate.
-      usage: Connects the assessment to revisions, line items, approvals, work orders, documents, analytics, and integrations.
-      relationshipContext: Identifies the assessment record; Container identifies the asset and RepairEstimateLine identifies its detailed technical scope.
-      requiredMeaning: Required so the decision and its history remain independently traceable.
+      summary: The permanent system identifier of the repair estimate record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a repair estimate store this identifier. The number or code people quote is a separate field.
   - name: estimateNumber
     type: string
     required: true
@@ -186,70 +185,70 @@ entity:
     initial: DRAFT
     terminal: [COMPLETED, REJECTED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: SUBMITTED, action: submit}
-      - {from: SUBMITTED, to: APPROVED, action: approve}
-      - {from: APPROVED, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: REJECTED, action: reject}
-      - {from: SUBMITTED, to: REJECTED, action: reject}
-      - {from: APPROVED, to: REJECTED, action: reject}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: SUBMITTED, to: CANCELLED, action: cancel}
-      - {from: APPROVED, to: CANCELLED, action: cancel}
+    - {from: DRAFT, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: COMPLETED, action: complete}
+    - {from: DRAFT, to: REJECTED, action: reject}
+    - {from: SUBMITTED, to: REJECTED, action: reject}
+    - {from: APPROVED, to: REJECTED, action: reject}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: SUBMITTED, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a repair estimate is put forward"
-      description: "When a repair estimate is submitted, a task asks someone to decide on it."
-      when: "status == \"SUBMITTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "REPAIR-ESTIMATE-APPROVAL-{{id}}"
-              name: "Decide on repair estimate {{estimate_number}}"
-              description: "Repair estimate {{estimate_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a repair estimate is ended"
-      description: "When a repair estimate is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "REPAIR-ESTIMATE-FOLLOW-UP-{{id}}"
-              name: "Follow up on repair estimate {{estimate_number}}"
-              description: "Repair estimate {{estimate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a repair estimate is done"
-      description: "When a repair estimate is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "REPAIR-ESTIMATE-COMPLETED-{{id}}"
-              name: "Confirm repair estimate {{estimate_number}}"
-              description: "Repair estimate {{estimate_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a repair estimate is put forward"
+    description: "When a repair estimate is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "REPAIR-ESTIMATE-APPROVAL-{{id}}"
+          name: "Decide on repair estimate {{estimate_number}}"
+          description: "Repair estimate {{estimate_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a repair estimate is ended"
+    description: "When a repair estimate is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "REPAIR-ESTIMATE-FOLLOW-UP-{{id}}"
+          name: "Follow up on repair estimate {{estimate_number}}"
+          description: "Repair estimate {{estimate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a repair estimate is done"
+    description: "When a repair estimate is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "REPAIR-ESTIMATE-COMPLETED-{{id}}"
+          name: "Confirm repair estimate {{estimate_number}}"
+          description: "Repair estimate {{estimate_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Represents the controlled decision assessment between asset condition and the eventual repair or commercial disposition action.
     businessMeaning: RepairEstimate is not the repair itself. It evaluates what is wrong, what it is expected to cost, and which outcome is economically or operationally appropriate. It therefore sits between inspection/condition evidence and downstream execution or disposition.

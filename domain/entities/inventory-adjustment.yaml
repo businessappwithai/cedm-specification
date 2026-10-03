@@ -7,7 +7,14 @@ entity:
     icon: boxes
   identity: {key: inventoryAdjustmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryAdjustmentId, type: uuid, required: true, immutable: true, help: {summary: Stable adjustment identity., businessMeaning: Identifies one approved stock correction independently of ledger posting., usage: "Cycle count, damage, reconciliation and audit.", relationshipContext: Groups adjustment evidence and movement., requiredMeaning: Required.}}
+  - name: inventoryAdjustmentId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the inventory adjustment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a inventory adjustment store this identifier. The number or code people quote is a separate field.
   - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing adjustment reference., businessMeaning: Operational/audit identifier., usage: "Approval, investigation and reconciliation.", relationshipContext: Distinct from movement number., requiredMeaning: Required.}}
   - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Signed quantity correction., businessMeaning: Positive increases and negative decreases the evidenced stock position., usage: Inventory reconciliation., relationshipContext: Must be supported by reason and evidence., requiredMeaning: Required.}}
   - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Controlled reason for correction., businessMeaning: Explains why ledger stock differs from evidenced reality., usage: "Approval, root-cause and audit.", relationshipContext: Must not be used to conceal ordinary receipts/issues., requiredMeaning: Required.}}

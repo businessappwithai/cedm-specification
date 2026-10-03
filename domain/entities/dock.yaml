@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: dockId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: Stable dock identity., businessMeaning: Identifies one loading/receiving resource., usage: "Appointment, staging, loading and receiving.", relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}
+  - name: dockId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the dock record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a dock store this identifier. The number or code people quote is a separate field.
   - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: Operational dock code., businessMeaning: Human/scanner identifier for the physical position., usage: Yard and warehouse execution., relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
   - name: dockType
     type: enum

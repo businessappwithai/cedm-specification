@@ -12,11 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of this specific role relationship.
-      usage: Referenced by specialized entities and transactions requiring the party in a defined business capacity.
-      relationshipContext: Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId.
-      workflowRole: Provides the stable role reference used throughout the role lifecycle.
-      requiredMeaning: Required for independent role traceability.
+      summary: The permanent system identifier of the party role record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a party role store this identifier. The number or code people quote is a separate field.
   - name: partyId
     type: reference
     target: Party
@@ -152,10 +150,10 @@ entity:
     initial: ACTIVE
     terminal: [EXPIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: EXPIRED, action: expire}
-      - {from: INACTIVE, to: EXPIRED, action: expire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: EXPIRED, action: expire}
+    - {from: INACTIVE, to: EXPIRED, action: expire}
   help:
     summary: The bridge between stable Party identity and contextual business participation.
     businessMeaning: Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior.

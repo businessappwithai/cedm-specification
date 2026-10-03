@@ -8,7 +8,14 @@ entity:
     recordLabel: [code]
   identity: {key: fulfillmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: fulfillmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Fulfillment., businessMeaning: Identifies one governed Fulfillment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - name: fulfillmentId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the fulfillment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a fulfillment store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -153,42 +160,42 @@ entity:
     - {from: RELEASED, to: CANCELLED, action: cancel}
     - {from: ON_HOLD, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a fulfillment is stopped"
-      description: "When a fulfillment is on hold, a high-priority task asks someone to resolve it."
-      when: "status == \"ON_HOLD\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FULFILLMENT-EXCEPTION-{{id}}"
-              name: "Resolve fulfillment {{code}}"
-              description: "Fulfillment {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a fulfillment is ended"
-      description: "When a fulfillment is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FULFILLMENT-FOLLOW-UP-{{id}}"
-              name: "Follow up on fulfillment {{code}}"
-              description: "Fulfillment {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a fulfillment is stopped"
+    description: "When a fulfillment is on hold, a high-priority task asks someone to resolve it."
+    when: "status == \"ON_HOLD\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FULFILLMENT-EXCEPTION-{{id}}"
+          name: "Resolve fulfillment {{code}}"
+          description: "Fulfillment {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a fulfillment is ended"
+    description: "When a fulfillment is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FULFILLMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on fulfillment {{code}}"
+          description: "Fulfillment {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: The execution of one sales order in the warehouse and on the road, from release to delivery.
     businessMeaning: A sales order says what the customer bought; fulfillment is how the business gets it to them. One fulfillment record follows the order through each step — stock reserved, picked, packed, shipped, delivered — so customer service can answer "where is my order?", and operations can see which orders are late and at which step they are stuck.

@@ -15,7 +15,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the quality plan., businessMeaning: Identifies one governed collection of inspection and acceptance requirements., usage: "Referencing, authoring, inspection execution, audit, reporting, and integration.", relationshipContext: "Connects the plan to Product, QualityPlanCharacteristic configurations, SamplingPlan configurations, and QualityInspection executions.", requiredMeaning: Required for stable plan identity.}
+    help:
+      summary: The permanent system identifier of the quality plan record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a quality plan store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -74,12 +77,12 @@ entity:
     initial: DRAFT
     terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ACTIVE, action: resume}
-      - {from: DRAFT, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: SUSPENDED, to: RETIRED, action: retire}
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: DRAFT, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
     summary: Governed definition of how a product or process is inspected.
     businessMeaning: QualityPlan is the parent definition for plan-specific QualityPlanCharacteristic requirements, reusable SamplingPlan policies, and QualityInspection execution. Reusable quality meaning belongs to QualityCharacteristic and reusable sample selection belongs to SamplingPlan rather than being duplicated in every inspection.

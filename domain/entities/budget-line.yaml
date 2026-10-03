@@ -8,7 +8,14 @@ entity:
     recordLabel: [lineNumber, description]
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: Stable line identity., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget., requiredMeaning: Required.}}
+  - name: budgetLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the budget line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a budget line store this identifier. The number or code people quote is a separate field.
   - name: amount
     type: Money
     required: true

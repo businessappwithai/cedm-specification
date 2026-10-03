@@ -8,7 +8,14 @@ entity:
     recordLabel: [eventName, occurredAt]
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - name: businessEventId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the business event record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a business event store this identifier. The number or code people quote is a separate field.
   - name: eventName
     type: string
     required: true
@@ -109,24 +116,24 @@ entity:
     - {from: FAILED, to: PUBLISHED, action: publish}
     - {from: FAILED, to: ABANDONED, action: abandon}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a business event is stopped"
-      description: "When a business event is failed, a high-priority task asks someone to resolve it."
-      when: "publication_status == \"FAILED\" and publication_status != _previous_publication_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BUSINESS-EVENT-EXCEPTION-{{id}}"
-              name: "Resolve business event {{id}}"
-              description: "Business event {{id}} is now {{publication_status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a business event is stopped"
+    description: "When a business event is failed, a high-priority task asks someone to resolve it."
+    when: "publication_status == \"FAILED\" and publication_status != _previous_publication_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BUSINESS-EVENT-EXCEPTION-{{id}}"
+          name: "Resolve business event {{id}}"
+          description: "Business event {{id}} is now {{publication_status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: A fact that happened in the business, recorded once and offered to whoever needs to react to it.
     businessMeaning: Processes in different areas depend on each other's facts — finance needs to know a shipment left, the warehouse needs to know an order was approved. A business event states such a fact in business terms, with when it happened and which record it concerns, so it can be published to other processes and systems and replayed if one of them missed it.

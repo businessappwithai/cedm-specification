@@ -7,7 +7,14 @@ entity:
     icon: factory
   identity: {key: supplierClaimId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierClaimId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the supplier claim., businessMeaning: Identifies one claim independently of its supplier source transaction return inspection resolution or financial settlement., usage: Used for supplier performance dispute management quality warranty recovery and audit., relationshipContext: SupplierClaim is a case/evidence record; SupplierReturn handles physical reversal and SupplierCreditNote or SupplierDebitNote handles explicit financial adjustment., workflowRole: Root reference through claim investigation resolution and closure., requiredMeaning: Required.}}
+  - name: supplierClaimId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the supplier claim record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier claim store this identifier. The number or code people quote is a separate field.
   - {name: claimNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier claim reference., businessMeaning: Identifies the claim for procurement quality and supplier communication., usage: Used in correspondence investigations reporting and reconciliation., relationshipContext: Distinct from PurchaseOrder GoodsReceipt Invoice SupplierReturn and financial adjustment numbers., workflowRole: Provides the operational reference throughout the claim lifecycle., requiredMeaning: Required.}}
   - {name: claimDate, type: datetime, required: true, immutable: true, help: {summary: Date and time the claim was raised., businessMeaning: Establishes when the organization formally asserted the supplier issue., usage: Supports SLA measurement dispute aging supplier performance and audit., relationshipContext: Distinct from receipt inspection return resolution and financial-document dates., workflowRole: Anchors claim chronology., requiredMeaning: Required.}}
   - name: status

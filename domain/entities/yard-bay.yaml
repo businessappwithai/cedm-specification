@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the yard bay.
-      businessMeaning: Identifies one longitudinal storage lane within a specific YardBlock regardless of changes to layout, numbering, or operational status.
-      usage: Used by yard allocation, movement planning, capacity analysis, digital-yard visualization, and integrations.
-      relationshipContext: The bay inherits facility context from YardBlock and provides the parent context for YardTier records.
-      requiredMeaning: Required because every modeled bay must remain uniquely traceable.
+      summary: The permanent system identifier of the yard bay record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a yard bay store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -91,28 +89,28 @@ entity:
     initial: ACTIVE
     terminal: [CLOSED]
     transitions:
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a yard bay is stopped"
-      description: "When a yard bay is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "YARD-BAY-EXCEPTION-{{id}}"
-              name: "Resolve yard bay {{code}}"
-              description: "Yard bay {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a yard bay is stopped"
+    description: "When a yard bay is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "YARD-BAY-EXCEPTION-{{id}}"
+          name: "Resolve yard bay {{code}}"
+          description: "Yard bay {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents the longitudinal storage lane between a yard block and the vertical stacking levels used for container storage.
     businessMeaning: YardBay is a physical and operational addressing level. It groups a sequence of vertically stacked positions and provides a useful unit for capacity planning, traffic analysis, container allocation, and rehandling optimization.

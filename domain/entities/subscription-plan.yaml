@@ -8,7 +8,14 @@ entity:
     recordLabel: [code, name]
   identity: {key: subscriptionPlanId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: subscriptionPlanId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of SubscriptionPlan., businessMeaning: Identifies one governed SubscriptionPlan record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: subscriptionPlanId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the subscription plan record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a subscription plan store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true

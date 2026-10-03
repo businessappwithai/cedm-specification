@@ -7,91 +7,90 @@ entity:
     icon: package
   identity: {key: productCategoryId, type: uuid, generated: true, immutable: true}
   attributes:
-    - name: productCategoryId
-      type: uuid
-      required: true
-      immutable: true
-      help:
-        summary: "The product category id of the product category: an identifier the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its product category id."
-    - name: code
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help:
-        summary: "The code of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its code."
-    - name: name
-      type: string
-      required: true
-      maxLength: 200
-      help:
-        summary: "The name of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its name."
-    - name: description
-      type: string
-      required: false
-      maxLength: 2000
-      help:
-        summary: "The description of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values: [ACTIVE, INACTIVE, RETIRED]
-      help:
-        summary: Lifecycle state controlling whether the category can be used for new classification.
-        usage: Set when a category is created and changed as it is taken out of use; filters which categories a product can be classified under.
-        workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
-        valueSemantics:
-          ACTIVE: The status of the product category is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the product category is inactive; set it when that is what the business means for this record.
-          RETIRED: The status of the product category is retired; set it when that is what the business means for this record.
+  - name: productCategoryId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the product category record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a product category store this identifier. The number or code people quote is a separate field.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: "The code of the product category: a value the business records on it."
+      usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a product category cannot be understood without its code."
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: "The name of the product category: a value the business records on it."
+      usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+      requiredMeaning: "Required: a product category cannot be understood without its name."
+  - name: description
+    type: string
+    required: false
+    maxLength: 2000
+    help:
+      summary: "The description of the product category: a value the business records on it."
+      usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE, RETIRED]
+    help:
+      summary: Lifecycle state controlling whether the category can be used for new classification.
+      usage: Set when a category is created and changed as it is taken out of use; filters which categories a product can be classified under.
+      workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
+      valueSemantics:
+        ACTIVE: The status of the product category is active; set it when that is what the business means for this record.
+        INACTIVE: The status of the product category is inactive; set it when that is what the business means for this record.
+        RETIRED: The status of the product category is retired; set it when that is what the business means for this record.
   relationships:
-    - name: parentCategory
-      target: ProductCategory
-      cardinality: 0..1
-      ownership: reference
-      inverse: childCategories
-      help:
-        summary: Links a product category to product category, the parent category it relates to.
-        usage: Chosen from the existing product category records when the product category is created or edited.
-        cardinalityMeaning: A product category has at most one product category in this role.
-        context: Lets the product category be found from, and reported with, its product category.
-    - name: childCategories
-      target: ProductCategory
-      cardinality: 0..*
-      ownership: reference
-      inverse: parentCategory
-      help:
-        summary: Links a product category to product category, the child categories it relates to.
-        usage: Chosen from the existing product category records when the product category is created or edited.
-        cardinalityMeaning: A product category has any number of product category in this role.
-        context: Lets the product category be found from, and reported with, its product category.
-    - name: products
-      target: Product
-      cardinality: 0..*
-      ownership: reference
-      help:
-        summary: Products classified directly under this category.
-        workflowRole: Category changes must identify affected Products before becoming effective.
+  - name: parentCategory
+    target: ProductCategory
+    cardinality: 0..1
+    ownership: reference
+    inverse: childCategories
+    help:
+      summary: Links a product category to product category, the parent category it relates to.
+      usage: Chosen from the existing product category records when the product category is created or edited.
+      cardinalityMeaning: A product category has at most one product category in this role.
+      context: Lets the product category be found from, and reported with, its product category.
+  - name: childCategories
+    target: ProductCategory
+    cardinality: 0..*
+    ownership: reference
+    inverse: parentCategory
+    help:
+      summary: Links a product category to product category, the child categories it relates to.
+      usage: Chosen from the existing product category records when the product category is created or edited.
+      cardinalityMeaning: A product category has any number of product category in this role.
+      context: Lets the product category be found from, and reported with, its product category.
+  - name: products
+    target: Product
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Products classified directly under this category.
+      workflowRole: Category changes must identify affected Products before becoming effective.
   invariants:
-    - {id: PRODUCT-CATEGORY-001, rule: A category cannot reference itself as its parent.}
-    - {id: PRODUCT-CATEGORY-002, rule: The parentCategory hierarchy must be acyclic.}
-    - {id: PRODUCT-CATEGORY-003, rule: A RETIRED category must not be assigned to newly created Products unless an explicit migration or reinstatement process permits it.}
-    - {id: PRODUCT-CATEGORY-004, rule: "Changing parentCategory, status, or governed classification meaning must identify affected Products and dependent classification-driven rules before the change becomes effective."}
-    - {id: PRODUCT-CATEGORY-005, rule: Category changes must not rewrite historical transaction classification evidence where the transaction or document requires reproducibility.}
-    - {id: PRODUCT-CATEGORY-006, rule: Moving a category in the hierarchy must preserve hierarchy integrity and must not silently alter historical reporting classifications that were effective at transaction time.}
-    - {id: PRODUCT-CATEGORY-007, rule: "If Product classification drives tax, pricing, sourcing, inventory, reporting, or eligibility rules in a consuming application, those dependent workflows must be revalidated before the classification change is activated."}
+  - {id: PRODUCT-CATEGORY-001, rule: A category cannot reference itself as its parent.}
+  - {id: PRODUCT-CATEGORY-002, rule: The parentCategory hierarchy must be acyclic.}
+  - {id: PRODUCT-CATEGORY-003, rule: A RETIRED category must not be assigned to newly created Products unless an explicit migration or reinstatement process permits it.}
+  - {id: PRODUCT-CATEGORY-004, rule: "Changing parentCategory, status, or governed classification meaning must identify affected Products and dependent classification-driven rules before the change becomes effective."}
+  - {id: PRODUCT-CATEGORY-005, rule: Category changes must not rewrite historical transaction classification evidence where the transaction or document requires reproducibility.}
+  - {id: PRODUCT-CATEGORY-006, rule: Moving a category in the hierarchy must preserve hierarchy integrity and must not silently alter historical reporting classifications that were effective at transaction time.}
+  - {id: PRODUCT-CATEGORY-007, rule: "If Product classification drives tax, pricing, sourcing, inventory, reporting, or eligibility rules in a consuming application, those dependent workflows must be revalidated before the classification change is activated."}
   lifecycle:
     title: Product Category Lifecycle
     attribute: status
@@ -99,10 +98,10 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents one governed node in the Product classification hierarchy.
     businessMeaning: ProductCategory provides taxonomy rather than operational state. It groups Products so people and systems can navigate, report, analyze, and govern the portfolio consistently.

@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of one characteristic configuration within a QualityPlan.
-      businessMeaning: Identifies the specific plan-level requirement that governs how one QualityCharacteristic is inspected.
-      usage: Traceability, configuration, inspection execution, audit, and integration.
-      relationshipContext: Links one QualityPlan to one reusable QualityCharacteristic and its plan-specific criteria.
-      requiredMeaning: Required because plan-level requirements need an unambiguous identity.
+      summary: The permanent system identifier of the quality plan characteristic record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a quality plan characteristic store this identifier. The number or code people quote is a separate field.
   - name: sequenceNumber
     type: integer
     required: true

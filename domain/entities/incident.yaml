@@ -8,7 +8,14 @@ entity:
     recordLabel: [incidentNumber, title]
   identity: {key: incidentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: incidentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Incident., businessMeaning: Identifies one governed Incident record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - name: incidentId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the incident record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a incident store this identifier. The number or code people quote is a separate field.
   - name: incidentNumber
     type: string
     required: true

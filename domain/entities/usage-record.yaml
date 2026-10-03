@@ -8,7 +8,14 @@ entity:
     recordLabel: [usageNumber]
   identity: {key: usageRecordId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of UsageRecord., businessMeaning: Identifies one governed UsageRecord record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: usageRecordId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the usage record record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a usage record store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true

@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: packagingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: packagingId, type: uuid, required: true, immutable: true, help: {summary: Stable packaging identity., businessMeaning: Identifies one governed pack configuration., usage: "PIM, procurement, WMS, sales and logistics.", relationshipContext: References Product and quantity/UOM semantics., requiredMeaning: Required.}}
+  - name: packagingId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the packaging record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a packaging store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, maxLength: 100, help: {summary: Packaging configuration code., businessMeaning: Operational identifier for pack form., usage: "Catalog, labels and integration.", relationshipContext: Unique within applicable Product context., requiredMeaning: Required.}}
   - {name: quantityPerPackage, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Product quantity contained in one package., businessMeaning: Defines pack conversion., usage: "Ordering, storage, picking and shipping.", relationshipContext: Interpreted with UnitOfMeasure., requiredMeaning: Required.}}
   relationships:

@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: 'The tax rule id of the tax rule: an identifier the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a tax rule cannot be understood without its tax rule id.'
+      summary: The permanent system identifier of the tax rule record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a tax rule store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true

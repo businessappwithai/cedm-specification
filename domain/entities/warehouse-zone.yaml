@@ -7,7 +7,14 @@ entity:
     icon: warehouse
   identity: {key: warehouseZoneId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: warehouseZoneId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of warehouse zone., businessMeaning: Identifies an operational storage/handling area., usage: "Putaway, picking, replenishment, capacity and controls.", relationshipContext: Groups InventoryLocations within one Warehouse., requiredMeaning: Required.}}
+  - name: warehouseZoneId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the warehouse zone record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a warehouse zone store this identifier. The number or code people quote is a separate field.
   - {name: zoneCode, type: string, required: true, maxLength: 100, help: {summary: Human-facing zone code., businessMeaning: Operational identifier used by warehouse workers and systems., usage: "Routing, labels and reporting.", relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
   - name: zoneType
     type: enum

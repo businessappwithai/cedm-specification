@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the exchange-rate observation or published rate record.
-      usage: Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations.
-      relationshipContext: Identifies one rate record rather than a currency or monetary amount.
-      workflowRole: Provides auditable linkage from a converted amount back to the rate used.
-      requiredMeaning: Required for traceable currency conversion.
+      summary: The permanent system identifier of the exchange rate record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a exchange rate store this identifier. The number or code people quote is a separate field.
   - name: fromCurrency
     type: reference
     target: Currency

@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: "The address id of the address: an identifier the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its address id."
+      summary: The permanent system identifier of the address record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a address store this identifier. The number or code people quote is a separate field.
   - name: addressType
     type: enum
     required: true
@@ -185,10 +184,10 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence.
     businessMeaning: Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes.

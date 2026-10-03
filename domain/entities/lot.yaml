@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: lotId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the lot., businessMeaning: Identifies the traceability group independently of printed lot number., usage: "Inventory, quality, recall, manufacturing, receiving, shipping, and audit.", relationshipContext: Groups quantities of one Product across locations and movements., requiredMeaning: Required.}}
+  - name: lotId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the lot record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a lot store this identifier. The number or code people quote is a separate field.
   - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: Business-facing lot or batch identifier., businessMeaning: Traceability code used operationally and externally., usage: "Receiving, labels, picking, quality, recall, and certificates.", relationshipContext: Uniqueness is governed with Product and organizational policy., requiredMeaning: Required.}}
   - {name: manufacturedAt, type: datetime, required: false, help: {summary: Time the lot was manufactured or produced., businessMeaning: Anchors production age and provenance., usage: "Shelf-life, quality, genealogy, and recall.", relationshipContext: Distinct from receipt date., optionalMeaning: Optional when unknown or not applicable.}}
   - {name: expiresAt, type: datetime, required: false, help: {summary: Expiry or use-by time for the lot., businessMeaning: Controls eligibility where shelf life applies., usage: "FEFO allocation, quarantine, disposal, and compliance.", relationshipContext: Does not itself post inventory movement., optionalMeaning: Optional for non-expiring products.}}
@@ -34,58 +41,58 @@ entity:
     initial: ACTIVE
     terminal: [CONSUMED, EXPIRED, REJECTED]
     transitions:
-      - {from: ACTIVE, to: HOLD, action: mark_hold}
-      - {from: HOLD, to: RELEASED, action: release}
-      - {from: RELEASED, to: CLOSED, action: close}
-      - {from: CLOSED, to: CONSUMED, action: consume}
-      - {from: HOLD, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: HOLD, action: release}
-      - {from: RELEASED, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: RELEASED, action: release}
-      - {from: HOLD, to: EXPIRED, action: expire}
-      - {from: RELEASED, to: EXPIRED, action: expire}
-      - {from: QUARANTINED, to: EXPIRED, action: expire}
-      - {from: ACTIVE, to: REJECTED, action: reject}
-      - {from: HOLD, to: REJECTED, action: reject}
-      - {from: RELEASED, to: REJECTED, action: reject}
-      - {from: QUARANTINED, to: REJECTED, action: reject}
+    - {from: ACTIVE, to: HOLD, action: mark_hold}
+    - {from: HOLD, to: RELEASED, action: release}
+    - {from: RELEASED, to: CLOSED, action: close}
+    - {from: CLOSED, to: CONSUMED, action: consume}
+    - {from: HOLD, to: QUARANTINED, action: quarantine}
+    - {from: QUARANTINED, to: HOLD, action: release}
+    - {from: RELEASED, to: QUARANTINED, action: quarantine}
+    - {from: QUARANTINED, to: RELEASED, action: release}
+    - {from: HOLD, to: EXPIRED, action: expire}
+    - {from: RELEASED, to: EXPIRED, action: expire}
+    - {from: QUARANTINED, to: EXPIRED, action: expire}
+    - {from: ACTIVE, to: REJECTED, action: reject}
+    - {from: HOLD, to: REJECTED, action: reject}
+    - {from: RELEASED, to: REJECTED, action: reject}
+    - {from: QUARANTINED, to: REJECTED, action: reject}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a lot is stopped"
-      description: "When a lot is quarantined, a high-priority task asks someone to resolve it."
-      when: "status == \"QUARANTINED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "LOT-EXCEPTION-{{id}}"
-              name: "Resolve lot {{lot_number}}"
-              description: "Lot {{lot_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a lot is ended"
-      description: "When a lot is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "LOT-FOLLOW-UP-{{id}}"
-              name: "Follow up on lot {{lot_number}}"
-              description: "Lot {{lot_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a lot is stopped"
+    description: "When a lot is quarantined, a high-priority task asks someone to resolve it."
+    when: "status == \"QUARANTINED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "LOT-EXCEPTION-{{id}}"
+          name: "Resolve lot {{lot_number}}"
+          description: "Lot {{lot_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a lot is ended"
+    description: "When a lot is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "LOT-FOLLOW-UP-{{id}}"
+          name: "Follow up on lot {{lot_number}}"
+          description: "Lot {{lot_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Batch-level inventory identity for end-to-end genealogy and recall.
     businessMeaning: Product identifies what an item is; Lot identifies which production or receipt batch a quantity belongs to.

@@ -12,7 +12,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identifier for the Customer business relationship., usage: Used by orders invoices receivables service pricing credit contracts and analytics., relationshipContext: Party identifies the underlying party while customerId identifies the customer relationship., workflowRole: Provides the stable customer reference carried into SalesOrder Invoice Payment shipment service and receivables workflows., requiredMeaning: Required for unambiguous customer transaction traceability.}
+    help:
+      summary: The permanent system identifier of the customer record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a customer store this identifier. The number or code people quote is a separate field.
   - name: partyRoleId
     type: reference
     target: PartyRole

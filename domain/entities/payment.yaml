@@ -11,7 +11,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the payment event., businessMeaning: "Identifies the financial movement independently of its business reference, allocations, bank evidence, accounting entries or credit settlement purpose.", usage: "Reconciliation, allocation, accounting, audit, integration and reversal.", relationshipContext: Identity remains stable when allocations are reversed or a refund/settlement is associated with a credit note., workflowRole: "Root reference across preparation, authorization, posting, clearing and reversal.", requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the payment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a payment store this identifier. The number or code people quote is a separate field.
   - name: paymentNumber
     type: string
     required: true

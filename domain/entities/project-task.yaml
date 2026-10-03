@@ -16,39 +16,27 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the project task record associated with this ProjectTask. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the project task record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a project task store this identifier. The number or code people quote is a separate field.
   - name: taskCode
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of task code for the ProjectTask. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of task code for the ProjectTask. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
       summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -60,20 +48,16 @@ entity:
     - COMPLETED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         NOT_STARTED: Represents the not started state or classification in the context of ProjectTask.
         IN_PROGRESS: Represents the in progress state or classification in the context of ProjectTask.
         BLOCKED: Represents the blocked state or classification in the context of ProjectTask.
         COMPLETED: Represents the completed state or classification in the context of ProjectTask.
         CANCELLED: Represents the cancelled state or classification in the context of ProjectTask.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: priority
     type: enum
     required: true
@@ -84,40 +68,30 @@ entity:
     - HIGH
     - CRITICAL
     help:
-      summary: Captures the business meaning of priority for the ProjectTask. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Captures the business meaning of priority for the ProjectTask. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         LOW: Represents the low state or classification in the context of ProjectTask.
         NORMAL: Represents the normal state or classification in the context of ProjectTask.
         HIGH: Represents the high state or classification in the context of ProjectTask.
         CRITICAL: Represents the critical state or classification in the context of ProjectTask.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: startDate
     type: date
     required: false
     help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: dueDate
     type: date
     required: false
     help:
-      summary: Records the business date associated with the due. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Records the business date associated with the due. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: percentComplete
     type: decimal
@@ -126,14 +100,10 @@ entity:
     precision: 5
     scale: 2
     help:
-      summary: Captures the business meaning of percent complete for the ProjectTask. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where
-        applicable.
-      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of percent complete for the ProjectTask. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProjectTask records, where applicable.
+      relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: project
     target: Project
@@ -143,8 +113,7 @@ entity:
       summary: Connects ProjectTask to Project so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Project records associated with a ProjectTask.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: assignee
     target: Party
     cardinality: 0..1
@@ -153,8 +122,7 @@ entity:
       summary: Connects ProjectTask to Party so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Party records associated with a ProjectTask.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: parentTask
     target: ProjectTask
     cardinality: 0..1
@@ -163,8 +131,7 @@ entity:
       summary: Connects ProjectTask to ProjectTask so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about ProjectTask records associated with a ProjectTask.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: milestone
     target: Milestone
     cardinality: 0..1
@@ -173,8 +140,7 @@ entity:
       summary: Connects ProjectTask to Milestone so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Milestone records associated with a ProjectTask.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: PROJECT-TASK-001
     rule: percentComplete must be between 0 and 100.
@@ -187,63 +153,57 @@ entity:
     initial: NOT_STARTED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: NOT_STARTED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
-      - {from: IN_PROGRESS, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: IN_PROGRESS, action: unblock}
-      - {from: NOT_STARTED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
-      - {from: BLOCKED, to: CANCELLED, action: cancel}
+    - {from: NOT_STARTED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+    - {from: IN_PROGRESS, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: IN_PROGRESS, action: unblock}
+    - {from: NOT_STARTED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+    - {from: BLOCKED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a project task is stopped"
-      description: "When a project task is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PROJECT-TASK-EXCEPTION-{{id}}"
-              name: "Resolve project task {{name}}"
-              description: "Project task {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a project task is ended"
-      description: "When a project task is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PROJECT-TASK-FOLLOW-UP-{{id}}"
-              name: "Follow up on project task {{name}}"
-              description: "Project task {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a project task is stopped"
+    description: "When a project task is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROJECT-TASK-EXCEPTION-{{id}}"
+          name: "Resolve project task {{name}}"
+          description: "Project task {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a project task is ended"
+    description: "When a project task is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROJECT-TASK-FOLLOW-UP-{{id}}"
+          name: "Follow up on project task {{name}}"
+          description: "Project task {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents a project management entity called ProjectTask within the CEDM business model.
-    businessMeaning: ProjectTask is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate ProjectTask records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Project, Party, ProjectTask,
-      Milestone. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical ProjectTask record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    businessMeaning: ProjectTask is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ProjectTask records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Project, Party, ProjectTask, Milestone. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical ProjectTask record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

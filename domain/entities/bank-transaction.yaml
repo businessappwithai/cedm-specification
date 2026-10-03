@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the imported bank transaction evidence.
-      usage: Used for statement import, deduplication, reconciliation, audit, and integration.
-      relationshipContext: Identifies external evidence and is never substituted for Payment or JournalEntry identity.
-      workflowRole: Provides the root key for bank reconciliation and exception handling.
-      requiredMeaning: Required for evidence traceability.
+      summary: The permanent system identifier of the bank transaction record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a bank transaction store this identifier. The number or code people quote is a separate field.
   - name: transactionNumber
     type: string
     required: true

@@ -2,24 +2,96 @@ entity:
   name: Classification
   namespace: cedm.domain
   kind: reference_data
-  description: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics.
+  description: A value in a classification scheme — an industry code, a customer segment, a product family, a risk category — used to classify records consistently across the business.
   ui:
-    icon: layers
+    icon: tags
+    recordLabel: [scheme, code]
   identity: {key: classificationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: classificationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Classification., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Classification is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Classification., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Classification., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
-  relationships: []
+  - name: classificationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the classification record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a classification store this identifier. The number or code people quote is a separate field.
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The code of the value within its scheme.
+      usage: Used in records and imports.
+      relationshipContext: Unique within the scheme.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The name of the value.
+      usage: Shown wherever the value is chosen.
+      relationshipContext: Identifies it for people.
+  - name: scheme
+    type: string
+    required: true
+    maxLength: 50
+    help:
+      summary: The scheme the value belongs to, such as NACE, SEGMENT or RISK-CAT.
+      usage: Chosen when the value is created; records are classified within one scheme at a time.
+      relationshipContext: Values are unique within their scheme.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the value covers.
+      usage: Read by whoever classifies a record.
+      relationshipContext: Should say what belongs and what does not.
+  - name: level
+    type: integer
+    required: false
+    help:
+      summary: The depth of the value in its hierarchy — 1 for the top.
+      usage: Used to report at a chosen level.
+      relationshipContext: One more than its parent's level.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, RETIRED]
+    help:
+      summary: Whether the value may be assigned.
+      usage: Retired values are not offered.
+      relationshipContext: Records keep retired values.
+      valueSemantics:
+        ACTIVE: May be assigned.
+        RETIRED: No longer assigned.
+  relationships:
+  - name: parent
+    target: Classification
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The broader value this one sits under.
+      usage: Builds the hierarchy.
+      cardinalityMeaning: At most one parent, in the same scheme.
+      context: Cannot be itself.
   invariants:
-  - {id: CLASSIFICATION-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  - {id: CLASSIFICATION-001, rule: "A value's parent belongs to the same scheme, and a value cannot be its own ancestor."}
+  lifecycle:
+    title: Classification Lifecycle
+    attribute: status
+    states: [ACTIVE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+    - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: One value of a scheme used to group records, such as an industry or a segment.
+    businessMeaning: Reports and rules need records classified the same way everywhere. Keeping classifications as governed values, grouped into schemes and arranged in hierarchies, stops free-text categories from drifting and lets every report group by the same industry, segment or family.
+    usage: Data owners maintain schemes and their values; master records are classified by choosing values; reports group and filter by them.
+    relationshipContext: A classification belongs to a scheme (named by its scheme code) and may have a parent value in the same scheme, forming a hierarchy.
+    lifecycle: Active while it may be assigned; retired when the scheme changes; records keep the values they were given.
+    workflowContext: Customer and supplier segmentation, product hierarchies, risk categorisation, reporting.
+    example: Scheme NACE, value 46.69 'Wholesale of other machinery and equipment', parent 46.6.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CLASSIFICATION}

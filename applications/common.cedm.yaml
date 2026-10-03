@@ -26,6 +26,7 @@ imports:
   - entity: ExchangeRate
   - entity: UnitOfMeasure
   - entity: Calendar
+  - entity: CalendarException
   - entity: Attachment
   - entity: Task
 ui:

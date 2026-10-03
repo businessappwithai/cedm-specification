@@ -7,7 +7,14 @@ entity:
     icon: package
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
+  - name: productVariantId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the product variant record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a product variant store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
   - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
   - name: status
@@ -31,34 +38,34 @@ entity:
     initial: DRAFT
     terminal: [DISCONTINUED, RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
-      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
-      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
-      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
-      - {from: DRAFT, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: BLOCKED, to: RETIRED, action: retire}
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+    - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+    - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+    - {from: DRAFT, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: BLOCKED, to: RETIRED, action: retire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a product variant is stopped"
-      description: "When a product variant is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PRODUCT-VARIANT-EXCEPTION-{{id}}"
-              name: "Resolve product variant {{code}}"
-              description: "Product variant {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a product variant is stopped"
+    description: "When a product variant is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PRODUCT-VARIANT-EXCEPTION-{{id}}"
+          name: "Resolve product variant {{code}}"
+          description: "Product variant {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Governed product-family variation for configuration-specific commercial and operational use.
     businessMeaning: Product defines the family/item concept; ProductVariant identifies a specific option combination such as size, color, grade or pack configuration.

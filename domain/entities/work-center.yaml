@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: workCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}
+  - name: workCenterId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the work center record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a work center store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing work-center code., businessMeaning: Operational identifier used in manufacturing plans and execution., usage: "Scheduling, dispatching, reporting, and integration.", relationshipContext: Unique within its manufacturing context., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 300, help: {summary: Descriptive work-center name., businessMeaning: Communicates the resource function to planners and operators., usage: Planning and execution UI/reporting., relationshipContext: Complements the stable code., requiredMeaning: Required.}}
   - {name: capacityPerHour, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Nominal output or processing capacity per hour., businessMeaning: Planning assumption for finite or rough-cut scheduling., usage: Capacity planning and schedule feasibility., relationshipContext: Actual execution is captured separately., optionalMeaning: Optional when capacity is not quantity-based.}}
@@ -30,13 +37,13 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
-      - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
-      - {from: MAINTENANCE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: MAINTENANCE, action: mark_maintenance}
+    - {from: MAINTENANCE, to: ACTIVE, action: return_to_service}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: MAINTENANCE, to: RETIRED, action: retire}
   help:
     summary: Manufacturing capacity resource used by routing and execution.
     businessMeaning: WorkCenter represents where or by which resource an Operation is performed.

@@ -12,11 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier credit line.
-      businessMeaning: Identifies one component of a supplier financial adjustment.
-      usage: Used for reconciliation, accounting, tax and audit.
-      workflowRole: Stable reference for posting and reversal.
-      requiredMeaning: Required for traceability.
+      summary: The permanent system identifier of the supplier credit note line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier credit note line store this identifier. The number or code people quote is a separate field.
   - name: lineNumber
     type: integer
     required: true

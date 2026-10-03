@@ -7,7 +7,14 @@ entity:
     icon: folder-kanban
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
+  - name: projectPhaseId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the project phase record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a project phase store this identifier. The number or code people quote is a separate field.
   - {name: name, type: string, required: true, maxLength: 200, help: {summary: Human-readable phase name., businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
   - name: status
     type: enum

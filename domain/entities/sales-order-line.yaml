@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: 'The sales order line id of the sales order line: an identifier the business records on it.'
-      usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a sales order line cannot be understood without its sales order line id.'
+      summary: The permanent system identifier of the sales order line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a sales order line store this identifier. The number or code people quote is a separate field.
   - name: lineNumber
     type: integer
     required: true

@@ -15,7 +15,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the inventory event., usage: "Used for stock-ledger traceability, audit, reconciliation, integration and investigation.", relationshipContext: "Identifies the event independently of Product, location, quantity and originating transaction.", workflowRole: "Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation.", requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the inventory movement record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a inventory movement store this identifier. The number or code people quote is a separate field.
   - name: movementNumber
     type: string
     required: true

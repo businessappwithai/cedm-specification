@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the payment-term policy.
-      usage: Referenced by Customer, Supplier, SalesOrder, PurchaseOrder, Invoice, and applicable contracts.
-      relationshipContext: Identifies the policy definition, not a particular invoice due date or payment event.
-      workflowRole: Provides reusable settlement timing rules that are copied or resolved into transaction-level due-date calculations.
-      requiredMeaning: Required for traceable commercial terms.
+      summary: The permanent system identifier of the payment term record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a payment term store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true

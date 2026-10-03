@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: routingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions., requiredMeaning: Required.}}
+  - name: routingId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the routing record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a routing store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition., requiredMeaning: Required.}}
   - {name: version, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version., requiredMeaning: Required.}}
   - name: status
@@ -30,12 +37,12 @@ entity:
     initial: DRAFT
     terminal: [OBSOLETE]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ACTIVE, action: resume}
-      - {from: DRAFT, to: OBSOLETE, action: mark_obsolete}
-      - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
-      - {from: SUSPENDED, to: OBSOLETE, action: mark_obsolete}
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: DRAFT, to: OBSOLETE, action: mark_obsolete}
+    - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
+    - {from: SUSPENDED, to: OBSOLETE, action: mark_obsolete}
   help:
     summary: Versioned definition of manufacturing process sequence.
     businessMeaning: BillOfMaterial defines what materials are required; Routing defines how the output is produced.

@@ -2,9 +2,10 @@ entity:
   name: CarePlan
   namespace: cedm.domain
   kind: healthcare_entity
-  description: A governed plan of care defining goals, interventions, responsibilities, and follow-up for a patient.
+  description: A patient's plan of care — the conditions it addresses, the goals, the interventions and who is responsible — reviewed over time until the goals are met or the plan ends.
   ui:
-    icon: table
+    icon: clipboard-list
+    recordLabel: [carePlanCode, title]
   identity:
     key: carePlanId
     type: uuid
@@ -16,94 +17,147 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the CarePlan record.
-      businessMeaning: Identifies one governed CarePlan independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing HealthcarePatient context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
+      summary: The permanent system identifier of the care plan record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a care plan store this identifier. The number or code people quote is a separate field.
   - name: carePlanCode
     type: string
     required: true
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the CarePlan.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the care plan.
+      usage: Assigned when it is created.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    values: [DRAFT, ACTIVE, ON_HOLD, COMPLETED, REVOKED]
     help:
-      summary: Lifecycle state of the CarePlan.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
+      summary: Whether the plan is being followed.
+      usage: Moved on by the responsible clinician.
+      relationshipContext: Only active plans are shown to the care team as current.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        DRAFT: Being prepared.
+        ACTIVE: Being followed.
+        ON_HOLD: Paused.
+        COMPLETED: Goals met or plan finished.
+        REVOKED: Stopped before completion.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What the plan is for, such as "Type 2 diabetes management".
+      usage: Shown on the patient's record.
+      relationshipContext: Identifies the plan for people.
+  - name: goals
+    type: text
+    required: true
+    help:
+      summary: What the plan aims to achieve, measurably where possible.
+      usage: Agreed with the patient; progress is judged against them.
+      relationshipContext: Reviewed at each review date.
+  - name: interventions
+    type: text
+    required: false
+    help:
+      summary: What will be done — treatments, referrals, education, monitoring.
+      usage: Followed by the care team.
+      relationshipContext: Orders and encounters carry them out.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: When the plan starts.
+      usage: Set when it is agreed.
+      relationshipContext: Not later than the end date.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: When the plan is expected to end.
+      usage: Set if the plan has a defined length.
+      relationshipContext: Empty for open-ended plans.
+  - name: nextReviewDate
+    type: date
+    required: false
+    help:
+      summary: When the plan will next be reviewed.
+      usage: Drives review reminders.
+      relationshipContext: Moved on at each review.
   relationships:
-  - name: context
+  - name: patient
     target: HealthcarePatient
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing HealthcarePatient associated with this CarePlan.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every CarePlan belongs to exactly one governing HealthcarePatient in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The patient the plan is for.
+      usage: Set when creating it.
+      cardinalityMeaning: Every plan is for exactly one patient.
+      context: Listed among the patient's care plans.
+  - name: responsibleProvider
+    target: HealthcareProvider
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The clinician responsible for the plan.
+      usage: Leads its reviews.
+      cardinalityMeaning: One per plan.
+      context: May change over time.
+  - name: diagnosis
+    target: Diagnosis
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The diagnosis the plan addresses.
+      usage: Linked when the plan is for one condition.
+      cardinalityMeaning: At most one.
+      context: Plans covering several conditions name them in the goals.
   invariants:
-  - id: CARE-PLAN-001
-    rule: The governing HealthcarePatient relationship is required and must reference a valid record.
-  - id: CARE-PLAN-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: CARE-PLAN-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: CARE-PLAN-001, rule: The plan does not end before it starts., violatedWhen: end_date != null and start_date != null and end_date < start_date, message: The end date is earlier than the start date.}
+  workflows:
+  - name: ExceptionRaised
+    title: "Raise a task when a care plan is stopped"
+    description: "When a care plan is on hold, a high-priority task asks someone to resolve it."
+    when: "status == \"ON_HOLD\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CARE-PLAN-EXCEPTION-{{id}}"
+          name: "Resolve care plan {{title}}"
+          description: "Care plan {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   lifecycle:
     title: Care Plan Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, ACTIVE, ON_HOLD, COMPLETED, REVOKED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [COMPLETED, REVOKED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a care plan is ended"
-      description: "When a care plan is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CARE-PLAN-FOLLOW-UP-{{id}}"
-              name: "Follow up on care plan {{id}}"
-              description: "Care plan {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: ON_HOLD, action: hold}
+    - {from: ON_HOLD, to: ACTIVE, action: resume}
+    - {from: ACTIVE, to: COMPLETED, action: complete}
+    - {from: ACTIVE, to: REVOKED, action: revoke}
+    - {from: ON_HOLD, to: REVOKED, action: revoke}
+    - {from: DRAFT, to: REVOKED, action: revoke}
   help:
-    summary: Represents CarePlan as a first-class governed CEDM business concept.
-    businessMeaning: A governed plan of care defining goals, interventions, responsibilities, and follow-up for a patient.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: HealthcarePatient supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A CarePlan is created for a valid HealthcarePatient, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: What the care team plans to do for a patient, why, and by when.
+    businessMeaning: Patients with ongoing needs are cared for by many people over months. A care plan states the goals, the interventions agreed with the patient, who is responsible and when it will be reviewed, so that every clinician works to the same plan and progress can be judged.
+    usage: Created by the responsible clinician with the patient; reviewed at set dates; updated when goals change; completed or ended when no longer needed.
+    relationshipContext: A care plan belongs to one HealthcarePatient, may arise from a Diagnosis, and has a responsible HealthcareProvider. Encounters and orders carry out its interventions.
+    lifecycle: Drafted, active while followed, on hold during a pause, completed when its goals are met, or revoked when stopped early.
+    workflowContext: Chronic disease management, discharge planning, home care, rehabilitation.
+    example: 'Care plan CP-24-0821 for type 2 diabetes: goal HbA1c below 53 mmol/mol by December 2024; interventions — metformin, dietitian referral, quarterly review; responsible GP Dr Martin; next review 15 September.'
 specification:
   version: 0.1.0
   status: draft

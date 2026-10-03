@@ -7,7 +7,14 @@ entity:
     icon: file-text
   identity: {key: goodsReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: goodsReceiptId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the receipt., businessMeaning: Identifies the historical receiving event independently of later supplier returns or corrections., usage: "Receiving, inventory, procurement, audit and reconciliation.", relationshipContext: SupplierReturn references eligible receipt evidence without rewriting this identity., workflowRole: Stable root reference for receipt lifecycle and downstream traceability., requiredMeaning: Required.}}
+  - name: goodsReceiptId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the goods receipt record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a goods receipt store this identifier. The number or code people quote is a separate field.
   - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing receiving reference., businessMeaning: Identifies the receipt in warehouse and supplier operations., usage: "Documents, audit, matching and return processing.", relationshipContext: Distinct from SupplierReturn.returnNumber and PurchaseOrder number., workflowRole: Provides operational reference across receipt and later return workflows., requiredMeaning: Required.}}
   - {name: receiptDate, type: datetime, required: true, help: {summary: Date and time the receipt was recorded., businessMeaning: Establishes receiving chronology., usage: "Inventory history, procurement, matching and audit.", relationshipContext: Distinct from later SupplierReturn.returnDate., workflowRole: Anchors original receipt evidence., requiredMeaning: Required.}}
   - name: status

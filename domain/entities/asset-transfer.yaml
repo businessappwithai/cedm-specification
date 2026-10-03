@@ -8,7 +8,14 @@ entity:
     recordLabel: [transferNumber]
   identity: {key: assetTransferId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetTransfer., businessMeaning: Identifies one governed AssetTransfer record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - name: assetTransferId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the asset transfer record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a asset transfer store this identifier. The number or code people quote is a separate field.
   - name: transferNumber
     type: string
     required: true
@@ -155,60 +162,60 @@ entity:
     - {from: REQUESTED, to: CANCELLED, action: cancel}
     - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when an asset transfer is put forward"
-      description: "When an asset transfer is requested, a task asks someone to decide on it."
-      when: "status == \"REQUESTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ASSET-TRANSFER-APPROVAL-{{id}}"
-              name: "Decide on asset transfer {{transfer_number}}"
-              description: "Asset transfer {{transfer_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when an asset transfer is ended"
-      description: "When an asset transfer is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ASSET-TRANSFER-FOLLOW-UP-{{id}}"
-              name: "Follow up on asset transfer {{transfer_number}}"
-              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when an asset transfer is done"
-      description: "When an asset transfer is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ASSET-TRANSFER-COMPLETED-{{id}}"
-              name: "Confirm asset transfer {{transfer_number}}"
-              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: ApprovalRequested
+    title: "Ask for a decision when an asset transfer is put forward"
+    description: "When an asset transfer is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ASSET-TRANSFER-APPROVAL-{{id}}"
+          name: "Decide on asset transfer {{transfer_number}}"
+          description: "Asset transfer {{transfer_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when an asset transfer is ended"
+    description: "When an asset transfer is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ASSET-TRANSFER-FOLLOW-UP-{{id}}"
+          name: "Follow up on asset transfer {{transfer_number}}"
+          description: "Asset transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when an asset transfer is done"
+    description: "When an asset transfer is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ASSET-TRANSFER-COMPLETED-{{id}}"
+          name: "Confirm asset transfer {{transfer_number}}"
+          description: "Asset transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: A change in where an asset is, who looks after it or which unit carries its cost.
     businessMeaning: Assets move — a machine to another plant, a laptop to another employee, a vehicle to another company. Each move changes where the asset should be found in a count, who is accountable for it and which unit bears its depreciation. A transfer records the move and its effective date, keeping the history of where the asset has been.

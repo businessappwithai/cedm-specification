@@ -7,7 +7,14 @@ entity:
     icon: list
   identity: {key: requestForQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: requestForQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one RFQ requirement line., businessMeaning: Identifies the sourced requirement independently of demand and supplier responses., usage: "Sourcing comparison, award, conversion, and audit.", relationshipContext: Bridges requisition demand to supplier quotation lines., requiredMeaning: Required.}}
+  - name: requestForQuotationLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the request for quotation line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a request for quotation line store this identifier. The number or code people quote is a separate field.
   - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Business sequence within the RFQ., businessMeaning: Human-facing reference for the requirement., usage: "Supplier communication, response matching, and audit.", relationshipContext: Unique within the parent RFQ., requiredMeaning: Required.}}
   - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity suppliers are requested to quote., businessMeaning: Defines the sourcing magnitude for this requirement., usage: Bid comparison and award allocation., relationshipContext: Must reconcile with originating requisition demand and UOM., requiredMeaning: Required.}}
   - {name: description, type: string, required: true, maxLength: 2000, help: {summary: Sourcing description and requirement detail., businessMeaning: Communicates what suppliers must price or propose., usage: Solicitation and comparison., relationshipContext: Supplements Product and originating demand., requiredMeaning: Required.}}

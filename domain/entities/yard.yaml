@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable CEDM identity of the managed yard facility.
-      businessMeaning: Identifies one operational yard regardless of the containers, blocks, slots, operators, or activities currently associated with it.
-      usage: Used by yard operations, location management, movements, inventory, reporting, access, planning, and integrations to anchor yard-specific records.
-      relationshipContext: YardBlock, Location, Container, and yard movement records use the yard as operational context. Configuration changes must not change this identity.
-      requiredMeaning: Required because subordinate yard structures and operational records need an unambiguous facility identity.
+      summary: The permanent system identifier of the yard record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a yard store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true

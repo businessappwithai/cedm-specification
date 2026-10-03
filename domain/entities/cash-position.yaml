@@ -7,7 +7,14 @@ entity:
     icon: briefcase
   identity: {key: cashPositionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: cashPositionId, type: uuid, required: true, immutable: true, help: {summary: Stable snapshot identity., businessMeaning: Identifies one reproducible treasury position., usage: "Liquidity, forecasting and audit.", relationshipContext: Derived from BankAccount and cash evidence., requiredMeaning: Required.}}
+  - name: cashPositionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the cash position record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a cash position store this identifier. The number or code people quote is a separate field.
   - {name: asOf, type: datetime, required: true, help: {summary: Effective timestamp of position., businessMeaning: Defines evidence cutoff., usage: Intraday/end-of-day liquidity., relationshipContext: Transactions after cutoff are excluded., requiredMeaning: Required.}}
   - {name: ledgerBalance, type: Money, required: true, help: {summary: Account balance recognized at cutoff under position policy., businessMeaning: Baseline cash amount., usage: Treasury reporting., relationshipContext: Must be reproducible from authoritative evidence., requiredMeaning: Required.}}
   - {name: availableBalance, type: Money, required: true, help: {summary: Cash considered available for use at cutoff., businessMeaning: Liquidity available after restrictions/pending effects under policy., usage: Funding and payment decisions., relationshipContext: Currency must match account/position currency., requiredMeaning: Required.}}

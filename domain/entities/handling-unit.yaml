@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable handling-unit identity., businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units., requiredMeaning: Required.}}
+  - name: handlingUnitId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the handling unit record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a handling unit store this identifier. The number or code people quote is a separate field.
   - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: Scannable operational handling-unit reference., businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number., requiredMeaning: Required.}}
   - name: type
     type: enum

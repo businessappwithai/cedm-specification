@@ -16,52 +16,35 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the hotel reservation record associated with this HotelReservation. The identifier connects this
-        record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the hotel reservation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a hotel reservation store this identifier. The number or code people quote is a separate field.
   - name: reservationNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of reservation number for the HotelReservation. It is interpreted together with
-        the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of reservation number for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
+      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: checkIn
     type: date
     required: true
     help:
-      summary: Captures the business meaning of check in for the HotelReservation. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of check in for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
+      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: checkOut
     type: date
     required: true
     help:
-      summary: Captures the business meaning of check out for the HotelReservation. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of check out for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
+      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -74,12 +57,9 @@ entity:
     - CANCELLED
     - NO_SHOW
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
+      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         REQUESTED: Represents the requested state or classification in the context of HotelReservation.
         RESERVED: Represents the reserved state or classification in the context of HotelReservation.
@@ -87,21 +67,16 @@ entity:
         CHECKED_OUT: Represents the checked out state or classification in the context of HotelReservation.
         CANCELLED: Represents the cancelled state or classification in the context of HotelReservation.
         NO_SHOW: Represents the no show state or classification in the context of HotelReservation.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: guestCount
     type: integer
     required: true
     minimum: 1
     help:
-      summary: Captures the business meaning of guest count for the HotelReservation. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records,
-        where applicable.
-      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of guest count for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
+      relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: hotel
     target: Hotel
@@ -111,8 +86,7 @@ entity:
       summary: Connects HotelReservation to Hotel so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Hotel records associated with a HotelReservation.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: room
     target: HotelRoom
     cardinality: 0..1
@@ -121,8 +95,7 @@ entity:
       summary: Connects HotelReservation to HotelRoom so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about HotelRoom records associated with a HotelReservation.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: guest
     target: Party
     cardinality: '1'
@@ -131,8 +104,7 @@ entity:
       summary: Connects HotelReservation to Party so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Party records associated with a HotelReservation.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: HOTEL-RESERVATION-001
     rule: checkOut must be later than checkIn.
@@ -143,66 +115,60 @@ entity:
     initial: REQUESTED
     terminal: [CANCELLED, NO_SHOW]
     transitions:
-      - {from: REQUESTED, to: RESERVED, action: reserve}
-      - {from: RESERVED, to: CHECKED_IN, action: mark_checked_in}
-      - {from: CHECKED_IN, to: CHECKED_OUT, action: mark_checked_out}
-      - {from: REQUESTED, to: CANCELLED, action: cancel}
-      - {from: RESERVED, to: CANCELLED, action: cancel}
-      - {from: CHECKED_IN, to: CANCELLED, action: cancel}
-      - {from: CHECKED_OUT, to: CANCELLED, action: cancel}
-      - {from: RESERVED, to: NO_SHOW, action: mark_no_show}
-      - {from: CHECKED_IN, to: NO_SHOW, action: mark_no_show}
-      - {from: CHECKED_OUT, to: NO_SHOW, action: mark_no_show}
+    - {from: REQUESTED, to: RESERVED, action: reserve}
+    - {from: RESERVED, to: CHECKED_IN, action: mark_checked_in}
+    - {from: CHECKED_IN, to: CHECKED_OUT, action: mark_checked_out}
+    - {from: REQUESTED, to: CANCELLED, action: cancel}
+    - {from: RESERVED, to: CANCELLED, action: cancel}
+    - {from: CHECKED_IN, to: CANCELLED, action: cancel}
+    - {from: CHECKED_OUT, to: CANCELLED, action: cancel}
+    - {from: RESERVED, to: NO_SHOW, action: mark_no_show}
+    - {from: CHECKED_IN, to: NO_SHOW, action: mark_no_show}
+    - {from: CHECKED_OUT, to: NO_SHOW, action: mark_no_show}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a hotel reservation is put forward"
-      description: "When a hotel reservation is requested, a task asks someone to decide on it."
-      when: "status == \"REQUESTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "HOTEL-RESERVATION-APPROVAL-{{id}}"
-              name: "Decide on hotel reservation {{reservation_number}}"
-              description: "Hotel reservation {{reservation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a hotel reservation is ended"
-      description: "When a hotel reservation is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "HOTEL-RESERVATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on hotel reservation {{reservation_number}}"
-              description: "Hotel reservation {{reservation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a hotel reservation is put forward"
+    description: "When a hotel reservation is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "HOTEL-RESERVATION-APPROVAL-{{id}}"
+          name: "Decide on hotel reservation {{reservation_number}}"
+          description: "Hotel reservation {{reservation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a hotel reservation is ended"
+    description: "When a hotel reservation is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "HOTEL-RESERVATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on hotel reservation {{reservation_number}}"
+          description: "Hotel reservation {{reservation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents a hospitality transaction called HotelReservation within the CEDM business model.
-    businessMeaning: HotelReservation is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate HotelReservation records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Hotel, HotelRoom, Party.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical HotelReservation record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    businessMeaning: HotelReservation is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate HotelReservation records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Hotel, HotelRoom, Party. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical HotelReservation record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

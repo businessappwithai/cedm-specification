@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the sampling rule.
-      businessMeaning: Identifies one conditional sampling configuration within a SamplingPlan.
-      usage: Sampling execution, audit, traceability, and integration.
-      relationshipContext: The rule belongs to a SamplingPlan and determines how a qualifying inspection population is sampled.
-      requiredMeaning: Required.
+      summary: The permanent system identifier of the sampling rule record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a sampling rule store this identifier. The number or code people quote is a separate field.
   - name: ruleNumber
     type: string
     required: true
@@ -136,9 +134,9 @@ entity:
     initial: DRAFT
     terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: DRAFT, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: DRAFT, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Conditional sampling configuration that translates a SamplingPlan into a deterministic sample size and acceptance threshold.
     businessMeaning: SamplingRule answers how many units to inspect for a qualifying population and, where applicable, how many failures are permitted before rejection.

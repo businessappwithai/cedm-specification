@@ -11,7 +11,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the supplier debit note., businessMeaning: Identifies one financial debit adjustment independently of its supplier claim invoice lines applications or accounting evidence., usage: Used for accounts payable recovery supplier communication reconciliation audit and integration., relationshipContext: Distinct from SupplierClaim SupplierClaimResolution Invoice and SupplierCreditNote identities., workflowRole: Stable identity across drafting approval posting application and reversal., requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the supplier debit note record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier debit note store this identifier. The number or code people quote is a separate field.
   - name: debitNoteNumber
     type: string
     required: true
@@ -46,13 +49,10 @@ entity:
         DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
         APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
         POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
-        PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business
-          means for this record.
-        FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for
-          this record.
+        PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business means for this record.
+        FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for this record.
         DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
-        CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this
-          record.
+        CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this record.
         REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
   - name: currencyId
     type: reference
@@ -112,54 +112,54 @@ entity:
     initial: DRAFT
     terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
     transitions:
-      - {from: DRAFT, to: APPROVED, action: approve}
-      - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
-      - {from: PARTIALLY_APPLIED, to: DISPUTED, action: mark_disputed}
-      - {from: DISPUTED, to: FULLY_APPLIED, action: mark_fully_applied}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: POSTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
-      - {from: DISPUTED, to: CANCELLED, action: cancel}
-      - {from: DISPUTED, to: REVERSED, action: reverse}
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: POSTED, action: post}
+    - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
+    - {from: PARTIALLY_APPLIED, to: DISPUTED, action: mark_disputed}
+    - {from: DISPUTED, to: FULLY_APPLIED, action: mark_fully_applied}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+    - {from: POSTED, to: CANCELLED, action: cancel}
+    - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
+    - {from: DISPUTED, to: CANCELLED, action: cancel}
+    - {from: DISPUTED, to: REVERSED, action: reverse}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a supplier debit note is ended"
-      description: "When a supplier debit note is cancelled or reversed, a task asks someone to settle what depended on it."
-      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-DEBIT-NOTE-FOLLOW-UP-{{id}}"
-              name: "Follow up on supplier debit note {{debit_note_number}}"
-              description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a supplier debit note is done"
-      description: "When a supplier debit note is posted, a task asks someone to confirm the outcome."
-      when: "status == \"POSTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-DEBIT-NOTE-COMPLETED-{{id}}"
-              name: "Confirm supplier debit note {{debit_note_number}}"
-              description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a supplier debit note is ended"
+    description: "When a supplier debit note is cancelled or reversed, a task asks someone to settle what depended on it."
+    when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-DEBIT-NOTE-FOLLOW-UP-{{id}}"
+          name: "Follow up on supplier debit note {{debit_note_number}}"
+          description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a supplier debit note is done"
+    description: "When a supplier debit note is posted, a task asks someone to confirm the outcome."
+    when: "status == \"POSTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-DEBIT-NOTE-COMPLETED-{{id}}"
+          name: "Confirm supplier debit note {{debit_note_number}}"
+          description: "Supplier debit note {{debit_note_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Represents a buyer-issued financial debit against a supplier while preserving the original payable claim supplier-claim history resolution decision and application evidence.
     businessMeaning: SupplierClaim explains the issue, SupplierClaimResolution authorizes the remedy, SupplierDebitNote records the financial recovery, SupplierDebitNoteApplication allocates that recovery to payable claims, and JournalEntry provides accounting recognition. Payment remains the separate cash-movement concept.

@@ -11,7 +11,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of one quality measurement., businessMeaning: Identifies one observation independently of its inspection and characteristic., usage: "Traceability, audit, analytics and integrations.", relationshipContext: Distinct from QualityInspection and the measured Product., workflowRole: Stable reference from capture through review., requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the quality measurement record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a quality measurement store this identifier. The number or code people quote is a separate field.
   - name: measurementNumber
     type: string
     required: true
@@ -69,10 +72,8 @@ entity:
       valueSemantics:
         PASS: The result of the quality measurement is pass; set it when that is what the business means for this record.
         FAIL: The result of the quality measurement is fail; set it when that is what the business means for this record.
-        CONDITIONAL: The result of the quality measurement is conditional; set it when that is what the business means for this
-          record.
-        NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for
-          this record.
+        CONDITIONAL: The result of the quality measurement is conditional; set it when that is what the business means for this record.
+        NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for this record.
   - name: measuredAt
     type: datetime
     required: true

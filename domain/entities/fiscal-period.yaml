@@ -7,7 +7,14 @@ entity:
     icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}
+  - name: fiscalPeriodId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the fiscal period record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a fiscal period store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context., requiredMeaning: Required.}}
   - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate., requiredMeaning: Required.}}
   - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
@@ -33,11 +40,11 @@ entity:
     initial: FUTURE
     terminal: [CLOSED]
     transitions:
-      - {from: FUTURE, to: OPEN, action: open}
-      - {from: OPEN, to: SOFT_CLOSED, action: mark_soft_closed}
-      - {from: SOFT_CLOSED, to: CLOSED, action: close}
-      - {from: OPEN, to: LOCKED, action: lock}
-      - {from: LOCKED, to: OPEN, action: unlock}
+    - {from: FUTURE, to: OPEN, action: open}
+    - {from: OPEN, to: SOFT_CLOSED, action: mark_soft_closed}
+    - {from: SOFT_CLOSED, to: CLOSED, action: close}
+    - {from: OPEN, to: LOCKED, action: lock}
+    - {from: LOCKED, to: OPEN, action: unlock}
   help:
     summary: Accounting-period control for posting, close and reporting.
     businessMeaning: FiscalPeriod determines whether an accounting date is currently eligible for recognition; it does not replace JournalEntry.

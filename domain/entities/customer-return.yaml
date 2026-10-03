@@ -12,12 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the customer return.
-      businessMeaning: Identifies the reverse-fulfillment event independently of its number, lines, shipment, invoice or credit note.
-      usage: Used for reverse logistics, inventory, financial adjustment, audit and integration.
-      relationshipContext: Stable root identity for CustomerReturnLine and downstream CreditNote evidence.
-      workflowRole: Carries the return identity through authorization, receipt, disposition and financial settlement.
-      requiredMeaning: Required for return traceability.
+      summary: The permanent system identifier of the customer return record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a customer return store this identifier. The number or code people quote is a separate field.
   - name: returnNumber
     type: string
     required: true

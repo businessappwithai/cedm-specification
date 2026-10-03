@@ -328,9 +328,19 @@ def lenient(text: str) -> str:
     out = []
     for line in text.split("\n"):
         m = PROSE.match(line)
-        if m and not m.group(2).lstrip().startswith(("{", "[", '"', "'", "|", ">", "&", "*", "!")):
+        if m:
             value = m.group(2).rstrip()
-            if ": " in value or " #" in value or value.endswith(":"):
+            structured = value.lstrip().startswith(("{", "[", "|", ">", "&", "*", "!"))
+            quoted = value.startswith(('"', "'"))
+            if quoted:
+                # A quoted scalar is left alone only when the quotes enclose the whole value.
+                try:
+                    whole = isinstance(pyyaml.safe_load(f"k: {value}").get("k"), str)
+                except pyyaml.YAMLError:
+                    whole = False
+                if not whole:
+                    line = f"{m.group(1)}: {json.dumps(value, ensure_ascii=False)}"
+            elif not structured and (": " in value or " #" in value or value.endswith(":")):
                 line = f"{m.group(1)}: {json.dumps(value, ensure_ascii=False)}"
         out.append(line)
     return "\n".join(out)

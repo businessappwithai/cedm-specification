@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the vertical tier.
-      businessMeaning: Identifies one modeled stack level within a specific YardBay regardless of later operational status changes.
-      usage: Used by yard addressing, stacking rules, capacity calculation, movement planning, visualization, and historical references.
-      relationshipContext: YardBay establishes the horizontal lane; YardTier establishes the vertical level; YardSlot identifies the exact physical position.
-      requiredMeaning: Required because each stack level must be uniquely addressable.
+      summary: The permanent system identifier of the yard tier record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a yard tier store this identifier. The number or code people quote is a separate field.
   - name: tierNumber
     type: integer
     required: true
@@ -79,28 +77,28 @@ entity:
     initial: ACTIVE
     terminal: [CLOSED]
     transitions:
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a yard tier is stopped"
-      description: "When a yard tier is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "YARD-TIER-EXCEPTION-{{id}}"
-              name: "Resolve yard tier {{id}}"
-              description: "Yard tier {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a yard tier is stopped"
+    description: "When a yard tier is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "YARD-TIER-EXCEPTION-{{id}}"
+          name: "Resolve yard tier {{id}}"
+          description: "Yard tier {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents one vertical level in a container stack and provides the model's explicit representation of stacking height and access dependency.
     businessMeaning: YardTier answers the question "how high in this bay is the position?" It is essential for calculating stack height, determining whether equipment can reach a container, and understanding whether retrieving one container requires moving containers above it.

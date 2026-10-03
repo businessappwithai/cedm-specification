@@ -8,7 +8,14 @@ entity:
     recordLabel: [messageType, sentAt]
   identity: {key: messageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - name: messageId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the message record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a message store this identifier. The number or code people quote is a separate field.
   - name: messageType
     type: string
     required: true

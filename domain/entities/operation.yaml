@@ -7,7 +7,14 @@ entity:
     icon: settings
   identity: {key: operationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: operationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the operation definition., businessMeaning: Identifies one governed process step., usage: "Routing, scheduling, execution, and costing.", relationshipContext: Belongs to one Routing and normally uses a WorkCenter., requiredMeaning: Required.}}
+  - name: operationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the operation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a operation store this identifier. The number or code people quote is a separate field.
   - {name: sequence, type: integer, required: true, minimum: 1, help: {summary: Execution order within routing., businessMeaning: Defines process precedence., usage: Scheduling and shop-floor control., relationshipContext: Unique within Routing., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 300, help: {summary: Name of work performed., businessMeaning: Communicates operation purpose., usage: "Instructions, planning, and reporting.", relationshipContext: Interpreted within Routing., requiredMeaning: Required.}}
   - {name: standardMinutes, type: decimal, required: false, precision: 12, scale: 3, help: {summary: Standard processing duration., businessMeaning: Planning/costing expectation rather than actual elapsed time., usage: Capacity scheduling and costing., relationshipContext: Actual execution may differ., optionalMeaning: Optional when time standard is unavailable.}}

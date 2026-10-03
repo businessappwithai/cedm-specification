@@ -8,7 +8,14 @@ entity:
     recordLabel: [instanceNumber]
   identity: {key: processInstanceId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: processInstanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessInstance., businessMeaning: Identifies one governed ProcessInstance record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - name: processInstanceId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the process instance record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a process instance store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true

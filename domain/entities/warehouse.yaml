@@ -17,10 +17,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the warehouse.
-      usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
-      relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
-      requiredMeaning: Required because warehouse operations need one stable identity.
+      summary: The permanent system identifier of the warehouse record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a warehouse store this identifier. The number or code people quote is a separate field.
   - name: locationId
     type: reference
     target: Location
@@ -126,10 +125,10 @@ entity:
     initial: PLANNED
     terminal: [CLOSED]
     transitions:
-      - {from: PLANNED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
     summary: Represents a managed facility where inventory is physically or operationally received, stored, controlled, fulfilled, and dispatched.
     businessMeaning: "Warehouse is more than an address: it is an operational capability with storage structure, inventory processes, capacity constraints, and an operating lifecycle. It provides the facility context in which InventoryLocation and InventoryMovement events occur."

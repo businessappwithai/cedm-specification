@@ -2,9 +2,10 @@ entity:
   name: AIEvaluation
   namespace: cedm.domain
   kind: ai_governance_entity
-  description: An evaluation record assessing an AIModel against defined quality, safety, performance, or business criteria.
+  description: A test of an AI model against stated criteria — accuracy, fairness, robustness, safety — on a named dataset, with the metrics obtained, the thresholds, and whether the model passed.
   ui:
-    icon: table
+    icon: flask-conical
+    recordLabel: [aIEvaluationCode]
   identity:
     key: aIEvaluationId
     type: uuid
@@ -16,94 +17,161 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the AIEvaluation record.
-      businessMeaning: Identifies one governed AIEvaluation independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing AIModel context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
+      summary: The permanent system identifier of the ai evaluation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a ai evaluation store this identifier. The number or code people quote is a separate field.
   - name: aIEvaluationCode
     type: string
     required: true
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the AIEvaluation.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the evaluation.
+      usage: Assigned when it is planned.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: PLANNED
+    values: [PLANNED, RUNNING, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the AIEvaluation.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
+      summary: Where the evaluation stands.
+      usage: Moved on by the data scientist.
+      relationshipContext: Completed evaluations are not changed.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        PLANNED: Defined, not yet run.
+        RUNNING: Tests in progress.
+        COMPLETED: Finished, with a verdict.
+        CANCELLED: Abandoned.
+  - name: evaluationType
+    type: enum
+    required: true
+    default: PERFORMANCE
+    values: [PERFORMANCE, FAIRNESS, ROBUSTNESS, SAFETY, DRIFT]
+    help:
+      summary: What the evaluation tests.
+      usage: Chosen when planning it.
+      relationshipContext: Several types are usually needed before approval.
+      valueSemantics:
+        PERFORMANCE: Accuracy and other quality metrics.
+        FAIRNESS: Differences in outcomes between groups.
+        ROBUSTNESS: Behaviour on unusual or adversarial inputs.
+        SAFETY: Harmful or unacceptable outputs.
+        DRIFT: Change in performance since deployment.
+  - name: criteria
+    type: text
+    required: false
+    help:
+      summary: The metrics and thresholds the model must meet.
+      usage: Set before running, so the verdict is not chosen after seeing results.
+      relationshipContext: Usually from the AI policy.
+  - name: results
+    type: text
+    required: false
+    help:
+      summary: The metrics obtained.
+      usage: Recorded when the tests finish.
+      relationshipContext: Compared with the criteria.
+  - name: primaryMetric
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The main metric, such as AUC or F1.
+      usage: Shown in model lists.
+      relationshipContext: Read with its value.
+  - name: primaryMetricValue
+    type: decimal
+    required: false
+    precision: 12
+    scale: 6
+    help:
+      summary: The value obtained for the main metric.
+      usage: Shown in model lists and trends.
+      relationshipContext: In the metric's own scale.
+  - name: passed
+    type: boolean
+    required: false
+    help:
+      summary: Whether the model met all the criteria.
+      usage: Decided when the evaluation completes; deployment requires a pass.
+      relationshipContext: Present once completed.
+  - name: evaluatedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the evaluation completed.
+      usage: Recorded on completion.
+      relationshipContext: Present once completed.
   relationships:
-  - name: context
+  - name: model
     target: AIModel
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing AIModel associated with this AIEvaluation.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every AIEvaluation belongs to exactly one governing AIModel in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The model evaluated.
+      usage: Chosen when planning the evaluation.
+      cardinalityMeaning: Every evaluation is of exactly one model.
+      context: Listed among the model's evaluations.
+  - name: dataset
+    target: Dataset
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The data the model was tested on.
+      usage: Named so the test can be repeated.
+      cardinalityMeaning: At most one.
+      context: Must not overlap the training data.
+  - name: reviewedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who reviewed the evaluation.
+      usage: Recorded on review.
+      cardinalityMeaning: One per evaluation.
+      context: Independent of the model's developers.
   invariants:
-  - id: AIEVALUATION-001
-    rule: The governing AIModel relationship is required and must reference a valid record.
-  - id: AIEVALUATION-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: AIEVALUATION-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: AIEVALUATION-001, rule: A completed evaluation is not changed; a re-test is a new evaluation.}
+  - {id: AIEVALUATION-002, rule: A completed evaluation records its verdict and time., violatedWhen: status == "COMPLETED" and (passed == null or evaluated_at == null), message: Record whether the model passed and when.}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when an ai evaluation is ended"
+    description: "When an ai evaluation is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "AI-EVALUATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on ai evaluation {{id}}"
+          description: "Ai evaluation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   lifecycle:
     title: AI Evaluation Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
+    states: [PLANNED, RUNNING, COMPLETED, CANCELLED]
+    initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an ai evaluation is ended"
-      description: "When an ai evaluation is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "AI-EVALUATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on ai evaluation {{id}}"
-              description: "Ai evaluation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: PLANNED, to: RUNNING, action: start}
+    - {from: RUNNING, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RUNNING, to: CANCELLED, action: cancel}
   help:
-    summary: Represents AIEvaluation as a first-class governed CEDM business concept.
-    businessMeaning: An evaluation record assessing an AIModel against defined quality, safety, performance, or business criteria.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: AIModel supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A AIEvaluation is created for a valid AIModel, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: One test of an AI model, with its results and verdict.
+    businessMeaning: An AI model should not be used for decisions until it has been shown to work well enough and fairly enough. Each evaluation records what was tested, on what data, which metrics were obtained against which thresholds, and the verdict, so approval and deployment rest on evidence that can be shown to a regulator.
+    usage: Data scientists record evaluations before a model is approved and after changes; reviewers check them; deployment requires a passed evaluation; periodic re-evaluation watches for drift.
+    relationshipContext: An evaluation tests one AIModel, usually on a Dataset, and is reviewed by a person. A model lists its evaluations.
+    lifecycle: Planned, running while the tests execute, and completed as passed or failed. A cancelled evaluation is abandoned.
+    workflowContext: Model validation, AI governance approval, monitoring for drift, regulatory documentation.
+    example: 'Evaluation AIE-2024-031 of credit-scoring model CS-v4 on hold-out set 2024Q1: AUC 0.81 (threshold 0.78), demographic-parity gap 2.1% (threshold 3%); passed; reviewed by model risk 14 May.'
 specification:
   version: 0.1.0
   status: draft

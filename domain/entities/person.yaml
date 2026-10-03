@@ -12,7 +12,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the Person specialization, usage: individual identity processes, relationshipContext: Party.partyId remains canonical, workflowRole: identifies person-specific record, requiredMeaning: required for specialization traceability.}
+    help:
+      summary: The permanent system identifier of the person record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a person store this identifier. The number or code people quote is a separate field.
   - name: partyId
     type: reference
     target: Party

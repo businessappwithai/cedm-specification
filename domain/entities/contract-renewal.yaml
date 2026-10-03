@@ -8,7 +8,14 @@ entity:
     recordLabel: [renewalNumber]
   identity: {key: contractRenewalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractRenewal., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: contractRenewalId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the contract renewal record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a contract renewal store this identifier. The number or code people quote is a separate field.
   - name: renewalNumber
     type: string
     required: true
@@ -118,24 +125,24 @@ entity:
     - {from: UNDER_REVIEW, to: CONFIRMED, action: confirm}
     - {from: UNDER_REVIEW, to: DECLINED, action: decline}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a contract renewal is put forward"
-      description: "When a contract renewal is under review, a task asks someone to decide on it."
-      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CONTRACT-RENEWAL-APPROVAL-{{id}}"
-              name: "Decide on contract renewal {{renewal_number}}"
-              description: "Contract renewal {{renewal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a contract renewal is put forward"
+    description: "When a contract renewal is under review, a task asks someone to decide on it."
+    when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CONTRACT-RENEWAL-APPROVAL-{{id}}"
+          name: "Decide on contract renewal {{renewal_number}}"
+          description: "Contract renewal {{renewal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: The extension of a contract into a new term, and how it was decided.
     businessMeaning: Contracts that renew without anyone noticing lock in old prices and terms; contracts that lapse by accident interrupt supply. A renewal records each renewal decision — the new term, any changed terms, whether it was automatic, and the deadline for giving notice — so renewals are decided on purpose and in time.

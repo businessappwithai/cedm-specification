@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the maintenance work order.
-      usage: Used for maintenance history, integrations, audit, reporting, scheduling, and traceability across the asset lifecycle.
-      relationshipContext: Identifies the work order independently of its business number, Asset, MaintenancePlan, assignee, or RepairEstimate.
-      requiredMeaning: Required because every maintenance intervention must be uniquely traceable.
+      summary: The permanent system identifier of the maintenance work order record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a maintenance work order store this identifier. The number or code people quote is a separate field.
   - name: workOrderNumber
     type: string
     required: true

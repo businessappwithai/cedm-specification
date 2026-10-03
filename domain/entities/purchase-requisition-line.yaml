@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the requisition line.
-      usage: Used to trace the exact internal demand through approval, sourcing, purchase-order creation, fulfillment, and reporting.
-      relationshipContext: Identifies this demand line independently of the parent requisition, Product, or any later PurchaseOrderLine created from it.
-      requiredMeaning: Required because each procurement demand must remain individually traceable.
+      summary: The permanent system identifier of the purchase requisition line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a purchase requisition line store this identifier. The number or code people quote is a separate field.
   - name: lineNumber
     type: integer
     required: true

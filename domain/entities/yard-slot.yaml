@@ -16,11 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable CEDM identity of the physical yard position.
-      businessMeaning: Identifies one storage position independently of the container currently occupying it.
-      usage: Used by allocation, movement instructions, crane operations, digital-yard visualization, occupancy history, and integrations.
-      relationshipContext: Container.currentSlot references the current position while ContainerMovement records historical changes; the slot identity itself does not change when occupancy changes.
-      requiredMeaning: Required because every executable yard position must have a stable identity.
+      summary: The permanent system identifier of the yard slot record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a yard slot store this identifier. The number or code people quote is a separate field.
   - name: slotCode
     type: string
     required: true
@@ -116,35 +114,35 @@ entity:
     states: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]
     initial: EMPTY
     transitions:
-      - {from: EMPTY, to: OCCUPIED, action: mark_occupied}
-      - {from: OCCUPIED, to: RESERVED, action: reserve}
-      - {from: OCCUPIED, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: OCCUPIED, action: unblock}
-      - {from: RESERVED, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: RESERVED, action: unblock}
-      - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
-      - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
+    - {from: EMPTY, to: OCCUPIED, action: mark_occupied}
+    - {from: OCCUPIED, to: RESERVED, action: reserve}
+    - {from: OCCUPIED, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: OCCUPIED, action: unblock}
+    - {from: RESERVED, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: RESERVED, action: unblock}
+    - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+    - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
+    - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
+    - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a yard slot is stopped"
-      description: "When a yard slot is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "YARD-SLOT-EXCEPTION-{{id}}"
-              name: "Resolve yard slot {{id}}"
-              description: "Yard slot {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a yard slot is stopped"
+    description: "When a yard slot is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "YARD-SLOT-EXCEPTION-{{id}}"
+          name: "Resolve yard slot {{id}}"
+          description: "Yard slot {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents the final, atomic physical position used to place and retrieve a container in a structured yard.
     businessMeaning: YardSlot answers the operational question "exactly where is this container?" It is the location at which a move becomes physically executable and where occupancy can be validated without ambiguity.

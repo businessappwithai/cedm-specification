@@ -8,7 +8,14 @@ entity:
   referenceData: reference-data/city.yaml
   identity: {key: cityId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: cityId, type: uuid, required: true, immutable: true, help: {summary: "Stable identity of City.", usage: "Cross-domain reference, integration and audit.", relationshipContext: "Used wherever this City is referenced.", requiredMeaning: "Required."}}
+  - name: cityId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the city record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a city store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, unique: true, maxLength: 80, help: {summary: "The city's code: its country code and its name in capitals, such as FR-PARIS.", usage: "Quoted beside the name in lists; integration with other systems.", relationshipContext: "Unique; the country prefix keeps cities of one name in different countries apart.", requiredMeaning: "Required."}}
   - {name: name, type: string, required: true, maxLength: 200, help: {summary: "The city's name in English.", usage: "Shown in lists and on addresses.", relationshipContext: "Not unique: two countries can have a city of one name.", requiredMeaning: "Required."}}
   - {name: population, type: integer, required: false, help: {summary: "The registry's population figure.", usage: "Ordering and sizing; not a current census count.", relationshipContext: "Describes the city only."}}

@@ -2,9 +2,10 @@ entity:
   name: AIPolicy
   namespace: cedm.domain
   kind: ai_governance_entity
-  description: A governed policy defining constraints, approvals, controls, and permitted use for AI models and predictions.
+  description: The rules the business sets for using AI — permitted and forbidden uses, the risk classes that need approval, human oversight, testing and monitoring requirements — that every AI model is governed by.
   ui:
-    icon: shield
+    icon: shield-check
+    recordLabel: [aIPolicyCode, name]
   identity:
     key: aIPolicyId
     type: uuid
@@ -16,94 +17,130 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the AIPolicy record.
-      businessMeaning: Identifies one governed AIPolicy independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing AIModel context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
+      summary: The permanent system identifier of the ai policy record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a ai policy store this identifier. The number or code people quote is a separate field.
   - name: aIPolicyCode
     type: string
     required: true
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the AIPolicy.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The code of the policy.
+      usage: Assigned when it is drafted.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    values: [DRAFT, APPROVED, IN_FORCE, RETIRED]
     help:
-      summary: Lifecycle state of the AIPolicy.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
+      summary: Whether the policy is in force.
+      usage: Moved on by the governance board.
+      relationshipContext: Only policies in force govern models.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        DRAFT: Being written.
+        APPROVED: Approved, not yet in force.
+        IN_FORCE: Applies to models.
+        RETIRED: Replaced.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the policy.
+      usage: Shown wherever a policy is chosen.
+      relationshipContext: Identifies it for people.
+  - name: riskClass
+    type: enum
+    required: true
+    default: LIMITED
+    values: [MINIMAL, LIMITED, HIGH, PROHIBITED]
+    help:
+      summary: The risk class of the AI uses the policy covers.
+      usage: Decides how strict its requirements are.
+      relationshipContext: Follows the business's AI risk classification.
+      valueSemantics:
+        MINIMAL: Little risk to people or the business.
+        LIMITED: Some risk; transparency needed.
+        HIGH: Significant risk; approval, testing and human oversight needed.
+        PROHIBITED: Uses that are not allowed.
+  - name: requirements
+    type: text
+    required: true
+    help:
+      summary: What models under the policy must do — tests, approvals, oversight, monitoring.
+      usage: Read by developers and reviewers.
+      relationshipContext: Evaluations are checked against it.
+  - name: humanOversightRequired
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether a person must be able to review and override the model's outputs.
+      usage: Checked before deployment.
+      relationshipContext: Required for high-risk uses.
+  - name: reviewFrequencyMonths
+    type: integer
+    required: false
+    help:
+      summary: How often models under the policy must be re-evaluated, in months.
+      usage: Drives re-evaluation reminders.
+      relationshipContext: Empty when no periodic review is required.
+  - name: effectiveFrom
+    type: date
+    required: false
+    help:
+      summary: The day the policy takes effect.
+      usage: Set on approval.
+      relationshipContext: Not later than the effective-to date.
+  - name: effectiveTo
+    type: date
+    required: false
+    help:
+      summary: The last day the policy applies.
+      usage: Set when it is replaced.
+      relationshipContext: Empty while in force.
   relationships:
-  - name: context
-    target: AIModel
-    cardinality: '1'
+  - name: owner
+    target: Person
+    cardinality: 0..1
     ownership: reference
     help:
-      summary: Governing AIModel associated with this AIPolicy.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every AIPolicy belongs to exactly one governing AIModel in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The person responsible for the policy.
+      usage: Keeps it current.
+      cardinalityMeaning: One per policy.
+      context: Usually the head of AI governance.
+  - name: complianceRequirement
+    target: ComplianceRequirement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The law or standard the policy implements.
+      usage: Linked so a change in the law shows which policies to revisit.
+      cardinalityMeaning: At most one.
+      context: Such as an article of an AI regulation.
   invariants:
-  - id: AIPOLICY-001
-    rule: The governing AIModel relationship is required and must reference a valid record.
-  - id: AIPOLICY-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: AIPOLICY-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: AIPOLICY-001, rule: The policy does not end before it starts., violatedWhen: effective_to != null and effective_from != null and effective_to < effective_from, message: The effective-to date is earlier than the effective-from date.}
   lifecycle:
     title: AI Policy Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, APPROVED, IN_FORCE, RETIRED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an ai policy is ended"
-      description: "When an ai policy is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "AI-POLICY-FOLLOW-UP-{{id}}"
-              name: "Follow up on ai policy {{id}}"
-              description: "Ai policy {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: IN_FORCE, action: take_effect}
+    - {from: IN_FORCE, to: RETIRED, action: retire}
+    - {from: DRAFT, to: RETIRED, action: discard}
   help:
-    summary: Represents AIPolicy as a first-class governed CEDM business concept.
-    businessMeaning: A governed policy defining constraints, approvals, controls, and permitted use for AI models and predictions.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: AIModel supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A AIPolicy is created for a valid AIModel, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: The rules AI models must follow before and while they are used.
+    businessMeaning: AI used in decisions carries legal and reputational risk. A policy states which uses are allowed, which risk classes need approval and human oversight, which tests a model must pass and how it is monitored, so each model can be checked against one clear set of rules and regulators can see them.
+    usage: AI governance writes and approves policies; each model is assigned the policy it falls under; reviewers check evaluations and deployments against it.
+    relationshipContext: AIModels name the policy that governs them. A policy may implement a ComplianceRequirement, such as an AI regulation.
+    lifecycle: Drafted, approved, in force, and retired when replaced by a new version.
+    workflowContext: AI governance, model approval, risk classification, regulatory compliance.
+    example: "Policy AIP-02 'High-risk decision models': credit, hiring and pricing models need a fairness evaluation, a documented human override and quarterly drift monitoring; approved by the AI governance board 3 March 2024."
 specification:
   version: 0.1.0
   status: draft

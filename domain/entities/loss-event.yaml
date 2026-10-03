@@ -8,7 +8,14 @@ entity:
     recordLabel: [lossNumber, title]
   identity: {key: lossEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LossEvent., businessMeaning: Identifies one governed LossEvent record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
+  - name: lossEventId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the loss event record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a loss event store this identifier. The number or code people quote is a separate field.
   - name: lossNumber
     type: string
     required: true

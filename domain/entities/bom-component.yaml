@@ -16,40 +16,27 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the bom component record associated with this BOMComponent. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the bom component record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a bom component store this identifier. The number or code people quote is a separate field.
   - name: sequence
     type: integer
     required: true
     help:
-      summary: Captures the business meaning of sequence for the BOMComponent. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of sequence for the BOMComponent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where applicable.
+      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: quantity
     type: decimal
     required: true
     precision: 18
     scale: 6
     help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations,
-        inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations, inventory, planning, fulfillment, or other quantity-based processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where applicable.
+      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: scrapPercent
     type: decimal
     required: false
@@ -57,23 +44,17 @@ entity:
     scale: 4
     minimum: 0
     help:
-      summary: Captures the business meaning of scrap percent for the BOMComponent. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Captures the business meaning of scrap percent for the BOMComponent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where applicable.
+      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: operationSequence
     type: integer
     required: false
     help:
-      summary: Captures the business meaning of operation sequence for the BOMComponent. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where
-        applicable.
-      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Captures the business meaning of operation sequence for the BOMComponent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BOMComponent records, where applicable.
+      relationshipContext: Its meaning is specific to BOMComponent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
   - name: billOfMaterial
@@ -84,8 +65,7 @@ entity:
       summary: Connects BOMComponent to BillOfMaterial so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about BillOfMaterial records associated with a BOMComponent.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: componentProduct
     target: Product
     cardinality: '1'
@@ -94,8 +74,7 @@ entity:
       summary: Connects BOMComponent to Product so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Product records associated with a BOMComponent.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: BOM-COMPONENT-001
     rule: quantity must be greater than zero.
@@ -105,17 +84,11 @@ entity:
   - {id: BOM-COMPONENT-EXE-002, rule: "Scrap Percent is a percentage between 0 and 100.", violatedWhen: "scrap_percent != null and (scrap_percent < 0 or scrap_percent > 100)", message: "Scrap Percent must be between 0 and 100."}
   help:
     summary: Represents a manufacturing detail entity called BOMComponent within the CEDM business model.
-    businessMeaning: BOMComponent is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate BOMComponent records.
-    relationshipContext: The entity participates in a wider business graph through relationships with BillOfMaterial, Product.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical BOMComponent record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    businessMeaning: BOMComponent is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate BOMComponent records.
+    relationshipContext: The entity participates in a wider business graph through relationships with BillOfMaterial, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical BOMComponent record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

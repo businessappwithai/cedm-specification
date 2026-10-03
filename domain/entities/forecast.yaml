@@ -8,7 +8,14 @@ entity:
     recordLabel: [code, name]
   identity: {key: forecastId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: Stable Forecast identity., businessMeaning: Identifies the governed Forecast concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
+  - name: forecastId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the forecast record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a forecast store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -154,24 +161,24 @@ entity:
     - {from: SUBMITTED, to: APPROVED, action: approve}
     - {from: APPROVED, to: SUPERSEDED, action: supersede}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a forecast is put forward"
-      description: "When a forecast is submitted, a task asks someone to decide on it."
-      when: "status == \"SUBMITTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FORECAST-APPROVAL-{{id}}"
-              name: "Decide on forecast {{name}}"
-              description: "Forecast {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a forecast is put forward"
+    description: "When a forecast is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FORECAST-APPROVAL-{{id}}"
+          name: "Decide on forecast {{name}}"
+          description: "Forecast {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: An updated estimate of how the year will end, made as of a date and under stated assumptions.
     businessMeaning: The budget is fixed once a year; forecasts are how management keeps its view current. Each forecast is made as of a date, under a scenario, for a horizon, so successive forecasts can be compared to see how expectations moved, and the latest can be set against the budget.

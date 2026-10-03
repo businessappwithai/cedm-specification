@@ -2,9 +2,10 @@ entity:
   name: Allergy
   namespace: cedm.domain
   kind: healthcare_entity
-  description: A governed patient allergy or intolerance record used to support clinical safety and treatment decisions.
+  description: A patient's allergy or intolerance — the substance, the reaction it causes, how severe it is, how certain, and when it was recorded — checked before medicines are prescribed or given.
   ui:
-    icon: table
+    icon: alert-triangle
+    recordLabel: [allergyCode, substance]
   identity:
     key: allergyId
     type: uuid
@@ -16,94 +17,153 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the Allergy record.
-      businessMeaning: Identifies one governed Allergy independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing HealthcarePatient context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
+      summary: The permanent system identifier of the allergy record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a allergy store this identifier. The number or code people quote is a separate field.
   - name: allergyCode
     type: string
     required: true
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the Allergy.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the allergy record.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE, ENTERED_IN_ERROR]
     help:
-      summary: Lifecycle state of the Allergy.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
+      summary: Whether the allergy is still considered.
+      usage: Changed by a clinician.
+      relationshipContext: Inactive allergies stay in the history.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        ACTIVE: Applies; checked at every order.
+        INACTIVE: No longer applies.
+        ENTERED_IN_ERROR: Recorded by mistake.
+  - name: substance
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What the patient reacts to, such as penicillin or peanuts.
+      usage: Entered by the clinician; medication checks match against it.
+      relationshipContext: Coded substances match more reliably than free text.
+  - name: category
+    type: enum
+    required: true
+    default: MEDICATION
+    values: [MEDICATION, FOOD, ENVIRONMENT, BIOLOGIC]
+    help:
+      summary: What kind of substance it is.
+      usage: Decides which checks apply.
+      relationshipContext: Medication allergies are checked at every prescription.
+      valueSemantics:
+        MEDICATION: A medicine or its ingredient.
+        FOOD: A food.
+        ENVIRONMENT: Pollen, dust, animals or other environmental substances.
+        BIOLOGIC: A vaccine, blood product or other biologic.
+  - name: allergyType
+    type: enum
+    required: true
+    default: ALLERGY
+    values: [ALLERGY, INTOLERANCE]
+    help:
+      summary: Whether the reaction is an immune allergy or an intolerance.
+      usage: Intolerances may allow the substance with care.
+      relationshipContext: Recorded by the clinician.
+      valueSemantics:
+        ALLERGY: An immune reaction.
+        INTOLERANCE: A non-immune reaction, such as stomach upset.
+  - name: reaction
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: What happens when the patient is exposed.
+      usage: Read by whoever considers giving the substance.
+      relationshipContext: Such as rash, swelling or anaphylaxis.
+  - name: severity
+    type: enum
+    required: true
+    default: MODERATE
+    values: [MILD, MODERATE, SEVERE]
+    help:
+      summary: How severe the reaction is.
+      usage: Decides how strongly the system warns.
+      relationshipContext: Severe reactions block the order unless overridden.
+      valueSemantics:
+        MILD: Uncomfortable but not dangerous.
+        MODERATE: Needs treatment.
+        SEVERE: Life-threatening.
+  - name: verification
+    type: enum
+    required: true
+    default: UNCONFIRMED
+    values: [UNCONFIRMED, CONFIRMED, REFUTED]
+    help:
+      summary: How certain the allergy is.
+      usage: Updated when tests or history confirm or refute it.
+      relationshipContext: Unconfirmed allergies still trigger warnings.
+      valueSemantics:
+        UNCONFIRMED: Reported but not confirmed.
+        CONFIRMED: Confirmed by testing or clear history.
+        REFUTED: Shown not to be an allergy.
+  - name: onsetDate
+    type: date
+    required: false
+    help:
+      summary: When the reaction was first seen.
+      usage: Entered if known.
+      relationshipContext: Approximate dates are acceptable.
+  - name: recordedDate
+    type: date
+    required: true
+    help:
+      summary: When the allergy was recorded.
+      usage: Set when recording.
+      relationshipContext: Not in the future.
   relationships:
-  - name: context
+  - name: patient
     target: HealthcarePatient
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing HealthcarePatient associated with this Allergy.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every Allergy belongs to exactly one governing HealthcarePatient in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The patient with the allergy.
+      usage: Set when recording it.
+      cardinalityMeaning: Every allergy belongs to exactly one patient.
+      context: Listed among the patient's allergies.
+  - name: recordedBy
+    target: HealthcareProvider
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The clinician who recorded it.
+      usage: Recorded with the allergy.
+      cardinalityMeaning: One per allergy.
+      context: Accountable for its accuracy.
   invariants:
-  - id: ALLERGY-001
-    rule: The governing HealthcarePatient relationship is required and must reference a valid record.
-  - id: ALLERGY-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: ALLERGY-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: ALLERGY-001, rule: An allergy is never deleted; one recorded by mistake is marked entered in error.}
   lifecycle:
     title: Allergy Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [ACTIVE, INACTIVE, ENTERED_IN_ERROR]
+    initial: ACTIVE
+    terminal: [ENTERED_IN_ERROR]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an allergy is ended"
-      description: "When an allergy is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ALLERGY-FOLLOW-UP-{{id}}"
-              name: "Follow up on allergy {{id}}"
-              description: "Allergy {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: ENTERED_IN_ERROR, action: mark_error}
+    - {from: INACTIVE, to: ENTERED_IN_ERROR, action: mark_error}
   help:
-    summary: Represents Allergy as a first-class governed CEDM business concept.
-    businessMeaning: A governed patient allergy or intolerance record used to support clinical safety and treatment decisions.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: HealthcarePatient supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A Allergy is created for a valid HealthcarePatient, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: A substance a patient reacts to, and how badly.
+    businessMeaning: Giving a patient a drug they are allergic to can kill them. Recording each allergy with its substance, reaction, severity and certainty lets prescribing and administration check every medicine against the patient's allergies and warn before harm is done.
+    usage: Recorded by clinicians when a patient reports or shows a reaction; reviewed at each encounter; checked automatically when medicines are ordered.
+    relationshipContext: An allergy belongs to one HealthcarePatient and is listed among their allergies. Prescriptions and medication orders are checked against it.
+    lifecycle: Active while it applies; inactive if the patient no longer reacts; entered in error if recorded by mistake. A suspected allergy may be confirmed or refuted.
+    workflowContext: Patient intake, medication ordering and administration, clinical decision support.
+    example: 'Allergy to penicillin: reaction urticaria and facial swelling, severity severe, confirmed, recorded 12 March 2019 by Dr Martin.'
 specification:
   version: 0.1.0
   status: draft

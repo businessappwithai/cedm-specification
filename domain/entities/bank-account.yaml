@@ -16,12 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the internal BankAccount master record.
-      businessMeaning: Identifies the account independently of its institution, number, currency, or current lifecycle state.
-      usage: Used by Payment, BankTransaction, reconciliation, treasury, accounting, and integrations.
-      relationshipContext: The identifier is the CEDM identity; accountNumber is an operational banking identifier.
-      workflowRole: Provides the stable account context for payment execution and statement reconciliation.
-      requiredMeaning: Required for account traceability.
+      summary: The permanent system identifier of the bank account record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a bank account store this identifier. The number or code people quote is a separate field.
   - name: accountNumber
     type: string
     required: true

@@ -8,7 +8,14 @@ entity:
     recordLabel: [fileName]
   identity: {key: attachmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Attachment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: attachmentId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the attachment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a attachment store this identifier. The number or code people quote is a separate field.
   - name: fileName
     type: string
     required: true

@@ -7,7 +7,14 @@ entity:
     icon: package
   identity: {key: productionReceiptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productionReceiptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of production receipt., businessMeaning: Identifies one governed output posting., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Connects work-order output to stock event., requiredMeaning: Required.}}
+  - name: productionReceiptId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the production receipt record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a production receipt store this identifier. The number or code people quote is a separate field.
   - {name: receiptNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing production receipt reference., businessMeaning: Operational identifier for output posting., usage: "Shop floor, warehouse, quality, and audit.", relationshipContext: Distinct from inventory movement number., requiredMeaning: Required.}}
   - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Accepted output quantity received into inventory., businessMeaning: Quantity recognized as produced/receivable., usage: "Production completion, inventory, and costing.", relationshipContext: Rejected/scrap quantity is modeled separately., requiredMeaning: Required.}}
   - {name: receivedAt, type: datetime, required: true, help: {summary: Effective output receipt time., businessMeaning: Establishes production and inventory chronology., usage: "Inventory, costing, genealogy, and reporting.", relationshipContext: Distinct from work-order completion time., requiredMeaning: Required.}}

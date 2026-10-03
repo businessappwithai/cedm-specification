@@ -2,25 +2,67 @@ entity:
   name: Language
   namespace: cedm.domain
   kind: reference_data
-  description: A governed language reference used for localization, communication preferences, content, and reporting.
+  description: A human language from ISO 639 — code, three-letter code, name and writing direction — used for people's preferred language, documents and translated content.
   ui:
     icon: languages
+    recordLabel: [code, name]
   referenceData: reference-data/language.yaml
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Language., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - name: languageId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the language record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a language store this identifier. The number or code people quote is a separate field.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 2
+    help:
+      summary: The two-letter ISO 639-1 code, such as fr.
+      usage: Stored on records that name a language.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The English name of the language.
+      usage: Shown wherever a language is chosen.
+      relationshipContext: From the standard.
+  - name: alpha3
+    type: string
+    required: false
+    maxLength: 3
+    help:
+      summary: The three-letter ISO 639-3 code, such as fra.
+      usage: Used by systems that require three-letter codes.
+      relationshipContext: From the standard.
+  - name: direction
+    type: enum
+    required: true
+    default: LTR
+    values: [LTR, RTL]
+    help:
+      summary: Whether the language is written left to right or right to left.
+      usage: Tells screens and documents how to lay out text.
+      relationshipContext: From the Unicode CLDR.
+      valueSemantics:
+        LTR: Written left to right.
+        RTL: Written right to left.
   relationships: []
   invariants:
   - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed language reference used for localization, communication preferences, content, and reporting.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed language reference used for localization, communication preferences, content, and reporting.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A language, identified by its ISO code.
+    businessMeaning: Correspondence, documents and labels have to be in the language people read. Identifying languages by their ISO 639 codes means a customer's preferred language, a document's language and a translation's language all mean the same thing everywhere, and screens know which languages are written right to left.
+    usage: The list comes from the standard and is not edited by users; records choose a language from it.
+    relationshipContext: People, customers, documents and content name the Language they use.
+    lifecycle: Reference data; it changes only when the standard does.
+    workflowContext: Correspondence generation, document management, localisation.
+    example: fr / fra — French, written left to right; ar / ara — Arabic, written right to left.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LANGUAGE}

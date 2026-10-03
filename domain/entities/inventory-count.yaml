@@ -7,7 +7,14 @@ entity:
     icon: boxes
   identity: {key: inventoryCountId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryCountId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of count observation., businessMeaning: Identifies one count evidence record., usage: "Cycle count, stocktake, reconciliation and audit.", relationshipContext: May cause InventoryAdjustment after approval., requiredMeaning: Required.}}
+  - name: inventoryCountId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the inventory count record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a inventory count store this identifier. The number or code people quote is a separate field.
   - {name: countNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing count reference., businessMeaning: Operational identifier for count activity., usage: Warehouse execution and audit., relationshipContext: Distinct from adjustment reference., requiredMeaning: Required.}}
   - {name: countedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity physically/systematically observed., businessMeaning: Evidence of stock reality at count time., usage: Variance calculation and approval., relationshipContext: Does not itself alter InventoryBalance., requiredMeaning: Required.}}
   - {name: countedAt, type: datetime, required: true, help: {summary: Effective observation time., businessMeaning: Anchors the count against ledger chronology., usage: Cutoff and reconciliation., relationshipContext: Movements around count time require controlled cutoff treatment., requiredMeaning: Required.}}

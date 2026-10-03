@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable CEDM identity of the physical container asset.
-      usage: Used as the stable technical-to-business key across yard, movement, repair, inventory, shipment, interchange, leasing, and reporting processes.
-      relationshipContext: ContainerMovement, YardSlot, RepairEstimate, Shipment, and Location use this identity to preserve one continuous asset history even as the container changes place, condition, owner, or commercial use.
-      requiredMeaning: Required because every event and transaction involving equipment must resolve to one unambiguous physical asset.
+      summary: The permanent system identifier of the container record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a container store this identifier. The number or code people quote is a separate field.
   - name: containerNumber
     type: string
     required: true
@@ -176,18 +175,18 @@ entity:
     initial: ACTIVE
     terminal: [SOLD, SCRAPPED, LOST, RETIRED]
     transitions:
-      - {from: ACTIVE, to: IN_REPAIR, action: mark_in_repair}
-      - {from: IN_REPAIR, to: DAMAGED, action: mark_damaged}
-      - {from: ACTIVE, to: SOLD, action: mark_sold}
-      - {from: IN_REPAIR, to: SOLD, action: mark_sold}
-      - {from: DAMAGED, to: SOLD, action: mark_sold}
-      - {from: IN_REPAIR, to: SCRAPPED, action: mark_scrapped}
-      - {from: DAMAGED, to: SCRAPPED, action: mark_scrapped}
-      - {from: IN_REPAIR, to: LOST, action: mark_lost}
-      - {from: DAMAGED, to: LOST, action: mark_lost}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: IN_REPAIR, to: RETIRED, action: retire}
-      - {from: DAMAGED, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: IN_REPAIR, action: mark_in_repair}
+    - {from: IN_REPAIR, to: DAMAGED, action: mark_damaged}
+    - {from: ACTIVE, to: SOLD, action: mark_sold}
+    - {from: IN_REPAIR, to: SOLD, action: mark_sold}
+    - {from: DAMAGED, to: SOLD, action: mark_sold}
+    - {from: IN_REPAIR, to: SCRAPPED, action: mark_scrapped}
+    - {from: DAMAGED, to: SCRAPPED, action: mark_scrapped}
+    - {from: IN_REPAIR, to: LOST, action: mark_lost}
+    - {from: DAMAGED, to: LOST, action: mark_lost}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: IN_REPAIR, to: RETIRED, action: retire}
+    - {from: DAMAGED, to: RETIRED, action: retire}
   help:
     summary: Represents a reusable intermodal freight container as a continuously identifiable physical logistics asset.
     businessMeaning: Container is the equipment anchor connecting transport, depot, terminal, yard, maintenance, leasing, ownership, inventory, shipment, interchange, and commercial disposition processes.

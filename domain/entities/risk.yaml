@@ -16,13 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the risk record associated with this Risk. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the risk record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a risk store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -31,10 +27,8 @@ entity:
     help:
       summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: name
     type: string
     required: true
@@ -42,10 +36,8 @@ entity:
     help:
       summary: The human-readable name used by people, reports, searches, and related business processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: description
     type: string
     required: false
@@ -53,21 +45,17 @@ entity:
     help:
       summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: category
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of category for the Risk. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of category for the Risk. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: likelihood
     type: enum
     required: true
@@ -78,19 +66,16 @@ entity:
     - LIKELY
     - ALMOST_CERTAIN
     help:
-      summary: Captures the business meaning of likelihood for the Risk. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of likelihood for the Risk. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         RARE: Represents the rare state or classification in the context of Risk.
         UNLIKELY: Represents the unlikely state or classification in the context of Risk.
         POSSIBLE: Represents the possible state or classification in the context of Risk.
         LIKELY: Represents the likely state or classification in the context of Risk.
         ALMOST_CERTAIN: Represents the almost certain state or classification in the context of Risk.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: impact
     type: enum
     required: true
@@ -101,19 +86,16 @@ entity:
     - MAJOR
     - SEVERE
     help:
-      summary: Captures the business meaning of impact for the Risk. It is interpreted together with the entity's other attributes
-        and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of impact for the Risk. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         INSIGNIFICANT: Represents the insignificant state or classification in the context of Risk.
         MINOR: Represents the minor state or classification in the context of Risk.
         MODERATE: Represents the moderate state or classification in the context of Risk.
         MAJOR: Represents the major state or classification in the context of Risk.
         SEVERE: Represents the severe state or classification in the context of Risk.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -126,11 +108,9 @@ entity:
     - CLOSED
     - MATERIALIZED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Risk records, where applicable.
-      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      relationshipContext: Its meaning is specific to Risk; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         IDENTIFIED: Represents the identified state or classification in the context of Risk.
         ASSESSED: Represents the assessed state or classification in the context of Risk.
@@ -138,8 +118,7 @@ entity:
         ACCEPTED: Represents the accepted state or classification in the context of Risk.
         CLOSED: Represents the closed state or classification in the context of Risk.
         MATERIALIZED: Represents the materialized state or classification in the context of Risk.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: owner
     target: Party
@@ -149,8 +128,7 @@ entity:
       summary: Connects Risk to Party so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Party records associated with a Risk.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: organization
     target: Organization
     cardinality: 0..1
@@ -159,8 +137,7 @@ entity:
       summary: Connects Risk to Organization so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Organization records associated with a Risk.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: controls
     target: Control
     cardinality: 0..*
@@ -169,8 +146,7 @@ entity:
       summary: Connects Risk to Control so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Control records associated with a Risk.
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: treatments
     target: RiskTreatment
     cardinality: 0..*
@@ -179,8 +155,7 @@ entity:
       summary: Connects Risk to RiskTreatment so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about RiskTreatment records associated with a Risk.
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: RISK-001
     rule: likelihood and impact must be assigned before a risk is ASSESSED.
@@ -191,27 +166,21 @@ entity:
     initial: IDENTIFIED
     terminal: [CLOSED, MATERIALIZED]
     transitions:
-      - {from: IDENTIFIED, to: ASSESSED, action: mark_assessed}
-      - {from: ASSESSED, to: MITIGATING, action: mark_mitigating}
-      - {from: MITIGATING, to: ACCEPTED, action: accept}
-      - {from: ACCEPTED, to: CLOSED, action: close}
-      - {from: IDENTIFIED, to: MATERIALIZED, action: mark_materialized}
-      - {from: ASSESSED, to: MATERIALIZED, action: mark_materialized}
-      - {from: MITIGATING, to: MATERIALIZED, action: mark_materialized}
-      - {from: ACCEPTED, to: MATERIALIZED, action: mark_materialized}
+    - {from: IDENTIFIED, to: ASSESSED, action: mark_assessed}
+    - {from: ASSESSED, to: MITIGATING, action: mark_mitigating}
+    - {from: MITIGATING, to: ACCEPTED, action: accept}
+    - {from: ACCEPTED, to: CLOSED, action: close}
+    - {from: IDENTIFIED, to: MATERIALIZED, action: mark_materialized}
+    - {from: ASSESSED, to: MATERIALIZED, action: mark_materialized}
+    - {from: MITIGATING, to: MATERIALIZED, action: mark_materialized}
+    - {from: ACCEPTED, to: MATERIALIZED, action: mark_materialized}
   help:
     summary: Represents a governance entity called Risk within the CEDM business model.
-    businessMeaning: Risk is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Risk records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
-      Control, RiskTreatment. These relationships provide the context needed to interpret the record rather than treating
-      its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Risk record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    businessMeaning: Risk is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Risk records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Control, RiskTreatment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical Risk record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

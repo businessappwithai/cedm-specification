@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the estimate line.
-      usage: Used for traceability between the estimate, repair execution, material planning, analytics, and integrations.
-      relationshipContext: Identifies one detailed estimate item independently of its parent RepairEstimate, line number, damage, component, or material.
-      requiredMeaning: Required so every estimated repair requirement can be individually traced.
+      summary: The permanent system identifier of the repair estimate line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a repair estimate line store this identifier. The number or code people quote is a separate field.
   - name: lineNumber
     type: integer
     required: true

@@ -8,7 +8,14 @@ entity:
     recordLabel: [collateralNumber]
   identity: {key: collateralId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - name: collateralId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the collateral record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a collateral store this identifier. The number or code people quote is a separate field.
   - name: collateralNumber
     type: string
     required: true
@@ -162,24 +169,24 @@ entity:
     - {from: PLEDGED, to: ENFORCED, action: enforce}
     - {from: PROPOSED, to: RELEASED, action: withdraw}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a collateral is put forward"
-      description: "When a collateral is proposed, a task asks someone to decide on it."
-      when: "status == \"PROPOSED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "COLLATERAL-APPROVAL-{{id}}"
-              name: "Decide on collateral {{collateral_number}}"
-              description: "Collateral {{collateral_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a collateral is put forward"
+    description: "When a collateral is proposed, a task asks someone to decide on it."
+    when: "status == \"PROPOSED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "COLLATERAL-APPROVAL-{{id}}"
+          name: "Decide on collateral {{collateral_number}}"
+          description: "Collateral {{collateral_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: An asset or guarantee pledged to secure a loan, and what the lender counts it as worth.
     businessMeaning: Secured lending depends on collateral that can be valued and enforced. Recording each item — what it is, who owns it, what it was valued at and when, the haircut the lender applies and the resulting lending value, and whether the charge is registered — lets the lender monitor coverage of each loan and the borrower know which of its assets are encumbered.

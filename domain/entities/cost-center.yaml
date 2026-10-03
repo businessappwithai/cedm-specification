@@ -8,7 +8,14 @@ entity:
     recordLabel: [code, name]
   identity: {key: costCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: costCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable CostCenter identity., businessMeaning: Identifies the governed CostCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
+  - name: costCenterId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the cost center record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a cost center store this identifier. The number or code people quote is a separate field.
   - name: code
     type: string
     required: true
@@ -120,24 +127,24 @@ entity:
     - {from: ACTIVE, to: CLOSED, action: close}
     - {from: BLOCKED, to: CLOSED, action: close}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a cost center is stopped"
-      description: "When a cost center is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "COST-CENTER-EXCEPTION-{{id}}"
-              name: "Resolve cost center {{name}}"
-              description: "Cost center {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a cost center is stopped"
+    description: "When a cost center is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "COST-CENTER-EXCEPTION-{{id}}"
+          name: "Resolve cost center {{name}}"
+          description: "Cost center {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: A place in the organization that costs are booked to and a manager answers for.
     businessMeaning: The general ledger says what money was spent on; cost centres say who spent it. Booking every cost to a cost centre lets each manager see and control the costs they are responsible for, lets budgets be set per unit, and lets shared costs be allocated fairly.

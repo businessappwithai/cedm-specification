@@ -7,7 +7,14 @@ entity:
     icon: package
   identity: {key: productLifecycleId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: Stable lifecycle-event identity., businessMeaning: Identifies one governed product state transition., usage: PIM governance and audit., relationshipContext: Supplements current Product.status with historical evidence., requiredMeaning: Required.}}
+  - name: productLifecycleId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the product lifecycle record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a product lifecycle store this identifier. The number or code people quote is a separate field.
   - {name: effectiveAt, type: datetime, required: true, help: {summary: Time lifecycle transition becomes effective., businessMeaning: Establishes point-in-time product eligibility., usage: "Catalog, transaction validation and audit.", relationshipContext: Historical transactions use status effective at relevant time., requiredMeaning: Required.}}
   - name: lifecycleStatus
     type: enum

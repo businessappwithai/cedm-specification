@@ -7,7 +7,14 @@ entity:
     icon: file-text
   identity: {key: materialIssueId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: materialIssueId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of material issue., businessMeaning: Identifies one governed production-consumption transaction., usage: "Inventory, manufacturing genealogy, costing, and audit.", relationshipContext: Links work order/BOM demand to stock movement., requiredMeaning: Required.}}
+  - name: materialIssueId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the material issue record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a material issue store this identifier. The number or code people quote is a separate field.
   - {name: issueNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing issue reference., businessMeaning: Operational traceability identifier., usage: "Shop floor, warehouse, and audit.", relationshipContext: Distinct from inventory movement number., requiredMeaning: Required.}}
   - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Component quantity issued., businessMeaning: Amount authorized for production consumption., usage: "Material reconciliation, variance, and costing.", relationshipContext: Interpreted with component Product/UOM/lot/serial., requiredMeaning: Required.}}
   - {name: issuedAt, type: datetime, required: true, help: {summary: Effective material issue time., businessMeaning: Establishes production consumption chronology., usage: "Inventory, genealogy, costing, and audit.", relationshipContext: Must align with attributable movement., requiredMeaning: Required.}}

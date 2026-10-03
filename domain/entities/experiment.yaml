@@ -2,8 +2,7 @@ entity:
   name: Experiment
   namespace: cedm.domain
   kind: research_entity
-  description: A controlled scientific investigation performed to evaluate a hypothesis, treatment, compound, process, or
-    other research question.
+  description: A controlled scientific investigation performed to evaluate a hypothesis, treatment, compound, process, or other research question.
   ui:
     icon: table
   identity:
@@ -17,52 +16,36 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the experiment record associated with this Experiment. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the experiment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a experiment store this identifier. The number or code people quote is a separate field.
   - name: experimentCode
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of experiment code for the Experiment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of experiment code for the Experiment. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: title
     type: string
     required: true
     maxLength: 500
     help:
-      summary: Captures the business meaning of title for the Experiment. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: Captures the business meaning of title for the Experiment. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: objective
     type: string
     required: false
     maxLength: 4000
     help:
-      summary: Captures the business meaning of objective for the Experiment. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Captures the business meaning of objective for the Experiment. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: status
     type: enum
@@ -76,12 +59,9 @@ entity:
     - CANCELLED
     - ARCHIVED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         PLANNED: Represents the planned state or classification in the context of Experiment.
         RUNNING: Represents the running state or classification in the context of Experiment.
@@ -89,29 +69,22 @@ entity:
         FAILED: Represents the failed state or classification in the context of Experiment.
         CANCELLED: Represents the cancelled state or classification in the context of Experiment.
         ARCHIVED: Represents the archived state or classification in the context of Experiment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: startedAt
     type: datetime
     required: false
     help:
-      summary: Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: completedAt
     type: datetime
     required: false
     help:
-      summary: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
+      summary: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Experiment records, where applicable.
+      relationshipContext: Its meaning is specific to Experiment; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
   - name: compounds
@@ -122,8 +95,7 @@ entity:
       summary: Connects Experiment to Compound so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Compound records associated with a Experiment.
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: samples
     target: Sample
     cardinality: 0..*
@@ -132,8 +104,7 @@ entity:
       summary: Connects Experiment to Sample so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Sample records associated with a Experiment.
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: project
     target: Project
     cardinality: 0..1
@@ -142,8 +113,7 @@ entity:
       summary: Connects Experiment to Project so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Project records associated with a Experiment.
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: EXPERIMENT-001
     rule: completedAt must not precede startedAt.
@@ -155,62 +125,56 @@ entity:
     initial: PLANNED
     terminal: [ARCHIVED, FAILED, CANCELLED]
     transitions:
-      - {from: PLANNED, to: RUNNING, action: mark_running}
-      - {from: RUNNING, to: COMPLETED, action: complete}
-      - {from: COMPLETED, to: ARCHIVED, action: archive}
-      - {from: RUNNING, to: FAILED, action: fail}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: RUNNING, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: RUNNING, action: mark_running}
+    - {from: RUNNING, to: COMPLETED, action: complete}
+    - {from: COMPLETED, to: ARCHIVED, action: archive}
+    - {from: RUNNING, to: FAILED, action: fail}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RUNNING, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when an experiment is stopped"
-      description: "When an experiment is failed, a high-priority task asks someone to resolve it."
-      when: "status == \"FAILED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "EXPERIMENT-EXCEPTION-{{id}}"
-              name: "Resolve experiment {{title}}"
-              description: "Experiment {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when an experiment is ended"
-      description: "When an experiment is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "EXPERIMENT-FOLLOW-UP-{{id}}"
-              name: "Follow up on experiment {{title}}"
-              description: "Experiment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when an experiment is stopped"
+    description: "When an experiment is failed, a high-priority task asks someone to resolve it."
+    when: "status == \"FAILED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "EXPERIMENT-EXCEPTION-{{id}}"
+          name: "Resolve experiment {{title}}"
+          description: "Experiment {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when an experiment is ended"
+    description: "When an experiment is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "EXPERIMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on experiment {{title}}"
+          description: "Experiment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents a research entity called Experiment within the CEDM business model.
-    businessMeaning: Experiment is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Experiment records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Compound, Sample, Project.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Experiment record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    businessMeaning: Experiment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Experiment records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Compound, Sample, Project. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical Experiment record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

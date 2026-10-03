@@ -12,12 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: 'The inventory reservation id of the inventory reservation: an identifier the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
-      requiredMeaning: 'Required: an inventory reservation cannot be understood without its inventory reservation id.'
+      summary: The permanent system identifier of the inventory reservation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a inventory reservation store this identifier. The number or code people quote is a separate field.
   - name: quantityReserved
     type: decimal
     required: true
@@ -25,10 +22,8 @@ entity:
     scale: 6
     help:
       summary: 'The quantity reserved of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity reserved.'
   - name: quantityConsumed
     type: decimal
@@ -38,10 +33,8 @@ entity:
     scale: 6
     help:
       summary: 'The quantity consumed of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity consumed.'
   - name: quantityReleased
     type: decimal
@@ -51,10 +44,8 @@ entity:
     scale: 6
     help:
       summary: 'The quantity released of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity released.'
   - name: status
     type: enum
@@ -80,29 +71,23 @@ entity:
     default: 100
     help:
       summary: 'The priority of the inventory reservation: a whole number the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
   - name: expiresAt
     type: datetime
     required: false
     help:
       summary: 'The expires at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
   - name: createdAt
     type: datetime
     required: true
     systemManaged: true
     help:
       summary: 'The created at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: an inventory reservation cannot be understood without its created at.'
   - name: updatedAt
     type: datetime
@@ -110,10 +95,8 @@ entity:
     systemManaged: true
     help:
       summary: 'The updated at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
-        and reports.
-      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
-        on its own.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
+      relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: an inventory reservation cannot be understood without its updated at.'
   relationships:
   - name: product
@@ -170,36 +153,36 @@ entity:
     initial: PENDING
     terminal: [CONSUMED, CANCELLED, EXPIRED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: PARTIALLY_CONSUMED, action: mark_partially_consumed}
-      - {from: PARTIALLY_CONSUMED, to: RELEASED, action: release}
-      - {from: RELEASED, to: CONSUMED, action: consume}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_CONSUMED, to: CANCELLED, action: cancel}
-      - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: EXPIRED, action: expire}
-      - {from: PARTIALLY_CONSUMED, to: EXPIRED, action: expire}
-      - {from: RELEASED, to: EXPIRED, action: expire}
+    - {from: PENDING, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: PARTIALLY_CONSUMED, action: mark_partially_consumed}
+    - {from: PARTIALLY_CONSUMED, to: RELEASED, action: release}
+    - {from: RELEASED, to: CONSUMED, action: consume}
+    - {from: PENDING, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PARTIALLY_CONSUMED, to: CANCELLED, action: cancel}
+    - {from: RELEASED, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: EXPIRED, action: expire}
+    - {from: PARTIALLY_CONSUMED, to: EXPIRED, action: expire}
+    - {from: RELEASED, to: EXPIRED, action: expire}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an inventory reservation is ended"
-      description: "When an inventory reservation is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-RESERVATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on inventory reservation {{id}}"
-              description: "Inventory reservation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when an inventory reservation is ended"
+    description: "When an inventory reservation is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-RESERVATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on inventory reservation {{id}}"
+          description: "Inventory reservation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement.
     businessMeaning: Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it.

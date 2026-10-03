@@ -8,7 +8,14 @@ entity:
     recordLabel: [reconciliationNumber]
   identity: {key: bankReconciliationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: bankReconciliationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BankReconciliation., businessMeaning: Identifies one governed BankReconciliation record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - name: bankReconciliationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the bank reconciliation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a bank reconciliation store this identifier. The number or code people quote is a separate field.
   - name: reconciliationNumber
     type: string
     required: true

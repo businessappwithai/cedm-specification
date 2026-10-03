@@ -7,7 +7,14 @@ entity:
     icon: factory
   identity: {key: supplierDebitNoteLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierDebitNoteLineId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the supplier debit line., businessMeaning: Identifies one adjustment component independently of its parent debit note and source transactions., usage: Accounting reconciliation audit and integration., relationshipContext: Distinct from InvoiceLine SupplierClaim and SupplierReturnLine identities., workflowRole: Stable attribution for calculation and accounting., requiredMeaning: Required.}}
+  - name: supplierDebitNoteLineId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the supplier debit note line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier debit note line store this identifier. The number or code people quote is a separate field.
   - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence number of the debit line within its SupplierDebitNote., businessMeaning: Provides deterministic ordering and human-readable identification., usage: Documents review and reconciliation., relationshipContext: Unique within the parent debit note., workflowRole: Identifies the line during approval and posting., requiredMeaning: Required.}}
   - {name: quantity, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Quantity to which the debit calculation applies when the adjustment is quantity-based., businessMeaning: Measures affected goods or services for shortage overcharge damage or other quantity-driven recovery., usage: Calculation reconciliation and audit., relationshipContext: Must reconcile with relevant InvoiceLine GoodsReceiptLine or claim evidence when applicable., workflowRole: Supplies quantity basis for adjustment valuation., optionalMeaning: Optional for purely monetary adjustments.}}
   - {name: unitPrice, type: Money, required: false, help: {summary: Unit monetary value used to calculate a quantity-based debit., businessMeaning: Captures the transaction-time valuation relevant to the recovery., usage: Calculation and audit., relationshipContext: Should derive from original commercial evidence rather than current master pricing., workflowRole: Supports reproducible line valuation., optionalMeaning: Optional for non-quantity adjustments.}}

@@ -12,12 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier return event.
-      businessMeaning: Identifies the reverse-procurement transaction independently of its supplier reference, receipt, shipment, inventory or financial adjustment.
-      usage: Used for authorization, warehouse execution, supplier communication, accounting, audit and integration.
-      relationshipContext: Distinct from returnNumber and all original PurchaseOrder, GoodsReceipt and Invoice identities.
-      workflowRole: Stable root reference across authorization, dispatch, supplier receipt, quality inspection, inventory reversal and supplier credit processing.
-      requiredMeaning: Required for traceability.
+      summary: The permanent system identifier of the supplier return record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier return store this identifier. The number or code people quote is a separate field.
   - name: returnNumber
     type: string
     required: true

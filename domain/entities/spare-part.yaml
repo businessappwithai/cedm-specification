@@ -8,7 +8,14 @@ entity:
     recordLabel: [partNumber]
   identity: {key: sparePartId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: sparePartId, type: uuid, required: true, immutable: true, help: {summary: Stable spare-part identity., businessMeaning: Identifies one governed maintenance-material designation., usage: "Maintenance planning, inventory, procurement and costing.", relationshipContext: References canonical Product rather than duplicating product master data., requiredMeaning: Required.}}
+  - name: sparePartId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the spare part record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a spare part store this identifier. The number or code people quote is a separate field.
   - name: criticality
     type: enum
     required: true

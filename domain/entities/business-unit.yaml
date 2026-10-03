@@ -2,25 +2,118 @@ entity:
   name: BusinessUnit
   namespace: cedm.domain
   kind: organization_structure
-  description: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
+  description: A major part of a company run as a business of its own — a division, product line or region — with its head, its legal entity and the profit centre its results are reported on.
   ui:
-    icon: table
+    icon: building
+    recordLabel: [code, name]
   identity: {key: businessUnitId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: businessUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessUnit., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this BusinessUnit is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for BusinessUnit., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of BusinessUnit., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - name: businessUnitId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the business unit record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a business unit store this identifier. The number or code people quote is a separate field.
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The code of the business unit.
+      usage: Used in reports and assignments.
+      relationshipContext: Unique within the organization.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The name of the business unit.
+      usage: Shown in organization charts and reports.
+      relationshipContext: Identifies it for people.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the business unit does.
+      usage: Read by people placing staff or costs in it.
+      relationshipContext: Free text.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE]
+    help:
+      summary: Whether the business unit operates.
+      usage: Made inactive after a reorganisation.
+      relationshipContext: Inactive units are not offered for new assignments.
+      valueSemantics:
+        ACTIVE: Operating.
+        INACTIVE: No longer operating.
   relationships:
-  - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+  - name: organization
+    target: Organization
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The company the business unit belongs to.
+      usage: Set when it is created.
+      cardinalityMeaning: Every business unit belongs to exactly one organization.
+      context: Usually the group.
+  - name: head
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The executive responsible for the business unit.
+      usage: Receives its reports and approves its budgets.
+      cardinalityMeaning: One per business unit.
+      context: Accountable for its results.
+  - name: legalEntity
+    target: LegalEntity
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company the business unit mainly trades through.
+      usage: Used for contracts and invoices made by the unit.
+      cardinalityMeaning: At most one.
+      context: A unit trading in several countries uses several entities; the main one is named.
+  - name: profitCenter
+    target: ProfitCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The profit centre its results are reported on.
+      usage: Links the organization view to the reporting view.
+      cardinalityMeaning: At most one.
+      context: Set by controlling.
+  - name: parentUnit
+    target: BusinessUnit
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The larger business unit this one is part of.
+      usage: Builds the hierarchy.
+      cardinalityMeaning: At most one.
+      context: Cannot be itself.
   invariants:
-  - {id: BUSINESS-UNIT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  - {id: BUSINESS-UNIT-001, rule: 'A business unit cannot be part of itself, directly or through others.'}
+  lifecycle:
+    title: Business Unit Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
-    summary: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A division or line of business within the company.
+    businessMeaning: Large organizations are run as several businesses. A business unit names one, with the executive responsible and the company and profit centre it trades and reports through, so that people, budgets and results can be assigned to the business that owns them.
+    usage: Corporate administration maintains business units; departments, cost centres and people are assigned to them; management reporting groups results by them.
+    relationshipContext: A business unit belongs to an Organization, may trade through a LegalEntity and reports through a ProfitCenter. It may sit within a parent business unit.
+    lifecycle: Active while it operates; inactive after a reorganisation; history stays reportable.
+    workflowContext: Organization design, management reporting, budgeting, approval routing.
+    example: Business unit IND-EU 'Industrial Products Europe', head the EVP Industrial, legal entity ACME France SAS, profit centre PC-IND.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUSINESS-UNIT}

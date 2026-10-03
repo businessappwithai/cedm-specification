@@ -8,7 +8,14 @@ entity:
     icon: factory
   identity: {key: supplierId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierId, type: uuid, required: true, immutable: true, help: {summary: Immutable Supplier role identity., usage: Connects procurement purchase orders receipts invoices payments returns credits claims resolutions and supplier performance., relationshipContext: Supplier identifies the role while PartyRole and Party identify the underlying party., workflowRole: Preserves supplier traceability across procure-to-pay reverse procurement claim recovery and performance management., requiredMeaning: Required for stable supplier history.}}
+  - name: supplierId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the supplier record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier store this identifier. The number or code people quote is a separate field.
   - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: PartyRole backing the Supplier specialization., usage: Navigates to common party identity and role information., relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows., requiredMeaning: Required for role specialization.}}
   - {name: supplierCode, type: string, required: true, unique: true, maxLength: 100, help: {summary: Enterprise supplier business reference., usage: Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations., relationshipContext: Distinct from legal name and external registration identifiers., workflowRole: Identifies the supplier across procurement settlement recovery and performance., requiredMeaning: Required for operational recognition.}}
   - name: supplierType

@@ -8,7 +8,14 @@ entity:
   referenceData: reference-data/country.yaml
   identity: {key: countryId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: countryId, type: uuid, required: true, immutable: true, help: {summary: "Stable identity of Country.", usage: "Cross-domain reference, integration and audit.", relationshipContext: "Used wherever this Country is referenced.", requiredMeaning: "Required."}}
+  - name: countryId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the country record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a country store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: "The two-letter ISO 3166-1 code, such as US or DE.", usage: "Search, integration and reporting; stored on nothing else, because records point at the country itself.", relationshipContext: "Unique; a state or province and a city belong to a country through it.", requiredMeaning: "Required."}}
   - {name: alpha3, type: string, maxLength: 3, required: false, help: {summary: "The three-letter ISO 3166-1 code, such as USA or DEU.", usage: "Trade and customs documents, which use the long form.", relationshipContext: "Unique among countries."}}
   - {name: numericCode, type: string, maxLength: 3, required: false, help: {summary: "The three-digit ISO 3166-1 numeric code, such as 840.", usage: "Banking and statistical exchange formats.", relationshipContext: "Unique among countries."}}

@@ -1,0 +1,73 @@
+entity:
+  name: CalendarException
+  namespace: cedm.domain
+  kind: reference_data
+  description: A date a calendar treats differently from its normal week — a public holiday, a company closure, or an extra working day — with its name and whether it is worked.
+  ui: {icon: calendar-x, recordLabel: [exceptionDate, name]}
+  identity: {key: calendarExceptionId, type: uuid, generated: true, immutable: true}
+  attributes:
+  - name: calendarExceptionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the calendar exception record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a calendar exception store this identifier. The number or code people quote is a separate field.
+  - name: exceptionDate
+    type: date
+    required: true
+    help:
+      summary: The date the exception applies to.
+      usage: Entered when the holiday or closure is known.
+      relationshipContext: One exception per date in a calendar.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: What the date is, such as "Christmas Day" or "Summer shutdown".
+      usage: Shown on calendars and in planning.
+      relationshipContext: Free text.
+  - name: exceptionType
+    type: enum
+    required: true
+    default: PUBLIC_HOLIDAY
+    values: [PUBLIC_HOLIDAY, COMPANY_CLOSURE, EXTRA_WORKING_DAY]
+    help:
+      summary: What kind of exception it is.
+      usage: Chosen when adding it.
+      relationshipContext: Extra working days make a normally free day a working day.
+      valueSemantics:
+        PUBLIC_HOLIDAY: A public holiday.
+        COMPANY_CLOSURE: A day the company or site is closed.
+        EXTRA_WORKING_DAY: A normally free day that is worked.
+  - name: isWorkingDay
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether work happens on the date.
+      usage: Decides whether the date counts in working-day calculations.
+      relationshipContext: False for holidays and closures, true for extra working days.
+  relationships:
+  - name: calendar
+    target: Calendar
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The calendar the exception belongs to.
+      usage: Set when adding it.
+      cardinalityMeaning: Every exception belongs to exactly one calendar.
+      context: Listed under the calendar.
+  help:
+    summary: One holiday, closure or extra working day in a calendar.
+    businessMeaning: Exceptions are what make a calendar accurate. Each records a date, what it is and whether work happens on it, so that working-day calculations skip holidays and closures and count extra working days.
+    usage: Entered each year for the coming year's holidays and planned closures; read by every calculation that counts working days.
+    relationshipContext: An exception belongs to one Calendar and is listed among its exceptions.
+    lifecycle: An exception has no lifecycle; it is added, and removed if the closure is cancelled.
+    workflowContext: Annual calendar maintenance, due-date and delivery calculations.
+    example: 14 July 2024 — 'Fête nationale', public holiday, non-working, in calendar FR.
+  invariants:
+  - {id: CALENDAR-EXCEPTION-001, rule: Holidays and closures are not working days; extra working days are., violatedWhen: (exception_type == "EXTRA_WORKING_DAY" and is_working_day == false) or (exception_type != "EXTRA_WORKING_DAY" and is_working_day == true), message: The working-day flag does not match the kind of exception.}
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CALENDAR-EXCEPTION}

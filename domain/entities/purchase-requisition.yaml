@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the procurement demand request.
-      usage: Used to trace approvals, requisition lines, sourcing decisions, resulting purchase orders, and audit history.
-      relationshipContext: Identifies the requisition itself; it is different from the business requisitionNumber and from any PurchaseOrder created later.
-      requiredMeaning: Required because procurement demand must remain traceable independently of downstream purchasing documents.
+      summary: The permanent system identifier of the purchase requisition record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a purchase requisition store this identifier. The number or code people quote is a separate field.
   - name: requisitionNumber
     type: string
     required: true
@@ -121,55 +120,55 @@ entity:
     initial: DRAFT
     terminal: [CLOSED, REJECTED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: SUBMITTED, action: submit}
-      - {from: SUBMITTED, to: APPROVED, action: approve}
-      - {from: APPROVED, to: ORDERED, action: mark_ordered}
-      - {from: ORDERED, to: CLOSED, action: close}
-      - {from: DRAFT, to: REJECTED, action: reject}
-      - {from: SUBMITTED, to: REJECTED, action: reject}
-      - {from: APPROVED, to: REJECTED, action: reject}
-      - {from: ORDERED, to: REJECTED, action: reject}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: SUBMITTED, to: CANCELLED, action: cancel}
-      - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: ORDERED, to: CANCELLED, action: cancel}
+    - {from: DRAFT, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: ORDERED, action: mark_ordered}
+    - {from: ORDERED, to: CLOSED, action: close}
+    - {from: DRAFT, to: REJECTED, action: reject}
+    - {from: SUBMITTED, to: REJECTED, action: reject}
+    - {from: APPROVED, to: REJECTED, action: reject}
+    - {from: ORDERED, to: REJECTED, action: reject}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: SUBMITTED, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+    - {from: ORDERED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a purchase requisition is put forward"
-      description: "When a purchase requisition is submitted, a task asks someone to decide on it."
-      when: "status == \"SUBMITTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PURCHASE-REQUISITION-APPROVAL-{{id}}"
-              name: "Decide on purchase requisition {{requisition_number}}"
-              description: "Purchase requisition {{requisition_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a purchase requisition is ended"
-      description: "When a purchase requisition is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PURCHASE-REQUISITION-FOLLOW-UP-{{id}}"
-              name: "Follow up on purchase requisition {{requisition_number}}"
-              description: "Purchase requisition {{requisition_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a purchase requisition is put forward"
+    description: "When a purchase requisition is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PURCHASE-REQUISITION-APPROVAL-{{id}}"
+          name: "Decide on purchase requisition {{requisition_number}}"
+          description: "Purchase requisition {{requisition_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a purchase requisition is ended"
+    description: "When a purchase requisition is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PURCHASE-REQUISITION-FOLLOW-UP-{{id}}"
+          name: "Follow up on purchase requisition {{requisition_number}}"
+          description: "Purchase requisition {{requisition_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents internal demand for goods or services before that demand becomes an external procurement commitment.
     businessMeaning: PurchaseRequisition is the demand and authorization layer of procurement. It answers what the organization needs, why it is needed, who requested it, and whether the organization authorized procurement. PurchaseOrder answers what was actually committed to a Supplier.

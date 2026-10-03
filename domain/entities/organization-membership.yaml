@@ -8,7 +8,14 @@ entity:
     recordLabel: [membershipRole]
   identity: {key: organizationMembershipId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of OrganizationMembership., businessMeaning: Identifies one governed OrganizationMembership record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - name: organizationMembershipId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the organization membership record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a organization membership store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true

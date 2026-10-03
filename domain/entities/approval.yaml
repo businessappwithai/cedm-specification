@@ -8,7 +8,14 @@ entity:
     recordLabel: [subject]
   identity: {key: approvalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Approval., businessMeaning: Identifies one governed Approval record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - name: approvalId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the approval record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a approval store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true

@@ -8,7 +8,14 @@ entity:
     recordLabel: [versionLabel]
   identity: {key: documentVersionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentVersion., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: documentVersionId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the document version record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a document version store this identifier. The number or code people quote is a separate field.
   - name: versionLabel
     type: string
     required: true

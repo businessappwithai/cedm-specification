@@ -8,7 +8,14 @@ entity:
     recordLabel: [reference, title]
   identity: {key: complianceRequirementId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: complianceRequirementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ComplianceRequirement., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: complianceRequirementId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the compliance requirement record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a compliance requirement store this identifier. The number or code people quote is a separate field.
   - name: reference
     type: string
     required: true

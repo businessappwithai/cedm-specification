@@ -11,7 +11,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the supplier performance assessment., businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope., usage: "Supplier governance, sourcing decisions, improvement plans, audit and reporting.", relationshipContext: "Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections.", workflowRole: "Stable reference across calculation, review, approval and follow-up.", requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the supplier performance assessment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier performance assessment store this identifier. The number or code people quote is a separate field.
   - name: assessmentNumber
     type: string
     required: true

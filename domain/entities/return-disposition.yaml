@@ -11,7 +11,10 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the return disposition decision., businessMeaning: "Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects.", usage: "Used for reverse logistics, inventory, quality, audit and reconciliation.", relationshipContext: "CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence.", workflowRole: Carries the disposition decision into execution and completion., requiredMeaning: Required.}
+    help:
+      summary: The permanent system identifier of the return disposition record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a return disposition store this identifier. The number or code people quote is a separate field.
   - name: dispositionCode
     type: enum
     required: true

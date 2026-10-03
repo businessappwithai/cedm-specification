@@ -7,7 +7,14 @@ entity:
     icon: file-text
   identity: {key: waveId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: waveId, type: uuid, required: true, immutable: true, help: {summary: Stable wave identity., businessMeaning: Identifies one coordinated work release., usage: WMS planning and execution., relationshipContext: Groups tasks without replacing individual evidence., requiredMeaning: Required.}}
+  - name: waveId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the wave record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a wave store this identifier. The number or code people quote is a separate field.
   - {name: waveNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing wave reference., businessMeaning: Operational identifier for grouped work., usage: Warehouse planning and reporting., relationshipContext: Distinct from task and shipment identifiers., requiredMeaning: Required.}}
   - name: status
     type: enum

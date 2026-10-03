@@ -16,74 +16,55 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the loan record associated with this BankLoan. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      summary: The permanent system identifier of the bank loan record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a bank loan store this identifier. The number or code people quote is a separate field.
   - name: loanNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of loan number for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of loan number for the BankLoan. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: principalAmount
     type: decimal
     required: true
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of principal amount for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of principal amount for the BankLoan. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: interestRate
     type: decimal
     required: true
     precision: 10
     scale: 6
     help:
-      summary: Captures the business meaning of interest rate for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
+      summary: Captures the business meaning of interest rate for the BankLoan. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: startDate
     type: date
     required: true
     help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
+      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: maturityDate
     type: date
     required: true
     help:
-      summary: Records the business date associated with the maturity. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
+      summary: Records the business date associated with the maturity. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -97,11 +78,9 @@ entity:
     - DEFAULTED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
+      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
+      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
       valueSemantics:
         APPLICATION: Represents the application state or classification in the context of BankLoan.
         APPROVED: Represents the approved state or classification in the context of BankLoan.
@@ -110,8 +89,7 @@ entity:
         PAID_OFF: Represents the paid off state or classification in the context of BankLoan.
         DEFAULTED: Represents the defaulted state or classification in the context of BankLoan.
         CANCELLED: Represents the cancelled state or classification in the context of BankLoan.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: borrower
     target: Party
@@ -121,8 +99,7 @@ entity:
       summary: Connects BankLoan to Party so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Party records associated with a BankLoan.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: lender
     target: Organization
     cardinality: '1'
@@ -131,8 +108,7 @@ entity:
       summary: Connects BankLoan to Organization so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Organization records associated with a BankLoan.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   - name: currency
     target: Currency
     cardinality: '1'
@@ -141,8 +117,7 @@ entity:
       summary: Connects BankLoan to Currency so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Currency records associated with a BankLoan.
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
   - id: BANK-LOAN-001
     rule: maturityDate must be later than startDate.
@@ -156,49 +131,43 @@ entity:
     initial: APPLICATION
     terminal: [CANCELLED]
     transitions:
-      - {from: APPLICATION, to: APPROVED, action: approve}
-      - {from: APPROVED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: DELINQUENT, action: mark_delinquent}
-      - {from: DELINQUENT, to: PAID_OFF, action: mark_paid_off}
-      - {from: PAID_OFF, to: DEFAULTED, action: mark_defaulted}
-      - {from: APPLICATION, to: CANCELLED, action: cancel}
-      - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-      - {from: DELINQUENT, to: CANCELLED, action: cancel}
-      - {from: PAID_OFF, to: CANCELLED, action: cancel}
-      - {from: DEFAULTED, to: CANCELLED, action: cancel}
+    - {from: APPLICATION, to: APPROVED, action: approve}
+    - {from: APPROVED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: DELINQUENT, action: mark_delinquent}
+    - {from: DELINQUENT, to: PAID_OFF, action: mark_paid_off}
+    - {from: PAID_OFF, to: DEFAULTED, action: mark_defaulted}
+    - {from: APPLICATION, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: DELINQUENT, to: CANCELLED, action: cancel}
+    - {from: PAID_OFF, to: CANCELLED, action: cancel}
+    - {from: DEFAULTED, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a bank loan is ended"
-      description: "When a bank loan is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BANK-LOAN-FOLLOW-UP-{{id}}"
-              name: "Follow up on bank loan {{loan_number}}"
-              description: "Bank loan {{loan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a bank loan is ended"
+    description: "When a bank loan is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BANK-LOAN-FOLLOW-UP-{{id}}"
+          name: "Follow up on bank loan {{loan_number}}"
+          description: "Bank loan {{loan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents a banking entity called BankLoan within the CEDM business model.
-    businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate BankLoan records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
-      Currency. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical BankLoan record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate BankLoan records.
+    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Currency. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
+    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
+    example: A typical BankLoan record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
 specification:
   version: 0.1.0
   status: draft

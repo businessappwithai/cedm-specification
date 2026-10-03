@@ -7,7 +7,14 @@ entity:
     icon: file-text
   identity: {key: scrapId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: scrapId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of scrap event., businessMeaning: Identifies one governed production loss/disposition., usage: "Manufacturing, inventory, costing, quality, and audit.", relationshipContext: Links work order/product quantity to cause and inventory effect., requiredMeaning: Required.}}
+  - name: scrapId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the scrap record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a scrap store this identifier. The number or code people quote is a separate field.
   - {name: scrapNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing scrap reference., businessMeaning: Operational identifier for production loss., usage: "Shop-floor reporting, quality, costing and audit.", relationshipContext: Distinct from inventory movement reference., requiredMeaning: Required.}}
   - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity classified as scrap., businessMeaning: Quantifies governed production loss or rejected material., usage: "Yield, variance, costing and inventory.", relationshipContext: Interpreted with Product/UOM/lot/serial context., requiredMeaning: Required.}}
   - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Governed reason for scrap., businessMeaning: Classifies why material/output was lost or rejected., usage: "Quality analysis, costing and continuous improvement.", relationshipContext: Should align with controlled reason taxonomy., requiredMeaning: Required.}}

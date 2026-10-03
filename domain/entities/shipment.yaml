@@ -12,10 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: 'The shipment id of the shipment: an identifier the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a shipment cannot be understood without its shipment id.'
+      summary: The permanent system identifier of the shipment record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a shipment store this identifier. The number or code people quote is a separate field.
   - name: shipmentNumber
     type: string
     required: true

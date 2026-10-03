@@ -7,7 +7,14 @@ entity:
     icon: file-text
   identity: {key: pickingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: Stable pick-task identity., businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}
+  - name: pickingId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the picking record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a picking store this identifier. The number or code people quote is a separate field.
   - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed to pick., businessMeaning: Defines execution demand., usage: Pick confirmation and variance., relationshipContext: Must reconcile with reservation and inventory events., requiredMeaning: Required.}}
   - name: status
     type: enum
@@ -33,61 +40,61 @@ entity:
     initial: PLANNED
     terminal: [CANCELLED]
     transitions:
-      - {from: PLANNED, to: RELEASED, action: release}
-      - {from: RELEASED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: PICKED, action: mark_picked}
-      - {from: PICKED, to: SHORT, action: mark_short}
-      - {from: RELEASED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: RELEASED, action: resolve_exception}
-      - {from: IN_PROGRESS, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: IN_PROGRESS, action: resolve_exception}
-      - {from: PICKED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: PICKED, action: resolve_exception}
-      - {from: SHORT, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: SHORT, action: resolve_exception}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
-      - {from: PICKED, to: CANCELLED, action: cancel}
-      - {from: SHORT, to: CANCELLED, action: cancel}
-      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: RELEASED, action: release}
+    - {from: RELEASED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: PICKED, action: mark_picked}
+    - {from: PICKED, to: SHORT, action: mark_short}
+    - {from: RELEASED, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: RELEASED, action: resolve_exception}
+    - {from: IN_PROGRESS, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: IN_PROGRESS, action: resolve_exception}
+    - {from: PICKED, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: PICKED, action: resolve_exception}
+    - {from: SHORT, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: SHORT, action: resolve_exception}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RELEASED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+    - {from: PICKED, to: CANCELLED, action: cancel}
+    - {from: SHORT, to: CANCELLED, action: cancel}
+    - {from: EXCEPTION, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a picking is stopped"
-      description: "When a picking is exception, a high-priority task asks someone to resolve it."
-      when: "status == \"EXCEPTION\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PICKING-EXCEPTION-{{id}}"
-              name: "Resolve picking {{id}}"
-              description: "Picking {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a picking is ended"
-      description: "When a picking is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PICKING-FOLLOW-UP-{{id}}"
-              name: "Follow up on picking {{id}}"
-              description: "Picking {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a picking is stopped"
+    description: "When a picking is exception, a high-priority task asks someone to resolve it."
+    when: "status == \"EXCEPTION\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PICKING-EXCEPTION-{{id}}"
+          name: "Resolve picking {{id}}"
+          description: "Picking {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a picking is ended"
+    description: "When a picking is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PICKING-FOLLOW-UP-{{id}}"
+          name: "Follow up on picking {{id}}"
+          description: "Picking {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Warehouse inventory-selection task for authorized demand.
     businessMeaning: Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately.

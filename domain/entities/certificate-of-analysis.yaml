@@ -7,7 +7,14 @@ entity:
     icon: table
   identity: {key: certificateOfAnalysisId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: certificateOfAnalysisId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the certificate., businessMeaning: Identifies one issued quality certificate independently of its document number., usage: "Compliance, customer/supplier exchange, audit, and integration.", relationshipContext: Links certificate representation to source quality evidence., requiredMeaning: Required.}}
+  - name: certificateOfAnalysisId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the certificate of analysis record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a certificate of analysis store this identifier. The number or code people quote is a separate field.
   - {name: certificateNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Business-facing certificate reference., businessMeaning: Controlled number used to identify the issued certificate., usage: "Documents, search, exchange, and audit.", relationshipContext: Distinct from inspection and shipment numbers., requiredMeaning: Required.}}
   - {name: issuedAt, type: datetime, required: false, help: {summary: Time the certificate was formally issued., businessMeaning: Establishes when the quality statement became externally or operationally effective., usage: "Compliance, customer documentation, and audit.", relationshipContext: Required once status is ISSUED., optionalMeaning: Optional before issuance.}}
   - name: status

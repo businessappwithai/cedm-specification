@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the depreciation record or schedule.
-      usage: Used to trace depreciation calculations, accounting periods, revisions, reporting, and financial integrations.
-      relationshipContext: Identifies the depreciation record; Asset identifies the resource being measured and the schedule's parameters determine how depreciation is calculated.
-      requiredMeaning: Required so financial history can be traced without relying on calculation values.
+      summary: The permanent system identifier of the asset depreciation record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a asset depreciation store this identifier. The number or code people quote is a separate field.
   - name: depreciationMethod
     type: enum
     required: true

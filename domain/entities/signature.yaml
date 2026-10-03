@@ -8,7 +8,14 @@ entity:
     recordLabel: [signatoryName, signedAt]
   identity: {key: signatureId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: signatureId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Signature., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - name: signatureId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the signature record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a signature store this identifier. The number or code people quote is a separate field.
   - name: signatoryName
     type: string
     required: true
@@ -144,24 +151,24 @@ entity:
     - {from: REQUESTED, to: EXPIRED, action: expire}
     - {from: REQUESTED, to: REVOKED, action: revoke}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a signature is put forward"
-      description: "When a signature is requested, a task asks someone to decide on it."
-      when: "status == \"REQUESTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SIGNATURE-APPROVAL-{{id}}"
-              name: "Decide on signature {{id}}"
-              description: "Signature {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a signature is put forward"
+    description: "When a signature is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SIGNATURE-APPROVAL-{{id}}"
+          name: "Decide on signature {{id}}"
+          description: "Signature {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: One person's signature on one document, with the proof that it was given.
     businessMeaning: A signature binds a person or the company they represent to a document. It is only worth something if it can later be shown who signed which version, when, in what capacity, by what method and that the document has not changed since. The signature record keeps exactly that evidence.

@@ -12,12 +12,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier return line.
-      businessMeaning: Identifies one quantity-level reverse-procurement instruction.
-      usage: Used for inventory, supplier credit, quality, reconciliation and audit.
-      relationshipContext: Distinct from the original PurchaseOrderLine and GoodsReceiptLine identities.
-      workflowRole: Provides stable attribution for every downstream reversal.
-      requiredMeaning: Required for traceability.
+      summary: The permanent system identifier of the supplier return line record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a supplier return line store this identifier. The number or code people quote is a separate field.
   - name: lineNumber
     type: integer
     required: true

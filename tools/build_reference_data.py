@@ -41,6 +41,10 @@ ZERO = {"BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF", "U
 THREE = {"BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"}
 
 
+# ISO 639-1 languages written right to left in their usual script (Unicode CLDR).
+RIGHT_TO_LEFT = {"ar", "dv", "fa", "he", "ks", "ku", "ps", "sd", "ug", "ur", "yi"}
+
+
 def _slug(name: str) -> str:
     """`Rio de Janeiro` → `RIO-DE-JANEIRO`; accents folded, anything else dropped."""
     import re
@@ -96,7 +100,16 @@ def main() -> None:
     write("country", "Country", "code", "ISO 3166-1 (pycountry), GeoNames country info", rows)
 
     languages = sorted((l for l in pycountry.languages if hasattr(l, "alpha_2")), key=lambda l: l.alpha_2)
-    write("language", "Language", "code", "ISO 639-1 (pycountry)", [{"code": l.alpha_2, "name": l.name} for l in languages])
+    write(
+        "language",
+        "Language",
+        "code",
+        "ISO 639-1 and 639-3 (pycountry); script direction from Unicode CLDR",
+        [
+            {"code": l.alpha_2, "alpha3": l.alpha_3, "name": l.name, "direction": "RTL" if l.alpha_2 in RIGHT_TO_LEFT else "LTR"}
+            for l in languages
+        ],
+    )
 
     subdivisions = [s for s in pycountry.subdivisions if s.parent_code is None and s.country_code in SUBDIVISION_COUNTRIES]
     subdivisions.sort(key=lambda s: s.code)

@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Identifies the trip record associated with this Trip. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Trip records, where applicable.
-      relationshipContext: Its meaning is specific to Trip; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: The permanent system identifier of the trip record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a trip store this identifier. The number or code people quote is a separate field.
   - name: tripNumber
     type: string
     required: true

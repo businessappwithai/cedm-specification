@@ -16,10 +16,9 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the inventory state projection.
-      usage: Used to reference and reconcile current stock state independently of movement events.
-      relationshipContext: Identifies one Product/location state projection rather than a Product or location itself.
-      workflowRole: Provides the current state consumed by allocation, fulfillment, replenishment and inventory control.
+      summary: The permanent system identifier of the inventory balance record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a inventory balance store this identifier. The number or code people quote is a separate field.
   - name: quantityOnHand
     type: decimal
     required: true

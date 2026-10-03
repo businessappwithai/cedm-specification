@@ -7,7 +7,14 @@ entity:
     icon: list
   identity: {key: brandId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: Stable brand identity., businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants., requiredMeaning: Required.}}
+  - name: brandId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the brand record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a brand store this identifier. The number or code people quote is a separate field.
   - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed brand code., businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master., requiredMeaning: Required.}}
   - {name: name, type: string, required: true, maxLength: 300, help: {summary: Brand display name., businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity., requiredMeaning: Required.}}
   - name: status
@@ -30,10 +37,10 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Governed product brand reference master.
     businessMeaning: Brand describes commercial/manufacturer identity; it is distinct from ProductCategory taxonomy and Product identity.

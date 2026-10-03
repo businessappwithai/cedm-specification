@@ -8,7 +8,14 @@ entity:
     recordLabel: [registrationNumber]
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - name: taxRegistrationId
+    type: uuid
+    required: true
+    immutable: true
+    help:
+      summary: The permanent system identifier of the tax registration record.
+      usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
+      relationshipContext: Other records that refer to a tax registration store this identifier. The number or code people quote is a separate field.
   - name: status
     type: enum
     required: true
