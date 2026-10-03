@@ -6957,7 +6957,7 @@ var appwithai_language_default = {
     ]
   },
   types: {
-    description: "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
+    description: "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive the SQL column type, the Rust and TypeScript types, and the Application Dictionary reference that picks the UI control.",
     canonical: [
       "string",
       "text",
@@ -8266,7 +8266,7 @@ var appwithai_language_default = {
       EML103: "A column the generator adds anyway - removes the declaration.",
       EML112: "A column declared twice - removes the later one, keeping the stronger constraints.",
       EML114: "An `fk` column not ending in _id - appends the suffix, and renames it in indexes and hook fields too.",
-      EML117: "An entity with no primary key - adds `id` as a string primary key.",
+      EML117: "An entity with no primary key that declares an id or *_id column - marks its id column as the key, or adds `id` as a uuid primary key.",
       EML287: "A rule condition names a camelCase identifier - rewrites it as the snake_case column.",
       EML421: "A state machine with no initial state - sets `initial` to its first state.",
       EML422: "A state machine with no final state - sets `final` to its states that have no way out."

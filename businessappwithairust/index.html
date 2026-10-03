@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AppWithAI — Open source AI-powered business application generator. Transform your business domain description into a production-ready full-stack application with TanStack Start, NestJS, and PostgreSQL.">
-  <meta name="keywords" content="AI application generator, open source, business automation, TanStack Start, NestJS, PostgreSQL, enterprise software, workflow automation, Apache 2.0">
+  <meta name="description" content="AppWithAI — Open source AI-powered business application generator. Transform your business domain description into a production-ready full-stack application: a Loco.rs (Rust) API, a TanStack Start front end and PostgreSQL.">
+  <meta name="keywords" content="AI application generator, open source, business automation, Loco.rs, Rust, TanStack Start, PostgreSQL, enterprise software, workflow automation, Apache 2.0">
   <title>AppWithAI — Intelligent Business Application Generator</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -65,7 +65,7 @@
              width ceiling (see `.logo::after` in style.css), so the attribution
              sits on the first line of the hero instead, above the headline. -->
         <div class="hero-meta">
-          <span class="hero-badge">Open Source · Apache License 2.0 · Powered by Claude, OpenAI, and Ollama</span>
+          <span class="hero-badge">Open Source · Apache License 2.0 · Any OpenAI-Compatible Model</span>
           <p class="hero-credit">Written by <span class="hero-credit__name">Claude Code</span> · ideated by <span class="hero-credit__name">Pramod Koshy</span></p>
         </div>
         <h1>Transform Your Business Domain Into a <span class="text-gradient">Production-Ready Application</span> in Hours, Not Months</h1>
@@ -74,7 +74,7 @@
           It is developed in the open and there is plenty still to do &mdash; read the
           code, run it yourself, and judge it on what it actually produces.
           <a href="todo.html">Todo &mdash; the road to 1.0.0 &rarr;</a>
-          <a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a>
+          <a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a>
         </p>
         <p class="hero-subtitle">Describe your business process in plain English. AppWithAI drives an intelligent multi-agent pipeline — from domain analysis and ERD design to human-in-the-loop review and complete code generation — producing a fully functional, deployable application.</p>
         <div class="hero-cta">
@@ -230,7 +230,7 @@
         <div class="feature-card">
           <div class="feature-icon">⚙️</div>
           <h3>Business Rules Engine</h3>
-          <p>Define complex business logic using visual decision flowcharts powered by GoRules Zen Engine. AI translates rules into executable TypeScript code with full lifecycle hook support.</p>
+          <p>Define complex business logic as decision graphs, evaluated by the GoRules zen-engine inside the generated Rust backend, with a lifecycle hook for every create, update, delete and query.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔐</div>
@@ -260,15 +260,15 @@
         </div>
         <div class="timeline-item">
           <h3>2. AI Domain Analysis</h3>
-          <p>The Domain Analysis Agent — powered by Claude, OpenAI, or a local Ollama model of your choice — extracts core entities, attributes, and relationships from your description.</p>
+          <p>The Domain Analysis Agent — running on any OpenAI-compatible model endpoint you choose, local or hosted — extracts core entities, attributes, and relationships from your description.</p>
         </div>
         <div class="timeline-item">
           <h3>3. Human-in-the-Loop Review</h3>
           <p>You review and approve the AI-generated data model in the visual ERD designer. Only after your explicit approval does the system proceed.</p>
         </div>
         <div class="timeline-item">
-          <h3>4. ERD Generation and Code Production</h3>
-          <p>The Mermaid Agent produces a complete Entity Relationship Diagram, which feeds the Code Generation Engine to produce the full application.</p>
+          <h3>4. Model and Code Production</h3>
+          <p>The approved entities and relationships are written as one YAML model file, which the validator checks and the Code Generation Engine compiles into the full application.</p>
         </div>
         <div class="timeline-item">
           <h3>5. Deploy and Iterate</h3>
@@ -300,8 +300,8 @@
         <div class="card">
           <div class="card-icon">🔎</div>
           <h3>2. Hand it to ChatGPT or Gemini Deep Research</h3>
-          <p>Give the model our machine-readable specification along with your description. It contains the authoring protocol: enhance the brief into a full entity model, workflows and business rules; write the model file; then validate it against our published checker before handing anything over.</p>
-          <p class="text-muted text-sm">You get back a single <code>.mmd</code> file — the model itself, not a document describing it — plus the specification it inferred so you can correct what it guessed.</p>
+          <p>Give the model our machine-readable specification along with your description. It contains the authoring protocol: enhance the brief into a full entity model, workflows and business rules; write the model file; then validate it against our published validator before handing anything over.</p>
+          <p class="text-muted text-sm">You get back a single <code>.eml.yaml</code> file — the model itself, not a document describing it — plus the specification it inferred so you can correct what it guessed.</p>
         </div>
         <div class="card">
           <div class="card-icon">▶️</div>
@@ -321,17 +321,17 @@
 My business:
 [Describe it here. What you sell or service. Every kind of record you keep and how they relate. Who does what. The states each record moves through. What has to be approved, and by whom. What happens when a step fails.]
 
-Deliver exactly one file I can download: &lt;business-name&gt;.mmd. It must open on a %% line with %%meta name: before the first diagram, and every line in it must be Mermaid or an EML %% directive — no Markdown, no headings, no prose. A document that describes the model is not the model; the checker scores that EML004.
+Deliver exactly one file I can download: &lt;business-name&gt;.eml.yaml. It must be one YAML document that opens with eml: &quot;1.0&quot; and declares name and entities — no Markdown, no headings, no prose around it. A document that describes the model is not the model; the validator refuses it before it reads a single entity.
 
-Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced mermaid block of that document, before any prose.
+Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced yaml block of that document, before any prose.
 
-Then, in your reply text: the enhanced specification you inferred, the checker result with its counts, and anything you assumed. If the checker cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
+Then, in your reply text: the enhanced specification you inferred, the validator result with its counts and the audit score, and anything you assumed. If the validator cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
             <button type="button" class="btn btn-primary" data-copy="research-prompt">Copy the prompt</button>
           </div>
           <div>
             <h4>Then bring the file back</h4>
-            <p class="text-muted">Upload the <code>.mmd</code> and press Generate, then Run. The first time PostgreSQL loads it takes a few seconds; after that it is instant.</p>
-            <p class="text-muted text-sm">Got a report instead of a file? Some models can only answer with a document. Copy its <code>mermaid</code> block into the <a href="guide/11-check-a-model.html">checker page</a>, check it, and download it as a <code>.mmd</code> from there.</p>
+            <p class="text-muted">Upload the <code>.eml.yaml</code> and press Generate, then Run. The first time PostgreSQL loads it takes a few seconds; after that it is instant.</p>
+            <p class="text-muted text-sm">Got a report instead of a file? Some models can only answer with a document. Copy its <code>yaml</code> block into the <a href="guide/11-check-a-model.html">checker page</a>, check it, and download it as a <code>.eml.yaml</code> from there.</p>
             <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
               <a href="guide/run-in-browser.html#upload" class="btn btn-accent btn-lg">Upload Your Model &amp; Run It &rarr;</a>
               <a href="guide/11-check-a-model.html" class="btn btn-outline">Check the file first &rarr;</a>
@@ -340,8 +340,8 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
             <p class="text-muted text-sm" style="margin-top: var(--spacing-lg);">Not ready to write your own? <a href="guide/run-in-browser.html">Run the seventeen-entity CRM</a> the guide builds &mdash; same page, one click, no file needed.</p>
             <p class="text-muted text-sm">Want the longer version &mdash; what the model file actually contains, and how to check it? <a href="try-it-yourself.html">The Try It Yourself page</a> walks all of it.</p>
             <p class="text-muted text-sm">Building professional or enterprise software rather than a first model? Point the same prompt at <a href="llmdetailed.txt">the detailed specification</a> and follow its section 10 &mdash; a phased walkthrough with approval gates instead of one pass. <a href="try-it-yourself.html#enterprise-prompt">The prompt for it is here</a>.</p>
-            <p class="text-muted text-sm">Already have a model and want to change it? These prompts write one from nothing, which rewrites anything you point them at. <a href="llmtextenhancement.txt">The enhancement specification</a> starts from your <code>.mmd</code> instead &mdash; it reads your file first, applies only what you asked for, hands the whole model back, and shows you the before-and-after counts so you can see nothing was lost. <a href="try-it-yourself.html#enhance">Both enhancement prompts are here</a>.</p>
-            <p class="text-muted text-sm">Whichever prompt you use, you get a Mermaid file back &mdash; and Mermaid draws only its entity diagram. <a href="viewers/index.html">The model viewer</a> draws the rest: the business rules, the state machines, the multi-step processes and who can see what.</p>
+            <p class="text-muted text-sm">Already have a model and want to change it? These prompts write one from nothing, which rewrites anything you point them at. <a href="llmtextenhancement.txt">The enhancement specification</a> starts from your <code>.eml.yaml</code> instead &mdash; it reads your file first, applies only what you asked for, hands the whole model back, and shows you the before-and-after counts so you can see nothing was lost. <a href="try-it-yourself.html#enhance">Both enhancement prompts are here</a>.</p>
+            <p class="text-muted text-sm">Whichever prompt you use, you get one YAML file back, readable top to bottom. <a href="viewers/index.html">The model viewer</a> draws all of it: the entity diagram, the business rules, the state machines, the multi-step processes and who can see what.</p>
           </div>
         </div>
       </div>
@@ -456,7 +456,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
           </div>
           <div class="card">
             <h4>Generated entirely by AppWithAI</h4>
-            <p class="text-muted">Every entity, rule, workflow, screen and permission comes out of one Mermaid model file. Nothing on the screen was hand-written — including the help text.</p>
+            <p class="text-muted">Every entity, rule, workflow, screen and permission comes out of one YAML model file. Nothing on the screen was hand-written — including the help text.</p>
           </div>
         </div>
         <div class="card text-center" style="padding: var(--spacing-2xl);">
@@ -503,7 +503,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
           <div class="stat-label">State Machines and Sagas</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">403</div>
+          <div class="stat-value">521</div>
           <div class="stat-label">Files Generated</div>
         </div>
       </div>
@@ -513,9 +513,9 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
           <img src="guide/img/08-crm-dashboard.png" alt="The generated CRM dashboard, showing seven groups of entities including Accounts and Contacts, Sales Pipeline, Customer Service and the Application Dictionary." style="width: 100%; height: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);">
         </div>
         <div>
-          <h3>From one Mermaid model to a running application</h3>
+          <h3>From one YAML model to a running application</h3>
           <p>The guide starts with an empty file and ends with a CRM covering the whole commercial lifecycle — marketing captures a lead, sales converts it into an account with a contact and an opportunity, the deal is quoted and contracted, and support handles cases against the account afterwards.</p>
-          <p>Nothing in the finished application is hand-written. The data model, the decision logic, the status lifecycles and the multi-entity processes all come out of the same document, and the document stays readable as a diagram.</p>
+          <p>Nothing in the finished application is hand-written. The data model, the decision logic, the status lifecycles and the multi-entity processes all come out of the same document, and the model viewer draws every part of it.</p>
           <ul style="list-style: none; padding: 0; margin: var(--spacing-lg) 0;">
             <li style="padding: var(--spacing-sm) 0;">✓ Entities, types, keys, relationships, enums and indexes</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Decision flows that score, route and gate a record</li>
@@ -523,7 +523,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
             <li style="padding: var(--spacing-sm) 0;">✓ Multi-step processes that write across tables</li>
             <li style="padding: var(--spacing-sm) 0;">✓ The admin dictionary, the audit log and per-screen help</li>
             <li style="padding: var(--spacing-sm) 0;">✓ The same application generated and run in your browser, with nothing to install</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ A published checker and fixer any page or agent can import</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ A published validator and fixer any page or agent can import</li>
           </ul>
           <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
             <a href="guide/index.html" class="btn btn-primary btn-lg">Read the CRM Guide</a>
@@ -586,7 +586,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -622,8 +622,8 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
-        <p class="mt-2 text-sm">This is an early version. The generator works and is exercised end to end on every commit, but the project is young &mdash; interfaces move, the language is still gaining directives, and some surfaces are further along than others. Treat a generated application as a starting point you own and edit. <a href="todo.html" style="color: var(--primary-400);">Todo &mdash; what is left before 1.0.0 &rarr;</a> <a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Issues and pull requests are welcome on GitHub &rarr;</a></p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
+        <p class="mt-2 text-sm">This is an early version. The generator works and is exercised end to end on every commit, but the project is young &mdash; interfaces move, the language is still gaining directives, and some surfaces are further along than others. Treat a generated application as a starting point you own and edit. <a href="todo.html" style="color: var(--primary-400);">Todo &mdash; what is left before 1.0.0 &rarr;</a> <a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Issues and pull requests are welcome on GitHub &rarr;</a></p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

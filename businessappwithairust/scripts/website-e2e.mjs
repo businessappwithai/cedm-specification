@@ -250,6 +250,23 @@ if (loco) {
   loco.executables.size > 0
     ? ok(`and marks its ${loco.executables.size} runner script(s) executable`)
     : fail("the deployable application marks its runner scripts executable", "none were");
+
+  /* Two pages state how many files the CRM generates, and the number moved
+     every time a template was added — 403 on the home page and 488 in chapter
+     04 survived long after either was true. They are held to the generator
+     here, along with the front end's share of the tree in chapter 04. */
+  const total = loco.files.size;
+  const frontend = [...loco.files.keys()].filter((path) => path.startsWith("frontend/")).length;
+  const tests = [...loco.files.keys()].filter((path) => path.startsWith("tests/")).length;
+  const home = readFileSync(p("index.html"), "utf8").match(/<div class="stat-value">(\d+)<\/div>\s*<div class="stat-label">Files Generated<\/div>/);
+  is(home ? Number(home[1]) : null, total, "index.html: the CRM's files-generated figure");
+  const chapter = readFileSync(p("guide", "04-generate.html"), "utf8");
+  const tree = chapter.match(/generated-projects\/crm — (\d+) files/);
+  is(tree ? Number(tree[1]) : null, total, "04-generate.html: the tree's file count");
+  const front = chapter.match(/TanStack Start \+ Astryx \((\d+) files\)/);
+  is(front ? Number(front[1]) : null, frontend, "04-generate.html: the front end's file count");
+  const suite = chapter.match(/end-to-end suite \((\d+) files\)/);
+  is(suite ? Number(suite[1]) : null, tests, "04-generate.html: the test suite's file count");
 }
 
 // ---------------------------------------------------------------------------

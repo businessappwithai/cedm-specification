@@ -106,7 +106,7 @@
     ]
   },
   "types": {
-    "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive TypeScript, Zod, SQL/Kysely, OData EDM, and UI control mapping in the generator.",
+    "description": "Attribute type vocabulary. Aliases are normalized to a canonical type. Canonical types drive the SQL column type, the Rust and TypeScript types, and the Application Dictionary reference that picks the UI control.",
     "canonical": [
       "string",
       "text",

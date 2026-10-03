@@ -3363,9 +3363,6 @@ sagas:
           url: https://hooks.example.com/crm/case-escalation
           method: POST
           bodyTemplate: '{"case":"{{case_number}}","tier":"{{escalationTier}}","respondWithinHours":"{{responseHours}}"}'
-  # `url:` carries no space before its value on purpose: a step's properties
-  # are split at whitespace preceding the next `<key>:`, so ` https://…`
-  # would be read as a property named "https" and the step would lose its url.
 
   # ---- Section 25: Workflow — closed-won handoff (saga) ----------------------
   # The other kind of trigger. Nothing gates this one on a rule: every

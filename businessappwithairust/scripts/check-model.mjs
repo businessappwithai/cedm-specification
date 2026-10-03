@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * check-model.mjs — audit a delivered .mmd against the authoring checklist.
+ * check-model.mjs — audit a delivered model (.eml.yaml) against the authoring checklist.
  *
- *   node scripts/check-model.mjs path/to/business-name.mmd
+ *   node scripts/check-model.mjs path/to/business-name.eml.yaml
  *
  * This is the local way in. **The audit itself lives in
- * `guide/audit-model.mjs`**, published beside `checker.js` and `fixer.js` at
+ * `guide/audit-model.mjs`**, published beside `model-yaml.js` at
  * `https://www.appwithai.org/guide/audit-model.mjs`, and this file only forwards
  * to it with `--base guide/` so a run inside a checkout needs no network.
  *
  * It used to be the other way round: the twenty-two checks were here, importing
- * `../guide/checker.js` by relative path, so the only way to run them was to
+ * the validator by relative path, so the only way to run them was to
  * have a clone of this repository. The thing they catch is a model that scores
  * 0 errors and 0 warnings and is still missing half the language — which is
  * precisely the failure a language model delivers, from an environment that has
@@ -29,7 +29,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
-  console.error("usage: node scripts/check-model.mjs <model.mmd> [--quiet]");
+  console.error("usage: node scripts/check-model.mjs <model.eml.yaml> [--quiet]");
   process.exit(2);
 }
 

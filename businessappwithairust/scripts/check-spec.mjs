@@ -328,7 +328,7 @@ t("a paragraph is not a model", "The application manages orders and their lines,
 t("a model with no entities is refused", 'eml: "1.0"\nname: Orders\n', "SCHEMA");
 t("Markdown is not YAML", "## Entities\n- Order: the customer's order. Fields: id, status, total.\n\n## Lifecycle\ndraft → submitted\n", "YAML");
 t("a model with no name is EML001", { eml: "1.0", entities: [thing({ name: "name", type: "string" })] }, "EML001");
-t("a key the language does not have is refused", { ...model({ entities: [thing()] }), erDiagram: "Thing" }, "SCHEMA");
+t("a key the language does not have is refused", { ...model({ entities: [thing()] }), diagram: "Thing" }, "SCHEMA");
 
 console.log(`${pass} claims verified, ${fail} contradicted`);
 

@@ -705,7 +705,7 @@ $("download").addEventListener("click", () => {
     ]),
     `echo "Wrote ${Object.keys(state.files).length} files into ${name}/"`,
     `echo "Serve it over http (a Service Worker cannot start from file://):"`,
-    `echo "  npx serve ${name}"`,
+    `echo "  bunx serve ${name}"`,
     "",
   ].join("\n");
 
