@@ -8,6 +8,7 @@ description: "Every state a record can be in and every move between states."
 
 A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **22** lifecycles.
 
+![The workflow monitor](/img/admin/workflows.jpg)
 
 ## Party: Party lifecycle
 
@@ -83,6 +84,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Address lifecycle bar](/img/entities/address-record.jpg)
 
 See [Address](/entities/foundation/address/) for the record itself.
 
@@ -104,6 +106,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Location lifecycle bar](/img/entities/location-record.jpg)
 
 See [Location](/entities/foundation/location/) for the record itself.
 
@@ -122,6 +125,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Currency lifecycle bar](/img/entities/currency-record.jpg)
 
 See [Currency](/entities/foundation/currency/) for the record itself.
 
@@ -140,6 +144,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Exchange Rate lifecycle bar](/img/entities/exchange-rate-record.jpg)
 
 See [Exchange Rate](/entities/foundation/exchange-rate/) for the record itself.
 
@@ -158,6 +163,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Unit Of Measure lifecycle bar](/img/entities/unit-of-measure-record.jpg)
 
 See [Unit Of Measure](/entities/foundation/unit-of-measure/) for the record itself.
 
@@ -191,6 +197,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Task lifecycle bar](/img/entities/task-record.jpg)
 
 See [Task](/entities/foundation/task/) for the record itself.
 
@@ -212,6 +219,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Customer lifecycle bar](/img/entities/customer-record.jpg)
 
 See [Customer](/entities/sales/customer/) for the record itself.
 
@@ -234,6 +242,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Lead lifecycle bar](/img/entities/lead-record.jpg)
 
 See [Lead](/entities/sales/lead/) for the record itself.
 
@@ -261,6 +270,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Opportunity lifecycle bar](/img/entities/opportunity-record.jpg)
 
 See [Opportunity](/entities/sales/opportunity/) for the record itself.
 
@@ -285,6 +295,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Quotation lifecycle bar](/img/entities/quotation-record.jpg)
 
 See [Quotation](/entities/sales/quotation/) for the record itself.
 
@@ -307,6 +318,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Sales Order lifecycle bar](/img/entities/sales-order-record.jpg)
 
 See [Sales Order](/entities/sales/sales-order/) for the record itself.
 
@@ -331,6 +343,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Purchase Order lifecycle bar](/img/entities/purchase-order-record.jpg)
 
 See [Purchase Order](/entities/order-management/purchase-order/) for the record itself.
 
@@ -354,6 +367,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Product lifecycle bar](/img/entities/product-record.jpg)
 
 See [Product](/entities/pricing-and-commercial-terms/product/) for the record itself.
 
@@ -375,6 +389,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier lifecycle bar](/img/entities/supplier-record.jpg)
 
 See [Supplier](/entities/pricing-and-commercial-terms/supplier/) for the record itself.
 
@@ -393,6 +408,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Payment Term lifecycle bar](/img/entities/payment-term-record.jpg)
 
 See [Payment Term](/entities/pricing-and-commercial-terms/payment-term/) for the record itself.
 
@@ -411,6 +427,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Product Category lifecycle bar](/img/entities/product-category-record.jpg)
 
 See [Product Category](/entities/product-and-service-management/product-category/) for the record itself.
 
@@ -431,6 +448,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Discount Rule lifecycle bar](/img/entities/discount-rule-record.jpg)
 
 See [Discount Rule](/entities/sales-and-order-management-records/discount-rule/) for the record itself.
 
@@ -468,6 +486,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Customer Return lifecycle bar](/img/entities/customer-return-record.jpg)
 
 See [Customer Return](/entities/sales-and-order-management-records/customer-return/) for the record itself.
 
@@ -486,6 +505,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Brand lifecycle bar](/img/entities/brand-record.jpg)
 
 See [Brand](/entities/sales-and-order-management-records/brand/) for the record itself.
 

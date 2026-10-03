@@ -10,6 +10,7 @@ description: "Sales and Order Management, built on the CEDM common foundation."
 
 Sales and Order Management, built on the CEDM common foundation.
 
+![The Sales and Order Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

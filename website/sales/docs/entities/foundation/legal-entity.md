@@ -13,6 +13,8 @@ A legally recognized organization or person capable of holding rights, obligatio
 
 Open **Legal Entity** from the menu or from its card on the dashboard.
 
+![The Legal Entity list](/img/entities/legal-entity-list.jpg)
+
 The list shows Occurred At, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.

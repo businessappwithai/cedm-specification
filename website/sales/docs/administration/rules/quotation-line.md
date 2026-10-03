@@ -15,6 +15,7 @@ Runs before a quotation is created; order 100. In **Business Rules** it is liste
 - **When** “Amount” is filled in and “Amount” < 0: **Refuses the save** — “Amount cannot be negative.”.
 - **When** “Discount Amount” is filled in and “Discount Amount” < 0: **Refuses the save** — “Discount Amount cannot be negative.”.
 
+![The Quotation line invariants before create rule in the editor](/img/rules/quotation-line-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -27,6 +28,7 @@ Runs before a quotation is changed; order 100. In **Business Rules** it is liste
 - **When** “Amount” is filled in and “Amount” < 0: **Refuses the save** — “Amount cannot be negative.”.
 - **When** “Discount Amount” is filled in and “Discount Amount” < 0: **Refuses the save** — “Discount Amount cannot be negative.”.
 
+![The Quotation line invariants before update rule in the editor](/img/rules/quotation-line-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

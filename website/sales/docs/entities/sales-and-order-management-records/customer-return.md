@@ -13,6 +13,8 @@ Coordinates the controlled reversal of a customer fulfillment while preserving o
 
 Open **Customer Return** from the menu or from its card on the dashboard.
 
+![The Customer Return list](/img/entities/customer-return-list.jpg)
+
 The list shows Return Number, Status, Return Date, Reason Code, Notes, Customer, Sales Order, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Return Number, Status, Return Date, Reason Code, Notes, Customer,
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Customer Return form](/img/entities/customer-return-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Return Number**, **Status**, **Return Date**, **Customer**.
@@ -114,6 +118,8 @@ stateDiagram-v2
 | Received | Cancelled | Cancel |
 | Inspection pending | Cancelled | Cancel |
 | Exception | Cancelled | Cancel |
+
+![A Customer Return record with its lifecycle bar](/img/entities/customer-return-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).
