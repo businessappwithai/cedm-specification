@@ -13,6 +13,7 @@ Runs before a bill of material is created; order 100. In **Business Rules** it i
 - **When** “Quantity” is filled in and “Quantity” < 0: **Refuses the save** — “Quantity cannot be negative.”.
 - **When** “Scrap Percent” is filled in and (“Scrap Percent” < 0 or “Scrap Percent” > 100): **Refuses the save** — “Scrap Percent must be between 0 and 100.”.
 
+![The B om component invariants before create rule in the editor](/img/rules/b-omcomponent-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -23,6 +24,7 @@ Runs before a bill of material is changed; order 100. In **Business Rules** it i
 - **When** “Quantity” is filled in and “Quantity” < 0: **Refuses the save** — “Quantity cannot be negative.”.
 - **When** “Scrap Percent” is filled in and (“Scrap Percent” < 0 or “Scrap Percent” > 100): **Refuses the save** — “Scrap Percent must be between 0 and 100.”.
 
+![The B om component invariants before update rule in the editor](/img/rules/b-omcomponent-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

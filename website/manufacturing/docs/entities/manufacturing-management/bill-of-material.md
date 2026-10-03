@@ -13,6 +13,8 @@ Represents a manufacturing master entity called BillOfMaterial within the CEDM b
 
 Open **Bill Of Material** from the menu or from its card on the dashboard.
 
+![The Bill Of Material list](/img/entities/bill-of-material-list.jpg)
+
 The list shows Code, Status, Effective From, Effective To, Product, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Code, Status, Effective From, Effective To, Product, with the mos
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Bill Of Material form](/img/entities/bill-of-material-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Code**, **Status**, **Product**.
@@ -72,6 +76,8 @@ stateDiagram-v2
 | Draft | Active | Activate |
 | Draft | Obsolete | Mark obsolete |
 | Active | Obsolete | Mark obsolete |
+
+![A Bill Of Material record with its lifecycle bar](/img/entities/bill-of-material-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

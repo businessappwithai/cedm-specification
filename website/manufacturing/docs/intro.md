@@ -10,6 +10,7 @@ description: "Manufacturing, built on the CEDM common foundation."
 
 Manufacturing, built on the CEDM common foundation.
 
+![The Manufacturing dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

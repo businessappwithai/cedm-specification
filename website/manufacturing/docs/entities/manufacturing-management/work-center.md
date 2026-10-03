@@ -13,6 +13,8 @@ Manufacturing capacity resource used by routing and execution. WorkCenter repres
 
 Open **Work Center** from the menu or from its card on the dashboard.
 
+![The Work Center list](/img/entities/work-center-list.jpg)
+
 The list shows Code, Name, Capacity Per Hour, Status, Location, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Code, Name, Capacity Per Hour, Status, Location, with the most re
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Work Center form](/img/entities/work-center-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Code**, **Name**, **Status**.
@@ -79,6 +83,8 @@ stateDiagram-v2
 | Active | Retired | Retire |
 | Inactive | Retired | Retire |
 | Maintenance | Retired | Retire |
+
+![A Work Center record with its lifecycle bar](/img/entities/work-center-record.jpg)
 
 ## Who may use it
 
