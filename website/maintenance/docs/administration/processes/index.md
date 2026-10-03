@@ -8,6 +8,7 @@ description: "The automated multi-step processes this application runs."
 
 A process is a sequence of steps the application runs for you: create a task, update a record, call a service. A business rule usually starts it; you can also run one by hand from the Workflow Designer. Every run is logged step by step in the Workflow Monitor. This application has **10** processes.
 
+![The Workflow Designer](/img/admin/workflow-definitions.jpg)
 
 ## Party exception raised {#party-exception-raised}
 
@@ -23,6 +24,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Party exception raised process in the Workflow Designer](/img/processes/party-exception-raised.jpg)
 
 ## Exchange rate follow up required {#exchange-rate-follow-up-required}
 
@@ -38,6 +40,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Exchange rate follow up required process in the Workflow Designer](/img/processes/exchange-rate-follow-up-required.jpg)
 
 ## Asset exception raised {#asset-exception-raised}
 
@@ -53,6 +56,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Asset exception raised process in the Workflow Designer](/img/processes/asset-exception-raised.jpg)
 
 ## Maintenance work order exception raised {#maintenance-work-order-exception-raised}
 
@@ -68,6 +72,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Maintenance work order exception raised process in the Workflow Designer](/img/processes/maintenance-work-order-exception-raised.jpg)
 
 ## Maintenance work order follow up required {#maintenance-work-order-follow-up-required}
 
@@ -83,6 +88,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Maintenance work order follow up required process in the Workflow Designer](/img/processes/maintenance-work-order-follow-up-required.jpg)
 
 ## Maintenance work order completion confirmed {#maintenance-work-order-completion-confirmed}
 
@@ -98,6 +104,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Maintenance work order completion confirmed process in the Workflow Designer](/img/processes/maintenance-work-order-completion-confirmed.jpg)
 
 ## Repair estimate approval requested {#repair-estimate-approval-requested}
 
@@ -113,6 +120,7 @@ flowchart TD
 
 1. **Raise a task: decide on** — creates a **Task** record.
 
+![The Repair estimate approval requested process in the Workflow Designer](/img/processes/repair-estimate-approval-requested.jpg)
 
 ## Repair estimate follow up required {#repair-estimate-follow-up-required}
 
@@ -128,6 +136,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Repair estimate follow up required process in the Workflow Designer](/img/processes/repair-estimate-follow-up-required.jpg)
 
 ## Repair estimate completion confirmed {#repair-estimate-completion-confirmed}
 
@@ -143,6 +152,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Repair estimate completion confirmed process in the Workflow Designer](/img/processes/repair-estimate-completion-confirmed.jpg)
 
 ## Product exception raised {#product-exception-raised}
 
@@ -158,4 +168,5 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Product exception raised process in the Workflow Designer](/img/processes/product-exception-raised.jpg)
 

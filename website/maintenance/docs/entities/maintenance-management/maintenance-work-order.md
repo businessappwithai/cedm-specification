@@ -13,6 +13,8 @@ Represents one controlled maintenance intervention from reported need through pl
 
 Open **Maintenance Work Order** from the menu or from its card on the dashboard.
 
+![The Maintenance Work Order list](/img/entities/maintenance-work-order-list.jpg)
+
 The list shows Work Order Number, Work Type, Status, Priority, Requested At, Scheduled At, Completed At, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Work Order Number, Work Type, Status, Priority, Requested At, Sch
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Maintenance Work Order form](/img/entities/maintenance-work-order-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Work Order Number**, **Work Type**, **Status**, **Priority**, **Requested At**.
@@ -108,6 +112,8 @@ stateDiagram-v2
 | Assigned | Cancelled | Cancel |
 | In progress | Cancelled | Cancel |
 | On hold | Cancelled | Cancel |
+
+![A Maintenance Work Order record with its lifecycle bar](/img/entities/maintenance-work-order-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

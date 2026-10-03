@@ -12,6 +12,7 @@ Runs before a maintenance work order is created; order 100. In **Business Rules*
 
 - **When** “Status” == "COMPLETED" and “Completed At” is empty: **Refuses the save** — “Record completed at when the maintenance work order is completed.”.
 
+![The Maintenance work order invariants before create rule in the editor](/img/rules/maintenance-work-order-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a maintenance work order is changed; order 100. In **Business Rules*
 
 - **When** “Status” == "COMPLETED" and “Completed At” is empty: **Refuses the save** — “Record completed at when the maintenance work order is completed.”.
 
+![The Maintenance work order invariants before update rule in the editor](/img/rules/maintenance-work-order-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -32,6 +34,7 @@ Runs after a maintenance work order is changed; order 100. In **Business Rules**
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “maintenanceWorkOrderWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Maintenance work order follow up required”).
 - **When** “Status” == "COMPLETED" and “Status” != previous “Status”: **Starts a process** — “maintenanceWorkOrderWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Maintenance work order completion confirmed”).
 
+![The Maintenance work order workflows after update rule in the editor](/img/rules/maintenance-work-order-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

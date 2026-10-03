@@ -16,7 +16,9 @@ The **Administrator** role holds every window and bypasses restrictions on actio
 
 This application declares no roles beyond the Administrator; create roles in Role Administration and grant them windows.
 
+![Role Administration](/img/admin/roles.jpg)
 
+![User Administration](/img/admin/users.jpg)
 
 ## Restrictions the model declares
 

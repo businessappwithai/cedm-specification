@@ -10,6 +10,7 @@ description: "Asset Maintenance and Reliability, built on the CEDM common founda
 
 Asset Maintenance and Reliability, built on the CEDM common foundation.
 
+![The Asset Maintenance and Reliability dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
