@@ -2,59 +2,124 @@ entity:
   name: Ledger
   namespace: cedm.domain
   kind: accounting_master
-  description: A governed accounting book defining the scope in which journal entries are recorded and reported.
+  description: A set of books a company keeps — the leading ledger under its local accounting rules, or a parallel ledger under group or tax rules — with its chart of accounts, currency and accounting standard.
   ui:
     icon: book-open
+    recordLabel: [code, name]
   identity: {key: ledgerId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Ledger., businessMeaning: Identifies one governed Ledger record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Ledger., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: DRAFT
+    values: [DRAFT, ACTIVE, CLOSED]
+    help:
+      summary: Whether entries may be posted.
+      businessMeaning: Indicates usability/execution state of Ledger.
+      usage: Moved on by finance.
+      relationshipContext: Closed ledgers keep their history.
+      valueSemantics:
+        DRAFT: Being set up.
+        ACTIVE: Open for posting.
+        CLOSED: No longer kept.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 20
+    help:
+      summary: The code of the ledger, such as 0L.
+      usage: Chosen when the ledger is created; postings and reports refer to it.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the ledger, such as "Leading – French GAAP".
+      usage: Shown in posting and reporting screens.
+      relationshipContext: Identifies it for people.
+  - name: ledgerType
+    type: enum
+    required: true
+    default: LEADING
+    values: [LEADING, PARALLEL, TAX, MANAGEMENT]
+    help:
+      summary: Whether this is the company's main ledger or a parallel one.
+      usage: The leading ledger is the default for postings.
+      relationshipContext: One leading ledger per company.
+      valueSemantics:
+        LEADING: The main ledger, under local statutory rules.
+        PARALLEL: An additional ledger under another standard, such as the group's.
+        TAX: A ledger kept for tax purposes.
+        MANAGEMENT: A ledger for internal reporting only.
+  - name: accountingStandard
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The accounting rules the ledger follows, such as "IFRS", "US GAAP" or "French GAAP".
+      usage: Decides valuation in parallel postings.
+      relationshipContext: Set when the ledger is created.
+  - name: chartOfAccounts
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The chart of accounts the ledger uses.
+      usage: Its accounts are the ones postings may use.
+      relationshipContext: Several ledgers may share a chart.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Organization owning accounting book., businessMeaning: Defines legal/management accounting boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal entries must use compatible organization context.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Journal entries posted to ledger., businessMeaning: Supplies accounting evidence contained by book., usage: General ledger and reporting., cardinalityMeaning: Zero or many entries., workflowRole: Posted entries remain immutable.}, inverseCardinality: '1'}
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The company that keeps the ledger.
+      businessMeaning: Defines legal/management accounting boundary.
+      workflowRole: Journal entries must use compatible organization context.
+      usage: Set when the ledger is created.
+      cardinalityMeaning: Every ledger belongs to exactly one company.
+      context: A company has one leading ledger and any number of parallel ones.
+  - name: journalEntries
+    target: JournalEntry
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The entries posted to the ledger.
+      businessMeaning: Supplies accounting evidence contained by book.
+      workflowRole: Posted entries remain immutable.
+      usage: Listed in the ledger's journal.
+      cardinalityMeaning: Each entry is posted to one ledger.
+      context: The entry records its ledger.
+    inverseCardinality: '1'
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency the ledger is kept in.
+      usage: Set when the ledger is created.
+      cardinalityMeaning: One per ledger.
+      context: Usually the company's functional currency.
   invariants:
   - {id: LEDGER-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Ledger Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, ACTIVE, CLOSED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [CLOSED]
     transitions:
     - {from: DRAFT, to: ACTIVE, action: activate}
-    - {from: ACTIVE, to: COMPLETED, action: complete}
-    - {from: DRAFT, to: CANCELLED, action: cancel}
-    - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a ledger is ended"
-    description: "When a ledger is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "LEDGER-FOLLOW-UP-{{id}}"
-          name: "Follow up on ledger {{id}}"
-          description: "Ledger {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - {from: ACTIVE, to: CLOSED, action: close}
   help:
-    summary: A governed accounting book defining the scope in which journal entries are recorded and reported.
-    purpose: Provide canonical enterprise semantics for Ledger while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed accounting book defining the scope in which journal entries are recorded and reported.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: One set of accounts a company keeps, under one accounting standard and currency.
+    businessMeaning: A company often has to keep its accounts more than once — under local law, under the group's standard (such as IFRS) and for tax. Each ledger is one such set of books with its own standard, currency and chart of accounts, so the same transaction can be valued differently in each without the books being mixed up.
+    usage: Finance defines the ledgers each company keeps; every journal entry is posted to a ledger; financial statements are produced per ledger.
+    relationshipContext: A ledger belongs to an Organization (a company) and holds its JournalEntries. Its currency is a Currency.
+    lifecycle: Being set up, active while entries are posted to it, and closed when the company no longer keeps it.
+    workflowContext: Posting, period-end close, statutory and group reporting, tax reporting.
+    example: Ledger 0L 'Leading – French GAAP' for ACME France SAS, currency EUR, chart of accounts PCG; parallel ledger 2L 'Group – IFRS'.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEDGER}

@@ -2,38 +2,186 @@ entity:
   name: PaymentInstruction
   namespace: cedm.domain
   kind: treasury_instruction
-  description: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
+  description: An instruction to a bank to make a payment — amount, value date, payee account, reference — prepared from approved invoices or a payment run, approved, transmitted and confirmed by the bank.
   ui:
-    icon: credit-card
+    icon: banknote
+    recordLabel: [instructionNumber]
   identity: {key: paymentInstructionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: DRAFT
+    values: [DRAFT, APPROVED, SENT, EXECUTED, REJECTED, CANCELLED]
+    help:
+      summary: Where the instruction stands.
+      businessMeaning: Indicates usability/execution state of PaymentInstruction.
+      usage: Moved on by approval, transmission and the bank's reports.
+      relationshipContext: Only approved instructions may be sent.
+      valueSemantics:
+        DRAFT: Prepared, waiting for approval.
+        APPROVED: Approved for release.
+        SENT: Transmitted to the bank.
+        EXECUTED: Paid by the bank.
+        REJECTED: Refused by the bank.
+        CANCELLED: Withdrawn before it was sent.
+  - name: instructionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the instruction.
+      usage: Assigned when it is created; carried in the payment file.
+      relationshipContext: Unique; the bank refuses duplicates.
+  - name: amount
+    type: Money
+    required: true
+    help:
+      summary: The amount to pay.
+      usage: Taken from the invoices or entered by hand.
+      relationshipContext: In the paying account's currency unless a foreign payment is ordered.
+  - name: valueDate
+    type: date
+    required: true
+    help:
+      summary: The day the payee should receive the money.
+      usage: Set by the payment run from due dates.
+      relationshipContext: Must be a business day for the currency.
+  - name: payeeName
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The name of the payee as it is sent to the bank.
+      usage: Copied from the payee's record.
+      relationshipContext: Some banks check it against the account holder.
+  - name: payeeAccount
+    type: string
+    required: true
+    maxLength: 60
+    help:
+      summary: The payee's account number or IBAN.
+      usage: Copied from the payee's verified bank details.
+      relationshipContext: A change of details must be verified before use.
+  - name: payeeBankCode
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The payee bank's identifier, such as a BIC or routing number.
+      usage: Copied from the payee's bank details.
+      relationshipContext: Required for some payment methods.
+  - name: paymentMethod
+    type: enum
+    required: true
+    default: CREDIT_TRANSFER
+    values: [CREDIT_TRANSFER, URGENT_TRANSFER, CROSS_BORDER, CHEQUE, DIRECT_DEBIT]
+    help:
+      summary: How the bank is to pay.
+      usage: Decides the file format and the fee.
+      relationshipContext: Urgent and cross-border payments cost more.
+      valueSemantics:
+        CREDIT_TRANSFER: A standard bank transfer.
+        URGENT_TRANSFER: A same-day high-value transfer.
+        CROSS_BORDER: An international transfer.
+        CHEQUE: A cheque issued by the bank.
+        DIRECT_DEBIT: A debit collected from the payer's account.
+  - name: remittanceReference
+    type: string
+    required: false
+    maxLength: 140
+    help:
+      summary: The reference the payee sees on their statement, such as the invoice numbers paid.
+      usage: Lets the payee match the payment.
+      relationshipContext: Length limited by the payment scheme.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the instruction was approved for release.
+      usage: Recorded on the final approval.
+      relationshipContext: Required before sending.
+  - name: sentAt
+    type: datetime
+    required: false
+    help:
+      summary: When the instruction was transmitted to the bank.
+      usage: Recorded by the bank interface.
+      relationshipContext: Present once sent.
+  - name: bankStatusMessage
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: What the bank reported about the instruction.
+      usage: Recorded from the bank's status report.
+      relationshipContext: Explains rejections.
   relationships:
-  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account from/to which payment is instructed., businessMeaning: Supplies treasury settlement account., usage: Payment execution., cardinalityMeaning: Exactly one BankAccount., workflowRole: Instruction does not itself prove bank settlement.}}
-  - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}
+  - name: bankAccount
+    target: BankAccount
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The company account the payment is made from.
+      businessMeaning: Supplies treasury settlement account.
+      workflowRole: Instruction does not itself prove bank settlement.
+      usage: Chosen by the payment run or by hand.
+      cardinalityMeaning: One account per instruction.
+      context: Must have enough funds on the value date.
+  - name: payment
+    target: Payment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The payment the instruction resulted in.
+      businessMeaning: Connects intent to settlement transaction.
+      workflowRole: Retries must not create duplicate Payment.
+      usage: Linked once the bank executes it.
+      cardinalityMeaning: At most one.
+      context: The payment is allocated to the invoices it settles.
+  - name: payee
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The party paid.
+      usage: Chosen when the instruction is created.
+      cardinalityMeaning: One per instruction.
+      context: Their verified bank details are used.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who gave the final approval.
+      usage: Recorded on approval.
+      cardinalityMeaning: One per instruction; dual approval records the second approver here.
+      context: Must hold payment authority for the amount.
   invariants:
-  - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: PAYMENT-INSTRUCTION-001, rule: An instruction sent to the bank is not changed; a correction is a cancellation request and a new instruction.}
+  - {id: PAYMENT-INSTRUCTION-002, rule: A sent instruction records when it was approved., violatedWhen: (status == "SENT" or status == "EXECUTED") and approved_at == null, message: The instruction must be approved before it is sent.}
+  - {id: PAYMENT-INSTRUCTION-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  - {id: PAYMENT-INSTRUCTION-EXE-002, rule: "A payment instruction that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the payment instruction is approved."}
   lifecycle:
     title: Payment Instruction Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, APPROVED, SENT, EXECUTED, REJECTED, CANCELLED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [EXECUTED, REJECTED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: SENT, action: send}
+    - {from: SENT, to: EXECUTED, action: execute}
+    - {from: SENT, to: REJECTED, action: reject}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a payment instruction is ended"
-      description: "When a payment instruction is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
+      description: "When a payment instruction is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
       steps:
         - id: S1
           type: CreateEntity
@@ -43,18 +191,17 @@ entity:
             as: taskId
             fields:
               code: "PAYMENT-INSTRUCTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on payment instruction {{id}}"
-              description: "Payment instruction {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              name: "Follow up on payment instruction {{instruction_number}}"
+              description: "Payment instruction {{instruction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
               task_type: "USER"
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
-    purpose: Provide canonical enterprise semantics for PaymentInstruction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: An order to the bank to pay someone, from preparation to the bank's confirmation.
+    businessMeaning: Money leaves the company through instructions to its banks. Each instruction says exactly what to pay, to whom, from which account, on which day and with what reference, and must be approved before it is sent. Keeping instructions separate from the payments they produce lets treasury control release, detect duplicates, and match the bank's acknowledgement.
+    usage: Created by payment runs or by hand, approved under the payment authority rules (often by two people), transmitted to the bank, and confirmed or rejected by the bank's status report.
+    relationshipContext: An instruction is paid from one of the company's BankAccounts to a payee Party, and results in a Payment once executed.
+    lifecycle: Draft, then approved, then sent to the bank; executed once the bank confirms, or rejected by the bank. An instruction can be cancelled before it is sent.
+    workflowContext: Supplier payment runs, payroll payments, treasury transfers, bank connectivity.
+    example: "Instruction PI-24-03-0412: pay 18,400.00 EUR to Contoso GmbH, IBAN DE89 3704 0044 0532 0130 00, reference 'INV 55120', from account EUR-OP-01, value date 28 March; approved by two signatories; sent 27 March; executed 28 March."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PAYMENT-INSTRUCTION}

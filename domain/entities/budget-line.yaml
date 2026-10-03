@@ -2,21 +2,122 @@ entity:
   name: BudgetLine
   namespace: cedm.domain
   kind: financial_plan_line
-  description: A dimensional allocation of planned money within a Budget.
+  description: One amount in a budget — for an account, cost centre or profit centre, and a period — with any quantity behind it and a note on how it was arrived at.
   ui:
-    icon: piggy-bank
+    icon: list-ordered
+    recordLabel: [lineNumber, description]
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: Stable line identity., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget., requiredMeaning: Required.}}
-  - {name: amount, type: Money, required: true, help: {summary: Planned monetary amount., businessMeaning: Financial target/limit for dimensions., usage: Planning and variance., relationshipContext: Not an actual ledger balance., requiredMeaning: Required.}}
+  - name: amount
+    type: Money
+    required: true
+    help:
+      summary: The planned amount.
+      businessMeaning: Financial target/limit for dimensions.
+      usage: Entered by the budget owner.
+      relationshipContext: In the budget's currency.
+  - name: lineNumber
+    type: integer
+    required: true
+    help:
+      summary: The number of the line within the budget.
+      usage: Assigned in order as lines are added.
+      relationshipContext: Unique within the budget.
+  - name: description
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: What the amount is for.
+      usage: Written by the budget owner.
+      relationshipContext: Shown in budget reports.
+  - name: periodStart
+    type: date
+    required: false
+    help:
+      summary: The first day the amount covers.
+      usage: Usually the start of the budget year or a month in it.
+      relationshipContext: Within the budget's period.
+  - name: periodEnd
+    type: date
+    required: false
+    help:
+      summary: The last day the amount covers.
+      usage: Usually the end of the budget year or of a month.
+      relationshipContext: Not earlier than the period start.
+  - name: quantity
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: A quantity the amount is based on, such as trips, hours or units.
+      usage: Entered when the amount is built up from a quantity and a rate.
+      relationshipContext: Optional; explains the amount.
+  - name: basisOfEstimate
+    type: text
+    required: false
+    help:
+      summary: How the amount was arrived at.
+      usage: Written by the budget owner; read by reviewers.
+      relationshipContext: Free text.
   relationships:
-  - {name: budget, target: Budget, cardinality: '1', ownership: reference, inverse: lines, help: {summary: Parent financial plan., businessMeaning: Supplies governance/version context., usage: Planning., cardinalityMeaning: Exactly one Budget., workflowRole: Line lifecycle follows budget governance.}}
-  - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Financial account dimension., businessMeaning: Classifies planned amount., usage: Budget-vs-actual., cardinalityMeaning: Optional under non-account planning., workflowRole: Actuals derive from accounting not line mutation.}}
-  - {name: costCenter, target: CostCenter, cardinality: 0..1, ownership: reference, help: {summary: Cost responsibility dimension., businessMeaning: Allocates plan to cost center., usage: Expense control., cardinalityMeaning: Optional., workflowRole: Must be eligible for budget period.}}
-  - {name: profitCenter, target: ProfitCenter, cardinality: 0..1, ownership: reference, help: {summary: Profit responsibility dimension., businessMeaning: Allocates plan to profit center., usage: Management reporting., cardinalityMeaning: Optional., workflowRole: Must be eligible for budget period.}}
+  - name: budget
+    target: Budget
+    cardinality: '1'
+    ownership: reference
+    inverse: lines
+    help:
+      summary: The budget the line belongs to.
+      businessMeaning: Supplies governance/version context.
+      workflowRole: Line lifecycle follows budget governance.
+      usage: Set when the line is added.
+      cardinalityMeaning: Every line belongs to exactly one budget.
+      context: Listed under the budget.
+  - name: account
+    target: Account
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The general-ledger account planned.
+      businessMeaning: Classifies planned amount.
+      workflowRole: Actuals derive from accounting not line mutation.
+      usage: Chosen when entering the line.
+      cardinalityMeaning: At most one.
+      context: Actuals posted to this account are compared with the line.
+  - name: costCenter
+    target: CostCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cost centre the amount is planned for.
+      businessMeaning: Allocates plan to cost center.
+      workflowRole: Must be eligible for budget period.
+      usage: Chosen for cost budgets.
+      cardinalityMeaning: At most one.
+      context: Its manager owns the line.
+  - name: profitCenter
+    target: ProfitCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The profit centre the amount is planned for.
+      businessMeaning: Allocates plan to profit center.
+      workflowRole: Must be eligible for budget period.
+      usage: Chosen for revenue and profit budgets.
+      cardinalityMeaning: At most one.
+      context: Used for profit-centre variance.
   invariants:
-  - {id: BUDGET-LINE-001, rule: Line dimensions must form a valid unique planning intersection under Budget policy.}
-  - {id: BUDGET-LINE-002, rule: Approved line correction uses governed budget revision and does not alter actual accounting.}
+  - {id: BUDGET-LINE-001, rule: The line's period does not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
   - {id: BUDGET-LINE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
-  help: {summary: Detailed dimensional budget allocation., businessMeaning: Defines planned money at an account/responsibility intersection., usage: Budgeting and variance analysis., relationshipContext: Budget governs; Account/CostCenter/ProfitCenter classify.}
+  - {id: BUDGET-LINE-EXE-002, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  help:
+    summary: One planned amount in a budget, for one account and responsibility area.
+    businessMeaning: A budget is the sum of its lines. Each line plans money for one account, one cost or profit centre and one period, so actual spending can be compared with plan at the level where people are accountable, and the reasoning behind each figure is kept.
+    usage: Budget owners enter lines during budget preparation; controllers review them; once approved, lines are the planned figures that variances compare actuals with.
+    relationshipContext: A line belongs to one Budget and appears among its lines. It plans an Account for a CostCenter or ProfitCenter.
+    lifecycle: A line follows its budget; once the budget is approved, changes are made by budget revision rather than by editing lines.
+    workflowContext: Budget preparation, budget control, variance analysis.
+    example: "Line 14 of budget BUD-2025-FR: account 6251 'Travel', cost centre 4100, January–December 2025, 144,000 EUR (12 trips × 12,000 EUR)."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET-LINE}

@@ -2,28 +2,142 @@ entity:
   name: Budget
   namespace: cedm.domain
   kind: financial_plan
-  description: A governed financial plan defining approved or proposed monetary limits and targets for an organization, period, scenario, and accounting dimensions.
+  description: An approved financial plan for an organization and fiscal year — under a scenario and in a version — setting the revenue targets and spending limits its lines detail.
   ui:
     icon: piggy-bank
+    recordLabel: [code, name]
   identity: {key: budgetId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business budget code., businessMeaning: Human/integration reference for plan., usage: Planning and reporting., relationshipContext: Unique within organization/version policy., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The reference of the budget, such as BUD-2025-FR.
+      businessMeaning: Human/integration reference for plan.
+      usage: Assigned when preparation starts.
+      relationshipContext: Unique together with the version.
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, SUBMITTED, APPROVED, ACTIVE, SUPERSEDED, CLOSED]
-    help: {summary: Budget governance state., businessMeaning: Controls editability and authoritative planning use., usage: Approval and control., relationshipContext: Actual accounting remains in JournalEntry., valueSemantics: {DRAFT: Editable proposal., SUBMITTED: Awaiting approval., APPROVED: Authorized plan., ACTIVE: Current control baseline., SUPERSEDED: Replaced by later plan., CLOSED: Planning cycle ended.}, requiredMeaning: Required.}
+    help:
+      summary: Where the budget stands.
+      businessMeaning: Controls editability and authoritative planning use.
+      usage: Moved on by finance and the approvers.
+      relationshipContext: Only the active budget is used for control.
+      valueSemantics:
+        DRAFT: Being prepared.
+        SUBMITTED: Waiting for approval.
+        APPROVED: Approved, not yet in force.
+        ACTIVE: In force for its year.
+        SUPERSEDED: Replaced by a revised version.
+        CLOSED: Its year is over.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the budget.
+      usage: Shown in reports.
+      relationshipContext: Identifies it for people.
+  - name: budgetVersion
+    type: integer
+    required: true
+    default: 1
+    help:
+      summary: The version of the budget — 1 for the original, higher for revisions.
+      usage: Increased with each revision.
+      relationshipContext: Only one version is active at a time.
+  - name: budgetType
+    type: enum
+    required: true
+    default: OPERATING
+    values: [OPERATING, CAPITAL, CASH, PROJECT]
+    help:
+      summary: What the budget plans.
+      usage: Decides which accounts its lines use.
+      relationshipContext: Capital budgets plan investment, not running cost.
+      valueSemantics:
+        OPERATING: Revenue and running costs.
+        CAPITAL: Investment in assets.
+        CASH: Cash receipts and payments.
+        PROJECT: The cost of one project.
+  - name: totalAmount
+    type: Money
+    required: false
+    help:
+      summary: The total of the budget's lines.
+      usage: Computed from the lines.
+      relationshipContext: In the budget's currency.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the budget was approved.
+      usage: Recorded on approval.
+      relationshipContext: Present once approved.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Organization owning budget., businessMeaning: Defines planning boundary., usage: Planning and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Accounting dimensions must belong to compatible context.}}
-  - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Fiscal period governed by budget., businessMeaning: Aligns plan with accounting time., usage: Budget control and variance., cardinalityMeaning: Optional when budget spans multiple periods represented by lines., workflowRole: Does not open/close accounting period.}}
-  - {name: lines, target: BudgetLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed planned amounts., businessMeaning: Allocates budget to accounts/dimensions., usage: Control and variance analysis., cardinalityMeaning: One or more lines., workflowRole: Line totals form governed plan.}}
-  - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Planning scenario represented., businessMeaning: Distinguishes baseline/upside/downside etc., usage: Comparative planning., cardinalityMeaning: Optional for single-scenario plans., workflowRole: Scenario never changes actual ledger.}}
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The company or unit the budget is for.
+      businessMeaning: Defines planning boundary.
+      workflowRole: Accounting dimensions must belong to compatible context.
+      usage: Chosen when preparation starts.
+      cardinalityMeaning: Every budget is for exactly one organization.
+      context: Group budgets consolidate the companies'.
+  - name: fiscalPeriod
+    target: FiscalPeriod
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The fiscal year the budget covers.
+      businessMeaning: Aligns plan with accounting time.
+      workflowRole: Does not open/close accounting period.
+      usage: Chosen when preparation starts.
+      cardinalityMeaning: At most one.
+      context: Lines cover periods within it.
+  - name: lines
+    target: BudgetLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: The detailed planned amounts.
+      businessMeaning: Allocates budget to accounts/dimensions.
+      workflowRole: Line totals form governed plan.
+      usage: Entered by the budget owners.
+      cardinalityMeaning: A budget has at least one line.
+      context: The total is the sum of the lines.
+  - name: scenario
+    target: Scenario
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The planning scenario the budget belongs to.
+      businessMeaning: Distinguishes baseline/upside/downside etc.
+      workflowRole: Scenario never changes actual ledger.
+      usage: Usually Base.
+      cardinalityMeaning: At most one.
+      context: Alternative scenarios have their own budgets.
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency of the budget.
+      usage: The organization's reporting currency.
+      cardinalityMeaning: One per budget.
+      context: All lines use it.
   invariants:
-  - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
-  - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
-  - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
+  - {id: BUDGET-001, rule: An approved budget is not edited; a revision is a new version.}
+  - {id: BUDGET-002, rule: An approved or active budget records when it was approved., violatedWhen: (status == "APPROVED" or status == "ACTIVE") and approved_at == null, message: Record when the budget was approved.}
+  - {id: BUDGET-EXE-001, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+  - {id: BUDGET-EXE-002, rule: "A budget that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the budget is approved."}
   lifecycle:
     title: Budget Lifecycle
     attribute: status
@@ -31,32 +145,39 @@ entity:
     initial: DRAFT
     terminal: [CLOSED, SUPERSEDED]
     transitions:
-      - {from: DRAFT, to: SUBMITTED, action: submit}
-      - {from: SUBMITTED, to: APPROVED, action: approve}
-      - {from: APPROVED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
-      - {from: SUBMITTED, to: SUPERSEDED, action: mark_superseded}
-      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
-      - {from: ACTIVE, to: SUPERSEDED, action: mark_superseded}
+    - {from: DRAFT, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+    - {from: SUBMITTED, to: SUPERSEDED, action: mark_superseded}
+    - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+    - {from: ACTIVE, to: SUPERSEDED, action: mark_superseded}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a budget is put forward"
-      description: "When a budget is submitted, a task asks someone to decide on it."
-      when: "status == \"SUBMITTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BUDGET-APPROVAL-{{id}}"
-              name: "Decide on budget {{code}}"
-              description: "Budget {{code}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-  help: {summary: Governed financial planning baseline., businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting., usage: "Planning, spending control and variance reporting.", relationshipContext: "BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions.", lifecycle: Draft to submitted to approved/active to superseded/closed.}
+  - name: ApprovalRequested
+    title: "Ask for a decision when a budget is put forward"
+    description: "When a budget is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BUDGET-APPROVAL-{{id}}"
+          name: "Decide on budget {{code}}"
+          description: "Budget {{code}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  help:
+    summary: The plan a company or unit commits to for a year, line by line.
+    businessMeaning: The budget turns strategy into numbers that managers are accountable for. It sets the revenue targets and spending limits for a year, broken down by account and responsibility area, and once approved it is the yardstick that results are measured against.
+    usage: Finance coordinates budget preparation; owners enter lines; the budget is submitted, approved and activated for the year; revisions are new versions that supersede the old.
+    relationshipContext: A budget is for an Organization and FiscalPeriod (year), under a Scenario. Its BudgetLines detail it. Variances compare actuals with it.
+    lifecycle: Draft during preparation, submitted for approval, approved, active during its year, closed after it, and superseded when a revised version is approved.
+    workflowContext: Annual budgeting, budget revisions, budget control, variance analysis.
+    example: 'Budget BUD-2025-FR v2: ACME France, fiscal year 2025, scenario Base, revenue 52.0 M EUR, operating cost 44.5 M EUR; approved by the board 12 December 2024; version 1 superseded.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET}

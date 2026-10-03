@@ -2,18 +2,182 @@ entity:
   name: Forecast
   namespace: cedm.domain
   kind: financial_forecast
-  description: A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting.
+  description: A forward-looking projection of a company's revenue, cost or cash for a horizon — prepared under a scenario as of a date, versioned, and compared with budget and actuals.
   ui:
-    icon: table
+    icon: line-chart
+    recordLabel: [code, name]
   identity: {key: forecastId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: Stable Forecast identity., businessMeaning: Identifies the governed Forecast concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the forecast, such as FC-2024-Q2.
+      usage: Assigned when it is started.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the forecast.
+      usage: Shown in reports.
+      relationshipContext: Identifies it for people.
+  - name: asOfDate
+    type: date
+    required: true
+    help:
+      summary: The date the forecast is made as of — actuals up to it, estimates after it.
+      usage: Successive forecasts are compared by it.
+      relationshipContext: Within the fiscal year forecast.
+  - name: horizonStart
+    type: date
+    required: true
+    help:
+      summary: The first day the forecast covers.
+      usage: Set when starting it.
+      relationshipContext: Not later than the horizon end.
+  - name: horizonEnd
+    type: date
+    required: true
+    help:
+      summary: The last day the forecast covers.
+      usage: Usually the end of the fiscal year, or a rolling twelve months.
+      relationshipContext: Not earlier than the horizon start.
+  - name: forecastType
+    type: enum
+    required: true
+    default: FINANCIAL
+    values: [FINANCIAL, CASH, SALES, HEADCOUNT]
+    help:
+      summary: What the forecast projects.
+      usage: Decides which measures it contains.
+      relationshipContext: Cash forecasts are usually weekly; financial ones monthly.
+      valueSemantics:
+        FINANCIAL: Revenue, costs and profit.
+        CASH: Receipts, payments and cash balances.
+        SALES: Sales volumes and revenue by product or customer.
+        HEADCOUNT: People and personnel cost.
+  - name: totalRevenue
+    type: Money
+    required: false
+    help:
+      summary: The forecast revenue for the horizon.
+      usage: Summed from the forecast detail.
+      relationshipContext: Compared with the budget.
+  - name: totalCost
+    type: Money
+    required: false
+    help:
+      summary: The forecast cost for the horizon.
+      usage: Summed from the forecast detail.
+      relationshipContext: Compared with the budget.
+  - name: assumptions
+    type: text
+    required: false
+    help:
+      summary: The key assumptions behind the numbers.
+      usage: Written by finance; read by management.
+      relationshipContext: Should state what changed since the last forecast.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, SUBMITTED, APPROVED, SUPERSEDED]
+    help:
+      summary: Where the forecast stands.
+      usage: Moved on by review and approval.
+      relationshipContext: Only one approved forecast per scenario is current.
+      valueSemantics:
+        DRAFT: Being prepared.
+        SUBMITTED: Waiting for review.
+        APPROVED: The current outlook.
+        SUPERSEDED: Replaced by a later approved forecast.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
-  - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Assumption scenario used by forecast., businessMeaning: Identifies planning case., usage: Forecast comparison., cardinalityMeaning: Optional., workflowRole: Scenario remains hypothetical.}}
-  - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Forecast accounting time bucket., businessMeaning: Aligns projection to reporting period., usage: Forecast-vs-actual., cardinalityMeaning: Optional for multi-period forecasts., workflowRole: Does not control ledger posting.}}
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The company or unit forecast.
+      businessMeaning: Defines management/reporting boundary.
+      workflowRole: References must use compatible organization context.
+      usage: Chosen when starting the forecast.
+      cardinalityMeaning: Every forecast is for exactly one organization.
+      context: Group forecasts consolidate the companies'.
+  - name: scenario
+    target: Scenario
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The set of assumptions the forecast is made under.
+      businessMeaning: Identifies planning case.
+      workflowRole: Scenario remains hypothetical.
+      usage: Chosen when starting it, such as Base or Downside.
+      cardinalityMeaning: At most one.
+      context: Forecasts are compared within a scenario.
+  - name: fiscalPeriod
+    target: FiscalPeriod
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The fiscal period the forecast starts from.
+      businessMeaning: Aligns projection to reporting period.
+      workflowRole: Does not control ledger posting.
+      usage: Set when starting it.
+      cardinalityMeaning: At most one.
+      context: Actuals up to it come from the ledger.
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency of the amounts.
+      usage: Usually the company's reporting currency.
+      cardinalityMeaning: One per forecast.
+      context: All amounts use it.
   invariants:
-  - {id: FORECAST-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: "A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+  - {id: FORECAST-001, rule: An approved forecast is not changed; a new outlook is a new forecast.}
+  - {id: FORECAST-002, rule: The horizon does not end before it starts., violatedWhen: horizon_end != null and horizon_start != null and horizon_end < horizon_start, message: The horizon ends before it starts.}
+  lifecycle:
+    title: Forecast Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, APPROVED, SUPERSEDED]
+    initial: DRAFT
+    terminal: [SUPERSEDED]
+    transitions:
+    - {from: DRAFT, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: DRAFT, action: return}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: SUPERSEDED, action: supersede}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a forecast is put forward"
+      description: "When a forecast is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "FORECAST-APPROVAL-{{id}}"
+              name: "Decide on forecast {{name}}"
+              description: "Forecast {{name}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+  help:
+    summary: An updated estimate of how the year will end, made as of a date and under stated assumptions.
+    businessMeaning: The budget is fixed once a year; forecasts are how management keeps its view current. Each forecast is made as of a date, under a scenario, for a horizon, so successive forecasts can be compared to see how expectations moved, and the latest can be set against the budget.
+    usage: Finance prepares forecasts monthly or quarterly with the business, reviews and approves them; reports compare the approved forecast with budget and actuals; variances explain differences.
+    relationshipContext: A forecast is for an Organization, under a Scenario, from a FiscalPeriod. Variances compare it with budgets or actuals.
+    lifecycle: Draft while being prepared, submitted for review, approved as the current outlook, and superseded when the next forecast is approved.
+    workflowContext: Rolling forecasting, management reporting, cash planning, guidance to investors.
+    example: "Forecast FC-2024-Q2: ACME France, as of 30 June 2024, horizon July–December 2024, scenario 'Base', revenue 48.2 M EUR (budget 50.0 M), approved 12 July."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FORECAST}
