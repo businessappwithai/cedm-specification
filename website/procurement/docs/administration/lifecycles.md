@@ -8,6 +8,7 @@ description: "Every state a record can be in and every move between states."
 
 A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **25** lifecycles.
 
+![The workflow monitor](/img/admin/workflows.jpg)
 
 ## Party: Party lifecycle
 
@@ -83,6 +84,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Address lifecycle bar](/img/entities/address-record.jpg)
 
 See [Address](/entities/foundation/address/) for the record itself.
 
@@ -104,6 +106,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Location lifecycle bar](/img/entities/location-record.jpg)
 
 See [Location](/entities/foundation/location/) for the record itself.
 
@@ -122,6 +125,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Currency lifecycle bar](/img/entities/currency-record.jpg)
 
 See [Currency](/entities/foundation/currency/) for the record itself.
 
@@ -140,6 +144,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Exchange Rate lifecycle bar](/img/entities/exchange-rate-record.jpg)
 
 See [Exchange Rate](/entities/foundation/exchange-rate/) for the record itself.
 
@@ -158,6 +163,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Unit Of Measure lifecycle bar](/img/entities/unit-of-measure-record.jpg)
 
 See [Unit Of Measure](/entities/foundation/unit-of-measure/) for the record itself.
 
@@ -191,6 +197,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Task lifecycle bar](/img/entities/task-record.jpg)
 
 See [Task](/entities/foundation/task/) for the record itself.
 
@@ -212,6 +219,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier lifecycle bar](/img/entities/supplier-record.jpg)
 
 See [Supplier](/entities/procurement/supplier/) for the record itself.
 
@@ -238,6 +246,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Purchase Requisition lifecycle bar](/img/entities/purchase-requisition-record.jpg)
 
 See [Purchase Requisition](/entities/procurement/purchase-requisition/) for the record itself.
 
@@ -257,6 +266,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Request For Quotation lifecycle bar](/img/entities/request-for-quotation-record.jpg)
 
 See [Request For Quotation](/entities/procurement/request-for-quotation/) for the record itself.
 
@@ -281,6 +291,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Quotation lifecycle bar](/img/entities/supplier-quotation-record.jpg)
 
 See [Supplier Quotation](/entities/procurement/supplier-quotation/) for the record itself.
 
@@ -305,6 +316,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Purchase Order lifecycle bar](/img/entities/purchase-order-record.jpg)
 
 See [Purchase Order](/entities/procurement/purchase-order/) for the record itself.
 
@@ -338,6 +350,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Goods Receipt lifecycle bar](/img/entities/goods-receipt-record.jpg)
 
 See [Goods Receipt](/entities/procurement-and-sourcing-records/goods-receipt/) for the record itself.
 
@@ -371,6 +384,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Claim lifecycle bar](/img/entities/supplier-claim-record.jpg)
 
 See [Supplier Claim](/entities/procurement-and-sourcing-records/supplier-claim/) for the record itself.
 
@@ -396,6 +410,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Claim Resolution lifecycle bar](/img/entities/supplier-claim-resolution-record.jpg)
 
 See [Supplier Claim Resolution](/entities/procurement-and-sourcing-records/supplier-claim-resolution/) for the record itself.
 
@@ -419,6 +434,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Credit Note lifecycle bar](/img/entities/supplier-credit-note-record.jpg)
 
 See [Supplier Credit Note](/entities/procurement-and-sourcing-records/supplier-credit-note/) for the record itself.
 
@@ -437,6 +453,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Credit Note Application lifecycle bar](/img/entities/supplier-credit-note-application-record.jpg)
 
 See [Supplier Credit Note Application](/entities/procurement-and-sourcing-records/supplier-credit-note-application/) for the record itself.
 
@@ -462,6 +479,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Debit Note lifecycle bar](/img/entities/supplier-debit-note-record.jpg)
 
 See [Supplier Debit Note](/entities/procurement-and-sourcing-records/supplier-debit-note/) for the record itself.
 
@@ -480,6 +498,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Debit Note Application lifecycle bar](/img/entities/supplier-debit-note-application-record.jpg)
 
 See [Supplier Debit Note Application](/entities/procurement-and-sourcing-records/supplier-debit-note-application/) for the record itself.
 
@@ -505,6 +524,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Performance Assessment lifecycle bar](/img/entities/supplier-performance-assessment-record.jpg)
 
 See [Supplier Performance Assessment](/entities/procurement-and-sourcing-records/supplier-performance-assessment/) for the record itself.
 
@@ -534,6 +554,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Supplier Return lifecycle bar](/img/entities/supplier-return-record.jpg)
 
 See [Supplier Return](/entities/procurement-and-sourcing-records/supplier-return/) for the record itself.
 
@@ -557,6 +578,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Product lifecycle bar](/img/entities/product-record.jpg)
 
 See [Product](/entities/foundation/product/) for the record itself.
 
@@ -586,6 +608,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Invoice lifecycle bar](/img/entities/invoice-record.jpg)
 
 See [Invoice](/entities/foundation/invoice/) for the record itself.
 

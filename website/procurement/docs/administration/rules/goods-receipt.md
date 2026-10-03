@@ -13,6 +13,7 @@ Runs before a goods receipt is created; order 100. In **Business Rules** it is l
 - **When** “Received Quantity” is filled in and “Received Quantity” < 0: **Refuses the save** — “Received Quantity cannot be negative.”.
 - **When** “Accepted Quantity” is filled in and “Accepted Quantity” < 0: **Refuses the save** — “Accepted Quantity cannot be negative.”.
 
+![The Goods receipt invariants before create rule in the editor](/img/rules/goods-receipt-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -23,6 +24,7 @@ Runs before a goods receipt is changed; order 100. In **Business Rules** it is l
 - **When** “Received Quantity” is filled in and “Received Quantity” < 0: **Refuses the save** — “Received Quantity cannot be negative.”.
 - **When** “Accepted Quantity” is filled in and “Accepted Quantity” < 0: **Refuses the save** — “Accepted Quantity cannot be negative.”.
 
+![The Goods receipt invariants before update rule in the editor](/img/rules/goods-receipt-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -32,6 +34,7 @@ Runs after a goods receipt is changed; order 100. In **Business Rules** it is li
 
 - **When** (“Status” == "REJECTED" or “Status” == "CANCELLED") and “Status” != previous “Status”: **Starts a process** — “goodsReceiptWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Goods receipt follow up required”).
 
+![The Goods receipt workflows after update rule in the editor](/img/rules/goods-receipt-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

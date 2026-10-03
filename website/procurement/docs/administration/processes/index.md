@@ -8,6 +8,7 @@ description: "The automated multi-step processes this application runs."
 
 A process is a sequence of steps the application runs for you: create a task, update a record, call a service. A business rule usually starts it; you can also run one by hand from the Workflow Designer. Every run is logged step by step in the Workflow Monitor. This application has **27** processes.
 
+![The Workflow Designer](/img/admin/workflow-definitions.jpg)
 
 ## Party exception raised {#party-exception-raised}
 
@@ -23,6 +24,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Party exception raised process in the Workflow Designer](/img/processes/party-exception-raised.jpg)
 
 ## Exchange rate follow up required {#exchange-rate-follow-up-required}
 
@@ -38,6 +40,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Exchange rate follow up required process in the Workflow Designer](/img/processes/exchange-rate-follow-up-required.jpg)
 
 ## Supplier exception raised {#supplier-exception-raised}
 
@@ -53,6 +56,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Supplier exception raised process in the Workflow Designer](/img/processes/supplier-exception-raised.jpg)
 
 ## Purchase requisition approval requested {#purchase-requisition-approval-requested}
 
@@ -68,6 +72,7 @@ flowchart TD
 
 1. **Raise a task: decide on** — creates a **Task** record.
 
+![The Purchase requisition approval requested process in the Workflow Designer](/img/processes/purchase-requisition-approval-requested.jpg)
 
 ## Purchase requisition follow up required {#purchase-requisition-follow-up-required}
 
@@ -83,6 +88,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Purchase requisition follow up required process in the Workflow Designer](/img/processes/purchase-requisition-follow-up-required.jpg)
 
 ## Request for quotation follow up required {#request-for-quotation-follow-up-required}
 
@@ -98,6 +104,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Request for quotation follow up required process in the Workflow Designer](/img/processes/request-for-quotation-follow-up-required.jpg)
 
 ## Supplier quotation approval requested {#supplier-quotation-approval-requested}
 
@@ -113,6 +120,7 @@ flowchart TD
 
 1. **Raise a task: decide on** — creates a **Task** record.
 
+![The Supplier quotation approval requested process in the Workflow Designer](/img/processes/supplier-quotation-approval-requested.jpg)
 
 ## Supplier quotation follow up required {#supplier-quotation-follow-up-required}
 
@@ -128,6 +136,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier quotation follow up required process in the Workflow Designer](/img/processes/supplier-quotation-follow-up-required.jpg)
 
 ## Purchase order follow up required {#purchase-order-follow-up-required}
 
@@ -143,6 +152,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Purchase order follow up required process in the Workflow Designer](/img/processes/purchase-order-follow-up-required.jpg)
 
 ## Goods receipt follow up required {#goods-receipt-follow-up-required}
 
@@ -158,6 +168,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Goods receipt follow up required process in the Workflow Designer](/img/processes/goods-receipt-follow-up-required.jpg)
 
 ## Supplier claim approval requested {#supplier-claim-approval-requested}
 
@@ -173,6 +184,7 @@ flowchart TD
 
 1. **Raise a task: decide on** — creates a **Task** record.
 
+![The Supplier claim approval requested process in the Workflow Designer](/img/processes/supplier-claim-approval-requested.jpg)
 
 ## Supplier claim follow up required {#supplier-claim-follow-up-required}
 
@@ -188,6 +200,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier claim follow up required process in the Workflow Designer](/img/processes/supplier-claim-follow-up-required.jpg)
 
 ## Supplier claim resolution exception raised {#supplier-claim-resolution-exception-raised}
 
@@ -203,6 +216,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Supplier claim resolution exception raised process in the Workflow Designer](/img/processes/supplier-claim-resolution-exception-raised.jpg)
 
 ## Supplier claim resolution follow up required {#supplier-claim-resolution-follow-up-required}
 
@@ -218,6 +232,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier claim resolution follow up required process in the Workflow Designer](/img/processes/supplier-claim-resolution-follow-up-required.jpg)
 
 ## Supplier credit note follow up required {#supplier-credit-note-follow-up-required}
 
@@ -233,6 +248,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier credit note follow up required process in the Workflow Designer](/img/processes/supplier-credit-note-follow-up-required.jpg)
 
 ## Supplier credit note completion confirmed {#supplier-credit-note-completion-confirmed}
 
@@ -248,6 +264,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Supplier credit note completion confirmed process in the Workflow Designer](/img/processes/supplier-credit-note-completion-confirmed.jpg)
 
 ## Supplier credit note application follow up required {#supplier-credit-note-application-follow-up-required}
 
@@ -263,6 +280,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier credit note application follow up required process in the Workflow Designer](/img/processes/supplier-credit-note-application-follow-up-required.jpg)
 
 ## Supplier debit note follow up required {#supplier-debit-note-follow-up-required}
 
@@ -278,6 +296,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier debit note follow up required process in the Workflow Designer](/img/processes/supplier-debit-note-follow-up-required.jpg)
 
 ## Supplier debit note completion confirmed {#supplier-debit-note-completion-confirmed}
 
@@ -293,6 +312,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Supplier debit note completion confirmed process in the Workflow Designer](/img/processes/supplier-debit-note-completion-confirmed.jpg)
 
 ## Supplier debit note application follow up required {#supplier-debit-note-application-follow-up-required}
 
@@ -308,6 +328,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier debit note application follow up required process in the Workflow Designer](/img/processes/supplier-debit-note-application-follow-up-required.jpg)
 
 ## Supplier performance assessment follow up required {#supplier-performance-assessment-follow-up-required}
 
@@ -323,6 +344,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier performance assessment follow up required process in the Workflow Designer](/img/processes/supplier-performance-assessment-follow-up-required.jpg)
 
 ## Supplier return exception raised {#supplier-return-exception-raised}
 
@@ -338,6 +360,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Supplier return exception raised process in the Workflow Designer](/img/processes/supplier-return-exception-raised.jpg)
 
 ## Supplier return follow up required {#supplier-return-follow-up-required}
 
@@ -353,6 +376,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Supplier return follow up required process in the Workflow Designer](/img/processes/supplier-return-follow-up-required.jpg)
 
 ## Supplier return completion confirmed {#supplier-return-completion-confirmed}
 
@@ -368,6 +392,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Supplier return completion confirmed process in the Workflow Designer](/img/processes/supplier-return-completion-confirmed.jpg)
 
 ## Product exception raised {#product-exception-raised}
 
@@ -383,6 +408,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Product exception raised process in the Workflow Designer](/img/processes/product-exception-raised.jpg)
 
 ## Invoice exception raised {#invoice-exception-raised}
 
@@ -398,6 +424,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Invoice exception raised process in the Workflow Designer](/img/processes/invoice-exception-raised.jpg)
 
 ## Invoice follow up required {#invoice-follow-up-required}
 
@@ -413,4 +440,5 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Invoice follow up required process in the Workflow Designer](/img/processes/invoice-follow-up-required.jpg)
 

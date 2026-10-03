@@ -13,6 +13,8 @@ Represents internal demand for goods or services before that demand becomes an e
 
 Open **Purchase Requisition** from the menu or from its card on the dashboard.
 
+![The Purchase Requisition list](/img/entities/purchase-requisition-list.jpg)
+
 The list shows Requisition Number, Requisition Date, Status, Justification, Requester, Organization, Supplier, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Requisition Number, Requisition Date, Status, Justification, Requ
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Purchase Requisition form](/img/entities/purchase-requisition-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Requisition Number**, **Requisition Date**, **Status**, **Requester**.
@@ -94,6 +98,8 @@ stateDiagram-v2
 | Submitted | Cancelled | Cancel |
 | Approved | Cancelled | Cancel |
 | Ordered | Cancelled | Cancel |
+
+![A Purchase Requisition record with its lifecycle bar](/img/entities/purchase-requisition-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

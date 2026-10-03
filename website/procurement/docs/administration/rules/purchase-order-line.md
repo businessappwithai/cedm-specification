@@ -18,6 +18,7 @@ Runs before a purchase order is created; order 100. In **Business Rules** it is 
 - **When** “Returned Quantity” is filled in and “Returned Quantity” < 0: **Refuses the save** — “Returned Quantity cannot be negative.”.
 - **When** “Outstanding Quantity” is filled in and “Outstanding Quantity” < 0: **Refuses the save** — “Outstanding Quantity cannot be negative.”.
 
+![The Purchase order line invariants before create rule in the editor](/img/rules/purchase-order-line-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -33,6 +34,7 @@ Runs before a purchase order is changed; order 100. In **Business Rules** it is 
 - **When** “Returned Quantity” is filled in and “Returned Quantity” < 0: **Refuses the save** — “Returned Quantity cannot be negative.”.
 - **When** “Outstanding Quantity” is filled in and “Outstanding Quantity” < 0: **Refuses the save** — “Outstanding Quantity cannot be negative.”.
 
+![The Purchase order line invariants before update rule in the editor](/img/rules/purchase-order-line-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

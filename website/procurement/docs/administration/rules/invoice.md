@@ -16,6 +16,7 @@ Runs before a invoice is created; order 100. In **Business Rules** it is listed 
 - **When** “Tax Amount” is filled in and “Tax Amount” < 0: **Refuses the save** — “Tax Amount cannot be negative.”.
 - **When** “Total Amount” is filled in and “Total Amount” < 0: **Refuses the save** — “Total Amount cannot be negative.”.
 
+![The Invoice invariants before create rule in the editor](/img/rules/invoice-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -29,6 +30,7 @@ Runs before a invoice is changed; order 100. In **Business Rules** it is listed 
 - **When** “Tax Amount” is filled in and “Tax Amount” < 0: **Refuses the save** — “Tax Amount cannot be negative.”.
 - **When** “Total Amount” is filled in and “Total Amount” < 0: **Refuses the save** — “Total Amount cannot be negative.”.
 
+![The Invoice invariants before update rule in the editor](/img/rules/invoice-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -39,6 +41,7 @@ Runs after a invoice is changed; order 100. In **Business Rules** it is listed a
 - **When** “Status” == "OVERDUE" and “Status” != previous “Status”: **Starts a process** — “invoiceWorkflowsAfterUpdate: ExceptionRaised” (starts the process “Invoice exception raised”).
 - **When** (“Status” == "CANCELLED" or “Status” == "VOID") and “Status” != previous “Status”: **Starts a process** — “invoiceWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Invoice follow up required”).
 
+![The Invoice workflows after update rule in the editor](/img/rules/invoice-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

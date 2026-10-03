@@ -13,6 +13,8 @@ Converts a supplier claim decision into a controlled auditable execution plan wi
 
 Open **Supplier Claim Resolution** from the menu or from its card on the dashboard.
 
+![The Supplier Claim Resolution list](/img/entities/supplier-claim-resolution-list.jpg)
+
 The list shows Resolution Number, Resolution Date, Resolution Type, Status, Approved Amount, Supplier, Supplier Claim, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Resolution Number, Resolution Date, Resolution Type, Status, Appr
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Supplier Claim Resolution form](/img/entities/supplier-claim-resolution-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Resolution Number**, **Resolution Date**, **Resolution Type**, **Status**, **Supplier Claim**.
@@ -94,6 +98,8 @@ stateDiagram-v2
 | Approved | Cancelled | Cancel |
 | In execution | Cancelled | Cancel |
 | Partially executed | Cancelled | Cancel |
+
+![A Supplier Claim Resolution record with its lifecycle bar](/img/entities/supplier-claim-resolution-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

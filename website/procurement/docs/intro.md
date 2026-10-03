@@ -10,6 +10,7 @@ description: "Procurement and Sourcing, built on the CEDM common foundation."
 
 Procurement and Sourcing, built on the CEDM common foundation.
 
+![The Procurement and Sourcing dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

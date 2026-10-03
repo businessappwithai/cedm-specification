@@ -14,6 +14,7 @@ Runs before a supplier debit note is created; order 100. In **Business Rules** i
 - **When** “Tax Amount” is filled in and “Tax Amount” < 0: **Refuses the save** — “Tax Amount cannot be negative.”.
 - **When** “Total Amount” is filled in and “Total Amount” < 0: **Refuses the save** — “Total Amount cannot be negative.”.
 
+![The Supplier debit note invariants before create rule in the editor](/img/rules/supplier-debit-note-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -25,6 +26,7 @@ Runs before a supplier debit note is changed; order 100. In **Business Rules** i
 - **When** “Tax Amount” is filled in and “Tax Amount” < 0: **Refuses the save** — “Tax Amount cannot be negative.”.
 - **When** “Total Amount” is filled in and “Total Amount” < 0: **Refuses the save** — “Total Amount cannot be negative.”.
 
+![The Supplier debit note invariants before update rule in the editor](/img/rules/supplier-debit-note-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -35,6 +37,7 @@ Runs after a supplier debit note is changed; order 100. In **Business Rules** it
 - **When** (“Status” == "CANCELLED" or “Status” == "REVERSED") and “Status” != previous “Status”: **Starts a process** — “supplierDebitNoteWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Supplier debit note follow up required”).
 - **When** “Status” == "POSTED" and “Status” != previous “Status”: **Starts a process** — “supplierDebitNoteWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Supplier debit note completion confirmed”).
 
+![The Supplier debit note workflows after update rule in the editor](/img/rules/supplier-debit-note-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
