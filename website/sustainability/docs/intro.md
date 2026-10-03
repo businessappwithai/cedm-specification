@@ -10,6 +10,7 @@ description: "ESG and Sustainability, built on the CEDM common foundation."
 
 ESG and Sustainability, built on the CEDM common foundation.
 
+![The ESG and Sustainability dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
