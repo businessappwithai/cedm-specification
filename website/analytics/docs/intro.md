@@ -10,16 +10,27 @@ description: "Analytics and Data Management, built on the CEDM common foundation
 
 Analytics and Data Management, built on the CEDM common foundation.
 
+![The Analytics and Data Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
-**Analytics and Data Management** covers Datasets, Metrics, Dimensions, Reports, Dashboards, Models, Predictions, Data-quality. Analytics and Data Management, built on the CEDM common foundation.
+**Analytics and Data Management** covers Datasets, Metrics, Dimensions, Reports, Dashboards, Models, Predictions, Data-quality. It is built on the CEDM common foundation, so the parties, places, currencies and units it works with mean the same here as in every other CEDM application.
 
 ## What the business can do with it
 
 - **Reporting and analytics** — Dataset. Processes: Report-definition, Refresh, Distribution, Analysis
 
 ## The main records
+
+### Records specific to this application
+
+| Record | What it is |
+| --- | --- |
+| [Dataset](/entities/reporting-and-analytics/dataset/) | Represents a data entity called Dataset within the CEDM business model. |
+
+### Shared foundation records
+
+Every CEDM application starts from the same foundation of parties, places, currencies and units, so these records mean the same here as in any other application.
 
 | Record | What it is |
 | --- | --- |
@@ -31,11 +42,14 @@ Analytics and Data Management, built on the CEDM common foundation.
 | [Location](/entities/foundation/location/) | Core location master with hierarchical, geographic, organizational, and lifecycle context. |
 | [Country](/entities/foundation/country/) | A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. |
 | [Exchange Rate](/entities/foundation/exchange-rate/) | Represents an auditable conversion rate between two currencies for a defined time and business purpose. |
-| [Unit Of Measure](/entities/foundation/unit-of-measure/) | Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. |
-| [Party Role](/entities/foundation/party-role/) | The bridge between stable Party identity and contextual business participation. |
-| [State Province](/entities/foundation/state-province/) | A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. |
-| [City](/entities/foundation/city/) | A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. |
 
+
+## How the main records move
+
+- A **Dataset** goes Draft → Active → Archived → Retired.
+- A **Dataset** goes Draft → Active → Completed → Cancelled.
+
+Each is enforced by the application on every change; see [Record lifecycles](/administration/lifecycles/).
 
 ## What happens automatically
 
