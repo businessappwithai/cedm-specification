@@ -36,6 +36,11 @@ const SKIP = new Set([
   "generated-projects",
   "generated-applications",
   "target",
+  // The repository copies check their models with their own bundles.
+  "app-with-ai-rust",
+  "app-and-report-with-ai-rust",
+  "enterprise-reporting-rust",
+  "businessappwithairust",
 ]);
 
 function yamlModels(): string[] {

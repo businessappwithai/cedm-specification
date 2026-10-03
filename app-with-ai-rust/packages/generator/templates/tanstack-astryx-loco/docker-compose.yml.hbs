@@ -1,0 +1,88 @@
+# {{project.name}} — local container stack.
+#
+# Generated. The previous version of this file described a different
+# application: it set NODE_ENV on a Rust backend, required a BETTER_AUTH_SECRET
+# the backend never reads, health-checked `/api/health` (the route is
+# `/api/me/health`), and built `./backend/Dockerfile`, which did not exist.
+# It also never reached disk — its generation sat after an early return.
+# Shell expansions go through the `shellDefault` / `shellRequired` helpers.
+# Written inline, a `${VAR:-...}` closing right after a Handlebars expression
+# leaves three consecutive braces and Handlebars fails on the third — the same
+# two-braces trap as an inline style object in a .tsx template. The helpers emit
+# the whole expansion, so the brace never meets the delimiter.
+services:
+{{#unless database.isNeon}}
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      # Loco's own convention, and what config/*.yaml expects. Naming it after
+      # the project instead left `db migrate` pointing at a database nothing
+      # created.
+      POSTGRES_DB: {{database.name}}
+      POSTGRES_USER: {{shellDefault "DB_USER" "app"}}
+      POSTGRES_PASSWORD: {{shellRequired "DB_PASSWORD"}}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{shellDefault "DB_USER" "app"}} -d {{database.name}}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+{{/unless}}
+
+  backend:
+    image: {{project.id}}-backend:{{shellDefault "IMAGE_TAG" "latest"}}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "{{shellDefault "BACKEND_PORT" config.port}}:{{config.port}}"
+    environment:
+      # Loco reads LOCO_ENV, not NODE_ENV.
+      LOCO_ENV: {{shellDefault "LOCO_ENV" "production"}}
+{{#if database.isNeon}}
+      # Neon is provisioned outside this file; there is no postgres service to
+      # point at. The connection string must carry ?sslmode=require.
+      DATABASE_URL: {{shellRequired "DATABASE_URL" "DATABASE_URL is required for the neon target"}}
+{{else}}
+      DATABASE_URL: postgres://{{shellDefault "DB_USER" "app"}}:${DB_PASSWORD}@postgres:5432/{{database.name}}
+{{/if}}
+      JWT_SECRET: {{shellRequired "JWT_SECRET"}}
+      CORS_ORIGIN: {{shellDefault "CORS_ORIGIN" (concat "http://localhost:" config.frontendPort)}}
+      ADMIN_EMAIL: {{shellDefault "ADMIN_EMAIL" "admin@admin.com"}}
+      ADMIN_PASSWORD: {{shellRequired "ADMIN_PASSWORD"}}
+{{#unless database.isNeon}}
+    depends_on:
+      postgres:
+        condition: service_healthy
+{{/unless}}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:{{config.port}}/api/me/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    image: {{project.id}}-frontend:{{shellDefault "IMAGE_TAG" "latest"}}
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: {{shellDefault "VITE_API_URL" (concat "http://localhost:" config.port)}}
+        VITE_APP_URL: {{shellDefault "VITE_APP_URL" (concat "http://localhost:" config.frontendPort)}}
+    restart: unless-stopped
+    ports:
+      - "{{shellDefault "FRONTEND_PORT" config.frontendPort}}:{{config.frontendPort}}"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+{{#unless database.isNeon}}
+
+volumes:
+  postgres_data:
+{{/unless}}

@@ -1,0 +1,36 @@
+//! Every request suite, in the order a failure is most usefully read.
+//!
+//! Health first: if the app cannot boot or reach its database, nothing below
+//! can say anything meaningful. Then auth, then the dictionary — the two things
+//! every business suite depends on — then the per-entity CRUD and rules
+//! modules, which are generated one per entity in the model.
+//!
+//! Generated: {{now}}
+//! Project: {{project.name}}
+
+mod ai;
+mod auth;
+mod dictionary;
+mod health;
+mod http_log;
+mod openapi;
+mod jobs;
+mod model_rules;
+mod model_transitions;
+mod permissions;
+mod rate_limit;
+mod records;
+mod reports;
+mod rbac;
+mod rules_workflow;
+mod saga_execution;
+mod system_config;
+mod workflow;
+
+{{#each entities}}
+mod crud_{{snakeCase (removeTablePrefix this.tableName)}};
+{{/each}}
+
+{{#each entities}}
+mod rules_{{snakeCase (removeTablePrefix this.tableName)}};
+{{/each}}

@@ -5,7 +5,17 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": true
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!!**/yaml",
+      "!!**/generated-applications",
+      "!!**/generated-projects",
+      "!!**/app-with-ai-rust",
+      "!!**/app-and-report-with-ai-rust",
+      "!!**/enterprise-reporting-rust",
+      "!!**/businessappwithairust"
+    ]
   },
   "formatter": {
     "enabled": true,

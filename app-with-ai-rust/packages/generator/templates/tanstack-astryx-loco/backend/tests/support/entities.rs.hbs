@@ -1,0 +1,327 @@
+//! Entity registry — generated from the ERD.
+//!
+//! The single source of truth the suites iterate over. Every entity in the
+//! model appears here with the field metadata `factory` needs to invent a valid
+//! payload, so adding an entity to the model adds it to the tests without
+//! anyone writing a test.
+//!
+//! Generated: {{now}}
+//! Project: {{project.name}}
+
+/// What a column holds, which is what decides the shape of a generated value.
+///
+/// These mirror the `sys_reference` vocabulary the backend validates against —
+/// binding a `Date` column as text is rejected by Postgres, so the factory has
+/// to know the difference.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FieldType {
+    String,
+    Text,
+    Integer,
+    Decimal,
+    Boolean,
+    Date,
+    DateTime,
+    Json,
+    /// A `*_id` column pointing at another `bus_` table.
+    Reference,
+}
+
+impl FieldType {
+    /// Map the model's own type name onto a field type.
+    ///
+    /// `const` so the registry below can stay a `static` rather than becoming a
+    /// lazily-initialised global. A foreign key wins over the declared type:
+    /// the model calls it a string, but the API wants a UUID that resolves to a
+    /// real parent row.
+    pub const fn from_model(model_type: &str, is_foreign_key: bool) -> Self {
+        if is_foreign_key {
+            return Self::Reference;
+        }
+        // `match` on &str is not const, so this compares bytes.
+        match model_type.as_bytes() {
+            b"integer" | b"int" | b"bigint" => Self::Integer,
+            b"decimal" | b"float" | b"number" | b"amount" => Self::Decimal,
+            b"boolean" | b"bool" => Self::Boolean,
+            b"date" => Self::Date,
+            b"datetime" | b"timestamp" => Self::DateTime,
+            b"json" | b"jsonb" => Self::Json,
+            b"text" => Self::Text,
+            _ => Self::String,
+        }
+    }
+}
+
+/// Columns naming a person by the role they played rather than by entity.
+///
+/// Mirrors `PERSON_ROLE_COLUMNS` in the backend's dictionary service and
+/// `foreignKeys.personRoleColumns` in the language definition. All three must
+/// agree or the tests resolve a parent the API will reject.
+const PERSON_ROLE_COLUMNS: &[&str] = &[
+    "assigned_to",
+    "author_id",
+    "lab_manager_id",
+    "manager_id",
+    "owner_id",
+    "pi_id",
+    "remediation_owner",
+    "remediation_owner_id",
+    "user_id",
+];
+
+/// Prefixes that name the role a reference plays, not a different entity.
+///
+/// Mirrors `QUALIFIER_PREFIXES` in the backend's dictionary service and
+/// `foreignKeys.qualifierPrefixes` in the language definition.
+pub const QUALIFIER_PREFIXES: &[&str] = &["parent_"];
+
+/// The table a foreign key points at, derived from its name.
+///
+/// There is no stored target — the column name carries the reference — so this
+/// repeats the backend's own rule. Returning `None` is the documented fallback
+/// for a column that resolves to nothing.
+pub const fn ref_table_for(column: &str, is_foreign_key: bool) -> Option<&'static str> {
+    if !is_foreign_key {
+        return None;
+    }
+    // Person roles all point at the user table, by name or by `_by` suffix.
+    let mut i = 0;
+    while i < PERSON_ROLE_COLUMNS.len() {
+        if const_str_eq(PERSON_ROLE_COLUMNS[i], column) {
+            return Some("bus_user");
+        }
+        i += 1;
+    }
+    // A qualified person role resolves the same way the bare one does:
+    // `parent_owner_id` names a user, exactly as `owner_id` does. Compared
+    // against `prefix + role` rather than by slicing the column, because a
+    // `const fn` cannot produce a `&str` subslice.
+    let mut p = 0;
+    while p < QUALIFIER_PREFIXES.len() {
+        let mut i = 0;
+        while i < PERSON_ROLE_COLUMNS.len() {
+            if eq_prefixed(QUALIFIER_PREFIXES[p], PERSON_ROLE_COLUMNS[i], column) {
+                return Some("bus_user");
+            }
+            i += 1;
+        }
+        p += 1;
+    }
+    // A suffix is unaffected by a prefix, so this needs no stripped copy:
+    // `parent_reported_by_id` ends in `_by_id` either way.
+    if ends_with(column, "_by_id") || ends_with(column, "_by") {
+        return Some("bus_user");
+    }
+    // Anything else is resolved at runtime from the registry, because a `const
+    // fn` cannot allocate the `bus_<stem>` string.
+    None
+}
+
+/// Is `column` exactly `prefix` followed by `suffix`?
+///
+/// The concatenation a `const fn` cannot build, done as a comparison instead.
+const fn eq_prefixed(prefix: &str, suffix: &str, column: &str) -> bool {
+    let (prefix, suffix, column) = (prefix.as_bytes(), suffix.as_bytes(), column.as_bytes());
+    if column.len() != prefix.len() + suffix.len() {
+        return false;
+    }
+    let mut i = 0;
+    while i < prefix.len() {
+        if column[i] != prefix[i] {
+            return false;
+        }
+        i += 1;
+    }
+    let mut j = 0;
+    while j < suffix.len() {
+        if column[prefix.len() + j] != suffix[j] {
+            return false;
+        }
+        j += 1;
+    }
+    true
+}
+
+const fn const_str_eq(a: &str, b: &str) -> bool {
+    let (a, b) = (a.as_bytes(), b.as_bytes());
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut i = 0;
+    while i < a.len() {
+        if a[i] != b[i] {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+const fn ends_with(haystack: &str, needle: &str) -> bool {
+    let (h, n) = (haystack.as_bytes(), needle.as_bytes());
+    if n.len() > h.len() {
+        return false;
+    }
+    let offset = h.len() - n.len();
+    let mut i = 0;
+    while i < n.len() {
+        if h[offset + i] != n[i] {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct FieldMeta {
+    /// Physical column name — what the API expects in a payload.
+    pub name: &'static str,
+    pub field_type: FieldType,
+    pub required: bool,
+    /// The `bus_*` table a `Reference` points at, when it resolves to one.
+    pub ref_table: Option<&'static str>,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct EntityMeta {
+    /// ERD entity name, e.g. "Compound".
+    pub name: &'static str,
+    /// Physical table, e.g. `bus_compound` — the identifier the rules API uses.
+    pub table_name: &'static str,
+    /// Path segment for `/api/bus/{entity}`.
+    pub route: &'static str,
+    pub fields: &'static [FieldMeta],
+}
+
+/// Columns the request handler owns rather than the caller.
+///
+/// Mirrors `is_managed_column` in the backend's dictionary service. Sending
+/// these is not an error — they are ignored — which is exactly why the suites
+/// must not build assertions on them: an override of `id` looks like it was
+/// accepted and then reads back as the id the server actually assigned.
+pub fn is_managed(column: &str) -> bool {
+    matches!(
+        column,
+        "id" | "version"
+            | "created_at"
+            | "updated_at"
+            | "deleted_at"
+            | "created_by"
+            | "updated_by"
+            | "workflow_status"
+            | "workflow_run_id"
+            | "doc_status"
+            | "doc_status_message"
+    )
+}
+
+impl EntityMeta {
+    /// The fields a caller may actually write.
+    ///
+    /// Everything else on this type filters through here, so a server-managed
+    /// column can never end up in a payload or an assertion.
+    pub fn writable_fields(&self) -> impl Iterator<Item = &FieldMeta> {
+        self.fields.iter().filter(|f| !is_managed(f.name))
+    }
+
+    /// Fields a create payload must carry.
+    pub fn required_fields(&self) -> impl Iterator<Item = &FieldMeta> {
+        self.writable_fields().filter(|f| f.required)
+    }
+
+    /// The first free-text field, for "does it persist what I sent?" assertions.
+    pub fn first_text_field(&self) -> Option<&FieldMeta> {
+        self.writable_fields()
+            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+    }
+
+    /// The first numeric field, for the rules suites' range checks.
+    pub fn first_numeric_field(&self) -> Option<&FieldMeta> {
+        self.writable_fields()
+            .find(|f| matches!(f.field_type, FieldType::Integer | FieldType::Decimal))
+    }
+
+    /// Optional fields whose column is *not* text.
+    ///
+    /// This is the family an explicit JSON `null` used to break. Every NULL was
+    /// bound as an untyped text parameter, and Postgres will not store text in
+    /// a `numeric`, `date`, `timestamptz`, `boolean`, `uuid` or `jsonb` column
+    /// — it raised 42804 and the API answered `400 A value has the wrong type
+    /// or format`, so an optional field could never be cleared.
+    pub fn optional_typed_fields(&self) -> impl Iterator<Item = &FieldMeta> {
+        self.writable_fields().filter(|f| {
+            !f.required
+                && matches!(
+                    f.field_type,
+                    FieldType::Integer
+                        | FieldType::Decimal
+                        | FieldType::Boolean
+                        | FieldType::Date
+                        | FieldType::DateTime
+                        | FieldType::Json
+                        | FieldType::Reference
+                )
+        })
+    }
+
+    /// Foreign keys that have to be satisfied before this entity can exist.
+    pub fn foreign_keys(&self) -> impl Iterator<Item = &FieldMeta> {
+        self.writable_fields().filter(|f| f.field_type == FieldType::Reference)
+    }
+}
+
+/// Look an entity up by its ERD name. Panics on a miss: the name comes from
+/// generated code, so a miss is a generator bug, not a runtime condition.
+pub fn entity(name: &str) -> &'static EntityMeta {
+    ENTITIES
+        .iter()
+        .find(|e| e.name == name)
+        .unwrap_or_else(|| panic!("unknown entity '{name}' — the registry is generated, so this is a generator bug"))
+}
+
+/// Find the entity behind a `bus_*` table name.
+pub fn entity_by_table(table: &str) -> Option<&'static EntityMeta> {
+    ENTITIES.iter().find(|e| e.table_name == table)
+}
+
+/// The parent entity a foreign key refers to.
+///
+/// `FieldMeta::ref_table` covers the person-role columns a `const fn` can
+/// decide; everything else is `bus_<stem>` and is matched against the registry
+/// here, where allocation is allowed.
+pub fn parent_of(field: &FieldMeta) -> Option<&'static EntityMeta> {
+    if let Some(table) = field.ref_table {
+        return entity_by_table(table);
+    }
+    // A qualifier names the role the reference plays, not another entity, so it
+    // is stripped before the `bus_<stem>` rule — a Sample's `parent_sample_id`
+    // is a Sample. Mirrors `QUALIFIER_PREFIXES` in the backend's dictionary
+    // service and `foreignKeys.qualifierPrefixes` in the language definition.
+    let name = QUALIFIER_PREFIXES
+        .iter()
+        .find_map(|prefix| field.name.strip_prefix(prefix))
+        .unwrap_or(field.name);
+    let stem = name.strip_suffix("_id")?;
+    entity_by_table(&format!("bus_{stem}"))
+}
+
+pub static ENTITIES: &[EntityMeta] = &[
+{{#each entities}}
+    EntityMeta {
+        name: "{{name}}",
+        table_name: "{{tableName}}",
+        route: "{{tableName}}",
+        fields: &[
+{{#each attributes}}
+            FieldMeta {
+                name: "{{columnName}}",
+                field_type: FieldType::from_model("{{type}}", {{#if isForeignKey}}true{{else}}false{{/if}}),
+                required: {{#if required}}true{{else}}false{{/if}},
+                ref_table: ref_table_for("{{columnName}}", {{#if isForeignKey}}true{{else}}false{{/if}}),
+            },
+{{/each}}
+        ],
+    },
+{{/each}}
+];

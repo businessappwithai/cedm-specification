@@ -1,0 +1,173 @@
+//! User model logic — registration, login, and the RBAC bridge.
+//!
+//! Decision D1: Loco's native JWT auth replaces Better Auth, which is a Node
+//! library with no Rust port. This is the one deliberate break in the API
+//! contract (§9), and it is confined to `/api/auth/*`.
+//!
+//! `sys_user` and `sys_user_roles` are untouched — only the credential store
+//! changed. `users.sys_user_id` is the bridge, and role checks continue to read
+//! `sys_user_roles` exactly as before.
+
+use loco_rs::prelude::*;
+use sea_orm::{ActiveValue, TransactionTrait};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+use super::_entities::users::{ActiveModel, Column, Entity, Model};
+
+#[derive(Debug, Deserialize)]
+pub struct RegisterParams {
+    pub email: String,
+    pub password: String,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginParams {
+    pub email: String,
+    pub password: String,
+}
+
+/// The user object the frontend receives. Deliberately excludes every
+/// credential column; `role` is resolved from `sys_user_roles`.
+#[derive(Debug, Serialize)]
+pub struct UserResponse {
+    pub pid: Uuid,
+    pub email: String,
+    pub name: String,
+    #[serde(rename = "sysUserId", skip_serializing_if = "Option::is_none")]
+    pub sys_user_id: Option<Uuid>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub role: Option<String>,
+}
+
+impl UserResponse {
+    #[must_use]
+    pub fn new(user: &Model, role: Option<String>) -> Self {
+        Self {
+            pid: user.pid,
+            email: user.email.clone(),
+            name: user.name.clone(),
+            sys_user_id: user.sys_user_id,
+            role,
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl Authenticable for Model {
+    async fn find_by_api_key(db: &DatabaseConnection, api_key: &str) -> ModelResult<Self> {
+        Entity::find()
+            .filter(Column::ApiKey.eq(api_key))
+            .one(db)
+            .await?
+            .ok_or(ModelError::EntityNotFound)
+    }
+
+    async fn find_by_claims_key(db: &DatabaseConnection, claims_key: &str) -> ModelResult<Self> {
+        Self::find_by_pid(db, claims_key).await
+    }
+}
+
+impl Model {
+    pub async fn find_by_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
+        Entity::find()
+            // Emails are matched case-insensitively; addresses are stored as
+            // the user typed them but must not create duplicate accounts.
+            .filter(Column::Email.eq(email.to_lowercase()))
+            .one(db)
+            .await?
+            .ok_or(ModelError::EntityNotFound)
+    }
+
+    pub async fn find_by_pid(db: &DatabaseConnection, pid: &str) -> ModelResult<Self> {
+        let parsed = Uuid::parse_str(pid).map_err(|err| ModelError::Any(err.into()))?;
+        Entity::find()
+            .filter(Column::Pid.eq(parsed))
+            .one(db)
+            .await?
+            .ok_or(ModelError::EntityNotFound)
+    }
+
+    /// Create a user with an argon2-hashed password.
+    ///
+    /// Runs in a transaction with the duplicate check so two concurrent
+    /// registrations for the same address cannot both pass the check. The
+    /// unique index on `email` is the real backstop.
+    pub async fn create_with_password(
+        db: &DatabaseConnection,
+        params: &RegisterParams,
+    ) -> ModelResult<Self> {
+        let txn = db.begin().await?;
+
+        let email = params.email.to_lowercase();
+        if Entity::find()
+            .filter(Column::Email.eq(&email))
+            .one(&txn)
+            .await?
+            .is_some()
+        {
+            return Err(ModelError::EntityAlreadyExists);
+        }
+
+        let password =
+            loco_rs::hash::hash_password(&params.password).map_err(|err| ModelError::Any(err.into()))?;
+
+        let user = ActiveModel {
+            pid: ActiveValue::set(Uuid::new_v4()),
+            email: ActiveValue::set(email),
+            password: ActiveValue::set(password),
+            api_key: ActiveValue::set(format!("lo-{}", Uuid::new_v4())),
+            name: ActiveValue::set(params.name.clone()),
+            ..Default::default()
+        }
+        .insert(&txn)
+        .await?;
+
+        txn.commit().await?;
+        Ok(user)
+    }
+
+    #[must_use]
+    pub fn verify_password(&self, password: &str) -> bool {
+        loco_rs::hash::verify_password(password, &self.password)
+    }
+
+    /// Replace this user's password with a fresh argon2 hash.
+    ///
+    /// The caller is responsible for having proved the change is authorised —
+    /// this only writes. Nothing else about the row is touched, so an in-flight
+    /// session survives; JWTs are stateless and a password change does not
+    /// revoke one.
+    pub async fn set_password(self, db: &DatabaseConnection, password: &str) -> ModelResult<Self> {
+        let hashed =
+            loco_rs::hash::hash_password(password).map_err(|err| ModelError::Any(err.into()))?;
+
+        let mut active = self.into_active_model();
+        active.password = ActiveValue::set(hashed);
+        Ok(active.update(db).await?)
+    }
+
+    /// Resolve this user's role name through the dictionary's RBAC join.
+    ///
+    /// Returns `None` rather than erroring when the user has no `sys_user`
+    /// counterpart yet: a freshly registered account is a valid state, and the
+    /// frontend treats a missing role as "no elevated access".
+    pub async fn role_name(&self, db: &DatabaseConnection) -> Option<String> {
+        let sys_user_id = self.sys_user_id?;
+        let pool = db.get_postgres_connection_pool();
+        let row: Option<(String,)> = sqlx::query_as(
+            r"SELECT r.name
+                FROM sys_user_roles ur
+                JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+               WHERE ur.sys_user_id = $1
+               ORDER BY r.name
+               LIMIT 1",
+        )
+        .bind(sys_user_id)
+        .fetch_optional(pool)
+        .await
+        .unwrap_or(None);
+        row.map(|(name,)| name)
+    }
+}

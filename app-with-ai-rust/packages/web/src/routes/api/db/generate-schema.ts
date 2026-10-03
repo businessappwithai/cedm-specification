@@ -1,0 +1,139 @@
+/**
+ * Create tables in a target database from the project's ERD.
+ *
+ * Guarded by `requireProjectAccess` with `read_write`: it executes DDL against
+ * the database a project points at, which is the most consequential thing this
+ * app does to something outside itself. It used to take only the encrypted
+ * connection string with no authentication at all.
+ */
+
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/api/db/generate-schema")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+    try {
+      const body = (await request.json()) as {
+        projectId?: string;
+        mermaidCode: string;
+        targetDbConnection: string;
+      };
+      const { projectId, mermaidCode, targetDbConnection } = body;
+
+      if (!projectId) {
+        return new Response(JSON.stringify({ error: "projectId is required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      const { requireProjectAccess } = await import("@/lib/project-access");
+      const access = await requireProjectAccess(request, projectId, "read_write");
+      if (access.response) return access.response;
+
+      if (!mermaidCode?.trim()) {
+        return new Response(JSON.stringify({ error: "mermaidCode is required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (!targetDbConnection) {
+        return new Response(JSON.stringify({ error: "targetDbConnection is required" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Parse ERD
+      const { MermaidParser } = await import("@appwithai/generator");
+      const parser = new MermaidParser();
+      const schema = parser.parse(mermaidCode);
+
+      if (!schema.entities || schema.entities.length === 0) {
+        return new Response(
+          JSON.stringify({
+            error: "No entities found in ERD. Check your Mermaid syntax.",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      // Decrypt connection string
+      const { decryptConnectionString } = await import("@/lib/encrypt");
+      let connStr: string;
+      try {
+        connStr = decryptConnectionString(targetDbConnection);
+      } catch {
+        return new Response(
+          JSON.stringify({ error: "Invalid or corrupted connection string" }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      // Connect via pg
+      const { Client } = await import("pg");
+      const client = new Client({ connectionString: connStr, connectionTimeoutMillis: 10000 });
+      await client.connect();
+
+      const ddlStatements: string[] = [];
+      const tablesCreated: string[] = [];
+
+      for (const entity of schema.entities) {
+        const tableName = entity.name
+          .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+          .toLowerCase();
+
+        const columns = entity.attributes.map((attr) => {
+          const colName = attr.name;
+          let colType = "TEXT";
+          const rawType = (attr.type || "string").toLowerCase();
+          if (rawType === "int" || rawType === "integer") colType = "INTEGER";
+          else if (rawType === "bigint") colType = "BIGINT";
+          else if (rawType === "float" || rawType === "double") colType = "DOUBLE PRECISION";
+          else if (rawType === "decimal") colType = "NUMERIC(10,2)";
+          else if (rawType === "boolean" || rawType === "bool") colType = "BOOLEAN";
+          else if (rawType === "text") colType = "TEXT";
+          else if (rawType === "date") colType = "DATE";
+          else if (rawType === "datetime" || rawType === "timestamp") colType = "TIMESTAMPTZ";
+          else if (rawType === "json") colType = "JSONB";
+
+          const pk = attr.unique && attr.name === "id" ? " PRIMARY KEY" : "";
+          const serial = attr.unique && colName === "id" ? "SERIAL" : colType;
+          const notNull =
+            attr.required && !(attr.unique && attr.name === "id") ? " NOT NULL" : "";
+          return `  "${colName}" ${pk ? serial : colType}${pk}${notNull}`;
+        });
+
+        if (!entity.attributes.some((a) => a.unique && a.name === "id")) {
+          columns.unshift('  "id" SERIAL PRIMARY KEY');
+        }
+
+        const ddl = `CREATE TABLE IF NOT EXISTS "${tableName}" (\n${columns.join(",\n")}\n);`;
+        ddlStatements.push(ddl);
+        tablesCreated.push(tableName);
+      }
+
+      try {
+        for (const stmt of ddlStatements) {
+          await client.query(stmt);
+        }
+      } finally {
+        await client.end();
+      }
+
+      return new Response(JSON.stringify({ success: true, tablesCreated }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      return new Response(
+        JSON.stringify({
+          error: err instanceof Error ? err.message : "Failed to generate schema",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+      },
+    },
+  },
+});

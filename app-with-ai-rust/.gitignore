@@ -1,0 +1,98 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Allow test files inside source packages and generated-projects
+!packages/yamltecture/test/*.test.ts
+!packages/**/__tests__/*.test.ts
+!packages/**/__tests__/*.spec.ts
+!generated-projects/**/*.test.ts
+!generated-projects/**/*.spec.ts
+
+# Generated projects runtime artifacts
+packages/web/generated-projects/
+packages/generator/generated-projects/
+generated-projects/
+
+# Production
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+appwithai-mastra.db*
+database/appwithai.db/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.vscode
+.idea
+
+# Misc
+.turbo
+.vercel
+.cache
+temp/
+tmp/
+
+# Generated
+generated/
+output/
+test-output/
+*.mermaid
+*.generated.*
+.gstack/
+.playwright-mcp/
+
+# EML checker output. Written next to the model on every generator run and
+# stamped with the time it ran, so tracking it means a one-line timestamp diff
+# after every single generation — noise that says nothing about the model.
+*.eml.mmd.error
+
+# Rust build output (crates/appwithai-gen)
+target/
+
+# A per-developer profile for a local model endpoint. Personal tooling.
+.openclaude-profile.json
+
+# Local runtime pid file
+.appwithai-web.pid
+language.zip
