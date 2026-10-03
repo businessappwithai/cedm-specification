@@ -10,6 +10,8 @@ Every screen in Education is read from the **Application Dictionary** at run tim
 
 This application's dictionary holds **52 tables**, **337 columns**, and one window for each of the 51 entities that are not lines of another.
 
+![Table and Column](/img/admin/tables.jpg)
 
+![Window, Tab and Field](/img/admin/windows.jpg)
 
 The full guide, with every window and a how-to for each task, is the shared [Application Dictionary manual](pathname:///application-dictionary/).

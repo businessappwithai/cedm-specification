@@ -10,6 +10,7 @@ description: "Education, built on the CEDM common foundation."
 
 Education, built on the CEDM common foundation.
 
+![The Education dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
