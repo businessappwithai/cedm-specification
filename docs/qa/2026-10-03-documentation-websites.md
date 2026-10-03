@@ -9,8 +9,8 @@ from the running application through gstack's `$B` browser
 ## Result
 
 - 48 of 48 application sites captured (`static/.captured`): 103–259 screenshots
-  each, 5 skipped in total across the run (quality 1, sales 1, sustainability 2,
-  plus the login retake). A page links a screenshot only if the file exists.
+  each, 4 skipped in total across the run (quality 1, sales 1, sustainability 2;
+  a screenshot that fails is simply not linked). A page links a screenshot only if the file exists.
 - Docusaurus builds verified: `sales` (a typical app), `procurement` (the
   largest, 259 shots) and `application-dictionary`. All succeed.
 - Each site: home (application and domain), getting started, one page per
