@@ -20,7 +20,12 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing payment reference., businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references.}
+    help:
+      summary: The number of the payment.
+      businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries."
+      usage: "Finance, counterparties, integrations and reconciliation."
+      relationshipContext: Distinct from paymentId and bank transaction identifiers.
+      workflowRole: Correlates internal payment evidence with operational and external references.
   - name: paymentDate
     type: datetime
     required: true
@@ -38,8 +43,8 @@ entity:
       relationshipContext: Customer refund and supplier-credit refund/settlement payments are DISBURSEMENT events and never rewrite original receipt payments.
       workflowRole: Determines cash-flow and settlement path.
       valueSemantics:
-        RECEIPT: The direction of the payment is receipt; set it when that is what the business means for this record.
-        DISBURSEMENT: The direction of the payment is disbursement; set it when that is what the business means for this record.
+        RECEIPT: Money received by the organisation.
+        DISBURSEMENT: Money paid out by the organisation.
   - name: status
     type: enum
     required: true
@@ -58,12 +63,12 @@ entity:
       relationshipContext: Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.
       workflowRole: APPROVED authorizes processing; POSTED recognizes internally; CLEARED confirms external evidence; VOID/REVERSED handle correction.
       valueSemantics:
-        DRAFT: The status of the payment is draft; set it when that is what the business means for this record.
-        APPROVED: The status of the payment is approved; set it when that is what the business means for this record.
-        POSTED: The status of the payment is posted; set it when that is what the business means for this record.
-        CLEARED: The status of the payment is cleared; set it when that is what the business means for this record.
-        VOID: The status of the payment is void; set it when that is what the business means for this record.
-        REVERSED: The status of the payment is reversed; set it when that is what the business means for this record.
+        DRAFT: Being prepared.
+        APPROVED: Authorised for execution.
+        POSTED: Recorded in the ledger.
+        CLEARED: Confirmed by the bank.
+        VOID: Cancelled before taking effect.
+        REVERSED: Undone after posting.
   - name: amount
     type: Money
     required: true
@@ -91,12 +96,12 @@ entity:
       relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy.
       workflowRole: Determines expected settlement evidence.
       valueSemantics:
-        CASH: The payment method of the payment is cash; set it when that is what the business means for this record.
-        BANK_TRANSFER: The payment method of the payment is bank transfer; set it when that is what the business means for this record.
-        CARD: The payment method of the payment is card; set it when that is what the business means for this record.
-        CHEQUE: The payment method of the payment is cheque; set it when that is what the business means for this record.
-        DIRECT_DEBIT: The payment method of the payment is direct debit; set it when that is what the business means for this record.
-        OTHER: The payment method of the payment is other; set it when that is what the business means for this record.
+        CASH: Paid in cash.
+        BANK_TRANSFER: A credit transfer between bank accounts.
+        CARD: A debit or credit card.
+        CHEQUE: A cheque.
+        DIRECT_DEBIT: Collected by the payee from the payer's account.
+        OTHER: Any other method.
   - name: valueDate
     type: date
     required: false

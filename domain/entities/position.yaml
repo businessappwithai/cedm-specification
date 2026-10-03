@@ -5,6 +5,7 @@ entity:
   description: A defined organizational role with responsibilities, reporting structure, and staffing requirements.
   ui:
     icon: briefcase
+    recordLabel: [code, title]
   identity:
     key: positionId
     type: uuid
@@ -25,17 +26,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable.
-      relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the position.
+      usage: Used in the organisation chart and headcount reports.
+      relationshipContext: Unique.
   - name: title
     type: string
     required: true
     maxLength: 200
     help:
-      summary: Captures the business meaning of title for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable.
-      relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The title of the position.
+      usage: Shown on the organisation chart and job adverts.
+      relationshipContext: May differ from the job title.
   - name: status
     type: enum
     required: true
@@ -47,84 +48,84 @@ entity:
     - CLOSED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable.
-      relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the position is vacant, held or no longer exists.
+      usage: Changed by HR.
+      relationshipContext: Only open positions can be recruited for.
       valueSemantics:
-        OPEN: Represents the open state or classification in the context of Position.
-        FILLED: Represents the filled state or classification in the context of Position.
-        FROZEN: Represents the frozen state or classification in the context of Position.
-        CLOSED: Represents the closed state or classification in the context of Position.
-        RETIRED: Represents the retired state or classification in the context of Position.
+        OPEN: Vacant and may be filled.
+        FILLED: Held by an employee.
+        FROZEN: Vacant and not to be filled for now.
+        CLOSED: No longer part of the organisation.
+        RETIRED: Withdrawn without being used.
   - name: effectiveFrom
     type: date
     required: false
     help:
-      summary: Captures the business meaning of effective from for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable.
-      relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The day the position exists from.
+      usage: Headcount counts it from this day.
+      relationshipContext: Not after the end date.
   - name: effectiveTo
     type: date
     required: false
     help:
-      summary: Captures the business meaning of effective to for the Position. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Position records, where applicable.
-      relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The last day the position exists.
+      usage: Set when the position is closed.
+      relationshipContext: Empty while it exists.
   relationships:
   - name: organization
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Position to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Position.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The organisation unit the position belongs to.
+      usage: Set when the position is created.
+      cardinalityMeaning: Each position belongs to one unit.
+      context: Budgeted in that unit.
   - name: parentPosition
     target: Position
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Position to Position so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Position records associated with a Position.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The position this one reports to.
+      usage: Builds the reporting line.
+      cardinalityMeaning: At most one manager position.
+      context: No cycles.
   - name: employees
     target: Employee
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Position to Employee so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Employee records associated with a Position.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The employees holding the position.
+      usage: Linked when someone is appointed.
+      cardinalityMeaning: Usually one; shared positions may have several.
+      context: Each employee holds at most one position at a time.
     inverseCardinality: '1'
   - {name: job, target: Job, cardinality: 0..1, ownership: reference, help: {summary: Reusable work definition underlying Position., businessMeaning: Separates job classification from organizational seat., usage: Workforce planning and HCM., cardinalityMeaning: Optional for positions not classified through Job., workflowRole: Job retirement prevents incompatible new assignment while preserving history.}}
   invariants:
-  - id: POSITION-001
-    rule: effectiveTo must not precede effectiveFrom.
-  - {id: POSITION-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
+  - {id: POSITION-001, rule: A position ends on or after the day it starts., violatedWhen: effective_from != null and effective_to != null and effective_to < effective_from, message: The end date cannot be before the start date.}
   lifecycle:
     title: Position Lifecycle
     attribute: status
     states: [OPEN, FILLED, FROZEN, CLOSED, RETIRED]
     initial: OPEN
-    terminal: [FILLED, RETIRED]
+    terminal: [CLOSED, RETIRED]
     transitions:
-    - {from: OPEN, to: CLOSED, action: close}
-    - {from: CLOSED, to: FILLED, action: mark_filled}
-    - {from: OPEN, to: FROZEN, action: mark_frozen}
+    - {from: OPEN, to: FILLED, action: fill}
+    - {from: FILLED, to: OPEN, action: vacate}
+    - {from: OPEN, to: FROZEN, action: freeze}
     - {from: FROZEN, to: OPEN, action: unfreeze}
+    - {from: OPEN, to: CLOSED, action: close}
+    - {from: FROZEN, to: CLOSED, action: close}
+    - {from: FILLED, to: CLOSED, action: close}
     - {from: OPEN, to: RETIRED, action: retire}
     - {from: FROZEN, to: RETIRED, action: retire}
-    - {from: CLOSED, to: RETIRED, action: retire}
   help:
     summary: Represents a workforce master entity called Position within the CEDM business model.
     businessMeaning: Position is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Position records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Position, Employee. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Position record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: HR and managers define the positions of the organisation chart, with their reporting line and job; recruiters open vacancies for them and fill them with employees; finance plans headcount by position.
+    lifecycle: A position is open while vacant, filled when someone holds it and open again when they leave; a vacancy can be frozen and released; the position is closed when no longer needed.
+    example: Position FIN-AP-02 'Accounts payable specialist', Finance Lyon, reports to FIN-AP-01, job 'Accountant II', filled by Claire Martin.
 specification:
   version: 0.1.0
   status: draft
