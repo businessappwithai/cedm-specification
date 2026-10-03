@@ -13,6 +13,8 @@ A governed observation of a control, audit, compliance, quality, or risk deficie
 
 Open **Finding** from the menu or from its card on the dashboard.
 
+![The Finding list](/img/entities/finding-list.jpg)
+
 The list shows Effective At, Control, Risk, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Effective At, Control, Risk, with the most recently changed recor
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Finding form](/img/entities/finding-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. No field is mandatory; fill in what you know.

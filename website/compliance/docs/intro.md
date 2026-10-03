@@ -10,6 +10,7 @@ description: "Compliance, Risk and Governance, built on the CEDM common foundati
 
 Compliance, Risk and Governance, built on the CEDM common foundation.
 
+![The Compliance, Risk and Governance dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

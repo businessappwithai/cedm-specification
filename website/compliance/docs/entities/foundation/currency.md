@@ -13,6 +13,8 @@ Defines the monetary denomination that gives financial amounts their business me
 
 Open **Currency** from the menu or from its card on the dashboard.
 
+![The Currency list](/img/entities/currency-list.jpg)
+
 The list shows Code, Name, Symbol, Decimal Places, Status, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Code, Name, Symbol, Decimal Places, Status, with the most recentl
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Currency form](/img/entities/currency-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Code**, **Name**, **Decimal Places**, **Status**.
