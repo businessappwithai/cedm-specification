@@ -10,6 +10,7 @@ description: "Security and Identity, built on the CEDM common foundation."
 
 Security and Identity, built on the CEDM common foundation.
 
+![The Security and Identity dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
