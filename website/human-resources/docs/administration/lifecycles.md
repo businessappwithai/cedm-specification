@@ -27,6 +27,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Party lifecycle bar](/img/entities/party-record.jpg)
 
 See [Party](/entities/foundation/party/) for the record itself.
 
@@ -47,6 +48,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Organization lifecycle bar](/img/entities/organization-record.jpg)
 
 See [Organization](/entities/foundation/organization/) for the record itself.
 
@@ -65,6 +67,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Party Role lifecycle bar](/img/entities/party-role-record.jpg)
 
 See [Party Role](/entities/foundation/party-role/) for the record itself.
 
@@ -83,6 +86,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Address lifecycle bar](/img/entities/address-record.jpg)
 
 See [Address](/entities/foundation/address/) for the record itself.
 

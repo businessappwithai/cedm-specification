@@ -10,6 +10,7 @@ description: "Human Resources, built on the CEDM common foundation."
 
 Human Resources, built on the CEDM common foundation.
 
+![The Human Resources dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
