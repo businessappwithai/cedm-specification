@@ -2,24 +2,105 @@ entity:
   name: ContractLine
   namespace: cedm.domain
   kind: contract_component
-  description: A governed commercial or legal line within a Contract defining a specific product, service, price, quantity, term, or obligation scope.
+  description: One line of a contract — a product or service, its agreed price, quantity or volume commitment, unit and validity — that orders under the contract are priced from.
   ui:
-    icon: file-check
+    icon: list
+    recordLabel: [lineNumber, description]
   identity: {key: contractLineId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractLine., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: lineNumber
+    type: integer
+    required: true
+    help:
+      summary: The number of the line within the contract.
+      usage: Assigned in order when lines are added.
+      relationshipContext: Unique within the contract.
+  - name: description
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: What the line covers, as the contract describes it.
+      usage: Shown on orders priced from the line.
+      relationshipContext: Usually the product name plus any contract-specific detail.
+  - name: unitPrice
+    type: Money
+    required: true
+    help:
+      summary: The agreed price per unit.
+      usage: Used to price orders placed under the contract.
+      relationshipContext: In the line's currency.
+  - name: committedQuantity
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: The quantity one party has committed to buy or supply over the period.
+      usage: Compared with actual orders to track the commitment.
+      relationshipContext: Empty when the line sets a price without a commitment.
+  - name: validFrom
+    type: date
+    required: false
+    help:
+      summary: The first day the line's price applies.
+      usage: Usually the contract's start or an amendment's effective date.
+      relationshipContext: Not later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The last day the line's price applies.
+      usage: Set when an amendment replaces the line.
+      relationshipContext: Empty while it applies for the rest of the contract.
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The contract the line belongs to.
+      usage: Set when the line is added.
+      cardinalityMeaning: Every line belongs to exactly one contract.
+      context: Listed under the contract.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The product or service the line covers.
+      usage: Chosen when the line is added; orders for this product find the line.
+      cardinalityMeaning: At most one product per line.
+      context: A line without a product describes a service in words.
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency of the price.
+      usage: Usually the contract's currency.
+      cardinalityMeaning: One per line.
+      context: Orders in another currency are converted.
+  - name: unitOfMeasure
+    target: UnitOfMeasure
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The unit the price is per.
+      usage: Chosen with the product.
+      cardinalityMeaning: One per line.
+      context: Orders in another unit are converted before pricing.
   invariants:
-  - {id: CONTRACT-LINE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: CONTRACT-LINE-001, rule: The line's validity does not end before it starts., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
+  - {id: CONTRACT-LINE-002, rule: The committed quantity is not negative., violatedWhen: committed_quantity != null and committed_quantity < 0, message: The committed quantity cannot be negative.}
+  - {id: CONTRACT-LINE-EXE-001, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   help:
-    summary: A governed commercial or legal line within a Contract defining a specific product, service, price, quantity, term, or obligation scope.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractLine.
-    businessMeaning: A governed commercial or legal line within a Contract defining a specific product, service, price, quantity, term, or obligation scope.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: One product or service the contract covers, with its agreed price and quantity.
+    businessMeaning: Contract prices only help if orders use them. Each line states what is covered, at what price per unit, for what committed quantity and for which period, so that orders placed under the contract are priced correctly and volume commitments can be tracked.
+    usage: Entered when the contract is drafted; read by order entry and purchasing to price orders under the contract, and by contract managers to compare actual volumes with commitments.
+    relationshipContext: A line belongs to one Contract and appears among its lines. It covers a Product and is priced in a Currency per UnitOfMeasure.
+    lifecycle: A line follows its contract. Prices change through amendments, which end the line on a date and start a new one.
+    workflowContext: Contract-based pricing on sales and purchase orders, volume commitment tracking, rebate calculation.
+    example: 'Line 3 of contract C-2022-0145: product WIDGET-40, 11.20 EUR per piece, commitment 50,000 pieces per year, valid 1 January 2023 to 31 December 2025.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-LINE}

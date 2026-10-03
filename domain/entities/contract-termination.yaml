@@ -2,24 +2,138 @@ entity:
   name: ContractTermination
   namespace: cedm.domain
   kind: contract_lifecycle
-  description: A governed event ending a Contract or selected obligations under authorized termination terms.
+  description: The ending of a contract before or at the end of its term — by notice, by agreement, for breach or by expiry — with who ended it, the notice given, the effective date and the obligations that survive.
   ui:
-    icon: file-check
+    icon: file-x
+    recordLabel: [terminationNumber]
   identity: {key: contractTerminationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractTermination., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: terminationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the termination.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
+  - name: initiatedBy
+    type: enum
+    required: true
+    default: US
+    values: [US, COUNTERPARTY, MUTUAL]
+    help:
+      summary: Which side ended the contract.
+      usage: Recorded with the notice.
+      relationshipContext: Read with the ground.
+      valueSemantics:
+        US: We ended it.
+        COUNTERPARTY: The other party ended it.
+        MUTUAL: Both parties agreed to end it.
+  - name: ground
+    type: enum
+    required: true
+    default: CONVENIENCE
+    values: [CONVENIENCE, BREACH, INSOLVENCY, EXPIRY, MUTUAL_AGREEMENT, FORCE_MAJEURE]
+    help:
+      summary: Why the contract was ended.
+      usage: Decides whether penalties or damages may apply.
+      relationshipContext: Termination for breach usually needs evidence of the breach.
+      valueSemantics:
+        CONVENIENCE: Ended under a right to terminate without cause.
+        BREACH: Ended because the other party breached it.
+        INSOLVENCY: Ended because a party became insolvent.
+        EXPIRY: Ended at the end of its term without renewal.
+        MUTUAL_AGREEMENT: Ended by agreement.
+        FORCE_MAJEURE: Ended because performance became impossible.
+  - name: noticeDate
+    type: date
+    required: true
+    help:
+      summary: The day notice was given or received.
+      usage: The notice period runs from it.
+      relationshipContext: Not later than the effective date.
+  - name: effectiveDate
+    type: date
+    required: true
+    help:
+      summary: The day the contract ends.
+      usage: No obligations arise after it except those that survive.
+      relationshipContext: Notice date plus the contractual notice period, unless agreed otherwise.
+  - name: reason
+    type: text
+    required: false
+    help:
+      summary: The circumstances of the termination.
+      usage: Written when recording it; read in any dispute.
+      relationshipContext: Free text.
+  - name: exitObligations
+    type: text
+    required: false
+    help:
+      summary: What remains to be done to close the contract out.
+      usage: Listed when recording the termination; ticked off before completion.
+      relationshipContext: Such as final invoicing, returning property, deleting data.
+  - name: terminationFee
+    type: Money
+    required: false
+    help:
+      summary: Any fee or penalty payable because of the termination.
+      usage: Recorded when the contract provides for one.
+      relationshipContext: Paid or invoiced separately.
+  - name: status
+    type: enum
+    required: true
+    default: NOTIFIED
+    values: [NOTIFIED, EFFECTIVE, COMPLETED, WITHDRAWN]
+    help:
+      summary: Where the termination stands.
+      usage: Moved on as the effective date passes and exit work is done.
+      relationshipContext: Completed terminations close the contract.
+      valueSemantics:
+        NOTIFIED: Notice given or received; the contract still runs.
+        EFFECTIVE: The contract has ended; exit work under way.
+        COMPLETED: Exit work done.
+        WITHDRAWN: Notice withdrawn by agreement; the contract continues.
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The contract ended.
+      usage: Chosen when recording the termination.
+      cardinalityMeaning: Every termination is of exactly one contract.
+      context: The contract's status follows the termination.
+  - name: noticeDocument
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The notice letter.
+      usage: Linked when notice is given or received.
+      cardinalityMeaning: One per termination.
+      context: Proves the date and content of the notice.
   invariants:
-  - {id: CONTRACT-TERMINATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: CONTRACT-TERMINATION-001, rule: The contract does not end before notice was given., violatedWhen: effective_date != null and notice_date != null and effective_date < notice_date, message: The effective date is earlier than the notice date.}
+  - {id: CONTRACT-TERMINATION-EXE-001, rule: "Termination Fee cannot be negative.", violatedWhen: "termination_fee != null and termination_fee < 0", message: "Termination Fee cannot be negative."}
+  lifecycle:
+    title: Contract Termination Lifecycle
+    attribute: status
+    states: [NOTIFIED, EFFECTIVE, COMPLETED, WITHDRAWN]
+    initial: NOTIFIED
+    terminal: [COMPLETED, WITHDRAWN]
+    transitions:
+    - {from: NOTIFIED, to: EFFECTIVE, action: take_effect}
+    - {from: EFFECTIVE, to: COMPLETED, action: complete}
+    - {from: NOTIFIED, to: WITHDRAWN, action: withdraw}
   help:
-    summary: A governed event ending a Contract or selected obligations under authorized termination terms.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractTermination.
-    businessMeaning: A governed event ending a Contract or selected obligations under authorized termination terms.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: How and when a contract was brought to an end.
+    businessMeaning: Ending a contract has consequences — final invoices, return of materials, surviving confidentiality duties, possible penalties. A termination records who ended the contract, on what ground, with what notice, from when, and what still has to be done, so the end is handled correctly and can be defended if disputed.
+    usage: Contract managers record terminations when notice is given or received, track the effective date, and complete the exit tasks. Legal reviews terminations for breach.
+    relationshipContext: A termination ends one Contract; the notice letter is a Document. Obligations that survive termination stay on the contract.
+    lifecycle: Notified when notice is given or received, effective from the termination date, and completed when exit tasks are done. A notice withdrawn by agreement is withdrawn.
+    workflowContext: Contract exit, supplier offboarding, customer churn, disputes.
+    example: "Termination of contract C-2021-0088 by us for convenience, notice given 30 June 2024 with 90 days' notice, effective 28 September 2024; exit tasks: final invoice, return of tooling; completed 15 October."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-TERMINATION}

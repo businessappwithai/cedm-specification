@@ -2,58 +2,136 @@ entity:
   name: Renewal
   namespace: cedm.domain
   kind: subscription_lifecycle
-  description: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+  description: The renewal of a customer's subscription for a further term — automatic or by quote — with the old and new terms, price change, and the outcome, from which renewal rates and churn are measured.
   ui:
-    icon: table
+    icon: repeat
+    recordLabel: [renewalNumber]
   identity: {key: renewalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Renewal., businessMeaning: Identifies one governed Renewal record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Renewal., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: UPCOMING
+    values: [UPCOMING, QUOTED, RENEWED, CHURNED]
+    help:
+      summary: Where the renewal stands.
+      usage: Moved on by the account manager.
+      relationshipContext: Renewals still upcoming close to the term end are escalated.
+      valueSemantics:
+        UPCOMING: The term end is approaching; not yet worked.
+        QUOTED: A renewal offer has been made.
+        RENEWED: The customer renewed.
+        CHURNED: The customer did not renew.
+  - name: renewalNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the renewal.
+      usage: Assigned when the renewal is created.
+      relationshipContext: Unique.
+  - name: currentTermEnd
+    type: date
+    required: true
+    help:
+      summary: The last day of the subscription's current term.
+      usage: Copied from the subscription; the renewal must be decided before it.
+      relationshipContext: The new term starts the day after.
+  - name: newTermStart
+    type: date
+    required: false
+    help:
+      summary: The first day of the renewed term.
+      usage: Set when the renewal is confirmed.
+      relationshipContext: Usually the day after the current term end.
+  - name: newTermEnd
+    type: date
+    required: false
+    help:
+      summary: The last day of the renewed term.
+      usage: Set when the renewal is confirmed.
+      relationshipContext: Not earlier than the new term start.
+  - name: currentValue
+    type: Money
+    required: false
+    help:
+      summary: The recurring value of the subscription in its current term.
+      usage: Copied from the subscription; the basis for retention figures.
+      relationshipContext: Annualised for comparison.
+  - name: renewalValue
+    type: Money
+    required: false
+    help:
+      summary: The recurring value offered or agreed for the new term.
+      usage: Entered with the quote; compared with the current value for expansion or contraction.
+      relationshipContext: In the subscription's currency.
+  - name: isAutomatic
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the subscription renews automatically.
+      usage: Taken from the subscription terms.
+      relationshipContext: Automatic renewals still appear here so they can be reviewed.
+  - name: churnReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the customer did not renew.
+      usage: Recorded when the renewal is lost; churn analysis groups by it.
+      relationshipContext: Present only on churned renewals.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer whose subscription is renewing.
+      usage: Copied from the subscription.
+      cardinalityMeaning: One per renewal.
+      context: The account manager of the customer works the renewal.
+  - name: subscription
+    target: Subscription
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The subscription being renewed.
+      usage: Set when the renewal is created.
+      cardinalityMeaning: One per renewal.
+      context: The subscription's term follows the confirmed renewal.
+  - name: newPlan
+    target: SubscriptionPlan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The plan for the new term, when it changes.
+      usage: Set when the customer upgrades or downgrades on renewal.
+      cardinalityMeaning: At most one.
+      context: Empty when the plan stays the same.
   invariants:
-  - {id: RENEWAL-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: RENEWAL-001, rule: The new term does not end before it starts., violatedWhen: new_term_end != null and new_term_start != null and new_term_end < new_term_start, message: The new term ends before it starts.}
+  - {id: RENEWAL-002, rule: A churned renewal records why., violatedWhen: status == "CHURNED" and churn_reason == null, message: Give the reason the customer did not renew.}
   lifecycle:
     title: Renewal Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [UPCOMING, QUOTED, RENEWED, CHURNED]
+    initial: UPCOMING
+    terminal: [RENEWED, CHURNED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a renewal is ended"
-      description: "When a renewal is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "RENEWAL-FOLLOW-UP-{{id}}"
-              name: "Follow up on renewal {{id}}"
-              description: "Renewal {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: UPCOMING, to: QUOTED, action: quote}
+    - {from: QUOTED, to: RENEWED, action: renew}
+    - {from: UPCOMING, to: RENEWED, action: renew}
+    - {from: QUOTED, to: CHURNED, action: churn}
+    - {from: UPCOMING, to: CHURNED, action: churn}
   help:
-    summary: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
-    purpose: Provide canonical enterprise semantics for Renewal while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: One subscription coming up for a new term, and whether the customer stayed.
+    businessMeaning: Recurring revenue depends on customers renewing. Each renewal records the term ending, the term offered, the price change and the outcome, so account managers can work upcoming renewals in time and the business can measure gross and net retention.
+    usage: Created ahead of each subscription term end; account managers contact the customer, quote the renewal, and record the outcome. Renewal forecasts and churn reports read open and closed renewals.
+    relationshipContext: A renewal is for one Subscription of one Customer, on a SubscriptionPlan that may differ from the current one when the customer upgrades or downgrades on renewal.
+    lifecycle: Upcoming until worked, then quoted, then renewed or churned. An automatic renewal goes straight to renewed unless the customer cancels.
+    workflowContext: Renewal management, customer success, revenue forecasting, churn analysis.
+    example: Renewal RN-2024-0412 of subscription SUB-4471 (Contoso), term ending 31 March 2024; quoted 'Pro, annual', 12 users at 529 EUR/user/year (+5%); renewed 22 March for 1 April 2024 – 31 March 2025.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RENEWAL}

@@ -2,24 +2,141 @@ entity:
   name: ContractAmendment
   namespace: cedm.domain
   kind: contract_change
-  description: A governed change instrument that modifies defined Contract terms prospectively while preserving prior executed contract evidence.
+  description: A signed change to a contract's terms — price, scope, term, parties — effective from a stated date, keeping the original terms as they were for the period before.
   ui:
-    icon: file-check
+    icon: file-pen-line
+    recordLabel: [amendmentNumber, title]
   identity: {key: contractAmendmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractAmendmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractAmendment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: amendmentNumber
+    type: integer
+    required: true
+    help:
+      summary: The number of the amendment within its contract — 1 for the first, 2 for the second and so on.
+      usage: Assigned in order when the amendment is drafted.
+      relationshipContext: Unique within the contract.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What the amendment changes, in one line.
+      usage: Shown in the contract's list of amendments.
+      relationshipContext: Identifies the amendment for people.
+  - name: amendmentType
+    type: enum
+    required: true
+    default: TERMS
+    values: [PRICE, SCOPE, TERM, PARTIES, TERMS]
+    help:
+      summary: What kind of change the amendment makes.
+      usage: Chosen when drafting; reports of price changes and extensions use it.
+      relationshipContext: An amendment making several kinds of change takes its main one.
+      valueSemantics:
+        PRICE: Changes prices or payment terms.
+        SCOPE: Adds or removes products, services or sites.
+        TERM: Changes the duration or end date.
+        PARTIES: Changes a party, such as an assignment to a successor company.
+        TERMS: Changes other terms and conditions.
+  - name: description
+    type: text
+    required: true
+    help:
+      summary: The changes, clause by clause.
+      usage: Written when drafting; read by everyone who applies the contract.
+      relationshipContext: The signed amendment document is authoritative.
+  - name: effectiveDate
+    type: date
+    required: true
+    help:
+      summary: The day the changed terms start to apply.
+      usage: Terms before this day remain as they were.
+      relationshipContext: May be after the signature date, never before it unless the parties agree a retroactive change.
+  - name: signedDate
+    type: date
+    required: false
+    help:
+      summary: The day the last party signed the amendment.
+      usage: Recorded on signature.
+      relationshipContext: Present once signed.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, APPROVED, SIGNED, EFFECTIVE, REJECTED, CANCELLED]
+    help:
+      summary: Where the amendment stands.
+      usage: Moved on by approval and signature.
+      relationshipContext: Only signed amendments change the contract.
+      valueSemantics:
+        DRAFT: Being written.
+        APPROVED: Approved internally, sent to the other party.
+        SIGNED: Signed by both parties.
+        EFFECTIVE: Its effective date has come; the contract now reflects it.
+        REJECTED: Refused by the other party.
+        CANCELLED: Dropped before signature.
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The contract amended.
+      usage: Chosen when drafting the amendment.
+      cardinalityMeaning: Every amendment changes exactly one contract.
+      context: The contract lists its amendments in number order.
+  - name: document
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The signed amendment.
+      usage: Linked once signed.
+      cardinalityMeaning: One per amendment.
+      context: Kept with the contract's documents.
   invariants:
-  - {id: CONTRACT-AMENDMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: CONTRACT-AMENDMENT-001, rule: A signed amendment is not changed; a further change is a further amendment.}
+  - {id: CONTRACT-AMENDMENT-002, rule: A signed or effective amendment records when it was signed., violatedWhen: (status == "SIGNED" or status == "EFFECTIVE") and signed_date == null, message: Give the date the amendment was signed.}
+  - {id: CONTRACT-AMENDMENT-003, rule: The amendment number is at least 1., violatedWhen: amendment_number != null and amendment_number < 1, message: The amendment number must be 1 or more.}
+  lifecycle:
+    title: Contract Amendment Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, SIGNED, EFFECTIVE, REJECTED, CANCELLED]
+    initial: DRAFT
+    terminal: [EFFECTIVE, REJECTED, CANCELLED]
+    transitions:
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: SIGNED, action: sign}
+    - {from: SIGNED, to: EFFECTIVE, action: take_effect}
+    - {from: APPROVED, to: REJECTED, action: reject}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a contract amendment is ended"
+      description: "When a contract amendment is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTRACT-AMENDMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on contract amendment {{title}}"
+              description: "Contract amendment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: A governed change instrument that modifies defined Contract terms prospectively while preserving prior executed contract evidence.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractAmendment.
-    businessMeaning: A governed change instrument that modifies defined Contract terms prospectively while preserving prior executed contract evidence.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A formal change to a contract, what it changes and from when.
+    businessMeaning: Signed contracts change by amendment, never by editing the original. Each amendment records what changes, why, from which date and with which signatures, so the business can always tell which terms applied on any given day and prove the change was agreed by both parties.
+    usage: Contract managers draft amendments, have them approved and signed, and then update the contract's lines or clauses with effect from the amendment's date. Disputes and audits read the chain of amendments.
+    relationshipContext: An amendment belongs to one Contract and is evidenced by a signed Document. Amendments are numbered in order within their contract.
+    lifecycle: Drafted, approved internally, signed by both parties, and effective from its effective date. A draft that is dropped is cancelled; one the other party refuses is rejected.
+    workflowContext: Contract change management, price changes, scope extensions, assignments of contracts to new parties.
+    example: 'Amendment 2 to contract C-2022-0145: prices of lines 3–5 increased by 4.5% from 1 January 2024 following the indexation clause; signed 12 December 2023.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-AMENDMENT}

@@ -2,24 +2,89 @@ entity:
   name: ContractClause
   namespace: cedm.domain
   kind: contract_component
-  description: A governed clause forming part of a Contract and preserving the effective contractual text or structured term reference.
+  description: One clause of a contract — such as limitation of liability, termination, confidentiality or governing law — with its number, category, a summary and whether it departs from the company's standard wording.
   ui:
-    icon: file-check
+    icon: text
+    recordLabel: [clauseNumber, heading]
   identity: {key: contractClauseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractClauseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractClause., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: clauseNumber
+    type: string
+    required: true
+    maxLength: 20
+    help:
+      summary: The number of the clause in the contract, such as 14.2.
+      usage: Taken from the contract document.
+      relationshipContext: Unique within the contract.
+  - name: heading
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The clause's heading, such as "Limitation of liability".
+      usage: Shown in the contract's list of clauses.
+      relationshipContext: Taken from the document.
+  - name: category
+    type: enum
+    required: true
+    default: OTHER
+    values: [LIABILITY, INDEMNITY, TERMINATION, CONFIDENTIALITY, DATA_PROTECTION, PAYMENT, WARRANTY, GOVERNING_LAW, INTELLECTUAL_PROPERTY, OTHER]
+    help:
+      summary: The kind of term the clause contains.
+      usage: Chosen when recording it; clause searches across contracts use it.
+      relationshipContext: Follows the legal team's clause library.
+      valueSemantics:
+        LIABILITY: Limits or exclusions of liability.
+        INDEMNITY: Indemnities between the parties.
+        TERMINATION: Rights and notice to end the contract.
+        CONFIDENTIALITY: Protection of confidential information.
+        DATA_PROTECTION: Processing of personal data.
+        PAYMENT: Payment terms, invoicing and late payment.
+        WARRANTY: Warranties about goods or services.
+        GOVERNING_LAW: The governing law and jurisdiction.
+        INTELLECTUAL_PROPERTY: Ownership and licensing of rights.
+        OTHER: Any other term.
+  - name: summaryText
+    type: text
+    required: false
+    help:
+      summary: What the clause says, in plain words.
+      usage: Lets readers compare clauses without opening every document.
+      relationshipContext: The document's wording is authoritative.
+  - name: isDeviation
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the clause departs from the company's standard position.
+      usage: Set by legal on review; deviations need approval and are reviewed before renewal.
+      relationshipContext: Read with the deviation note.
+  - name: deviationNote
+    type: text
+    required: false
+    help:
+      summary: How and why the clause departs from the standard.
+      usage: Written when the clause is a deviation.
+      relationshipContext: Required when the clause is flagged as a deviation.
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The contract the clause belongs to.
+      usage: Set when recording the clause.
+      cardinalityMeaning: Every clause belongs to exactly one contract.
+      context: Listed under the contract.
   invariants:
-  - {id: CONTRACT-CLAUSE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: CONTRACT-CLAUSE-001, rule: A deviating clause explains the deviation., violatedWhen: is_deviation == true and deviation_note == null, message: Describe how the clause departs from the standard.}
   help:
-    summary: A governed clause forming part of a Contract and preserving the effective contractual text or structured term reference.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractClause.
-    businessMeaning: A governed clause forming part of a Contract and preserving the effective contractual text or structured term reference.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: One term of a contract, identified so it can be found and compared.
+    businessMeaning: The risk in a contract sits in particular clauses. Recording key clauses with their category and whether they depart from the standard position lets legal find every contract with uncapped liability, check notice periods across suppliers, and review non-standard terms before renewal.
+    usage: Legal or contract managers record the clauses that matter when a contract is signed, flagging deviations from the playbook. Clause searches and risk reviews read them.
+    relationshipContext: A clause belongs to one Contract and appears among its clauses. Changes come through ContractAmendments.
+    lifecycle: A clause has no lifecycle of its own; it is in force while its contract is and is replaced, not edited, when an amendment changes it.
+    workflowContext: Contract review and approval, clause risk reporting, renewal preparation.
+    example: Clause 14.2 of contract C-2022-0145, 'Limitation of liability' — liability capped at 12 months' fees; standard position is 12 months; not a deviation.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-CLAUSE}

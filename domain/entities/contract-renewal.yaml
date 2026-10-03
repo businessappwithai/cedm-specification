@@ -2,24 +2,146 @@ entity:
   name: ContractRenewal
   namespace: cedm.domain
   kind: contract_lifecycle
-  description: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
+  description: The decision to extend a contract for a further term — automatically or by negotiation — with the new term dates, any changed terms, and the notice deadline that applies.
   ui:
-    icon: file-check
+    icon: refresh-cw
+    recordLabel: [renewalNumber]
   identity: {key: contractRenewalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractRenewal., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: renewalNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the renewal.
+      usage: Assigned when the renewal review is opened.
+      relationshipContext: Unique.
+  - name: renewalType
+    type: enum
+    required: true
+    default: NEGOTIATED
+    values: [AUTOMATIC, NEGOTIATED, OPTION]
+    help:
+      summary: How the contract renews.
+      usage: Taken from the contract's renewal clause.
+      relationshipContext: An automatic renewal happens unless notice is given by the deadline.
+      valueSemantics:
+        AUTOMATIC: Renews by itself unless a party gives notice.
+        NEGOTIATED: Renews only if the parties agree new terms.
+        OPTION: Renews if one party exercises its option to extend.
+  - name: currentTermEnd
+    type: date
+    required: true
+    help:
+      summary: The last day of the current term.
+      usage: Copied from the contract when the review opens.
+      relationshipContext: The new term starts the day after.
+  - name: noticeDeadline
+    type: date
+    required: false
+    help:
+      summary: The last day notice can be given to stop the renewal.
+      usage: Watched by the contract manager; missing it means an automatic renewal goes ahead.
+      relationshipContext: Before the current term end.
+  - name: newTermStart
+    type: date
+    required: false
+    help:
+      summary: The first day of the new term.
+      usage: Set when the renewal is confirmed.
+      relationshipContext: The day after the current term end, normally.
+  - name: newTermEnd
+    type: date
+    required: false
+    help:
+      summary: The last day of the new term.
+      usage: Set when the renewal is confirmed.
+      relationshipContext: Not earlier than the new term start.
+  - name: changedTerms
+    type: text
+    required: false
+    help:
+      summary: What changes with the renewal, such as new prices.
+      usage: Written when the renewal is negotiated.
+      relationshipContext: Formal changes are recorded as an amendment.
+  - name: decidedDate
+    type: date
+    required: false
+    help:
+      summary: The day the renewal was confirmed or declined.
+      usage: Recorded with the decision.
+      relationshipContext: Present once decided.
+  - name: status
+    type: enum
+    required: true
+    default: UNDER_REVIEW
+    values: [UNDER_REVIEW, CONFIRMED, DECLINED]
+    help:
+      summary: Whether the renewal has been decided.
+      usage: Moved on by the contract manager.
+      relationshipContext: Undecided renewals near their notice deadline are escalated.
+      valueSemantics:
+        UNDER_REVIEW: Being considered.
+        CONFIRMED: The contract continues for the new term.
+        DECLINED: The contract ends at the current term end.
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+  - name: contract
+    target: Contract
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The contract being renewed.
+      usage: Chosen when opening the renewal.
+      cardinalityMeaning: Every renewal is of exactly one contract.
+      context: The contract's term dates follow confirmed renewals.
+  - name: amendment
+    target: ContractAmendment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The amendment recording the renewed terms.
+      usage: Linked when terms change on renewal.
+      cardinalityMeaning: At most one.
+      context: A renewal without changes needs no amendment.
   invariants:
-  - {id: CONTRACT-RENEWAL-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: CONTRACT-RENEWAL-001, rule: The new term does not end before it starts., violatedWhen: new_term_end != null and new_term_start != null and new_term_end < new_term_start, message: The new term ends before it starts.}
+  - {id: CONTRACT-RENEWAL-002, rule: A confirmed renewal states the new term., violatedWhen: status == "CONFIRMED" and (new_term_start == null or new_term_end == null), message: Give the start and end of the new term.}
+  lifecycle:
+    title: Contract Renewal Lifecycle
+    attribute: status
+    states: [UNDER_REVIEW, CONFIRMED, DECLINED]
+    initial: UNDER_REVIEW
+    terminal: [CONFIRMED, DECLINED]
+    transitions:
+    - {from: UNDER_REVIEW, to: CONFIRMED, action: confirm}
+    - {from: UNDER_REVIEW, to: DECLINED, action: decline}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a contract renewal is put forward"
+      description: "When a contract renewal is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CONTRACT-RENEWAL-APPROVAL-{{id}}"
+              name: "Decide on contract renewal {{renewal_number}}"
+              description: "Contract renewal {{renewal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractRenewal.
-    businessMeaning: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: The extension of a contract into a new term, and how it was decided.
+    businessMeaning: Contracts that renew without anyone noticing lock in old prices and terms; contracts that lapse by accident interrupt supply. A renewal records each renewal decision — the new term, any changed terms, whether it was automatic, and the deadline for giving notice — so renewals are decided on purpose and in time.
+    usage: Contract managers open a renewal ahead of each term end, review the contract, negotiate if needed, and confirm or decline. Notice deadlines are watched from the renewal.
+    relationshipContext: A renewal belongs to one Contract; the renewed terms may be recorded as a ContractAmendment.
+    lifecycle: Under review once the term end approaches, then confirmed (the contract continues for the new term) or declined (the contract ends at the current term end).
+    workflowContext: Contract renewal management, supplier and customer reviews, price renegotiation.
+    example: Renewal of contract C-2022-0145 for 1 January – 31 December 2025, notice deadline 1 October 2024, renegotiated with a 3% price increase, confirmed 18 September 2024.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-RENEWAL}
