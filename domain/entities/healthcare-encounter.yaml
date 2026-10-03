@@ -5,6 +5,7 @@ entity:
   description: A recorded interaction between a patient and healthcare provider or facility for evaluation, treatment, or service.
   ui:
     icon: file-text
+    recordLabel: [encounterType, startAt]
   identity:
     key: encounterId
     type: uuid
@@ -30,16 +31,16 @@ entity:
     - HOME_CARE
     - OTHER
     help:
-      summary: Captures the business meaning of encounter type for the HealthcareEncounter. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareEncounter records, where applicable.
-      relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The setting of the encounter.
+      usage: Decides the forms, billing rules and reports that apply.
+      relationshipContext: Chosen when the encounter is scheduled.
       valueSemantics:
-        OUTPATIENT: Represents the outpatient state or classification in the context of HealthcareEncounter.
-        INPATIENT: Represents the inpatient state or classification in the context of HealthcareEncounter.
-        EMERGENCY: Represents the emergency state or classification in the context of HealthcareEncounter.
-        VIRTUAL: Represents the virtual state or classification in the context of HealthcareEncounter.
-        HOME_CARE: Represents the home care state or classification in the context of HealthcareEncounter.
-        OTHER: Represents the other state or classification in the context of HealthcareEncounter.
+        OUTPATIENT: A visit without admission.
+        INPATIENT: A stay after admission.
+        EMERGENCY: A visit to an emergency department.
+        VIRTUAL: A remote consultation.
+        HOME_CARE: Care given at the patient's home.
+        OTHER: Any other setting.
   - name: status
     type: enum
     required: true
@@ -50,82 +51,82 @@ entity:
     - COMPLETED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareEncounter records, where applicable.
-      relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the encounter stands.
+      usage: Updated as the patient is seen.
+      relationshipContext: Only completed encounters are billed.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of HealthcareEncounter.
-        IN_PROGRESS: Represents the in progress state or classification in the context of HealthcareEncounter.
-        COMPLETED: Represents the completed state or classification in the context of HealthcareEncounter.
-        CANCELLED: Represents the cancelled state or classification in the context of HealthcareEncounter.
+        PLANNED: Scheduled.
+        IN_PROGRESS: The patient is being seen.
+        COMPLETED: Finished and documented.
+        CANCELLED: Did not take place.
   - name: startAt
     type: datetime
     required: true
     help:
-      summary: Records when the start event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareEncounter records, where applicable.
-      relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: When the encounter began or is scheduled to begin.
+      usage: Used for scheduling and the patient's timeline.
+      relationshipContext: Not after its end.
   - name: endAt
     type: datetime
     required: false
     help:
-      summary: Records when the end event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareEncounter records, where applicable.
-      relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: When the encounter ended.
+      usage: Recorded on completion; length of stay is computed from it.
+      relationshipContext: Present once completed.
   - name: reason
     type: string
     required: false
     maxLength: 2000
     help:
-      summary: Captures the business meaning of reason for the HealthcareEncounter. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HealthcareEncounter records, where applicable.
-      relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Why the patient is seen, in brief.
+      usage: Recorded at booking or arrival.
+      relationshipContext: Diagnoses are recorded separately.
   relationships:
   - name: patient
     target: HealthcarePatient
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects HealthcareEncounter to HealthcarePatient so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HealthcarePatient records associated with a HealthcareEncounter.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The patient seen.
+      usage: Set when the encounter is created.
+      context: The encounter appears in the patient's record.
+      cardinalityMeaning: Each encounter is for one patient; a patient has many encounters.
   - name: provider
     target: HealthcareProvider
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects HealthcareEncounter to HealthcareProvider so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HealthcareProvider records associated with a HealthcareEncounter.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The clinician or service responsible for the encounter.
+      usage: Set when scheduling.
+      cardinalityMeaning: At most one responsible provider.
+      context: Orders and diagnoses are attributed to them.
   - name: diagnoses
     target: Diagnosis
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects HealthcareEncounter to Diagnosis so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Diagnosis records associated with a HealthcareEncounter.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Diagnoses recorded during the encounter.
+      usage: Entered by the clinician.
+      cardinalityMeaning: Any number, kept with the encounter.
+      context: Line items of the encounter.
   - name: procedures
     target: Procedure
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects HealthcareEncounter to Procedure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Procedure records associated with a HealthcareEncounter.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Procedures performed during the encounter.
+      usage: Entered by the clinician.
+      cardinalityMeaning: Any number, kept with the encounter.
+      context: Line items of the encounter.
   - name: orders
     target: HealthcareOrder
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects HealthcareEncounter to HealthcareOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HealthcareOrder records associated with a HealthcareEncounter.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Tests, medications and referrals ordered.
+      usage: Placed by the clinician.
+      cardinalityMeaning: Any number, kept with the encounter.
+      context: Line items of the encounter.
   invariants:
   - id: ENCOUNTER-001
     rule: endAt must not precede startAt.
@@ -180,10 +181,10 @@ entity:
   help:
     summary: Represents a healthcare transaction called HealthcareEncounter within the CEDM business model.
     businessMeaning: HealthcareEncounter is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate HealthcareEncounter records.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcarePatient, HealthcareProvider, Diagnosis, Procedure, HealthcareOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical HealthcareEncounter record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Clinicians and administrative staff schedule encounters, record what happened during them, and attach diagnoses, procedures and orders; billing and reporting are built from completed encounters.
+    lifecycle: An encounter is planned, in progress while the patient is seen, then completed; a planned or ongoing encounter may be cancelled.
+    example: Outpatient encounter for patient MRN 0048812 with Dr. A. Rossi, 14 May 2024 09:30–09:50, reason 'persistent cough', diagnosis J20.9 recorded.
 specification:
   version: 0.1.0
   status: draft
