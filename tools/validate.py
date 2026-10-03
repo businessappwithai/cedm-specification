@@ -136,6 +136,14 @@ def dictionary_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
         errors.append(f"ENUM-002 {registry.stdout.strip() or registry.stderr.strip()}")
 
 
+COMMON = set(
+    (yaml.safe_load((ROOT / "domains" / "application-catalog.yaml").read_text()) or {})
+    .get("catalog", {})
+    .get("common", {})
+    .get("entities", [])
+)
+
+
 def structure_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
     """How relationships become columns (language/cedm/lower.ts) — rules a model must not leave to chance.
 
@@ -146,6 +154,9 @@ def structure_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
     left implicit, `Product.locations` gave every Location a `product_id`.
     STRUCT-003 The two ends of a many-to-many are both 0..* or both 1..*;
     the model language defines no other pairing.
+    STRUCT-004 A common entity (domains/application-catalog.yaml) is never
+    the line item of a domain entity: aggregation makes the child a tab under
+    its parent with no window of its own, in every application holding both.
     STRUCT-002 Two to-one relationships of one entity must not resolve to the
     same key column; name it with `foreignKey`.
     """
@@ -175,6 +186,12 @@ def structure_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
                 errors.append(
                     f"{name}.{rel.get('name')}: STRUCT-003 a many-to-many is {inverse} on one end and {rel.get('cardinality')} on the other; "
                     "both ends must match (state a minimum as an invariant)"
+                )
+        for rel in entity.get("relationships") or []:
+            if rel.get("ownership") == "aggregate" and rel.get("target") in COMMON and name not in COMMON:
+                errors.append(
+                    f"{name}.{rel.get('name')}: STRUCT-004 aggregates the common entity {rel.get('target')}, which would make it "
+                    "a line item of this entity in every application that has both, and take its own window away"
                 )
         refs = [a for a in entity.get("attributes") or [] if a.get("type") == "reference"]
         keys: dict[str, str] = {}

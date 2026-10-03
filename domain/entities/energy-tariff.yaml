@@ -5,6 +5,7 @@ entity:
   description: A pricing schedule defining charges for consumption, demand, connection, or other utility services.
   ui:
     icon: zap
+    recordLabel: [tariffCode, name]
   identity:
     key: tariffId
     type: uuid
@@ -25,31 +26,31 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of tariff code for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-      relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the tariff.
+      usage: Used on contracts and bills.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-      relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The name of the tariff.
+      usage: Shown on contracts and bills.
+      relationshipContext: Identifies it for customers.
   - name: effectiveFrom
     type: date
     required: true
     help:
-      summary: Captures the business meaning of effective from for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-      relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The first day the tariff applies.
+      usage: Consumption from this day is priced at it.
+      relationshipContext: Not later than the effective-to date.
   - name: effectiveTo
     type: date
     required: false
     help:
-      summary: Captures the business meaning of effective to for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-      relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The last day the tariff applies.
+      usage: Empty while it applies until replaced.
+      relationshipContext: Tariffs of one provider and product do not overlap.
   - name: status
     type: enum
     required: true
@@ -60,33 +61,58 @@ entity:
     - EXPIRED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-      relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the tariff is in force.
+      usage: Moved on by its dates.
+      relationshipContext: Expired tariffs remain for bills of past periods.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of EnergyTariff.
-        ACTIVE: Represents the active state or classification in the context of EnergyTariff.
-        EXPIRED: Represents the expired state or classification in the context of EnergyTariff.
-        RETIRED: Represents the retired state or classification in the context of EnergyTariff.
+        DRAFT: Being prepared.
+        ACTIVE: In force.
+        EXPIRED: Past its end date.
+        RETIRED: Withdrawn.
+  - name: unitRate
+    type: decimal
+    required: true
+    precision: 12
+    scale: 6
+    help:
+      summary: The price per unit of energy.
+      usage: Multiplied by consumption on the bill.
+      relationshipContext: Per the tariff's unit of measure; the peak rate where there are bands.
+  - name: offPeakUnitRate
+    type: decimal
+    required: false
+    precision: 12
+    scale: 6
+    help:
+      summary: The price per unit in off-peak hours, for time-of-use tariffs.
+      usage: Applied to off-peak consumption.
+      relationshipContext: Empty for single-rate tariffs.
+  - name: standingCharge
+    type: Money
+    required: false
+    help:
+      summary: The fixed charge per billing period, whatever the consumption.
+      usage: Added to every bill.
+      relationshipContext: Per month unless stated otherwise.
   relationships:
   - name: provider
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects EnergyTariff to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a EnergyTariff.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The energy supplier offering the tariff.
+      usage: Set when the tariff is recorded.
+      cardinalityMeaning: Exactly one.
+      context: Bills from this provider use its tariffs.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects EnergyTariff to UnitOfMeasure so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about UnitOfMeasure records associated with a EnergyTariff.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The unit the rates are per, such as kWh or m³.
+      usage: Set when the tariff is recorded.
+      cardinalityMeaning: Exactly one.
+      context: Readings are converted to it.
   invariants:
   - id: TARIFF-001
     rule: effectiveTo must not precede effectiveFrom.
@@ -105,10 +131,10 @@ entity:
   help:
     summary: Represents a utilities entity called EnergyTariff within the CEDM business model.
     businessMeaning: EnergyTariff is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate EnergyTariff records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical EnergyTariff record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Energy retailers and procurement teams record the tariffs that price energy — unit rates, standing charges, time-of-use bands — with their validity, so bills can be computed or checked.
+    lifecycle: Drafted, active during its validity, expired after its end date, and retired when withdrawn.
+    example: Tariff EDF-PRO-HPHC-2024 'Professional peak/off-peak', 0.2128 EUR/kWh peak, 0.1612 EUR/kWh off-peak, standing charge 31.20 EUR/month, valid 1 February 2024 to 31 January 2025.
 specification:
   version: 0.1.0
   status: draft

@@ -117,7 +117,7 @@ entity:
   - name: tasks
     target: Task
     cardinality: 0..*
-    ownership: aggregate
+    ownership: reference
     help:
       summary: Connects Workflow to Task so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Task records associated with a Workflow.
