@@ -10,6 +10,7 @@ description: "Insurance, built on the CEDM common foundation."
 
 Insurance, built on the CEDM common foundation.
 
+![The Insurance dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

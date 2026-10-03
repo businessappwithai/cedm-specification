@@ -12,6 +12,7 @@ Runs before a insurance policy is created; order 100. In **Business Rules** it i
 
 - **When** “Effective From” is filled in and “Effective To” is filled in and “Effective To” < “Effective From”: **Refuses the save** — “Effective To cannot be earlier than effective from.”.
 
+![The Insurance policy invariants before create rule in the editor](/img/rules/insurance-policy-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a insurance policy is changed; order 100. In **Business Rules** it i
 
 - **When** “Effective From” is filled in and “Effective To” is filled in and “Effective To” < “Effective From”: **Refuses the save** — “Effective To cannot be earlier than effective from.”.
 
+![The Insurance policy invariants before update rule in the editor](/img/rules/insurance-policy-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -30,6 +32,7 @@ Runs after a insurance policy is changed; order 100. In **Business Rules** it is
 
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “insurancePolicyWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Insurance policy follow up required”).
 
+![The Insurance policy workflows after update rule in the editor](/img/rules/insurance-policy-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
