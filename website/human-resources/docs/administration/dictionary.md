@@ -10,6 +10,8 @@ Every screen in Human Resources is read from the **Application Dictionary** at r
 
 This application's dictionary holds **55 tables**, **368 columns**, and one window for each of the 55 entities that are not lines of another.
 
+![Table and Column](/img/admin/tables.jpg)
 
+![Window, Tab and Field](/img/admin/windows.jpg)
 
 The full guide, with every window and a how-to for each task, is the shared [Application Dictionary manual](pathname:///application-dictionary/).
