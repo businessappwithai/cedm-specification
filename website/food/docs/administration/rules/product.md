@@ -12,6 +12,7 @@ Runs before a product is created; order 100. In **Business Rules** it is listed 
 
 - **When** “Standard Price” is filled in and “Standard Price” < 0: **Refuses the save** — “Standard Price cannot be negative.”.
 
+![The Product invariants before create rule in the editor](/img/rules/product-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a product is changed; order 100. In **Business Rules** it is listed 
 
 - **When** “Standard Price” is filled in and “Standard Price” < 0: **Refuses the save** — “Standard Price cannot be negative.”.
 
+![The Product invariants before update rule in the editor](/img/rules/product-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -30,6 +32,7 @@ Runs after a product is changed; order 100. In **Business Rules** it is listed a
 
 - **When** “Status” == "BLOCKED" and “Status” != previous “Status”: **Starts a process** — “productWorkflowsAfterUpdate: ExceptionRaised” (starts the process “Product exception raised”).
 
+![The Product workflows after update rule in the editor](/img/rules/product-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

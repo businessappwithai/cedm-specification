@@ -10,6 +10,7 @@ description: "Food and Beverage, built on the CEDM common foundation."
 
 Food and Beverage, built on the CEDM common foundation.
 
+![The Food and Beverage dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
