@@ -27,7 +27,7 @@
  * somebody last edited it. This one is derived from the same `ParsedModel` the
  * schema, the dictionary and the guards are derived from, so it cannot describe
  * an entity that does not exist or miss one that does. The cost is that its
- * prose is only as good as the model's `%%entity help:` and `%%field help:`
+ * prose is only as good as the model's entity and column `help`
  * text — which is the argument for writing them, and is why the manual says so
  * where they are missing rather than quietly rendering a blank cell.
  *
@@ -534,9 +534,9 @@ ${model.rules.length ? '          <li><a href="#rules">The decisions it makes</a
       <p class="lede">${
         entity.description
           ? escapeHtml(entity.description)
-          : '<span class="missing">The model gives this entity no description. Add one with <code>%%entity ' +
+          : '<span class="missing">The model gives this entity no description. Add a <code>help</code> to entity <code>' +
             escapeHtml(entity.name) +
-            " help: …</code>.</span>"
+            "</code> in the model.</span>"
       }</p>
       <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity))}</code>, keyed by <code>${escapeHtml(entity.primaryKey || "id")}</code>.</p>
 
@@ -544,7 +544,7 @@ ${model.rules.length ? '          <li><a href="#rules">The decisions it makes</a
 ${
   entity.attributes.some((attribute) => attribute.description)
     ? ""
-    : `      <p class="missing">No field here carries help text. Add it with <code>%%field ${escapeHtml(entity.name)}.&lt;field&gt; help: …</code> and it appears in this column and in the application itself.</p>\n`
+    : `      <p class="missing">No field here carries help text. Add a <code>help</code> to a column of <code>${escapeHtml(entity.name)}</code> in the model and it appears in this column and in the application itself.</p>\n`
 }      <table>
         <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
         <tbody>
@@ -714,7 +714,7 @@ ${contents}
   <section id="overview">
     <h2>What this application is</h2>
 ${
-  /* `%%meta description:` — the one sentence the model carries about the
+  /* The model's `description` — the one sentence the model carries about the
      business rather than about its own shape. It was read into the pipeline and
      never rendered, so a model that said what the application was *for* opened
      its manual on a count of record types. The placeholder the CLI supplies
@@ -777,7 +777,7 @@ ${processSection}
 
   <section id="how-it-was-built">
     <h2>How this application was built</h2>
-    <p>It was generated from a single model file &mdash; a Mermaid document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
+    <p>It was generated from a single model file &mdash; a YAML document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
     <p>What it wrote is source you can read, edit and deploy: a Loco.rs API in Rust, a TanStack Start front end, and a <code>docker-compose.yml</code> that brings up PostgreSQL, the API and the web front end together.</p>
     <p>Regenerating from an amended model rewrites all of it, this manual included. Nothing here is maintained by hand, which is why it cannot fall out of step with the application it describes.</p>
     <p class="back"><a href="#top">Back to contents</a></p>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ModelViewer } from "@/components/model/ModelViewer";
 
 interface Snapshot {
   id: string;
@@ -52,7 +53,6 @@ export function ProjectGitHistory({
   const [summary, setSummary] = useState<{
     yaml: string;
     projection: string;
-    diagram: string;
     entityNames: string[];
     truncated: boolean;
   }>();
@@ -206,14 +206,15 @@ export function ProjectGitHistory({
                 </button>
                 <button
                   type="button"
-                  onClick={() => download(summary.diagram, "model-relationships.mmd")}
+                  onClick={() => download(summary.yaml, "model-selection.eml.yaml")}
                 >
-                  Download relationship diagram
+                  Download this selection
                 </button>
               </div>
               <details>
-                <summary>Structured model context</summary>
-                <pre className="max-h-64 overflow-auto text-xs">{summary.yaml}</pre>
+                <summary>This selection, drawn</summary>
+                {/* The entities the summary selected and the relationships between them. */}
+                <ModelViewer value={summary.yaml} className="mt-2 h-[420px]" />
               </details>
             </div>
           )}

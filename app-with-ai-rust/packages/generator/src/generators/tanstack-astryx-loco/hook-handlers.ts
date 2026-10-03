@@ -1,11 +1,11 @@
 /**
- * `%%hook` directives → Rust lifecycle handlers in the generated Loco backend.
+ * The model's `hooks` → Rust lifecycle handlers in the generated Loco backend.
  *
  * The directives were parsed, validated, documented in the manual and drawn on
  * the model graph, and then dropped: nothing emitted them into the backend, so
  * a model could declare `beforeCreate generateInchiKey on Compound` and the
  * generated application would silently do nothing. That is the same class of
- * failure the dictionary seed and the `%%rbac` grants each hit once — a
+ * failure the dictionary seed and the access-rule grants each hit once — a
  * directive the checker accepts and the generator throws away.
  *
  * Three kinds of file come out of here, and the split is the whole design:
@@ -211,7 +211,7 @@ export function buildHookHandlerModule(entity: string, hooks: CompiledHook[]): s
   const header =
     `//! Lifecycle handlers for ${entity}.\n` +
     `//!\n` +
-    `//! Declared by the model's \`%%hook\` directives and wired up in\n` +
+    `//! Declared by the model's \`hooks\` and wired up in\n` +
     `//! \`crate::hooks\`. **The bodies are yours.** This file is written\n` +
     `//! once and then left alone, so regenerating the project will not overwrite\n` +
     `//! what you put here; a hook added to the model later arrives as a new stub\n` +
@@ -261,7 +261,7 @@ export function buildHookHandlersMod(entities: string[]): string {
     `//! Generated wiring — rewritten on every run. The modules it names are not.\n\n`;
 
   if (entities.length === 0) {
-    return `${header}// No \`%%hook\` directive in this model.\n`;
+    return `${header}// No hooks are declared in this model.\n`;
   }
 
   return (
@@ -291,7 +291,7 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
   let out =
     `//! The hook registry: which handler runs on which entity, for each event.\n` +
     `//!\n` +
-    `//! Generated wiring — rewritten on every run, so a \`%%hook\` added to the\n` +
+    `//! Generated wiring — rewritten on every run, so a hook added to the\n` +
     `//! model is always picked up. The handler bodies in \`handlers/\` are not\n` +
     `//! rewritten; see that module's header.\n` +
     `//!\n` +
@@ -311,6 +311,7 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
     `/// \`bus_compound\`, \`compound\`, \`Compound\` and \`chemical-inventory\` all have\n` +
     `/// to reach the same handlers, or a hook would fire from one route and not\n` +
     `/// another.\n` +
+    `#[allow(dead_code)]\n` +
     `fn key(entity: &str) -> String {\n` +
     `    let trimmed = entity.strip_prefix("bus_").unwrap_or(entity);\n` +
     `    trimmed\n` +
@@ -336,17 +337,29 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
       })
       .filter((e): e is { entity: string; forEvent: CompiledHook[] } => e !== null);
 
+    const handlerPath = (entity: string, hook: CompiledHook): string =>
+      `handlers::${handlerModule(entity)}::${snakeCase(hook.handler)}`;
+
     const callsFor = (entity: string, forEvent: CompiledHook[], indent: string): string =>
       forEvent
-        .map((hook) => {
-          const path = `handlers::${handlerModule(entity)}::${snakeCase(hook.handler)}`;
-          return contract.returns === "bool"
-            ? `${indent}if !${path}(${contract.call}).await? {\n` +
-                `${indent}    return Ok(false);\n` +
-                `${indent}}\n`
-            : `${indent}${path}(${contract.call}).await?;\n`;
-        })
+        .map((hook) => `${indent}${handlerPath(entity, hook)}(${contract.call}).await?;\n`)
         .join("");
+
+    // A guard event (`beforeDelete`) answers with a verdict rather than running
+    // for its side effects, so each entity's handlers become one expression:
+    // the single handler's own result, or every handler's verdict joined with
+    // `&&`, which stops at the first refusal exactly as an early return would.
+    // An expression rather than `if !h(..).await? { return Ok(false); }` is not
+    // a matter of taste: an arm or an `if` whose whole body is that `if` is what
+    // clippy's `collapsible_match` and `collapsible_if` reject under
+    // `-D warnings`, so how many entities guard a delete would decide whether
+    // the crate builds.
+    const verdictFor = (entity: string, forEvent: CompiledHook[]): string => {
+      const calls = forEvent.map((hook) => `${handlerPath(entity, hook)}(${contract.call}).await`);
+      return calls.length === 1
+        ? (calls[0] as string)
+        : `Ok(${calls.map((c) => `${c}?`).join(" && ")})`;
+    };
 
     const ok = contract.returns === "bool" ? "Ok(true)" : "Ok(())";
 
@@ -369,9 +382,23 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
       const only = declaring[0] as { entity: string; forEvent: CompiledHook[] };
       out +=
         `    if key(entity) == "${key(only.entity)}" {\n` +
-        callsFor(only.entity, only.forEvent, "        ") +
+        (contract.returns === "bool"
+          ? `        return ${verdictFor(only.entity, only.forEvent)};\n`
+          : callsFor(only.entity, only.forEvent, "        ")) +
         `    }\n` +
         `    ${ok}\n` +
+        `}\n`;
+    } else if (contract.returns === "bool") {
+      out +=
+        `    match key(entity).as_str() {\n` +
+        declaring
+          .map(
+            ({ entity, forEvent }) =>
+              `        "${key(entity)}" => ${verdictFor(entity, forEvent)},\n`
+          )
+          .join("") +
+        `        _ => ${ok},\n` +
+        `    }\n` +
         `}\n`;
     } else {
       out +=

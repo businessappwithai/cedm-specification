@@ -21,7 +21,7 @@ use sea_orm::ConnectionTrait;
 /// The generated workflow definitions. Regenerate rather than edit.
 const WORKFLOWS_SQL: &str = include_str!("../../seed/workflows.sql");
 
-/// The moves `%%workflow ... kind: state` drew.
+/// The moves the model's state machines declare.
 ///
 /// Applied by this task rather than its own because the two are halves of one
 /// idea: a definition says what runs, an edge says what may happen. Both are

@@ -1,4 +1,4 @@
-// Request validation derived from the EML model: required fields, enum
+// Request validation derived from the model: required fields, enum
 // membership, and basic type coercion. Throws HttpError(400) on failure.
 
 import { ENUMS, MODEL } from "./model.js";

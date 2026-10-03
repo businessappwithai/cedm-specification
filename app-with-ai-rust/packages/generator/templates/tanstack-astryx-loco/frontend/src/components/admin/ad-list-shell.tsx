@@ -1,13 +1,13 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Home, Plus, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { DynamicTable } from "@/components/tables/dynamic-table";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { FieldMetadata } from "@/hooks/use-entities";
+import { type FieldMetadata, refreshDropdowns } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { ADToolbar } from "./ad-toolbar";
 import {
@@ -302,6 +302,113 @@ function parentFilterParams(parentCtx: ParentContext[], level: ADLevel): Record<
 }
 
 // ---------------------------------------------------------------------------
+// ADCreateShell — a new record on its own page
+// ---------------------------------------------------------------------------
+
+/**
+ * The page a business window's *New* opens: `/<entity>/new`, a detail page in
+ * create mode. A list leads to a record's page for every operation — read, edit,
+ * delete, and create — rather than opening a form above the list it is about to
+ * add to. On save the new record's own page opens.
+ */
+export function ADCreateShell({
+  level,
+  dashboardHref = "/dashboard",
+}: {
+  level: ADLevel;
+  dashboardHref?: string;
+}) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const createFormId = useId();
+  const [createErrors, setCreateErrors] = useState<string[]>([]);
+  const listUrl = buildAdminListUrl([], level);
+  const busTableName = useBusTableName(level.endpoint);
+
+  const createMutation = useMutation({
+    mutationFn: (formData: AnyRecord) => apiClient.post<AnyRecord>(level.endpoint, formData),
+    onSuccess: (newRecord) => {
+      const newId = newRecord[level.idField] as string;
+      toast.success(`${level.label} created`);
+      queryClient.invalidateQueries({ queryKey: ["ad-list", level.endpoint] });
+      setCreateErrors([]);
+      navigate({ to: (newId ? buildAdminDetailUrl([], level, newId) : listUrl) as never });
+    },
+    onError: (err: any) => {
+      const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
+      const fallback = Array.isArray(err?.message)
+        ? err.message.join(", ")
+        : (err?.message ?? "Failed to create");
+      setCreateErrors(specific ?? [fallback]);
+      toast.error(specific?.[0] ?? fallback);
+    },
+  });
+
+  return (
+    <div className="flex flex-col h-full">
+      <ADToolbar
+        onRefresh={() => refreshDropdowns(queryClient)}
+        onSave={() =>
+          (document.getElementById(createFormId) as HTMLFormElement | null)?.requestSubmit()
+        }
+        onUndo={() => navigate({ to: listUrl as never })}
+        isSaving={createMutation.isPending}
+        isDeleting={false}
+        hasChanges
+        canCreate={false}
+        canDelete={false}
+        isDetailView={false}
+      />
+      <HStack align="center" gap={1.5} paddingInline={4} paddingBlock={2} wrap className="border-b border-border bg-background text-sm">
+        <Link
+          to={dashboardHref as never}
+          className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Home size={14} />
+          <span>Dashboard</span>
+        </Link>
+        <Text color="secondary">/</Text>
+        <Link
+          to={listUrl as never}
+          className="text-muted-foreground hover:text-primary transition-colors"
+        >
+          {pluralLabel(level.label)}
+        </Link>
+        <Text color="secondary">/</Text>
+        <Text weight="medium" color="primary">New</Text>
+        <WindowHelpDialog tableName={busTableName} entityLabel={level.label} />
+      </HStack>
+      <Box grow scrollable>
+        <Box padding={6}>
+          <HStack align="center" justify="between" className="mb-4">
+            <Heading level={3}>New {level.label}</Heading>
+          </HStack>
+          <DynamicForm
+            tableName={level.id}
+            fields={level.formFields}
+            initialData={{}}
+            onSubmit={(fd) => createMutation.mutate(fd)}
+            formId={createFormId}
+            mode="create"
+            isSaving={createMutation.isPending}
+          />
+          {createErrors.length > 0 && (
+            <Box marginTop={3} radius="md" padding={3} border="default" className="border-destructive/50 bg-destructive/10">
+              <Text size="sm" weight="medium" color="danger" block className="mb-1">Validation failed</Text>
+              <ul className="text-xs text-destructive/90 space-y-0.5 list-disc list-inside">
+                {createErrors.map((e) => (
+                  <li key={e}>{e}</li>
+                ))}
+              </ul>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // ADListShell
 // ---------------------------------------------------------------------------
 
@@ -330,6 +437,10 @@ export function ADListShell({
   const [pendingRows, setPendingRows] = useState<FilterRow[]>([]);
   const [appliedRows, setAppliedRows] = useState<FilterRow[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  // The toolbar's Save submits the inline create form by id, through the
+  // form's own submit handler. Without it the toolbar offered a Save while the
+  // form was open and the button did nothing.
+  const createFormId = useId();
   const [createErrors, setCreateErrors] = useState<string[]>([]);
 
   // The physical table behind this window, from the dictionary. Empty for the
@@ -424,17 +535,34 @@ export function ADListShell({
           viewOnly
             ? undefined
             : () => {
+                // A business window creates on its own page, `/<entity>/new`; the
+                // dictionary's own admin windows (no `baseRoutePath`) keep the
+                // form inline, because they have no page of that shape.
+                if (level.baseRoutePath) {
+                  navigate({ to: buildAdminDetailUrl(parentContext, level, "new") as never });
+                  return;
+                }
                 setIsCreating(true);
                 setSearchOpen(false);
               }
         }
-        onRefresh={() => refetch()}
+        onRefresh={() => {
+          refetch();
+          refreshDropdowns(queryClient);
+        }}
         onAdvancedSearchToggle={() => {
           setSearchOpen((p) => !p);
           if (searchOpen) setPendingRows([...appliedRows]);
         }}
         isAdvancedSearchOpen={searchOpen}
         advancedFilterCount={activeFilterCount}
+        onSave={() =>
+          (document.getElementById(createFormId) as HTMLFormElement | null)?.requestSubmit()
+        }
+        onUndo={() => {
+          setIsCreating(false);
+          setCreateErrors([]);
+        }}
         isSaving={createMutation.isPending}
         isDeleting={false}
         hasChanges={isCreating}
@@ -527,6 +655,7 @@ export function ADListShell({
               fields={level.formFields}
               initialData={{}}
               onSubmit={(fd) => createMutation.mutate(fd)}
+              formId={createFormId}
               mode="create"
               isSaving={createMutation.isPending}
             />

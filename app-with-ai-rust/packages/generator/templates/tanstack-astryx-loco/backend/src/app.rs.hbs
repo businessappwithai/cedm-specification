@@ -212,7 +212,7 @@ impl Hooks for App {
         tasks::seed_rules::SeedRules.run(ctx, &vars).await?;
         tasks::seed_workflows::SeedWorkflows.run(ctx, &vars).await?;
         // Access rules before the administrator, for the same reason the
-        // dictionary is: `seed_access` creates the roles a `%%rbac` directive
+        // dictionary is: `seed_access` creates the roles an access rule
         // named, and `ensure_admin` grants a role that has to already exist.
         tasks::seed_access::SeedAccess.run(ctx, &vars).await?;
         // Configuration last, and independent of everything above it: nothing

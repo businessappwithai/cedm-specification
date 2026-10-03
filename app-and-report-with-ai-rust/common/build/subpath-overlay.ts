@@ -205,7 +205,7 @@ const PATCHES: Patch[] = [
  * Every one of those is a request that leaves the browser for `/api/…` on a
  * shared origin, which the proxy hands to the *other* application. The
  * CopilotKit ones are how this was found: the reporting platform's assistant
- * was asking the generated application's NestJS backend for a completion.
+ * was asking the generated application's backend for a completion.
  *
  * `createFileRoute("/api/…")` and `createAPIFileRoute("/api/…")` are the
  * exception, and the only one: those are route *definitions*, which the router

@@ -101,8 +101,8 @@ export class HttpClient {
   /**
    * Send a request, transparently waiting out the backend's rate limiter.
    *
-   * The generated app throttles to `THROTTLE_LIMIT` requests per window
-   * (1000/60s in development). Bulk seeding legitimately exceeds that, and a
+   * The generated app throttles to `RATE_LIMIT_MAX_PER_MINUTE` requests a
+   * minute per caller (300 in development). Bulk seeding exceeds that, and a
    * 429 there is back-pressure, not a failure — so we honour `Retry-After` and
    * try again rather than reporting thousands of spurious rejections.
    */

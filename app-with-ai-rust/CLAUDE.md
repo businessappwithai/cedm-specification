@@ -109,6 +109,7 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run generate` | Generate an app (all flags passed through) |
 | `bun run generate:tanstack` | Same, with `--stack tanstack-astryx-loco` pinned (`--db postgres` \| `neon`) |
 | `bun run eml` | The `eml` language CLI (`validate`, `info`, `sagas`, `generate`) |
+| `appwithai convert <model.mmd>` | Convert an EML model to the YAML model language (see "The YAML model language") |
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@appwithai/web`) |
 | `bun run test:generator` | Generator unit tests (Vitest, via `@appwithai/generator`) |
@@ -116,6 +117,7 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run test:playwright` | Playwright E2E tests |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
+| `bun run convert:stored-models` | One-time: convert a Mermaid-era installation's stored models, automations and project histories to YAML (`--dry-run` first) |
 | `bun run clean` | Remove all `node_modules` and `dist` directories |
 
 **Run a single Vitest test file:**
@@ -543,7 +545,7 @@ Things to know before editing it:
   The canonical rules live in `foreignKeys` in `language/appwithai-language.json`
   and are mirrored in **seven** places that must agree: the backend's
   `dictionary.rs`, the generated `tests/support/entities.rs`, the bun
-  `tests/harness/harness.ts`, `common/seeds/business-data.ts`,
+  `tests/harness/entities.ts` (`referencedEntity`, which also orders the bulk seed and its cleanup), `common/seeds/business-data.ts`,
   `language/checker.ts`, and `isForeignKeyColumnName` /
   `is_foreign_key_column_name` in `bus-entity.types.ts` and `bus.rs`. Change
   one, change all of them.
@@ -564,7 +566,9 @@ Things to know before editing it:
   second copy in `dictionary-seed.ts` that disagreed with this one.
   The order is: a column that names the record outright (`name`, `full_name`,
   `display_name`, `title`, `label`, `subject`); then `first_name` + `last_name`
-  together; then `code`/`reference`/`number`; then a `text` column, which is
+  together; then `code`/`reference`/`number`, then the same with something in
+  front (`order_number`, `invoice_number`, `po_reference` — otherwise a sales
+  order is labelled by its currency and customer); then a `text` column, which is
   prose the author wrote about this record; then a join entity's first two
   foreign keys; and failing all of that the first plain string column that is
   neither the key nor a pointer.
@@ -734,7 +738,7 @@ Things to know before editing it:
   does not depend on the model; an inline `const UP_SQL: &str = r#"..."#`
   (copy `m0003_workflow_support.rs.hbs`) when it needs `{{#each entities}}`,
   because Handlebars renders the `.rs.hbs` and not the `.sql`.
-  **Never renumber or edit m0000–m0016** — they are recorded as applied in
+  **Never renumber or edit m0000–m0017** — they are recorded as applied in
   existing databases, so a change there reaches nobody who already migrated.
 - **A seed a task embeds must always be emitted.** `include_str!` is a
   compile-time macro, so a generator that skips `seed/rules.sql` for a model
@@ -762,6 +766,14 @@ Things to know before editing it:
   serves no assets — every controller returns JSON. The frontend is a separate
   bun/Vite package. Keep it that way: UI changes must never require
   recompiling the Rust binary.
+- **An automation built in the app is stored as YAML.** The automations screen
+  writes each one as its own YAML document (`lib/automation/yaml.ts`,
+  `automation: "1.0"`) into `sys_workflow_definitions.definition_yaml` (m0017),
+  through `POST /api/workflow-definitions` with `kind: "automation"`;
+  `validate_automation_definition` refuses a document of any other shape. Rows
+  saved as mermaid before this still open through `parseAutomation`. The
+  executor runs BPMN only, so `execute` on an automation is a 400, not a 500
+  from decoding a NULL diagram.
 - **Rule evaluation must stay inside `spawn_blocking`.** `zen_engine::Variable`
   is built on `Rc` and is not `Send`; calling `decision.evaluate(..).await`
   directly from a handler makes the future `!Send` and will not compile.
@@ -1099,6 +1111,175 @@ function DesignPage() {
 
 ---
 
+## The YAML model language (`language/yaml/`) — the source of truth
+
+In this repository a model is written as YAML (`*.eml.yaml`); its Mermaid (EML)
+rendering is a derived view for the diagram viewers and the ERD designer and is
+never read for generation. Reference: `language/yaml/README.md`. Plan and
+remaining phases: `CEDM_YAML_Architecture_Design.md`.
+
+```bash
+bun packages/generator/dist/cli/generate.js convert model.eml.mmd    # EML → YAML
+bun packages/generator/dist/cli/generate.js validate model.eml.yaml
+bun packages/generator/dist/cli/generate.js view model.eml.yaml -o -
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-discovery
+```
+
+- **One semantic layer.** EML and YAML are both read into the records in
+  `packages/generator/src/model/records.ts` and compiled by
+  `compileModelRecords` (`model/compile.ts`). Every compiler is a reader
+  (`MermaidParser.read`, `readRbacDirectives`, `readSagaDirectives`, …) plus a
+  record compiler (`compileErdRecords`, `compileRbacDeclarations`,
+  `compileSagaDeclarations`, …). **Never compile from text again**: a new
+  construct gets a record type, an EML reader, a YAML key, and one compiler.
+- **The schema is the language.** `language/yaml/eml.schema.json` is what
+  `readModelYaml` validates with (ajv 2020). Change the schema, `document.ts`,
+  `convert.ts` and `render-eml.ts` together, then grow a corpus model.
+- **Semantic diagnostics come from the EML checker run over the view.**
+  `renderEmlView` records the document path of every line it draws; a checker
+  finding is reported at that path's YAML line. The view's layout is
+  load-bearing (model-wide directives first, rules before workflows, sagas
+  last) — see the header of `render-eml.ts` before reordering anything.
+- **The gates.** `model-yaml/__tests__/corpus-equivalence.test.ts` converts
+  every `.mmd` in the repo and requires the YAML to compile to exactly what the
+  EML compiles to; `pipeline/__tests__/yaml-source.test.ts` generates
+  drug-discovery both ways and compares all 475 files;
+  `examples-in-sync.test.ts` holds each checked-in `.eml.yaml` to the
+  conversion of its `.mmd` — regenerate with `convert --force` after editing
+  the `.mmd`.
+- **No generator reads model text.** The loco backend takes compiled sagas
+  from `ParsedModel`; `generateApplication` takes a YAML `document` or EML
+  `sources`. A generated project ships `model/model.eml.yaml` and
+  `model/model.eml.mmd`.
+- **Every tool reads YAML.** The `eml` CLI (`language/cli/src/yaml-input.ts`)
+  validates a `.eml.yaml` with the four layers and hands its commands the view;
+  `eml-cli-equivalence.test.ts` holds it to reading every corpus model's YAML
+  exactly as the EML. `html/model-yaml.js` is the language in a browser
+  (`bun run build:language-tools`; `bun run check:language-bundle` compares it
+  with the CLI in headless Chromium). `bun run wasm` runs the Rust generator
+  built for `wasm32-wasip1` (`bun run build:wasm`), hosted on Node's WASI
+  because Bun's traps; parity holds it byte-identical to the native build.
+- **Nothing EML states is dropped.** `triggers`, the `%%entity`
+  `label`/`prefix`/`softDelete`/`audited` keys, the `%%field`
+  `ui`/`default`/`min`/`max`/`format` keys, every column of a hook's
+  `[field: a, field: b]` (`fields`) and attribute comments are all carried,
+  though the application generators compile only some of them. Adding an EML
+  construct means adding its YAML key the same day, or the equivalence tests
+  fail.
+- **A saga's trigger and operation are read from its `%%workflow` line**, the
+  documented form, with `%%meta trigger:` / `%%meta operation:` as the
+  fallback older models use; defaults are `automatic` / `CREATE`, and
+  operation aliases (`INSERT`, `edit`, `*`) normalise as `%%rbac`'s do
+  (`sagaOperation` / `sagaTrigger`, `saga_operation` / `saga_trigger`). Both
+  generators used to read only `%%meta`, so crm's `ClosedWonHandoff` compiled
+  as rule-triggered on every write. The seed now writes `trigger_type`.
+  **The Loco backend does not yet run `automatic` sagas**: a workflow starts
+  only from a rule's `trigger-workflow` action or `/api/workflow/{id}/execute`.
+
+## CEDM application models (`language/cedm/`) — the base of the model language
+
+An application is written in **CEDM**: entities in the library's own shape
+(`domain/entities/*.yaml`, `schema/cedm-entity.schema.yaml`), imported by name
+or declared in the model, plus the application profile
+(`specification/application-profile.yaml`). Reference: `language/cedm/README.md`;
+schema: `language/cedm/cedm-model.schema.json`. A model is `*.cedm.yaml`, opens
+with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
+`eml` CLI, the Rust generator, the browser bundle) reads it.
+
+- **A CEDM model is lowered, never compiled directly.** `lowerCedmModel`
+  (`language/cedm/lower.ts`) turns it into the `*.eml.yaml` model document both
+  generators already compile; `resolveCedmImports` folds imports, modules,
+  `extends` and the closure over required references in first. The Rust port is
+  `crates/appwithai-gen/src/cedm.rs`, and **the two lowerings must agree**:
+  `scripts/cedm-lowering-parity.ts` (run by `bun run parity`) compares them
+  document for document, native and `wasm32-wasip1` alike. A lowering change
+  is a change in both files, the same day.
+- **The gates.** `model-cedm/__tests__/cedm-equivalence.test.ts` raises every
+  model in the repository to CEDM and lowers it back (must equal the original in
+  *entity order* — `cedmOrder`: a CEDM model declares a relationship on its
+  entity, and relationship order is visible in generated output);
+  `pipeline/__tests__/cedm-source.test.ts` generates drug-discovery from CEDM and
+  from the model document and compares every file; `cedm-examples-in-sync` holds
+  each checked-in `.cedm.yaml` to the conversion of its `.eml.yaml`
+  (`appwithai convert --force`).
+- **A reference names its target.** `deliveryLocation → Location` is held in
+  `delivery_location_id`, which would derive `bus_delivery_location`. The model
+  document's attribute `references` states it, the dictionary seed stores it in
+  `sys_column.ref_table_name` (m0018, by a trailing `UPDATE` — only where it
+  differs from the derived one, so every model without one seeds as before), and
+  every resolver prefers it: `resolve_ref_table`, `field_meta`, both generated
+  test harnesses, `foreignKeyTargetTable`/`foreign_key_target_table`, parent
+  links and the checker (EML118). Add a resolver, give it the stored target.
+- **Two to-one relationships that point at each other are one one-to-one**, with
+  the key on the side that is `1`. Treating them as two one-to-many gave a
+  required-FK cycle (`Supplier.party_role_id` ↔ `PartyRole.supplier_role_id`) that
+  the business seed could not insert.
+- **Every enumeration has a business table** (`application.enumerationTables: true`,
+  set on every `applications/*.cedm.yaml`). Lowering adds an entity named like the
+  value list (`id, code, name, description, sequence, is_active`) under *Reference
+  Data* and marks the document's enum `table`, with `labels`/`descriptions` from
+  `help.valueLabels`/`valueSemantics`; both lowerings do it
+  (`addEnumerationTables` / `add_enumeration_tables`). The dictionary seed writes the
+  rows as application data and a Table reference (`sys_reference` `T` +
+  `sys_ref_table`) instead of `sys_ref_list` rows; `sys.rs` `list` answers
+  `/sys/ref-list?sys_reference_id=` from the table; the business seed skips these
+  entities. Only lists some attribute names get a table. Contract:
+  `specification/enumeration-semantics.yaml`; registry `domain/enumerations/index.yaml`
+  (`tools/build_enumerations.py`).
+- **The specification supplies the Application Dictionary.**
+  `specification/dictionary-mapping.yaml` says which CEDM construct fills each
+  window/tab/table/column/field slot, `vocabulary.yaml` `kindClasses` resolves a
+  free-form `kind` to a class, and `tools/validate.py` enforces DICT-001…010 /
+  ENUM-001…003 (`ui.icon` a lucide 0.312 id, help on every entity, attribute and
+  relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
+  prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
+  round trip rewraps every folded line in the library).
+- **Reference data comes from the common specification.** Country, StateProvince,
+  City, Currency and Language are library entities whose rows live in
+  `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639
+  and GeoNames) and are named by the entity's `referenceData` key. The library
+  inlines them as `data`; lowering turns attribute names into columns (`CEDM180/181`);
+  the dictionary seed writes them as application data with UUIDv5 ids over the
+  natural key; the business seed skips them and points records at them. An address
+  holds relationships to Country, StateProvince and City, never typed codes.
+  Contract: `specification/reference-data.yaml`.
+- **A lookup can be narrowed, and the backend does it.** `narrowedBy` on a reference
+  (CEDM relationship or attribute; `narrowedBy` on the document attribute) becomes
+  `sys_column.narrowed_by` (m0019) as `[{by, on}]`. `GET /api/bus/{entity}/lookup/{column}`
+  returns the target's rows filtered by the values the record passes, and
+  `verify_narrowing` in `bus.rs` refuses a write naming a row outside the set — on
+  create, and on update against the stored row with the request laid over it.
+  The generated form passes control values and clears a choice that no longer
+  belongs. A grid reads labels by `filter.id=in:…` for the page's own ids, not a
+  500-row page of the target — states and cities outnumber that.
+- **A unique `code` beside a `name` identifies a record as both** (`identifierColumnNames`
+  in core, `identifier_column_names` in `bus.rs`): "USD · US Dollar". A `code` that is
+  not unique is technical and does not qualify.
+- **A refused update leaves nothing behind.** Rules run after the write, so a
+  `validation-error` used to keep the refused value in the record and refuse every
+  later edit; `bus.rs` `restore_columns` puts the replaced values back. Rules also
+  see `_previous_<column>` on an update, so `status != _previous_status` fires on
+  *entering* a state, which is what the entity workflows use.
+- **One application per domain.** `domains/application-catalog.yaml` →
+  `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
+  holds them in sync) → `scripts/generate-domain-applications.sh` →
+  `generated-applications/<domain>/`. Every generated application bundles the
+  common CEDM specification under `cedm/` (`pipeline/cedm-bundle.ts`).
+  **Commit source and generated source only** — never a `target/`, a
+  `node_modules/` or a built executable. `scripts/run-and-screenshot.sh` runs
+  an application from a scratch copy for exactly this reason.
+- **Corpus walkers skip `generated-applications/`** (as they skip
+  `generated-projects/`): each holds a `model/model.eml.yaml`.
+- **The library had defects the schema found.** 721 invariants and help entries
+  were unquoted flow mappings that YAML split at their commas
+  (`tools/repair_flow_text.py`; `tools/validate.py` now refuses it), and
+  `domains/capability-catalog.yaml` did not parse. `validate.py` parses every
+  specification file now.
+- **The web tool still saves the model document** (`model/model.eml.yaml`), and
+  generation from a project goes through it; CEDM is an input to the CLIs and
+  the generators. Its snapshot allow-list already admits `.yaml`/`.md`, so
+  `cedm/` and `model/model.cedm.yaml` publish.
+
 ## EML — AppWithAI Modeling Language (`language/`)
 
 EML is a Mermaid-based language describing an app's **ERD**, **business rules**,
@@ -1115,8 +1296,15 @@ carries the standing skip list of sibling areas that never apply here (the NestJ
 templates, `html/`, the published viewers, the reporting pack). Append to it when
 a round's pull request merges.
 
-**`language/` and `website/llmtext/` are byte-identical to
-`app-with-ai-tanstack@main` and must stay that way.** They are the shared
+**In this repository `language/` and `website/llmtext/` are no longer held
+byte-identical to the sibling:** the YAML model language (`language/yaml/`), the
+`eml` CLI's YAML input, the browser bundle entry `language/browser/model-yaml.entry.ts`
+and the YAML-first documentation are this repository's own. Carrying a sibling
+change into them is now a merge, not a copy. What follows describes the
+arrangement as it stood when they were a shared contract.
+
+**`language/` and `website/llmtext/` were byte-identical to
+`app-with-ai-tanstack@main`.** They are the shared
 contract between the two repos, so nothing in them is edited here — `diff -rq`
 against the sibling is the check, and it compares *paths* as well as bytes:
 `llmtext/` sat at the root until the sibling moved it under `website/`, and the
@@ -1189,7 +1377,7 @@ and acted on today: `%%meta`, `%%entity` (`help:`, `parent:`), `%%field`
 (`enum:`, `help:`), `%%enum`, `%%index`, `%%category`, `%%hook`, `%%rbac`,
 `%%report`, and `%%workflow ... kind: saga` with its `%%step`s. `%%rule`,
 `%%guard`, `%%trigger` and `%%workflow ... kind: state` are still the documented
-extension surface (`spec/05-directives.md`) — phases 6 and 7.
+extension surface (`spec/05-access-reports-and-triggers.md`) — phases 6 and 7.
 
 **`%%report` compiles to `sys_report` (m0015), applied by `seed_reports`.** One
 row per directive, served at `/api/reports` by `controllers::report`. The query
@@ -1268,11 +1456,33 @@ packages/web/src/lib/server/
 packages/yamltecture/      # EML → deterministic YAML (`.appwithai/model.ai.yaml`), + model context
 ```
 
+- **An installation from before YAML is converted once, by an operator.**
+  `runMigrations` refuses a database that still has `erd_versions.mermaid_code`,
+  `workflows.mermaid_code` or `workflows.flowchart_code`, naming
+  `bun run convert:stored-models`. That command
+  (`packages/web/src/lib/server/stored-models/`) plans everything before writing
+  anything — versions, current models, automations, each project's history, the
+  legacy `.mermaid-library` — converts in one transaction plus one commit per
+  history, and keeps every original in `stored_model_conversions`. What does not
+  convert blocks it until the operator passes `--archive-unconvertible`; an
+  interrupted save blocks it until `--abandon-pending`. It reads Mermaid through
+  the readers of 18f5792 vendored under `legacy/` with the language definition
+  embedded — the only Mermaid reader left, and nothing else may import it.
 - **Persist through the repository service, never around it.** `saveProject`,
   `restoreProject`, `changeWorkflow`, `saveDiagram`, `saveProjectFiles`,
   `prepareGeneration`/`publishGeneration`. A route that writes `erd_versions`,
   `workflows` or a project file directly produces a state the history does not
   contain, and the next save refuses with "edited outside the application".
+- **The model is saved as YAML.** The designer draws Mermaid; `saveProject`
+  reads the drawing into the model it means and commits it as
+  `model/model.eml.yaml` (`MODEL_YAML`). `model/model.eml.mmd` is rendered
+  *from* that YAML on every save, and so is `.appwithai/model.ai.yaml`;
+  `model/editor.eml.mmd` keeps the designer's buffer as typed. Generation reads
+  only the YAML: `prepareGeneration` returns `modelYaml`, `/api/generate`
+  validates it with `parseModelYaml` and generates from the document, and
+  `publishGeneration` refuses output whose `model/model.eml.yaml` differs from
+  it. A snapshot saved before this has its YAML derived on restore. The gate is
+  `saves the model as YAML and generates from exactly that YAML`.
 - **A draft is not a version.** `mode: "draft"` commits and writes no
   `erd_versions` row; the current model is `project_git_state.model_code`, with
   the current `erd_versions` row only as the fallback for a project saved before
@@ -1787,11 +1997,49 @@ chromium.launch({
 });
 ```
 
-Worth knowing before writing a QA script against the UI: the new-record form
-opens **inline on the list page** rather than at its own route, its action is
-labelled **Create** (not Save), and **Delete lives inside edit mode** on the
-detail view. A script that looks for a `<form>`, a "Save" button, or a Delete on
-the read-only detail will report bugs that are not there.
+Worth knowing before writing a QA script against the UI: **New opens a page of
+its own, `/<window>/new`** (the list → detail flow: list, then a record, then
+`/new`; `ADCreateShell` in `ad-list-shell.tsx`, rendered by
+`bus-entity-detail-page.tsx` for the id `new`), its action is labelled **Create**
+(not Save), and **Delete lives inside edit mode** on the detail view. A list is
+read newest-modified first (`updated_at DESC`, in `dynamic_repo.rs` and the
+dictionary-backed reads in `bus.rs`) unless the caller names an order; the
+toolbar's Refresh re-reads the rows **and every dropdown** (`refreshDropdowns` in
+`use-entities.ts`). A script that looks for an inline `<form>`, a "Save" button,
+or a Delete on the read-only detail will report bugs that are not there.
+
+**A record whose table has a drawn state machine shows it.** `WorkflowStateBar`
+(`components/admin/workflow-state-bar.tsx`, registered in the static-copy list of
+`tanstack-start-frontend.generator.ts`) reads `/api/workflows/transitions?table=`
+and offers exactly the edges that leave the current state; the write goes
+through `PATCH`, so topology and role rules are still enforced by the backend.
+Drive it by button text — the Astryx `Button` adapter does not forward
+`data-testid`.
+
+**Screens name an entity by its window, never its table.** `useEntityLabel()`
+(`use-dictionary-entities.ts`) is the one place a stored `bus_…` name becomes a
+label; the rules, decision-table, workflow monitor, workflow list and trigger
+card use it. `scripts/qa/smoke-application.mjs` fails a screen that shows
+`\bbus_[a-z0-9_]+`.
+
+**`AlertDialogTrigger` is rendered by the adapter.** The shadcn composed form
+(`<AlertDialog><AlertDialogTrigger asChild><Button/></…>`) used to lose its
+trigger — the Delete button on the workflow list was never drawn. The adapter now
+holds its own open state when no `open` prop is passed. A hook placed after an
+early `return` is the other trap that has crashed a generated screen
+(`rules/$id.edit.tsx`, "Rendered more hooks"): call hooks first.
+
+**A generated test value must fit its column.** `tests/support/factory.rs`
+honours `FieldMeta::max_length` (a two-letter country code cannot hold
+`e2e-code-…`), leads short values with a symbol so they never equal a seeded
+ISO code, and takes a narrowed reference from the lookup the form uses —
+otherwise Country cannot be created and everything holding one fails.
+
+**The serial QA loop** is `bash scripts/qa/qa-loop.sh <domain>… | --all`: per
+domain it regenerates, builds, starts, smoke-tests every screen
+(`scripts/qa/smoke-application.mjs`), runs the application's own `cargo test`,
+records `$QA_OUT/summary.tsv` (default `/tmp/claude-0/qa-loop`) and deletes the
+build before the next one.
 
 Two more that cost a debugging cycle each:
 

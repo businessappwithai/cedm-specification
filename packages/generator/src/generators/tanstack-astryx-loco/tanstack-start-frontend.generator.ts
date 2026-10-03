@@ -30,6 +30,10 @@ import { BaseGenerator } from "../base.generator";
  * Resolve template directory path, handling both dev and bundled environments
  */
 function resolveTemplateDir(subpath: string): string {
+  // TEMPLATE_DIR names the templates root outright. The browser build sets it
+  // to its in-memory volume, where no working directory leads anywhere.
+  const configured = process.env.TEMPLATE_DIR;
+  if (configured) return path.join(configured, subpath);
   const cwd = process.cwd();
   const possiblePaths = [
     // Dev mode: running from project root

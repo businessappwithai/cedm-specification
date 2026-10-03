@@ -1,4 +1,4 @@
-// Zero-dependency HTTP server generated from the EML model.
+// Zero-dependency HTTP server generated from the model.
 // Exposes REST CRUD for every entity plus /health, /openapi.json, /api/_meta,
 // and an HTML index. No framework — just node:http.
 
@@ -121,7 +121,7 @@ h1{margin-bottom:4px}table{border-collapse:collapse;width:100%;margin:12px 0}
 td,th{border:1px solid #ddd;padding:6px 10px;text-align:left}code{background:#f4f4f5;padding:1px 5px;border-radius:4px}
 .muted{color:#666}</style></head><body>
 <h1>${MODEL.meta?.name ?? "EML App"}</h1>
-<p class="muted">Generated from EML. ${MODEL.rules.length} business rule(s), ${MODEL.workflows.length} workflow(s).</p>
+<p class="muted">Generated from the model. ${MODEL.rules.length} business rule(s), ${MODEL.workflows.length} workflow(s).</p>
 <h2>Entities</h2>
 <table><tr><th>Entity</th><th>Endpoint</th><th># fields</th></tr>${rows}</table>
 <h2>System</h2>

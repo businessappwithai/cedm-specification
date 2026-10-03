@@ -22,32 +22,56 @@
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { generateApplication, parseModel } from "../../../index";
+import { readYamlFixture } from "../../../model/__tests__/compile-yaml";
+import { generateApplication } from "../../../index";
 
 /** A column bound to a `%%enum`, and a second entity with a state machine. */
-const MODEL = `erDiagram
-    Member {
-        string id PK
-        string full_name
-        string status
-    }
-    Booking {
-        string id PK
-        string member_id FK
-        string status
-    }
-    Member ||--o{ Booking : "holds"
-
-%%enum MemberStatus: active, lapsed, suspended
-%%field Member.status enum: MemberStatus
-%%enum BookingStatus: held, attended, cancelled
-%%field Booking.status enum: BookingStatus
-
-%%workflow BookingLifecycle entity: Booking kind: state
-stateDiagram-v2
-    [*] --> held
-    held --> attended: attend
-    held --> cancelled: cancel
+const MODEL = `eml: "1.0"
+enums:
+  - name: MemberStatus
+    values: [active, lapsed, suspended]
+  - name: BookingStatus
+    values: [held, attended, cancelled]
+entities:
+  - name: Member
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: full_name
+        type: string
+      - name: status
+        type: string
+        enum: MemberStatus
+  - name: Booking
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: member_id
+        type: string
+        fk: true
+      - name: status
+        type: string
+        enum: BookingStatus
+relationships:
+  - from: Member
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: holds
+stateMachines:
+  - name: BookingLifecycle
+    entity: Booking
+    states: [held, attended, cancelled]
+    initial: held
+    transitions:
+      - from: held
+        to: attended
+        trigger: attend
+      - from: held
+        to: cancelled
+        trigger: cancel
 `;
 
 let generated: { entities: string; factory: string; model: string } | undefined;
@@ -56,8 +80,8 @@ async function harness() {
   if (generated) return generated;
   const out = await fs.mkdtemp("/tmp/factory-vocabulary-");
   await generateApplication({
-    sources: MODEL,
-    model: parseModel(MODEL),
+    document: readYamlFixture(MODEL),
+    modelText: MODEL,
     projectName: "vocab",
     outputDir: out,
     skipFrontend: true,

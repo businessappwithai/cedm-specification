@@ -1,794 +1,431 @@
+/**
+ * Step 3 — the business rules.
+ *
+ * A rule is part of the model: it lives in the document's `rules` section, and
+ * this page edits exactly that section. Each rule opens as the decision table
+ * it is (or compiles to); a rule that decides with a graph is drawn from the
+ * document by the model viewer and edited in the YAML on the design step.
+ *
+ * Saving replaces the `rules` section and nothing else — every other byte of
+ * the author's document is kept — and commits it as a draft. The assistant
+ * writes rules into the current model the same way: it is asked for the
+ * section, and only the section it returns is taken.
+ */
+
 import { CopilotSidebar } from "@copilotkit/react-ui";
+import { readModelYaml } from "@appwithai/generator/model-yaml";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Code2,
-  Download,
-  Eye,
-  GitBranch,
   Loader2,
-  RefreshCw,
+  Plus,
   Save,
   Send,
   Sparkles,
+  Trash2,
   Zap,
 } from "lucide-react";
-import mermaid from "mermaid";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
+import { ModelViewer } from "@/components/model/ModelViewer";
+import { RuleEditor } from "@/components/model/RuleEditor";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
+import { type EditableRule, readRules, slugifyRuleName, writeRules } from "@/lib/model/rules";
+import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 import { useProjectStore } from "@/store/projectStore";
 
 export const Route = createFileRoute("/projects/$id/logic")({
   component: LogicRoute,
 });
 
-const FLOWCHART_PLACEHOLDER = `flowchart TD
-    A([Start: Order Received]) --> B{Order Amount > $1000?}
-    B -->|Yes| C[Apply Premium Discount 15%]
-    B -->|No| D{Customer is VIP?}
-    D -->|Yes| E[Apply VIP Discount 10%]
-    D -->|No| F[Apply Standard Pricing]
-    C --> G(Calculate Final Price)
-    E --> G
-    F --> G
-    G --> H([End: Price Calculated])`;
-
-/**
- * Extracts flowchart blocks that follow %%rule directives in an EML file.
- * Returns one string per rule, each starting with "flowchart".
- */
-function extractRuleFlowcharts(erdCode: string): string[] {
-  const lines = erdCode.split("\n");
-  const results: string[] = [];
-  let capturing = false;
-  let buffer: string[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    if (trimmed.startsWith("%%rule ")) {
-      if (capturing && buffer.length > 0) {
-        const fc = buffer.join("\n").trim();
-        if (fc) results.push(fc);
-        buffer = [];
-      }
-      capturing = true;
-      continue;
-    }
-
-    if (!capturing) continue;
-
-    if (trimmed.match(/^(%%workflow|erDiagram|stateDiagram-v2|stateDiagram)\b/)) {
-      const fc = buffer.join("\n").trim();
-      if (fc) results.push(fc);
-      buffer = [];
-      capturing = false;
-      continue;
-    }
-
-    if (trimmed.startsWith("%%")) continue;
-
-    buffer.push(line);
-  }
-
-  if (capturing && buffer.length > 0) {
-    const fc = buffer.join("\n").trim();
-    if (fc) results.push(fc);
-  }
-
-  return results.filter((s) => /^flowchart\b/.test(s));
-}
-
-/**
- * The provider has to sit above the component that calls the Copilot hooks —
- * rendering it inside the page's own JSX puts the context below the consumer
- * and throws "useCopilotKit must be used within CopilotKitProvider".
- */
 function LogicRoute() {
   return (
     <CopilotProvider>
-      <RulesDesignPage />
-      <CopilotSidebar
-        labels={{
-          title: "Rules and processes",
-          initial:
-            "I can see this application's entities, its rules and its processes. Ask me what " +
-            "already runs on an entity, or describe the behaviour you want and I will tell you " +
-            "which rule or step declares it.",
-        }}
-        defaultOpen={false}
-        clickOutsideToClose={false}
-      />
+      <LogicPage />
     </CopilotProvider>
   );
 }
 
-function RulesDesignPage() {
+interface Finding {
+  severity: string;
+  line: number;
+  column: number;
+  code: string;
+  message: string;
+}
+
+/** The rules a model text declares, as the editor edits them. */
+function rulesOf(model: string): { rules: EditableRule[]; error?: string } {
+  const read = readModelYaml(model, { check: false });
+  if (!read.document) {
+    const first = read.diagnostics.find((d) => d.severity === "error");
+    return {
+      rules: [],
+      error: `The saved model does not read${first ? ` (line ${first.line}: ${first.message})` : ""}. Fix it on the design step.`,
+    };
+  }
+  return { rules: readRules(read.document.rules, emptyDecisionTable) };
+}
+
+/** The same rules, compared as the model would store them. */
+function sameRules(a: EditableRule[], b: EditableRule[]): boolean {
+  return JSON.stringify(writeRules(a)) === JSON.stringify(writeRules(b));
+}
+
+/** A name no other rule has, from a stem. */
+function freshName(stem: string, taken: Set<string>): string {
+  if (!taken.has(stem)) return stem;
+  let index = 2;
+  while (taken.has(`${stem}${index}`)) index += 1;
+  return `${stem}${index}`;
+}
+
+async function readEvents(response: Response, onEvent: (data: Record<string, unknown>) => void) {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("The response has no body");
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)));
+    }
+  }
+}
+
+function LogicPage() {
   const navigate = useNavigate();
   const { id: projectId } = Route.useParams();
-
-  // `surface: "logic"` steers the assistant towards the rules and processes
-  // that already run, rather than the shape of the data.
-  useModelAssistant({ projectId, surface: "logic" });
-  const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
-    useProjectStore();
+  const { getProject, loadProject, setCurrentStep, currentProject, isLoading } = useProjectStore();
   const project = getProject(projectId) || currentProject;
+  useModelAssistant({ projectId, surface: "logic" });
 
   useEffect(() => {
-    if (!getProject(projectId) && !currentProject) {
-      loadProject(projectId);
-    }
+    if (!getProject(projectId) && !currentProject) void loadProject(projectId);
   }, [projectId, getProject, currentProject, loadProject]);
 
-  useEffect(() => {
-    if (project) {
-      setCurrentStep("logic");
-    }
-  }, [project, setCurrentStep]);
+  const savedModel = project?.modelYaml ?? "";
+  const saved = useMemo(() => rulesOf(savedModel), [savedModel]);
+  const document = useMemo(
+    () => (savedModel.trim() ? readModelYaml(savedModel, { check: false }).document : undefined),
+    [savedModel]
+  );
+  const entities = useMemo(
+    () =>
+      (document?.entities ?? []).map((entity) => ({
+        name: entity.name,
+        attributes: entity.attributes.map((attribute) => attribute.name),
+      })),
+    [document]
+  );
 
-  const [activeTab, setActiveTab] = useState<"flowchart" | "jdm">("flowchart");
-  const [flowchartCode, setFlowchartCode] = useState(FLOWCHART_PLACEHOLDER);
-  const [jdmCode, setJdmCode] = useState("");
-  const [svgBlobUrl, setSvgBlobUrl] = useState<string>("");
-  const [renderError, setRenderError] = useState<string | null>(null);
+  const [rules, setRules] = useState<EditableRule[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [graphFor, setGraphFor] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isConverting, setIsConverting] = useState(false);
-  const [aiInput, setAiInput] = useState("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{
-    step: string;
-    message: string;
-    progress: number;
-  } | null>(null);
-  const [aiStepsLog, setAiStepsLog] = useState<
-    Array<{
-      id: string;
-      step: string;
-      message: string;
-      status: "in-progress" | "completed" | "error";
-    }>
-  >([]);
-  const [showAiDetails, setShowAiDetails] = useState(false);
-
-  const prevBlobUrlRef = useRef<string>("");
-  const erdRulesApplied = useRef(false);
-
-  useEffect(() => {
-    if (project?.erdCode && !erdRulesApplied.current) {
-      const rules = extractRuleFlowcharts(project.erdCode);
-      if (rules.length > 0 && rules[0]) {
-        setFlowchartCode(rules[0]);
-        erdRulesApplied.current = true;
-      }
-    }
-  }, [project?.erdCode]);
-
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: "default",
-    securityLevel: "loose",
-    suppressErrorRendering: true,
+  const [notice, setNotice] = useState<{ tone: "info" | "error"; text: string } | null>(null);
+  const [findings, setFindings] = useState<Finding[]>([]);
+  const [prompt, setPrompt] = useState("");
+  const [assistant, setAssistant] = useState<{ running: boolean; message?: string; error?: boolean }>({
+    running: false,
   });
+  const nextKey = useRef(0);
 
-  const renderFlowchart = useCallback(async (code: string) => {
-    if (!code.trim() || code.trim() === "flowchart TD") {
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-        prevBlobUrlRef.current = "";
-      }
-      setSvgBlobUrl("");
-      setRenderError(null);
-      return;
-    }
-
-    try {
-      const id = `mermaid-rules-${Date.now()}`;
-      const { svg } = await mermaid.render(id, code);
-      const orphan = document.getElementById(`d${id}`);
-      orphan?.remove();
-
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-      }
-
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      prevBlobUrlRef.current = url;
-      setSvgBlobUrl(url);
-      setRenderError(null);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setRenderError(msg);
-      setSvgBlobUrl("");
-    }
-  }, []);
-
+  // Take the saved rules whenever the saved model changes (first load, a save,
+  // a restore elsewhere); the editor owns them in between.
   useEffect(() => {
-    const timer = setTimeout(() => renderFlowchart(flowchartCode), 800);
-    return () => clearTimeout(timer);
-  }, [flowchartCode, renderFlowchart]);
+    if (!project) return;
+    setCurrentStep("logic");
+    setRules(saved.rules);
+    setSelected((current) =>
+      current && saved.rules.some((rule) => rule.key === current) ? current : (saved.rules[0]?.key ?? null)
+    );
+  }, [project, saved, setCurrentStep]);
 
-  useEffect(() => {
-    return () => {
-      if (prevBlobUrlRef.current) {
-        URL.revokeObjectURL(prevBlobUrlRef.current);
-      }
+  const dirty = !sameRules(rules, saved.rules);
+  const current = rules.find((rule) => rule.key === selected);
+  const duplicates = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const rule of rules) seen.set(rule.name, (seen.get(rule.name) ?? 0) + 1);
+    return [...seen].filter(([, count]) => count > 1).map(([name]) => name);
+  }, [rules]);
+
+  const update = (key: string, patch: Partial<EditableRule>) =>
+    setRules((list) => list.map((rule) => (rule.key === key ? { ...rule, ...patch } : rule)));
+
+  const addRule = () => {
+    const entity = entities[0]?.name ?? "";
+    const name = freshName(slugifyRuleName(`${entity || "new"} rule`), new Set(rules.map((r) => r.name)));
+    nextKey.current += 1;
+    const rule: EditableRule = {
+      key: `new:${nextKey.current}`,
+      name,
+      entity,
+      event: "beforeCreate",
+      table: emptyDecisionTable(),
+      kind: "table",
     };
-  }, []);
+    setRules((list) => [...list, rule]);
+    setSelected(rule.key);
+  };
 
-  const handleSave = async () => {
+  const removeRule = (key: string) => {
+    setRules((list) => list.filter((rule) => rule.key !== key));
+    if (selected === key) setSelected(rules.find((rule) => rule.key !== key)?.key ?? null);
+  };
+
+  const save = useCallback(async () => {
     setIsSaving(true);
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const filename = `${sanitizedName}-rules.mmd`;
+    setNotice(null);
     try {
-      await fetch("/api/mermaid", {
-        method: "POST",
+      const response = await fetch(`/api/projects/${projectId}/model`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          projectId,
-          projectName: project?.name ?? "export",
-          filename,
-          type: "rules",
-          content: flowchartCode,
+          sections: { rules: writeRules(rules) },
+          description: "Update business rules",
         }),
       });
-    } catch (_e) {
-      // non-blocking
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error ?? `Save failed (${response.status})`);
+      setFindings((body.diagnostics ?? []) as Finding[]);
+      await loadProject(projectId);
+      setNotice({
+        tone: body.ok ? "info" : "error",
+        text: body.ok
+          ? "Rules saved as a draft."
+          : "Rules saved as a draft. The model has findings to resolve before it can be generated — they are listed below.",
+      });
+      return true;
+    } catch (error) {
+      setNotice({ tone: "error", text: error instanceof Error ? error.message : "Save failed" });
+      return false;
     } finally {
-      setTimeout(() => setIsSaving(false), 500);
+      setIsSaving(false);
+    }
+  }, [projectId, rules, loadProject]);
+
+  const runAssistant = async () => {
+    if (!prompt.trim() || assistant.running || !savedModel.trim()) return;
+    setAssistant({ running: true, message: "Sending the request…" });
+    try {
+      const response = await fetch("/api/ai/convert-stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: prompt, currentModel: savedModel, section: "rules" }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `The assistant could not be reached (${response.status})`);
+      }
+      let result: { model: string; ok: boolean; diagnostics: Finding[]; attempts: number } | undefined;
+      await readEvents(response, (data) => {
+        if (data.step === "error") throw new Error(String(data.message));
+        if (data.step === "complete") result = data as unknown as typeof result;
+        else setAssistant({ running: true, message: String(data.message) });
+      });
+      if (!result) throw new Error("The assistant finished without rules");
+      const next = rulesOf(result.model);
+      if (next.error) throw new Error(next.error);
+      setRules(next.rules);
+      setSelected(next.rules[0]?.key ?? null);
+      setFindings(result.diagnostics);
+      setPrompt("");
+      setAssistant({
+        running: false,
+        message: result.ok
+          ? "The assistant revised the rules. Review them, then save."
+          : `The assistant's rules still have findings after ${result.attempts} attempt(s); they are listed below. Review them before saving.`,
+        error: !result.ok,
+      });
+    } catch (error) {
+      setAssistant({ running: false, message: error instanceof Error ? error.message : String(error), error: true });
     }
   };
 
-  const handleExportMmd = () => {
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const blob = new Blob([flowchartCode], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${sanitizedName}-rules.mmd`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleExportJdm = () => {
-    if (!jdmCode) return;
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const blob = new Blob([jdmCode], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${sanitizedName}-rules.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleConvertToJdm = async () => {
-    setIsConverting(true);
-    try {
-      const response = await fetch("/api/ai/rules-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "convert-to-jdm",
-          flowchartCode,
-          projectId,
-        }),
-      });
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      if (!reader) throw new Error("No response body");
-
-      let buffer = "";
-      let collectedJdm = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
-            if (data.jdm) {
-              collectedJdm =
-                typeof data.jdm === "string" ? data.jdm : JSON.stringify(data.jdm, null, 2);
-            }
-          }
-        }
-      }
-
-      if (collectedJdm) {
-        setJdmCode(collectedJdm);
-        setActiveTab("jdm");
-
-        // Save JDM to server
-        const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-        await fetch("/api/mermaid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            projectId,
-            projectName: project?.name ?? "export",
-            filename: `${sanitizedName}-rules.json`,
-            type: "rules",
-            content: collectedJdm,
-          }),
-        }).catch(() => undefined);
-      }
-    } catch (err) {
-      console.error("JDM conversion error:", err);
-    } finally {
-      setIsConverting(false);
-    }
-  };
-
-  const handleAiSubmit = async () => {
-    if (!aiInput.trim()) return;
-    setIsAiLoading(true);
-    setAiStepsLog([]);
-    setAiStatus({ step: "starting", message: "Connecting to AI service...", progress: 5 });
-
-    try {
-      const response = await fetch("/api/ai/rules-stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "generate-flowchart",
-          description: aiInput,
-          currentFlowchartCode: flowchartCode,
-          projectId,
-        }),
-      });
-
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      if (!reader) throw new Error("No response body");
-
-      let buffer = "";
-      let finalFlowchart = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
-
-            if (data.step && data.message) {
-              const progress =
-                { starting: 10, analyzing: 30, generating: 60, complete: 100, error: 0 }[
-                  data.step as string
-                ] ?? 50;
-              setAiStatus({ step: data.step, message: data.message, progress });
-              setAiStepsLog((prev) => [
-                ...prev.filter((s) => s.step !== data.step),
-                {
-                  id: `${data.step}-${Date.now()}`,
-                  step: data.step,
-                  message: data.message,
-                  status:
-                    data.step === "complete"
-                      ? "completed"
-                      : data.step === "error"
-                        ? "error"
-                        : "in-progress",
-                },
-              ]);
-            }
-
-            if (data.flowchartCode) {
-              finalFlowchart = data.flowchartCode;
-              setFlowchartCode(data.flowchartCode);
-            }
-
-            if (data.step === "error") throw new Error(data.message);
-          }
-        }
-      }
-
-      if (finalFlowchart) {
-        setAiInput("");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      setAiStatus({ step: "error", message: msg, progress: 0 });
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const handleContinue = async () => {
-    await handleSave();
-    goToNextStep();
+  const continueToGenerate = async () => {
+    if (dirty && !(await save())) return;
     navigate({ to: "/projects/$id/generate", params: { id: projectId } });
   };
 
-  const shouldLoad = !getProject(projectId) && !currentProject;
-
-  if (isLoading || shouldLoad) {
+  if (isLoading || !project) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Zap className="w-6 h-6 text-blue-600 animate-pulse" />
+      <div className="flex min-h-screen items-center justify-center gap-3 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" /> Loading project…
       </div>
     );
   }
 
-  if (!project) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-slate-500">Project not found</p>
-      </div>
-    );
-  }
+  const errors = findings.filter((f) => f.severity === "error");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
+    <CopilotSidebar
+      instructions="You help write the business rules of an application's model. Rules live in the model's `rules` section; each names an entity, an event and a decision table or actions."
+      defaultOpen={false}
+    >
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+          <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-6 py-3">
+            <button type="button" onClick={() => void save()} disabled={!dirty || isSaving || duplicates.length > 0} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {dirty ? "Save rules" : "Saved"}
+            </button>
+            <button type="button" onClick={() => void continueToGenerate()} disabled={isSaving || duplicates.length > 0} className="ml-auto flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+              <Zap className="h-4 w-4" /> Continue to Generate
+            </button>
+          </div>
+          <div className="mx-auto max-w-[1600px] px-6 pb-3">
+            <ProgressStepper currentStep="logic" projectId={projectId} completedSteps={["init", "design"]} />
+          </div>
+        </header>
+
+        <div className="mx-auto w-full max-w-[1600px] px-6 pt-4">
           <WizardStepHeader
             stepNumber={3}
-            title="Define Business Rules"
-            description="Design your business logic as a Mermaid flowchart. The AI will help you model decision flows and convert them to executable GoRules JDM format."
-            estimatedTime="5-10 min"
-          />
-
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? "Saving..." : "Save Draft"}
-            </button>
-            <button
-              onClick={handleExportMmd}
-              className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Export .mmd
-            </button>
-            {jdmCode && (
-              <button
-                onClick={handleExportJdm}
-                className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Export JDM
-              </button>
-            )}
-            <button
-              onClick={handleConvertToJdm}
-              disabled={isConverting || !flowchartCode.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-            >
-              {isConverting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <GitBranch className="w-4 h-4" />
-              )}
-              {isConverting ? "Converting..." : "Convert to JDM"}
-            </button>
-            <button
-              onClick={handleContinue}
-              className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
-              style={{ backgroundColor: "#FF8400" }}
-            >
-              <Zap className="w-4 h-4" />
-              Continue to Step 4
-            </button>
-          </div>
-
-          <ProgressStepper
-            currentStep="logic"
-            projectId={projectId}
-            completedSteps={["init", "design"]}
+            title="Define business rules"
+            description="Each rule runs on an event on one entity and decides with a table: conditions on the left, the outcome on the right, first matching row wins. Rules are saved into the model's rules section."
+            estimatedTime="2-5 min"
           />
         </div>
-      </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Editor */}
-        <div className="w-1/2 border-r border-border flex flex-col bg-white dark:bg-slate-950">
-          <div className="flex border-b border-border">
-            <button
-              onClick={() => setActiveTab("flowchart")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-                activeTab === "flowchart"
-                  ? "border-b-2 border-primary text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Code2 className="w-4 h-4" />
-              Mermaid Flowchart
-            </button>
-            <button
-              onClick={() => setActiveTab("jdm")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors ${
-                activeTab === "jdm"
-                  ? "border-b-2 border-purple-500 text-purple-500"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <GitBranch className="w-4 h-4" />
-              GoRules JDM
-              {jdmCode && <span className="ml-1 w-2 h-2 rounded-full bg-emerald-500" />}
-            </button>
-          </div>
-
-          <div className="flex-1 p-6 overflow-auto">
-            {activeTab === "flowchart" ? (
-              <textarea
-                value={flowchartCode}
-                onChange={(e) => setFlowchartCode(e.target.value)}
-                className="w-full h-[calc(100vh-380px)] p-4 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                spellCheck={false}
-                placeholder={FLOWCHART_PLACEHOLDER}
-              />
-            ) : (
-              <div className="relative">
-                <textarea
-                  value={jdmCode}
-                  onChange={(e) => setJdmCode(e.target.value)}
-                  className="w-full h-[calc(100vh-380px)] p-4 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                  spellCheck={false}
-                  placeholder='JDM JSON will appear here after clicking "Convert to JDM"...'
-                  readOnly={!jdmCode}
-                />
-                {!jdmCode && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center">
-                      <GitBranch className="w-10 h-10 mx-auto mb-2 text-muted-foreground opacity-30" />
-                      <p className="text-sm text-muted-foreground">
-                        Click "Convert to JDM" to generate GoRules JSON Decision Model
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+        {(saved.error || notice || duplicates.length > 0) && (
+          <div className="mx-auto w-full max-w-[1600px] space-y-1 px-6 pt-3 text-sm">
+            {saved.error && (
+              <p className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {saved.error}
+              </p>
+            )}
+            {duplicates.length > 0 && (
+              <p className="flex items-start gap-2 text-destructive">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                Rule names must be unique; used more than once: {duplicates.join(", ")}
+              </p>
+            )}
+            {notice && (
+              <p className={`flex items-start gap-2 ${notice.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}>
+                {notice.tone === "error" ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+                {notice.text}
+              </p>
             )}
           </div>
-        </div>
+        )}
 
-        {/* Right: Preview */}
-        <div className="w-1/2 flex flex-col bg-slate-50 dark:bg-slate-900">
-          <div className="p-4 border-b border-border flex items-center gap-2">
-            <Eye className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Live Preview</h2>
-            {renderError && (
-              <span className="ml-auto text-xs text-red-500 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                Syntax error
+        <main className="mx-auto flex w-full max-w-[1600px] flex-1 gap-4 px-6 py-4">
+          <nav aria-label="Rules" className="flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Rules ({rules.length})
               </span>
-            )}
-          </div>
-
-          <div className="flex-1 overflow-auto p-6 bg-white dark:bg-slate-900">
-            {svgBlobUrl ? (
-              <img src={svgBlobUrl} alt="Business rules flowchart" className="w-full h-auto" />
-            ) : renderError ? (
-              <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">
-                    Flowchart syntax error
-                  </p>
-                  <p className="text-xs font-mono text-red-600 dark:text-red-400">{renderError}</p>
-                </div>
-              </div>
+              <button type="button" onClick={addRule} disabled={!document} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium hover:bg-muted disabled:opacity-50">
+                <Plus className="h-3.5 w-3.5" /> Add
+              </button>
+            </div>
+            {rules.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">
+                The model declares no rules. Add one, or describe one to the assistant below.
+              </p>
             ) : (
-              <div className="flex items-center justify-center h-64 text-center">
-                <div>
-                  <GitBranch className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-30" />
-                  <p className="text-sm font-medium text-muted-foreground">No flowchart yet</p>
-                  <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                    Edit the Mermaid flowchart on the left or use the AI assistant below to generate
-                    one
-                  </p>
-                </div>
+              <ul className="flex-1 overflow-y-auto">
+                {rules.map((rule) => (
+                  <li key={rule.key} className={`group flex items-center border-b border-border ${rule.key === selected ? "bg-primary/10" : "hover:bg-muted/50"}`}>
+                    <button type="button" onClick={() => setSelected(rule.key)} className="min-w-0 flex-1 px-3 py-2 text-left">
+                      <p className="truncate text-sm font-medium">{rule.title ?? rule.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {rule.entity || "no entity"} · {rule.event} · {rule.kind}
+                      </p>
+                    </button>
+                    <button type="button" onClick={() => removeRule(rule.key)} aria-label={`Remove ${rule.name}`} className="mr-2 rounded p-1 opacity-0 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </nav>
+
+          <section className="min-w-0 flex-1 rounded-lg border border-border bg-card p-4">
+            {current ? (
+              <>
+                <RuleEditor
+                  rule={current}
+                  entities={entities}
+                  onChange={(patch) => update(current.key, patch)}
+                  onShowGraph={(rule) => setGraphFor(rule.source?.name ?? rule.name)}
+                />
+                {current.kind === "graph" && graphFor === (current.source?.name ?? current.name) && (
+                  <ModelViewer
+                    key={graphFor}
+                    value={savedModel}
+                    initialView={`rule:${graphFor}`}
+                    className="mt-4 h-[520px]"
+                  />
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">Select a rule, or add one.</p>
+            )}
+
+            {findings.length > 0 && (
+              <div className="mt-4 rounded-lg border border-border">
+                <p className="border-b border-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Model findings ({errors.length} error{errors.length === 1 ? "" : "s"}, {findings.length - errors.length} other)
+                </p>
+                <ul className="max-h-48 overflow-y-auto text-xs">
+                  {findings.map((f) => (
+                    <li key={`${f.line}:${f.column}:${f.code}`} className={`px-3 py-1.5 ${f.severity === "error" ? "text-destructive" : "text-muted-foreground"}`}>
+                      <span className="font-mono">
+                        {f.line}:{f.column} {f.code}
+                      </span>{" "}
+                      {f.message}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
-          </div>
-        </div>
-      </div>
+          </section>
+        </main>
 
-      {/* AI Assistant */}
-      <div className="bg-white dark:bg-slate-950 border-t border-border">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <span className="font-medium">AI Assistant</span>
-            </div>
-            <div className="flex-1 relative">
+        <footer className="border-t border-border bg-background">
+          <div className="mx-auto max-w-[1600px] px-6 py-4">
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-5 w-5 shrink-0 text-primary" />
               <input
-                type="text"
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleAiSubmit();
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) void runAssistant();
                 }}
-                placeholder="Describe your business rule... e.g. 'Discount 20% for orders over $500 from VIP customers' (Cmd+Enter)"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                disabled={isAiLoading}
+                disabled={assistant.running || !savedModel.trim()}
+                placeholder={
+                  savedModel.trim()
+                    ? "Describe a rule — e.g. refuse a sample whose expiry date has passed… (Ctrl+Enter)"
+                    : "Save a model on the design step first"
+                }
+                className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm"
               />
+              <button type="button" onClick={() => void runAssistant()} disabled={assistant.running || !prompt.trim() || !savedModel.trim()} className="flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                {assistant.running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {assistant.running ? "Working…" : "Write rules"}
+              </button>
             </div>
-            <button
-              onClick={handleAiSubmit}
-              disabled={isAiLoading || !aiInput.trim()}
-              className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isAiLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Generate
-                </>
-              )}
-            </button>
+            {dirty && !assistant.running && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                The assistant works from the saved model; unsaved edits here are replaced by its answer.
+              </p>
+            )}
+            {assistant.message && (
+              <p className={`mt-2 text-sm ${assistant.error ? "text-destructive" : "text-muted-foreground"}`}>{assistant.message}</p>
+            )}
           </div>
-
-          {aiStatus && (
-            <div className="mt-3">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-purple-600 h-full transition-all duration-300"
-                    style={{ width: `${aiStatus.progress}%` }}
-                  />
-                </div>
-                <span className="text-xs text-muted-foreground min-w-[50px] text-right">
-                  {aiStatus.progress}%
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-xs">
-                {aiStatus.step === "complete" ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                ) : aiStatus.step === "error" ? (
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                ) : (
-                  <div className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
-                )}
-                <span
-                  className={
-                    aiStatus.step === "complete"
-                      ? "text-emerald-600"
-                      : aiStatus.step === "error"
-                        ? "text-red-600"
-                        : "text-muted-foreground"
-                  }
-                >
-                  {aiStatus.message}
-                </span>
-              </div>
-
-              {aiStepsLog.length > 0 && (
-                <button
-                  onClick={() => setShowAiDetails(!showAiDetails)}
-                  className="mt-2 flex items-center gap-1 text-xs text-purple-600 hover:underline"
-                >
-                  {showAiDetails ? (
-                    <>
-                      <ChevronUp className="w-3 h-3" />
-                      Hide steps
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-3 h-3" />
-                      Show steps ({aiStepsLog.length})
-                    </>
-                  )}
-                </button>
-              )}
-
-              {showAiDetails && aiStepsLog.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {aiStepsLog.map((s) => (
-                    <div
-                      key={s.id}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${
-                        s.status === "completed"
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700"
-                          : s.status === "error"
-                            ? "bg-red-50 dark:bg-red-950/30 text-red-700"
-                            : "bg-purple-50 dark:bg-purple-950/30 text-purple-700"
-                      }`}
-                    >
-                      {s.status === "completed" ? (
-                        <CheckCircle2 className="w-3 h-3" />
-                      ) : s.status === "error" ? (
-                        <AlertCircle className="w-3 h-3" />
-                      ) : (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      )}
-                      {s.message}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <button
-              onClick={() =>
-                setAiInput("Order discount: 20% off for orders over $500, 10% for VIP customers")
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Order Discount
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Patient triage: Emergency if vital signs critical, Urgent if fever above 38.5°C, else Standard"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Patient Triage
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Loan approval: Approve if credit score > 700 and income > $50k, else reject or manual review"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Loan Approval
-            </button>
-            <button
-              onClick={() =>
-                setAiInput(
-                  "Inventory reorder: If stock below reorder point, create PO. If critical stock, expedite order"
-                )
-              }
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-            >
-              Inventory Reorder
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 mt-3 px-3 py-2 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/30 rounded-lg text-xs text-purple-700 dark:text-purple-300">
-            <RefreshCw className="w-4 h-4 flex-shrink-0" />
-            <span>
-              Flowchart uses Mermaid <code className="font-mono">flowchart TD</code> syntax. Nodes:{" "}
-              <code className="font-mono">A([Start/End])</code>,{" "}
-              <code className="font-mono">B{"{"}</code>Decision
-              <code className="font-mono">{"}"}</code>, <code className="font-mono">C[Action]</code>
-              , <code className="font-mono">D((Function))</code>. Convert to GoRules JDM for runtime
-              execution in generated apps.
-            </span>
-          </div>
-        </div>
+        </footer>
       </div>
-    </div>
+    </CopilotSidebar>
   );
 }

@@ -236,6 +236,14 @@ describe("multi-step workflows triggered by rules", () => {
     // Step 5 — the triggering record was updated by its own workflow.
     const self = await readRecord(triggerEntity, triggerId);
     expect(String(self?.[triggerField.name])).toBe(`${suiteId}-touched`);
+
+    // And the create response already says so. The workflow runs inside the
+    // request, so the row the caller is handed must be the row it left behind:
+    // it used to be the row as inserted, one `version` behind, and a client
+    // acting on it — a form, a conditional update — acted on a state the
+    // record no longer had.
+    expect(String(created?.[triggerField.name])).toBe(`${suiteId}-touched`);
+    expect(created?.version).toBe(self?.version);
   });
 
   it.skipIf(!pair)("carries a computed value into a row an earlier step created", async () => {
@@ -290,7 +298,7 @@ describe("multi-step workflows triggered by rules", () => {
   async function buildTargetPayload(stamp: string): Promise<Record<string, unknown>> {
     const foreignKeys: Record<string, string> = {};
     for (const fk of foreignKeyFields(targetEntity)) {
-      const parent = harness.resolveParentEntity(fk.name);
+      const parent = harness.resolveParentEntity(fk.name, fk.references);
       if (!parent) continue;
       const id = await harness.anyRecordId(parent);
       if (id) foreignKeys[fk.name] = id;

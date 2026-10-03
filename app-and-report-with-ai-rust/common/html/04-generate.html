@@ -33,7 +33,7 @@
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
     <li><a href="run-in-browser.html"><span class="nav-num">09</span> Run it here</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -55,25 +55,23 @@
     <p>Optional, because the generator runs the checker itself, but it is instant and it tells you the truth before anything is written.</p>
     <div class="code">
       <div class="code-head"><span class="tag">shell</span></div>
-<pre><code>bun language/checker.ts language/examples/crm.eml.mmd
-<span class="c-com"># crm.eml.mmd  0 errors · 0 warnings</span></code></pre>
+<pre><code>bun language/cli/eml.ts validate -i language/yaml/examples/crm.eml.yaml
+<span class="c-com"># 0 errors, 0 warning(s)</span></code></pre>
     </div>
   </li>
 
   <li>
     <h3>Generate</h3>
-    <p>One command. <code>--no-setup</code> keeps it from installing and migrating straight away, which you want the first time so you can look at what it produced.</p>
+    <p>One command, from the root of <code>cedm-specification</code>. <code>--no-setup</code> keeps it from installing and migrating straight away, which you want the first time so you can look at what it produced.</p>
     <div class="code">
       <div class="code-head"><span class="tag">shell</span></div>
-<pre><code>bun packages/generator/src/cli/generate.ts generate \
-  --input language/examples/crm.eml.mmd \
+<pre><code>bun run generate:tanstack -- \
+  --input language/yaml/examples/crm.eml.yaml \
   --output generated-projects/crm \
   --name crm \
-  --port 4001 --frontend-port 4000 \
-  --records-per-entity 25 \
   --force --no-setup</code></pre>
     </div>
-    <p>It prints what it found as it goes: entities and their attribute counts, then the rules, hooks, sagas, state machines and categories it compiled. Read that list — it is the fastest way to notice a directive that did not parse.</p>
+    <p>It prints what it found as it goes: entities and their attribute counts, then the rules, hooks, sagas, state machines and categories it compiled. Read that list — it is the fastest way to notice a part of the model that did not compile the way you meant.</p>
   </li>
 
   <li>
@@ -82,24 +80,26 @@
       <div class="code-head"><span class="tag">shell</span></div>
 <pre><code>cd generated-projects/crm
 cp backend/.env.example backend/.env
-<span class="c-com"># edit backend/.env:</span>
-<span class="c-com"># DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/crm</span></code></pre>
+createdb crm_development
+<span class="c-com"># backend/.env, if the database is not local:</span>
+<span class="c-com"># DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/crm_development</span></code></pre>
     </div>
-    <p>The generated <code>.env.example</code> guesses a local socket connection for your machine. It is a guess; the URL is the one line worth checking by hand.</p>
+    <p>The database is <code>&lt;crate&gt;_development</code>, the default baked into <code>backend/config/development.yaml</code>; <code>DATABASE_URL</code> overrides it everywhere. The URL is the one line worth checking by hand.</p>
   </li>
 
   <li>
     <h3>Install, migrate, seed</h3>
     <div class="code">
       <div class="code-head"><span class="tag">shell</span></div>
-<pre><code>bun install
-bun run db:setup   <span class="c-com"># migrations, then every seed in order</span></code></pre>
+<pre><code>cd backend
+cargo loco db migrate   <span class="c-com"># the sys_ dictionary, the bus_ tables, the indexes</span>
+cargo loco db seed      <span class="c-com"># every seed task, in order</span></code></pre>
     </div>
     <p>
-      The seeds run in a deliberate order: users and roles, then reference types and your model's enums,
-      then the dictionary (tables, columns, windows, tabs, fields), then categories, then sample business
-      data, then rule definitions, then workflow definitions. The last two are the model's rules and
-      workflows arriving in the database.
+      The seeds run in a deliberate order: the dictionary (tables, columns, windows, tabs, fields, your
+      model's enums and categories), then the workflow definitions a saga names, then the access rules a
+      transition names, then the administrator. Rules, reports and sample business data are seeded from
+      the model the same way. Every seed is idempotent, so running it twice changes nothing.
     </p>
   </li>
 
@@ -107,9 +107,10 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
     <h3>Run it</h3>
     <div class="code">
       <div class="code-head"><span class="tag">shell</span></div>
-<pre><code>bun run dev   <span class="c-com"># backend :4001, frontend :4000</span></code></pre>
+<pre><code>cargo loco start --server-and-worker   <span class="c-com"># backend :3000</span>
+cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-com"># frontend :3001</span></code></pre>
     </div>
-    <p>Sign in with the admin user the backend creates on first start — <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD</code> in <code>backend/.env</code>, <code>admin@admin.com</code> / <code>admin</code> by default.</p>
+    <p>Sign in with the admin user the backend creates on first start — <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD</code> in <code>backend/.env</code>, <code>admin@admin.com</code> / <code>admin</code> by default. <code>docker compose up</code> at the project root does all of this in containers instead.</p>
   </li>
 </ol>
 
@@ -117,9 +118,11 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
   <div class="note-title">Useful flags</div>
   <p>
     <code>--dry-run</code> lists the files it would write without writing them.
-    <code>--records-per-entity</code> sizes the seeded sample data (1000 by default — use 25 while you are
-    iterating). <code>--skip-frontend</code> / <code>--skip-backend</code> generate one half.
-    <code>--run-tests-fast</code> runs the generated suite afterwards, skipping the bulk-seed volume tests.
+    <code>--db neon</code> targets a Neon database instead of a local PostgreSQL.
+    <code>--skip-frontend</code> / <code>--skip-backend</code> generate one half.
+    <code>--skip-cli-scaffold</code> generates without running <code>loco new</code>, for offline builds.
+    <code>--run-tests-fast</code> runs the generated suite afterwards, skipping the bulk-seed volume tests,
+    whose size <code>--records-per-entity</code> sets.
   </p>
 </div>
 
@@ -136,28 +139,30 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
     <figcaption><b>Sign in.</b> The first account you register needs promoting to admin: <code>bun run seed:admin -- --email you@example.com</code>.</figcaption>
   </figure>
   <figure>
-    <img src="img/02-generator-dashboard.png" alt="The generator's project dashboard with an empty state reading 'No projects yet', a project search box, status and type filters, and buttons for Mermaid Library, Rules Admin, Create New Project and Import a model.">
-    <figcaption><b>Where you land.</b> Projects, a Mermaid library, a rules administration area, and two ways in: describe a domain from scratch, or import a model you already have.</figcaption>
+    <img src="img/02-generator-dashboard.png" alt="The generator's project dashboard with an empty state reading 'No projects yet', a project search box, status and type filters, and buttons for the model library, Rules Admin, Create New Project and Import a model.">
+    <figcaption><b>Where you land.</b> Projects, a model library, a rules administration area, and two ways in: describe a domain from scratch, or import a model you already have.</figcaption>
   </figure>
 </div>
 
 <figure>
-  <img src="img/03-generator-import-model.png" alt="The Import a model dialog, asking for a .mmd file and a project name.">
-  <figcaption><b>Import a model.</b> Start from a <code>.mmd</code> file you already have rather than describing a domain from scratch.</figcaption>
+  <img src="img/03-generator-import-model.png" alt="The Import a model dialog, asking for a model file and a project name.">
+  <figcaption><b>Import a model.</b> Start from a model (<code>.eml.yaml</code>) you already have rather than describing a domain from scratch.</figcaption>
 </figure>
 
 <figure>
-  <img src="img/04-generator-crm-design.png" alt="The design step: Mermaid ERD source on the left, live rendered ERD on the right, with entity count and toolbar.">
+  <img src="img/04-generator-crm-design.png" alt="The design step: the model's diagram source on the left, live rendered ERD on the right, with entity count and toolbar.">
   <figcaption>
-    <b>The design step.</b> Source on the left, live ERD on the right, entity count in the header. The
-    toolbar carries Entities, Versions, Flow View, DB Ops, Validate, Save Draft, Import and Export.
+    <b>The design step.</b> The diagram you draw on the left, live ERD on the right, entity count in the
+    header. The toolbar carries Entities, Versions, Flow View, DB Ops, Validate, Save Draft, Import and
+    Export. Saving reads the drawing into the model it means and commits it as
+    <code>model/model.eml.yaml</code>; generation reads only that YAML.
   </figcaption>
 </figure>
 
 <figure>
-  <img src="img/05-generator-validate.png" alt="Step 2 of 6, Discover Your Data Model: a six-stage progress stepper reading Init, Design, Logic, Gen, Enhance, Deploy; a Your Journey strip reading Define, Discover, Generate, Add Features, Deploy; the 1,117-line Mermaid ERD source on the left; a live preview of all 17 entity boxes and their relationships on the right; and an AI Assistant bar at the foot with auto-retry enabled.">
+  <img src="img/05-generator-validate.png" alt="Step 2 of 6, Discover Your Data Model: a six-stage progress stepper reading Init, Design, Logic, Gen, Enhance, Deploy; a Your Journey strip reading Define, Discover, Generate, Add Features, Deploy; the model's diagram source on the left; a live preview of all 17 entity boxes and their relationships on the right; and an AI Assistant bar at the foot with auto-retry enabled.">
   <figcaption>
-    <b>The whole journey on one screen.</b> Six steps across the top, the model's 1,117 lines on the left,
+    <b>The whole journey on one screen.</b> Six steps across the top, the model on the left,
     every one of its seventeen entities drawn on the right, and an AI assistant at the foot that takes a
     plain-English instruction and edits the model — with auto-retry, so a failed validation is handed back
     to the model to fix up to three times rather than to you.
@@ -165,16 +170,15 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
 </figure>
 
 <p>
-  <strong>Validate</strong> renders the diagram through the same normalizer the preview uses and reports
-  the result: the entity count when it parses, and Mermaid's own error with a line number and caret when
-  it does not.
+  <strong>Validate</strong> reads the drawing into the model and runs the checker over it, reporting the
+  entity count when it reads, and the error with a line number and caret when it does not.
 </p>
 
 <figure>
   <img src="img/06-generator-validate-error.png" alt="The design step showing a red validation banner reading 'The diagram could not be parsed' with a parse error on line 2 and a caret pointing at the offending character.">
   <figcaption>
     <b>A deliberate mistake.</b> The banner gives you the line, the expectation and the character that
-    broke it — the same message Mermaid would give a renderer.
+    broke it.
   </figcaption>
 </figure>
 
@@ -182,7 +186,7 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
   <div class="note-title">Which path should you use?</div>
   <p>
     Use the browser while the shape of the model is still moving: the live ERD catches a wrong cardinality
-    faster than reading operators, and Versions gives you a way back. Use the CLI once the model lives in
+    faster than reading cardinalities, and Versions gives you a way back. Use the CLI once the model lives in
     version control, because it is scriptable, it is what CI runs, and it produces the same output.
   </p>
 </div>
@@ -190,37 +194,34 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
 <h2>What lands on disk</h2>
 
 <div class="code">
-  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 403 files</span></div>
+  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 488 files</span></div>
 <pre><code>crm/
-├── backend/                 <span class="c-com"># NestJS + Fastify + Kysely</span>
-│   ├── migrations/          <span class="c-com"># bus_ tables, sys_ dictionary, indexes</span>
-│   ├── seeds/               <span class="c-com"># users, references + your enums, dictionary,</span>
-│   │                        <span class="c-com">#   categories, sample data, rules, workflows</span>
-│   └── src/modules/
-│       ├── bus/             <span class="c-com"># generic CRUD over every business entity</span>
-│       ├── sys/             <span class="c-com"># the Application Dictionary API</span>
-│       ├── rules/           <span class="c-com"># GoRules evaluation</span>
-│       ├── workflow/        <span class="c-com"># the step executor</span>
-│       ├── hooks/handlers/  <span class="c-com"># ⭐ your hook bodies live here, never overwritten</span>
-│       ├── audit/           <span class="c-com"># append-only change log</span>
-│       └── auth/            <span class="c-com"># sessions, roles, permissions</span>
-├── frontend/                <span class="c-com"># TanStack Start + React 19 (192 files)</span>
+├── backend/                 <span class="c-com"># Loco.rs (Rust): a cargo crate, JSON only</span>
+│   ├── migration/           <span class="c-com"># sys_ dictionary DDL, bus_ tables, indexes</span>
+│   ├── seed/                <span class="c-com"># dictionary, workflows, access, rules, reports,</span>
+│   │                        <span class="c-com">#   transitions, system, business sample data</span>
+│   ├── src/controllers/     <span class="c-com"># bus (generic CRUD), sys (the dictionary API),</span>
+│   │                        <span class="c-com">#   rules, workflow, audit, report, me, auth</span>
+│   ├── src/services/        <span class="c-com"># authz (the three gates), rules_engine, workflow</span>
+│   ├── src/hooks/handlers/  <span class="c-com"># ⭐ your hook bodies live here, never overwritten</span>
+│   ├── src/tasks/           <span class="c-com"># the seed tasks and ensure_admin</span>
+│   └── tests/               <span class="c-com"># cargo test request suites</span>
+├── frontend/                <span class="c-com"># TanStack Start + Astryx (211 files)</span>
 │   └── src/
 │       ├── routes/          <span class="c-com"># one screen per entity, plus /admin/*</span>
 │       ├── components/      <span class="c-com"># dynamic table, dynamic form, admin shells</span>
 │       └── hooks/           <span class="c-com"># entity, field and lookup queries</span>
-├── tests/                   <span class="c-com"># generated bun:test end-to-end suite (61 files)</span>
-├── model/                   <span class="c-com"># the .mmd this was generated from, shipped along</span>
-├── docker/ · Dockerfile · docker-compose.yml
-└── .github/workflows/       <span class="c-com"># CI for both halves</span></code></pre>
+├── tests/                   <span class="c-com"># generated bun:test end-to-end suite (68 files)</span>
+├── model/model.eml.yaml     <span class="c-com"># the model this was generated from, shipped along</span>
+└── docker-compose.yml       <span class="c-com"># postgres, the backend and the front end</span></code></pre>
 </div>
 
 <div class="stats">
   <div class="stat"><div class="n">17</div><div class="l">bus_ tables</div></div>
-  <div class="stat"><div class="n">25</div><div class="l">rule definitions</div></div>
-  <div class="stat"><div class="n">39</div><div class="l">workflow definitions</div></div>
-  <div class="stat"><div class="n">23</div><div class="l">dictionary windows</div></div>
-  <div class="stat"><div class="n">26</div><div class="l">enum references</div></div>
+  <div class="stat"><div class="n">8</div><div class="l">rule definitions</div></div>
+  <div class="stat"><div class="n">5</div><div class="l">saga definitions</div></div>
+  <div class="stat"><div class="n">22</div><div class="l">dictionary windows</div></div>
+  <div class="stat"><div class="n">26</div><div class="l">enums</div></div>
   <div class="stat"><div class="n">143</div><div class="l">enum values</div></div>
 </div>
 
@@ -234,12 +235,12 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
 <table>
   <thead><tr><th>What</th><th>On regeneration</th></tr></thead>
   <tbody>
-    <tr><td><code>hooks/handlers/&lt;Entity&gt;.ts</code></td><td><strong>Kept.</strong> Written once; new hooks are appended. Your logic is safe.</td></tr>
-    <tr><td><code>hooks/handlers/index.ts</code></td><td>Rewritten — it is pure wiring.</td></tr>
+    <tr><td><code>src/hooks/handlers/&lt;entity&gt;.rs</code></td><td><strong>Kept.</strong> Written once; new hooks are appended. Your logic is safe.</td></tr>
+    <tr><td><code>src/hooks/mod.rs</code></td><td>Rewritten — it is pure wiring.</td></tr>
     <tr><td>Workflows and rules marked <em>from the model</em></td><td>Rewritten. The model owns them.</td></tr>
     <tr><td>Workflows built in the app's own designer</td><td><strong>Kept.</strong> They carry <code>source: designer</code> and regeneration never touches them.</td></tr>
-    <tr><td>Dictionary help you edited</td><td><strong>Kept.</strong> Seeds backfill help only where it is null.</td></tr>
-    <tr><td>Everything else under <code>src/</code></td><td>Rewritten. Treat it as build output.</td></tr>
+    <tr><td>Dictionary help you edited</td><td><strong>Kept.</strong> The dictionary seed inserts only the rows that are not there yet, so it never overwrites an edit.</td></tr>
+    <tr><td>Everything else under <code>backend/src/</code> and <code>frontend/src/</code></td><td>Rewritten. Treat it as build output.</td></tr>
   </tbody>
 </table>
 </div>
@@ -248,8 +249,8 @@ bun run db:setup   <span class="c-com"># migrations, then every seed in order</s
   <div class="note-title">Restart after regenerating</div>
   <p>
     Regenerating replaces the front-end source underneath a running dev server, which usually kills it.
-    Stop the app, regenerate, run <code>bun run db:setup</code> if the model's schema, enums, rules or
-    workflows changed, then start it again.
+    Stop the app, regenerate, run <code>cargo loco db migrate &amp;&amp; cargo loco db seed</code> in
+    <code>backend/</code> if the model's schema, enums, rules or workflows changed, then start it again.
   </p>
 </div>
 

@@ -7,6 +7,7 @@
  */
 
 import { z } from "zod";
+import { snakeCase } from "../utils/naming";
 import type { Entity, EntityAttribute, EntityIndex, Relationship } from "./entity.types";
 import {
   AccessLevel,
@@ -114,6 +115,11 @@ export interface BusEntityAttribute extends EntityAttribute {
    * what a record is called.
    */
   isIdentifier: boolean;
+  /**
+   * The table `references` names, for an attribute whose target is explicit —
+   * what `sys_column.ref_table_name` stores and every lookup resolver prefers.
+   */
+  referencesTable?: string;
 }
 
 /**
@@ -144,7 +150,7 @@ export function entityToBusEntity(entity: Entity, declared?: Map<string, string>
     /*
      * Whose window this entity's records are reached through.
      *
-     * Itself, unless `%%entity <E> parent: <P>` made it a line item — in which
+     * Itself, unless the entity's `parent` made it a line item — in which
      * case the parent's, because a child has no window of its own. Computed
      * here rather than in each template so the seed can name one variable
      * whichever order the two entities were declared in.
@@ -177,7 +183,7 @@ function withIdentifiers(
  * conventional single-column ones, minus the overlap.
  *
  * Both sources name an index after its columns, so an explicit
- * `%%index Compound(smiles) unique` and the convention that indexes every `UK`
+ * unique index on `Compound(smiles)` and the convention that indexes every `UK`
  * column both want `idx_bus_compound_smiles`. Emitted separately the second
  * `CREATE INDEX IF NOT EXISTS` is a silent no-op, and since the conventional
  * one is written first, the author's `unique` is the half that gets dropped —
@@ -202,7 +208,7 @@ function mergeIndexes(entity: Entity): EntityIndex[] {
      * key, paid for on every insert and update, enforcing a constraint that was
      * already enforced.
      *
-     * An explicit `%%index Contact(email) unique` still emits: that is a request
+     * An explicit unique index on `Contact(email)` still emits: that is a request
      * the author wrote down, and it is already in `merged` before this loop.
      */
     if (attribute.name !== "name") continue;
@@ -252,11 +258,25 @@ const SEMANTIC_REFERENCE = {
  * Returns the names in the order they should be concatenated.
  */
 export function identifierColumnNames(
-  attributes: Array<{ name: string; type?: string; unique?: boolean; isForeignKey?: boolean }>,
+  attributes: Array<{
+    name: string;
+    type?: string;
+    unique?: boolean;
+    isForeignKey?: boolean;
+    references?: string;
+  }>,
   primaryKey?: string
 ): string[] {
   const names = new Set(attributes.map((attribute) => attribute.name));
   const has = (name: string) => names.has(name);
+
+  /* A unique `code` beside a `name`: the pair people quote ("USD · US Dollar").
+     The code alone is a key and the name alone is not unique, so a lookup that
+     offered either would be ambiguous or unreadable. A `code` that is not unique
+     is a technical value, not a key, and does not qualify. */
+  if (has("name") && attributes.some((attribute) => attribute.name === "code" && attribute.unique)) {
+    return ["code", "name"];
+  }
 
   /* One column that names the record outright. */
   for (const candidate of ["name", "full_name", "display_name", "title", "label", "subject"]) {
@@ -272,6 +292,19 @@ export function identifierColumnNames(
   for (const candidate of ["code", "reference", "number"]) {
     if (has(candidate)) return [candidate];
   }
+
+  /* The same, with the thing it numbers in front: `order_number`,
+     `invoice_number`, `po_reference`. Without this a sales order was labelled
+     by its currency and customer — the join-entity rule below — and its page
+     was headed by a uuid. The first such column in declaration order wins; a
+     foreign key or the key itself never qualifies. */
+  const quoted = attributes.find(
+    (attribute) =>
+      attribute.name !== primaryKey &&
+      !attribute.isForeignKey &&
+      /_(number|code|reference)$/.test(attribute.name)
+  );
+  if (quoted) return [quoted.name];
 
   /* Prose the author wrote about this record. A `text` column is a description
      — the sentence someone typed to say what happened — and that is what the
@@ -300,7 +333,7 @@ export function identifierColumnNames(
     (attribute) =>
       attribute.name !== primaryKey &&
       attribute.isForeignKey &&
-      isForeignKeyColumnName(attribute.name)
+      (attribute.references !== undefined || isForeignKeyColumnName(attribute.name))
   );
   if (references.length >= 2) return references.slice(0, 2).map((attribute) => attribute.name);
 
@@ -319,8 +352,12 @@ export function identifierColumnNames(
 export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: string): number {
   if (attr.name === "id") return ReferenceType.ID;
   if (entityPrimaryKey && attr.name === entityPrimaryKey) return ReferenceType.ID;
-  if (attr.isForeignKey && isForeignKeyColumnName(attr.name)) return ReferenceType.TABLE_DIRECT;
-  // A column bound to a `%%enum` points at that enum's own list reference. The
+  // An explicit target makes a lookup whatever the column is called; without
+  // one, the name has to be one a resolver can read.
+  if (attr.isForeignKey && (attr.references !== undefined || isForeignKeyColumnName(attr.name))) {
+    return ReferenceType.TABLE_DIRECT;
+  }
+  // A column bound to an enum points at that enum's own list reference. The
   // generated forms render any reference at or above 1000 as a dropdown fed by
   // /sys/ref-list, so this is what stops a modelled status being a text box the
   // user can type anything into — including values the state machine cannot act
@@ -337,12 +374,12 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
 }
 
 /**
- * Failing an alias, the column's name — for the model that wrote `string email`
- * rather than `email email`.
+ * Failing an alias, the column's name — for the model that wrote `email` with
+ * type `string` rather than type `email`.
  *
- * `%%field` aliases are the deliberate way to say a column holds an address,
- * and most models do not use them: `string email`, `string contact_phone` and
- * `string website` are what an author actually writes, and each rendered as a
+ * Semantic type aliases are the deliberate way to say a column holds an
+ * address, and most models do not use them: `email`, `contact_phone` and
+ * `website` typed `string` are what an author actually writes, and each rendered as a
  * plain text box with no keyboard hint, no `type="email"` and no validation.
  *
  * Guarded to a column that could plausibly hold an address, a number or a link:
@@ -437,8 +474,11 @@ const PERSON_TABLES = ["bus_user", "bus_staff", "bus_employee"];
  */
 export function foreignKeyTargetTable(
   columnName: string,
-  tables: ReadonlySet<string>
+  tables: ReadonlySet<string>,
+  explicitTable?: string
 ): string | undefined {
+  // A stated target wins over anything the name would say.
+  if (explicitTable !== undefined) return tables.has(explicitTable) ? explicitTable : undefined;
   const person = () => PERSON_TABLES.find((table) => tables.has(table));
 
   if (PERSON_ROLE_COLUMN_NAMES.has(columnName)) return person();
@@ -536,6 +576,9 @@ export function attributeToBusAttribute(
     // Set across the whole list by `withIdentifiers`; one attribute on its own
     // cannot tell whether it identifies the record.
     isIdentifier: false,
+    ...(attr.isForeignKey && attr.references !== undefined
+      ? { referencesTable: `${BUS_TABLE_PREFIX}${snakeCase(attr.references)}` }
+      : {}),
   };
 }
 
@@ -878,7 +921,7 @@ export function generateSysFields(
     sys_column_id: string;
     column_name: string;
     name: string;
-    /** `%%field <E>.<c> help:` — carried onto the field so a screen shows it. */
+    /** The column's `help` — carried onto the field so a screen shows it. */
     description?: string;
   }>,
   config: DictionaryGenerationConfig = defaultDictionaryConfig

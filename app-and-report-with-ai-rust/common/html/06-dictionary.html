@@ -33,7 +33,7 @@
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
     <li><a href="run-in-browser.html"><span class="nav-num">09</span> Run it here</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -52,7 +52,7 @@
 <table>
   <thead><tr><th>Layer</th><th>Holds</th><th>Comes from</th></tr></thead>
   <tbody>
-    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>erDiagram</code></td></tr>
+    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>entities</code></td></tr>
     <tr><td><strong>Window, Tab and Field</strong></td><td>How each entity is presented: one window per entity, a tab per record view, a field per displayed column, with order and grouping.</td><td>Derived from the columns</td></tr>
     <tr><td><strong>Role</strong></td><td>Which windows a role may reach, and whether it is read-only.</td><td>Seeded, then yours</td></tr>
   </tbody>
@@ -247,7 +247,7 @@
   <div class="note-title">The one trap</div>
   <p>
     Editing a model-owned rule or workflow in the app works, and the next generation overwrites it. If a
-    change matters, it belongs in the <code>.mmd</code>. The app is where you tune; the model is where you
+    change matters, it belongs in the model, <code>.eml.yaml</code>. The app is where you tune; the model is where you
     decide.
   </p>
 </div>

@@ -5,7 +5,7 @@
  *
  *   1. a foreign key names a row the same file inserts, and the entity order
  *      makes that possible with referential integrity switched on;
- *   2. a column bound to a `%%enum` takes a declared value;
+ *   2. a column bound to an enum takes a declared value;
  *   3. a status column backing a state machine takes the machine's initial
  *      state, whatever the enum would otherwise have offered.
  *
@@ -20,33 +20,54 @@
 
 import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import { describe, expect, it } from "vitest";
-import { MermaidParser } from "../../parsers/mermaid.parser";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import type { CompiledWorkflow } from "../../workflows/state-machine";
 import { buildBusinessSeedSql } from "../tanstack-astryx-loco/business-seed";
 
-const MODEL = `erDiagram
-    Customer ||--o{ Order : places
-    Customer {
-        string id PK
-        string name
-        string email
-        string status
-    }
-    Order {
-        string id PK
-        string customer_id FK
-        decimal total
-        string status
-        datetime shipped_at OPTIONAL
-    }
-%%enum OrderStatus: draft, submitted, shipped
-%%field Order.status enum: OrderStatus
+const MODEL = `eml: "1.0"
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+  - name: Order
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: total
+        type: decimal
+      - name: status
+        type: string
+        enum: OrderStatus
+      - name: shipped_at
+        type: datetime
+        optional: true
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Order
+    toCardinality: zero-or-more
+    label: places
 `;
 
 const ROWS = 5;
 
 function seed(workflows: CompiledWorkflow[] = []): string {
-  const parsed = new MermaidParser().parse(MODEL);
+  const parsed = compileYaml(MODEL);
   const declared = declaredEntityNames(parsed.entities);
   const entities = parsed.entities.map((entity) => entityToBusEntity(entity, declared));
   return buildBusinessSeedSql({

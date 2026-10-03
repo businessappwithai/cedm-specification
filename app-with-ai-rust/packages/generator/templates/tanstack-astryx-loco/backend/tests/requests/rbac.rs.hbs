@@ -1,4 +1,4 @@
-//! What `%%rbac` compiles to, enforced on the request.
+//! What the model's access rules compile to, enforced on the request.
 //!
 //! Generated: {{now}}
 //! Project: {{project.name}}
@@ -7,7 +7,7 @@
 //! holds a master role and therefore bypasses every role rule — so to them a
 //! restricted operation and an open one look identical. These tests build their
 //! own non-master caller, and they set up the rules themselves rather than
-//! reading the ones the model happened to declare: a model with no `%%rbac`
+//! reading the ones the model happened to declare: a model with no access rules
 //! would otherwise leave the whole enforcement path untested, and that is the
 //! model most projects start from.
 //!
@@ -27,7 +27,7 @@ use crate::support::{self, bearer, entities::ENTITIES, factory::create_with_pare
 /// The role the probe account holds. Spelled with a space here and matched
 /// against `sales_manager`-style directive spellings by the guard's own
 /// normalisation, which is the thing worth testing: `sys_role.name` is
-/// title-cased for display and a `%%rbac` directive writes the model's spelling.
+/// title-cased for display and an access rule writes the model's spelling.
 const PROBE_ROLE: &str = "Rbac Probe Role";
 
 /// A role nobody holds, used to close an operation.
@@ -37,7 +37,7 @@ const OTHER_ROLE: &str = "rbac_other_role";
 /// `sys_access` grant on `table_name`'s window.
 ///
 /// The grant matters: without it the dictionary's own gate refuses the request
-/// before any `%%rbac` rule is consulted, and a test built on that would pass
+/// before any access rule is consulted, and a test built on that would pass
 /// with the rules doing nothing at all.
 async fn granted_probe(
     request: &TestServer,
@@ -176,11 +176,28 @@ async fn restrict(pool: &PgPool, table_name: &str, operation: &str, role_name: &
     .expect("inserting an operation rule");
 }
 
+/// Leave `table_name` with no operation rule in force.
+///
+/// This suite's own rules are deleted; the model's are set aside by
+/// deactivating them, never deleted. Deleting by table took the model's rules
+/// with it for the rest of the binary, so every later suite ran against an
+/// application with fewer restrictions than the model declares.
+/// `support::with_app` reactivates them on entry to the next test, including
+/// after a test that failed before reaching its own cleanup.
 async fn clear_rules(pool: &PgPool, table_name: &str) {
-    let _ = sqlx::query("DELETE FROM sys_operation_access WHERE table_name = $1")
-        .bind(table_name)
-        .execute(pool)
-        .await;
+    let _ = sqlx::query(
+        "DELETE FROM sys_operation_access WHERE table_name = $1 AND is_model_managed = FALSE",
+    )
+    .bind(table_name)
+    .execute(pool)
+    .await;
+    let _ = sqlx::query(
+        "UPDATE sys_operation_access SET is_active = FALSE, updated_at = NOW()
+          WHERE table_name = $1 AND is_model_managed = TRUE",
+    )
+    .bind(table_name)
+    .execute(pool)
+    .await;
 }
 
 /// A rule closes an operation to the roles it names, and to nobody else.
@@ -217,7 +234,7 @@ async fn an_operation_rule_admits_only_the_roles_it_names() {
 
         // 1. No rules at all: the pair is unrestricted, and the dictionary's
         //    grant is the only thing that had to pass. This is what keeps
-        //    `%%rbac` additive — a model declaring none behaves as it always did.
+        //    the access rules additive — a model declaring none behaves as it always did.
         let unrestricted = read(token.clone()).await;
 
         // 2. A rule naming a role the probe does not hold closes the operation.
@@ -243,7 +260,7 @@ async fn an_operation_rule_admits_only_the_roles_it_names() {
 
         assert_eq!(
             unrestricted, 200,
-            "a table with no rule rows refused a granted caller — `%%rbac` is denying by default"
+            "a table with no rule rows refused a granted caller — the access rules are denying by default"
         );
         assert_eq!(
             closed, 403,
@@ -296,15 +313,23 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
 
         // One edge, so the table has a machine at all. Without any rows the
         // guard has nothing to enforce and every move is legitimate.
-        sqlx::query(
+        //
+        // The id comes back only when this test created the row. When the model
+        // already draws `draft → approved` the insert is a no-op and the edge is
+        // the model's, so it is not this test's to remove — and the table's
+        // other edges never are. Deleting by table once took every edge the
+        // model drew for this entity with it, and `model_transitions` then
+        // failed or passed depending on which of the two ran first.
+        let probe_edge: Option<String> = sqlx::query_scalar(
             r"INSERT INTO sys_workflow_transitions (
                    sys_workflow_transition_id, table_name, status_field,
                    from_state, to_state, transition_name, is_active, created_at)
                VALUES (gen_random_uuid(), $1, 'status', 'draft', 'approved', 'approve', TRUE, NOW())
-               ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING",
+               ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING
+               RETURNING sys_workflow_transition_id::text",
         )
         .bind(entity.table_name)
-        .execute(pool)
+        .fetch_optional(pool)
         .await
         .expect("seeding one transition edge");
 
@@ -327,10 +352,14 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
         let undrawn = patch("nowhere").await;
         let drawn = patch("approved").await;
 
-        let _ = sqlx::query("DELETE FROM sys_workflow_transitions WHERE table_name = $1")
-            .bind(entity.table_name)
+        if let Some(edge) = probe_edge {
+            let _ = sqlx::query(
+                "DELETE FROM sys_workflow_transitions WHERE sys_workflow_transition_id = $1::uuid",
+            )
+            .bind(edge)
             .execute(pool)
             .await;
+        }
 
         assert_eq!(
             undrawn, 400,
@@ -594,7 +623,7 @@ async fn a_read_rule_removes_the_entity_from_the_dashboard() {
 /// or held back from the dashboard and served by the API.
 ///
 /// Line items are the one deliberate difference and are excluded here. A child
-/// declared with `%%entity <Child> parent: <Parent>` has no window of its own
+/// declared with `parent: <Parent>` has no window of its own
 /// and is reached by opening a parent record, so it is not a place to navigate
 /// to — but its rows are readable, and `/api/bus/*` serves them.
 #[tokio::test]

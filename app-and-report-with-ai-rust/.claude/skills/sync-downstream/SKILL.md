@@ -1,262 +1,94 @@
 ---
 name: sync-downstream
-description: Carry a new commit of businessappwithai/app-with-ai-tanstack into the two repositories that read it — this orchestrator and businessappwithai.github.io. Use when the generator has been updated and the pin, the canonical language definition, the four protocol documents, the vendored bundles or the published models need to catch up. Triggers: "update the other repos", "sync the downstream repos", "app-with-ai-tanstack has changed", "move the pin".
+description: Carry a new commit of businessappwithai/app-with-ai-tanstack into the two published sites that live under yaml/ in cedm-specification — the orchestrator's guide (yaml/app-and-report-with-ai-rust/common) and the website (yaml/businessappwithairust). Use when the upstream in-browser generator (appwithai-wasm.js), its runtime or its templates change, or when a language change has landed at the root and the sites' bundles, models or protocol documents need to follow. Triggers: "update the other repos", "sync the downstream repos", "app-with-ai-tanstack has changed", "re-vendor the browser generator".
 ---
 
-# Syncing the two downstream repositories
+# Syncing the published sites
 
-> **Read first — this repository now pins the Rust implementations.**
-> `deps.json` names `app-with-ai-rust` and `enterprise_reporting_rust`, not the
-> TanStack pair. `app-with-ai-tanstack` is still where the language, the four
-> protocol documents and the published models originate, so the steps below
-> about carrying *those* still apply. The pin step does not: a language change
-> reaches the pin only once `app-with-ai-rust` has carried it (see its
-> `docs/SYNC-HISTORY.md`), and it is `app-with-ai-rust`'s commit that goes into
-> `deps.json`. Read `$A` below as the source of language changes, and the pin as
-> `app-with-ai-rust`'s.
+The orchestrator and the website are directories of `cedm-specification` now,
+under `yaml/`. Nothing is pinned and nothing is checked out: the language, the
+generator and both products are in the one tree. What still arrives from
+outside is small, and this is the order that works.
 
-`app-with-ai-tanstack` is upstream of both this repository and
-`businessappwithai.github.io`. Nothing propagates on its own: every copy is
-either pinned, vendored or hand-carried, and the version string is `1.2.0` in
-all three language definitions whatever they actually contain. This is the
-order that works.
-
-Paths below are written from a checkout root that holds all four repositories
-side by side. `$A` is `app-with-ai-tanstack`, `$O` this repository, `$W` the
-website.
+Paths are from the root of `cedm-specification`. `$A` is a checkout of
+`app-with-ai-tanstack`; `$O` is `yaml/app-and-report-with-ai-rust`; `$W` is
+`yaml/businessappwithairust`.
 
 ---
 
-## 0. Find out what actually changed
+## 0. Decide which of the two kinds of change it is
 
-Do this first. Most upstream commits change nothing either repository carries,
-and the work is then only the pin.
-
-```bash
-OLD=$(python3 -c "import json;print([d for d in json.load(open('$O/deps.json'))['dependencies'] if d['name']=='app-with-ai-tanstack'][0]['ref'])")
-cd $A && git log --oneline $OLD..HEAD | cat
-git diff --stat $OLD..HEAD -- language/ website/ html/ examples/ docs/eml-sessions/
-```
-
-Only those five directories can reach a downstream repository. A change
-anywhere else under `packages/` matters only through the **built bundles**,
-which are committed upstream and listed in §3.
-
-**Then check what is already carried rather than assuming.** Earlier sessions
-carry work forward, so grep for a marker of each upstream change in each copy
-before editing anything:
+- **A language change** — the schema, the definition, the checker, the model
+  reader, a construct. That is not carried here. It lands at the root first,
+  through the root's own ledger (`docs/SYNC-HISTORY.md`), and reaches the
+  sites by rebuilding their bundles (§2). Never edit a bundle, a model or a
+  protocol document under `yaml/` to "carry" a language change the root does
+  not have.
+- **A browser-generator change** — `html/assets/appwithai-wasm.js` upstream,
+  or the runtime it writes. That is the one file still vendored (§1).
 
 ```bash
-for m in <marker> <marker>; do
-  for f in $A/website/llmtext/llms-full.txt \
-           $O/common/website/llmtext/llms-full.txt \
-           $W/llms-full.txt; do
-    printf "%-60s " "$f"; grep -qF -- "$m" "$f" && echo yes || echo NO
-  done
-done
+cd $A && git log --oneline <last-carried>..HEAD -- html/assets/appwithai-wasm.js packages/generator/templates/wasm
 ```
 
 ---
 
-## 1. Move the pin — `$O/deps.json`
+## 1. Re-vendor the browser generator, then patch it
 
-`ref` is the only place any ref lives; every workflow reads it in a `resolve`
-job. Replace the `app-with-ai-tanstack` `ref` with the commit you are moving
-to, leave `branch` alone, then prove it resolves:
+Both sites carry the same bundle:
 
 ```bash
-cd $O && ./deps.sh --install && ./deps.sh --status
+cp $A/html/assets/appwithai-wasm.js $W/assets/js/appwithai-wasm.js
+cp $A/html/assets/appwithai-wasm.js $O/common/html/assets/appwithai-wasm.js
+bun scripts/patch-vendored-generators.ts
+bun scripts/patch-vendored-generators.ts --check
 ```
 
-`--install` installs `app-with-ai-tanstack` only; the line reading
-`no install needed (see deps.json)` for the reporting platform is correct.
+The upstream bundle compiles a model in the earlier notation itself. The patch adds
+`generateFromModel`, which takes the model `appwithai-model.js` compiled from
+YAML, removes the text entry points from the export list, and makes the
+generated application ship `model/model.eml.yaml`. It refuses to run when a
+patch point has moved — read the error, find the new shape upstream, and update
+`REPLACEMENTS` in the script rather than hand-editing the bundle.
 
-If the commit is ahead of upstream's `main` (a branch that has not merged yet),
-say so in the commit message — a later `./deps.sh --update` resolves `branch`
-and would move the pin backwards.
-
----
-
-## 2. The canonical language definition — `$O/common/language/appwithai-language.json`
-
-**This copy is canonical when the three disagree.** Compare normalized, or the
-diff is hundreds of lines of `—`-versus-`—` and compact-versus-expanded
-arrays:
+## 2. Rebuild everything built from the root
 
 ```bash
-python3 -c "
-import json
-for s,d in [('$A/language/appwithai-language.json','/tmp/up.json'),
-            ('$O/common/language/appwithai-language.json','/tmp/orc.json')]:
-    json.dump(json.load(open(s)),open(d,'w'),indent=2,ensure_ascii=False,sort_keys=True)
-"
-diff /tmp/up.json /tmp/orc.json
+bun scripts/build-site-bundles.ts
+bun scripts/build-site-bundles.ts --check
 ```
 
-**Edit it as text, never by re-serialising.** `json.dumps` expands every
-compact array and re-escapes every em dash, which buries a ten-line change in
-three hundred lines of churn. Replace exact string literals with
-`assert s.count(old) == 1` around each one.
+That writes, for each site, `model-yaml.js` (the published validator),
+`appwithai-model.js` (what the in-browser generator is fed) and
+`viewers/appwithai-model.js` (what the model viewers read). All three are
+built from `language/browser/`; none is copied from upstream.
 
-Keep this repository's own deltas: `generatorContract.targets`,
-`repositoryLayout`, its `common/`-relative paths, its `language.description`,
-and any diagnostic-range note that is richer here than upstream.
-
----
-
-## 3. The built bundles — copy, never rebuild
-
-These are committed upstream. Their bytes depend on the bun version **and the
-platform**, so rebuilding them anywhere but where upstream's CI builds commits
-bytes that CI will reject.
-
-| To | From |
-|---|---|
-| `$O/common/website/viewers/eml-model.js` | `$A/website/viewers/eml-model.js` |
-| `$W/guide/checker.js` | `$A/html/checker.js` |
-| `$W/guide/fixer.js` | `$A/html/fixer.js` |
-| `$W/assets/js/appwithai-wasm.js` | `$A/html/assets/appwithai-wasm.js` |
-| `$W/assets/js/appwithai-fullstack.js` | `$A/html/assets/appwithai-fullstack.js` |
-| `$W/viewers/eml-model.js` | `$A/website/viewers/eml-model.js` |
-| `$W/guide/wasm-app/sw.js` | `$A/html/wasm-app/sw.js` |
-| `$W/llmdetailed.txt` | `$A/website/llmtext/llmdetailed.txt` |
-
-**The orchestrator's two validators are no longer on that list — they are built.**
-`$O/common/html/checker.js` and `fixer.js` are bundled from its own
-`language/browser/*.entry.ts`, which inline its own canonical
-`appwithai-language.json`. Copying the product's over them re-introduces a
-validator that disagrees with the language beside it. After changing that
-repository's language definition or checker, rebuild instead:
+## 3. Prove the sites still agree with the language
 
 ```bash
-cd $O/common && bun run build:language-tools && bun run check:language-tools
+cd $O/common && bun run check          # models, types, lint, bundles, stacks, CLIs, pack
+cd $W && node scripts/check-spec.mjs && node scripts/website-e2e.mjs
 ```
 
-**Build them on CI's runtime.** `Bun.build` output depends on the bun version and
-the platform; `root-ci.yml` pins `BUN_VERSION: 1.4.0` on `linux-x64`. Building on
-anything else commits bytes CI rejects while `--check` passes locally — which is
-exactly how the branch this came from shipped a 1.3.11 build. `--check` prints
-which case a mismatch is; read it rather than rebuilding reflexively.
-
-`$W/guide/checker.js` on the **site** stays vendored from the product, because the
-site publishes the product's validators. The two are now deliberately different
-bundles, and that is not drift.
-
-**`$W/assets/vendor/stack-templates.json` is the trap.** It is gitignored
-upstream, so it is not in the checkout and a `cp` silently skips it — while
-`appwithai-fullstack.js` beside it now wants templates the old payload does
-not carry. Build it:
-
-```bash
-cd $O/app-with-ai-tanstack && bun run build:stack-templates
-cp html/assets/stack-templates.json $W/assets/vendor/stack-templates.json
-```
-
-The symptom of forgetting is `website-e2e.mjs` dying with `ENOENT` on a
-`.hbs` path, or a `carries(...)` assertion reporting the payload "predates the
-feature".
-
-**Files with local deltas — check before copying.** `$W/assets/js/run-in-browser.js`
-and `run-real-stack.js` carry site-only changes (the `awTrack` lines, the
-vendored PGlite shim, `overlay: false`, the extra `BUILT_IN` entries,
-`?theme=dark`, the `guide/` import paths). `$W/viewers/index.html` is authored
-here, not vendored. If upstream changed either `run-*.js`, re-apply every delta
-the website's CLAUDE.md tabulates; if it did not, leave them alone.
-
----
+and generate a published model in each browser page (`$O/common/html/run-in-browser.html`,
+`$W/guide/run-in-browser.html`) — a bundle that loads is not a bundle that
+generates.
 
 ## 4. The protocol documents
 
-Four per repository, and **two of each four are build outputs**.
+The orchestrator's four protocol documents are the root's YAML-first editions
+(`website/llmtext/`) with the orchestrator's own material spliced in —
+§1a (the orchestrator), §4.1.2 (the `enterprise-reporting` target) and two
+answering rules at the end of §11 — identically in each base and its derived
+enhancement edition, so each pair stays derived. When the root's editions
+change, rebuild the orchestrator's from them the same way, and confirm that
+each base and its enhancement edition received identical additions.
 
-- `$O/common/website/llmtext/` — its own bases; hand-carry upstream prose.
-- `$W/llmdetailed.txt` — vendored (§3). `$W/llms-full.txt` — **authored here**,
-  a language-only rewrite with its own section numbering. Never overwrite it;
-  carry the change by hand and expect the anchor text to differ.
+`llms-reporting.txt` is the orchestrator's own and has no root counterpart.
 
-Then re-derive both enhancement editions in each repository:
+## 5. Commit
 
-```bash
-cd $W
-node scripts/build-llmtext-enhancement.mjs          # the site's own pair
-O=$O/common/website/llmtext
-node scripts/build-llmtext-enhancement.mjs --base $O/llms-full.txt   --protocol batch       --out $O/llmtextenhancement.txt
-node scripts/build-llmtext-enhancement.mjs --base $O/llmdetailed.txt --protocol interactive --out $O/llmdetailedenhancement.txt
-```
-
-A hand edit to an enhancement edition is lost the next time anyone runs the
-deriver, silently, because the output is checked in and reads like a document.
-
-**Re-vendoring `llmdetailed.txt` can break `check-spec.mjs` without either
-being wrong.** That check pins the *verbatim wording* of the host-spelling
-counter-examples so it can hold them out of its own scan; upstream rewords
-them. When it reports stray hosts on lines that are plainly teaching lines,
-widen `TEACHING` in `$W/scripts/check-spec.mjs` rather than editing the
-vendored document — then prove the check still bites by appending a real bare
-host to a document and watching it fail.
-
----
-
-## 5. The models
-
-- `$O/common/examples/hospital-management-system.mmd` twins
-  `$A/examples/hospital-management-system.mmd`. `diff` them; they are meant to
-  match.
-- `$O/common/{language/examples,html/models}/` must stay byte-identical to each
-  other — `check:models` asserts it. **Edit both.**
-- `$W/guide/models/crm.eml.mmd` and `drug-discovery.eml.mmd` must stay
-  byte-identical to `$A/html/models/`; `dance-studio` twins
-  `$A/language/examples/`.
-- The site's big `hospital-management-system.eml.mmd` has **diverged from
-  upstream on purpose** — it carries the EML287 snake_case repair that
-  `$A/docs/eml-sessions/` does not. Do not "re-vendor" it back.
-
----
-
-## 6. Rebuild what the website derives from the validators
-
-Any change to `$W/guide/checker.js` or `fixer.js` stales three more artifacts:
-
-```bash
-cd $W
-node scripts/build-validator-source-page.mjs     # guide/source/
-node scripts/build-standalone-checker.mjs        # guide/check-model-standalone.mjs
-```
-
----
-
-## 7. Run the checks
-
-Orchestrator — everything but the pack, which needs a PostgreSQL:
-
-```bash
-cd $O/common && bun install
-bun run check:models && bun run type-check && bun run lint \
-  && bun run check:stacks && bun run check:clis && bun run check:pack
-cd $O && git status --porcelain     # CI fails on a dirty tree
-```
-
-`type-check` reporting TS2307 on `jdm.ts` and `reporting-pack.ts` means the
-dependency checkouts are not placed — that is step 1, not a broken repository.
-
-Website — this is `tests.yml`, in order, Node only:
-
-```bash
-cd $W
-node scripts/check-spec.mjs
-node scripts/build-llmtext-enhancement.mjs --check
-node scripts/build-validator-source-page.mjs --check
-node scripts/check-validator-source-pages.mjs
-node scripts/build-standalone-checker.mjs --check
-for m in guide/models/*.mmd; do node guide/check-model.mjs "$m" --quiet; done
-for m in guide/models/*.mmd; do node guide/audit-model.mjs "$m" --quiet; done   # each must be 22/22
-node scripts/website-e2e.mjs
-```
-
----
-
-## 8. Commit and push
-
-Both repositories develop on the branch this session was given. Say in each
-commit message what moved upstream and what was carried — and, where a check
-was changed rather than a document, why the check was the thing that was wrong.
+One commit per concern: the re-vendored bundle with its patch, the rebuilt
+bundles, the documents. Say which upstream commit the generator bundle came
+from — it is the only upstream ref this repository records, and the commit
+message is where it lives.

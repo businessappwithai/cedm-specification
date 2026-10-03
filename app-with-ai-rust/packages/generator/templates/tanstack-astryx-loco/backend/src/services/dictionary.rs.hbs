@@ -51,6 +51,16 @@ impl std::fmt::Display for TableName {
 
 /// Column metadata as the dictionary describes it. Field names mirror
 /// `sys_column` so the JSON the metadata endpoints return is unchanged.
+/// One way a lookup's choices are narrowed by another column of the same record:
+/// the lookup lists the target rows whose `on` column equals the record's `by`
+/// column. A state is narrowed by its country (`{by: country_id, on: country_id}`),
+/// a city by its state and its country. `sys_column.narrowed_by` holds the list.
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct Narrowing {
+    pub by: String,
+    pub on: String,
+}
+
 #[derive(Clone, Debug, serde::Serialize)]
 pub struct ColumnMeta {
     pub column_name: String,
@@ -63,6 +73,8 @@ pub struct ColumnMeta {
     pub default_value: Option<String>,
     pub ref_table_name: Option<String>,
     pub seq_no: Option<i32>,
+    /// What narrows this lookup's choices; empty for a column that offers every row.
+    pub narrowed_by: Vec<Narrowing>,
 }
 
 #[derive(Clone, Debug, serde::Serialize)]
@@ -197,13 +209,13 @@ impl DictionaryCache {
         .fetch_one(&self.pool)
         .await?;
 
-        // `ref_table_name` is deliberately not selected: it is not a column.
-        // The lookup target is derived from the column name — see
-        // `resolve_ref_table_name`.
+        // The lookup target is the stored `ref_table_name` where the model
+        // stated one, and is derived from the column name otherwise — see
+        // `resolve_ref_table`.
         let columns = sqlx::query_as::<_, ColumnRow>(
             r"SELECT c.column_name, c.name, c.sys_reference_id, c.is_mandatory,
                      c.is_updateable, c.is_key, c.field_length, c.default_value,
-                     c.seq_no
+                     c.seq_no, c.ref_table_name, c.narrowed_by
                 FROM sys_column c
                 JOIN sys_table t ON t.sys_table_id = c.sys_table_id
                WHERE t.table_name = $1 AND c.is_active = true
@@ -291,13 +303,38 @@ const PERSON_ROLE_COLUMNS: &[&str] = &[
 /// `language/appwithai-language.json`, which is the canonical list.
 const QUALIFIER_PREFIXES: &[&str] = &["parent_"];
 
+/// The table a lookup column points at: the stored target where there is one,
+/// and the one its name derives otherwise.
+///
+/// `sys_column.ref_table_name` (m0018) is written only for a reference the
+/// model named outright and whose column name would derive something else — a
+/// CEDM `deliveryLocation → Location` held in `delivery_location_id`. Every
+/// other column leaves it NULL, so this is exactly `resolve_ref_table_name` for
+/// every model without such a reference.
+#[must_use]
+pub fn resolve_ref_table(
+    stored: Option<&str>,
+    column_name: &str,
+    sys_reference_id: Option<i32>,
+) -> Option<String> {
+    if !matches!(
+        sys_reference_id,
+        Some(REFERENCE_TABLE) | Some(REFERENCE_TABLE_DIRECT)
+    ) {
+        return None;
+    }
+    match stored.map(str::trim) {
+        Some(table) if !table.is_empty() => Some(table.to_string()),
+        _ => resolve_ref_table_name(column_name, sys_reference_id),
+    }
+}
+
 /// The table a lookup column points at, derived from its name.
 ///
-/// There is no stored target — `sys_column` has no `ref_table_name` column in
-/// either stack — because the model has no syntax for naming one: the column
-/// name carries the reference (see `foreignKeys.resolution` in the language
-/// definition). A column that resolves to nothing renders its raw id, which is
-/// the documented fallback rather than an error.
+/// The column name carries the reference (see `foreignKeys.resolution` in the
+/// language definition); `resolve_ref_table` puts a stored target ahead of it.
+/// A column that resolves to nothing renders its raw id, which is the
+/// documented fallback rather than an error.
 #[must_use]
 pub fn resolve_ref_table_name(column_name: &str, sys_reference_id: Option<i32>) -> Option<String> {
     if !matches!(
@@ -347,6 +384,8 @@ struct ColumnRow {
     field_length: Option<i32>,
     default_value: Option<String>,
     seq_no: Option<i32>,
+    ref_table_name: Option<String>,
+    narrowed_by: Option<String>,
 }
 
 impl From<ColumnRow> for ColumnMeta {
@@ -360,9 +399,18 @@ impl From<ColumnRow> for ColumnMeta {
             is_key: row.is_key.unwrap_or(false),
             field_length: row.field_length,
             default_value: row.default_value,
-            ref_table_name: resolve_ref_table_name(&column_name, row.sys_reference_id),
+            ref_table_name: resolve_ref_table(
+                row.ref_table_name.as_deref(),
+                &column_name,
+                row.sys_reference_id,
+            ),
             column_name,
             seq_no: row.seq_no,
+            narrowed_by: row
+                .narrowed_by
+                .as_deref()
+                .and_then(|json| serde_json::from_str(json).ok())
+                .unwrap_or_default(),
         }
     }
 }
@@ -417,6 +465,24 @@ mod tests {
     /// The cases from `foreignKeys.personRoleColumns.examples` in the language
     /// definition, plus the ones `BusService.resolveRefTableName` handles. If
     /// this drifts, the two stacks render different lookups for the same model.
+    #[test]
+    fn a_stored_target_wins_over_the_name_and_only_for_a_lookup() {
+        let table = Some(REFERENCE_TABLE_DIRECT);
+        assert_eq!(
+            resolve_ref_table(Some("bus_location"), "delivery_location_id", table).as_deref(),
+            Some("bus_location")
+        );
+        assert_eq!(
+            resolve_ref_table(None, "compound_id", table).as_deref(),
+            Some("bus_compound")
+        );
+        assert_eq!(
+            resolve_ref_table(Some(""), "compound_id", table).as_deref(),
+            Some("bus_compound")
+        );
+        assert_eq!(resolve_ref_table(Some("bus_location"), "x_id", Some(10)), None);
+    }
+
     #[test]
     fn ref_table_names_match_the_typescript_resolver() {
         let table = Some(REFERENCE_TABLE);

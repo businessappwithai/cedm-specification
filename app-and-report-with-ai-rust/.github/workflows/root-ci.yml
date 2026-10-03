@@ -227,7 +227,7 @@ jobs:
       - name: Lint
         run: bun run lint
 
-      # html/checker.js and html/fixer.js are bundled from
+      # html/model-yaml.js and the appwithai-model.js bundles are built from
       # language/browser/*.entry.ts, and each inlines this repository's own
       # appwithai-language.json — the canonical copy. Editing the definition or
       # the checker stales them and nothing else notices, so this fails rather

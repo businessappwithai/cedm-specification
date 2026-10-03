@@ -1,23 +1,24 @@
 /**
- * APPWITHAI Modeling Language (EML)
+ * AppWithAI Modeling Language (EML)
  * ---------------------------------
- * Standalone, Mermaid-based language for describing an application's
- * Entity Relationship Diagram (ERD), its business rules, and its business
- * workflows in one artifact.
+ * A model is a YAML document (`*.eml.yaml`) describing an application's
+ * entities and relationships, its business rules, its access rules and its
+ * workflows. `yaml/eml.schema.json` defines the document's shape;
+ * `appwithai-language.json` defines the vocabulary it is written in — the
+ * types, the cardinalities, the lifecycle events, the rule node types, the
+ * saga step types — and what each compiles to.
  *
- * The canonical, machine-readable definition lives in
- * `language/appwithai-language.json`. This module is a typed loader/accessor
- * so the generator application (and any tooling) can read the language
- * definition without re-parsing the JSON by hand.
+ * This module is the typed accessor for `appwithai-language.json`, so every
+ * reader of a model — the checker, the CLI, the generator, the browser bundle —
+ * reads one vocabulary.
  *
  * @example
  * ```ts
- * import { loadLanguageDefinition, normalizeType, cardinalityKind } from "../language";
+ * import { normalizeType, cardinalityKind, isHookType } from "../language";
  *
- * const def = loadLanguageDefinition();
- * normalizeType("varchar");      // "string"
- * cardinalityKind("||--o{");     // "oneToMany"
- * isHookType("beforeCreate");    // true
+ * normalizeType("varchar");                            // "string"
+ * cardinalityKind("exactly-one", "zero-or-more");      // "oneToMany"
+ * isHookType("beforeCreate");                          // true
  * ```
  */
 
@@ -41,6 +42,9 @@ export type CanonicalType =
 
 export type CardinalityKind = "oneToOne" | "oneToMany" | "manyToOne" | "manyToMany";
 
+/** How many records may stand at one end of a relationship. */
+export type RelationshipEnd = "exactly-one" | "zero-or-one" | "zero-or-more" | "one-or-more";
+
 export type HookType =
   | "beforeCreate"
   | "afterCreate"
@@ -63,8 +67,11 @@ export type JdmNodeRole =
   | "functionNode"
   | "expressionNode";
 
+/** What a node of a rule's decision graph does. */
+export type RuleNodeType = "start" | "end" | "decision" | "expression" | "function";
+
 /**
- * One executable step type for a saga workflow.
+ * One executable step type for a saga.
  *
  * The checker, the generator and both authoring UIs read their notion of "what
  * this step needs" from here, so a new step type is declared once.
@@ -106,7 +113,7 @@ export interface AutomationOperator {
   arity: 0 | 1;
 }
 
-/** One step type in the automation dialect. */
+/** One step type an automation may use. */
 export interface AutomationStepDefinition {
   type: string;
   purpose: string;
@@ -122,16 +129,12 @@ export interface LanguageDefinition {
     name: string;
     abbreviation: string;
     version: string;
-    basedOn: string;
-    mermaidCompatibility: string;
     description: string;
     fileExtensions: string[];
+    documentSchema: string;
     encoding: string;
-    caseSensitivity: Record<string, string>;
     purpose: string[];
   };
-  document: Record<string, unknown>;
-  sections: Record<string, unknown>;
   types: {
     description: string;
     canonical: CanonicalType[];
@@ -139,28 +142,22 @@ export interface LanguageDefinition {
     semanticHints: Record<string, string>;
     default: CanonicalType;
   };
-  modifiers: {
-    description: string;
-    map: Record<string, { meaning: string; effects: string[] }>;
-    defaults: Record<string, string>;
-  };
   cardinalities: {
     description: string;
-    glyphReference: Record<string, string>;
-    map: Array<{ operator: string; kind: CardinalityKind; example: string }>;
+    ends: Record<RelationshipEnd, string>;
+    map: Array<{ from: RelationshipEnd; to: RelationshipEnd; kind: CardinalityKind; example: string }>;
   };
   hooks: {
     description: string;
     types: Array<{ type: HookType; phase: string; op: string; purpose: string }>;
-    directive: { pattern: string; regex: string; paramForms: string[] };
   };
   ruleNodes: {
     description: string;
-    /** Side-effecting actions a %%action directive may declare. */
+    /** What each node type of a rule's decision graph compiles to. */
+    types: Array<{ type: RuleNodeType; jdmType: JdmNodeRole; role: string }>;
+    /** Side-effecting actions a rule may declare. */
     actions?: {
       description: string;
-      directive: string;
-      whenForm: string;
       types: Array<{
         name: string;
         purpose: string;
@@ -169,71 +166,30 @@ export interface LanguageDefinition {
         example: string;
       }>;
     };
-    map: Array<{
-      shape: string;
-      delimiters: string;
-      jdmType: string;
-      role: string;
-      example: string;
-      resolution?: string;
-    }>;
   };
   workflowConstructs: {
-    flowShapes: Record<string, string>;
-    stateForm: Record<string, string>;
-    workflowKinds: Record<string, Record<string, unknown>>;
-    /** Executable step vocabulary for `kind: saga` workflows. */
+    description: string;
+    /** Executable step vocabulary for sagas. */
     stepNodes: {
       description: string;
-      directive: string;
-      propertyForm: string;
       variables: string;
       types: StepNodeDefinition[];
     };
   };
-  /** The automation dialect — the form the shipped builder reads and writes. */
+  /** Automations built in a generated application's automation screen. */
   automations: {
     description: string;
-    relationshipToSaga: string;
-    shipped: boolean;
-    writer: string;
-    reader: string;
-    envelope: { description: string; lines: string[]; note: string };
-    triggers: {
-      description: string;
-      directive: string;
-      note: string;
-      events: AutomationTrigger[];
-    };
-    conditions: {
-      description: string;
-      directive: string;
-      valueEncoding: string;
-      conflict: { with: string; description: string; status: string };
-      operators: AutomationOperator[];
-    };
-    steps: {
-      description: string;
-      directives: string[];
-      types: AutomationStepDefinition[];
-    };
-    references: { description: string; form: string; sources: string[] };
-    nodes: Record<string, string>;
+    triggers: { description: string; events: AutomationTrigger[] };
+    conditions: { description: string; operators: AutomationOperator[] };
+    steps: { description: string; types: AutomationStepDefinition[] };
   };
-  directives: {
-    description: string;
-    reserved: Array<{ keyword: string; form: string; purpose: string; examples: string[] }>;
-  };
-  grammar: Record<string, string>;
-  generatorContract: Record<string, unknown>;
-  conformance: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
 // Loading
 // ---------------------------------------------------------------------------
 
-/** Absolute path to the canonical language definition file. */
+/** Absolute path to the language definition file. */
 export const LANGUAGE_DEFINITION_PATH = (() => {
   // Resolve relative to this module so it works from source and from dist.
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -245,18 +201,16 @@ let cached: LanguageDefinition | null = null;
 /**
  * Supply the definition instead of reading it from disk.
  *
- * The checker runs in a browser tab now — `appwithai-wasm`'s upload page checks
- * a model before compiling it — and a tab has no `appwithai-language.json` to
- * open. The bundler inlines the same JSON and hands it over here, so the
- * vocabulary a document is checked against is the file in this folder either
- * way, rather than a second copy that drifts.
+ * A browser tab has no `appwithai-language.json` to open: the bundler inlines
+ * the same JSON and hands it over here, so the vocabulary a model is checked
+ * against is the file in this folder either way.
  */
 export function setLanguageDefinition(definition: LanguageDefinition): void {
   cached = definition;
 }
 
 /**
- * Load and cache the canonical EML definition from disk.
+ * Load and cache the language definition from disk.
  * @param force - bypass the in-memory cache and re-read the file.
  */
 export function loadLanguageDefinition(force = false): LanguageDefinition {
@@ -267,10 +221,10 @@ export function loadLanguageDefinition(force = false): LanguageDefinition {
 }
 
 // ---------------------------------------------------------------------------
-// Convenience accessors (thin helpers over the definition data)
+// Accessors
 // ---------------------------------------------------------------------------
 
-/** Normalize an attribute type alias to its canonical type (default: "string"). */
+/** Normalise an attribute type alias to its canonical type. */
 export function normalizeType(rawType: string): CanonicalType {
   const def = loadLanguageDefinition();
   const key = (rawType || "")
@@ -280,11 +234,13 @@ export function normalizeType(rawType: string): CanonicalType {
   return def.types.map[key] ?? def.types.default;
 }
 
-/** Resolve a Mermaid ER relationship operator to a cardinality kind, or null. */
-export function cardinalityKind(operator: string): CardinalityKind | null {
-  const def = loadLanguageDefinition();
-  const found = def.cardinalities.map.find((c) => c.operator === operator);
-  return found ? found.kind : null;
+/** The kind of relationship two ends make, or null for a pair the language does not define. */
+export function cardinalityKind(from: RelationshipEnd, to: RelationshipEnd): CardinalityKind | null {
+  return (
+    loadLanguageDefinition().cardinalities.map.find(
+      (entry) => entry.from === from && entry.to === to
+    )?.kind ?? null
+  );
 }
 
 /** All valid lifecycle hook types. */
@@ -297,19 +253,14 @@ export function isHookType(value: string): value is HookType {
   return hookTypes().includes(value as HookType);
 }
 
-/** All reserved directive keywords (e.g. "%%hook", "%%enum"). */
-export function reservedDirectives(): string[] {
-  return loadLanguageDefinition().directives.reserved.map((d) => d.keyword);
-}
-
-/** Language version string, e.g. "1.0.0". */
+/** Language version string, e.g. "2.0.0". */
 export function languageVersion(): string {
   return loadLanguageDefinition().language.version;
 }
 
 export default loadLanguageDefinition;
 
-/** The executable step types a `kind: saga` workflow may use. */
+/** The executable step types a saga may use. */
 export function stepNodeTypes(): StepNodeDefinition[] {
   return loadLanguageDefinition().workflowConstructs.stepNodes.types;
 }
@@ -328,18 +279,12 @@ export function automationTriggers(): AutomationTrigger[] {
   return loadLanguageDefinition().automations.triggers.events;
 }
 
-/**
- * The hook name a trigger event maps to, or null if the event is unknown.
- *
- * This is the mapping the serialiser writes into `%%hook`, so a tool that
- * needs to read or emit an automation should take it from here rather than
- * restating it.
- */
+/** The hook a trigger event maps to, or null if the event is unknown. */
 export function triggerHook(event: string): string | null {
   return automationTriggers().find((t) => t.event === event)?.hook ?? null;
 }
 
-/** The reverse: which trigger event a `%%hook` name denotes. */
+/** The reverse: which trigger event a hook name denotes. */
 export function hookTriggerEvent(hook: string): string | null {
   return automationTriggers().find((t) => t.hook === hook)?.event ?? null;
 }
@@ -351,8 +296,8 @@ export function automationOperators(): AutomationOperator[] {
 
 /**
  * How many operands an operator takes: 1 normally, 0 for checks like
- * "is empty" that have nothing on the right-hand side. Unknown operators are
- * reported as 1, matching the builder's own fallback.
+ * "is empty" that have nothing on the right-hand side. An operator the language
+ * does not define is reported as 1, the arity of every comparison.
  */
 export function operatorArity(id: string): 0 | 1 {
   return automationOperators().find((o) => o.id === id)?.arity ?? 1;

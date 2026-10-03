@@ -1,33 +1,72 @@
 /**
- * Workflow Types
+ * A service's hooks, as the enhance step edits them.
  *
- * Type definitions for hook-based workflow system
+ * A service is an entity; its hooks are the lifecycle handlers the generated
+ * backend calls around each operation on it. They are stored as
+ * `hook_definitions` on the service's `workflows` row, and composed into the
+ * model's `hooks` when the project is generated (`lib/model/compose.ts`).
  */
 
-import type { HookParameter, HookType } from "../lib/workflow/hook-parser";
+/** Every lifecycle event a generated service dispatches a hook for. */
+export const HOOK_TYPES = [
+  "beforeCreate",
+  "afterCreate",
+  "beforeUpdate",
+  "afterUpdate",
+  "beforeDelete",
+  "afterDelete",
+  "beforeQuery",
+  "afterQuery",
+  "customValidate",
+  "beforeRead",
+  "afterRead",
+  "beforeList",
+  "afterList",
+] as const;
 
-/**
- * Hook definition as stored in the database
- */
+export type HookType = (typeof HOOK_TYPES)[number];
+
+/** A column a hook is scoped to. */
+export interface HookParameter {
+  name: string;
+  type: string;
+}
+
+/** One hook on a service, as stored in `hook_definitions`. */
 export interface HookDefinition {
   type: HookType;
+  /** The handler the generated backend calls — a function name. */
   name: string;
   entity: string;
   parameters?: HookParameter[];
   enabled: boolean;
+  /** The handler body the author wrote here, if any. */
   code?: string;
   order: number;
 }
 
-/**
- * Hook workflow with flowchart representation
- */
+const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/** What is wrong with a hook, in words; empty when it can be generated. */
+export function validateHookDefinition(hook: Pick<HookDefinition, "type" | "name" | "entity">): string[] {
+  const errors: string[] = [];
+  if (!(HOOK_TYPES as readonly string[]).includes(hook.type))
+    errors.push(`"${hook.type}" is not a lifecycle event a service dispatches.`);
+  if (!IDENTIFIER.test(hook.name))
+    errors.push(
+      `"${hook.name || "(unnamed)"}" is not a valid handler name — letters, digits and underscore, not starting with a digit.`
+    );
+  if (!IDENTIFIER.test(hook.entity))
+    errors.push(`"${hook.entity || "(none)"}" is not a valid entity name.`);
+  return errors;
+}
+
+/** A service's hooks as the enhance step loads and saves them. */
 export interface HookWorkflow {
   id: string;
   projectId: string;
   serviceName: string;
   hooks: HookDefinition[];
-  flowchartCode: string;
   generatedHookCode?: string;
   isDraft: boolean;
   lastModified: string;
@@ -35,38 +74,7 @@ export interface HookWorkflow {
   createdAt?: string;
 }
 
-/**
- * Legacy workflow definition (for backwards compatibility)
- */
-export interface WorkflowDefinition {
-  id: string;
-  name: string;
-  serviceName: string;
-  mermaidCode: string;
-  description?: string;
-}
-
-/**
- * Request to save draft workflow
- */
-export interface SaveDraftRequest {
-  serviceName: string;
-  hooks: HookDefinition[];
-  flowchartCode: string;
-}
-
-/**
- * Request to apply workflow (full save with validation)
- */
-export interface ApplyWorkflowRequest {
-  serviceName: string;
-  hooks: HookDefinition[];
-  flowchartCode: string;
-}
-
-/**
- * Response from applying workflow
- */
+/** Response from applying a service's hooks. */
 export interface ApplyWorkflowResponse {
   workflowId: string;
   generatedCode?: string;
@@ -74,22 +82,10 @@ export interface ApplyWorkflowResponse {
   warnings?: string[];
 }
 
-/**
- * Service information for service selection page
- */
+/** A service offered on the enhance step. */
 export interface ServiceInfo {
   name: string;
   entity: string;
   description: string;
   hooksCount: number;
-}
-
-/**
- * Draft data stored in localStorage
- */
-export interface DraftWorkflowData {
-  workflow: HookWorkflow;
-  flowchartCode: string;
-  selectedHooks: HookDefinition[];
-  timestamp: string;
 }

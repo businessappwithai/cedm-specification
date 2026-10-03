@@ -1,20 +1,20 @@
 /**
  * The business-rule designer, as a viewer.
  *
- * A `%%rule` section is a decision flowchart whose node *shapes* carry the
- * role -- a stadium is where the rule starts or ends, a diamond is a branch, a
- * rectangle applies an outcome, a rounded node works a value out. This draws
+ * A rule is a decision graph whose node *types* carry the role -- `start` and
+ * `end` are where the rule starts or ends, a `decision` is a branch, an
+ * `expression` applies an outcome, a `function` works a value out. This draws
  * the same five roles in the same five colours the design tool's canvas uses,
  * because a rule someone drew there and a rule a language model wrote should
  * not look like two different kinds of thing.
  *
- * The roles arrive already resolved from `eml-model.js`, which reads them the
- * way the rule compiler does. Colouring them is this file's whole job.
+ * The roles arrive already resolved from `appwithai-model.js`, which reads them
+ * the way the rule compiler does. Colouring them is this file's whole job.
  *
- * `%%action` directives are drawn beside the flowchart rather than inside it:
- * they are what the rule *emits* -- a refusal, a transform, a workflow trigger
- * -- and they are the half a reader most often forgets is there, because
- * Mermaid renders the diagram identically with or without them.
+ * A rule's `actions` are drawn beside the graph rather than inside it: they are
+ * what the rule *emits* -- a refusal, a transform, a workflow trigger -- and
+ * they are the half a reader most often forgets is there, because the graph
+ * looks identical with or without them.
  */
 
 import { Canvas, el } from "./canvas.js";
@@ -102,7 +102,7 @@ export class RuleFlowViewer {
   }
 }
 
-/** The `%%action` directives a rule emits, with what each one does. */
+/** The `actions` a rule emits, with what each one does. */
 export function actionList(actions) {
   const list = el("div", "awv-actions");
   if (actions.length === 0) {
@@ -110,7 +110,7 @@ export function actionList(actions) {
       el(
         "p",
         "awv-actions-empty",
-        "This rule declares no %%action, so it decides an outcome without changing anything."
+        "This rule declares no actions, so it decides an outcome without changing anything."
       )
     );
     return list;

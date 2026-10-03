@@ -26,6 +26,10 @@ import { BaseGenerator } from "../base.generator";
 import { statusFieldFor } from "../tanstack-astryx-loco/transitions-seed";
 
 function resolveTemplateDir(subpath: string): string {
+  // TEMPLATE_DIR names the templates root outright. The browser build sets it
+  // to its in-memory volume, where no working directory leads anywhere.
+  const configured = process.env.TEMPLATE_DIR;
+  if (configured) return path.join(configured, subpath);
   const cwd = process.cwd();
   const candidates = [
     path.join(cwd, "packages/generator/templates", subpath),
@@ -52,9 +56,9 @@ export interface BunE2ETestGeneratorOptions {
   frontendPort: number;
   /** Records the bulk-seed suite creates per entity. */
   recordsPerEntity?: number;
-  /** `%%enum` declarations, carried into `harness/model.ts`. */
+  /** Enum declarations, carried into `harness/model.ts`. */
   modelEnums?: EntityEnum[];
-  /** `%%workflow … kind: state` machines, carried into `harness/model.ts`. */
+  /** The model's `stateMachines`, carried into `harness/model.ts`. */
   compiledWorkflows?: CompiledWorkflow[];
 }
 

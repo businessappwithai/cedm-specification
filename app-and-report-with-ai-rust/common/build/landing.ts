@@ -23,7 +23,7 @@
  *     same name decides which tables their queries may read
  *
  * The page is generated rather than static because every account on it comes
- * from the model: a model with nine `%%rbac` roles produces nine pairs, and one
+ * from the model: a model whose access rules name nine roles produces nine pairs, and one
  * with none produces the two administrators. It carries no JavaScript and no
  * network calls — it is a signpost, and a signpost that can fail to load is
  * worse than a redirect.
@@ -229,7 +229,7 @@ ${accountRows(roles, entityTotal)}
   still two different accounts in two different databases. The reporting one is
   the platform's own bootstrap account, whose password is never shorter than
   eight characters: it is <code>${esc(REPORT_ADMIN_WHERE)}</code>.</p>`
-    : `  <div class="note">This model declares no <code>%%rbac</code> roles, so each side has
+    : `  <div class="note">This model's access rules (<code>rbac</code>) name no roles, so each side has
   only its administrator, <code>admin@admin.com</code> &mdash; <code>${esc(appPassword)}</code>
   on the application, and <code>${esc(REPORT_ADMIN_WHERE)}</code> on the reports.</div>`
 }

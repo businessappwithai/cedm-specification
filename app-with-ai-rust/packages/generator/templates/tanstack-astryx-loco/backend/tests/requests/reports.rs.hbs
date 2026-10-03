@@ -1,10 +1,10 @@
-//! The questions the model declared with `%%report`, over HTTP.
+//! The questions the model declared in `reports`, over HTTP.
 //!
 //! These assert against **what the model declared**, not against the rows the
 //! same generator wrote. Reading `sys_report` back and checking it against
 //! itself only proves the application is self-consistent, and passes just as
 //! happily when the compiler dropped a directive on the floor — which is
-//! exactly the failure `%%report` had before it was compiled at all.
+//! exactly the failure reports had before they were compiled at all.
 //!
 //! The read-only assertions are the important ones. `sql_text` is the single
 //! column in this application where text authored in a document becomes a
@@ -19,7 +19,7 @@ use serial_test::serial;
 
 use crate::support::{self, bearer, rows};
 
-/// The names this model's `%%report` directives declared, in order.
+/// The names of this model's `reports`, in order.
 const DECLARED: &[&str] = &[
 {{#each reports}}
     "{{name}}",
@@ -45,7 +45,7 @@ async fn every_report_the_model_declared_is_installed() {
         for name in DECLARED {
             assert!(
                 installed.iter().any(|found| found == name),
-                "%%report {name} was declared but is not in sys_report — the \
+                "report {name} was declared but is not in sys_report — the \
                  compiler or the seed dropped it"
             );
         }
@@ -201,6 +201,43 @@ async fn a_semicolon_inside_a_literal_is_not_a_second_statement() {
             .execute(pool)
             .await
             .expect("removing the planted row");
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn columns_come_back_in_the_order_the_select_declares() {
+    // The screen lays a report out by `columns`. They were once read off a
+    // row's JSON keys, which are sorted, so every report rendered its columns
+    // alphabetically — the grouping column last, after the counts it groups.
+    support::with_app(|request, ctx, token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        sqlx::query(
+            "INSERT INTO sys_report (name, title, sql_text, sort_order)
+             VALUES ('t-ordered', 't-ordered', $1, 9999)
+             ON CONFLICT (name) DO UPDATE SET sql_text = EXCLUDED.sql_text",
+        )
+        .bind("SELECT 'z' AS zeta, 2 AS middle, 1 AS alpha")
+        .execute(pool)
+        .await
+        .expect("planting the query");
+
+        let response = request
+            .get("/api/reports/t-ordered/run")
+            .add_header("authorization", bearer(&token))
+            .await;
+
+        sqlx::query("DELETE FROM sys_report WHERE name = 't-ordered'")
+            .execute(pool)
+            .await
+            .expect("removing the planted row");
+
+        assert_eq!(response.status_code(), 200);
+        assert_eq!(
+            response.json::<Value>()["columns"],
+            json!(["zeta", "middle", "alpha"])
+        );
     })
     .await;
 }

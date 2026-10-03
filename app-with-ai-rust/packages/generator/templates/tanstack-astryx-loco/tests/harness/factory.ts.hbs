@@ -84,13 +84,15 @@ const BY_NAME: Array<[RegExp, () => unknown]> = [
   [/price|amount|total|cost|salary|fee|balance|revenue/i, () =>
     Number(faker.commerce.price({ min: 1, max: 10_000 })),
   ],
-  [/quantity|qty|count|stock|units/i, () => faker.number.int({ min: 0, max: 500 })],
+  // Anchored: an unanchored `count` matched "dis(count)_percent" and filled a
+  // percentage with anything up to 500.
+  [/quantity|qty|(^|_)(count|stock|units)(_|$)/i, () => faker.number.int({ min: 0, max: 500 })],
   [/percent|discount|(^|_)(rate|ratio)(_|$)/i, () => Number(faker.number.float({ min: 0, max: 100, fractionDigits: 2 }))],
   [/sku|code|reference|ref_?no|serial/i, () => faker.string.alphanumeric({ length: 10, casing: "upper" })],
   [/color|colour/i, () => faker.color.human()],
   [/currency/i, () => faker.finance.currencyCode()],
   [/iban|account_?no/i, () => faker.finance.accountNumber()],
-  // Only reached by a status column the model bound to no `%%enum`. One that
+  // Only reached by a status column the model bound to no enum. One that
   // did is answered by `declaredValues` before this list is consulted at all.
   [/status|state$/i, () => faker.helpers.arrayElement(["active", "pending", "closed", "draft"])],
   [/priority|severity/i, () => faker.helpers.arrayElement(["low", "medium", "high", "critical"])],
@@ -127,6 +129,15 @@ function truncate(value: unknown, field: FieldMeta): unknown {
 }
 
 /**
+ * The only temporal shapes the API accepts. `Date.parse` alone is not a type
+ * check: V8's legacy parser reads `"nova56"` as November 1956, so a username
+ * generated for `last_login` passed as a timestamp and the API refused the
+ * record — 17 of every 1000 users in the bulk seed.
+ */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/;
+
+/**
  * Whether a generated value is storable in a column of this declared type.
  *
  * The name-driven generators are heuristics over substrings, so they will
@@ -144,8 +155,11 @@ function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
     case "boolean":
       return typeof value === "boolean";
     case "date":
+      return typeof value === "string" && ISO_DATE.test(value) && !Number.isNaN(Date.parse(value));
     case "datetime":
-      return typeof value === "string" && !Number.isNaN(Date.parse(value));
+      return (
+        typeof value === "string" && ISO_DATETIME.test(value) && !Number.isNaN(Date.parse(value))
+      );
     case "json":
       return typeof value === "object" && value !== null;
     default:
@@ -156,7 +170,7 @@ function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
 /**
  * The vocabulary the model declared for this column, if it declared one.
  *
- * `%%enum` is a closed list, and the generated application enforces it: the
+ * An enum is a closed list, and the generated application enforces it: the
  * column gets a `sys_ref_list` reference, the form renders a dropdown, and the
  * API refuses a value outside it. Guessing here is therefore not "a less
  * realistic value" — it is an invalid one.
@@ -231,7 +245,7 @@ export function buildRecord(
     /*
      * A record starts where the machine says records start.
      *
-     * `%%workflow … kind: state` draws a topology, and `[*] --> x` names the
+     * A state machine declares a topology, and its `initial` names the
      * one state a new record may be in. Any other declared value is a state the
      * record cannot have reached, so the moves out of it are the wrong ones and
      * a suite walking the machine from there has nowhere legal to go. An

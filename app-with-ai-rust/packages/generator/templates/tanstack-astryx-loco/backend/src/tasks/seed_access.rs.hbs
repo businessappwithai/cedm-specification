@@ -1,4 +1,4 @@
-//! `cargo loco task seed_access` — the roles and restrictions `%%rbac` declared.
+//! `cargo loco task seed_access` — the roles and restrictions the model's access rules declared.
 //!
 //! Two halves, and they are separate because only one of them can be SQL.
 //!
@@ -12,7 +12,7 @@
 //! digest and SQL cannot produce one. One account per role the model named, so
 //! the application can actually demonstrate its own authorization: the
 //! administrator bypasses every restriction, so an application whose only
-//! account is the administrator cannot show what a single `%%rbac` directive
+//! account is the administrator cannot show what a single access rule
 //! did.
 //!
 //! **Why a seed rather than a migration**, for the same reason the dictionary
@@ -25,7 +25,7 @@
 //! discarding what an administrator added.
 //!
 //! **A `(table_name, operation)` pair with no rows is unrestricted.** That is
-//! what makes the directive additive: a model declaring no `%%rbac` leaves
+//! what makes the rules additive: a model declaring no access rules leaves
 //! every operation exactly as open as it was, and `seed/access.sql` is then a
 //! comment header and nothing else.
 
@@ -83,7 +83,7 @@ impl Task for SeedAccess {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "seed_access".to_string(),
-            detail: "Install the roles and access rules declared by %%rbac".to_string(),
+            detail: "Install the roles and access rules the model declares".to_string(),
         }
     }
 

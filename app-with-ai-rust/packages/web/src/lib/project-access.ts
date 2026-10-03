@@ -5,7 +5,7 @@
  * listed in `project_members`. That rule has to hold for every route that
  * touches a project, not just the ones that happen to remember it: a model is
  * a company's data design, and reading someone else's by guessing an id is the
- * same disclosure whether it arrives as JSON, as an `.mmd` download, or as the
+ * same disclosure whether it arrives as JSON, as a `.eml.yaml` download, or as the
  * parsed sections an editor loads.
  *
  * The check lives here rather than in each route so there is one implementation
@@ -92,7 +92,7 @@ export async function requireProjectAccess(
  * The ids of every project this caller owns or is a member of.
  *
  * `requireProjectAccess` answers "may I touch this project". A route that lists
- * across projects — the diagram library's `GET /api/mermaid` with no
+ * across projects — the model library's `GET /api/model-library` with no
  * `projectId` — has no single project to ask about, and serving the whole
  * library for the client to filter is how that endpoint came to hand every
  * project's diagrams to anybody. This is the other half.

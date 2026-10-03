@@ -3,7 +3,7 @@
  *
  * These two do different jobs and both are needed. The dictionary stores icon
  * *names* — `sys_table.icon`, `sys_category.icon`, `sys_window.icon`, written
- * by the seed from the model's `%%entity … icon:` and by an administrator at
+ * by the seed from an entity's `icon` in the model and by an administrator at
  * runtime — so the component must resolve an arbitrary name to a glyph, which
  * is what lucide gives us and Astryx does not: `@astryxdesign/core/Icon`
  * accepts a component or one of 26 semantic names (`close`, `chevronDown`, …),
@@ -19,7 +19,7 @@
  *
  * - The barrel is keyed by lucide's **PascalCase export names** (`FlaskConical`,
  *   `ShieldCheck`), while every name the dictionary actually holds is lucide's
- *   own **kebab-case id** — that is what `%%entity Compound icon: flask-conical`
+ *   own **kebab-case id** — that is what a model's `icon: flask-conical`
  *   writes, and the language definition names `flask-conical` as the spelling
  *   to use. The lookup missed on all of them and fell through to the
  *   placeholder, so a model that named an icon rendered exactly like one that

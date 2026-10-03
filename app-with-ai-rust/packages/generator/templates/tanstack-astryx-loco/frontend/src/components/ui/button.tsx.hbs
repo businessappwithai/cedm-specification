@@ -10,7 +10,7 @@
  * is what it maps to. A non-link `asChild` renders the children directly rather
  * than wrapping them in a button that would nest interactive elements.
  */
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 import { Button as AstryxButton } from "@astryxdesign/core/Button";
 
 type Variant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
@@ -34,6 +34,32 @@ export interface ButtonProps {
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
   title?: string;
+  /**
+   * The accessible name of an icon-only button. Astryx names a button by its
+   * `label`, so this becomes the label of a button that shows only an icon.
+   * It was not declared here, so every icon-only button in the application
+   * had no name — the navigation's collapse toggle included.
+   */
+  "aria-label"?: string;
+}
+
+/**
+ * `<Icon /> Text` — the shape shadcn call sites write — as Astryx's `icon` and
+ * `label`, or null for any other composition.
+ *
+ * Astryx lays `icon` out beside the label; children go inside the label's text
+ * span, where an SVG is a block (Tailwind's preflight) and pushes the text onto
+ * a second line the button's height then clips. That is how "Run again",
+ * "Refresh" and "New Rule" rendered, each with an empty accessible name,
+ * because the label passed alongside non-string children was "".
+ */
+function iconAndText(children: ReactNode): { icon: ReactNode; text: string } | null {
+  const parts = Children.toArray(children);
+  const [first, ...rest] = parts;
+  if (!isValidElement(first) || rest.length === 0) return null;
+  if (!rest.every((part) => typeof part === "string" || typeof part === "number")) return null;
+  const text = rest.join("").trim();
+  return text ? { icon: first, text } : null;
 }
 
 /** shadcn variant names → Astryx variant names. */
@@ -65,6 +91,7 @@ export function Button({
   type = "button",
   onClick,
   title,
+  "aria-label": ariaLabel,
 }: ButtonProps) {
   // `asChild` without an href was composition we cannot express; render the
   // child rather than nesting it inside a button.
@@ -72,9 +99,50 @@ export function Button({
     return <>{children}</>;
   }
 
+  const split = iconAndText(children);
+  if (split) {
+    return (
+      <AstryxButton
+        label={split.text}
+        icon={split.icon}
+        variant={VARIANTS[variant] as never}
+        size={SIZES[size]}
+        type={type}
+        isDisabled={disabled}
+        isLoading={isLoading}
+        href={href}
+        className={className}
+        tooltip={title}
+        clickAction={onClick}
+      />
+    );
+  }
+
+  // An icon and nothing else: Astryx draws it from `icon`, and names the button
+  // from `label`. Passed as children it was laid out inside an empty label and
+  // never drawn, so the sidebar's collapse toggle was a clickable blank.
+  if (size === "icon" && isValidElement(children)) {
+    return (
+      <AstryxButton
+        label={ariaLabel ?? title ?? ""}
+        icon={children}
+        variant={VARIANTS[variant] as never}
+        size={SIZES[size]}
+        type={type}
+        isDisabled={disabled}
+        isLoading={isLoading}
+        isIconOnly
+        href={href}
+        className={className}
+        tooltip={title ?? ariaLabel}
+        clickAction={onClick}
+      />
+    );
+  }
+
   return (
     <AstryxButton
-      label={typeof children === "string" ? children : ""}
+      label={typeof children === "string" ? children : (ariaLabel ?? "")}
       variant={VARIANTS[variant] as never}
       size={SIZES[size]}
       type={type}

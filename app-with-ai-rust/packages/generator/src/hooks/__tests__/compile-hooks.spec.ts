@@ -1,154 +1,122 @@
+/**
+ * The model's `hooks` → the handlers the generated backend dispatches to.
+ *
+ * Each case is a way a declaration the checker would report can still reach
+ * the compiler — a model generated with the checker off, or a document edited
+ * after it was checked — and what the compiler does with it instead of
+ * emitting a crate that does not build.
+ */
 import { describe, expect, it } from "vitest";
-import { compileHooks, hooksByEntity } from "../index";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
+import type { HookDeclaration } from "../../model/records";
+import { compileHookDeclarations, hooksByEntity } from "../index";
 
 const ENTITIES = ["Compound", "Experiment", "ChemicalInventory"];
 
-describe("compileHooks", () => {
-  it("reads a directive with its event, handler and entity", () => {
-    const hooks = compileHooks("    %%hook beforeCreate generateInchiKey on Compound", ENTITIES);
+const hook = (
+  event: string,
+  handler: string,
+  entity: string,
+  fields?: string[]
+): HookDeclaration => (fields ? { event, handler, entity, fields } : { event, handler, entity });
+
+function compile(declarations: HookDeclaration[]) {
+  const warnings: string[] = [];
+  const hooks = compileHookDeclarations(declarations, ENTITIES, (m) => warnings.push(m));
+  return { hooks, warnings };
+}
+
+describe("compileHookDeclarations", () => {
+  it("compiles a declaration to its event, handler and entity", () => {
+    const { hooks } = compile([hook("beforeCreate", "generateInchiKey", "Compound")]);
 
     expect(hooks).toHaveLength(1);
     expect(hooks[0]).toMatchObject({
       entity: "Compound",
       type: "beforeCreate",
       handler: "generateInchiKey",
+      order: 0,
     });
     expect(hooks[0]?.field).toBeUndefined();
   });
 
-  // Regression: the scan matched `%%hook` anywhere in a line, so a plain `%%`
-  // comment that merely mentioned a hook compiled into a real one: a handler
-  // module and a registered lifecycle binding nobody declared, with no warning.
-  // The shipped example models all carry prose headers like this.
-  it("does not read a directive out of the middle of a prose comment", () => {
-    const warnings: string[] = [];
-    const source = `
-%% Passwords are hashed on the way in. See %%hook beforeCreate hashPassword on Compound
-%% for how that is wired; the registry never stores a plaintext one.
-%% Every %%hook lifecycle event is exercised somewhere in this model.
-`;
-    expect(compileHooks(source, ENTITIES, (m) => warnings.push(m))).toEqual([]);
-    expect(warnings).toEqual([]);
-  });
-
-  it("still reads a directive indented, or with the doubled %% older diagrams wrote", () => {
-    expect(
-      compileHooks("      %%hook afterCreate indexForSearch on Compound", ENTITIES)
-    ).toHaveLength(1);
-    expect(compileHooks("%%%%hook afterCreate indexForSearch on Compound", ENTITIES)).toHaveLength(
-      1
-    );
-  });
-
-  it("reads the field a directive scopes to", () => {
-    const hooks = compileHooks(
-      "%%hook customValidate validateSmiles on Compound[field: smiles]",
-      ENTITIES
-    );
+  it("scopes the handler to the first column the declaration names", () => {
+    const { hooks } = compile([
+      hook("customValidate", "validateSmiles", "Compound", ["smiles", "inchi_key"]),
+    ]);
     expect(hooks[0]?.field).toBe("smiles");
   });
 
-  it("finds directives inside a workflow section, past the diagram", () => {
-    const source = `
-%%meta name: Compound Registration
-%%workflow CompoundRegistration entity: Compound kind: hook
-flowchart TD
-    request[Request] --> validate[Validate Compound]
-    validate --> step1[beforeCreate: generateInchiKey]
-
-    %%hook beforeCreate generateInchiKey on Compound[field: inchi_key]
-    %%hook afterCreate indexForSearch on Compound
-`;
-    const hooks = compileHooks(source, ENTITIES);
-    expect(hooks.map((hook) => hook.handler)).toEqual(["generateInchiKey", "indexForSearch"]);
-  });
-
-  it("tolerates the doubled %% older generated flowcharts emitted", () => {
-    const hooks = compileHooks("    %%%%hook afterCreate notifyTeam on Compound", ENTITIES);
-    expect(hooks).toHaveLength(1);
-    expect(hooks[0]?.handler).toBe("notifyTeam");
-  });
-
   it("drops a hook on an entity the model does not declare", () => {
-    const warnings: string[] = [];
-    const hooks = compileHooks("%%hook beforeCreate doThing on Nonexistent", ENTITIES, (message) =>
-      warnings.push(message)
-    );
-
+    const { hooks, warnings } = compile([hook("beforeCreate", "doThing", "Nonexistent")]);
     expect(hooks).toHaveLength(0);
     expect(warnings[0]).toContain("unknown entity");
   });
 
   it("drops a hook bound to an event that is not a lifecycle event", () => {
-    const warnings: string[] = [];
-    const hooks = compileHooks("%%hook whenever doThing on Compound", ENTITIES, (message) =>
-      warnings.push(message)
-    );
-
+    const { hooks, warnings } = compile([hook("whenever", "doThing", "Compound")]);
     expect(hooks).toHaveLength(0);
     expect(warnings[0]).toContain("unknown event");
   });
 
-  it("keeps the first of two identical directives", () => {
-    const warnings: string[] = [];
-    const hooks = compileHooks(
-      ["%%hook beforeCreate stamp on Compound", "%%hook beforeCreate stamp on Compound"].join("\n"),
-      ENTITIES,
-      (message) => warnings.push(message)
-    );
-
+  it("keeps the first of two identical declarations", () => {
+    const { hooks, warnings } = compile([
+      hook("beforeCreate", "stamp", "Compound"),
+      hook("beforeCreate", "stamp", "Compound"),
+    ]);
     expect(hooks).toHaveLength(1);
     expect(warnings[0]).toContain("declared twice");
   });
 
   it("refuses one handler name serving two events on the same entity", () => {
     // Both would become the same exported function in the entity's module.
-    const warnings: string[] = [];
-    const hooks = compileHooks(
-      ["%%hook beforeCreate stamp on Compound", "%%hook beforeUpdate stamp on Compound"].join("\n"),
-      ENTITIES,
-      (message) => warnings.push(message)
-    );
-
+    const { hooks, warnings } = compile([
+      hook("beforeCreate", "stamp", "Compound"),
+      hook("beforeUpdate", "stamp", "Compound"),
+    ]);
     expect(hooks).toHaveLength(1);
     expect(hooks[0]?.type).toBe("beforeCreate");
     expect(warnings[0]).toContain("its own handler name");
   });
 
   it("allows the same handler name on different entities", () => {
-    const hooks = compileHooks(
-      ["%%hook beforeCreate stamp on Compound", "%%hook beforeCreate stamp on Experiment"].join(
-        "\n"
-      ),
-      ENTITIES
-    );
+    const { hooks } = compile([
+      hook("beforeCreate", "stamp", "Compound"),
+      hook("beforeCreate", "stamp", "Experiment"),
+    ]);
     expect(hooks).toHaveLength(2);
   });
 
-  it("ignores everything that is not a hook directive", () => {
-    const source = [
-      "erDiagram",
-      "    Compound { uuid id PK }",
-      "%%rule sampleExpiry on Sample event: beforeUpdate",
-      "%%category Compound Registry: Compound",
-    ].join("\n");
-
-    expect(compileHooks(source, ENTITIES)).toEqual([]);
-  });
-
-  it("groups by entity in declaration order", () => {
-    const hooks = compileHooks(
-      [
-        "%%hook beforeCreate one on Compound",
-        "%%hook beforeUpdate two on Experiment",
-        "%%hook afterCreate three on Compound",
-      ].join("\n"),
-      ENTITIES
-    );
+  it("numbers each entity's hooks in declaration order, and groups by entity", () => {
+    const { hooks } = compile([
+      hook("beforeCreate", "one", "Compound"),
+      hook("beforeUpdate", "two", "Experiment"),
+      hook("afterCreate", "three", "Compound"),
+    ]);
 
     const grouped = hooksByEntity(hooks);
     expect([...grouped.keys()].sort()).toEqual(["Compound", "Experiment"]);
-    expect(grouped.get("Compound")?.map((hook) => hook.handler)).toEqual(["one", "three"]);
+    expect(grouped.get("Compound")?.map((h) => [h.handler, h.order])).toEqual([
+      ["one", 0],
+      ["three", 1],
+    ]);
+  });
+
+  it("is what a model's `hooks` compile to", () => {
+    const model = compileYaml(`eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: inchi_key, type: string }
+hooks:
+  - { entity: Compound, event: beforeCreate, handler: generateInchiKey, fields: [inchi_key] }
+  - { entity: Compound, event: afterCreate, handler: indexForSearch }
+`);
+    expect(model.hooks.map((h) => [h.type, h.handler, h.field])).toEqual([
+      ["beforeCreate", "generateInchiKey", "inchi_key"],
+      ["afterCreate", "indexForSearch", undefined],
+    ]);
   });
 });
 

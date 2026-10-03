@@ -1,32 +1,34 @@
 #!/usr/bin/env node
 /**
- * check-model.mjs — run the published EML checker over a model file.
+ * check-model.mjs — validate a model (`*.eml.yaml`) with the published reader.
  *
  *   curl -sO https://www.appwithai.org/guide/check-model.mjs
- *   node check-model.mjs my-business.mmd
+ *   node check-model.mjs my-business.eml.yaml
  *
- * §1.3 of https://www.appwithai.org/llms-full.txt asks a language model to validate
- * the `.mmd` it wrote before handing it over, by importing `checker.js` and
- * `fixer.js`. That is one line in Bun or Deno, which import straight from a URL,
- * and it is several in Node, which removed network imports — so a model with a
- * shell and no memory of the difference tends to skip the step. This script is
- * that step, in one command, on every runtime: it finds the published modules,
- * runs the three passes §1.3 describes, prints the report, and exits non-zero if
- * the generator would refuse the model.
+ * The protocol documents ask a language model to validate the model it wrote
+ * before handing it over, with `model-yaml.js` — the language's own reader,
+ * bundled as one ES module: YAML syntax, the JSON Schema, the full checker,
+ * every finding at the YAML line and column that caused it. Importing it is one
+ * line in Bun or Deno and several in Node, which removed network imports, so a
+ * model with a shell and no memory of the difference tends to skip the step.
+ * This script is that step, in one command, on every runtime: it finds the
+ * published module, runs the three passes (repair, then validate the repaired
+ * bytes twice), prints every finding, and exits non-zero if the generator
+ * would refuse the model.
  *
- * It is a runner, not a second checker. Every diagnostic it prints comes from
- * `checker.js` and `fixer.js` — the same engines `appwithai` runs.
+ * It is a runner, not a second checker. Every finding it prints comes from
+ * `model-yaml.js` — the same reader `appwithai` and the `eml` CLI run.
  *
  * Options
- *   --base <url>   where to load checker.js and fixer.js from — a directory
- *                  works too, which is how to run this with no network at all
+ *   --base <url>   where to load model-yaml.js from — a directory works too,
+ *                  which is how to run this with no network at all
  *                  (default: this file's own directory, the working directory,
  *                  ./guide/, then https://www.appwithai.org/guide/)
  *   --write        save the repaired document back over the input file when
- *                  `checkAndFix` repaired something
+ *                  the fixer repaired something
  *   --quiet        print only the verdict line
  *
- * Exit codes: 0 clean · 1 the checker found errors · 2 the script could not run.
+ * Exit codes: 0 clean · 1 the reader found errors · 2 the script could not run.
  */
 
 import { readFileSync, writeFileSync, mkdtempSync, existsSync } from "node:fs";
@@ -35,28 +37,13 @@ import { join, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 /**
- * Where the published modules live.
- *
- * One host, and deliberately one: `appwithai.org`. This list used to carry two
- * entries described as "two spellings because both answer", the second being
- * the same name under a `www.` label — and that one never answered. Pages issues a
- * certificate for the domain configured in repository settings, so the `www.`
- * label was reached over TLS it did not cover and every client refused it with
- * ERR_CERT_COMMON_NAME_INVALID. A fallback that cannot succeed is not
- * redundancy; it is one wasted round trip before the real error.
- *
- * The redundancy that does work is local-first, below: `--base`, this file's
- * own directory, the working directory, then `./guide/`. `checker.js` and
- * `fixer.js` are two dependency-free ES modules, so anything that puts them on
- * disk — a checkout, a copy, a file the user pastes in — is a complete
- * validation path with no network at all.
- *
- * This is the published site and nothing else. The script deliberately reaches
- * no code-hosting origin: §10.6 of `llmdetailed.txt` tells the reader so, and
- * `scripts/check-spec.mjs` asserts it by reading this file. Failing to reach
- * this host is still not the same as the model being unchecked.
+ * Where the published module lives: the site, and nothing else. The script
+ * deliberately reaches no code-hosting origin, and failing to reach this host
+ * is not the same as the model being unchecked — the local rungs below come
+ * first for exactly that reason.
  */
 const PUBLISHED = ["https://www.appwithai.org/guide/"];
+const MODULE = "model-yaml.js";
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
 const option = (name) => {
@@ -66,30 +53,15 @@ const option = (name) => {
 const file = args.find((arg) => !arg.startsWith("--") && arg !== option("--base"));
 
 if (!file) {
-  console.error("usage: node check-model.mjs <model.mmd> [--base <url>] [--write] [--quiet]");
+  console.error("usage: node check-model.mjs <model.eml.yaml> [--base <url>] [--write] [--quiet]");
   process.exit(2);
 }
 
 /**
- * The modules can come from four places, in this order: a `--base` the caller
- * named, the directory this script sits in, the working directory, and the
- * published site under either of its names.
- *
- * The local cases come first and they are the point of the ordering: an agent
- * running in a sandbox with no egress can put `checker.js` and `fixer.js`
- * beside the model — or `--base ./`, or `--base ./guide/` in a clone of the
- * site — and get a real run with a real report. A network that refuses is a
- * fact about the network, not a reason to hand over an unvalidated model or to
- * invent counts for it.
- */
-/**
- * `--base` takes either a URL or a directory, and a directory is the form that
- * matters: it is what the no-egress rungs of the ladder tell a reader to pass.
- * A *relative* directory has to be turned into a `file:` URL first — `fetch`
- * and a bare `import()` both reject `guide/checker.js` with "Failed to parse
- * URL", which reads as the site being unreachable when the files are sitting
- * right there. So anything without a scheme is resolved against the working
- * directory and handed on as `file:///…/`, and `--base ./` works as documented.
+ * `--base` takes a URL or a directory. A *relative* directory has to become a
+ * `file:` URL first — `fetch` and a bare `import()` both reject
+ * `guide/model-yaml.js` with "Failed to parse URL", which reads as the site
+ * being unreachable when the file is sitting right there.
  */
 function asBase(value) {
   const withSlash = value.endsWith("/") ? value : value + "/";
@@ -97,91 +69,74 @@ function asBase(value) {
   return pathToFileURL(resolve(withSlash) + "/").href;
 }
 
-async function loadModules() {
+/**
+ * Local first: a `--base` the caller named, this script's own directory, the
+ * working directory, `./guide/`. An agent in a sandbox with no egress can put
+ * `model-yaml.js` beside the model and get a real run with a real report.
+ */
+async function loadModule() {
   const base = option("--base");
   if (base) return importFrom(asBase(base));
 
   const here = dirname(fileURLToPath(import.meta.url));
   for (const dir of [here, process.cwd(), join(process.cwd(), "guide")]) {
-    if (existsSync(join(dir, "checker.js")) && existsSync(join(dir, "fixer.js"))) {
-      return {
-        where: join(dir, "/"),
-        checker: await import(pathToFileURL(join(dir, "checker.js")).href),
-        fixer: await import(pathToFileURL(join(dir, "fixer.js")).href),
-      };
+    if (existsSync(join(dir, MODULE))) {
+      return { where: join(dir, "/"), language: await import(pathToFileURL(join(dir, MODULE)).href) };
     }
   }
-
-  /* Each published name in turn. `importFrom` exits on a failure it cannot
-     recover from, so the last one is the one allowed to do that. */
   for (const [index, published] of PUBLISHED.entries()) {
-    const last = index === PUBLISHED.length - 1;
-    const loaded = await importFrom(published, { fatal: last });
+    const loaded = await importFrom(published, { fatal: index === PUBLISHED.length - 1 });
     if (loaded) return loaded;
   }
   return undefined;
 }
 
 /**
- * Bun and Deno import a URL directly. Node removed network imports, so the bytes
- * are fetched and written into a temp directory before importing — the same
- * bytes either way, and `fixer.js` finds `checker.js` beside it.
+ * Bun and Deno import a URL directly. Node removed network imports, so the
+ * bytes are fetched and written into a temp directory before importing — the
+ * same bytes either way.
  */
 async function importFrom(base, { fatal = true } = {}) {
   try {
-    const checker = await import(base + "checker.js");
-    const fixer = await import(base + "fixer.js");
-    return { where: base, checker, fixer };
+    return { where: base, language: await import(base + MODULE) };
   } catch {
     /* Node: fetch, then import from disk. */
   }
-  const dir = mkdtempSync(join(tmpdir(), "eml-"));
-  for (const name of ["checker.js", "fixer.js"]) {
-    /*
-     * A blocked network fails in two shapes and they must be handled alike.
-     *
-     * A refused connection or a DNS failure *throws*; an egress proxy or a
-     * corporate gateway *answers*, with 403, 407 or 502. The second is the one
-     * that reads like the site being broken, and it is the commoner of the two
-     * inside an agent sandbox — so both end in the same place: try the next
-     * base, and when there is none left, say what to do instead of only what
-     * went wrong.
-     */
-    let failure;
-    let response;
-    try {
-      response = await fetch(base + name);
-      if (!response.ok) failure = `${response.status} ${response.statusText}`;
-    } catch (error) {
-      failure = String(error?.message || error);
-    }
-    if (failure) {
-      if (!fatal) return undefined;
-      console.error(
-        `could not load ${base}${name}: ${failure}\n\n` +
-          "The published modules could not be reached — usually no egress from this\n" +
-          "environment rather than anything wrong with the site. It does NOT mean the\n" +
-          "model is valid, and it is not a reason to stop:\n\n" +
-          "  1. put checker.js and fixer.js next to the model, or in this directory,\n" +
-          "     and run this script again — it prefers local copies and needs no network;\n" +
-          "  2. or pass --base <directory> naming where those two files are;\n" +
-          "  3. or, if neither is possible, deliver the model and state plainly that it\n" +
-          "     is unvalidated and why. Never report checker counts you did not obtain."
-      );
-      process.exit(2);
-    }
-    writeFileSync(join(dir, name), await response.text());
+  /*
+   * A blocked network fails in two shapes and they are handled alike: a refused
+   * connection or a DNS failure *throws*; an egress proxy *answers*, with 403,
+   * 407 or 502. Both end in the same place — say what to do instead.
+   */
+  let failure;
+  let response;
+  try {
+    response = await fetch(base + MODULE);
+    if (!response.ok) failure = `${response.status} ${response.statusText}`;
+  } catch (error) {
+    failure = String(error?.message || error);
   }
-  return {
-    where: base,
-    checker: await import(pathToFileURL(join(dir, "checker.js")).href),
-    fixer: await import(pathToFileURL(join(dir, "fixer.js")).href),
-  };
+  if (failure) {
+    if (!fatal) return undefined;
+    console.error(
+      `could not load ${base}${MODULE}: ${failure}\n\n` +
+        "The published module could not be reached — usually no egress from this\n" +
+        "environment rather than anything wrong with the site. It does NOT mean the\n" +
+        "model is valid, and it is not a reason to stop:\n\n" +
+        "  1. put model-yaml.js next to the model, or in this directory, and run this\n" +
+        "     script again — it prefers a local copy and needs no network;\n" +
+        "  2. or pass --base <directory> naming where that file is;\n" +
+        "  3. or, if neither is possible, deliver the model and state plainly that it\n" +
+        "     is unvalidated and why. Never report counts you did not obtain."
+    );
+    process.exit(2);
+  }
+  const dir = mkdtempSync(join(tmpdir(), "eml-"));
+  writeFileSync(join(dir, MODULE), await response.text());
+  return { where: base, language: await import(pathToFileURL(join(dir, MODULE)).href) };
 }
 
-const { where, checker, fixer } = await loadModules();
-const { check, formatReport, LANGUAGE_VERSION } = checker;
-const { checkAndFix } = fixer;
+const { where, language } = await loadModule();
+const { validate, fix, LANGUAGE_VERSION } = language;
 
 const path = resolve(file);
 let original;
@@ -192,42 +147,56 @@ try {
   process.exit(2);
 }
 
-/* §1.3, exactly: repair what is repairable, then check the repaired bytes twice. */
-let report = checkAndFix(original);
-let model = report.source;
-const passes = [{ label: "checkAndFix", counts: report.counts, repaired: report.repaired }];
-for (let pass = 2; pass <= 3 && report.ok; pass++) {
-  report = { ...check(model), source: model };
-  passes.push({ label: "check", counts: report.counts });
+const count = (diagnostics) => ({
+  errors: diagnostics.filter((d) => d.severity === "error").length,
+  warnings: diagnostics.filter((d) => d.severity === "warning").length,
+  infos: diagnostics.filter((d) => d.severity === "info").length,
+});
+
+/* The three passes: repair what is repairable, then validate the repaired bytes twice. */
+const repaired = fix(original);
+let model = repaired.text;
+let result = { ok: repaired.ok, diagnostics: repaired.diagnostics };
+const passes = [{ label: "fix", counts: count(result.diagnostics), applied: repaired.applied.length }];
+for (let pass = 2; pass <= 3 && result.ok; pass++) {
+  result = validate(model);
+  passes.push({ label: `validate ${pass - 1}`, counts: count(result.diagnostics) });
 }
 
-const final = check(model);
 const quiet = flag("--quiet");
+const counts = count(result.diagnostics);
+const verdict =
+  `${result.ok ? "OK" : "FAILED"} — ${counts.errors} error${counts.errors === 1 ? "" : "s"}, ` +
+  `${counts.warnings} warning${counts.warnings === 1 ? "" : "s"}, ` +
+  `${counts.infos} note${counts.infos === 1 ? "" : "s"} (EML ${LANGUAGE_VERSION})`;
 
 if (!quiet) {
-  console.log(`model    ${path}`);
-  console.log(`checker  ${where}checker.js · EML ${LANGUAGE_VERSION}`);
-  for (const [index, pass] of passes.entries()) {
-    const { errors, warnings, infos } = pass.counts;
-    const repaired = pass.repaired === undefined ? "" : ` · repaired: ${pass.repaired}`;
-    console.log(`pass ${index + 1}   ${pass.label.padEnd(11)} ${errors}e ${warnings}w ${infos}i${repaired}`);
+  console.log(`\nmodel   ${path}`);
+  console.log(`reader  ${where}${MODULE} · EML ${LANGUAGE_VERSION}`);
+  for (const p of passes) {
+    const c = p.counts;
+    const extra = p.applied ? ` · ${p.applied} repair${p.applied === 1 ? "" : "s"}` : "";
+    console.log(`  ${p.label.padEnd(11)} ${c.errors} errors, ${c.warnings} warnings, ${c.infos} notes${extra}`);
   }
-  if (report.fixes?.length) {
-    console.log("\nrepairs");
-    for (const fix of report.fixes) console.log(`  ${fix.code} ${fix.message ?? fix.description ?? ""}`);
+  if (repaired.applied.length) {
+    console.log("\nrepaired:");
+    for (const a of repaired.applied) console.log(`  ${a.code}  ${a.description}`);
+  }
+  if (result.diagnostics.length) console.log();
+  for (const d of result.diagnostics) {
+    const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn " : "info ";
+    console.log(`${tag} ${d.code}:${d.line}:${d.column}  ${d.message}`);
+    if (d.hint) console.log(`      → ${d.hint}`);
   }
   console.log();
 }
 
-console.log(formatReport(final));
-
-if (model !== original) {
-  if (flag("--write")) {
-    writeFileSync(path, model);
-    console.log(`\nrepaired document written back to ${path}`);
-  } else {
-    console.log("\nThe repairs above are not saved. Re-run with --write to keep them, and hand over the repaired file rather than the draft.");
-  }
+if (flag("--write") && model !== original) {
+  writeFileSync(path, model);
+  if (!quiet) console.log(`wrote the repaired document back to ${path}\n`);
 }
 
-process.exit(final.counts.errors === 0 ? 0 : 1);
+/* The verdict is the last line, whatever else ran: whoever reads a run reads
+   its final line, and it must be the outcome rather than the last finding. */
+console.log(verdict);
+process.exit(result.ok ? 0 : 1);

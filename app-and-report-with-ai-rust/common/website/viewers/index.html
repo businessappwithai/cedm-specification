@@ -56,11 +56,11 @@
       <header class="page-head">
         <h1>Model viewer</h1>
         <p>
-          A model is a Mermaid document, and Mermaid draws only the ERD half of it. The rules, the
-          workflows, the enums and the access control live in <code>%%</code> directives it treats
-          as comments — which is the half worth checking while the model is still being written.
-          This page draws all of it, using the parser and compilers this repository generates
-          applications with, so what you see is what the generator read.
+          A model is one YAML document (<code>*.eml.yaml</code>): its entities, relationships and
+          enums, and the rules, workflows and access control that are the half worth checking
+          while the model is still being written. This page draws all of it, using the reader,
+          checker and compilers this repository generates applications with, so what you see is
+          what the generator read.
         </p>
       </header>
 
@@ -73,7 +73,7 @@
             <button type="button" class="awv-button" data-role="open">Open a file</button>
             <input
               type="file"
-              accept=".mmd,.md,.txt"
+              accept=".yaml,.yml,text/yaml,text/plain"
               data-role="file-input"
               hidden
             />
@@ -141,36 +141,36 @@
               class="awv-paste"
               data-role="paste"
               spellcheck="false"
-              placeholder="%%meta name: ..."
+              placeholder="eml: &quot;1.0&quot;&#10;name: ..."
               aria-label="Paste an EML model"
             ></textarea>
-            <div class="awv-drop" data-role="drop">…or drop a <code>.eml.mmd</code> file anywhere on this page.</div>
+            <div class="awv-drop" data-role="drop">…or drop a <code>.eml.yaml</code> file anywhere on this page.</div>
             <div class="awv-examples">
               <button
                 type="button"
                 class="awv-button"
-                data-example="../../language/examples/crm.eml.mmd"
+                data-example="../../examples/crm.eml.yaml"
               >
                 CRM
               </button>
               <button
                 type="button"
                 class="awv-button"
-                data-example="../../language/examples/dance-studio.eml.mmd"
+                data-example="../../examples/dance-studio.eml.yaml"
               >
                 Dance studio
               </button>
               <button
                 type="button"
                 class="awv-button"
-                data-example="../../html/models/drug-discovery.eml.mmd"
+                data-example="../../html/models/drug-discovery.eml.yaml"
               >
                 Drug discovery
               </button>
               <button
                 type="button"
                 class="awv-button"
-                data-example="../../html/models/investment-planning-wealth-management-system.eml.mmd"
+                data-example="../../html/models/investment-planning-wealth-management-system.eml.yaml"
               >
                 Wealth management
               </button>

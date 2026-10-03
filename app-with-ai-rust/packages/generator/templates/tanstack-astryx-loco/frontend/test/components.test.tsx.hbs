@@ -10,105 +10,89 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import { render, createMockFetch } from './setup';
+import type { FieldMetadata } from '../src/hooks/use-entities';
+
+/**
+ * The grid's columns, as `/sys/fields` describes them — the first entity of
+ * this application's own model, one string column per attribute. Passing them
+ * in keeps these tests about the table rather than about the fetch.
+ */
+const GRID_TABLE = 'bus_{{#if entities.[0]}}{{snakeCase entities.[0].name}}{{else}}record{{/if}}';
+const GRID_COLUMNS: string[] = [
+{{#if entities.[0]}}{{#each entities.[0].attributes}}  '{{this.name}}',
+{{/each}}{{/if}}];
+const GRID_FIELDS: FieldMetadata[] = GRID_COLUMNS.map((column, index) => ({
+  sys_field_id: `field-${column}`,
+  name: column,
+  column_name: column,
+  sys_reference_id: 10,
+  is_mandatory: false,
+  seq_no: (index + 1) * 10,
+  seq_no_grid: (index + 1) * 10,
+  is_displayed: true,
+  is_displayed_grid: true,
+  is_read_only: false,
+}));
+
+function gridRow(n: number): Record<string, unknown> {
+  return Object.fromEntries([
+    ['id', `row-${n}`],
+    ...GRID_COLUMNS.filter((c) => c !== 'id').map((c) => [c, `${c} ${n}`]),
+  ]);
+}
 
 describe('DynamicTable Component', () => {
-  let originalFetch: typeof globalThis.fetch;
-
-  beforeEach(() => {
-    originalFetch = globalThis.fetch;
-  });
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-    vi.clearAllMocks();
-  });
-
-  it('renders loading skeleton when isLoading is true', async () => {
+  it('draws the loading skeleton while the rows are loading', async () => {
     const { DynamicTable } = await import('../src/components/tables/dynamic-table');
-
-    globalThis.fetch = createMockFetch({
-      '/sys/fields': { data: [] },
-    });
-
     const { container } = render(
-      <DynamicTable
-        tableName="bus_test"
-        data={[]}
-        isLoading={true}
-        totalCount={0}
-        onView={vi.fn()}
-        onEdit={vi.fn()}
-        onDelete={vi.fn()}
-      />
+      <DynamicTable tableName={GRID_TABLE} fields={GRID_FIELDS} data={[]} isLoading={true} totalCount={0} />
     );
-
-    expect(container).toBeTruthy();
-    expect(container.querySelector('.skeleton')).toBeTruthy();
+    expect(container.querySelector('[data-testid="table-loading-skeleton"]')).toBeTruthy();
   });
 
-  it('renders rows when data is provided', async () => {
+  it('renders one row per record, under one header per displayed column', async () => {
     const { DynamicTable } = await import('../src/components/tables/dynamic-table');
-
-    globalThis.fetch = createMockFetch({
-      '/sys/fields': { data: [] },
-    });
-
-    const sampleData = [
-      { id: 'row-1', name: 'Test Item 1' },
-      { id: 'row-2', name: 'Test Item 2' },
-    ];
-
     const { container } = render(
       <DynamicTable
-        tableName="bus_test"
-        data={sampleData}
+        tableName={GRID_TABLE}
+        fields={GRID_FIELDS}
+        data={[gridRow(1), gridRow(2)]}
         isLoading={false}
         totalCount={2}
-        onView={vi.fn()}
-        onEdit={vi.fn()}
-        onDelete={vi.fn()}
       />
     );
-
-    expect(container).toBeTruthy();
-    expect(container.querySelector('table')).toBeTruthy();
+    const table = container.querySelector('[data-testid="entity-table"]');
+    expect(table).toBeTruthy();
+    expect(table?.querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(container.querySelector('[data-testid="no-results-row"]')).toBeNull();
   });
 
-  it('shows empty state when data array is empty and not loading', async () => {
+  it('says there are no results when there are no records', async () => {
     const { DynamicTable } = await import('../src/components/tables/dynamic-table');
-
-    globalThis.fetch = createMockFetch({
-      '/sys/fields': { data: [] },
-    });
-
     const { container } = render(
-      <DynamicTable
-        tableName="bus_test"
-        data={[]}
-        isLoading={false}
-        totalCount={0}
-      />
+      <DynamicTable tableName={GRID_TABLE} fields={GRID_FIELDS} data={[]} isLoading={false} totalCount={0} />
     );
-
-    expect(container).toBeTruthy();
-    expect(container.querySelector('.empty-state')).toBeTruthy();
+    expect(container.querySelector('[data-testid="no-results-row"]')).toBeTruthy();
   });
 
-  it('shows footer with record count when totalCount is provided', async () => {
+  it('reports which records of the total are on screen', async () => {
     const { DynamicTable } = await import('../src/components/tables/dynamic-table');
-
-    const sampleData = [{ id: '1', name: 'Item' }];
-
-    const { container } = render(
+    render(
       <DynamicTable
-        tableName="bus_test"
-        data={sampleData}
+        tableName={GRID_TABLE}
+        fields={GRID_FIELDS}
+        data={[gridRow(1)]}
         isLoading={false}
         totalCount={10}
       />
     );
+    expect(screen.getByText(/Showing 1 to 10 of\s*10 entries/)).toBeTruthy();
+  });
 
-    expect(container.querySelector('.table-footer')).toBeTruthy();
+  it('says so when the dictionary configures no grid columns', async () => {
+    const { DynamicTable } = await import('../src/components/tables/dynamic-table');
+    render(<DynamicTable tableName={GRID_TABLE} fields={[]} data={[]} isLoading={false} />);
+    expect(screen.getByText('No columns configured for grid display.')).toBeTruthy();
   });
 });
 

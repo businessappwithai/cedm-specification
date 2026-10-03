@@ -191,12 +191,13 @@ export function buildWorkflowSeedSql(saga: SagaWorkflow[], projectName: string):
       : sqlString(`Declared in the model as a ${workflow.trigger}-triggered saga.`);
 
     return `INSERT INTO sys_workflow_definitions
-  (name, entity_name, operation, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES (${sqlString(workflow.name)}, ${sqlString(workflow.entity)}, ${sqlString(workflow.operation)},
-        ${sqlString(bpmn)}, ${description}, TRUE, TRUE, NOW(), NOW())
+        ${sqlString(workflow.trigger)}, ${sqlString(bpmn)}, ${description}, TRUE, TRUE, NOW(), NOW())
 ON CONFLICT (name) DO UPDATE SET
   entity_name      = EXCLUDED.entity_name,
   operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
   bpmn_xml         = EXCLUDED.bpmn_xml,
   description      = EXCLUDED.description,
   is_model_managed = TRUE,

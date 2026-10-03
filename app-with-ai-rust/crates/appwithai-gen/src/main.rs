@@ -1,9 +1,9 @@
-//! `appwithai` — generate a full-stack Loco.rs application from an EML model.
+//! `appwithai` — generate a full-stack Loco.rs application from a model.
 //!
 //! The pipeline, in order:
 //!
-//!   1. read the model files and parse the ERD, its `%%category` directives and
-//!      its `kind: saga` workflows;
+//!   1. read the model (`*.eml.yaml`), hold it to the language's schema, and
+//!      read it into model records, which every compiler below works on;
 //!   2. scaffold the backend with `loco new`, then prune what this
 //!      architecture replaces;
 //!   3. overlay the Handlebars templates, which write everything that carries
@@ -16,6 +16,7 @@ mod backend;
 mod bus;
 mod business;
 mod category;
+mod cedm;
 mod cli;
 mod context;
 mod dictionary;
@@ -26,6 +27,7 @@ mod logging;
 mod model;
 mod naming;
 mod rbac;
+mod records;
 mod reports;
 mod rules;
 mod saga;
@@ -33,8 +35,9 @@ mod scaffold;
 mod system;
 mod templates;
 mod workflows;
+mod yaml_model;
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::{bail, Context, Result};
 use clap::Parser;
@@ -43,9 +46,28 @@ use cli::{Cli, Command, GenerateArgs};
 use language::Language;
 
 fn main() {
+    #[cfg(target_os = "wasi")]
+    adopt_host_working_directory();
     if let Err(error) = run() {
         eprintln!("\n❌ {error:#}");
         std::process::exit(1);
+    }
+}
+
+/// Under WASI a process starts in `/`, whatever directory it was run from, so a
+/// relative `--input` would name a file at the root of the host. The runner
+/// (`scripts/appwithai-wasm.ts`) passes the host's working directory as `PWD`
+/// and preopens the filesystem; adopting it makes relative paths mean what they
+/// mean to the native CLI.
+#[cfg(target_os = "wasi")]
+fn adopt_host_working_directory() {
+    if let Some(pwd) = std::env::var_os("PWD") {
+        if let Err(error) = std::env::set_current_dir(&pwd) {
+            eprintln!(
+                "warning: cannot enter {}: {error}",
+                std::path::Path::new(&pwd).display()
+            );
+        }
     }
 }
 
@@ -56,6 +78,7 @@ fn run() -> Result<()> {
             Ok(())
         }
         Command::Info(args) => info(&args.input),
+        Command::Lower(args) => lower_cedm(&args.input),
         Command::Generate(args) => generate(&args),
     }
 }
@@ -67,27 +90,57 @@ fn list_stacks() {
     println!("  neutral  butter  chocolate  matcha  stone  gothic  y2k");
 }
 
-/// Every model file's text, concatenated.
-///
-/// Directives (`%%category`, `%%workflow`, `%%step`) are Mermaid comments, so
-/// the parsed ERD cannot carry them and anything reading them needs the source
-/// exactly as written.
-fn read_sources(paths: &[PathBuf]) -> Result<String> {
-    let mut sources = Vec::new();
-    for path in paths {
-        let text = std::fs::read_to_string(path)
-            .with_context(|| format!("reading model file {}", path.display()))?;
-        sources.push(text);
+/// Print what a CEDM model lowers to — the model document every compiler reads,
+/// and the library entities it brought in — so `bun run parity` can hold this
+/// lowering to the TypeScript one.
+fn lower_cedm(input: &Path) -> Result<()> {
+    let text =
+        std::fs::read_to_string(input).with_context(|| format!("reading {}", input.display()))?;
+    if !cedm::is_cedm_text(&text) {
+        bail!(
+            "{} is not a CEDM model (it does not open with `cedm:`)",
+            input.display()
+        );
     }
-    Ok(sources.join("\n"))
+    let read = cedm::read_cedm(&text, input.parent())?;
+    let output = serde_json::json!({
+        "document": read.document,
+        "libraryEntities": read.library_entities,
+    });
+    println!("{}", serde_json::to_string_pretty(&output)?);
+    Ok(())
+}
+
+/// Read a model file into records, refusing a path that is not a model.
+fn read_model(path: &Path) -> Result<records::ModelRecords> {
+    if !yaml_model::is_model_yaml_path(path) {
+        bail!(
+            "\"{}\" is not a model. A model is a YAML document (*.cedm.yaml or *.eml.yaml); see language/cedm/README.md.",
+            path.display()
+        );
+    }
+    if !path.exists() {
+        bail!("model file not found: {}", path.display());
+    }
+    let text =
+        std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+    if cedm::is_cedm_text(&text) {
+        // A CEDM application model: schema, imports and lowering, then the
+        // model document it lowers to is read exactly like one written by hand.
+        let read = cedm::read_cedm(&text, path.parent())
+            .with_context(|| format!("reading {}", path.display()))?;
+        return yaml_model::read_model_value(read.document)
+            .with_context(|| format!("reading the model {} lowers to", path.display()));
+    }
+    yaml_model::read_model_yaml(&text).with_context(|| format!("reading {}", path.display()))
 }
 
 fn info(input: &Path) -> Result<()> {
-    let lang = Language::load();
-    let source = read_sources(std::slice::from_ref(&input.to_path_buf()))?;
-    let parsed = model::parse_erd(&source, &lang);
+    let lang = Language::load()?;
+    let records = read_model(input)?;
+    let parsed = model::compile_erd(&records.erd, &lang);
     let names: Vec<String> = parsed.entities.iter().map(|e| e.name.clone()).collect();
-    let categories = category::resolve_categories(&source, &names);
+    let categories = category::resolve_category_declarations(&records.categories, &names);
 
     println!("📄 {}", input.display());
     println!(
@@ -134,40 +187,20 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         println!("═══════════════════════════════════════════\n");
     }
 
-    // ── Input validation ────────────────────────────────────────────────
-    if args.is_multi_file() && args.input.is_some() {
-        bail!("Cannot combine --input with --sys-file / --bus-file / --ref-file. Use one or the other.");
-    }
-    if !args.is_multi_file() && args.input.is_none() {
-        bail!("Specify --input <file> or at least one of --sys-file / --bus-file / --ref-file.");
-    }
-
-    let model_files = args.model_files();
-    for path in &model_files {
-        if !path.exists() {
-            bail!("model file not found: {}", path.display());
-        }
-    }
-
-    // ── Parse ───────────────────────────────────────────────────────────
-    let lang = Language::load();
-    let source = read_sources(&model_files)?;
-    let parsed = model::parse_erd(&source, &lang);
+    // ── Read ────────────────────────────────────────────────────────────
+    let lang = Language::load()?;
+    let records = read_model(&args.input)?;
+    let parsed = model::compile_erd(&records.erd, &lang);
 
     if parsed.entities.is_empty() {
         bail!(
-            "no entities found in {}.\n  \
-             An EML model needs an `erDiagram` section with at least one entity block.",
-            model_files
-                .iter()
-                .map(|p| p.display().to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
+            "no entities found in {}. A model declares at least one entity.",
+            args.input.display()
         );
     }
 
     let entity_names: Vec<String> = parsed.entities.iter().map(|e| e.name.clone()).collect();
-    let categories = category::resolve_categories(&source, &entity_names);
+    let categories = category::resolve_category_declarations(&records.categories, &entity_names);
 
     if !quiet {
         println!("📊 Entities found:");
@@ -235,7 +268,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
     std::fs::create_dir_all(&output_dir)
         .with_context(|| format!("creating {}", output_dir.display()))?;
 
-    // `%%rbac` restrictions. Compiled before the backend context is built,
+    // Access rules. Compiled before the backend context is built,
     // because both the context (the demonstration accounts) and `seed/access.sql`
     // (the rules) read them, and deriving twice from two readings is how the
     // accounts and the rules would come to disagree about which roles exist.
@@ -254,36 +287,39 @@ fn generate(args: &GenerateArgs) -> Result<()> {
         }
     };
 
-    // `%%workflow ... kind: state` draws which moves a record may make.
-    // Compiled before `%%rbac` because a directive may name a *transition*
-    // rather than a CRUD operation — `%%rbac role:manager on Deal.close_won` —
+    // The model's `stateMachines` say which moves a record may make.
+    // Compiled before the access rules because a rule may name a *transition*
+    // rather than a CRUD operation — `manager` may `close_won` a `Deal` —
     // and only the machines can say which edges that covers.
-    let compiled_workflows = workflows::compile_workflows(&source, &entity_names, warn);
+    let compiled_workflows =
+        workflows::compile_state_machine_declarations(&records.state_machines, &entity_names, warn);
     let state_machines: Vec<rbac::RbacStateMachine> = compiled_workflows
         .iter()
         .map(workflows::CompiledWorkflow::as_state_machine)
         .collect();
 
-    let compiled_rbac = rbac::compile_rbac(&source, &entity_names, &state_machines, warn);
+    let compiled_rbac =
+        rbac::compile_rbac_declarations(&records.rbac, &entity_names, &state_machines, warn);
 
-    // `%%rule` sections are decision flowcharts. Compiled here rather than in
+    // The model's `rules` are decision graphs. Compiled here rather than in
     // the emission layer so a malformed one is reported once, at the point the
     // model is read, rather than per output file.
-    let compiled_rules = rules::compile_rules(&rules::extract_rule_sections(&source), |message| {
+    let compiled_rules = rules::compile_rule_declarations(&records.rules, |message| {
         if !quiet {
             println!("  ⚠️  {message}");
         }
     });
 
-    // `%%report` names an analytical question and carries the SQL that answers
+    // A report names an analytical question and carries the SQL that answers
     // it. Compiled here, with the rules, so a malformed directive is reported
     // once at the point the model is read — and so the refusal of anything that
     // is not a single read happens before a query can reach a seed file.
-    let compiled_reports = reports::compile_reports(&source, &entity_names, |message| {
-        if !quiet {
-            println!("  ⚠️  {message}");
-        }
-    });
+    let compiled_reports =
+        reports::compile_report_declarations(&records.reports, &entity_names, |message| {
+            if !quiet {
+                println!("  ⚠️  {message}");
+            }
+        });
 
     // ── Backend: scaffold, then overlay ─────────────────────────────────
     if !args.skip_backend {
@@ -348,7 +384,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if compiled_rules.is_empty() {
-                    "  ✓ Wrote seed/rules.sql (no %%rule declared)".to_string()
+                    "  ✓ Wrote seed/rules.sql (no rules declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/rules.sql ({} rule(s))",
@@ -402,7 +438,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if rules + edges == 0 {
-                    "  ✓ Wrote seed/access.sql (no %%rbac declared)".to_string()
+                    "  ✓ Wrote seed/access.sql (no access rules declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/access.sql ({rules} operation rule(s), {edges} transition rule(s))"
@@ -454,7 +490,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             println!(
                 "{}",
                 if compiled_reports.is_empty() {
-                    "  ✓ Wrote seed/reports.sql (no %%report declared)".to_string()
+                    "  ✓ Wrote seed/reports.sql (no reports declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote seed/reports.sql ({} report(s))",
@@ -464,7 +500,7 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             );
         }
 
-        let sagas = compile_sagas(&source, &context.entities, &lang);
+        let sagas = compile_sagas(&records.sagas, &context.entities, &lang);
         backend::write_workflow_seed(&backend_dir, &project_name, &sagas)?;
         if !quiet {
             let steps: usize = sagas.iter().map(|saga| saga.steps.len()).sum();
@@ -481,16 +517,16 @@ fn generate(args: &GenerateArgs) -> Result<()> {
             );
         }
 
-        // The model's `%%hook` directives. Compiled here rather than beside the
+        // The model's `hooks`. Compiled here rather than beside the
         // other compilers above because nothing else reads them: they become
         // Rust source under `src/hooks/`, not a seed row.
-        let compiled_hooks = hooks::compile_hooks(&source, &entity_names, warn);
+        let compiled_hooks = hooks::compile_hook_declarations(&records.hooks, &entity_names, warn);
         let hook_entities = backend::write_hook_handlers(&backend_dir, &compiled_hooks)?;
         if !quiet {
             println!(
                 "{}",
                 if compiled_hooks.is_empty() {
-                    "  ✓ Wrote src/hooks/ (no %%hook declared)".to_string()
+                    "  ✓ Wrote src/hooks/ (no hooks declared)".to_string()
                 } else {
                     format!(
                         "  ✓ Wrote src/hooks/ ({} handler(s) across {hook_entities} entity(ies))",
@@ -564,11 +600,11 @@ const EXECUTABLE_STEP_TYPES: [&str; 6] = [
 /// Takes no `quiet` flag on purpose: everything it prints is a warning, and
 /// warnings are not progress chatter.
 fn compile_sagas(
-    source: &str,
+    declarations: &[records::SagaDeclaration],
     entities: &[bus::BusEntity],
     lang: &Language,
 ) -> Vec<saga::SagaWorkflow> {
-    let parsed = saga::parse_sagas(source, lang);
+    let parsed = saga::compile_saga_declarations(declarations, lang);
     let table_by_name: std::collections::HashMap<String, String> = entities
         .iter()
         .map(|entity| (entity.name.to_lowercase(), entity.table_name.clone()))
@@ -610,7 +646,7 @@ fn compile_sagas(
         for step in &workflow.steps {
             if !EXECUTABLE_STEP_TYPES.contains(&step.node_type.as_str()) {
                 eprintln!(
-                    "  ⚠️  saga {}.{}: \"{}\" steps are declared by EML but the Loco backend has \
+                    "  ⚠️  saga {}.{}: \"{}\" steps are declared by the model but the Loco backend has \
                      no executor for them — this step will be skipped at run time.",
                     workflow.name, step.node_id, step.node_type
                 );

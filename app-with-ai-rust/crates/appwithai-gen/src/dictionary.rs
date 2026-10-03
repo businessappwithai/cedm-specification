@@ -24,7 +24,7 @@ use crate::bus::BusEntity;
 use crate::dictionary_help::build_dictionary_help;
 use crate::model::ModelEnum;
 
-/// Category declared by a `%%category` directive, resolved to physical tables.
+/// A category the model declares, resolved to physical tables.
 #[derive(Debug, Clone)]
 pub struct CategorySeed {
     pub name: String,
@@ -42,7 +42,7 @@ pub struct DictionarySeedOptions<'a> {
     pub project_name: &'a str,
     pub entities: &'a [BusEntity],
     pub categories: &'a [CategorySeed],
-    /// `%%enum` declarations a `%%field` binds a column to, with their ids.
+    /// Enums a column's `enum` key binds it to, with their ids.
     ///
     /// Without these the seed still stamps `sys_column.sys_reference_id` with
     /// the enum's id — `attribute_reference_id` reads it before anything else —
@@ -206,7 +206,7 @@ const REF_LISTS: &[(i64, &str, &str)] = &[
 /// admin section; `description` carries the frontend route.
 /// The dictionary's own screens, and what each one looks like.
 ///
-/// The icon is a lucide **id** — the same spelling `%%entity … icon:` writes and
+/// The icon is a lucide **id** — the same spelling an entity's `icon` holds and
 /// the same one `sys_table.icon` holds. The dashboard used to carry a map from
 /// window name to an icon and a route in the frontend instead, which meant a
 /// window this list added and that map did not know about was dropped from the
@@ -246,6 +246,143 @@ const ROLES: &[(&str, &str, &str, bool)] = &[
 ///
 /// The stored value is untouched: every rule and state machine compares against
 /// the raw one, and prettifying that would break them silently.
+/// One rule of a narrowed lookup: the target rows whose `on` column equals the
+/// record's `by` column. Serialised as the JSON `sys_column.narrowed_by` holds.
+#[derive(serde::Serialize)]
+struct NarrowingRule {
+    by: String,
+    on: String,
+}
+
+/// The rules one narrowed lookup runs: for each controlling column, the target
+/// table's own foreign key to the table the controlling column points at.
+/// Mirrors `narrowingRules` in `dictionary-seed.ts`.
+fn narrowing_rules(
+    entity: &BusEntity,
+    attribute: &crate::bus::BusAttribute,
+    entities: &[BusEntity],
+) -> Vec<NarrowingRule> {
+    let Some(by_columns) = attribute.narrowed_by.as_ref() else {
+        return Vec::new();
+    };
+    let tables: std::collections::HashSet<String> =
+        entities.iter().map(|e| e.table_name.clone()).collect();
+    let Some(target) = crate::bus::foreign_key_target_table(
+        &attribute.column_name,
+        &tables,
+        attribute.references_table.as_deref(),
+    ) else {
+        return Vec::new();
+    };
+    let Some(target_entity) = entities.iter().find(|e| e.table_name == target) else {
+        return Vec::new();
+    };
+    let mut rules = Vec::new();
+    for by in by_columns {
+        let Some(controlling) = entity.attributes.iter().find(|a| a.column_name == *by) else {
+            continue;
+        };
+        let Some(controlled) = crate::bus::foreign_key_target_table(
+            by,
+            &tables,
+            controlling.references_table.as_deref(),
+        ) else {
+            continue;
+        };
+        if controlled == target_entity.table_name {
+            continue;
+        }
+        let on = target_entity.attributes.iter().find(|a| {
+            a.is_foreign_key
+                && crate::bus::foreign_key_target_table(
+                    &a.column_name,
+                    &tables,
+                    a.references_table.as_deref(),
+                ) == Some(controlled.clone())
+        });
+        if let Some(on) = on {
+            rules.push(NarrowingRule {
+                by: by.clone(),
+                on: on.column_name.clone(),
+            });
+        }
+    }
+    rules
+}
+
+/// Entities that ship rows, in an order a foreign key can be satisfied: an entity
+/// after every other one of them its rows point at. Mirrors `dataEntitiesInOrder`
+/// in `dictionary-seed.ts`.
+fn data_entities_in_order<'a>(
+    with_data: &[&'a BusEntity],
+    tables: &std::collections::HashSet<String>,
+) -> Vec<&'a BusEntity> {
+    let by_table: HashMap<&str, &BusEntity> = with_data
+        .iter()
+        .map(|e| (e.table_name.as_str(), *e))
+        .collect();
+    fn visit<'a>(
+        entity: &'a BusEntity,
+        stack: &mut Vec<String>,
+        done: &mut std::collections::HashSet<String>,
+        ordered: &mut Vec<&'a BusEntity>,
+        by_table: &HashMap<&str, &'a BusEntity>,
+        tables: &std::collections::HashSet<String>,
+    ) {
+        if done.contains(&entity.table_name) || stack.contains(&entity.table_name) {
+            return;
+        }
+        stack.push(entity.table_name.clone());
+        for attribute in &entity.attributes {
+            if let Some(target) = crate::bus::foreign_key_target_table(
+                &attribute.column_name,
+                tables,
+                attribute.references_table.as_deref(),
+            ) {
+                if target != entity.table_name {
+                    if let Some(next) = by_table.get(target.as_str()) {
+                        visit(next, stack, done, ordered, by_table, tables);
+                    }
+                }
+            }
+        }
+        stack.pop();
+        done.insert(entity.table_name.clone());
+        ordered.push(entity);
+    }
+    let mut ordered = Vec::new();
+    let mut done = std::collections::HashSet::new();
+    for entity in with_data {
+        visit(
+            entity,
+            &mut Vec::new(),
+            &mut done,
+            &mut ordered,
+            &by_table,
+            tables,
+        );
+    }
+    ordered
+}
+
+/// `pending_review` / `PARTIALLY_FILLED` → `Pending Review` / `Partially Filled`.
+/// Mirrors `enumValueLabel` in `dictionary-seed.ts`.
+fn enum_value_label(value: &str) -> String {
+    value
+        .split('_')
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => {
+                    first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase()
+                }
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 fn title_case_enum_value(value: &str) -> String {
     value
         .split('_')
@@ -324,7 +461,7 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
             ],
         ));
     }
-    // One list reference per `%%enum` the model binds to a column. Ids run from
+    // One list reference per enum the model binds to a column. Ids run from
     // 1000 up, allocated by the parser, so they are stable for a given set of
     // enum names and the seed stays idempotent across regenerations.
     for model_enum in model_enums {
@@ -340,7 +477,13 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                     "description",
                     text(format!("Values allowed for {}", model_enum.name)),
                 ),
-                ("validation_type", text("L")),
+                // An enumeration with a business table is a Table reference: the
+                // dropdown is that table's rows, so there is no second copy to
+                // drift.
+                (
+                    "validation_type",
+                    text(if model_enum.table { "T" } else { "L" }),
+                ),
                 ("entity_type", text("U")),
                 ("is_active", Sql::Bool(true)),
                 ("created_by", text(created_by)),
@@ -349,6 +492,9 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                 ("updated_at", now()),
             ],
         ));
+        if model_enum.table {
+            continue;
+        }
         for value in &model_enum.values {
             out.push(insert(
                 "sys_ref_list",
@@ -462,19 +608,34 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
     // inserted first. Entities arrive in declaration order, which says nothing
     // about which is which. A stable partition keeps the order identical for a
     // model that declares no parents, which is every model that worked before.
-    let table_name_by_entity: HashMap<&str, &str> = entities
+    let entity_by_name: HashMap<&str, &BusEntity> = entities
         .iter()
-        .map(|entity| (entity.name.as_str(), entity.table_name.as_str()))
+        .map(|entity| (entity.name.as_str(), entity))
         .collect();
-    let ordered: Vec<&BusEntity> = entities
-        .iter()
-        .filter(|entity| entity.parent_entity.is_none())
-        .chain(
-            entities
-                .iter()
-                .filter(|entity| entity.parent_entity.is_some()),
-        )
-        .collect();
+    // The chain of declared parents above an entity, nearest first. A line item
+    // can itself have line items (a yard has blocks, a block bays, a bay tiers),
+    // and all of them live in the window of the one at the top: only that one has
+    // a window to hang a tab on. Cycle-safe. Mirrors `ancestorsOf` in
+    // `dictionary-seed.ts`.
+    let ancestors_of = |entity: &BusEntity| -> Vec<&BusEntity> {
+        let mut chain: Vec<&BusEntity> = Vec::new();
+        let mut current = entity;
+        while let Some(parent_name) = current.parent_entity.as_deref() {
+            let Some(parent) = entity_by_name.get(parent_name).copied() else {
+                break;
+            };
+            if std::ptr::eq(parent, entity) || chain.iter().any(|c| std::ptr::eq(*c, parent)) {
+                break;
+            }
+            chain.push(parent);
+            current = parent;
+        }
+        chain
+    };
+    // Shallowest first, stably, so a model with no nesting deeper than one level
+    // is ordered exactly as the two-way partition ordered it.
+    let mut ordered: Vec<&BusEntity> = entities.iter().collect();
+    ordered.sort_by_key(|entity| ancestors_of(entity).len());
     // Child tabs are numbered after the parent's own tab, which is 10.
     let mut child_seq_by_window: HashMap<String, i64> = HashMap::new();
 
@@ -487,7 +648,7 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         let table_id = id("table", &[&entity.table_name]);
         let tab_id = id("tab", &[&entity.table_name]);
 
-        // A line item gets no window of its own. `%%entity InvoiceLine parent:
+        // A line item gets no window of its own. `InvoiceLine` with `parent:
         // Invoice` says the child has no life away from its parent, and the
         // dictionary is where that stops being a comment and starts being the
         // application: no window means no card on the dashboard and nothing to
@@ -497,10 +658,8 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         // A child whose parent the model does not declare keeps a window of its
         // own. An orphaned entity you can still open is fixable; one that has
         // quietly vanished from the application is not.
-        let parent_table: Option<&str> = entity
-            .parent_entity
-            .as_deref()
-            .and_then(|parent| table_name_by_entity.get(parent).copied());
+        let ancestors = ancestors_of(entity);
+        let parent_table: Option<&str> = ancestors.last().map(|top| top.table_name.as_str());
         let is_child = parent_table.is_some();
         let window_id = id("window", &[parent_table.unwrap_or(&entity.table_name)]);
         let entity_help = help.get(&entity.table_name);
@@ -508,32 +667,38 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         // The window comes first: `sys_table.sys_window_id` points at it. A child
         // reuses its parent's, which the stable partition above already emitted.
         if !is_child {
-            out.push(insert(
-                "sys_window",
-                &[
-                    ("sys_window_id", text(window_id.clone())),
-                    ("name", text(entity.display_name.clone())),
-                    (
-                        "description",
-                        text(format!("Maintain {} records", entity.display_name)),
-                    ),
-                    (
-                        "help",
-                        entity_help
-                            .map(|h| text(h.window.clone()))
-                            .unwrap_or(Sql::Null),
-                    ),
-                    ("window_type", text("M")),
-                    ("is_sales_transaction", Sql::Bool(false)),
-                    ("is_default", Sql::Bool(true)),
-                    ("entity_type", text("U")),
-                    ("is_active", Sql::Bool(true)),
-                    ("created_by", text(created_by)),
-                    ("updated_by", text(created_by)),
-                    ("created_at", now()),
-                    ("updated_at", now()),
-                ],
-            ));
+            let mut window_columns: Vec<(&str, Sql)> = vec![
+                ("sys_window_id", text(window_id.clone())),
+                ("name", text(entity.display_name.clone())),
+                (
+                    "description",
+                    text(format!("Maintain {} records", entity.display_name)),
+                ),
+                (
+                    "help",
+                    entity_help
+                        .map(|h| text(h.window.clone()))
+                        .unwrap_or(Sql::Null),
+                ),
+            ];
+            // The icon the dashboard card and the menu draw, from the window like
+            // every other label on them. Written only when the model declares one,
+            // so a model without icons seeds exactly what it always did.
+            if let Some(icon) = entity.icon.as_ref().filter(|icon| !icon.is_empty()) {
+                window_columns.push(("icon", text(icon.clone())));
+            }
+            window_columns.extend([
+                ("window_type", text("M")),
+                ("is_sales_transaction", Sql::Bool(false)),
+                ("is_default", Sql::Bool(true)),
+                ("entity_type", text("U")),
+                ("is_active", Sql::Bool(true)),
+                ("created_by", text(created_by)),
+                ("updated_by", text(created_by)),
+                ("created_at", now()),
+                ("updated_at", now()),
+            ]);
+            out.push(insert("sys_window", &window_columns));
         }
 
         // Written only when the model declares one — see the TypeScript seed.
@@ -589,7 +754,7 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                 // A child's tab sits inside the parent's window at level 1,
                 // numbered after the parent's own tab (10) and after any
                 // sibling already placed.
-                ("tab_level", Sql::Int(i64::from(is_child))),
+                ("tab_level", Sql::Int(ancestors.len() as i64)),
                 (
                     "seq_no",
                     Sql::Int(if is_child {
@@ -629,10 +794,10 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                     ("sys_table_id", text(table_id.clone())),
                     ("column_name", text(attr.column_name.clone())),
                     ("name", text(attr.display_name.clone())),
-                    // `%%field <Entity>.<column> help:`, as the author wrote it.
+                    // The column's `help`, as the author wrote it.
                     //
                     // The parser has hung this on the attribute since
-                    // `%%field help:` was read, and the seed dropped it: the
+                    // the column's `help` was read, and the seed dropped it: the
                     // column existed in the DDL and was never written, so the
                     // Application Dictionary's own column screen showed nothing
                     // for every column of every entity, in a model that may
@@ -680,6 +845,35 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                     ("created_at", now()),
                     ("updated_at", now()),
                 ],
+            ));
+        }
+
+        // Store the target of each lookup whose name does not say it — a CEDM
+        // reference named outright. A separate statement rather than a value
+        // in the INSERT keeps every seed of a model without one byte for byte
+        // what it was. The column exists from m0018.
+        for attr in &entity.attributes {
+            if let Some(table) = attr.references_table.as_deref() {
+                out.push(format!(
+                    "UPDATE sys_column SET ref_table_name = {} WHERE sys_column_id = {};",
+                    text(table).render(),
+                    text(id("column", &[&entity.table_name, &attr.column_name])).render(),
+                ));
+            }
+        }
+
+        // Store which columns of the record narrow each lookup's choices (m0019).
+        // Mirrors the same step in `dictionary-seed.ts`.
+        for attr in &entity.attributes {
+            let rules = narrowing_rules(entity, attr, entities);
+            if rules.is_empty() {
+                continue;
+            }
+            let json = serde_json::to_string(&rules).unwrap_or_default();
+            out.push(format!(
+                "UPDATE sys_column SET narrowed_by = {} WHERE sys_column_id = {};",
+                text(json).render(),
+                text(id("column", &[&entity.table_name, &attr.column_name])).render(),
             ));
         }
 
@@ -787,6 +981,135 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
                 ("access_type_table", text("R")),
                 ("is_read_only", Sql::Bool(true)),
                 ("is_exclude", Sql::Bool(false)),
+                ("entity_type", text("U")),
+                ("is_active", Sql::Bool(true)),
+                ("created_by", text(created_by)),
+                ("updated_by", text(created_by)),
+                ("created_at", now()),
+                ("updated_at", now()),
+            ],
+        ));
+    }
+
+    // ── Reference data ──────────────────────────────────────────────────────
+    // The rows of the common specification's shared lists (countries, states,
+    // cities, currencies, languages), written as application data into each
+    // application's own tables, parents before children. Mirrors the section of
+    // the same name in `dictionary-seed.ts`.
+    let data_tables: std::collections::HashSet<String> =
+        entities.iter().map(|e| e.table_name.clone()).collect();
+    let with_data: Vec<&BusEntity> = entities.iter().filter(|e| e.data.is_some()).collect();
+    if !with_data.is_empty() {
+        section(
+            &mut out,
+            "Reference data (shared by every application of the common specification)",
+        );
+    }
+    for entity in data_entities_in_order(&with_data, &data_tables) {
+        let Some(data) = entity.data.as_ref() else {
+            continue;
+        };
+        let key_of = |table: &str, value: &serde_json::Value| -> String {
+            let written = match value {
+                serde_json::Value::String(text_) => text_.clone(),
+                other => other.to_string(),
+            };
+            id("data", &[table, &written])
+        };
+        let mut foreign_keys: HashMap<&str, String> = HashMap::new();
+        for attribute in &entity.attributes {
+            if let Some(target) = crate::bus::foreign_key_target_table(
+                &attribute.column_name,
+                &data_tables,
+                attribute.references_table.as_deref(),
+            ) {
+                foreign_keys.insert(attribute.column_name.as_str(), target);
+            }
+        }
+        for row in &data.rows {
+            let Some(own) = row.get(&data.key).filter(|v| !v.is_null()) else {
+                continue;
+            };
+            let mut values: Vec<(&str, Sql)> = vec![(
+                entity.primary_key.as_str(),
+                text(key_of(&entity.table_name, own)),
+            )];
+            for (column, value) in row {
+                let rendered = match (foreign_keys.get(column.as_str()), value) {
+                    (Some(target), v) if !v.is_null() => text(key_of(target, v)),
+                    (_, serde_json::Value::Null) => Sql::Null,
+                    (_, serde_json::Value::Bool(b)) => Sql::Bool(*b),
+                    (_, serde_json::Value::Number(n)) => Sql::Raw(n.to_string()),
+                    (_, serde_json::Value::String(s)) => text(s.clone()),
+                    (_, other) => text(other.to_string()),
+                };
+                values.push((column.as_str(), rendered));
+            }
+            out.push(insert(&entity.table_name, &values));
+        }
+    }
+
+    // ── Enumeration tables ──────────────────────────────────────────────────
+    // The rows (application data, not sample data) and the Table reference that
+    // makes the table the dropdown's source. After the entity sections, because
+    // `sys_ref_table` names `sys_column` rows.
+    let table_enums: Vec<&ModelEnum> = model_enums.iter().filter(|e| e.table).collect();
+    if !table_enums.is_empty() {
+        section(
+            &mut out,
+            "Enumeration tables (the values of every enumeration)",
+        );
+    }
+    for model_enum in table_enums {
+        let Some(entity) = entities.iter().find(|e| e.name == model_enum.name) else {
+            continue;
+        };
+        let column_id = |name: &str| id("column", &[&entity.table_name, name]);
+        for (position, value) in model_enum.values.iter().enumerate() {
+            out.push(insert(
+                &entity.table_name,
+                &[
+                    ("id", text(id("enum_value", &[&model_enum.name, value]))),
+                    ("code", text(value.clone())),
+                    (
+                        "name",
+                        text(
+                            model_enum
+                                .labels
+                                .get(value)
+                                .cloned()
+                                .unwrap_or_else(|| enum_value_label(value)),
+                        ),
+                    ),
+                    (
+                        "description",
+                        model_enum
+                            .descriptions
+                            .get(value)
+                            .map_or(Sql::Null, |d| text(d.clone())),
+                    ),
+                    ("sequence", Sql::Int(((position + 1) * 10) as i64)),
+                    ("is_active", Sql::Bool(true)),
+                ],
+            ));
+        }
+        out.push(insert(
+            "sys_ref_table",
+            &[
+                (
+                    "sys_ref_table_id",
+                    text(id("ref_table", &[&model_enum.reference_id.to_string()])),
+                ),
+                (
+                    "sys_reference_id",
+                    Sql::Int(i64::from(model_enum.reference_id)),
+                ),
+                ("sys_table_id", text(id("table", &[&entity.table_name]))),
+                ("key_column_id", text(column_id("code"))),
+                ("display_column_id", text(column_id("name"))),
+                ("is_value_displayed", Sql::Bool(false)),
+                ("order_by_clause", text("sequence")),
+                ("where_clause", text("is_active = true")),
                 ("entity_type", text("U")),
                 ("is_active", Sql::Bool(true)),
                 ("created_by", text(created_by)),
@@ -921,20 +1244,24 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
 mod tests {
     use super::*;
     use crate::bus::{declared_entity_names, entity_to_bus_entity};
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn entities() -> Vec<BusEntity> {
-        let parsed = parse_erd(
-            r#"
-erDiagram
-    Compound {
-        string id PK
-        string smiles UK
-        decimal molecular_weight OPTIONAL
-    }
+        let parsed = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
 "#,
-            &Language::load(),
         )
         .entities;
         let declared = declared_entity_names(&parsed);
@@ -1005,21 +1332,28 @@ erDiagram
 
     #[test]
     fn a_line_item_has_no_window_and_its_tab_hangs_off_the_parent() {
-        let model = parse_erd(
-            r#"
-erDiagram
-    Invoice {
-        string id PK
-        string name
-    }
-    InvoiceLine {
-        string id PK
-        string invoice_id FK
-        string description
-    }
-%%entity InvoiceLine parent: Invoice
+        let model = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+  - name: InvoiceLine
+    parent: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: invoice_id
+        type: string
+        fk: true
+      - name: description
+        type: string
 "#,
-            &Language::load(),
         );
         let declared = declared_entity_names(&model.entities);
         let entities: Vec<BusEntity> = model

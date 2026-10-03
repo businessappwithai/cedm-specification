@@ -1,196 +1,127 @@
-# APPWITHAI Modeling Language (EML)
+# EML — APPWITHAI Modeling Language
 
-**EML** is a single, standalone, Mermaid-based language for describing an
-application's **Entity Relationship Diagram (ERD)**, its **business rules**, and
-its **business workflows** — all in one artifact that the APPWITHAI generator
-reads to produce full-stack applications.
+**EML** is a YAML language for describing an application in one document: its
+entities and relationships, its business rules, who may do what, the questions
+it answers, and how its records move. A model is one file, `*.eml.yaml`. The
+APPWITHAI generators read it to produce a full-stack application (TanStack Start
++ Astryx on a Loco.rs backend), the checker validates it, and the modelling tool
+edits it and draws it — as the same document, with no second notation.
 
-Every EML document is **valid, renderable Mermaid**. EML is a *semantic superset*:
-it assigns generator meaning to standard Mermaid diagrams (`erDiagram`,
-`flowchart`, `stateDiagram-v2`) and to renderer-safe `%%` directive comments.
-
-> Inspired by the official Mermaid references for
-> [Entity Relationship Diagrams](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
-> and [Flowcharts](https://mermaid.js.org/syntax/flowchart.html).
-
----
-
-## The definition file
-
-The **full language** is defined in one machine-readable file that the
-generator application reads:
-
+```yaml
+eml: "1.0"
+name: Orders
+entities:
+  - name: Customer
+    help: A person or company that buys from us.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: name, type: string(120), help: The name printed on invoices. }
+  - name: Order
+    help: A customer's commitment to buy, from the moment it is drafted.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: customer_id, type: uuid, fk: true, help: Who placed the order. }
+      - { name: status, type: string, enum: OrderStatus, help: Where the order is in fulfilment. }
+enums:
+  - { name: OrderStatus, values: [draft, submitted, shipped] }
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
 ```
-language/appwithai-language.json
-```
 
-This JSON is the **single source of truth** for the language: type vocabulary,
-modifiers, relationship cardinalities, hook types, rule-node shape semantics,
-directives, grammar, and the generator contract. Everything else in this folder
-documents or loads that file.
+## Where the language is defined
 
-Load it from code via the typed accessor:
+| File | Defines |
+|---|---|
+| [`yaml/eml.schema.json`](yaml/eml.schema.json) | The document's shape: every key, what it may hold, which are required (JSON Schema 2020-12). The reader validates with this file. |
+| [`appwithai-language.json`](appwithai-language.json) | What the shape means: the type vocabulary, foreign-key resolution, cardinalities, hook events, rule node types, saga step contracts, automation documents, diagnostics, and which construct each compiler reads. |
+| [`yaml/checker.ts`](yaml/checker.ts) | The rules that relate one part of a model to another — every `EML` diagnostic. |
+
+Everything else here documents or loads those files.
+
+- [`yaml/README.md`](yaml/README.md) — the key-by-key reference, validation,
+  canonical form and tools.
+- [`spec/`](spec/00-overview.md) — the specification, chapter by chapter:
+  [overview](spec/00-overview.md),
+  [entities and relationships](spec/01-entities.md),
+  [business rules](spec/02-business-rules.md),
+  [workflows](spec/03-workflows.md),
+  [types and cardinalities](spec/04-types-and-cardinalities.md),
+  [access rules, reports and triggers](spec/05-access-reports-and-triggers.md).
+
+The definition is read from code through a typed accessor:
 
 ```ts
-import {
-  loadLanguageDefinition,
-  normalizeType,
-  cardinalityKind,
-  isHookType,
-} from "../language";
+import { cardinalityKind, isHookType, loadLanguageDefinition, normalizeType } from "../language";
 
-const def = loadLanguageDefinition();
-normalizeType("varchar");     // "string"
-cardinalityKind("||--o{");    // "oneToMany"
-isHookType("beforeCreate");   // true
+normalizeType("varchar");                     // "string"
+cardinalityKind("exactly-one", "zero-or-more"); // "oneToMany"
+isHookType("beforeCreate");                   // true
 ```
-
----
 
 ## Folder layout
 
 ```
 language/
 ├── README.md                     # This entry point
-├── appwithai-language.json       # ⭐ Canonical, machine-readable definition (the language)
-├── index.ts                      # Typed loader/accessor for the generator app
-├── composer.ts                   # Writes a complete EML document (composeEml, mergeSections)
-├── rag.ts                        # EML → retrieval chunks; copied into generated apps verbatim
-├── checker.ts                    # Validator — `bun language/checker.ts <file.mmd>`
-├── fixer.ts                      # Applies the checker's auto-fixable codes
-├── grammar/
-│   └── appwithai.ebnf            # Formal EBNF grammar
-├── spec/
-│   ├── 00-overview.md            # Concepts, document structure, sections
-│   ├── 01-erd.md                 # ERD reference
-│   ├── 02-business-rules.md      # Business-rules (decision-flow) reference
-│   ├── 03-workflows.md           # Workflow (hooks + state) reference
-│   ├── 04-types-and-modifiers.md # Type vocabulary, modifiers, cardinalities
-│   └── 05-directives.md          # Reserved %% directive reference
-├── cli/                          # The `eml` CLI — parse, validate, generate apps
-│   ├── README.md
-│   ├── eml.ts                    # Executable entrypoint (run with Bun)
-│   ├── src/                      # parser, validator, model, generators
-│   └── runtime/                  # static runtime for generated apps
-└── examples/
-    ├── crm.eml.mmd               # Enterprise CRM — the reference model: 17 entities,
-    │                             #   8 rules, 5 state machines, 7 hook workflows, 5 sagas
-    ├── ecommerce.eml.mmd         # Full e-commerce model
-    ├── helpdesk.eml.mmd          # Support-ticketing model (used by the CLI test)
-    └── minimal.eml.mmd           # Smallest complete example
+├── appwithai-language.json       # ⭐ The machine-readable definition
+├── index.ts                      # Typed loader/accessor for it
+├── yaml/
+│   ├── README.md                 #   the key-by-key reference
+│   ├── eml.schema.json           # ⭐ the document's shape
+│   ├── document.ts               #   the document's TypeScript types
+│   ├── checker.ts                #   the language checker
+│   └── examples/                 #   crm, dance-studio, ecommerce, helpdesk, minimal
+├── browser/                      # The browser bundle's entry (html/model-yaml.js)
+├── spec/                         # The specification, chapters 00–05
+└── cli/                          # The `eml` CLI: validate, info, generate
 ```
 
-## The `eml` CLI — build an app from a model
+`examples/drug-discovery.eml.yaml` at the repository root is the model the
+generator is validated on; `yaml/examples/crm.eml.yaml` exercises every construct
+the language has.
 
-The [`cli/`](cli/README.md) folder holds a zero-dependency TypeScript CLI that
-reads this definition, parses an `.mmd` model, validates it **with
-self-correction**, and **generates a complete, runnable application**:
+## Validate and generate
 
 ```bash
-bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
-bun language/cli/eml.ts generate -i language/examples/helpdesk.eml.mmd -o ./out --docker
-cd out && npm start        # zero-dependency app on http://localhost:3000
+appwithai validate model.eml.yaml [--strict]      # YAML, schema, checker — every finding at its line
+appwithai generate -i model.eml.yaml -o out -n my-app
+
+bun run eml validate -i model.eml.yaml            # the `eml` CLI: the same three layers
+bun run eml generate -i model.eml.yaml -o ./out --docker
 ```
 
-It supports `--input`, `--output`, `--name`, `--docker`, `--github <owner/repo>`,
-`--stack`, `--force`, `--no-autofix`, `--json`, and `--help`. See
-[`cli/README.md`](cli/README.md).
+The [`eml` CLI](cli/README.md) validates **with self-correction** — it applies
+the checker's mechanically fixable corrections to the YAML, keeping its
+comments, and reports each — and generates a complete, runnable application. It
+supports `--input`, `--output`, `--name`, `--stack`, `--docker`,
+`--github <owner/repo>`, `--force`, `--no-autofix`, `--json` and `--help`.
 
-The shipped ERD parser
-(`packages/generator/src/parsers/mermaid.parser.ts`) also loads its type and
-cardinality maps from `appwithai-language.json` at runtime, so the generator and
-the language definition never drift.
+`bun run wasm` runs the Rust generator compiled to `wasm32-wasip1`; the parity
+gate holds its output byte-identical to the native build's and to the
+TypeScript generator's.
 
----
+## What each construct does
 
-## The three sections at a glance
-
-### 1. ERD — structure
-
-```mermaid
-erDiagram
-    Customer {
-        string id PK
-        string email UK
-        string first_name
-        date   created_at
-    }
-    Customer ||--o{ Order : "places"
-```
-
-Parsed by `packages/generator/src/parsers/mermaid.parser.ts`.
-
-### 2. Business rules — declarative decision logic
-
-```mermaid
-%%meta kind: rules
-flowchart TD
-    A([Start: Order Received]) --> B{Order Amount > 1000?}
-    B -->|Yes| C[Apply Premium Discount 15%]
-    B -->|No| D{Customer is VIP?}
-    D -->|Yes| E[Apply VIP Discount 10%]
-    D -->|No| F[Apply Standard Pricing]
-    C --> G(Calculate Final Price)
-    E --> G
-    F --> G
-    G --> H([End: Price Calculated])
-```
-
-Node **shape** = decision role → compiled to a GoRules **JDM** graph by
-`packages/generator/src/rules/jdm-converter.ts`. A section carrying `%%action`
-directives compiles to a JDM *decision table* instead — that is the shape the
-rules engine reads actions from.
-
-### 3. Workflows — lifecycle hooks & process orchestration
-
-```mermaid
-%%meta kind: workflow
-%%workflow SignupFlow entity: User kind: hook
-flowchart TD
-    A[Client Request] --> B[Validate Request]
-    B --> C[beforeCreate: hashPassword]
-    C --> D[Process User]
-    D --> E[afterCreate: sendWelcomeEmail]
-    E --> F[Response]
-
-    %%hook beforeCreate hashPassword on User
-    %%hook afterCreate sendWelcomeEmail on User
-```
-
-`%%hook` directives are compiled by `packages/generator/src/hooks/index.ts`
-into per-entity handler modules plus a registry the generated bus service calls
-around every CRUD operation.
-
-The web app keeps its own parsers for the editors — they run in the browser and
-cannot import the generator. They read the same syntax but do not decide what is
-generated; when the two disagree, the generator's copy is the language.
-
----
-
-## Conformance levels
-
-| Level | Covers | Status |
-|-------|--------|--------|
-| **core** | `erDiagram` entities, attributes, `PK/FK/UK/OPTIONAL/NULL/UNIQUE`, all 8 cardinalities, plus `%%index`, `%%enum`, `%%field enum:` and `%%category` | Compiled |
-| **rules** | `flowchart` decision flows → JDM via shape semantics; `%%action` → JDM decision table | Compiled |
-| **workflows** | `%%hook` (both forms, all 13 types), `stateDiagram-v2` state machines, `%%workflow kind: saga` with `%%step` and `%%loop` | Compiled |
-| **access** | `%%rbac`, in both its CRUD and state-transition forms | Compiled to `sys_operation_access` / `sys_transition_access`, enforced by the generated guard |
-| **help** | `%%field <E>.<col> help:` and `%%entity <Name> help:` (or `description:`) | Compiled — to `sys_column.description` / `sys_table.description`, shown in the app, and the whole "what it is for" column of `manual.html` |
-| **validated** | `%%rule`, `%%trigger`, and the `%%entity` keys other than `help:`/`description:` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
-| **reserved** | `%%field` keys other than `enum:` and `help:` | Renderer-safe, documented, inert |
+| Level | Constructs | Status |
+|---|---|---|
+| **core** | `entities` (attributes, keys, `indexes`), `enums` bound with `enum:`, `categories`, and every `relationships` cardinality pair | compiled |
+| **rules** | `rules`: decision graphs → JDM by node type; `actions` and `decisionTable` → a JDM decision table | compiled |
+| **workflows** | `hooks` (all 13 events), `stateMachines` (enforced), `sagas` | compiled |
+| **access** | `rbac`, in its CRUD and transition forms → `sys_operation_access` / `sys_transition_access`, enforced by the generated backend | compiled |
+| **help** | `help` on every entity and column → `sys_table.description`, `sys_column.description`, the form hints and the generated manual | compiled |
+| **reports** | `reports` → `sys_report`, served read-only at `/api/reports` | compiled |
+| **validated** | `triggers`, `hookFlows`, and the entity keys `label`, `prefix`, `softDelete`, `audited` | shape and references enforced; no application generator compiles them yet |
+| **reserved** | the attribute keys `ui`, `default`, `min`, `max`, `format` | validated for shape; no reader |
 
 `help` is a level of its own because it is the one that gets skipped. It reads
 like documentation, so it is easy to leave for later — and then the generated
 manual prints a dash in every row, which is the first thing anyone opening the
-application sees. Write it on every column, not only the ambiguous ones.
+application sees. The checker reports it missing (`EML152`, `EML153`) and
+reports help that only restates a name (`EML151`).
 
-Each directive also carries its own `status` and `consumedBy` in
-`appwithai-language.json`, which is authoritative for that directive; the levels
-above just group them.
-
-See `spec/` for the full reference and `appwithai-language.json` for the
-machine-readable contract.
+The definition's `constructs` block records each construct's status and the file
+that reads it; the levels above group them.
 
 For the whole system — the generator, its templates, and what a generated
 application contains — see [`../website/llmtext/llms-full.txt`](../website/llmtext/llms-full.txt),
-which is the same material written as one context file for language models.
+the same material written as one context file for language models.

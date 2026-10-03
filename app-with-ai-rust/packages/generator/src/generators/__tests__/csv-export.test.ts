@@ -18,14 +18,20 @@
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { generateApplication, parseModel } from "../../index";
+import { readYamlFixture } from "../../model/__tests__/compile-yaml";
+import { generateApplication } from "../../index";
 
-const MODEL = `erDiagram
-    Member {
-        string id PK
-        string full_name
-        string status
-    }
+const MODEL = `eml: "1.0"
+entities:
+  - name: Member
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: full_name
+        type: string
+      - name: status
+        type: string
 `;
 
 let emitted: { csv: string; table: string } | undefined;
@@ -34,8 +40,8 @@ async function generated() {
   if (emitted) return emitted;
   const out = await fs.mkdtemp("/tmp/csv-export-");
   await generateApplication({
-    sources: MODEL,
-    model: parseModel(MODEL),
+    document: readYamlFixture(MODEL),
+    modelText: MODEL,
     projectName: "csvapp",
     outputDir: out,
     skipTests: true,

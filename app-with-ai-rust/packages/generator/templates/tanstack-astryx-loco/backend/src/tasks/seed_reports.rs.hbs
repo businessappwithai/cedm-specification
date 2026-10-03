@@ -1,6 +1,6 @@
 //! `cargo loco task seed_reports` — install the model's own questions.
 //!
-//! One row in `sys_report` per `%%report` directive the model declared. A model
+//! One row in `sys_report` per report the model declared. A model
 //! that declares none installs nothing and says so, rather than inventing a
 //! report: the reports screen is then empty, which is the truth about that
 //! model.
@@ -32,7 +32,7 @@ impl Task for SeedReports {
     fn task(&self) -> TaskInfo {
         TaskInfo {
             name: "seed_reports".to_string(),
-            detail: "Install the model's %%report questions into sys_report".to_string(),
+            detail: "Install the model's reports into sys_report".to_string(),
         }
     }
 
@@ -48,7 +48,7 @@ impl Task for SeedReports {
 
         let count = installed.map_or(0, |row| row.0);
         if count == 0 {
-            println!("✓ No reports declared (this model has no %%report directives)");
+            println!("✓ No reports declared (this model declares none)");
         } else {
             println!("✓ Reports installed ({count} report(s) in sys_report)");
         }

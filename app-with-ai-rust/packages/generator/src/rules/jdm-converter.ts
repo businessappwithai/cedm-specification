@@ -1,7 +1,12 @@
-// Converts a parsed Mermaid flowchart AST → GoRules JDM JSON
-// Minimal, no AI required.
+/**
+ * A rule's decision graph → a GoRules JDM decision graph.
+ *
+ * Each node's `type` names the JDM node it becomes; ids are prefixed so a
+ * model's short ids (`A`, `check`) cannot collide with the fixed ids the
+ * decision-table forms use.
+ */
 
-import type { FlowAST, NodeShape } from "./flowchart-parser";
+import type { RuleEdge, RuleNode, RuleNodeType } from "../model/records";
 
 type JdmNodeType =
   | "inputNode"
@@ -39,36 +44,29 @@ export interface JdmGraph {
   edges: JdmEdge[];
 }
 
-function shapeToType(shape: NodeShape, isTarget: boolean, isSource: boolean): JdmNodeType {
-  if (shape === "stadium") return isTarget && !isSource ? "outputNode" : "inputNode";
-  if (shape === "diamond") return "switchNode";
-  if (shape === "circle") return "functionNode";
-  return "expressionNode";
-}
+/** The JDM node each rule node type compiles to. */
+export const JDM_NODE_TYPE: Record<RuleNodeType, JdmNodeType> = {
+  start: "inputNode",
+  end: "outputNode",
+  decision: "switchNode",
+  expression: "expressionNode",
+  function: "functionNode",
+};
 
-export function convertToJdm(ast: FlowAST): JdmGraph {
-  const sourceIds = new Set(ast.edges.map((e) => e.source));
-  const targetIds = new Set(ast.edges.map((e) => e.target));
-
-  const nodes: JdmNode[] = [];
+/** Compile a rule's nodes and edges into a JDM graph. */
+export function ruleGraphToJdm(nodes: RuleNode[], edges: RuleEdge[]): JdmGraph {
   let edgeCounter = 0;
-
-  for (const [, node] of ast.nodes) {
-    const isSource = sourceIds.has(node.id);
-    const isTarget = targetIds.has(node.id);
-    nodes.push({
+  return {
+    nodes: nodes.map((node) => ({
       id: `node-${node.id}`,
       name: node.label,
-      type: shapeToType(node.shape, isTarget, isSource),
-    });
-  }
-
-  const edges: JdmEdge[] = ast.edges.map((e) => ({
-    id: `edge-${++edgeCounter}`,
-    name: e.label,
-    sourceId: `node-${e.source}`,
-    targetId: `node-${e.target}`,
-  }));
-
-  return { nodes, edges };
+      type: JDM_NODE_TYPE[node.type],
+    })),
+    edges: edges.map((edge) => ({
+      id: `edge-${++edgeCounter}`,
+      name: edge.label,
+      sourceId: `node-${edge.source}`,
+      targetId: `node-${edge.target}`,
+    })),
+  };
 }

@@ -510,25 +510,45 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
             })
             .collect();
 
+        let handler_path = |entity: &str, hook: &CompiledHook| -> String {
+            format!(
+                "handlers::{}::{}",
+                handler_module(entity),
+                snake_case(&hook.handler)
+            )
+        };
+
         let calls_for = |entity: &str, for_event: &[&CompiledHook], indent: &str| -> String {
             for_event
                 .iter()
                 .map(|hook| {
-                    let path = format!(
-                        "handlers::{}::{}",
-                        handler_module(entity),
-                        snake_case(&hook.handler)
-                    );
-                    if contract.returns == "bool" {
-                        format!(
-                            "{indent}if !{path}({}).await? {{\n{indent}    return Ok(false);\n{indent}}}\n",
-                            contract.call
-                        )
-                    } else {
-                        format!("{indent}{path}({}).await?;\n", contract.call)
-                    }
+                    format!(
+                        "{indent}{}({}).await?;\n",
+                        handler_path(entity, hook),
+                        contract.call
+                    )
                 })
                 .collect()
+        };
+
+        // A guard event (`beforeDelete`) answers with a verdict rather than
+        // running for its side effects, so each entity's handlers become one
+        // expression: the single handler's own result, or every verdict joined
+        // with `&&`, which stops at the first refusal exactly as an early
+        // return would. An arm or an `if` whose whole body is
+        // `if !h(..).await? { return Ok(false); }` is what clippy's
+        // `collapsible_match` and `collapsible_if` reject under `-D warnings`.
+        let verdict_for = |entity: &str, for_event: &[&CompiledHook]| -> String {
+            let calls: Vec<String> = for_event
+                .iter()
+                .map(|hook| format!("{}({}).await", handler_path(entity, hook), contract.call))
+                .collect();
+            if calls.len() == 1 {
+                calls[0].clone()
+            } else {
+                let joined: Vec<String> = calls.iter().map(|c| format!("{c}?")).collect();
+                format!("Ok({})", joined.join(" && "))
+            }
         };
 
         let ok = if contract.returns == "bool" {
@@ -561,8 +581,25 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
             // does not.
             let (entity, for_event) = &declaring[0];
             out.push_str(&format!("    if key(entity) == \"{}\" {{\n", key(entity)));
-            out.push_str(&calls_for(entity, for_event, "        "));
+            if contract.returns == "bool" {
+                out.push_str(&format!(
+                    "        return {};\n",
+                    verdict_for(entity, for_event)
+                ));
+            } else {
+                out.push_str(&calls_for(entity, for_event, "        "));
+            }
             out.push_str(&format!("    }}\n    {ok}\n}}\n"));
+        } else if contract.returns == "bool" {
+            out.push_str("    match key(entity).as_str() {\n");
+            for (entity, for_event) in &declaring {
+                out.push_str(&format!(
+                    "        \"{}\" => {},\n",
+                    key(entity),
+                    verdict_for(entity, for_event)
+                ));
+            }
+            out.push_str(&format!("        _ => {ok},\n    }}\n}}\n"));
         } else {
             out.push_str("    match key(entity).as_str() {\n");
             for (entity, for_event) in &declaring {
@@ -699,11 +736,43 @@ mod tests {
     }
 
     #[test]
-    fn before_delete_short_circuits_on_a_refusal() {
+    fn before_delete_answers_with_the_handlers_verdict() {
+        // One guarding entity: its verdict is the answer, and no nested `if`
+        // for clippy's `collapsible_if` to reject.
         let registry =
             build_hook_registry(&[hook("Compound", HookType::BeforeDelete, "blockIt", 0)]);
-        assert!(registry.contains("if !handlers::compound::block_it(id).await? {"));
-        assert!(registry.contains("return Ok(false);"));
+        assert!(registry.contains("        return handlers::compound::block_it(id).await;\n"));
+        assert!(!registry.contains("return Ok(false);"));
+    }
+
+    #[test]
+    fn before_delete_stops_at_the_first_refusal() {
+        // Two guards on one entity: `&&` evaluates the second only when the
+        // first allowed the delete, in declaration order.
+        let registry = build_hook_registry(&[
+            hook("Compound", HookType::BeforeDelete, "first", 0),
+            hook("Compound", HookType::BeforeDelete, "second", 1),
+        ]);
+        assert!(registry.contains(
+            "return Ok(handlers::compound::first(id).await? && handlers::compound::second(id).await?);"
+        ));
+    }
+
+    #[test]
+    fn before_delete_across_entities_is_a_match_of_verdicts() {
+        // Two guarding entities: each arm is one expression, so clippy's
+        // `collapsible_match` has nothing to collapse.
+        let registry = build_hook_registry(&[
+            hook("Account", HookType::BeforeDelete, "keepOpen", 0),
+            hook("SupportCase", HookType::BeforeDelete, "keepOpenCase", 0),
+        ]);
+        assert!(
+            registry.contains("        \"account\" => handlers::account::keep_open(id).await,\n")
+        );
+        assert!(registry.contains(
+            "        \"supportcase\" => handlers::support_case::keep_open_case(id).await,\n"
+        ));
+        assert!(registry.contains("        _ => Ok(true),\n    }\n}\n"));
     }
 
     #[test]

@@ -21,7 +21,10 @@
     "type-check": "tsc --noEmit",
     "type-check:language": "tsc -p tsconfig.language.json",
     "parity": "./scripts/parity-check.sh",
+    "build:wasm": "cargo build -p appwithai-gen --release --target wasm32-wasip1",
+    "wasm": "node --no-warnings scripts/appwithai-wasm.mjs",
     "build:language-tools": "bun scripts/build-language-tools.ts",
+    "check:language-bundle": "bun scripts/check-language-bundle.ts",
     "test:language-tools": "bun scripts/build-language-tools.ts --check",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "convert": "bun --filter @appwithai/ai convert",
@@ -39,6 +42,7 @@
     "format:check": "biome format .",
     "setup:gstack": "git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup",
     "seed:admin": "bun scripts/seed-admin.ts",
+    "convert:stored-models": "bun run build:core && bun run build:generator && bun scripts/convert-stored-models.ts",
     "test:e2e:generated": "bun --filter @appwithai/generator test:e2e"
   },
   "devDependencies": {
@@ -71,7 +75,6 @@
     "@mastra/libsql": "^1.18.0",
     "@mastra/loggers": "^1.2.0",
     "@mastra/memory": "^1.24.0",
-    "@mermaid-js/parser": "^1.2.0",
     "@tanstack/start": "^1.120.20",
     "autoprefixer": "^10.5.0",
     "critters": "^0.0.25",

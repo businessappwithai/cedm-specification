@@ -384,7 +384,7 @@ fn json_helper(
 ///
 /// Registered here as well as in the TypeScript loader, and that pairing is the
 /// point: strict mode is off in both engines, so a helper only one of them knows
-/// renders as an empty string in the other rather than raising. `%%index` DDL is
+/// renders as an empty string in the other rather than raising. Index DDL is
 /// where that would have shown up as a `CREATE INDEX ... ON table ()`.
 fn join_helper(
     h: &Helper,

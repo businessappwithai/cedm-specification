@@ -148,7 +148,7 @@ async fn a_move_the_diagram_does_not_draw_is_refused() {
     .await;
 }
 {{else}}
-//! This model declares no `%%workflow ... kind: state` sections, so there is
+//! This model declares no state machines, so there is
 //! nothing to assert. The file is still emitted: `tests/requests/mod.rs`
 //! declares the module unconditionally, and a missing one does not compile.
 {{/if}}

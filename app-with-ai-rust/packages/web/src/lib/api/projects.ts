@@ -40,7 +40,7 @@ export interface ERDVersion {
   id: string;
   project_id: string;
   version_number: number;
-  mermaid_code: string;
+  model_yaml: string;
   description: string | null;
   is_current: boolean;
   validation_errors: ValidationError[] | null;
@@ -52,16 +52,16 @@ export interface CreateERDVersionInput {
   mode?: "draft" | "version";
   requestId?: string;
   expectedCommit?: string | null;
-  mermaidCode: string;
+  /** The model's YAML text. */
+  model: string;
   description?: string;
-  createdBy?: string;
-  validationErrors?: ValidationError[];
 }
 
 export interface CreateWorkflowInput {
   name: string;
   serviceName: string;
-  mermaidCode: string;
+  /** The automation's YAML document. */
+  definition: string;
   description?: string;
   extensionPoints?: Record<string, unknown>;
 }

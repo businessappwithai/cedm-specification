@@ -1,61 +1,66 @@
 #!/usr/bin/env bun
 /**
- * Generate from a model with every `--stack` the CLI offers, and assert each
- * one wrote something.
+ * Generate from a model with every `--stack` the `eml` CLI offers, and assert
+ * each one wrote something — and that the full stack carries what the model
+ * declared.
  *
- * This exists for the cross-folder imports. `language/` sits at the repository
- * root and two of its modules reach down into `app-with-ai-rust/packages`
- * — the shipped JDM converter and the generation pipeline — deliberately,
- * so the CLI and the modelling tool cannot disagree about what a rule flow
- * compiles to. Nothing type-checks those two paths: `jdm.ts` imports across a
- * project boundary and `tanstack.ts` resolves the pipeline at runtime from
- * a non-literal specifier. Moving either file breaks generation and nothing
- * else, which is exactly how it broke when this folder was first promoted.
+ * Two `eml` CLIs offer the three targets, both reading the model through the
+ * language's one reader (`app-with-ai-rust`'s `packages/generator/src/model-yaml`):
+ * `app-with-ai-rust`'s (`node-rest`, `tanstack-astryx-loco`) and the reporting
+ * platform's own (`enterprise-reporting`, which is code for that platform and
+ * lives with it). Both are checked out beside this repository. Two of the
+ * first one's paths are
+ * resolved at run time and nothing type-checks them: `generate/loco.ts` loads
+ * the generation pipeline from a non-literal specifier, and `generate/jdm.ts`
+ * reaches into the generator's rules package. Moving either breaks generation
+ * and nothing else; running the generator is the only way to notice.
  *
- * `tanstack-astryx-loco` is the one that needs `app-with-ai-rust` installed;
- * pass --skip-heavy to run only the two self-contained targets. It generates a
- * Loco (Rust) backend, and this checks what that backend's seeds carry — it
+ * `tanstack-astryx-loco` generates a Loco (Rust) backend; pass --skip-heavy to
+ * run only the two self-contained targets. It is generated with
+ * `--skip-cli-scaffold`, and this checks what that backend's seeds carry — it
  * does not compile the crate; `build-and-run.yml` builds it in its image.
  *
  * **A file count is not enough, and that is the lesson this file was taught.**
- * `tanstack.ts` used to assemble the generator's inputs by hand instead of
+ * An earlier target assembled the generator's inputs by hand instead of
  * driving the shipped pipeline, and everything a model declares beyond its
- * columns — `%%enum`, `%%rbac`, `%%hook`, the state machines, `%%action`,
- * `%%category` — never reached the generator at all. Every target still
- * generated, still built, still ran, and still wrote four hundred files. The
- * seeds were simply empty: no transitions, no roles, no dropdown values. So
- * the heavy target is checked against what the model *declared* — if the
- * document asks for a state machine, the seed that carries transitions has to
- * carry one.
+ * columns — enums, access rules, hooks, state machines, rule actions,
+ * categories — never reached the generator at all. Every target still
+ * generated and still wrote four hundred files; the seeds were simply empty.
+ * So the heavy target is checked against what the model *declared* — read from
+ * the model document itself — and if it asks for a state machine, the seed
+ * that carries transitions has to carry one.
  */
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import type { ModelDocument } from "../../../app-with-ai-rust/language/yaml/document.ts";
+import { readModelYaml } from "../../../app-with-ai-rust/packages/generator/src/model-yaml/index.ts";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-const MODEL = process.env.CHECK_STACKS_MODEL ?? "language/examples/helpdesk.eml.mmd";
+/** The generator's `eml` CLI, relative to common/. */
+const EML = "../../app-with-ai-rust/language/cli/eml.ts";
+/** The reporting platform's `eml` CLI, relative to common/: its own target. */
+const PLATFORM_EML = "../../enterprise-reporting-rust/language/cli/eml.ts";
+const MODEL = process.env.CHECK_STACKS_MODEL ?? "examples/helpdesk.eml.yaml";
 const skipHeavy = process.argv.includes("--skip-heavy");
 
 /** Each target, and the fewest files a run of it may legitimately write. */
-const TARGETS: { stack: string; minFiles: number; heavy: boolean }[] = [
-  { stack: "node-rest", minFiles: 10, heavy: false },
-  { stack: "enterprise-reporting", minFiles: 6, heavy: false },
-  { stack: "tanstack-astryx-loco", minFiles: 200, heavy: true },
+const TARGETS: { stack: string; minFiles: number; heavy: boolean; cli: string }[] = [
+  { stack: "node-rest", minFiles: 10, heavy: false, cli: EML },
+  { stack: "enterprise-reporting", minFiles: 6, heavy: false, cli: PLATFORM_EML },
+  { stack: "tanstack-astryx-loco", minFiles: 200, heavy: true, cli: EML },
 ];
 
 /**
  * What the model asks for, and where the generated application has to show it.
  *
- * `declared` reads the model source — untrimmed, because the reference models
- * indent their directives to sit inside the diagram block they annotate, so
- * anchoring at `^%%` undercounts to zero. `carries` reads one generated file
- * and answers whether the construct actually arrived. A construct the model
- * never declares is not checked: `helpdesk.eml.mmd` has no `%%action` and an
+ * `declared` reads the model document. `carries` reads one generated file and
+ * answers whether the construct actually arrived. A construct the model never
+ * declares is not checked: `helpdesk.eml.yaml` has no rule actions and an
  * application generated from it is right to have no authored rules.
- */
-/**
+ *
  * Every file named here is SQL a Loco task applies (`cargo loco db seed`) or
  * Rust the crate compiles. The seeds are embedded with `include_str!`, so a
  * seed that exists but carries nothing is exactly the hollow case: the crate
@@ -64,45 +69,48 @@ const TARGETS: { stack: string; minFiles: number; heavy: boolean }[] = [
  */
 const SURFACE: {
   what: string;
-  declared: (model: string) => boolean;
+  declared: (model: ModelDocument) => boolean;
   file: string;
   carries: (source: string) => boolean;
 }[] = [
   {
     what: "state-machine transitions",
-    declared: (model) => /kind:\s*state/.test(model),
+    declared: (model) => (model.stateMachines ?? []).length > 0,
     file: "backend/seed/transitions.sql",
     carries: (source) => /INSERT INTO sys_workflow_transitions/.test(source),
   },
   {
-    what: "%%enum values as list references",
-    declared: (model) => /%%field\s+\S+\s+enum:/.test(model),
+    what: "enum-bound columns as list references",
+    declared: (model) =>
+      (model.entities ?? []).some((entity) =>
+        entity.attributes.some((attribute) => attribute.enum)
+      ),
     file: "backend/seed/dictionary.sql",
     carries: (source) => /INSERT INTO sys_ref_list/.test(source),
   },
   {
-    what: "%%rbac roles",
-    declared: (model) => /%%rbac\s/.test(model),
+    what: "access-rule roles",
+    declared: (model) => (model.rbac ?? []).length > 0,
     file: "backend/seed/access.sql",
     carries: (source) => /INSERT INTO sys_role\b/.test(source),
   },
   {
-    what: "%%action rules",
-    declared: (model) => /%%action\s/.test(model),
+    what: "rule actions",
+    declared: (model) => (model.rules ?? []).some((rule) => (rule.actions ?? []).length > 0),
     file: "backend/seed/rules.sql",
     carries: (source) => /INSERT INTO sys_rule_definitions/.test(source),
   },
   {
-    what: "%%category groups",
-    declared: (model) => /%%category\s/.test(model),
+    what: "category groups",
+    declared: (model) => (model.categories ?? []).length > 0,
     file: "backend/seed/dictionary.sql",
     // A model with no categories still gets the single "General" fallback, so
     // the question is whether anything the model named is there beside it.
     carries: (source) => (source.match(/INSERT INTO sys_category\b/g) ?? []).length > 1,
   },
   {
-    what: "%%hook lifecycle handlers",
-    declared: (model) => /%%hook\s/.test(model),
+    what: "lifecycle hook handlers",
+    declared: (model) => (model.hooks ?? []).length > 0,
     file: "backend/src/hooks/handlers/mod.rs",
     carries: (source) => /\bpub mod \w+;/.test(source),
   },
@@ -115,10 +123,10 @@ const SURFACE: {
  * run reports — and so a missing file reads as "the construct never arrived"
  * rather than as a crash.
  */
-function surfaceFailures(outDir: string, modelSource: string): string[] {
+function surfaceFailures(outDir: string, model: ModelDocument): string[] {
   const failures: string[] = [];
   for (const { what, declared, file, carries } of SURFACE) {
-    if (!declared(modelSource)) continue;
+    if (!declared(model)) continue;
     let source: string;
     try {
       source = readFileSync(path.join(outDir, file), "utf8");
@@ -147,11 +155,16 @@ if (!existsSync(path.join(ROOT, MODEL))) {
   process.exit(1);
 }
 
-const modelSource = readFileSync(path.join(ROOT, MODEL), "utf8");
+const read = readModelYaml(readFileSync(path.join(ROOT, MODEL), "utf8"));
+if (!read.ok || !read.document) {
+  console.error(`${MODEL} does not validate; run \`eml validate -i ${MODEL}\`.`);
+  process.exit(1);
+}
+const modelDocument = read.document;
 
 let failed = 0;
 
-for (const { stack, minFiles, heavy } of TARGETS) {
+for (const { stack, minFiles, heavy, cli } of TARGETS) {
   if (heavy && skipHeavy) {
     console.log(`  skip  ${stack} (--skip-heavy)`);
     continue;
@@ -160,7 +173,18 @@ for (const { stack, minFiles, heavy } of TARGETS) {
   const out = mkdtempSync(path.join(tmpdir(), `eml-${stack}-`));
   const run = spawnSync(
     "bun",
-    ["language/cli/eml.ts", "generate", "-i", MODEL, "-o", out, "--stack", stack, "--force"],
+    [
+      cli,
+      "generate",
+      "-i",
+      MODEL,
+      "-o",
+      out,
+      "--stack",
+      stack,
+      "--force",
+      ...(heavy ? ["--skip-cli-scaffold"] : []),
+    ],
     { cwd: ROOT, encoding: "utf8" }
   );
 
@@ -176,7 +200,7 @@ for (const { stack, minFiles, heavy } of TARGETS) {
   // Only the full stack compiles the behaviour surface: `node-rest` is a
   // datastore over the ERD and `enterprise-reporting` emits, on purpose, only
   // what a new entity needs in a platform that already has the rest.
-  const surface = heavy ? surfaceFailures(out, modelSource) : [];
+  const surface = heavy ? surfaceFailures(out, modelDocument) : [];
   rmSync(out, { recursive: true, force: true });
 
   if (written < minFiles) {

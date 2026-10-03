@@ -1,32 +1,40 @@
-# Enterprise Reporting TanStack — Application Context Specification
+# Enterprise Reporting — Application Context Specification
 
-> Machine-readable spec of `enterprise_reporting_tanstack`: architecture,
+> Machine-readable spec of the Enterprise Reporting platform: architecture,
 > conventions, data layer, server functions, auth, RBAC, NL query, reports,
-> charts, dashboards, background jobs — and how EML models reach it through the
-> `eml` CLI's `enterprise-reporting` target. Written for language models.
+> charts, dashboards, background jobs — and how models (`*.eml.yaml`) reach it
+> through the `eml` CLI's `enterprise-reporting` target. Written for language
+> models.
 
-- **Spec version**: 2.0.0 · **Updated**: 2026-09-07
-- **Repository**: `businessappwithai/enterprise_reporting_tanstack`, its own
-  repository. The orchestrator `businessappwithai/app-and-report-with-ai-tanstack`
-  checks it out at a pinned commit as `enterprise_reporting_tanstack/`, which is
-  what every path below is relative to
-- **Runtime**: Bun ≥ 1.3.0. `node` is not supported for development
+- **Spec version**: 3.0.0 · **Updated**: 2026-09-28
+- **Repository**: `yaml/enterprise_reporting_rust` in `cedm-specification`,
+  imported from `businessappwithai/enterprise_reporting_rust`. Every path below
+  is relative to that directory
+- **Server side**: Rust. `rust/` is a Loco.rs backend serving every API route,
+  the workers, the scheduler and the reporting-pack seeder; with
+  `ERS_RUST_API_URL` set, the TanStack Start front end renders pages and
+  forwards to it. The Node server functions and API routes this file describes
+  are kept beside it, disabled, as the parity reference — `rust/MIGRATION_PLAN.md`
+  §9 lists every difference. Read what follows as the platform's contract; the
+  Rust twin implements the same one
+- **Runtime**: Bun ≥ 1.3.0 for the front end. `node` is not supported for
+  development
 - **Dev server**: `bun --bun vite dev` → http://localhost:4050
 - **Sibling spec**: `llms-full.txt` describes APPWITHAI, the *other* consumer of
-  the same EML models. Read that one for the language itself; read this one for
-  the reporting platform. Neither is a substitute for the other.
+  the same models, and the model language itself. Read that one for the
+  language; read this one for the reporting platform. Neither is a substitute
+  for the other.
 
-This file supersedes `enterprise_reporting_tanstack/llmtext/llms-full.txt`,
-which describes a MariaDB config database and a SQLite fallback. Neither exists
-in the running system. Where the two disagree, this file is right and that one
-is a snapshot of an architecture that has since been migrated.
+Several files under this platform's `docs/` describe a MariaDB config database
+and a SQLite fallback. Neither exists in the running system. Where they and this
+file disagree, this file is right.
 
 ---
 
 ## 0. The one idea
 
-Enterprise Reporting TanStack is a full-stack, multi-datasource analytics
-platform built on TanStack Start. **One** application connects to **many**
+Enterprise Reporting is a full-stack, multi-datasource analytics platform — a
+TanStack Start front end over a Loco.rs (Rust) backend. **One** application connects to **many**
 external databases, runs natural-language and hand-written SQL against them,
 enforces two layers of access control, and renders the results as tables,
 charts, dashboards and scheduled exports.
@@ -71,7 +79,8 @@ violation of one of them:
 ## 1. Repository topology
 
 ```
-enterprise_reporting_tanstack/
+enterprise_reporting_rust/
+├── rust/                        # the Loco.rs backend: API, workers, scheduler, seeder
 ├── src/
 │   ├── routes/                  # TanStack Start file-based routing
 │   │   ├── __root.tsx           #   ThemeProvider → TanStackDBWrapper →
@@ -96,8 +105,7 @@ enterprise_reporting_tanstack/
 │   ├── lib/                     # see §1a
 │   ├── types/  hooks/  styles/
 │   ├── router.tsx  server.ts  routeTree.gen.ts   ← generated, never hand-edited
-├── language/                    # a second copy of EML (see §13)
-├── llmtext/llms-full.txt        # superseded by this file
+├── language/                    # the eml CLI's reporting targets over the root's model (§14)
 ├── e2e/                         # Playwright
 ├── scripts/                     # rebuild-db, init-postgres, sync-knowledge-graph, setup
 ├── docs/                        # MOSTLY STALE — see §17
@@ -586,23 +594,24 @@ DEFAULT_PAGE_SIZE / MAX_PAGE_SIZE / DATA_TABLE_PAGE_SIZE / EXPORT_PAGE_SIZE
 
 ---
 
-## 14. EML in this repository
+## 14. Models in this repository
 
-There are **two** copies of the EML language system, and they are not the same
-file:
+There is **one** model language, and it lives at the root of `cedm-specification`:
+`language/yaml/eml.schema.json` says what a model may contain,
+`language/appwithai-language.json` what it means. A model is one YAML document,
+`*.eml.yaml`.
 
-| Copy | Definition file | Role |
-|---|---|---|
-| `language/` at the **root of the combined repository** | `appwithai-language.json` | Canonical. Newer checker, more directives documented, and the only copy that carries all three generator targets |
-| `enterprise_reporting_tanstack/language/` | `erdwithai-language.json` | The reporting project's own older copy. Same language, renamed, with an `enterprise-reporting` generator target and no `tanstack-nestjs` one |
-
-**Prefer the root copy.** When they disagree about a directive's meaning, the
-root copy is the language.
+This platform's `language/` keeps only what is its own: `cli/src/cli.ts` with
+the `enterprise-reporting` and `node-rest` targets (the first is its default),
+and `cli/src/model.ts`, which re-exports the root's reader and compiled model.
+It used to carry an older fork of the whole language as
+`erdwithai-language.json`, and that fork had drifted by some two hundred lines;
+it is gone, so a model means here exactly what it means to the generator.
 
 ### Generating entities for this platform
 
 ```bash
-bun language/cli/eml.ts generate -i model.eml.mmd -o ./out --stack enterprise-reporting
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./out --stack enterprise-reporting
 ```
 
 Per entity in the model it writes:
@@ -632,22 +641,22 @@ leaves the rest as integration:
 4. Add navigation links under `src/components/layout/`.
 5. **Add permission checks.** The generated handlers call `requireAuth()`, which
    establishes *who* is calling. They do not call `requirePermission()`, because
-   `%%rbac` is not compiled by this target — deciding what a role may do is a
+   the model's `rbac` is not compiled by this target — deciding what a role may do is a
    decision, and a generated guess at it would be an access-control decision
    nobody made.
 
 ### What the target compiles, and what it does not
 
-| EML level | `enterprise-reporting` |
+| Model part | `enterprise-reporting` |
 |---|---|
-| core — entities, fields, enums, indexes | Compiled: tables, Zod schemas, form fields, table columns |
-| rules | Emitted as GoRules JDM under `rules/`, **not wired up** |
-| workflows — hooks, state machines, sagas | **Not compiled** |
-| access — `%%rbac` | **Not compiled** — step 5 above |
-| help | Field labels only |
+| core — `entities`, attributes, `enums`, `indexes` | Compiled: tables, Zod schemas, form fields, table columns |
+| `rules` | Emitted as GoRules JDM under `rules/`, **not wired up** |
+| `hooks`, `stateMachines`, `sagas` | **Not compiled** |
+| `rbac` | **Not compiled** — step 5 above |
+| `help` | Field labels only |
 
 Write the model in full anyway. The behaviour this target skips is still what
-the checker validates, what the viewers render, and what the `tanstack-nestjs`
+the checker validates, what the viewers draw, and what the `tanstack-astryx-loco`
 target compiles from the very same file.
 
 ### Conventions the generated code follows
@@ -657,7 +666,7 @@ They are the conventions of §5, §6 and §4a, applied without exception:
 every handler; `LIMIT`/`OFFSET` at the database; `getDb` from
 `@/lib/db/config`; PostgreSQL DDL with double-quoted identifiers
 (`TIMESTAMPTZ`, `BOOLEAN`, `JSONB`, `NUMERIC(10,2)`, `gen_random_uuid()`); an
-`FK` attribute emitted as `UUID` so the constraint can actually be added; and
+`fk: true` attribute emitted as `UUID` so the constraint can actually be added; and
 `updated_at` set by the update handler, because PostgreSQL has no
 `ON UPDATE CURRENT_TIMESTAMP`.
 
@@ -670,15 +679,18 @@ origin, with the reporting platform already loaded with the generated
 application's data:
 
 ```
-http://localhost/app      the application generated from an EML model
+http://localhost/app      the application generated from a model (*.eml.yaml)
 http://localhost/report   this platform, holding that application's schema,
                           reports, charts and dashboard
 ```
 
 ### What start.sh does before Docker
 
-1. Checks the model. A model with errors stops here.
-2. Generates the application into `common/.runtime/app` (`--stack tanstack-nestjs`).
+1. Checks the model with the root's `eml validate`. A model with errors stops
+   here.
+2. Generates the application into `common/.runtime/app` through the root's
+   pipeline (`--stack tanstack-astryx-loco`): a Loco.rs backend crate and a
+   TanStack Start + Astryx front end.
 3. Runs `common/build/subpath-overlay.ts` over the generated front end, putting
    it on `/app`.
 4. Runs `common/build/reporting-pack.ts` over the model, deriving the pack into
@@ -708,7 +720,7 @@ agree — the bundler's `base`, the router's `basepath`, and the hand-written
 static wrapper's URL-to-file mapping — and `common/build/subpath-overlay.ts`
 patches all three. It is applied to a copy: the generated application's output,
 and this project's source inside its image at build time. Nothing checked in
-under `enterprise_reporting_tanstack/` is modified.
+under `yaml/enterprise_reporting_rust/` is modified.
 
 **nginx deliberately does not strip the prefix.** Stripping would satisfy the
 static wrapper for free and then break the router: the server would receive
@@ -716,23 +728,27 @@ static wrapper for free and then break the router: the server would receive
 
 ### What the seeder loads
 
-`common/seed/seed-reporting.ts` runs once per `up`, and is idempotent by name:
+The seeder is this platform's own Rust task, `ers-backend-cli task
+seed_reporting_pack` (`rust/src/tasks/seed_reporting_pack.rs`), run from the
+backend's image once per `up`. It is idempotent by name:
 
 1. Waits for both databases **and for the application's `bus_` tables** — an
    empty application database means "not migrated yet", and introspecting then
    would cache a schema with no tables in it.
-2. Registers the application's database as a data source, its connection config
-   encrypted through this project's own `encrypt()`.
-3. `introspectAndCacheSchema()` — the same call the data-source screens make, so
-   the cached shape is the one the readers expect.
-4. Writes the pack: saved queries, report definitions, chart definitions, the
-   dashboard and its widgets, all owned by the bootstrap administrator.
+2. Applies this platform's baseline schema and bootstrap accounts itself — a
+   task is not a boot, and nothing else would have.
+3. Registers the application's database as a data source, its connection config
+   encrypted through this platform's own encryption.
+4. Introspects and caches the schema — the same shape the data-source screens
+   and the NL-query pipeline read.
+5. Writes the pack: saved queries, report definitions, chart definitions, the
+   dashboard and its widgets, and one reporting role per declared role, all
+   owned by the bootstrap administrator.
 
-It is built from this project's own source rather than a bare Bun image, so it
-uses this project's `getDb`, `encrypt` and `introspectAndCacheSchema` rather than
-a second implementation of each. A seeder with its own encryption would drift
+It uses the backend's real encryption, introspection and cache rather than a
+second implementation of each. A seeder with its own encryption would drift
 from the reader, and the failure would be a data source that exists and cannot
-be opened.
+be opened. `scripts/seed-reporting-pack.ts` is its Node twin, kept for parity.
 
 ### Where the reports come from
 
@@ -740,15 +756,15 @@ Two sources, and the distinction matters when explaining what is in the
 platform:
 
 - **Derived** from structure by `common/build/reporting-pack.ts`: a register per
-  entity, a breakdown per `%%enum`-bound column, created-per-month, a lifecycle
-  report per state machine (in the diagram's order, zeroes included), measures
+  entity, a breakdown per enum-bound column, created-per-month, a lifecycle
+  report per state machine (in the order the model lists its states, zeroes included), measures
   over numeric columns, and children-per-parent for every `oneToMany`.
-- **Authored** in the model as `%%report` directives — a question the
+- **Authored** in the model under `reports` — a question the
   application's users actually ask, written as the SQL that answers it. These
   are listed ahead of the derived ones and take the top tiles of the dashboard.
 
 The derived set describes the shape of the data and nothing about the business
-running on it. `%%report` is where the domain knowledge lives. See
+running on it. `reports` is where the domain knowledge lives. See
 `llmdetailed.txt` §10.5.1 for how a model author is asked to produce them.
 
 ---
@@ -824,11 +840,10 @@ resource is called) to the roles that should hold them, and call
 
 ## 17. Stale documentation — what not to trust
 
-Most files under `enterprise_reporting_tanstack/docs/` predate the migrations to
+Most files under this platform's `docs/` predate the migrations to
 PostgreSQL and Trigger.dev and describe SQLite/MariaDB, BullMQ + Redis, Bull
 Board, and OpenAI-based NL query. **`docs/README.md` and `CLAUDE.md` are
 current; verify anything else in `docs/` against source before trusting it.**
-`llmtext/llms-full.txt` in that folder is superseded by this file.
 
 The same applies to the compose files: **`docker-compose.yml` is current**
 (PostgreSQL via `apache/age:PG16`, `DATABASE_URL` / `GRAPH_DATABASE_URL`), while
@@ -869,7 +884,7 @@ variables the application ignores entirely.
    Data source: `Kysely<any>`, `getConnection(dataSource)`, and never trusted
    without the §7 access check.
 5. **When asked what an EML model produces here, say what it does not.**
-   Workflows and `%%rbac` are not compiled by the `enterprise-reporting` target
+   `hooks`, `stateMachines`, `sagas` and `rbac` are not compiled by the `enterprise-reporting` target
    (§14). A model author who believes their access rules were generated has an
    unguarded application and no reason to look.
 6. **Point at the sibling spec for the language.** `llms-full.txt` covers EML and

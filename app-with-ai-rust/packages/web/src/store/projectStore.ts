@@ -39,10 +39,10 @@ interface ProjectStore {
   goToNextStep: () => void;
   goToPreviousStep: () => void;
 
-  // ERD Operations
-  updateErdCode: (id: string, code: string, description?: string) => Promise<void>;
-  saveErdVersion: (projectId: string, code: string, description?: string) => Promise<void>;
-  restoreErdVersion: (projectId: string, versionId: string) => Promise<void>;
+  // Model operations: every save is a commit in the project's local Git history
+  saveModelDraft: (id: string, model: string, description?: string) => Promise<void>;
+  saveModelVersion: (projectId: string, model: string, description?: string) => Promise<void>;
+  restoreModelVersion: (projectId: string, versionId: string) => Promise<void>;
 
   // Workflow Operations
   addWorkflow: (projectId: string, workflow: CreateWorkflowInput) => Promise<void>;
@@ -205,39 +205,38 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     if (previous) set({ currentStep: previous });
   },
 
-  // Update ERD code and create a new version
-  updateErdCode: async (id: string, code: string, description?: string) => {
+  // Save the model as a draft: committed, but not a named version
+  saveModelDraft: async (id: string, model: string, description?: string) => {
     set({ isLoading: true, error: null });
     try {
       // Create a new version
       await erdVersionsApi.saveDraft(id, {
-        mermaidCode: code,
+        model,
         description,
-        requestId: saveRequest(id, "draft", code, description),
+        requestId: saveRequest(id, "draft", model, description),
         expectedCommit: get().currentProject?.gitCommit,
       });
 
       pendingSaves.delete(`${id}:draft`);
-      // Update the project's ERD code
       await get().loadProject(id);
       set({ isLoading: false });
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : "Failed to update ERD",
+        error: error instanceof Error ? error.message : "Failed to save the model",
         isLoading: false,
       });
       throw error;
     }
   },
 
-  // Save ERD version
-  saveErdVersion: async (projectId: string, code: string, description?: string) => {
+  // Save the model as a named version
+  saveModelVersion: async (projectId: string, model: string, description?: string) => {
     set({ isLoading: true, error: null });
     try {
       await erdVersionsApi.create(projectId, {
-        mermaidCode: code,
+        model,
         description,
-        requestId: saveRequest(projectId, "version", code, description),
+        requestId: saveRequest(projectId, "version", model, description),
         expectedCommit: get().currentProject?.gitCommit,
       });
       pendingSaves.delete(`${projectId}:version`);
@@ -252,8 +251,8 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   },
 
-  // Restore ERD version
-  restoreErdVersion: async (projectId: string, versionId: string) => {
+  // Restore a named version of the model
+  restoreModelVersion: async (projectId: string, versionId: string) => {
     set({ isLoading: true, error: null });
     try {
       await erdVersionsApi.restore(projectId, versionId);
@@ -292,7 +291,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   ) => {
     set({ isLoading: true, error: null });
     try {
-      await workflowsApi.update(projectId, workflowId, updates);
+      const { definition, ...rest } = updates;
+      await workflowsApi.update(projectId, workflowId, {
+        ...rest,
+        ...(definition != null ? { definition } : {}),
+      });
       await get().loadProject(projectId);
       set({ isLoading: false });
     } catch (error) {

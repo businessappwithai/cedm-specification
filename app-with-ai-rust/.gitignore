@@ -96,3 +96,4 @@ target/
 # Local runtime pid file
 .appwithai-web.pid
 language.zip
+__pycache__/

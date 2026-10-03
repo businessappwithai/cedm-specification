@@ -1,12 +1,13 @@
 import { AlertCircle, FileCode2, Loader2, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { ModelSummary } from "@/routes/api/model/validate";
 
 /**
  * Start a project from a model someone already has.
  *
- * The `.mmd` document is the source of truth, so a project ought to be able to
- * begin as one — imported, enhanced here, and downloaded again as the same kind
- * of artifact. Without this the only way in was to describe the domain in prose
+ * The model document (`*.eml.yaml`) is the source of truth, so a project ought
+ * to be able to begin as one — imported, enhanced here, and downloaded again as
+ * the same kind of artifact. Without this the only way in was to describe the domain in prose
  * and have it re-derived, which throws away a model that already exists.
  *
  * The file is read and summarised before anything is created, because "17
@@ -17,23 +18,16 @@ import { useEffect, useRef, useState } from "react";
 export interface ImportModelModalProps {
   open: boolean;
   onClose: () => void;
-  onImport: (input: { name: string; eml: string }) => Promise<void>;
+  onImport: (input: { name: string; model: string }) => Promise<void>;
 }
 
-interface Summary {
-  ok: boolean;
-  entities: string[];
-  relationships: number;
-  rules: { name: string; entity: string }[];
-  workflows: { name: string; entity: string; kind: string }[];
-  problems: string[];
-}
+type Summary = ModelSummary;
 
 /** A project name from the filename, so it does not have to be typed twice. */
 function nameFrom(fileName: string): string {
   return (
     fileName
-      .replace(/\.(eml\.)?mmd$/i, "")
+      .replace(/(\.erd)?\.eml\.ya?ml$|\.ya?ml$/i, "")
       .replace(/[-_]+/g, " ")
       .trim() || "Imported model"
   );
@@ -49,7 +43,7 @@ interface ExampleModel {
 export function ImportModelModal({ open, onClose, onImport }: ImportModelModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
-  const [eml, setEml] = useState("");
+  const [model, setModel] = useState("");
   const [summary, setSummary] = useState<Summary | null>(null);
   const [reading, setReading] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -80,7 +74,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
 
   const reset = () => {
     setName("");
-    setEml("");
+    setModel("");
     setSummary(null);
     setError(null);
     setSelectedExample("");
@@ -104,13 +98,13 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
     setError(null);
     setSummary(null);
     try {
-      setEml(text);
+      setModel(text);
       setName(suggestedName);
 
-      const response = await fetch("/api/eml/validate", {
+      const response = await fetch("/api/model/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eml: text }),
+        body: JSON.stringify({ model: text }),
       });
       if (!response.ok) throw new Error(`The model could not be read (${response.status})`);
       setSummary((await response.json()) as Summary);
@@ -129,9 +123,9 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
     }
     try {
       const response = await fetch(`/api/models/examples?id=${encodeURIComponent(id)}`);
-      const data = (await response.json()) as { eml?: string; name?: string; error?: string };
-      if (!response.ok || !data.eml) throw new Error(data.error ?? "That model could not be read");
-      await acceptModel(data.eml, nameFrom(data.name ?? id));
+      const data = (await response.json()) as { model?: string; name?: string; error?: string };
+      if (!response.ok || !data.model) throw new Error(data.error ?? "That model could not be read");
+      await acceptModel(data.model, nameFrom(data.name ?? id));
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Could not load that model");
     }
@@ -142,7 +136,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
     setImporting(true);
     setError(null);
     try {
-      await onImport({ name: name.trim(), eml });
+      await onImport({ name: name.trim(), model });
       reset();
     } catch (importError) {
       setError(importError instanceof Error ? importError.message : "Could not import the model");
@@ -159,7 +153,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
           <div className="flex-1">
             <h2 className="text-base font-semibold">Import a model</h2>
             <p className="text-xs text-muted-foreground">
-              Start from an <code className="font-mono">.eml.mmd</code> file you already have.
+              Start from an <code className="font-mono">.eml.yaml</code> model you already have.
             </p>
           </div>
           <button type="button" aria-label="Close" onClick={onClose}>
@@ -205,7 +199,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
               <Upload className="h-5 w-5 text-muted-foreground" />
             )}
             <span className="font-medium">
-              {eml ? "Choose a different file" : "Choose a .mmd file"}
+              {model ? "Choose a different file" : "Choose a .eml.yaml file"}
             </span>
             <span className="text-xs text-muted-foreground">
               The ERD, its business rules and its workflows, in one document.
@@ -214,7 +208,7 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
           <input
             ref={inputRef}
             type="file"
-            accept=".mmd,.md,text/plain"
+            accept=".yaml,.yml,application/yaml,text/yaml"
             className="hidden"
             onChange={(event) => {
               const file = event.target.files?.[0];
@@ -242,13 +236,23 @@ export function ImportModelModal({ open, onClose, onImport }: ImportModelModalPr
                   </ul>
                 </>
               ) : (
-                <ul className="space-y-1 text-amber-700 dark:text-amber-300">
-                  {summary.problems.map((problem) => (
-                    <li key={problem} className="flex items-start gap-1.5">
-                      <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-                      {problem}
-                    </li>
-                  ))}
+                <ul className="max-h-40 space-y-1 overflow-auto text-amber-700 dark:text-amber-300">
+                  {summary.diagnostics
+                    .filter((diagnostic) => diagnostic.severity === "error")
+                    .map((diagnostic) => (
+                      <li
+                        key={`${diagnostic.line}:${diagnostic.column}:${diagnostic.code}`}
+                        className="flex items-start gap-1.5"
+                      >
+                        <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+                        <span>
+                          <span className="font-mono">
+                            line {diagnostic.line} {diagnostic.code}
+                          </span>{" "}
+                          {diagnostic.message}
+                        </span>
+                      </li>
+                    ))}
                 </ul>
               )}
             </div>

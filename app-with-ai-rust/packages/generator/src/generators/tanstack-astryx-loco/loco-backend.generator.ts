@@ -29,13 +29,13 @@ import * as path from "path";
 import type { CompiledHook } from "../../hooks";
 import { hooksByEntity } from "../../hooks";
 import { buildGeneratedLoggingModule } from "../../logging/generated-spec";
-import type { EntityCategory } from "../../parsers/category.parser";
+import type { EntityCategory } from "../../model/categories";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import type { CompiledReport } from "../../reports";
 import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
-import { buildWorkflowSeedSql, parseSagas, type SagaWorkflow } from "../../workflows/saga";
+import { buildWorkflowSeedSql, type SagaWorkflow } from "../../workflows/saga";
 import type { CompiledWorkflow } from "../../workflows/state-machine";
 import { BaseGenerator } from "../base.generator";
 import { buildAccessSeedSql } from "./access-seed";
@@ -73,6 +73,10 @@ const EXECUTABLE_STEP_TYPES = new Set([
  * Mirrors the resolution order used by the NestJS generator.
  */
 function resolveTemplateDir(subpath: string): string {
+  // TEMPLATE_DIR names the templates root outright. The browser build sets it
+  // to its in-memory volume, where no working directory leads anywhere.
+  const configured = process.env.TEMPLATE_DIR;
+  if (configured) return path.join(configured, subpath);
   const cwd = process.cwd();
   const possiblePaths = [
     path.join(cwd, "packages/generator/templates", subpath),
@@ -122,33 +126,36 @@ export interface LocoBackendOptions {
    */
   skipCliScaffold?: boolean;
   /**
-   * `%%enum` declarations bound to a column by `%%field`, with their ids.
+   * Enums bound to a column by its `enum` key, with their ids.
    *
    * The dictionary seed needs them to define the list references that
    * `sys_column.sys_reference_id` already points at; without them those columns
    * render as empty dropdowns.
    */
   modelEnums?: EntityEnum[];
-  /** Entity categories from the model's `%%category` directives. */
-  /** Raw EML source, so `kind: saga` sections can be compiled. */
-  modelSource?: string;
+  /** Entity categories from the model's `categories`. */
   categories?: EntityCategory[];
   /**
-   * `%%rbac` restrictions, compiled.
+   * The model's sagas, compiled. `seed/workflows.sql` is built from these, so
+   * a model written in either syntax seeds the same processes.
+   */
+  sagas?: SagaWorkflow[];
+  /**
+   * The model's access rules (`rbac`), compiled.
    *
    * Feeds `seed/access.sql` and the role accounts `seed_access` creates. A
    * model declaring none leaves every operation open, which is what it did
    * before the directive meant anything.
    */
   compiledRbac?: CompiledRbac;
-  /** Decision graphs from the model's `%%rule` sections, for `seed/rules.sql`. */
+  /** Decision graphs from the model's `rules`, for `seed/rules.sql`. */
   compiledRules?: CompiledRule[];
-  /** Questions from `%%report`, for `seed/reports.sql` and `/api/reports`. */
+  /** Questions from the model's `reports`, for `seed/reports.sql` and `/api/reports`. */
   compiledReports?: CompiledReport[];
-  /** Status machines from `%%workflow ... kind: state`, for `seed/transitions.sql`. */
+  /** Status machines from the model's `stateMachines`, for `seed/transitions.sql`. */
   compiledWorkflows?: CompiledWorkflow[];
   /**
-   * Lifecycle handlers from the model's `%%hook` directives.
+   * Lifecycle handlers from the model's `hooks`.
    *
    * Reaches `src/hooks/`, which is what the bus controller calls around every
    * CRUD operation. Without it a declared hook is parsed, documented and then
@@ -245,6 +252,18 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   {
     tpl: "migration/src/m0016_sys_window_icon.rs.hbs",
     out: "migration/src/m0016_sys_window_icon.rs",
+  },
+  {
+    tpl: "migration/src/m0017_workflow_definition_yaml.rs.hbs",
+    out: "migration/src/m0017_workflow_definition_yaml.rs",
+  },
+  {
+    tpl: "migration/src/m0018_sys_column_ref_table.rs.hbs",
+    out: "migration/src/m0018_sys_column_ref_table.rs",
+  },
+  {
+    tpl: "migration/src/m0019_sys_column_narrowed_by.rs.hbs",
+    out: "migration/src/m0019_sys_column_narrowed_by.rs",
   },
 
   { tpl: "src/lib.rs.hbs", out: "src/lib.rs" },
@@ -524,7 +543,7 @@ export class LocoBackendGenerator extends BaseGenerator {
    * ERD entity names are translated to physical `bus_*` table names here, the
    * same way the NestJS category seed does it, because `sys_table` is matched
    * on `table_name`. The match is case-insensitive: a model may write
-   * `Compound` in the ERD block and `compound` in a `%%category` directive.
+   * `Compound` as the entity and `compound` in a category's entity list.
    */
   private async writeDictionarySeed(
     entities: Entity[],
@@ -634,11 +653,11 @@ export class LocoBackendGenerator extends BaseGenerator {
   }
 
   /**
-   * Emit `seed/reports.sql` — the questions `%%report` declared.
+   * Emit `seed/reports.sql` — the questions the model's `reports` declared.
    *
    * Always written, for the same reason every other seed is: `seed_reports.rs`
    * embeds it with `include_str!`, resolved at compile time, so a model with no
-   * `%%report` would otherwise produce a backend that does not compile — and
+   * report would otherwise produce a backend that does not compile — and
    * the parity gate could not see it, because both generators would skip it.
    *
    * The entity → table resolution happens here rather than in the generated
@@ -661,17 +680,17 @@ export class LocoBackendGenerator extends BaseGenerator {
     await fs.writeFile(path.join(outputDir, "seed/reports.sql"), sql);
     console.log(
       reports.length === 0
-        ? "  ✓ Wrote seed/reports.sql (no %%report declared)"
+        ? "  ✓ Wrote seed/reports.sql (no reports declared)"
         : `  ✓ Wrote seed/reports.sql (${reports.length} report(s))`
     );
   }
 
   /**
-   * Emit `seed/rules.sql` — the decision graphs `%%rule` compiled to.
+   * Emit `seed/rules.sql` — the decision graphs the model's `rules` compile to.
    *
    * Always written, for the same reason every other seed is: `seed_rules.rs`
    * embeds it with `include_str!`, resolved at compile time, so a model with no
-   * `%%rule` would otherwise produce a backend that does not compile — and the
+   * rule would otherwise produce a backend that does not compile — and the
    * parity gate could not see it, because both generators would skip it.
    */
   private async writeRulesSeed(outputDir: string): Promise<void> {
@@ -682,7 +701,7 @@ export class LocoBackendGenerator extends BaseGenerator {
     await fs.writeFile(path.join(outputDir, "seed/rules.sql"), sql);
     console.log(
       rules.length === 0
-        ? "  ✓ Wrote seed/rules.sql (no %%rule declared)"
+        ? "  ✓ Wrote seed/rules.sql (no rules declared)"
         : `  ✓ Wrote seed/rules.sql (${rules.length} rule(s))`
     );
   }
@@ -729,9 +748,9 @@ export class LocoBackendGenerator extends BaseGenerator {
   }
 
   /**
-   * Emit `seed/access.sql` — the roles and restrictions `%%rbac` declared.
+   * Emit `seed/access.sql` — the roles and restrictions the model's `rbac` declared.
    *
-   * Always written, even for a model with no `%%rbac`, and that is not
+   * Always written, even for a model with no access rules, and that is not
    * tidiness: `src/tasks/seed_access.rs` embeds it with `include_str!`, which
    * is resolved at compile time. A generator that skipped the file would
    * produce a backend that does not compile, and the parity gate could not see
@@ -764,7 +783,7 @@ export class LocoBackendGenerator extends BaseGenerator {
     );
     console.log(
       rules + edges === 0
-        ? "  ✓ Wrote seed/access.sql (no %%rbac declared)"
+        ? "  ✓ Wrote seed/access.sql (no access rules declared)"
         : `  ✓ Wrote seed/access.sql (${rules} operation rule(s), ${edges} transition rule(s))`
     );
   }
@@ -777,8 +796,9 @@ export class LocoBackendGenerator extends BaseGenerator {
    * previous generation's file behind.
    */
   private async writeWorkflowSeed(outputDir: string, entities: Entity[]): Promise<void> {
-    const source = this.options.modelSource ?? "";
-    const { workflows, diagnostics } = parseSagas(source);
+    // A copy: entity names are rewritten to tables below, and the compiled
+    // model belongs to the caller.
+    const workflows: SagaWorkflow[] = structuredClone(this.options.sagas ?? []);
 
     // A saga names its entity the way the ERD does — `DeviationReport` — but
     // everything downstream resolves physical tables. Normalising here rather
@@ -798,13 +818,6 @@ export class LocoBackendGenerator extends BaseGenerator {
       }
     }
 
-    for (const diagnostic of diagnostics) {
-      const where = diagnostic.nodeId
-        ? `${diagnostic.workflow}.${diagnostic.nodeId}`
-        : diagnostic.workflow;
-      console.warn(`  ⚠️  saga ${where}: ${diagnostic.message}`);
-    }
-
     // The language declares more step types than this backend executes. An
     // unimplemented one is skipped at run time with only a log line, so a saga
     // that leans on it appears to succeed while doing nothing. Say so at
@@ -819,7 +832,7 @@ export class LocoBackendGenerator extends BaseGenerator {
       }
     }
 
-    const seed = buildWorkflowSeedSql(workflows as SagaWorkflow[], this.options.projectName);
+    const seed = buildWorkflowSeedSql(workflows, this.options.projectName);
     await fs.writeFile(path.join(outputDir, "seed/workflows.sql"), seed);
 
     const steps = workflows.reduce((total, workflow) => total + workflow.steps.length, 0);
@@ -881,7 +894,7 @@ export class LocoBackendGenerator extends BaseGenerator {
    * its tests without anyone writing one.
    */
   /**
-   * `src/hooks/` — the lifecycle handlers the model's `%%hook` directives declare.
+   * `src/hooks/` — the lifecycle handlers the model's `hooks` declare.
    *
    * Two kinds of file, and the difference is the point:
    *
@@ -892,7 +905,7 @@ export class LocoBackendGenerator extends BaseGenerator {
    * - `mod.rs` and `handlers/mod.rs` are pure wiring and are rewritten every
    *   run, so a newly declared hook is always picked up.
    *
-   * Both files are written even for a model with no `%%hook` at all: `lib.rs`
+   * Both files are written even for a model with no hooks at all: `lib.rs`
    * declares `pub mod hooks;` and the bus controller calls the dispatchers
    * unconditionally, so a missing module is a crate that does not compile —
    * the same trap as a conditionally emitted seed behind an `include_str!`.
@@ -931,7 +944,7 @@ export class LocoBackendGenerator extends BaseGenerator {
 
     console.log(
       hooks.length === 0
-        ? "  ✓ src/hooks/ (no %%hook declared)"
+        ? "  ✓ src/hooks/ (no hooks declared)"
         : `  ✓ src/hooks/ — ${hooks.length} handler(s) across ${entities.length} entity(ies)`
     );
   }
@@ -1062,7 +1075,7 @@ export class LocoBackendGenerator extends BaseGenerator {
       relationships,
       sysTables,
       categories: this.options.categories ?? [],
-      /* The names the model's `%%report` directives declared, in order, for
+      /* The names of the model's `reports`, in order, for
          `tests/requests/reports.rs` to assert against. The query is deliberately
          not carried here: the seed is the only place it belongs, and a second
          copy compiled into the test binary would drift from the row being run. */

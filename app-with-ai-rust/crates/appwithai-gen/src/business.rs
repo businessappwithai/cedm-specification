@@ -5,7 +5,7 @@
 //! and the two must agree byte for byte; `bun run parity` is what says they do.
 //!
 //! The design note lives in that file. In short: nothing here is invented — a
-//! `%%enum` column takes a declared value, a status column backing a state
+//! enum-bound column takes a declared value, a status column backing a state
 //! machine takes the machine's initial state, and a foreign key takes the id of
 //! a row inserted above it. Referential integrity is left switched on and the
 //! entities are ordered so that it holds, which is the only thing separating
@@ -18,7 +18,7 @@ use uuid::Uuid;
 use crate::bus::{foreign_key_target_table, BusAttribute, BusEntity};
 use crate::dictionary::{insert, now, text, Sql, NAMESPACE};
 use crate::model::{ModelEnum, Relationship};
-use crate::workflows::CompiledWorkflow;
+use crate::workflows::{lifecycle_column, CompiledWorkflow};
 
 /// Enough to fill a grid, show a lookup with choices, and page a list.
 ///
@@ -50,7 +50,7 @@ pub struct BusinessSeedOptions<'a> {
     pub relationships: &'a [Relationship],
     /// State machines, for the initial state of a status column.
     pub workflows: &'a [CompiledWorkflow],
-    /// `%%enum` declarations with their ids.
+    /// Enum declarations with their ids.
     pub model_enums: &'a [ModelEnum],
     /// Rows per entity.
     pub rows_per_entity: usize,
@@ -73,10 +73,44 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
         rows_per_entity,
     } = *options;
     let rows = rows_per_entity;
+    // An enumeration's business table holds the values themselves, written by
+    // the dictionary seed as application data; demonstration rows would add
+    // values.
+    let without_enumeration_tables: Vec<BusEntity> = entities
+        .iter()
+        .filter(|entity| {
+            entity.data.is_none()
+                && !model_enums
+                    .iter()
+                    .any(|declared| declared.table && declared.name == entity.name)
+        })
+        .cloned()
+        .collect();
+    // Nor do reference-data entities: their rows are the common specification's,
+    // written by the dictionary seed, and a record that points at one points at
+    // one of those rows.
+    let data_keys: HashMap<String, Vec<String>> = entities
+        .iter()
+        .filter_map(|entity| {
+            let data = entity.data.as_ref()?;
+            Some((
+                entity.table_name.clone(),
+                data.rows
+                    .iter()
+                    .map(|row| match row.get(&data.key) {
+                        Some(serde_json::Value::String(s)) => s.clone(),
+                        Some(other) => other.to_string(),
+                        None => String::new(),
+                    })
+                    .collect(),
+            ))
+        })
+        .collect();
     let tables: HashSet<String> = entities
         .iter()
         .map(|entity| entity.table_name.clone())
         .collect();
+    let entities = &without_enumeration_tables[..];
 
     let mut out: Vec<String> = Vec::new();
     out.push(format!("-- Demonstration records for {project_name}."));
@@ -88,7 +122,7 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
     out.push("-- Applied by `cargo loco task seed_business`.".to_string());
     out.push("--".to_string());
     out.push(
-        "-- Every value is the model's own: a `%%enum` column takes a declared value, a"
+        "-- Every value is the model's own: a column with an enum takes a declared value, a"
             .to_string(),
     );
     out.push(
@@ -129,7 +163,13 @@ pub fn build_business_seed_sql(options: &BusinessSeedOptions<'_>) -> String {
         .collect();
 
     let row_id = |table_name: &str, index: usize| -> String {
-        let name = format!("{project_name}:business:{table_name}:{index}");
+        let name = match data_keys.get(table_name).filter(|keys| !keys.is_empty()) {
+            Some(keys) => format!(
+                "{project_name}:data:{table_name}:{}",
+                keys[index % keys.len()]
+            ),
+            None => format!("{project_name}:business:{table_name}:{index}"),
+        };
         Uuid::new_v5(&NAMESPACE, name.as_bytes()).to_string()
     };
 
@@ -240,7 +280,8 @@ fn value_for(
     }
 
     if attribute.is_foreign_key || column.ends_with("_id") || column.ends_with("_by") {
-        return match foreign_key_target_table(column, tables) {
+        return match foreign_key_target_table(column, tables, attribute.references_table.as_deref())
+        {
             Some(target) => text(row_id(&target, index % rows)),
             None => Sql::Null,
         };
@@ -290,16 +331,30 @@ fn label(attribute: &BusAttribute, entity: &BusEntity, index: usize) -> String {
     } else {
         format!("{} {}", attribute.display_name, index + 1)
     };
-    let scoped = if attribute.unique {
-        format!("{body} ({})", entity.table_name)
-    } else {
-        body
-    };
+    // Distinct within the table by its index, which is all a unique column
+    // needs — the constraint is per table. See `label` in `business-seed.ts`.
     let limit = attribute.max_length.unwrap_or(255) as usize;
-    if scoped.chars().count() > limit {
-        scoped.chars().take(limit).collect()
+    if body.chars().count() <= limit {
+        return body;
+    }
+    // Too long for the column: shorten the words and keep the number. See
+    // `label` in `business-seed.ts` for why cutting from the end is wrong.
+    let suffix = (index + 1).to_string();
+    if limit <= suffix.len() {
+        return suffix.chars().take(limit).collect();
+    }
+    let chars: Vec<char> = body.chars().collect();
+    let words: String = chars[..chars.len() - suffix.len()].iter().collect();
+    let words = words.trim_end();
+    let head: String = words
+        .chars()
+        .take(limit.saturating_sub(suffix.len() + 1))
+        .collect();
+    let head = head.trim_end();
+    if head.is_empty() {
+        suffix
     } else {
-        scoped
+        format!("{head} {suffix}")
     }
 }
 
@@ -346,14 +401,8 @@ fn status_states(
         let Some(initial) = workflow.initial.as_ref() else {
             continue;
         };
-        let column = if columns_by_table
-            .get(workflow.table_name.as_str())
-            .is_some_and(|columns| columns.contains("status"))
-        {
-            "status"
-        } else {
-            "workflow_status"
-        };
+        let columns = columns_by_table.get(workflow.table_name.as_str());
+        let column = lifecycle_column(|name| columns.is_some_and(|c| c.contains(name)));
         states.insert(
             workflow.table_name.clone(),
             Machine {
@@ -396,6 +445,37 @@ fn order_by_dependency(
         }
     }
 
+    // The foreign-key columns themselves. A CEDM entity holds most of its
+    // references as attributes (`currencyId: reference -> Currency`) with no
+    // relationship drawn, and the migration constrains every one of them, so a
+    // row written before the row it points at fails its insert. A column adds
+    // an edge only where no relationship already did.
+    let tables: HashSet<String> = entities
+        .iter()
+        .map(|entity| entity.table_name.clone())
+        .collect();
+    for entity in entities {
+        for attribute in &entity.attributes {
+            if !attribute.is_foreign_key || attribute.column_name == entity.primary_key {
+                continue;
+            }
+            let Some(target) = foreign_key_target_table(
+                &attribute.column_name,
+                &tables,
+                attribute.references_table.as_deref(),
+            ) else {
+                continue;
+            };
+            if target == entity.table_name {
+                continue;
+            }
+            let edges = depends_on.entry(entity.table_name.clone()).or_default();
+            if !edges.iter().any(|(table, _)| *table == target) {
+                edges.push((target, attribute.column_name.clone()));
+            }
+        }
+    }
+
     let mut ordered: Vec<BusEntity> = Vec::new();
     let mut done: HashSet<String> = HashSet::new();
     let mut on_stack: Vec<String> = Vec::new();
@@ -415,6 +495,63 @@ fn order_by_dependency(
     (ordered, deferred)
 }
 
+/// Record a column to be written by the trailing UPDATE.
+///
+/// A relationship's edge names its column by guess (`<source>_id`), and the child
+/// may hold that key under another name: there is nothing to UPDATE then, and an
+/// UPDATE of a column the table lacks fails the whole seed.
+fn defer(
+    by_table: &HashMap<&str, &BusEntity>,
+    deferred: &mut HashMap<String, HashSet<String>>,
+    table_name: &str,
+    column: &str,
+) {
+    let exists = by_table.get(table_name).is_some_and(|entity| {
+        entity
+            .attributes
+            .iter()
+            .any(|attribute| attribute.column_name == column)
+    });
+    if exists {
+        deferred
+            .entry(table_name.to_string())
+            .or_default()
+            .insert(column.to_string());
+    }
+}
+
+/// Whether a column is NOT NULL: it cannot be written empty and updated later.
+fn required_column(by_table: &HashMap<&str, &BusEntity>, table_name: &str, column: &str) -> bool {
+    by_table
+        .get(table_name)
+        .and_then(|entity| {
+            entity
+                .attributes
+                .iter()
+                .find(|attribute| attribute.column_name == column)
+        })
+        .is_some_and(|attribute| attribute.required)
+}
+
+/// Every table a table cannot be written without, through required columns alone.
+fn required_reach(
+    by_table: &HashMap<&str, &BusEntity>,
+    depends_on: &HashMap<String, Vec<(String, String)>>,
+    start: &str,
+) -> HashSet<String> {
+    let mut reach: HashSet<String> = HashSet::new();
+    reach.insert(start.to_string());
+    let mut pending = vec![start.to_string()];
+    while let Some(table) = pending.pop() {
+        for (parent, column) in depends_on.get(&table).into_iter().flatten() {
+            if required_column(by_table, &table, column) && reach.insert(parent.clone()) {
+                pending.push(parent.clone());
+            }
+        }
+    }
+    reach
+}
+
 fn visit(
     table_name: &str,
     by_table: &HashMap<&str, &BusEntity>,
@@ -432,10 +569,20 @@ fn visit(
     if let Some(edges) = depends_on.get(table_name) {
         for (parent, column) in edges {
             if on_stack.iter().any(|entry| entry == parent) {
-                deferred
-                    .entry(table_name.to_string())
-                    .or_default()
-                    .insert(column.clone());
+                // The edge that closes the cycle. Written by the trailing UPDATE.
+                defer(by_table, deferred, table_name, column);
+                continue;
+            }
+            // An optional reference is only worth walking into if that cannot
+            // force a required one to be deferred: see `visit` in
+            // `business-seed.ts`.
+            if !required_column(by_table, table_name, column)
+                && !done.contains(parent)
+                && required_reach(by_table, depends_on, parent)
+                    .iter()
+                    .any(|table| on_stack.iter().any(|entry| entry == table))
+            {
+                defer(by_table, deferred, table_name, column);
                 continue;
             }
             visit(
@@ -469,7 +616,12 @@ fn deferred_updates(
         let mut columns: Vec<&String> = columns.iter().collect();
         columns.sort();
         for column in columns {
-            let Some(target) = foreign_key_target_table(column, tables) else {
+            let explicit = entity
+                .attributes
+                .iter()
+                .find(|attribute| attribute.column_name == **column)
+                .and_then(|attribute| attribute.references_table.as_deref());
+            let Some(target) = foreign_key_target_table(column, tables, explicit) else {
                 continue;
             };
             for index in 0..rows {
@@ -496,30 +648,50 @@ fn snake(entity_name: &str) -> String {
 mod tests {
     use super::*;
     use crate::bus::entity_to_bus_entity;
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
-    const MODEL: &str = r"erDiagram
-    Customer ||--o{ Order : places
-    Customer {
-        string id PK
-        string name
-        string email
-        string status
-    }
-    Order {
-        string id PK
-        string customer_id FK
-        decimal total
-        string status
-        datetime shipped_at OPTIONAL
-    }
-%%enum OrderStatus: draft, submitted, shipped
-%%field Order.status enum: OrderStatus
-";
+    const MODEL: &str = r#"eml: "1.0"
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+  - name: Order
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: total
+        type: decimal
+      - name: status
+        type: string
+        enum: OrderStatus
+      - name: shipped_at
+        type: datetime
+        optional: true
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Order
+    toCardinality: zero-or-more
+    label: places
+"#;
 
     fn seed(workflows: &[CompiledWorkflow]) -> String {
-        let parsed = parse_erd(MODEL, &Language::load());
+        let parsed = test_model(MODEL);
         let declared = crate::bus::declared_entity_names(&parsed.entities);
         let entities: Vec<BusEntity> = parsed
             .entities

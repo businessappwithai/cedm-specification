@@ -294,7 +294,7 @@ Two related things the same review changed:
 That this went unseen for so long has a specific cause worth remembering:
 **nothing had ever created a `ds_entity_permissions` row**, so there was nothing
 for a check to enforce and no way to notice one was missing. Seeding roles from a
-model's `%%rbac` produced the first rows, and with them the real behaviour.
+model's `rbac` produced the first rows, and with them the real behaviour.
 
 Two rules follow from the fix:
 
@@ -554,7 +554,7 @@ and the failure reads as a wrong password.
 **A pack is derived, never invented.** `buildReportingPack` in
 `app-with-ai-tanstack` (`packages/generator/src/reporting/pack.ts`) builds it from
 the model: every query comes from something the model declares, and every reporting
-role mirrors a `%%rbac` role's `read` rules. This file only writes it down.
+role mirrors an `rbac` role's `read` rules. This file only writes it down.
 
 ## Record links — `src/lib/reporting/record-link.ts`
 
@@ -798,22 +798,29 @@ first boot, and leave them alone.
 
 The same applies to the Docker Compose files: `docker-compose.yml` is current (PostgreSQL via `apache/age:PG16`, `DATABASE_URL`/`GRAPH_DATABASE_URL`), while `docker-compose.dev.yml`, `docker-compose.local.yml`, and `docker-compose.remote.yml` still start a MariaDB container and pass `MARIADB_*` to the app, which ignores them.
 
-## EML Language System
+## EML — the model language (YAML)
 
-`language/` and `llmtext/` contain the Enterprise Reporting Modeling Language (EML) system — a Mermaid-based language for describing an application as ERD + business rules + workflows, then generating a complete TanStack Start + Kysely application from that description.
-
-Every EML document is valid, renderable Mermaid (`erDiagram`, `flowchart`, `stateDiagram-v2`). EML is a semantic superset: it assigns generator meaning to standard Mermaid syntax and to `%%` directive comments.
+`language/` holds this platform's `eml` CLI and its example models. A model is
+a YAML document, `*.eml.yaml` — entities, relationships, enums, business rules,
+hooks, state machines, sagas and access rules — and the CLI generates code for
+this platform from it. **The model is YAML and nothing else**: the
+language, its schema and its reader are defined once, in `app-with-ai-rust`
+(checked out beside this repository, as `../app-with-ai-rust`), and this
+directory does not carry a copy of any of them.
 
 ### Key files
 
-- `language/erdwithai-language.json` — canonical machine-readable language definition (grammar, directives, validation rules)
-- `language/checker.ts` — validates an `.mmd` file against the language definition
-- `language/fixer.ts` — auto-repairs fixable checker diagnostics in-place
-- `language/index.ts` — programmatic API (`loadLanguageDefinition`, `parseEml`, `validateModel`)
-- `language/rag.ts` — RAG indexing for EML-aware LLM completions
+- `../app-with-ai-rust/language/yaml/eml.schema.json` — the language definition (JSON Schema); the validator runs this file
+- `../app-with-ai-rust/language/yaml/README.md` and `../app-with-ai-rust/language/spec/` — the reference and the specification
+- `../app-with-ai-rust/language/cli/src/document.ts` — the reader the CLI uses: YAML → validated `ModelDocument` → the CLI's `EmlModel`
 - `language/cli/eml.ts` — CLI entry point (run with Bun)
-- `language/examples/` — sample EML models (`minimal.eml.mmd`, `ecommerce.eml.mmd`, `helpdesk.eml.mmd`, `crm.eml.mmd`)
-- `llmtext/llms-full.txt` — full application context spec for LLMs (architecture, conventions, patterns)
+- `language/cli/src/generate/enterprise-reporting.ts` — the default stack, this platform's own generator
+- `language/cli/src/generate/app.ts` + `language/cli/runtime/src/` — the `node-rest` stack
+- `language/cli/src/generate/jdm.ts` — rules → GoRules JDM, through the generator's own converter (`../app-with-ai-rust/packages/generator/src/rules/jdm-converter.ts`)
+- `language/examples/` — `minimal`, `helpdesk`, `ecommerce`, `crm` (`.eml.yaml`)
+
+The reader resolves `yaml` and `ajv` from `app-with-ai-rust`'s install (`bun
+install` in `../app-with-ai-rust`), so the CLI needs that checkout beside this one.
 
 ### CLI usage
 
@@ -821,28 +828,28 @@ Input is `-i/--input` or the first positional argument; output is `-o/--output`.
 There is no `--out`.
 
 ```bash
-# Validate a model
-bun language/cli/eml.ts validate -i model.mmd
+# Validate a model — every finding at its YAML line and column
+bun language/cli/eml.ts validate -i model.eml.yaml
 
-# Inspect parsed model summary
-bun language/cli/eml.ts info -i model.mmd
+# Inspect the model
+bun language/cli/eml.ts info -i model.eml.yaml
 
-# Generate application (enterprise-reporting is the default stack)
-bun language/cli/eml.ts generate -i model.mmd -o ./generated
+# Generate code for this platform (enterprise-reporting is the default stack)
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./generated
 
 # Generate the dependency-free Node REST app instead
-bun language/cli/eml.ts generate -i model.mmd -o ./generated --stack node-rest
-
-# Auto-fix checker warnings before generating
-bun language/checker.ts model.mmd   # check — also writes model.mmd.error beside it
-bun language/fixer.ts model.mmd     # fix in-place
+bun language/cli/eml.ts generate -i model.eml.yaml -o ./generated --stack node-rest
 ```
 
+`generate` applies the language's fixer in memory before generating (the file
+on disk is never changed); `--no-autofix` turns that off, and `validate` never
+applies it.
+
 **The two stacks are `enterprise-reporting` (default) and `node-rest`.** There is
-no `tanstack-nestjs` target here — that one belongs to `app-with-ai-tanstack`, and
-passing it is rejected with `Unsupported stack`. `tanstack` and `tanstack-start`
-are accepted as *aliases for `enterprise-reporting`*, which is the likeliest way
-to think you got a NestJS stack and not notice.
+no `tanstack-nestjs` target here, and passing it is rejected with `Unsupported
+stack`. `tanstack` and `tanstack-start` are accepted as *aliases for
+`enterprise-reporting`*, which is the likeliest way to think you got another
+stack and not notice.
 
 `enterprise-reporting` emits code to paste into this repository; `node-rest`
 emits a standalone `node:http` app over a JSON file, with no install step.
@@ -857,7 +864,7 @@ generated/
 │   │   ├── index.tsx                  # List page (TanStack Table + shadcn/ui)
 │   │   └── $id.tsx                    # Detail/edit page
 │   └── lib/db/migrations/<ts>_create_tables.ts   # PostgreSQL DDL via sql``
-├── rules/<rule>.jdm.json              # one GoRules JDM graph per %%rule flow
+├── rules/<rule>.jdm.json              # one GoRules JDM graph per rule
 ├── KYSELY_TYPES.md                    # Database-interface snippet to paste in
 └── README.md
 ```
@@ -865,16 +872,28 @@ generated/
 It writes a `KYSELY_TYPES.md` snippet, **not** a `kysely-db.ts` — you paste the
 snippet into the `Database` interface in `src/lib/db/kysely-db.ts` yourself.
 
-### The CLI vendors two modules from app-with-ai-tanstack
+### What changed when the models became YAML
 
-`language/cli/src/vendor/` holds copies of that repository's
-`packages/web/src/lib/{jdm-converter,mermaid-flowchart-parser}.ts`, so a `%%rule`
-flow compiles to the same JDM graph on both sides. They used to be imported
-across the repository boundary as `../../../../packages/web/...`, which resolves
-nowhere here — this repository has no `packages/` directory at all. Because
-`cli.ts` imports the JDM emitter *statically*, that dangling path took down every
-command, `validate` and `info` included, neither of which emits JDM. Both files
-are dependency-free; re-copy them rather than editing them by hand.
+The CLI used to parse the previous diagram-based model format itself
+(`parser.ts`, `validator.ts`, a vendored flowchart parser and JDM converter, its
+own `erdwithai-language.json`). That parser disagreed with the generator in three places, and a YAML model carries
+the generator's reading, because that is what every generated application was
+built from:
+
+- **Entity order** is declaration order, not first mention in the drawing, so
+  `README.md`, `KYSELY_TYPES.md` and the migration list entities in model order.
+- **A rule node drawn rounded** (`G(Calculate Total)`) was a `functionNode` to
+  this CLI and an `expressionNode` to the generator; it is an `expression`
+  node now. The node-rest runtime evaluates the two identically.
+- **Access rules** (`rbac`) were never read by this CLI's old parser, which
+  knew only the retired guard form;
+  the model's access rules now reach `eml.model.json`. Nothing in the node-rest
+  runtime enforces `guards`, so behaviour is unchanged.
+
+The node-rest runtime's one change is in `runtime/src/workflows.js`: a state
+machine's start is read from its `initial`, which a YAML model states outright.
+`app-with-ai-rust/scripts/verify-yaml-conversion` compares every example's generated output
+against what the previous CLI produced and accepts only those differences.
 
 ## Repo-local Claude configuration
 

@@ -8,6 +8,7 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
+  type QueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
 import { apiClient, type PaginatedResponse, type ApiError } from '@/lib/api-client';
@@ -42,6 +43,13 @@ export interface FieldMetadata {
   sys_reference_id: number;
   is_mandatory: boolean;
   is_updateable?: boolean;
+  /**
+   * True for the column that names the record — `sys_column.is_identifier`,
+   * the dictionary's one answer to what a record is called. A record's title
+   * reads it; before `/bus/{entity}/fields/*` returned it, an entity with no
+   * `name` column was titled with its UUID.
+   */
+  is_identifier?: boolean;
   /**
    * True for the table's primary key. `/sys/fields/*` has always returned it;
    * it was simply missing from this interface, so the one place that needs to
@@ -92,6 +100,21 @@ export interface TableMetadata {
 // ============================================================================
 // Query Keys
 // ============================================================================
+
+/**
+ * What every dropdown on screen was read from, marked stale so it is read from
+ * the API again: lookups (narrowed by the record's other values), custom
+ * endpoints, the dictionary's lists of values, the label shown on a read-only
+ * lookup, and the entity lists a lookup can be built on. A form's *Refresh*
+ * calls this beside re-reading the record, so a value added in another window
+ * or by another user is offered without leaving the page.
+ */
+export function refreshDropdowns(queryClient: QueryClient) {
+  for (const key of ['lookup', 'table-ref-custom', 'table-ref-view', 'ref-list', 'ref-lists']) {
+    queryClient.invalidateQueries({ queryKey: [key] });
+  }
+  queryClient.invalidateQueries({ queryKey: entityKeys.lists() });
+}
 
 export const entityKeys = {
   all: ['entities'] as const,

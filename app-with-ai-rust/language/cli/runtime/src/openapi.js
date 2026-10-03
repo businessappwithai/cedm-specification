@@ -1,4 +1,4 @@
-// Builds an OpenAPI 3.0 document from the EML model at runtime.
+// Builds an OpenAPI 3.0 document from the model at runtime.
 
 import { ENUMS, MODEL } from "./model.js";
 

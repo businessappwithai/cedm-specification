@@ -8,17 +8,18 @@
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
-import { generateApplication, parseModel } from "../index";
+import { readYamlFixture } from "../../model/__tests__/compile-yaml";
+import { generateApplication } from "../index";
 
-const MODEL = path.resolve(__dirname, "../../../../../examples/drug-discovery.eml.mmd");
+const MODEL = path.resolve(__dirname, "../../../../../examples/drug-discovery.eml.yaml");
 
 describe("the pipeline is the only generation path", () => {
   it("carries categories, enums and sagas into the manifest", async () => {
     const source = await fs.readFile(MODEL, "utf-8");
     const out = await fs.mkdtemp("/tmp/pipeline-test-");
     const model = await generateApplication({
-      sources: source,
-      model: parseModel(source),
+      document: readYamlFixture(source),
+      modelText: source,
       projectName: "pipeline-test",
       outputDir: out,
       skipFrontend: true,
@@ -36,8 +37,8 @@ describe("the pipeline is the only generation path", () => {
     expect(manifest.enums).toHaveLength(model.enums.length);
     expect(manifest.sagas).toHaveLength(model.sagas.length);
 
-    // The model travels with the application it produced.
-    const shipped = await fs.readFile(path.join(out, "model", "model.eml.mmd"), "utf-8");
+    // The model travels with the application it produced, exactly as written.
+    const shipped = await fs.readFile(path.join(out, "model", "model.eml.yaml"), "utf-8");
     expect(shipped).toBe(source);
 
     // And the enums reached the dictionary as real lists, not dangling ids.

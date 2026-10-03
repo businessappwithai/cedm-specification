@@ -16,12 +16,11 @@ import {
   loopIsContiguous,
   loopsOf,
   newLoop,
-  parseAutomation,
-  serializeAutomation,
   stepsInLoop,
   validateAutomation,
   valuesAvailableAt,
 } from "../model";
+import { automationFromYaml, automationToYaml } from "../yaml";
 
 function update(field: string, value: string, loopId?: string): AutomationStep {
   return {
@@ -47,33 +46,23 @@ function looping(): Automation {
   return a;
 }
 
-describe("serialising a loop", () => {
-  const mermaid = serializeAutomation(looping());
+describe("storing a loop", () => {
+  const document = automationToYaml(looping());
 
-  it("writes the check as a %%loop directive", () => {
-    expect(mermaid).toContain('%%loop L1 while: retry_count lt "5" max: 10');
+  it("writes the check and its give-up limit on the loop", () => {
+    expect(document).toContain(
+      ["loops:", "  - id: L1", "    condition:", "      id: c1", "      field: retry_count",
+        "      operator: lt", '      value: "5"', '    maxPasses: "10"'].join("\n")
+    );
   });
 
-  it("marks each member with in:", () => {
-    expect(mermaid).toContain("%%step s1 in: L1");
-    expect(mermaid).not.toContain("%%step s2 in:");
-  });
-
-  it("draws the body as a subgraph, so any renderer shows the repeat", () => {
-    expect(mermaid).toContain("subgraph L1[Repeat while retry_count is less than 5]");
-    expect(mermaid).toContain("  end");
-  });
-
-  it("puts the loop in the edge chain once, not each member", () => {
-    // The repeat is one unit in the flow: start -> L1 -> the step after it.
-    expect(mermaid).toContain("start --> L1");
-    expect(mermaid).toContain("L1 --> s2");
-    expect(mermaid).not.toContain("--> s1");
+  it("marks each member with the loop it belongs to, and only the members", () => {
+    expect(document.match(/loopId: L1/g)).toHaveLength(1);
   });
 });
 
 describe("reading a loop back", () => {
-  const back = parseAutomation(serializeAutomation(looping()), "Sample");
+  const back = automationFromYaml(automationToYaml(looping()));
 
   it("recovers the give-up limit", () => {
     expect(loopsOf(back)[0]?.maxPasses).toBe("10");
@@ -94,35 +83,25 @@ describe("reading a loop back", () => {
   });
 
   it("survives a second round trip unchanged", () => {
-    expect(serializeAutomation(parseAutomation(serializeAutomation(back), "Sample"))).toBe(
-      serializeAutomation(back)
-    );
+    const once = automationToYaml(back);
+    expect(automationToYaml(automationFromYaml(once))).toBe(once);
   });
 
-  it("drops a membership naming a loop that was never declared", () => {
-    // Keeping the step and dropping the membership is the recoverable half: the
-    // alternative is a box with no check, which would execute once and look
-    // like it repeated.
-    const orphan = [
-      "flowchart TD",
-      "%%hook afterUpdate on Sample",
-      "  s1[Set status]",
-      "%%step s1 type: UpdateEntity",
-      "%%step s1 field: status",
-      "%%step s1 value: x",
-      "%%step s1 in: Lnope",
-    ].join("\n");
-    const parsed = parseAutomation(orphan, "Sample");
-    expect(parsed.steps).toHaveLength(1);
-    expect(parsed.steps[0]?.loopId).toBeUndefined();
-    expect(loopsOf(parsed)).toHaveLength(0);
+  it("refuses a membership naming a loop that was never declared", () => {
+    // A step in a repeat with no check would execute once and look like it
+    // repeated; the document is refused rather than opened that way.
+    const orphan = automationToYaml(looping()).replace("loopId: L1", "loopId: Lnope");
+    expect(() => automationFromYaml(orphan)).toThrow(/steps\[0\]\.loopId: Lnope/);
   });
 
-  it("drops a loop that ended up with no members", () => {
-    const empty = ["flowchart TD", "%%hook afterUpdate on Sample", "%%loop L1 while: a eq 1"].join(
-      "\n"
+  it("keeps a loop that has no members, and validation says so", () => {
+    const a = looping();
+    for (const step of a.steps) step.loopId = undefined;
+    const reopened = automationFromYaml(automationToYaml(a));
+    expect(loopsOf(reopened)).toHaveLength(1);
+    expect(validateAutomation(reopened).map((p) => p.message)).toContain(
+      "Repeat L1 has no steps in it. Add one, or remove the repeat."
     );
-    expect(loopsOf(parseAutomation(empty, "Sample"))).toHaveLength(0);
   });
 });
 
@@ -230,12 +209,19 @@ describe("what a step inside a loop can reference", () => {
 });
 
 describe("an automation stored before loops existed", () => {
-  it("serialises unchanged rather than throwing", () => {
-    // The majority of stored rows have no `loops` field at all.
+  it("writes and validates without a `loops` field", () => {
+    // Rows written before loops existed have no `loops` field at all.
     const legacy = emptyAutomation("Sample") as Automation & { loops?: unknown };
     legacy.steps.push(update("status", "x"));
     legacy.loops = undefined as never;
-    expect(() => serializeAutomation(legacy as Automation)).not.toThrow();
+    expect(automationToYaml(legacy as Automation)).toContain("loops: []");
     expect(validateAutomation(legacy as Automation)).toEqual([]);
+  });
+
+  it("reads a document with no `loops` key as having none", () => {
+    const text = automationToYaml(looping())
+      .replace(/loops:\n(?:  .*\n)+/, "")
+      .replace(/ *loopId: L1\n/, "");
+    expect(loopsOf(automationFromYaml(text))).toEqual([]);
   });
 });

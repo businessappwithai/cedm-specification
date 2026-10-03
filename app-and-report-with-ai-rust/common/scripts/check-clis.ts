@@ -4,10 +4,12 @@
  * and assert each produced the application it claims to.
  *
  * There are two, and `check-stacks.ts` exercises neither of them. That script
- * drives `language/cli/eml.ts` — this repository's own CLI, which for the
+ * drives `language/cli/eml.ts` — the `eml` CLI, which for the
  * `tanstack-astryx-loco` target loads the generator's pipeline as a library.
  * The two shipped binaries are different entry points with their own argument
- * parsing and their own defaults:
+ * parsing and their own defaults. Both live in `app-with-ai-rust`, checked out
+ * beside this repository, and
+ * both read a model as YAML:
  *
  *   appwithai       packages/generator/src/cli/generate.ts, run by bun
  *                   the whole application — a Loco (Rust) backend crate, a
@@ -17,11 +19,8 @@
  *   appwithai-gen   crates/appwithai-gen, run by cargo
  *                   the Rust rewrite of the generator. It emits the backend
  *                   only (the front end is still TypeScript's, by design), and
- *                   app-with-ai-rust's own parity gate holds that backend byte
- *                   for byte to the first CLI's.
- *
- * The browser-only `appwithai-wasm` CLI this script used to check belongs to
- * app-with-ai-tanstack, which is no longer a dependency.
+ *                   the repository's parity gate (`bun run parity`) holds that
+ *                   backend byte for byte to the first CLI's.
  *
  * `--skip-cli-scaffold` on both, deliberately. Without it each CLI shells out
  * to `loco new` — installing it with `cargo install` when absent — for the
@@ -38,8 +37,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-const APP_REPO = path.resolve(ROOT, "..", "app-with-ai-rust");
-const MODEL = process.env.CHECK_CLIS_MODEL ?? "language/examples/crm.eml.mmd";
+/** app-with-ai-rust, beside this repository, where both CLIs ship from. */
+const APP_REPO = path.resolve(ROOT, "..", "..", "app-with-ai-rust");
+const MODEL = process.env.CHECK_CLIS_MODEL ?? "examples/crm.eml.yaml";
 
 /** `--only <name>` runs one CLI. CI uses it to give each its own job. */
 const onlyIndex = process.argv.indexOf("--only");
@@ -75,7 +75,7 @@ const CLIS: readonly Cli[] = [
       { path: "backend/seed/dictionary.sql", why: "the dictionary every /api/bus route reads" },
       { path: "frontend/src/router.tsx", why: "the TanStack Start frontend" },
       { path: "docker-compose.yml", why: "the way the generated app is run" },
-      { path: "model/model.eml.mmd", why: "the model the app answers questions from" },
+      { path: "model/model.eml.yaml", why: "the model the app answers questions from" },
     ],
   },
   {
@@ -112,11 +112,10 @@ if (!existsSync(path.join(ROOT, MODEL))) {
   console.error(`Model not found: ${MODEL}`);
   process.exit(1);
 }
-if (!existsSync(APP_REPO)) {
+if (!existsSync(path.join(APP_REPO, "node_modules"))) {
   console.error(
-    `app-with-ai-rust is not present at ${APP_REPO}.\n` +
-      "Both CLIs ship from that repository — run ./deps.sh --install first, which\n" +
-      "places it at the commit deps.json pins and installs its dependencies."
+    `${APP_REPO} has no node_modules.\n` +
+      "Both CLIs ship from it — run `./deps.sh --install` first."
   );
   process.exit(1);
 }

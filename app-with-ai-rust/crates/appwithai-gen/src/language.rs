@@ -1,31 +1,34 @@
 //! Loader for `language/appwithai-language.json`.
 //!
-//! The JSON is the single source of truth for EML's type vocabulary and
-//! cardinality operators; the parser reads it rather than hard-coding a second
-//! copy that can drift. A built-in fallback keeps generation working when the
-//! file cannot be found — the same contract the TypeScript loader offered.
+//! The JSON is the single source of truth for the model language's type
+//! vocabulary, relationship cardinalities and saga step contracts; the compilers
+//! read it rather than hard-coding a second copy that can drift. There is no
+//! built-in fallback: a generator that could not find the definition used to
+//! carry on with a copy of it, which read `text` as `string` and reported
+//! nothing. A missing or malformed definition is an error that says where it
+//! looked.
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
+use anyhow::{anyhow, Context, Result};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct RawDefinition {
     types: RawTypes,
-    #[serde(default)]
     cardinalities: RawCardinalities,
-    #[serde(rename = "workflowConstructs", default)]
+    #[serde(rename = "workflowConstructs")]
     workflow_constructs: RawWorkflowConstructs,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 struct RawWorkflowConstructs {
-    #[serde(rename = "stepNodes", default)]
+    #[serde(rename = "stepNodes")]
     step_nodes: RawStepNodes,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 struct RawStepNodes {
     /// A *list*, each entry naming itself.
     ///
@@ -34,7 +37,6 @@ struct RawStepNodes {
     /// deserialised — into an empty one — so every step type became unknown
     /// and every saga parsed to nothing, with no error anywhere. Hence the
     /// `name` field and the collect below rather than a `HashMap` here.
-    #[serde(default)]
     types: Vec<RawStepNode>,
 }
 
@@ -57,27 +59,22 @@ struct RawStepNode {
 
 #[derive(Debug, Deserialize)]
 struct RawTypes {
-    #[serde(default)]
     map: HashMap<String, String>,
-    #[serde(default = "default_type")]
     default: String,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 struct RawCardinalities {
-    /// Named `map` in the JSON but shaped as a list of operator/kind pairs.
-    #[serde(default)]
-    map: Vec<RawOperator>,
+    /// Named `map` in the JSON but shaped as a list of end pairs and the kind
+    /// they make.
+    map: Vec<RawCardinality>,
 }
 
 #[derive(Debug, Deserialize)]
-struct RawOperator {
-    operator: String,
+struct RawCardinality {
+    from: String,
+    to: String,
     kind: String,
-}
-
-fn default_type() -> String {
-    "string".to_string()
 }
 
 /// The subset of the language definition generation actually consults.
@@ -85,103 +82,49 @@ fn default_type() -> String {
 pub struct Language {
     type_map: HashMap<String, String>,
     default_type: String,
-    cardinalities: HashMap<String, String>,
+    /// `(from end, to end)` → kind.
+    cardinalities: HashMap<(String, String), String>,
     step_nodes: HashMap<String, StepNodeSpec>,
 }
 
 impl Language {
-    /// Load the definition, falling back to the built-ins if it is unreachable.
-    pub fn load() -> Self {
-        match find_definition_file().and_then(|path| std::fs::read_to_string(path).ok()) {
-            Some(raw) => match serde_json::from_str::<RawDefinition>(&raw) {
-                Ok(def) => Self {
-                    type_map: def.types.map,
-                    default_type: def.types.default,
-                    cardinalities: def
-                        .cardinalities
-                        .map
-                        .into_iter()
-                        .map(|op| (op.operator, op.kind))
-                        .collect(),
-                    step_nodes: def
-                        .workflow_constructs
-                        .step_nodes
-                        .types
-                        .into_iter()
-                        .map(|node| (node.name, node.spec))
-                        .collect(),
-                },
-                // A malformed definition is worth saying out loud: silently
-                // falling back would generate an app off the wrong vocabulary.
-                Err(err) => {
-                    eprintln!("  ⚠️  appwithai-language.json could not be parsed ({err}); using built-in defaults");
-                    Self::builtin()
-                }
-            },
-            None => Self::builtin(),
-        }
+    /// Load the definition. Fails, naming where it looked, when the file is
+    /// missing or does not parse.
+    pub fn load() -> Result<Self> {
+        let path = find_definition_file().ok_or_else(|| {
+            anyhow!(
+                "language/appwithai-language.json was not found. Set APPWITHAI_LANGUAGE_FILE \
+                 to its path, or run from inside a checkout."
+            )
+        })?;
+        let raw = std::fs::read_to_string(&path)
+            .with_context(|| format!("reading {}", path.display()))?;
+        Self::from_json(&raw).with_context(|| format!("parsing {}", path.display()))
     }
 
-    fn builtin() -> Self {
-        let types: &[(&str, &str)] = &[
-            ("string", "string"),
-            ("varchar", "string"),
-            ("text", "string"),
-            ("char", "string"),
-            ("uuid", "string"),
-            ("email", "string"),
-            ("url", "string"),
-            ("phone", "string"),
-            ("password", "string"),
-            ("color", "string"),
-            ("int", "integer"),
-            ("integer", "integer"),
-            ("bigint", "integer"),
-            ("smallint", "integer"),
-            ("serial", "integer"),
-            ("number", "integer"),
-            ("decimal", "decimal"),
-            ("numeric", "decimal"),
-            ("float", "decimal"),
-            ("double", "decimal"),
-            ("money", "decimal"),
-            ("bool", "boolean"),
-            ("boolean", "boolean"),
-            ("date", "date"),
-            ("datetime", "datetime"),
-            ("timestamp", "datetime"),
-            ("timestamptz", "datetime"),
-            ("time", "datetime"),
-            ("json", "json"),
-            ("jsonb", "json"),
-        ];
-        let cardinalities: &[(&str, &str)] = &[
-            ("||--||", "oneToOne"),
-            ("||--o{", "oneToMany"),
-            ("||--|{", "oneToMany"),
-            ("}o--||", "manyToOne"),
-            ("}|--||", "manyToOne"),
-            ("}o--o{", "manyToMany"),
-            ("}|--|{", "manyToMany"),
-            ("|o--o|", "oneToOne"),
-        ];
-
-        Self {
-            type_map: types
-                .iter()
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect(),
-            default_type: "string".to_string(),
-            cardinalities: cardinalities
-                .iter()
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect(),
-            // No built-in fallback for step nodes. Guessing a step contract
-            // would let a saga compile against a vocabulary nobody declared;
-            // with none loaded, `is_step_node_type` rejects everything and the
-            // diagnostics say why.
-            step_nodes: HashMap::new(),
+    /// Build the vocabulary from the definition's text.
+    pub fn from_json(raw: &str) -> Result<Self> {
+        let def: RawDefinition = serde_json::from_str(raw)?;
+        if def.cardinalities.map.is_empty() {
+            return Err(anyhow!("the definition declares no cardinalities"));
         }
+        Ok(Self {
+            type_map: def.types.map,
+            default_type: def.types.default,
+            cardinalities: def
+                .cardinalities
+                .map
+                .into_iter()
+                .map(|entry| ((entry.from, entry.to), entry.kind))
+                .collect(),
+            step_nodes: def
+                .workflow_constructs
+                .step_nodes
+                .types
+                .into_iter()
+                .map(|node| (node.name, node.spec))
+                .collect(),
+        })
     }
 
     /// Canonicalise an attribute type alias. A length suffix (`string(255)`) is
@@ -199,8 +142,12 @@ impl Language {
             .unwrap_or_else(|| self.default_type.clone())
     }
 
-    pub fn cardinality_kind(&self, operator: &str) -> Option<&str> {
-        self.cardinalities.get(operator).map(String::as_str)
+    /// The kind of relationship two ends make, or `None` for a pair the
+    /// language does not define.
+    pub fn cardinality_kind(&self, from: &str, to: &str) -> Option<&str> {
+        self.cardinalities
+            .get(&(from.to_string(), to.to_string()))
+            .map(String::as_str)
     }
 
     pub fn is_step_node_type(&self, value: &str) -> bool {
@@ -294,40 +241,52 @@ pub(crate) fn walk_up_for(start: &Path, relative: &str) -> Option<PathBuf> {
 mod tests {
     use super::*;
 
-    /// The shipped definition must actually load, not fall back.
+    /// The shipped definition must load, with every section the compilers read.
     ///
-    /// `load()` reports a parse failure and returns `builtin()`, which is right
-    /// for a generator run outside a checkout and wrong for the definition this
-    /// repository ships. When `stepNodes.types` changed from an object to a
-    /// list, serde rejected the whole document: every step type became unknown,
-    /// every saga parsed to nothing, and the type map quietly reverted to the
-    /// built-in one — so a `text` column started coming out as a plain string.
-    /// Five tests failed and none of them named the cause.
+    /// When `stepNodes.types` changed from an object to a list, serde rejected
+    /// the whole document and the generator of the day quietly fell back to a
+    /// built-in vocabulary — every step type became unknown and a `text` column
+    /// came out a plain string. There is no fallback now; this is the gate that
+    /// the definition still parses.
     #[test]
-    fn the_shipped_definition_loads_rather_than_falling_back() {
-        let lang = Language::load();
+    fn the_shipped_definition_loads() {
+        let lang = Language::load().expect("the shipped definition loads");
         assert!(
             lang.is_step_node_type("UpdateEntity"),
-            "no step contracts loaded — the definition failed to parse and fell back"
+            "no step contracts loaded"
         );
         assert!(!lang.cardinalities.is_empty(), "no cardinalities loaded");
     }
 
     #[test]
     fn aliases_canonicalise() {
-        let lang = Language::builtin();
+        let lang = Language::load().expect("language definition");
         assert_eq!(lang.normalize_type("varchar"), "string");
         assert_eq!(lang.normalize_type("VARCHAR(255)"), "string");
-        assert_eq!(lang.normalize_type("timestamptz"), "datetime");
-        // Unknown aliases fall back rather than failing generation.
+        assert_eq!(lang.normalize_type("timestamp"), "datetime");
+        // An alias the language does not know takes the definition's default.
         assert_eq!(lang.normalize_type("geography"), "string");
     }
 
     #[test]
-    fn cardinality_operators_resolve() {
-        let lang = Language::builtin();
-        assert_eq!(lang.cardinality_kind("||--o{"), Some("oneToMany"));
-        assert_eq!(lang.cardinality_kind("}o--||"), Some("manyToOne"));
-        assert_eq!(lang.cardinality_kind("nonsense"), None);
+    fn cardinality_ends_resolve() {
+        let lang = Language::load().expect("language definition");
+        assert_eq!(
+            lang.cardinality_kind("exactly-one", "zero-or-more"),
+            Some("oneToMany")
+        );
+        assert_eq!(
+            lang.cardinality_kind("zero-or-more", "exactly-one"),
+            Some("manyToOne")
+        );
+        assert_eq!(lang.cardinality_kind("zero-or-one", "zero-or-more"), None);
+    }
+
+    #[test]
+    fn a_definition_without_cardinalities_is_refused() {
+        let err = Language::from_json(
+            r#"{"types":{"map":{},"default":"string"},"cardinalities":{"map":[]},"workflowConstructs":{"stepNodes":{"types":[]}}}"#,
+        ).expect_err("refused");
+        assert!(err.to_string().contains("no cardinalities"));
     }
 }

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="How AppWithAI works: a multi-agent AI pipeline transforms your business description into a production-ready TanStack Start and NestJS application. Open source, Apache 2.0.">
-  <meta name="keywords" content="how it works, AI pipeline, application generation, Mastra.ai, domain analysis, ERD generation, code generation, TanStack Start, NestJS">
+  <meta name="description" content="How AppWithAI works: a multi-agent AI pipeline transforms your business description into a production-ready application — a Loco.rs (Rust) API and a TanStack Start front end. Open source, Apache 2.0.">
+  <meta name="keywords" content="how it works, AI pipeline, application generation, Mastra.ai, domain analysis, ERD generation, code generation, YAML model, Loco.rs, Rust, TanStack Start">
   <title>How It Works — AppWithAI</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -65,7 +65,7 @@
           </div>
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--primary-600);">↓</div>
           <div style="padding: var(--spacing-md); background: white; border-radius: var(--radius-lg); margin-bottom: var(--spacing-md); border-left: 4px solid var(--primary-500);">
-            <strong>Domain Analysis Agent (Mastra.ai + Claude / OpenAI / Ollama)</strong><br>
+            <strong>Domain Analysis Agent (Mastra.ai + any OpenAI-compatible model)</strong><br>
             <span class="text-muted">Understands your business domain; extracts core concepts, candidate entities, and their likely relationships</span>
           </div>
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--primary-600);">↓</div>
@@ -80,8 +80,8 @@
           </div>
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--primary-600);">↓</div>
           <div style="padding: var(--spacing-md); background: white; border-radius: var(--radius-lg); margin-bottom: var(--spacing-md); border-left: 4px solid var(--primary-500);">
-            <strong>Mermaid Agent (ERD Design)</strong><br>
-            <span class="text-muted">Produces a complete Entity Relationship Diagram in Mermaid Crow's Foot notation, validated for correctness</span>
+            <strong>Model Writer</strong><br>
+            <span class="text-muted">Writes the approved entities and relationships as one YAML model file, which the validator checks before anything is generated</span>
           </div>
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--primary-600);">↓</div>
           <div style="padding: var(--spacing-md); background: white; border-radius: var(--radius-lg); margin-bottom: var(--spacing-md); border-left: 4px solid var(--primary-500);">
@@ -91,7 +91,7 @@
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--primary-600);">↓</div>
           <div style="padding: var(--spacing-md); background: white; border-radius: var(--radius-lg); border-left: 4px solid var(--primary-500);">
             <strong>Code Generation Engine (Handlebars Templates)</strong><br>
-            <span class="text-muted">Produces production-ready TanStack Start frontend, NestJS backend, Kysely migrations, Playwright tests, and Docker configuration</span>
+            <span class="text-muted">Produces a Loco.rs (Rust) backend crate with its migrations and seeds, a TanStack Start + Astryx front end, cargo and bun test suites, and Docker configuration</span>
           </div>
           <div style="text-align: center; font-size: var(--text-2xl); color: var(--success-600);">↓</div>
           <div style="text-align: center;">
@@ -120,7 +120,7 @@
         </div>
         <div class="timeline-item">
           <h3>Step 2: AI Domain Analysis</h3>
-          <p>The Domain Analysis Agent, powered by your choice of AI (Claude, OpenAI, or a local Ollama model), deeply analyzes your business domain. It extracts the core concepts and identifies the key entities relevant to your process.</p>
+          <p>The Domain Analysis Agent, running on the OpenAI-compatible model of your choice, local or hosted, deeply analyzes your business domain. It extracts the core concepts and identifies the key entities relevant to your process.</p>
           <div class="grid grid-3 mt-3">
             <div class="card">
               <strong>Entities Detected</strong>
@@ -180,7 +180,7 @@
           <p>This is the critical differentiator of AppWithAI. Before generating a single line of code, the platform pauses and presents the complete data model for your review in the visual ERD designer. You can:</p>
           <ul style="list-style: none; padding: 0; margin-top: var(--spacing-md);">
             <li style="padding: var(--spacing-sm) 0;">✓ Confirm entities and attributes the AI identified correctly</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Modify any field name, data type, or relationship directly in the Mermaid editor</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Modify any field name, data type, or relationship directly in the model editor</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Add entities or attributes the AI did not identify</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Remove anything that does not apply to your requirements</li>
             <li style="padding: var(--spacing-sm) 0;">✓ See your changes reflected instantly in the React Flow graph visualization</li>
@@ -190,8 +190,8 @@
           </div>
         </div>
         <div class="timeline-item">
-          <h3>Step 5: ERD Generation</h3>
-          <p>The Mermaid Agent produces a complete, validated Entity Relationship Diagram using Crow's Foot notation — showing all entities, attributes, primary keys, foreign keys, and relationships. This diagram serves as the authoritative blueprint for the generated application.</p>
+          <h3>Step 5: The Model File</h3>
+          <p>The approved data model is written as one YAML document — every entity, attribute, primary key, foreign key and relationship, and later the enums, state machines, rules and access control around them. It is validated against the language's schema and checker, and it is the authoritative blueprint for the generated application: the generator reads nothing else.</p>
         </div>
         <div class="timeline-item">
           <h3>Step 6: Application Dictionary Generation</h3>
@@ -210,34 +210,34 @@
               <p class="text-muted text-sm">Application screens and their tab structure — what they show and how they're organized</p>
             </div>
             <div class="card">
-              <strong>sys_access_role / sys_access_field</strong>
-              <p class="text-muted text-sm">Role-based access definitions — which roles access which tables and fields</p>
+              <strong>sys_role / sys_access / sys_operation_access</strong>
+              <p class="text-muted text-sm">Role-based access definitions — which roles reach which windows and tables, and which operations and transitions each may perform</p>
             </div>
           </div>
         </div>
         <div class="timeline-item">
           <h3>Step 7: Code Generation</h3>
-          <p>The Code Generation Engine processes the approved ERD and Application Dictionary through Handlebars templates, producing a complete, formatted, and deployable application. All generated code is standard TypeScript — no proprietary runtime required.</p>
+          <p>The Code Generation Engine processes the approved ERD and Application Dictionary through Handlebars templates, producing a complete, formatted, and deployable application. All generated code is standard Rust and TypeScript — no proprietary runtime required.</p>
           <div class="grid grid-3 mt-3">
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">🎨</div>
               <strong>Frontend</strong>
-              <p class="text-muted text-sm">TanStack Start with React 19, Shadcn UI, and TailwindCSS — server-rendered, type-safe</p>
+              <p class="text-muted text-sm">TanStack Start with React 19 and the Astryx design system — type-safe, and driven by the Application Dictionary</p>
             </div>
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">⚙️</div>
               <strong>Backend</strong>
-              <p class="text-muted text-sm">NestJS 10+ with Fastify and Kysely — modular, DI-driven API server</p>
+              <p class="text-muted text-sm">Loco.rs (Axum + SeaORM) — a Rust crate serving JSON, with an OpenAPI document at <code>/openapi.json</code></p>
             </div>
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">🗄️</div>
               <strong>Database</strong>
-              <p class="text-muted text-sm">PostgreSQL with full Kysely migration scripts and type-safe query builders</p>
+              <p class="text-muted text-sm">PostgreSQL, with the migrations and the dictionary seed the backend applies itself</p>
             </div>
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">🧪</div>
               <strong>Tests</strong>
-              <p class="text-muted text-sm">Playwright end-to-end tests auto-generated for every CRUD operation</p>
+              <p class="text-muted text-sm">cargo request suites and bun end-to-end suites, generated for every entity</p>
             </div>
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">🐳</div>
@@ -247,7 +247,7 @@
             <div class="card text-center">
               <div class="feature-icon" style="margin: 0 auto var(--spacing-sm);">🔐</div>
               <strong>Security</strong>
-              <p class="text-muted text-sm">Better-Auth integration with complete RBAC guards per entity</p>
+              <p class="text-muted text-sm">JWT sign-in, and the three authorization gates on every entity</p>
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@
     <div class="container text-center">
       <span class="hero-badge" style="background: rgba(255,255,255,0.15); color: white;">No Account &middot; No Install &middot; Ten Minutes</span>
       <h2 style="color: white; margin-top: var(--spacing-lg);">Try It Yourself</h2>
-      <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">Describe your business to ChatGPT or Gemini Deep Research along with our machine-readable specification, bring back the one <code>.mmd</code> file it produces, and watch a complete application build and start in your browser. No account, no install, nothing sent anywhere.</p>
+      <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">Describe your business to ChatGPT or Gemini Deep Research along with our machine-readable specification, bring back the one <code>.eml.yaml</code> file it produces, and watch a complete application build and start in your browser. No account, no install, nothing sent anywhere.</p>
       <div style="display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-xl);">
         <a href="try-it-yourself.html" class="btn btn-lg" style="background: white; color: var(--primary-700);">Show Me the Three Steps &rarr;</a>
         <a href="guide/run-in-browser.html#upload" class="btn btn-lg btn-outline" style="border-color: white; color: white;">I Already Have a Model &rarr;</a>
@@ -378,7 +378,7 @@
             <tr>
               <td>Business Rules Implementation</td>
               <td>4–8 weeks</td>
-              <td class="highlight"><strong>Hours</strong> (visual decision flowcharts)</td>
+              <td class="highlight"><strong>Hours</strong> (decision graphs in the model)</td>
             </tr>
             <tr>
               <td>Workflow Configuration</td>
@@ -420,7 +420,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -456,7 +456,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

@@ -73,6 +73,10 @@ const EXECUTABLE_STEP_TYPES = new Set([
  * Mirrors the resolution order used by the NestJS generator.
  */
 function resolveTemplateDir(subpath: string): string {
+  // TEMPLATE_DIR names the templates root outright. The browser build sets it
+  // to its in-memory volume, where no working directory leads anywhere.
+  const configured = process.env.TEMPLATE_DIR;
+  if (configured) return path.join(configured, subpath);
   const cwd = process.cwd();
   const possiblePaths = [
     path.join(cwd, "packages/generator/templates", subpath),

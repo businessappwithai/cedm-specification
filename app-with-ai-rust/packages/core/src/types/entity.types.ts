@@ -3,7 +3,7 @@ export interface EntityAttribute {
   type: "string" | "integer" | "decimal" | "boolean" | "date" | "datetime" | "text" | "json";
   required: boolean;
   /**
-   * Help text for the column, written as `%%field <Entity>.<column> help: ...`.
+   * Help text for the column, written as the attribute's `help` in the model.
    *
    * It becomes `sys_column.description`, which the generated form renders under
    * the control and the Application Dictionary shows beside the column — the
@@ -25,7 +25,23 @@ export interface EntityAttribute {
   minLength?: number;
   pattern?: string;
   isForeignKey?: boolean;
-  /** Name of the `%%enum` this column is bound to, via `%%field E.c enum: N`. */
+  /**
+   * The entity a foreign key points at, where its name does not say: a CEDM
+   * reference such as `deliveryLocation → Location`, stored in the column
+   * `delivery_location_id`. Absent for a column whose name resolves to its
+   * target by the usual rule — which is every column a model written without
+   * CEDM has — so the stored target is written only where it is needed.
+   */
+  references?: string;
+  /**
+   * Foreign-key columns of the same entity that narrow this lookup's choices,
+   * most specific first: a state is narrowed by `country_id`, a city by
+   * `state_province_id` then `country_id`. The lookup offers only the target rows
+   * that belong to the values the record holds, and a write naming any other is
+   * refused. See `specification/reference-data.yaml`.
+   */
+  narrowedBy?: string[];
+  /** Name of the enum this column is bound to, by the attribute's `enum` key. */
   enumRef?: string;
   /** The enum's values, in declaration order. */
   enumValues?: string[];
@@ -38,16 +54,25 @@ export interface EntityAttribute {
   enumReferenceId?: number;
 }
 
-/** A `%%enum Name: a, b, c` declaration, with the reference id it was given. */
+/** An enum the model declares, with the reference id it was given. */
 export interface EntityEnum {
   name: string;
   values: string[];
   /** Allocated from 1000 up, stable for a given set of enum names. */
   referenceId: number;
+  /**
+   * The enumeration has a business table, an entity of the same name. Its rows
+   * are the values, and the dropdown reads the table rather than a fixed list.
+   */
+  table?: boolean;
+  /** A short label per value; absent values read as the value split into words. */
+  labels?: Record<string, string>;
+  /** What each value means to the business. */
+  descriptions?: Record<string, string>;
 }
 
 /**
- * An index the model asked for explicitly, via `%%index Entity(a, b) [unique]`.
+ * An index the model asked for explicitly, in the entity's `indexes`.
  *
  * Separate from the single-column indexes derived from `UK` and from a column
  * called `name`: those are conventions the generator applies, this is a request
@@ -66,10 +91,10 @@ export interface Entity {
   attributes: EntityAttribute[];
   primaryKey: string;
   timestamps: boolean;
-  /** Explicit `%%index` declarations bound to this entity. */
+  /** The entity's explicit `indexes`. */
   indexes?: EntityIndex[];
   /**
-   * The entity this one is a line item of, from `%%entity <E> parent: <P>`.
+   * The entity this one is a line item of, from its `parent`.
    *
    * A child is not a thing you navigate to. It has no window of its own and no
    * card on the dashboard; it appears as a tab inside its parent's window,
@@ -80,7 +105,7 @@ export interface Entity {
   /** The child's foreign key back to `parentEntity`, resolved at parse time. */
   parentLinkColumn?: string;
   /**
-   * The icon this entity is drawn with, from `%%entity <E> icon: <name>`.
+   * The icon this entity is drawn with, from its `icon`.
    *
    * A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and
    * snake_case all resolve to the same icon, so `LayoutGrid`, `layout-grid` and
@@ -95,6 +120,12 @@ export interface Entity {
    * holds both — so the model sets the starting point, not the final answer.
    */
   icon?: string;
+  /**
+   * Rows the application ships with (`data` of the entity document). Keys are
+   * physical columns; a foreign key column holds the natural key of its target
+   * row, and `key` names the column that is this entity's own natural key.
+   */
+  data?: { key: string; rows: Array<Record<string, string | number | boolean | null>> };
 }
 
 export interface Relationship {
@@ -118,7 +149,7 @@ export const EntityAttributeSchema = z.object({
   name: z.string(),
   type: z.enum(["string", "integer", "decimal", "boolean", "date", "datetime", "text", "json"]),
   required: z.boolean(),
-  /** Help text for the column, from `%%field <E>.<c> help:`. */
+  /** Help text for the column, from the attribute's `help`. */
   description: z.string().optional(),
   /** The alias the modeller wrote, when it decides the reference type. */
   semanticType: z.enum(["email", "url", "phone", "password", "color"]).optional(),
@@ -127,6 +158,8 @@ export const EntityAttributeSchema = z.object({
   maxLength: z.number().optional(),
   minLength: z.number().optional(),
   pattern: z.string().optional(),
+  references: z.string().optional(),
+  narrowedBy: z.array(z.string()).optional(),
 });
 
 export const EntitySchema = z.object({

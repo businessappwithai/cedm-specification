@@ -1,5 +1,5 @@
 /**
- * Application generator (zero-dependency Node REST target).
+ * Application generator (zero-dependency REST target).
  *
  * Emits a complete, runnable application from a validated {@link EmlModel}:
  *  - copies the static runtime (db, rules engine, workflow machines, services,
@@ -8,7 +8,7 @@
  *  - generates project scaffolding: package.json, README, .gitignore, and a
  *    JSON snapshot of the parsed model.
  *
- * The generated app runs with `node src/server.js` (or `bun`) — no install.
+ * The generated app runs with `bun src/server.js` — no install.
  */
 
 import { cpSync, mkdirSync, writeFileSync } from "node:fs";
@@ -55,7 +55,7 @@ export function generateApp(model: EmlModel, opts: GenerateAppOptions): string[]
 
   writeFileSync(
     path.join(srcDir, "model.js"),
-    `// Auto-generated from EML. The single source of truth the runtime reads.\n` +
+    `// Generated from the model. The single source of truth the runtime reads.\n` +
       `export const MODEL = ${JSON.stringify(runtimeModel, null, 2)};\n\n` +
       `export const ENUMS = ${JSON.stringify(enums, null, 2)};\n`
   );
@@ -128,7 +128,7 @@ function generateHooksFile(model: EmlModel): string {
 
     const fieldNote = hook.fields.length ? ` [fields: ${hook.fields.join(", ")}]` : "";
     fnDefs.push(
-      `// %%hook ${hook.type} ${hook.handler} on ${hook.entity}${fieldNote}\n` +
+      `// hook: ${hook.type} ${hook.handler} on ${hook.entity}${fieldNote}\n` +
         `async function ${fnName}(data, ctx) {\n` +
         `  // TODO: implement "${hook.handler}". Return the (possibly modified) data.\n` +
         `  return data;\n` +
@@ -141,7 +141,7 @@ function generateHooksFile(model: EmlModel): string {
     .join("\n");
 
   return (
-    `// Lifecycle hook handlers generated from the EML %%hook directives.\n` +
+    `// Lifecycle hook handlers generated from the model's hooks.\n` +
     `// Each handler is a stub — implement your business logic and return data.\n` +
     `// Handlers run in registration order around the entity's CRUD lifecycle.\n\n` +
     (fnDefs.length ? `${fnDefs.join("\n\n")}\n\n` : "") +
@@ -166,12 +166,12 @@ function generatePackageJson(appName: string): string {
       version: "1.0.0",
       private: true,
       type: "module",
-      description: "Application generated from an EML (.mmd) model by the APPWITHAI EML CLI.",
+      description: "Application generated from an EML model (.eml.yaml) by the APPWITHAI eml CLI.",
       scripts: {
-        start: "node src/server.js",
-        dev: "node --watch src/server.js",
+        start: "bun src/server.js",
+        dev: "bun --watch src/server.js",
       },
-      engines: { node: ">=18" },
+      engines: { bun: ">=1.3.0" },
     },
     null,
     2
@@ -195,13 +195,13 @@ function generateReadme(model: EmlModel, appName: string): string {
 
   return `# ${appName}
 
-Generated from an **EML** model by the APPWITHAI EML CLI. Zero runtime
-dependencies — it runs on plain Node (or Bun).
+Generated from an **EML** model (\`.eml.yaml\`) by the APPWITHAI \`eml\` CLI.
+Zero runtime dependencies — it runs on Bun.
 
 ## Run
 
 \`\`\`bash
-npm start          # node src/server.js
+bun run start      # bun src/server.js
 # then open http://localhost:3000
 \`\`\`
 
@@ -239,7 +239,7 @@ src/
   workflows.js   state machines
   hooks.js       lifecycle hook handlers (implement these)
   validate.js    request validation
-  model.js       the EML model (generated)
+  model.js       the model (generated)
 eml.model.json   parsed model snapshot
 \`\`\`
 `;

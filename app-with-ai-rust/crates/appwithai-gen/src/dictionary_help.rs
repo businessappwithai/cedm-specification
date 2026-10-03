@@ -39,7 +39,7 @@ struct HelpColumn {
     fk_target: Option<String>,
     /// The entity's own `<name>_id` column carried over from the ERD.
     is_business_key: bool,
-    /// `%%field <Entity>.<column> help:` — what the author said this column is
+    /// The column's `help` — what the author said this column is
     /// for.
     ///
     /// The only sentence in a generated application that carries *domain*
@@ -321,7 +321,7 @@ fn field_help_text(entity: &HelpEntity, column: &HelpColumn) -> String {
     let mut parts: Vec<String> = Vec::new();
 
     // The author's words come first, and the derived sentence is dropped rather
-    // than appended after them: a `%%field ... help:` that says what a column
+    // than appended after them: a column `help` that says what a column
     // is for should not be followed by this module restating the column's
     // shape. The *facts* below — required, unique, length — still follow,
     // because the author's sentence does not carry them.
@@ -426,7 +426,7 @@ mod tests {
 
     /// Regression: the model's own help text never reached the application.
     ///
-    /// `%%field <E>.<c> help:` is the only place a model says what a column is
+    /// A column's `help` is the only place a model says what a column is
     /// *for* rather than what shape it is, and `sys_field.help` — which the
     /// generated form renders under the control — was composed entirely from
     /// the column's shape. A model with a paragraph on every column produced an
@@ -437,19 +437,27 @@ mod tests {
     /// carry them; the composed *sentence* gives way to it.
     #[test]
     fn an_authored_sentence_leads_and_the_derived_one_gives_way() {
-        let source = "\
-erDiagram
-    Member { string id PK }
-    Booking {
-        string id PK
-        string member_id FK
-        string reference
-    }
-    Member ||--o{ Booking : \"holds\"
-
-%%field Booking.member_id help: Who holds the place. A booking may not be transferred between members.
-";
-        let model = parse_erd(source, &Language::load());
+        let source = r#"eml: "1.0"
+entities:
+  - name: Booking
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: member_id
+        type: string
+        fk: true
+        help: Who holds the place. A booking may not be transferred between members.
+      - name: reference
+        type: string
+relationships:
+  - from: Member
+    fromCardinality: exactly-one
+    to: Booking
+    toCardinality: zero-or-more
+    label: holds
+"#;
+        let model = test_model(source);
         let declared = declared_entity_names(&model.entities);
         let bus: Vec<_> = model
             .entities
@@ -474,30 +482,45 @@ erDiagram
     }
     use super::*;
     use crate::bus::{declared_entity_names, entity_to_bus_entity};
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn help() -> DictionaryHelp {
-        let model = parse_erd(
-            r#"
-erDiagram
-    Compound {
-        string id PK
-        string smiles UK
-        decimal molecular_weight OPTIONAL
-        string registered_by_id FK
-    }
-    CompoundAlias {
-        string id PK
-        string compound_id FK
-        string alias_name
-    }
-    User {
-        string id PK
-        string email UK
-    }
+        let model = test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
+      - name: registered_by_id
+        type: string
+        fk: true
+  - name: CompoundAlias
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: compound_id
+        type: string
+        fk: true
+      - name: alias_name
+        type: string
+  - name: User
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
 "#,
-            &Language::load(),
         );
         let declared = declared_entity_names(&model.entities);
         let bus: Vec<_> = model

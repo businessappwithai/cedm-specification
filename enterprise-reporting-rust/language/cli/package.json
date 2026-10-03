@@ -1,14 +1,14 @@
 {
   "name": "@erdwithai/eml-cli",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Build applications from an EML (.mmd) model describing an ERD, business rules, and workflows.",
+  "description": "Build enterprise reporting code from a model (.eml.yaml) describing an ERD, business rules, and workflows.",
   "bin": {
     "eml": "./eml.ts"
   },
   "scripts": {
     "start": "bun eml.ts",
-    "validate:examples": "bun eml.ts validate -i ../examples/crm.eml.mmd",
+    "validate:examples": "bun eml.ts validate -i ../examples/crm.eml.yaml",
     "typecheck": "tsc --noEmit",
     "lint": "biome check ."
   },

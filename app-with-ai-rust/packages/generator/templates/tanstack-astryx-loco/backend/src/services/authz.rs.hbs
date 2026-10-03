@@ -1,4 +1,4 @@
-//! Authorisation: the dictionary's table grants, plus what `%%rbac` declared.
+//! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
 //! Generated: {{now}}
 //! Project: {{project.name}}
@@ -35,7 +35,7 @@
 //! 1. **May this role reach the table at all?** `sys_access`, above — the
 //!    dictionary's own grant, through window → tab → table.
 //! 2. **May this role perform this operation on it?** `sys_operation_access`,
-//!    written from the model's `%%rbac` directives. A `(table, operation)` pair
+//!    written from the model's access rules. A `(table, operation)` pair
 //!    with no rows is *unrestricted*, which is what keeps the directive
 //!    additive: a model declaring none behaves exactly as it did before, and a
 //!    database predating the migration that created the table keeps serving.
@@ -56,7 +56,7 @@ use uuid::Uuid;
 use crate::errors::{AppError, AppResult};
 use crate::models::_entities::users;
 
-/// One operation a `%%rbac` directive can restrict.
+/// One operation an access rule can restrict.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Operation {
     Create,
@@ -88,7 +88,7 @@ impl Operation {
 ///
 /// One lookup rather than one per check. `table_access` used to re-query
 /// `is_master_role` on every call and never fetched the role *names*, which the
-/// `%%rbac` rules are written against.
+/// access rules are written against.
 #[derive(Clone, Debug, Default)]
 pub struct Principal {
     pub sys_user_id: Option<Uuid>,
@@ -227,7 +227,7 @@ pub async fn table_access(
 /// Refuse the request unless the principal may perform `op` on the table.
 ///
 /// Two gates, in order. The dictionary's grant decides whether the table is
-/// reachable at all; the model's `%%rbac` rules then decide whether this
+/// reachable at all; the model's access rules then decide whether this
 /// particular operation on it is open to one of the roles held.
 ///
 /// **No rows in `sys_operation_access` for the pair means unrestricted.** Not
@@ -318,7 +318,7 @@ pub async fn require_read(
 /// 1. **`sys_access`** — the dictionary's grant, through role → window → tab →
 ///    table. A principal with no `sys_user` link holds no roles and so reaches
 ///    nothing, exactly as `table_access` returns `Access::None` for one.
-/// 2. **`sys_operation_access`** — the model's `%%rbac` read rules. A table no
+/// 2. **`sys_operation_access`** — the model's `read` access rules. A table no
 ///    rule names is unrestricted; a table some rule names is readable only by a
 ///    role the rules name. Master bypasses this one, as it bypasses every role
 ///    rule.
@@ -417,11 +417,11 @@ pub async fn require_write(
 /// Two questions, and keeping them apart is the whole point of this function:
 ///
 /// * **Does the move exist?** `sys_workflow_transitions` carries one row per
-///   edge the model's `%%workflow ... kind: state` diagram drew. A write moving
+///   edge the model's state machine declares. A write moving
 ///   a record to a state no edge reaches is refused **for every caller, the
 ///   master role included** — an edge the diagram never drew is not a
 ///   permission an administrator lacks, it is a move that does not exist.
-/// * **May this caller make it?** `sys_transition_access`, from `%%rbac`. That
+/// * **May this caller make it?** `sys_transition_access`, from the access rules. That
 ///   one the master role does bypass, like every other role rule.
 ///
 /// A table with no edges at all has no state machine, so nothing is refused.
@@ -569,7 +569,7 @@ fn is_identifier(value: &str) -> bool {
 /// Did this query fail only because the table is not there yet?
 ///
 /// The permissive default these lookups carry — "no rows means no restriction"
-/// — is deliberate and documented: it is what makes `%%rbac` additive, and it
+/// — is deliberate and documented: it is what makes the access rules additive, and it
 /// is what lets a database predating m0009 keep serving. It was applied to
 /// *every* error, though, which is a different thing entirely: a timeout, a
 /// dropped connection or a deadlock also produced "no rows", and so also
@@ -624,7 +624,7 @@ fn forbidden(table_name: &str, verb: &str) -> AppError {
 }
 
 /// The model said so, rather than the dictionary. Worth a different sentence:
-/// an administrator looking at this can go and read the `%%rbac` directive.
+/// an administrator looking at this can go and read the access rule.
 fn restricted(table_name: &str, verb: &str) -> AppError {
     AppError::Forbidden(format!(
         "'{table_name}' restricts {verb} to roles your account does not hold"

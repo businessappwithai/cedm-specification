@@ -1,16 +1,23 @@
 /**
- * check-spec.mjs — verify llms-full.txt against the published checker.
+ * check-spec.mjs — verify the published protocol documents against the
+ * published validator.
  *
  * Two claims the specification makes about itself, both mechanical:
  *
- *   1. "Every example in this document is a complete model that the checker
+ *   1. "Every complete example in this document is a model that the validator
  *      accepts with zero errors and zero warnings" (the file's own header).
- *   2. Every type alias, modifier, cardinality operator, hook type, action
- *      type, step contract, %%meta key and state-machine code it documents
- *      behaves the way it says (sections 3 to 8).
+ *   2. Every type alias, flag, cardinality pair, hook event, action type, step
+ *      contract, state-machine code, access rule and dictionary derivation it
+ *      documents behaves the way it says (sections 3 to 8).
  *
- * No dependencies, no build step: it imports guide/checker.js, which is the
- * same engine the command line runs.
+ * No dependencies, no build step: it imports guide/model-yaml.js, which is the
+ * same reader, schema, checker and fixer the command line runs, and for the
+ * dictionary claims assets/js/appwithai-loco.js, the platform's own generator
+ * bundled for the browser — the one the deployable download runs.
+ *
+ * A probe is built as data and serialised as JSON, which is a YAML document the
+ * reader accepts as it stands — so each one states exactly the construct under
+ * test and nothing a hand-written string could get subtly wrong.
  *
  *   node scripts/check-spec.mjs
  */
@@ -19,373 +26,540 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { check, AUTO_FIXABLE, LANGUAGE_VERSION } from "../guide/checker.js";
-import { checkAndFix } from "../guide/fixer.js";
+import { validate, fix, LANGUAGE_VERSION } from "../guide/model-yaml.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const validatorSource = readFileSync(root + "guide/model-yaml.js", "utf8");
+
+/* The fixer's own set, read out of the published module rather than restated:
+   the module does not export it, and a list written here would be a second
+   statement of a fact the module already makes. */
+const fixableMatch = /var AUTO_FIXABLE_CODES = new Set\(\[([^\]]*)\]\)/.exec(validatorSource);
+if (!fixableMatch) throw new Error("model-yaml.js no longer declares AUTO_FIXABLE_CODES");
+const AUTO_FIXABLE = [...fixableMatch[1].matchAll(/"(EML\d{3})"/g)].map((m) => m[1]);
 
 /* ---------------------------------------------- 1. the document's examples */
 
-const spec = readFileSync(root + "llms-full.txt", "utf8").split("\n");
-const blocks = [];
-let current = null, start = 0;
-spec.forEach((line, i) => {
-  if (current === null && line.trim() === "```mermaid") { current = []; start = i + 1; return; }
-  if (current !== null && line.trim() === "```") { blocks.push({ start, src: current.join("\n") }); current = null; return; }
-  if (current !== null) current.push(line);
-});
+const specText = readFileSync(root + "llms-full.txt", "utf8");
+const spec = specText.split("\n");
+
+/** Every ```yaml fence that states a complete model — one that opens `eml:`. */
+function completeModels(text) {
+  const out = [];
+  const fence = /```yaml\n([\s\S]*?)```/g;
+  for (let m = fence.exec(text); m; m = fence.exec(text)) {
+    if (/^eml:\s*"1\.0"/m.test(m[1])) out.push({ line: text.slice(0, m.index).split("\n").length + 1, src: m[1] });
+  }
+  return out;
+}
+
+/* The interactive protocol's Phase 3 seed declares every entity before any
+   field has been walked; its text says to expect one EML125 per relationship
+   and nothing else, so that is what it is held to. Recognised by its first
+   line, never by position. */
+const SEED = "# Phase 3 seed:";
 
 let exampleFailures = 0;
-for (const block of blocks) {
-  const report = check(block.src);
-  if (report.counts.errors || report.counts.warnings) {
-    exampleFailures++;
-    console.log(`FAIL  mermaid example at line ${block.start}: ${JSON.stringify(report.counts)}`);
-    for (const issue of report.issues) console.log(`        ${issue.severity} ${issue.code} line ${issue.line} — ${issue.message}`);
+let exampleCount = 0;
+for (const [file, text] of [
+  ["llms-full.txt", specText],
+  ["llmdetailed.txt", readFileSync(root + "llmdetailed.txt", "utf8")],
+  ["llmtextenhancement.txt", readFileSync(root + "llmtextenhancement.txt", "utf8")],
+  ["llmdetailedenhancement.txt", readFileSync(root + "llmdetailedenhancement.txt", "utf8")],
+]) {
+  for (const block of completeModels(text)) {
+    exampleCount++;
+    const result = validate(block.src);
+    const codes = result.diagnostics.map((d) => d.code);
+    const relationships = result.document?.relationships?.length ?? 0;
+    const clean = block.src.startsWith(SEED)
+      ? result.ok && relationships > 0 && codes.length === relationships && codes.every((c) => c === "EML125")
+      : result.ok && codes.length === 0;
+    if (!clean) {
+      exampleFailures++;
+      console.log(`FAIL  ${file}: model at line ${block.line}`);
+      for (const d of result.diagnostics) console.log(`        ${d.severity} ${d.code} ${d.line}:${d.column} — ${d.message}`);
+    }
   }
 }
-console.log(`${blocks.length} mermaid examples, ${exampleFailures} not clean`);
+console.log(`${exampleCount} complete models across the four documents, ${exampleFailures} not clean`);
 
 /* ------------------------------------------- 2. the claims it makes in prose */
 let pass = 0, fail = 0;
 
 /*
- * The probes below are synthetic — `Thing { string id PK; string col_a }` and a
- * directive under test — built to ask one question each: does `varchar` alias to
- * `string`, is `beforeUpdate` a hook type, does `}o--||` parse. They are not
- * models anybody would deliver, and they carry no help text, so EML151-EML153
- * fire on every one of them and say nothing about the claim being tested. They
- * are excluded here and nowhere else: the *authored* examples above are still
- * held to zero warnings, help included, because those are what a reader copies.
+ * The probes below are synthetic, built to ask one question each: does
+ * `varchar` alias to `string`, is `beforeUpdate` a hook event, is
+ * `zero-or-one`/`zero-or-more` a pair the language defines. They carry no help
+ * text, so EML151-EML153 fire on every one of them and say nothing about the
+ * claim being tested. They are excluded here and nowhere else: the authored
+ * examples above are still held to zero diagnostics, help included, because
+ * those are what a reader copies.
  */
 const HELP_CODES = new Set(["EML151", "EML152", "EML153"]);
-/* `check` reports under `issues`, `checkAndFix` under `remaining`. */
-const substantive = (r) => (r.issues ?? r.remaining ?? []).filter((i) => !HELP_CODES.has(i.code));
+const substantive = (diagnostics) => diagnostics.filter((d) => !HELP_CODES.has(d.code));
 
-const t = (name, src, expect = "clean") => {
-  const r = check(src);
+/** A probe: `expect` is "clean", or the code that must be reported. */
+const t = (name, doc, expect = "clean") => {
+  const r = validate(typeof doc === "string" ? doc : JSON.stringify(doc, null, 2));
+  const found = substantive(r.diagnostics);
   const bad = expect === "clean"
-    ? r.counts.errors > 0 || substantive(r).some((i) => i.severity === "warning")
-    : !r.issues.some((i) => i.code === expect);
+    ? !r.ok || found.some((d) => d.severity !== "info")
+    : !r.diagnostics.some((d) => d.code === expect);
   if (bad) {
     fail++;
-    console.log(`FAIL ${name} -> ${JSON.stringify(r.counts)} ${r.issues.map((i) => i.code + ":" + i.message).slice(0,3).join(" | ")}`);
+    console.log(`FAIL ${name} -> ${r.diagnostics.map((d) => `${d.severity} ${d.code}: ${d.message}`).slice(0, 3).join(" | ")}`);
   } else pass++;
 };
 const say = (cond, label) => { if (cond) pass++; else { fail++; console.log("FAIL  " + label); } };
-const erd = (body, extra = "") => `%%meta name: Audit\n%%meta kind: erd\n${extra}erDiagram\n${body}\n`;
+
+const key = { name: "id", type: "uuid", pk: true };
+const thing = (...attributes) => ({ name: "Thing", attributes: [key, ...attributes] });
+const model = (parts) => ({ eml: "1.0", name: "Audit", ...parts });
 
 // --- 1. version and auto-fixable list (header + §8.3) -----------------------
-const expectedFixable = [
-  "EML001", "EML103", "EML112", "EML114", "EML117", "EML287", "EML421", "EML422",
-];
-say(LANGUAGE_VERSION === "1.2.0", `header states EML version 1.2.0 (checker says ${LANGUAGE_VERSION})`);
-say(
-  AUTO_FIXABLE.join(",") === expectedFixable.join(","),
-  `section 8.3 lists every auto-repair (checker says ${AUTO_FIXABLE.join(", ")})`
-);
-/* The heading counts them in words, so it goes stale silently otherwise. The
-   word is derived from the checker's own set rather than written here: pinned
-   to "seven", this assertion failed on a document that had already been
-   corrected to "eight", and would have passed one claiming "nine". */
-const NUMBER_WORDS = [
-  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-  "nine", "ten", "eleven", "twelve",
-];
+const expectedFixable = ["EML001", "EML103", "EML112", "EML114", "EML117", "EML287", "EML421", "EML422"];
+say(LANGUAGE_VERSION === "2.0.0", `the validator reports language version 2.0.0 (it says ${LANGUAGE_VERSION})`);
+say(specText.includes(`**Language version**: ${LANGUAGE_VERSION}`),
+  `the header states the language version the validator reports (${LANGUAGE_VERSION})`);
+say(AUTO_FIXABLE.join(",") === expectedFixable.join(","),
+  `section 8.3 lists every auto-repair (the fixer says ${AUTO_FIXABLE.join(", ")})`);
+/* The heading counts them in words, so it goes stale silently otherwise. */
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const countWord = NUMBER_WORDS[AUTO_FIXABLE.length] ?? String(AUTO_FIXABLE.length);
-const specBody = spec.join("\n");
-say(
-  spec.includes(`### 8.3 The ${countWord} auto-repairs`),
-  `section 8.3's heading names the right number (expected "${countWord}")`
-);
-for (const code of expectedFixable)
-  say(new RegExp(`^\\| \`${code}\` \\|.*\\|$`, "m").test(specBody), `section 8.3's table carries a row for ${code}`);
+say(specText.includes(`### 8.3 The ${countWord} auto-repairs`),
+  `section 8.3's heading names the right number (expected "${countWord}")`);
+for (const code of AUTO_FIXABLE)
+  say(new RegExp(`^\\| \`${code}\` \\|.*\\|$`, "m").test(specText), `section 8.3's table carries a row for ${code}`);
 
-// --- 2. §3.2 types: every alias the doc lists must not raise EML115 ---------
+// --- 2. §3.2 types: every alias the document lists is accepted --------------
 const ALIASES = {
-  string: ["string","varchar","char","uuid","guid","id","email","url","phone","password","color"],
-  text: ["text","longtext"],
-  integer: ["integer","int","bigint","smallint"],
-  decimal: ["decimal","float","double","number","money","amount"],
-  boolean: ["boolean","bool"],
+  string: ["string", "varchar", "char", "uuid", "guid", "id", "email", "url", "phone", "password", "color"],
+  text: ["text", "longtext"],
+  integer: ["int", "integer", "bigint", "smallint"],
+  decimal: ["number", "decimal", "float", "double", "money", "amount"],
+  boolean: ["bool", "boolean"],
   date: ["date"],
-  datetime: ["datetime","timestamp","time"],
-  json: ["json","jsonb","object","array"]
+  datetime: ["datetime", "timestamp", "time"],
+  json: ["json", "jsonb", "object", "array"],
 };
-for (const [canon, aliases] of Object.entries(ALIASES))
-  for (const a of aliases)
-    t(`type alias ${a} (${canon})`, erd(`    Thing {\n        string id PK\n        ${a} col_a\n    }`));
-
-// --- 3. §3.3 modifiers ------------------------------------------------------
-for (const m of ["PK","FK","UK","UNIQUE","OPTIONAL","NULL"]) {
-  const body = m === "PK"
-    ? `    Thing {\n        string id PK\n    }`
-    : m === "FK"
-      ? `    Other {\n        string id PK\n    }\n    Thing {\n        string id PK\n        string other_id FK\n    }\n    Other ||--o{ Thing : "owns"`
-      : `    Thing {\n        string id PK\n        string col_a ${m}\n    }`;
-  t(`modifier ${m}`, erd(body));
+for (const [canon, aliases] of Object.entries(ALIASES)) {
+  for (const alias of aliases) {
+    t(`type alias ${alias} (${canon})`, model({ entities: [thing({ name: "col_a", type: alias })] }));
+    say(new RegExp(`\\|[^\\n]*\`${alias}\``).test(specText), `section 3.2 lists the alias ${alias}`);
+  }
 }
-t("unknown modifier raises EML118", erd(`    Thing {\n        string id PK\n        string col_a UNQIUE\n    }`), "EML118");
+t("a length follows the type", model({ entities: [thing({ name: "col_a", type: "string(120)" })] }));
+t("an unknown type is EML115", model({ entities: [thing({ name: "col_a", type: "varchr" })] }), "EML115");
 
-// --- 4. §3.4 all eight cardinality operators --------------------------------
-for (const op of ["||--||","|o--o|","||--o{","||--|{","}o--||","}|--||","}o--o{","}|--|{"])
-  t(`cardinality ${op}`, erd(`    Alpha {\n        string id PK\n    }\n    Beta {\n        string id PK\n    }\n    Alpha ${op} Beta : "relates"`));
+// --- 3. §3.3 flags ----------------------------------------------------------
+t("flags pk, fk, unique and optional", model({
+  entities: [
+    { name: "Other", attributes: [key] },
+    thing({ name: "other_id", type: "uuid", fk: true }, { name: "code", type: "string", unique: true },
+      { name: "note", type: "string", optional: true }),
+  ],
+  relationships: [{ from: "Other", fromCardinality: "exactly-one", to: "Thing", toCardinality: "zero-or-more" }],
+}));
+t("a flag the language does not have is refused by the schema",
+  model({ entities: [thing({ name: "col_a", type: "string", uniqe: true })] }), "SCHEMA");
+t("two primary keys are EML113", model({ entities: [thing({ name: "code", type: "string", pk: true })] }), "EML113");
 
-// §3.4 — a spelling outside those eight is dropped, and only EML502 shows it.
-const related = (op) => erd(`    Alpha {\n        string id PK\n    }\n    Beta {\n        string id PK\n        string alpha_id FK\n    }\n    Alpha ${op} Beta : "relates"`);
-t("a recognised operator registers the relationship", related("||--o{"));
-for (const op of ["||--o|", "|o--|{", "}o--|{", "}|--o{"])
-  t(`the Mermaid-legal but unread operator ${op} loses the relationship — EML502`, related(op), "EML502");
+// --- 4. §3.4 the eight cardinality pairs ------------------------------------
+const PAIRS = [
+  ["exactly-one", "exactly-one"], ["zero-or-one", "zero-or-one"], ["exactly-one", "zero-or-more"],
+  ["exactly-one", "one-or-more"], ["zero-or-more", "exactly-one"], ["one-or-more", "exactly-one"],
+  ["zero-or-more", "zero-or-more"], ["one-or-more", "one-or-more"],
+];
+const related = (from, to) => model({
+  entities: [{ name: "Alpha", attributes: [key] },
+    { name: "Beta", attributes: [key, { name: "alpha_id", type: "uuid", fk: true }] }],
+  relationships: [{ from: "Alpha", fromCardinality: from, to: "Beta", toCardinality: to }],
+});
+for (const [from, to] of PAIRS) {
+  const r = validate(JSON.stringify(related(from, to)));
+  say(r.ok && !r.diagnostics.some((d) => d.code === "SCHEMA"), `cardinality pair ${from}/${to} is a relationship`);
+  say(new RegExp(`\\| \`${from}\` \\| \`${to}\` \\|`).test(specText), `section 3.4 tabulates ${from}/${to}`);
+}
+t("a pair outside those eight is refused by the schema", related("zero-or-one", "zero-or-more"), "SCHEMA");
 
-// --- 5. §5.1 the thirteen hook types ---------------------------------------
-const HOOKS = ["beforeCreate","afterCreate","beforeUpdate","afterUpdate","beforeDelete","afterDelete",
-  "beforeRead","afterRead","beforeList","afterList","beforeQuery","afterQuery","customValidate"];
-for (const h of HOOKS)
-  t(`hook ${h}`, `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n    }\n\n%%meta name: Audit Hooks\n%%meta kind: workflow\n%%workflow AuditHooks entity: Thing kind: hook\nflowchart TD\n    A[Request] --> B[${h}: handlerName]\n    B --> C[Response]\n\n    %%hook ${h} handlerName on Thing[field: name]\n`);
+// --- 5. §5.1 the thirteen hook events ---------------------------------------
+const HOOKS = ["beforeCreate", "afterCreate", "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete",
+  "beforeRead", "afterRead", "beforeList", "afterList", "beforeQuery", "afterQuery", "customValidate"];
+for (const event of HOOKS) {
+  t(`hook event ${event}`, model({
+    entities: [thing({ name: "name", type: "string" })],
+    hooks: [{ entity: "Thing", event, handler: "handlerName", fields: ["name"] }],
+  }));
+  say(specText.includes(`\`${event}\``), `section 5.1 names the hook event ${event}`);
+}
+t("a hook event outside the thirteen is refused", model({
+  entities: [thing({ name: "name", type: "string" })],
+  hooks: [{ entity: "Thing", event: "beforeSave", handler: "handlerName" }],
+}), "SCHEMA");
 
-// --- 6. §4.2 the three action types -----------------------------------------
-const ACTIONS = {
-  "trigger-workflow": 'workflow: AuditSaga message: go',
-  "validation-error": "message: nope",
-  transform: "field: name value: x message: ok"
-};
-for (const [type, keys] of Object.entries(ACTIONS))
-  t(`action ${type}`, `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n    }\n\n%%meta name: Audit Rules\n%%meta kind: rules\n%%rule auditRule on Thing event: beforeCreate priority: 10\nflowchart TD\n    A([Start]) --> B{name == "x"?}\n    B -->|Yes| C[Do it]\n    B -->|No| D[Skip it]\n    C --> Z([End])\n    D --> Z\n\n    %%action doIt ${type} when: name == "x" ${keys}\n\n%%meta name: Audit Saga\n%%meta kind: workflow\n%%workflow AuditSaga entity: Thing kind: saga${type === "trigger-workflow" ? " trigger: rule" : ""}\nflowchart TD\n    S([Start]) --> U[Stamp it]\n    U --> E([End])\n\n    %%step U UpdateEntity field: name value: stamped\n`);
+// --- 6. §4 the three action types --------------------------------------------
+const ruleWith = (action, sagas = []) => model({
+  entities: [thing({ name: "name", type: "string" })],
+  rules: [{
+    name: "auditRule", entity: "Thing", event: "beforeCreate", priority: 10,
+    nodes: [
+      { id: "A", label: "Start", type: "start" },
+      { id: "B", label: 'name == "x"?', type: "decision" },
+      { id: "C", label: "Do it", type: "expression" },
+      { id: "Z", label: "End", type: "end" },
+    ],
+    edges: [{ from: "A", to: "B" }, { from: "B", to: "C", label: "Yes" }, { from: "B", to: "Z", label: "No" }, { from: "C", to: "Z" }],
+    actions: [action],
+  }],
+  sagas,
+});
+const stampSaga = [{ name: "AuditSaga", entity: "Thing", trigger: "rule",
+  steps: [{ id: "U", type: "UpdateEntity", label: "Stamp it", properties: { field: "name", value: "stamped" } }] }];
+t("action trigger-workflow", ruleWith({ name: "doIt", type: "trigger-workflow", when: 'name == "x"', props: { workflow: "AuditSaga", message: "go" } }, stampSaga));
+t("action validation-error", ruleWith({ name: "doIt", type: "validation-error", when: 'name == "x"', props: { message: "nope" } }));
+t("action transform", ruleWith({ name: "doIt", type: "transform", when: 'name == "x"', props: { field: "name", value: "y", message: "ok" } }));
+for (const type of ["trigger-workflow", "validation-error", "transform"])
+  say(specText.includes(`\`${type}\``), `section 4 names the action type ${type}`);
+t("a camelCase condition is EML287", ruleWith({ name: "doIt", type: "validation-error", when: 'fullName == "x"', props: { message: "nope" } }), "EML287");
+t("a rule-triggered saga no rule names is EML286", model({ entities: [thing({ name: "name", type: "string" })], sagas: stampSaga }), "EML286");
 
-// --- 7. §5.3 the seven step types, exactly as documented --------------------
-const saga = (steps, nodes) => `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n        integer qty\n    }\n    Other {\n        string id PK\n        string thing_id FK\n        string name\n    }\n    Thing ||--o{ Other : "spawns"\n\n%%meta name: Audit Saga\n%%meta kind: workflow\n%%workflow AuditSaga entity: Thing kind: saga\nflowchart TD\n${nodes}\n\n${steps}\n`;
-t("step CreateEntity", saga('    %%step B CreateEntity entity: Other as: newOtherId fields: {"thing_id":"id","name":"name"}', "    A([Start]) --> B[Create]\n    B --> Z([End])"));
-t("step UpdateEntity", saga("    %%step B UpdateEntity field: name value: stamped", "    A([Start]) --> B[Update]\n    B --> Z([End])"));
-t("step DeleteEntity (no required keys)", saga("    %%step B DeleteEntity entity: Other targetField: thing_id", "    A([Start]) --> B[Delete]\n    B --> Z([End])"));
-t("step Formula multiply", saga("    %%step B Formula target: doubled source: qty operation: multiply operand: 2", "    A([Start]) --> B(Compute)\n    B --> Z([End])"));
-t("step Formula set", saga("    %%step B Formula target: label operation: set value: hello", "    A([Start]) --> B(Compute)\n    B --> Z([End])"));
-t("step Formula copy", saga("    %%step B Formula target: copied operation: copy source: name", "    A([Start]) --> B(Compute)\n    B --> Z([End])"));
-t("step Decision inline table", saga('    %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Qty","field":"qty"}],"outputs":[{"id":"o1","name":"Band","field":"band"}],"rules":[{"_id":"hi","i1":"> 10","o1":"\'high\'"},{"_id":"rest","i1":"","o1":"\'low\'"}]}', "    A([Start]) --> B{Decide}\n    B --> Z([End])"));
-t("step REST url closed up to its key", saga("    %%step B REST method: POST url:https://hooks.example.com/notify", "    A([Start]) --> B(Call)\n    B --> Z([End])"));
-// Both spellings are accepted now. The parser used to end a value at the next
-// `<key>:` token, and `https:` looked like one, so the spaced form raised
-// EML262 + EML268 for a line that read perfectly correctly. It recognises a
-// scheme and reads through it now — §5.3 says so, and this is what holds it.
-t("step REST with a space before https", saga("    %%step B REST method: POST url: https://hooks.example.com/notify", "    A([Start]) --> B(Call)\n    B --> Z([End])"));
-t("step Agent needs agentId", saga("    %%step B Agent agentId: triage-v1", "    A([Start]) --> B(Agent)\n    B --> Z([End])"));
-t("step Agent without agentId raises EML262", saga("    %%step B Agent", "    A([Start]) --> B(Agent)\n    B --> Z([End])"), "EML262");
-
-// --- 8. §7 %%meta keys -------------------------------------------------------
-for (const [k, v] of [["version","1.0.0"],["entity","Thing"],["stack","tanstack-start-nestjs"]])
-  t(`meta key ${k}`, `%%meta name: Audit\n%%meta kind: erd\n%%meta ${k}: ${v}\nerDiagram\n    Thing {\n        string id PK\n    }\n`);
-
-// --- 9. §5.2 state machine rules --------------------------------------------
-const state = (sd, extra = "") => `%%meta name: Audit\n%%meta kind: erd\n%%enum ThingStatus: draft, live, done\nerDiagram\n    Thing {\n        string id PK\n        string status\n    }\n%%field Thing.status enum: ThingStatus\n\n%%meta name: Audit Lifecycle\n%%meta kind: workflow\n%%workflow ThingLifecycle entity: Thing kind: state\nstateDiagram-v2\n${sd}\n${extra}`;
-t("state machine, enum-backed, initial and terminal", state("    [*] --> draft\n    draft --> live : publish\n    live --> done : finish\n    done --> [*]"));
-t("no initial transition raises EML421", state("    draft --> live : publish\n    live --> done : finish\n    done --> [*]"), "EML421");
-t("no terminal state raises EML422", state("    [*] --> draft\n    draft --> live : publish\n    live --> done : finish"), "EML422");
-t("a state missing from the matched enum raises EML426", state("    [*] --> draft\n    draft --> live : publish\n    live --> archived : archive\n    archived --> [*]"), "EML426");
-t("an enum value no state uses raises EML427", state("    [*] --> draft\n    draft --> live : publish\n    live --> archived : archive\n    archived --> [*]"), "EML427");
-t("a machine with no enum at all raises EML428", `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string status\n    }\n\n%%meta name: Audit Lifecycle\n%%meta kind: workflow\n%%workflow ThingLifecycle entity: Thing kind: state\nstateDiagram-v2\n    [*] --> draft\n    draft --> live : publish\n    live --> done : finish\n    done --> [*]\n`, "EML428");
-
-// --- 10. §6 rbac on a transition and on CRUD --------------------------------
-t("rbac on a transition", state("    [*] --> draft\n    draft --> live : publish\n    live --> done : finish\n    done --> [*]", "\n    %%rbac role:editor|admin on Thing.publish\n"));
-t("rbac on CRUD", erd(`    Thing {\n        string id PK\n    }`) + "\n%%rbac role:admin on Thing.*\n");
-t("rbac on an unknown target raises EML214", state("    [*] --> draft\n    draft --> live : publish\n    live --> done : finish\n    done --> [*]", "\n    %%rbac role:editor on Thing.teleport\n"), "EML214");
-
-// --- 11. §3.6 directives -----------------------------------------------------
-t("enum, field, index, category", `%%meta name: Audit\n%%meta kind: erd\n%%enum ThingStatus: draft, live\n%%category name: Core; description: The things; icon: Box; entities: Thing\nerDiagram\n    Thing {\n        string id PK\n        string status\n        string code\n    }\n%%field Thing.status enum: ThingStatus\n%%index Thing(status)\n%%index Thing(code) unique\n`);
-t("%%field naming a missing enum raises EML501", `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string status\n    }\n%%field Thing.status enum: Nowhere\n`, "EML501");
-
-/* --------------------------------- 3. the traps the spec now warns about ---- */
-
-// §5.2 — the machine tracks a column called status / state / stage (EML500).
-const machine = (entity, extra = "") => `%%meta name: Audit\n%%meta kind: erd\n%%enum ThingStatus: draft, live, done\nerDiagram\n    Thing {\n        string id PK\n        string ${entity}\n    }\n${extra}\n%%meta name: Audit Lifecycle\n%%meta kind: workflow\n%%workflow ThingLifecycle entity: Thing kind: state\nstateDiagram-v2\n    [*] --> draft\n    draft --> live : publish\n    live --> done : finish\n    done --> [*]\n`;
-t("a lifecycle column called status is accepted", machine("status", "%%field Thing.status enum: ThingStatus"));
-t("a lifecycle column called approval_status raises EML500", machine("approval_status", "%%field Thing.approval_status enum: ThingStatus"), "EML500");
+// --- 7. §5.3 the saga step types --------------------------------------------
+const saga = (step) => model({
+  entities: [
+    thing({ name: "name", type: "string" }, { name: "qty", type: "integer" }),
+    { name: "Other", attributes: [key, { name: "thing_id", type: "uuid", fk: true }, { name: "name", type: "string" }] },
+  ],
+  relationships: [{ from: "Thing", fromCardinality: "exactly-one", to: "Other", toCardinality: "zero-or-more" }],
+  sagas: [{ name: "AuditSaga", entity: "Thing", steps: Array.isArray(step) ? step : [step] }],
+});
+const step = (type, properties, id = "B") => ({ id, type, label: type, properties });
+t("step CreateEntity", saga(step("CreateEntity", { entity: "Other", as: "newOtherId", fields: '{"thing_id":"id","name":"name"}' })));
+t("step UpdateEntity", saga(step("UpdateEntity", { field: "name", value: "stamped" })));
+t("step DeleteEntity", saga(step("DeleteEntity", { entity: "Other", targetField: "thing_id" })));
+t("step Formula multiply", saga(step("Formula", { target: "doubled", source: "qty", operation: "multiply", operand: "2" })));
+t("step Formula set", saga(step("Formula", { target: "label", operation: "set", value: "hello" })));
+t("step Formula copy", saga(step("Formula", { target: "copied", operation: "copy", source: "name" })));
+t("step Decision with an inline table", saga(step("Decision", { decisionTable:
+  '{"hitPolicy":"first","inputs":[{"id":"i1","name":"Qty","field":"qty"}],"outputs":[{"id":"o1","name":"Band","field":"band"}],"rules":[{"_id":"hi","i1":"> 10","o1":"\'high\'"},{"_id":"rest","i1":"","o1":"\'low\'"}]}' })));
+t("step REST", saga(step("REST", { method: "POST", url: "https://hooks.example.com/notify" })));
+t("step Agent with an agentId", saga(step("Agent", { agentId: "triage-v1" })));
+t("step Agent without an agentId is EML262", saga(step("Agent", {})), "EML262");
+for (const type of ["CreateEntity", "UpdateEntity", "DeleteEntity", "Formula", "Decision", "REST", "Agent"])
+  say(specText.includes(`\`${type}\``), `section 5.3 names the step type ${type}`);
 
 // §5.3 — UpdateEntity naming another entity must say which row (EML265).
-const target = (step) => `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n    }\n    Other {\n        string id PK\n        string thing_id FK\n        string name\n    }\n    Thing ||--o{ Other : "spawns"\n\n%%meta name: Audit Saga\n%%meta kind: workflow\n%%workflow AuditSaga entity: Thing kind: saga\nflowchart TD\n    A([Start]) --> B[Create]\n    B --> C[Write]\n    C --> Z([End])\n\n    %%step B CreateEntity entity: Other as: newOtherId fields: {"thing_id":"id","name":"name"}\n${step}\n`;
-t("UpdateEntity on another entity with no target raises EML265", target("    %%step C UpdateEntity entity: Other field: name value: x"), "EML265");
-t("UpdateEntity reading back an earlier step's as: id", target("    %%step C UpdateEntity entity: Other targetSource: newOtherId field: name value: x"));
-t("UpdateEntity matching a foreign key", target("    %%step C UpdateEntity entity: Other targetField: thing_id field: name value: x"));
-t("UpdateEntity on the triggering record names no entity", target("    %%step C UpdateEntity field: name value: x"));
+const created = step("CreateEntity", { entity: "Other", as: "newOtherId", fields: '{"thing_id":"id","name":"name"}' });
+t("UpdateEntity on another entity with no target is EML265", saga([created, step("UpdateEntity", { entity: "Other", field: "name", value: "x" }, "C")]), "EML265");
+t("UpdateEntity reading back an earlier step's id", saga([created, step("UpdateEntity", { entity: "Other", targetSource: "newOtherId", field: "name", value: "x" }, "C")]));
+t("UpdateEntity matching a foreign key", saga([created, step("UpdateEntity", { entity: "Other", targetField: "thing_id", field: "name", value: "x" }, "C")]));
+t("UpdateEntity on the triggering record names no entity", saga([created, step("UpdateEntity", { field: "name", value: "x" }, "C")]));
 
-// §3.5 — person columns resolve to User only by the documented list (EML502).
-const person = (column) => `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    User {\n        string id PK\n        string full_name\n    }\n    Thing {\n        string id PK\n        string ${column} FK\n    }\n    User ||--o{ Thing : "owns"\n`;
+// --- 8. §5.2 state machines --------------------------------------------------
+const lifecycle = (machine, values = ["draft", "live", "done"], column = "status") => model({
+  enums: values ? [{ name: "ThingStatus", values }] : undefined,
+  entities: [thing({ name: column, type: "string", ...(values ? { enum: "ThingStatus" } : {}) })],
+  stateMachines: [{ name: "ThingLifecycle", entity: "Thing", ...machine }],
+});
+const edges = [{ from: "draft", to: "live", trigger: "publish" }, { from: "live", to: "done", trigger: "finish" }];
+t("a state machine with its enum, an initial and a final state",
+  lifecycle({ states: ["draft", "live", "done"], initial: "draft", final: ["done"], transitions: edges }));
+t("no initial state is EML421", lifecycle({ states: ["draft", "live", "done"], final: ["done"], transitions: edges }), "EML421");
+t("no final state is EML422", lifecycle({ states: ["draft", "live", "done"], initial: "draft", transitions: edges }), "EML422");
+const archived = { states: ["draft", "live", "archived"], initial: "draft", final: ["archived"],
+  transitions: [{ from: "draft", to: "live", trigger: "publish" }, { from: "live", to: "archived", trigger: "archive" }] };
+t("a state missing from the bound enum is EML426", lifecycle(archived), "EML426");
+t("an enum value no state uses is EML427", lifecycle(archived), "EML427");
+t("a machine whose column has no enum is EML428",
+  lifecycle({ states: ["draft", "live", "done"], initial: "draft", final: ["done"], transitions: edges }, null), "EML428");
+t("a lifecycle column called approval_status is EML500",
+  lifecycle({ states: ["draft", "live", "done"], initial: "draft", final: ["done"], transitions: edges }, ["draft", "live", "done"], "approval_status"), "EML500");
+
+// --- 9. §6 access control -----------------------------------------------------
+const governed = (rbac) => ({ ...lifecycle({ states: ["draft", "live", "done"], initial: "draft", final: ["done"], transitions: edges }), rbac });
+t("rbac on a transition", governed([{ entity: "Thing", action: "publish", roles: ["editor", "admin"] }]));
+t("rbac on a CRUD operation", governed([{ entity: "Thing", action: "read", roles: ["editor"] }]));
+t("rbac on an action the entity does not have is EML214", governed([{ entity: "Thing", action: "teleport", roles: ["editor"] }]), "EML214");
+t("rbac naming an undeclared entity is EML213", governed([{ entity: "Nowhere", action: "read", roles: ["editor"] }]), "EML213");
+
+// --- 10. §3.6 enums, indexes and categories --------------------------------
+t("enum, binding, index and category", model({
+  enums: [{ name: "ThingStatus", values: ["draft", "live"] }],
+  categories: [{ name: "Core", description: "The things", icon: "box", entities: ["Thing"] }],
+  entities: [{ ...thing({ name: "status", type: "string", enum: "ThingStatus" }, { name: "code", type: "string" }),
+    indexes: [{ columns: ["status"] }, { columns: ["code"], unique: true }] }],
+}));
+t("a column naming an undeclared enum is EML144",
+  model({ entities: [thing({ name: "status", type: "string", enum: "Nowhere" })] }), "EML144");
+t("an index on a column the entity lacks is EML155",
+  model({ entities: [{ ...thing({ name: "code", type: "string" }), indexes: [{ columns: ["missing"] }] }] }), "EML155");
+
+// --- 11. §3.5 foreign keys and person columns -------------------------------
+const person = (column, related = true) => model({
+  entities: [
+    { name: "User", attributes: [key, { name: "full_name", type: "string" }] },
+    thing({ name: column, type: "uuid", fk: true }, { name: "name", type: "string" }),
+  ],
+  relationships: related ? [{ from: "User", fromCardinality: "exactly-one", to: "Thing", toCardinality: "zero-or-more" }] : [],
+});
 for (const column of ["approved_by_id", "created_by_id", "owner_id", "user_id", "manager_id"])
   t(`person column ${column} resolves to User`, person(column));
-/* A name matching no entity now falls back to a parent the model declared and
-   nothing else claims — which is what the generator does, so the checker agrees.
-   `person()` gives Thing exactly one such parent, so these resolve. */
-for (const column of ["approver_id", "assigned_to_id"])
-  t(`person column ${column} falls back to the declared parent`, person(column));
+t("an fk column not ending _id is EML114", person("assigned_to"), "EML114");
+t("a reference with no relationship behind it is EML502", person("approver_id", false), "EML502");
+t("a one-to-many with no foreign key on its many side is EML125", model({
+  entities: [{ name: "Alpha", attributes: [key] }, { name: "Beta", attributes: [key] }],
+  relationships: [{ from: "Alpha", fromCardinality: "exactly-one", to: "Beta", toCardinality: "zero-or-more" }],
+}), "EML125");
 
-/* With no relationship to fall back on, the column resolves to nothing and
-   EML502 is right again. */
-const unowned = (column) =>
-  `%%meta name: Audit\n%%meta kind: erd\nerDiagram\n    User {\n        string id PK\n        string full_name\n    }\n    Thing {\n        string id PK\n        string ${column} FK\n        string name\n    }\n`;
-for (const column of ["approver_id", "assigned_to_id"])
-  t(`person column ${column} with no declared parent — EML502`, unowned(column), "EML502");
-t("assigned_to is recognised but does not end _id — EML114", person("assigned_to"), "EML114");
+// --- 12. §3.5.1 line items --------------------------------------------------
+const invoice = (child, categories) => model({
+  entities: [{ name: "Invoice", attributes: [key, { name: "number", type: "string" }] },
+    { name: "InvoiceLine", ...child, attributes: [key, { name: "invoice_id", type: "uuid", fk: true }, { name: "amount", type: "money" }] }],
+  relationships: [{ from: "Invoice", fromCardinality: "exactly-one", to: "InvoiceLine", toCardinality: "one-or-more" }],
+  categories,
+});
+t("a line item declared with parent", invoice({ parent: "Invoice" }));
+t("a line-item shape with no parent is EML149", invoice({}), "EML149");
+t("a declared child in a category is EML150", invoice({ parent: "Invoice" }, [{ name: "Billing", entities: ["Invoice", "InvoiceLine"] }]), "EML150");
+t("a parent the model does not declare is EML147", invoice({ parent: "Receipt" }), "EML147");
 
-// §7 — %%meta stack takes one of two values (EML003).
-for (const stack of ["tanstack-start-nestjs", "openui5-odatav4"])
-  t(`%%meta stack: ${stack}`, `%%meta name: Audit\n%%meta kind: erd\n%%meta stack: ${stack}\nerDiagram\n    Thing {\n        string id PK\n    }\n`);
-t("%%meta stack carrying anything else raises EML003", `%%meta name: Audit\n%%meta kind: erd\n%%meta stack: AppWithAI EML 1.2.0\nerDiagram\n    Thing {\n        string id PK\n    }\n`, "EML003");
+// --- 13. §2 the document --------------------------------------------------------
+t("a paragraph is not a model", "The application manages orders and their lines, from draft to closed.\n", "SCHEMA");
+t("a model with no entities is refused", 'eml: "1.0"\nname: Orders\n', "SCHEMA");
+t("Markdown is not YAML", "## Entities\n- Order: the customer's order. Fields: id, status, total.\n\n## Lifecycle\ndraft → submitted\n", "YAML");
+t("a model with no name is EML001", { eml: "1.0", entities: [thing({ name: "name", type: "string" })] }, "EML001");
+t("a key the language does not have is refused", { ...model({ entities: [thing()] }), diagram: "Thing" }, "SCHEMA");
 
 console.log(`${pass} claims verified, ${fail} contradicted`);
 
-/* ------------- 4. §3.7: what the Application Dictionary makes of the ERD ---- */
+/* ------------- 3. §3.7: what the Application Dictionary makes of the model -- */
 
-/* These claims are about the generator, not the checker, so they are tested
-   against the bundled generator the browser chapter runs. */
+/* These claims are about the generated application, so they are tested against
+   the generator that builds it: assets/js/appwithai-loco.js, the platform's own
+   pipeline bundled for the browser, which is what the deployable download runs.
+   The dictionary is read out of the seed it writes, backend/seed/dictionary.sql,
+   the rows the running application reads. The model goes through the viewers'
+   reader first, as the page's download does. */
 const claimsBefore = pass;
 const failuresBefore = fail;
-const { generateFromSource } = await import("../assets/js/appwithai-wasm.js");
+const { compileForBrowser } = await import("../viewers/appwithai-model.js");
+const { generateLocoApplication } = await import("../assets/js/appwithai-loco.js");
+const locoAssets = JSON.parse(readFileSync(root + "assets/vendor/loco-assets.json", "utf8"));
 const REFERENCE = { 10: "String", 12: "Amount", 13: "ID", 14: "Text", 15: "Date", 16: "DateTime",
   19: "Table Direct", 20: "Yes-No", 24: "URL", 27: "Color", 28: "JSON", 29: "Password", 30: "Email", 31: "Phone" };
 
-const dictionary = (body, extra = "") => {
-  const source = `%%meta name: Dictionary Probe\n%%meta kind: erd\n%%enum OrderStatus: draft, placed, shipped\nerDiagram\n    Vendor {\n        string id PK\n        string name\n    }\n    Order {\n        string id PK\n${body}\n    }\n    Vendor ||--o{ Order : "supplies"\n${extra}`;
-  const built = generateFromSource({ source, name: "Probe" });
-  const order = JSON.parse(built.files["app/model.json"]).entities.find((entity) => entity.name === "Order");
-  return Object.fromEntries(order.attributes.map((attr) => [attr.name, attr.referenceId]));
-};
+/** The rows of every `INSERT INTO <table> (…) VALUES (…)` in a seed, as objects. */
+function seedRows(sql, table) {
+  const out = [];
+  const insert = new RegExp(`INSERT INTO ${table} \\(([^)]*)\\)\\s*VALUES \\(`, "g");
+  for (let m = insert.exec(sql); m; m = insert.exec(sql)) {
+    const columns = m[1].split(",").map((c) => c.trim());
+    const values = [];
+    let current = "";
+    let depth = 0;
+    for (let i = insert.lastIndex; i < sql.length; i++) {
+      const ch = sql[i];
+      if (ch === "'" && current !== null) {
+        let j = i + 1;
+        let literal = "";
+        for (; j < sql.length; j++) {
+          if (sql[j] === "'" && sql[j + 1] === "'") { literal += "'"; j++; }
+          else if (sql[j] === "'") break;
+          else literal += sql[j];
+        }
+        values.push(literal);
+        current = null;
+        i = j;
+        continue;
+      }
+      if (ch === "(") depth++;
+      if (ch === ")" && depth === 0) { if (current !== null && current.trim() !== "") values.push(current.trim()); break; }
+      if (ch === ")") depth--;
+      if (ch === "," && depth === 0) { if (current !== null) values.push(current.trim()); current = ""; continue; }
+      if (current !== null) current += ch;
+    }
+    out.push(Object.fromEntries(columns.map((column, k) => [column, values[k] === "NULL" ? null : values[k]])));
+  }
+  return out;
+}
 
-const reference = (label, column, expected, extra = "") => {
-  const refs = dictionary(`        ${column}`, extra);
-  const name = column.trim().split(/\s+/)[1];
-  const got = refs[name];
+async function generate(doc) {
+  const text = JSON.stringify(doc, null, 2);
+  const compiled = compileForBrowser(text);
+  if (!compiled.ok) throw new Error(`probe does not compile: ${JSON.stringify(compiled.diagnostics?.slice(0, 2))}`);
+  const log = console.log;
+  console.log = () => {};
+  let app;
+  try {
+    app = await generateLocoApplication({ document: compiled.document, modelText: text, name: "probe", assets: locoAssets });
+  } finally {
+    console.log = log;
+  }
+  const sql = app.files.get("backend/seed/dictionary.sql");
+  const tables = seedRows(sql, "sys_table");
+  const tableName = new Map(tables.map((t) => [t.sys_table_id, t.table_name]));
+  return {
+    tables: tables.map((t) => ({ tableName: t.table_name, description: t.description })),
+    columns: seedRows(sql, "sys_column").map((c) => ({
+      tableName: tableName.get(c.sys_table_id),
+      columnName: c.column_name,
+      referenceId: Number(c.sys_reference_id),
+      isIdentifier: c.is_identifier === "TRUE",
+      description: c.description,
+      seqNo: Number(c.seq_no),
+    })),
+  };
+}
+
+const reference = async (label, attribute, expected) => {
+  const built = await generate(model({
+    enums: [{ name: "OrderStatus", values: ["draft", "placed", "shipped"] }],
+    entities: [{ name: "Vendor", attributes: [key, { name: "name", type: "string" }] },
+      { name: "Order", attributes: [key, attribute] }],
+    relationships: [{ from: "Vendor", fromCardinality: "exactly-one", to: "Order", toCardinality: "zero-or-more" }],
+  }));
+  const got = built.columns.find((c) => c.tableName === "bus_order" && c.columnName === attribute.name)?.referenceId;
   const shown = REFERENCE[got] ?? (got >= 1000 ? "List" : got);
   if (shown === expected) pass++;
   else { fail++; console.log(`FAIL ${label} — expected ${expected}, dictionary recorded ${shown}`); }
 };
 
-reference("FK modifier plus _id makes a Table Direct lookup", "string vendor_id FK", "Table Direct");
-reference("the same column without FK is downgraded to String", "string vendor_id", "String");
-reference("a bound enumerated column becomes a List", "string status", "List", "%%field Order.status enum: OrderStatus\n");
-reference("an unbound status column is free text", "string status", "String");
-reference("the email alias reaches the dictionary", "email contact_email", "Email");
-reference("the phone alias reaches the dictionary", "phone contact_phone", "Phone");
-reference("the url alias reaches the dictionary", "url tracking_link", "URL");
-reference("the password alias reaches the dictionary", "password portal_secret", "Password");
-reference("the color alias reaches the dictionary", "color label_colour", "Color");
+await reference("fk: true on a resolving name makes a Table Direct lookup", { name: "vendor_id", type: "uuid", fk: true }, "Table Direct");
+await reference("the same column without fk is downgraded to String", { name: "vendor_id", type: "uuid" }, "String");
+await reference("a status column bound to an enum becomes a List", { name: "status", type: "string", enum: "OrderStatus" }, "List");
+await reference("an unbound status column is free text", { name: "status", type: "string" }, "String");
+await reference("the email alias reaches the dictionary", { name: "contact_email", type: "email" }, "Email");
+await reference("the phone alias reaches the dictionary", { name: "contact_phone", type: "phone" }, "Phone");
+await reference("the url alias reaches the dictionary", { name: "tracking_link", type: "url" }, "URL");
+await reference("the password alias reaches the dictionary", { name: "portal_secret", type: "password" }, "Password");
+await reference("the color alias reaches the dictionary", { name: "label_colour", type: "color" }, "Color");
 /* All five normalise to `string`, so this is what proves the alias is what the
-   dictionary reads and not the column's name — §3.2 tells the reader to write
-   `email email` rather than `string email` on the strength of it. */
-reference("a string column named like an alias is not one", "string password_hint", "String");
-reference("text becomes a memo", "text notes", "Text");
-reference("boolean becomes Yes-No", "boolean is_rush", "Yes-No");
-reference("money becomes an Amount", "money total", "Amount");
-reference("json becomes a JSON editor", "json payload", "JSON");
+   dictionary reads and not the column's name. */
+await reference("a string column named like an alias is not one", { name: "password_hint", type: "string" }, "String");
+await reference("text becomes a memo", { name: "notes", type: "text" }, "Text");
+await reference("boolean becomes Yes-No", { name: "is_rush", type: "boolean" }, "Yes-No");
+await reference("money becomes an Amount", { name: "total", type: "money" }, "Amount");
+await reference("json becomes a JSON editor", { name: "payload", type: "json" }, "JSON");
 
-/* The two downgrades are diagnostics now (EML119, EML146), and the retired
-   access-rule spelling is EML223. These assert that the vendored checker
-   actually reports what §3.7, §6 and §7 say it reports. */
-const dictionaryDiagnostics = `%%meta name: Dictionary Probe\n%%meta kind: erd\n%%enum ThingStatus: draft, live\nerDiagram\n    Vendor {\n        string id PK\n    }\n    Order {\n        string id PK\n        string vendor_id\n        string status\n    }\n    Vendor ||--o{ Order : "supplies"\n`;
-t("an unmarked reference column is reported as EML119", dictionaryDiagnostics, "EML119");
-t("an unbound status column is reported as EML146", dictionaryDiagnostics, "EML146");
-t("a %%guard written as an access rule is reported as EML223",
-  `%%meta name: Guard Probe\n%%meta kind: erd\n%%enum ThingStatus: draft, live\nerDiagram\n    Thing {\n        string id PK\n        string status\n    }\n%%field Thing.status enum: ThingStatus\n\n%%meta name: Thing Lifecycle\n%%meta kind: workflow\n%%workflow ThingLifecycle entity: Thing kind: state\nstateDiagram-v2\n    [*] --> draft\n    draft --> live : publish\n    live --> [*]\n\n    %%guard role:manager on Thing.publish\n`,
-  "EML223");
+/* The two downgrades are diagnostics (EML119, EML146), warnings and not
+   errors: the generator still runs, which is exactly why §3.7 calls them
+   mandatory. */
+const downgraded = validate(JSON.stringify(model({
+  entities: [{ name: "Vendor", attributes: [key] },
+    { name: "Order", attributes: [key, { name: "vendor_id", type: "uuid" }, { name: "status", type: "string" }] }],
+  relationships: [{ from: "Vendor", fromCardinality: "exactly-one", to: "Order", toCardinality: "zero-or-more" }],
+})));
+for (const code of ["EML119", "EML146"])
+  say(downgraded.diagnostics.some((d) => d.code === code && d.severity === "warning"), `the validator reports ${code} as a warning`);
+say(downgraded.ok, "both downgrades leave the model accepted — the generator still runs");
+for (const code of ["EML119", "EML146", "EML151", "EML152", "EML153"])
+  say(new RegExp(`^\\| \`${code}\` \\|`, "m").test(specText), `section 3.7's mandatory table carries ${code}`);
+
 /* §3.1: the columns the generator adds are its own, and declaring one is
    reported rather than carried into a CREATE TABLE that PostgreSQL refuses. */
 for (const column of ["created_at", "updated_at", "version", "deleted_by"])
-  t(`declaring ${column} is reported as EML103`,
-    `%%meta name: Managed Probe\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        datetime ${column}\n    }\n`,
-    "EML103");
+  t(`declaring ${column} is EML103`, model({ entities: [thing({ name: column, type: "datetime" })] }), "EML103");
+t("a column the generator does not manage stays quiet", model({ entities: [thing({ name: "started_at", type: "datetime" })] }));
+
 /* §8.3: both duplicate faults are repaired, and the repair keeps the stronger
    declaration rather than whichever came last. */
 {
-  const duplicated = `%%meta name: Duplicate Probe\n%%meta kind: erd\nerDiagram\n    Course {\n        string id PK\n        string title\n        string title OPTIONAL\n        string code OPTIONAL\n        string code UK\n        datetime created_at\n    }\n`;
-  const fixed = checkAndFix(duplicated);
-  say(fixed.repaired === true, "checkAndFix repairs a duplicated column and a managed one");
-  const fixedSubstantive = substantive(fixed);
-  say(fixed.counts.errors === 0 && !fixedSubstantive.some((i) => i.severity === "warning"),
-    `the repaired document is clean (${fixed.counts.errors}e/${fixedSubstantive.length}w, help codes aside)`);
-  const body = fixed.source;
-  say((body.match(/^\s*string\s+title\b/gm) ?? []).length === 1, "the duplicate title is gone");
-  say(/^\s*string\s+title\s*$/m.test(body), "title stayed required — OPTIONAL did not win");
-  say(/^\s*string\s+code\s+UK\s*$/m.test(body), "code kept the UK the second line promised");
-  say(!/created_at/.test(body), "the generator's own created_at was removed from the document");
+  const duplicated = JSON.stringify(model({ entities: [{ name: "Course", attributes: [key,
+    { name: "title", type: "string" }, { name: "title", type: "string", optional: true },
+    { name: "code", type: "string", optional: true }, { name: "code", type: "string", unique: true },
+    { name: "created_at", type: "datetime" }] }] }), null, 2);
+  const repaired = fix(duplicated);
+  say(repaired.applied.some((a) => a.code === "EML112") && repaired.applied.some((a) => a.code === "EML103"),
+    "fix repairs a duplicated column and a managed one");
+  const after = validate(repaired.text);
+  say(after.ok && !substantive(after.diagnostics).some((d) => d.severity === "warning"),
+    "the repaired document is clean, help codes aside");
+  const course = after.document.entities[0].attributes;
+  const titles = course.filter((a) => a.name === "title");
+  const code = course.find((a) => a.name === "code");
+  say(titles.length === 1, "the duplicate title is gone");
+  say(titles[0] && !titles[0].optional, "title stayed required — optional did not win");
+  say(code?.unique === true, "code kept the unique the second declaration promised");
+  say(!course.some((a) => a.name === "created_at"), "the generator's own created_at was removed");
+}
+{
+  /* EML117 fires only where the generator cannot add its own key: an entity that
+     declares `id` or a `*_id` column and marks nothing as the key. */
+  const keyless = (attributes) => fix('# the owner of the record\neml: "1.0"\nname: Audit\nentities:\n  - name: Thing\n    attributes:\n'
+    + attributes.map((a) => `      - ${a}\n`).join(""));
+  const added = keyless(["{ name: owner_id, type: uuid }  # who owns it", "{ name: name, type: string }"]);
+  const key = validate(added.text).document.entities[0].attributes.find((a) => a.pk);
+  say(added.applied.some((a) => a.code === "EML117") && key?.name === "id" && key?.type === "uuid",
+    `EML117 adds id as a uuid primary key, as section 8.3 says (${JSON.stringify(key)})`);
+  say(added.text.includes("# who owns it") && added.text.startsWith("# the owner of the record"),
+    "fix keeps the document's comments, as section 8.1 says");
+  const marked = keyless(["{ name: id, type: uuid }", "{ name: name, type: string }"]);
+  const existing = validate(marked.text).document.entities[0].attributes.filter((a) => a.pk);
+  say(existing.length === 1 && existing[0].name === "id", "EML117 marks an existing id column as the key rather than adding a second");
+  const implied = validate('eml: "1.0"\nname: Audit\nentities:\n  - name: Thing\n    attributes:\n      - { name: name, type: string }\n');
+  say(!implied.diagnostics.some((d) => d.code === "EML117"), "an entity with no id-shaped column is given the generator's own key, unreported");
 }
 
-t("a column the generator does not manage stays quiet",
-  `%%meta name: Managed Probe\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        datetime started_at\n    }\n`);
-
-t("a state column that no machine tracks stays quiet", `%%meta name: Address Probe\n%%meta kind: erd\nerDiagram\n    Address {\n        string id PK\n        string state\n        string city\n    }\n`);
-
 /* §3.7: what a reference shows in place of its uuid — the dictionary's
-   identifier columns, in declared order. Asserted against the generator rather
-   than the prose, because the table in the spec is a promise about behaviour. */
-const identifiersOf = (body) => {
-  const source = `%%meta name: Identifier Probe\n%%meta kind: erd\nerDiagram\n    Thing {\n${body}\n    }\n`;
-  const built = generateFromSource({ source, name: "Probe" });
-  const model = JSON.parse(built.files["app/model.json"]);
-  return model.dictionary.columns
-    .filter((column) => column.isIdentifier)
+   identifier columns. Asserted against the generator rather than the prose,
+   because the table in the spec is a promise about behaviour. */
+const identifiersOf = async (attributes, extraEntities = []) => {
+  const built = await generate(model({
+    entities: [...extraEntities, { name: "Thing", attributes: [key, ...attributes] }],
+    relationships: attributes.filter((a) => a.fk).map((a) => ({
+      from: a.name.replace(/_id$/, "").replace(/(^|_)(\w)/g, (_, __, c) => c.toUpperCase()),
+      fromCardinality: "exactly-one", to: "Thing", toCardinality: "zero-or-more" })),
+  }));
+  return built.columns
+    .filter((column) => column.isIdentifier && column.tableName === "bus_thing")
     .sort((a, b) => a.seqNo - b.seqNo)
     .map((column) => column.columnName);
 };
-
+const s = (name, type = "string", more = {}) => ({ name, type, ...more });
+const ref = (name) => ({ name, type: "uuid", fk: true });
+const parents = (...names) => names.map((n) => ({ name: n, attributes: [key, s("name")] }));
 const identifierCases = [
-  ["a name column names the record", "        string id PK\n        string name", ["name"]],
-  ["title is used when there is no name", "        string id PK\n        string title", ["title"]],
-  ["a person is both their names", "        string id PK\n        string first_name\n        string last_name", ["first_name", "last_name"]],
-  ["name wins over a code", "        string id PK\n        string code\n        string name", ["name"]],
-  ["a code identifies when no name exists", "        string id PK\n        string code", ["code"]],
-  ["failing all of those, the first text column", "        string id PK\n        string billing_city\n        integer size", ["billing_city"]],
-  ["the key is never an identifier", "        string id PK\n        integer size", []],
-  /* A join entity names itself from the records it joins. Without this the
-     first text column won, and every campaign member read "invited". */
-  ["a join entity is its two parents",
-    "        string id PK\n        string campaign_id FK\n        string contact_id FK\n        string member_status",
-    ["campaign_id", "contact_id"]],
-  ["only the first two parents, never four",
-    "        string id PK\n        string order_id FK\n        string product_id FK\n        string warehouse_id FK",
-    ["order_id", "product_id"]],
-  ["an entity that names itself is not a join",
-    "        string id PK\n        string name\n        string account_id FK\n        string owner_id FK",
-    ["name"]],
-  ["a person with two references is still a person",
-    "        string id PK\n        string account_id FK\n        string owner_id FK\n        string first_name\n        string last_name",
-    ["first_name", "last_name"]],
-  ["one reference is not a join, so the text column beside it wins",
-    "        string id PK\n        string contact_id FK\n        string street",
-    ["street"]],
+  ["a name column names the record", [s("name")], ["name"]],
+  ["title is used when there is no name", [s("title")], ["title"]],
+  ["a person is both their names", [s("first_name"), s("last_name")], ["first_name", "last_name"]],
+  ["name wins over a code", [s("code"), s("name")], ["name"]],
+  ["a code identifies when no name exists", [s("code")], ["code"]],
+  ["a prefixed number identifies when nothing names the record", [s("currency"), s("order_number")], ["order_number"]],
+  ["failing all of those, the first plain string column", [s("billing_city"), s("size", "integer")], ["billing_city"]],
+  ["the key is never an identifier", [s("size", "integer")], []],
+  ["a join entity is its two parents", [ref("campaign_id"), ref("contact_id"), s("member_status")], ["campaign_id", "contact_id"], parents("Campaign", "Contact")],
+  ["only the first two parents, never three", [ref("order_id"), ref("product_id"), ref("warehouse_id")], ["order_id", "product_id"], parents("Order", "Product", "Warehouse")],
+  ["an entity that names itself is not a join", [s("name"), ref("account_id"), ref("owner_id")], ["name"], parents("Account", "Owner")],
+  ["a text column outranks a join", [ref("experiment_id"), ref("reporter_id"), s("summary", "text")], ["summary"], parents("Experiment", "Reporter")],
 ];
-for (const [label, body, expected] of identifierCases) {
-  const got = identifiersOf(body);
+for (const [label, attributes, expected, extra = []] of identifierCases) {
+  const got = await identifiersOf(attributes, extra);
   say(got.join(",") === expected.join(","), `${label} (expected ${JSON.stringify(expected)}, got ${JSON.stringify(got)})`);
 }
 
-/* §3.6 and §3.7: help text is compiled, and reaches sys_column / sys_table. */
-const helped = generateFromSource({
-  source: `%%meta name: Help Probe\n%%meta kind: erd\nerDiagram\n    Vendor {\n        string id PK\n        string name\n    }\n%%entity Vendor help: A company that supplies us.\n%%field Vendor.name help: The name on the invoice, not the trading name.\n`,
-  name: "Help Probe",
-});
-const helpModel = JSON.parse(helped.files["app/model.json"]);
-const helpTable = helpModel.dictionary.tables.find((table) => table.tableName === "bus_vendor");
-const helpColumn = helpModel.dictionary.columns.find((column) => column.columnName === "name");
-say(helpTable?.description === "A company that supplies us.",
-  `%%entity help: becomes sys_table.description (${JSON.stringify(helpTable?.description)})`);
-say(helpColumn?.description === "The name on the invoice, not the trading name.",
-  `%%field help: becomes sys_column.description (${JSON.stringify(helpColumn?.description)})`);
-
-const silent = check(dictionaryDiagnostics);
-const silentWarnings = substantive(silent).filter((i) => i.severity === "warning");
-say(silent.counts.errors === 0 && silentWarnings.length === 2,
-  `both downgrades are warnings, not errors — the generator still runs (${silent.counts.errors}e/${silentWarnings.length}w)`);
+/* §3.1 and §3.7: help text is compiled, and reaches sys_column / sys_table. */
+{
+  const built = await generate(model({ entities: [{ name: "Vendor", help: "A company that supplies us.",
+    attributes: [key, { name: "name", type: "string", help: "The name on the invoice, not the trading name." }] }] }));
+  const table = built.tables.find((x) => x.tableName === "bus_vendor");
+  const column = built.columns.find((x) => x.columnName === "name" && x.tableName === "bus_vendor");
+  say(table?.description === "A company that supplies us.", `an entity's help becomes sys_table.description (${JSON.stringify(table?.description)})`);
+  say(column?.description === "The name on the invoice, not the trading name.",
+    `a column's help becomes sys_column.description (${JSON.stringify(column?.description)})`);
+}
 
 console.log(`${pass - claimsBefore} dictionary derivations verified, ${fail - failuresBefore} contradicted`);
 
-/* ------------------------------- 5. the runner §8.4 tells a model to use ---- */
+/* ------------------------------- 4. the runner §8.4 tells a model to use ---- */
 
 const runner = root + "guide/check-model.mjs";
-const specText = spec.join("\n");
-const command = "curl -sO https://www.appwithai.org/guide/check-model.mjs\nnode check-model.mjs my-business.mmd";
+const command = "curl -sO https://www.appwithai.org/guide/check-model.mjs\nnode check-model.mjs my-business.eml.yaml";
 
 const scratch = mkdtempSync(join(tmpdir(), "eml-spec-"));
-const clean = join(scratch, "clean.mmd");
-const broken = join(scratch, "broken.mmd");
-writeFileSync(clean, "%%meta name: Runner Check\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n    }\n");
-writeFileSync(broken, "%%meta name: Runner Check\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n    }\n%%index Missing(name)\n");
+const clean = join(scratch, "clean.eml.yaml");
+const broken = join(scratch, "broken.eml.yaml");
+writeFileSync(clean, JSON.stringify(model({ entities: [thing({ name: "name", type: "string" })] }), null, 2));
+writeFileSync(broken, JSON.stringify(model({ entities: [thing({ name: "name", type: "string" }), thing()] }), null, 2));
 
 const run = (file) => spawnSync(process.execPath, [runner, file, "--base", root + "guide/", "--quiet"], { encoding: "utf8" });
 const cleanRun = run(clean);
@@ -396,34 +570,38 @@ expect(specText.includes("```sh\n" + command + "\n```"), "the spec carries the t
 expect((specText.match(/check-model\.mjs/g) ?? []).length >= 4, "the command is reachable from the header, §1.3, §8.4 and §10");
 expect(existsSync(runner), "guide/check-model.mjs exists at the path the spec publishes");
 expect(cleanRun.status === 0, "check-model.mjs exits 0 on a clean model");
-expect(/OK — 0 errors/.test(cleanRun.stdout), "check-model.mjs prints the checker's own verdict");
+expect(new RegExp(`OK — 0 errors[^\\n]*\\(EML ${LANGUAGE_VERSION.replace(/\./g, "\\.")}\\)`).test(cleanRun.stdout),
+  "check-model.mjs prints the validator's own verdict, with its version");
+expect(specText.includes(`OK — 0 errors, 0 warnings, 0 notes (EML ${LANGUAGE_VERSION})`), "section 8.2 quotes that verdict line as the runner prints it");
 expect(brokenRun.status === 1, "check-model.mjs exits 1 when the generator would refuse the model");
 expect(spawnSync(process.execPath, [runner], { encoding: "utf8" }).status === 2, "check-model.mjs exits 2 when it cannot run");
 
-/* ------------------------------- 5b. the checklist audit §8.5 publishes -----
- *
- * The audit answers the question a clean report does not: is the model
- * finished. It was a repository script for most of its life — twenty-two checks
- * importing `../guide/checker.js` by relative path — so the only people who
- * could run it were the ones with a clone, and the failure it catches is
- * delivered by a language model in an environment that has neither. It is
- * published beside the checker now, and these hold it there.
- *
- * The positive case has to be a real finished model, not the two-column fixture
- * above: that one is exactly what the audit exists to fail.
- */
+/* §8.4 quotes a diagnostic as the runner prints it. Held to a real run, so a
+   change to the runner's layout cannot leave the document showing another. */
+{
+  const warned = join(scratch, "warned.eml.yaml");
+  writeFileSync(warned,
+    'eml: "1.0"\nname: Orders\nentities:\n  - name: Order\n    help: A customer\'s request to buy goods, from draft to delivery.\n    attributes:\n      - { name: id, type: uuid, pk: true }\n      - { name: status, type: string, help: Where the order is in its lifecycle. }\n');
+  const shown = spawnSync(process.execPath, [runner, warned, "--base", root + "guide/"], { encoding: "utf8" }).stdout;
+  const printed = shown.split("\n").find((line) => line.startsWith("warn  EML146"));
+  expect(printed !== undefined && specText.includes(printed.trimEnd().replace(/:\d+:\d+/, ":8:9")),
+    `section 8.4's sample diagnostic is the runner's own layout (${JSON.stringify(printed)})`);
+}
+
+/* ------------------------------- 4b. the checklist audit §8.5 publishes ----- */
 const auditor = root + "guide/audit-model.mjs";
 const runAudit = (file, ...extra) =>
   spawnSync(process.execPath, [auditor, file, "--base", root + "guide/", "--quiet", ...extra], { encoding: "utf8" });
 
-/* A bare ERD: a primary key, a name, a free-text status. The checker accepts it
-   with 0 errors — no %%rbac, no workflow, no help, no enum binding — and that
-   is the whole reason this runner exists. */
-const bare = join(scratch, "bare-erd.mmd");
-writeFileSync(bare, "%%meta name: Bare Erd\n%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n        string status\n    }\n");
+/* A bare entity list: a key, a name, a free-text status. The validator accepts
+   it with 0 errors — no rbac, no state machine, no help, no enum binding — and
+   that is the whole reason this runner exists. */
+const bare = join(scratch, "bare-model.eml.yaml");
+writeFileSync(bare, 'eml: "1.0"\nname: Bare Model\nentities:\n  - name: Thing\n    attributes:\n      - { name: id, type: uuid, pk: true }\n      - { name: name, type: string }\n      - { name: status, type: string }\n');
 
-const finishedRun = runAudit(root + "guide/models/crm.eml.mmd");
+const finishedRun = runAudit(root + "guide/models/crm.eml.yaml");
 const unfinishedRun = runAudit(bare);
+const unfinishedFull = spawnSync(process.execPath, [auditor, bare, "--base", root + "guide/"], { encoding: "utf8" });
 const unfinishedCheck = run(bare);
 
 expect(existsSync(auditor), "guide/audit-model.mjs exists at the path the spec publishes");
@@ -433,9 +611,14 @@ expect(unfinishedCheck.status === 0,
   "…and that same model passes check-model.mjs — which is why the audit is published, not optional");
 expect(spawnSync(process.execPath, [auditor], { encoding: "utf8" }).status === 2, "audit-model.mjs exits 2 when it cannot run");
 
-/* The score is a published figure: §8.5 states it and shows the line. A check
-   added or dropped without editing the document leaves the spec quoting a
-   number no run produces. */
+/* The header says a bare entity list fails "nine ways". A number in prose is a
+   claim, and this is the run it is a claim about. */
+const bareFailures = (unfinishedFull.stdout.match(/^\s+FAIL\s/gm) ?? []).length;
+const wordForBare = NUMBER_WORDS[bareFailures] ?? String(bareFailures);
+expect(specText.includes(`fails this ${wordForBare} ways`),
+  `the header's count of a bare model's failures is the audit's own (${bareFailures})`);
+
+/* The score is a published figure: §8.5 states it and shows the line. */
 const scored = /^(\d+) passed, (\d+) failed$/m.exec(finishedRun.stdout.trim());
 expect(scored !== null, "audit-model.mjs's last line is its score");
 const total = scored ? Number(scored[1]) + Number(scored[2]) : 0;
@@ -446,437 +629,212 @@ expect(new RegExp(`\\b${total === 22 ? "twenty-two" : String(total)}\\b`).test(s
 
 /* §8.4's no-egress row tells the reader to pass a directory, and `--base ./` is
    the form it shows. A relative path is not a URL: `fetch` and a bare
-   `import()` both reject `guide/checker.js` outright, so this used to fail with
-   "Failed to parse URL" — which reads as the site being unreachable while the
-   files sit in the next directory. Both runners resolve it as a path now. */
+   `import()` both reject it outright, which used to read as the site being
+   unreachable. Both runners resolve it as a path. */
 const relative = (script) =>
-  spawnSync(process.execPath, [script, "guide/models/crm.eml.mmd", "--base", "guide/", "--quiet"],
-    { encoding: "utf8", cwd: root });
+  spawnSync(process.execPath, [script, "guide/models/crm.eml.yaml", "--base", "guide/", "--quiet"], { encoding: "utf8", cwd: root });
 for (const [label, script] of [["check-model.mjs", runner], ["audit-model.mjs", auditor]])
   expect(relative(script).status === 0, `${label} accepts a relative --base, as §8.4 tells the reader to pass`);
 
-/* Both runners are local-first and neither reaches a code-hosting origin — the
-   same claim §8.4 makes, now made about two files. */
+const runnerSource = readFileSync(runner, "utf8");
 const auditorSource = readFileSync(auditor, "utf8");
+expect(!/github/i.test(runnerSource), "check-model.mjs reaches no GitHub host, as §8.4 tells the reader");
 expect(!/github/i.test(auditorSource), "audit-model.mjs reaches no GitHub host either");
-expect(auditorSource.includes("scorer, not a second checker"),
-  "audit-model.mjs says in its own header that it originates no diagnostic");
+expect(/scorer, not a second/.test(auditorSource), "audit-model.mjs says in its own header that it originates no diagnostic");
+for (const flag of ["--write", "--base", "--quiet"])
+  expect(runnerSource.includes(flag) && specText.includes(flag), `section 8.4's \`${flag}\` is a flag check-model.mjs actually has`);
 
-/* The one-file build carries it too, or the shell that can reach nothing can
-   ask only half the question. */
+/* The one-file build carries the validator and both runners, or the shell that
+   can reach nothing can ask only half the question. */
 const standalone = readFileSync(root + "scripts/build-standalone-checker.mjs", "utf8");
-expect(/SOURCES = \[[^\]]*"audit-model\.mjs"/.test(standalone),
-  "the one-file checker embeds the audit as well as the checker");
+for (const file of ["model-yaml.js", "check-model.mjs", "audit-model.mjs"])
+  expect(new RegExp(`"${file.replace(/\./g, "\\.")}"`).test(standalone), `the one-file validator embeds ${file}`);
 
-/* Named where a reader will meet it: the header bullet, §8.5 and §10. */
-expect((specText.match(/audit-model\.mjs/g) ?? []).length >= 4,
-  "the audit is reachable from the header, §8.4, §8.5 and §10");
+expect((specText.match(/audit-model\.mjs/g) ?? []).length >= 4, "the audit is reachable from the header, §8.4, §8.5 and §10");
 expect(/^### 8\.5 /m.test(specText), "§8.5 exists — the header and §10 both cite it");
 
-/* ------------------------------- 6. llmdetailed.txt — the interactive §10 ---
+/* ------------------------------- 5. llmdetailed.txt — the interactive protocol
  *
- * llms-full.txt is authored here; llmdetailed.txt is vendored from
- * app-with-ai-tanstack. So this section does not re-audit the language — it
- * holds the claims §10 makes about *the tooling it tells a model to run*,
- * which is exactly what goes stale when the file is re-vendored or when
- * check-model.mjs changes underneath it. Every one of these was verified by
- * hand once; that is the thing this section replaces.
+ * llms-full.txt is assembled for this site; llmdetailed.txt is the platform's
+ * system edition, copied from the generator repository. This section does not
+ * re-audit its language — it holds the claims its protocol makes about *the
+ * tooling it tells a model to run*, which is what goes stale when the file is
+ * re-copied or when the runners change underneath it.
  */
 
 const detailed = readFileSync(root + "llmdetailed.txt", "utf8");
-/* The enhancement editions. Each is its base with the authoring protocol
- * swapped for the enhancement protocol, derived by
- * scripts/build-llmtext-enhancement.mjs — so everything asserted below about a
- * base document has to hold for its enhancement edition too. */
 const enhancements = {
   "llmtextenhancement.txt": readFileSync(root + "llmtextenhancement.txt", "utf8"),
   "llmdetailedenhancement.txt": readFileSync(root + "llmdetailedenhancement.txt", "utf8"),
 };
-/* The file is hard-wrapped, so any assertion about a *sentence* has to run
- * against a whitespace-collapsed copy — otherwise it silently passes or fails
- * on where the line happened to break. */
-const detailedProse = detailed.replace(/\s+/g, " ");
-const checkerSource = readFileSync(root + "guide/checker.js", "utf8");
-const runnerSource = readFileSync(runner, "utf8");
+const flat = (text) => text.replace(/\s+/g, " ");
+const detailedProse = flat(detailed);
 let detailedFail = 0;
-const held = (cond, label) => {
-  if (cond) console.log(`ok   ${label}`);
-  else { detailedFail++; console.log(`FAIL ${label}`); }
-};
+const held = (cond, label) => { if (cond) console.log(`ok   ${label}`); else { detailedFail++; console.log(`FAIL ${label}`); } };
 
-// Every diagnostic the document names must be one the engine can actually emit.
-// A code invented for a table reads exactly like a real one to a language model.
-const cited = [...new Set(detailed.match(/EML\d{3}/g) ?? [])].sort();
-const unknown = cited.filter((code) => !checkerSource.includes(code));
+/* A diagnostic the validator cannot emit reads exactly like a real one to a
+   language model. */
+const emits = (code) => validatorSource.includes(`"${code}"`);
+/* Codes a document cites, leaving out the band boundaries of a range table
+   (`EML100`–`EML119`), which name no diagnostic. */
+const citedIn = (body) =>
+  [...new Set(body.replace(/EML\d{3}`?\s*[–-]\s*`?EML\d{3}/g, "").match(/EML\d{3}/g) ?? [])].sort();
+const cited = citedIn(detailed);
+const unknown = cited.filter((code) => !emits(code));
 held(cited.length >= 20 && unknown.length === 0,
-  `every diagnostic llmdetailed.txt cites exists in the checker (${cited.length} codes${unknown.length ? ", missing: " + unknown.join(", ") : ""})`);
-
-// The auto-fixable seven, against the engine rather than against a copy of the list.
-held(AUTO_FIXABLE.every((code) => new RegExp(`\\| \`${code}\` \\|`).test(detailed)),
-  `section 10.6 tabulates every auto-fixable code the checker reports (${AUTO_FIXABLE.join(", ")})`);
-held(!/\bSeven codes are auto-fixable\b/.test(detailed) || AUTO_FIXABLE.length === 7,
-  `section 10.6 counts the auto-repairs correctly (checker says ${AUTO_FIXABLE.length})`);
-
-// The runner it tells a model to use, and the flags it promises that runner has.
-// The host is pinned to the apex, not left as "either spelling". Pages issues a
-// certificate for the domain in repository settings, so a `www.` label is
-// refused over TLS — a published URL naming it sends a model to a failure it
-// reads as "the checker is unavailable". That is the defect the guard below
-// exists to prevent recurring.
+  `every diagnostic llmdetailed.txt cites exists in the validator (${cited.length} codes${unknown.length ? ", missing: " + unknown.join(", ") : ""})`);
+held(AUTO_FIXABLE.every((code) => detailed.includes(`\`${code}\``)),
+  `llmdetailed.txt names every auto-fixable code (${AUTO_FIXABLE.join(", ")})`);
 held(/curl -sO https:\/\/www\.appwithai\.org\/guide\/check-model\.mjs/.test(detailed),
-  "section 10.6 carries the one-line way to run the checker without a checkout");
+  "llmdetailed.txt carries the one-line way to run the validator without a checkout");
 for (const flag of ["--write", "--base"])
-  held(detailed.includes(flag) && runnerSource.includes(flag),
-    `section 10.6's \`${flag}\` is a flag check-model.mjs actually has`);
-held(/exit 0[\s\S]{0,120}exit 1[\s\S]{0,120}exit 2/.test(detailed),
-  "section 10.6 documents all three of the runner's exit codes");
-
-// The central claim of the rewrite: GitHub is in none of the checker's paths.
-// If the runner ever learns to fetch from GitHub, the document becomes wrong.
-held(!/github/i.test(runnerSource),
-  "check-model.mjs reaches no GitHub host, as section 10.6 tells the reader");
-held(/failing to \*\*?\s*reach GitHub says nothing about whether the checker can run/i.test(detailedProse)
-  || /reach GitHub says nothing about whether the checker can run/i.test(detailedProse),
-  "section 10.6 states that an unreachable GitHub is not an unreachable checker");
-
-/* The audit, in the vendored document too. This file is a straight copy from
- * app-with-ai-tanstack, so a re-vendor from a tree that predates the audit
- * would silently drop it while every other check here stayed green — and the
- * paragraph it replaced named a script in *this* repository that no reader of
- * that document has. */
+  held(detailed.includes(flag) && runnerSource.includes(flag), `llmdetailed.txt's \`${flag}\` is a flag check-model.mjs actually has`);
+held(/exit 0[\s\S]{0,120}exit 1[\s\S]{0,120}exit 2/.test(detailed), "llmdetailed.txt documents all three of the runner's exit codes");
+held(/reach GitHub says nothing about whether the validator can run/i.test(detailedProse),
+  "llmdetailed.txt states that an unreachable GitHub is not an unreachable validator");
 held(/curl -sO https:\/\/www\.appwithai\.org\/guide\/audit-model\.mjs/.test(detailed),
   "llmdetailed.txt offers the checklist audit by URL, not a repository script");
-/* The document keeps one mention of the old path, in a sentence saying it used
- * to be the instruction and why that was unfollowable. That is a
- * counter-example, so it is dropped by name before the scan — the same
- * treatment section 8 gives the bad-URL forms, and for the same reason: a
- * check that "corrects" it leaves a paragraph explaining nothing. */
-const withoutHistory = detailed
-  .split("\n")
-  .filter((line) => !/paragraph used to name/.test(line) && !/in the website$/.test(line))
-  .join("\n");
-held(!/scripts\/check-model\.mjs/.test(withoutHistory),
-  "…and no longer points a reader without a clone at scripts/check-model.mjs");
-
-// Every rung of the ladder has to name something this site actually serves.
-for (const rung of ["guide/check-model.mjs", "guide/audit-model.mjs", "guide/checker.js", "guide/fixer.js", "guide/11-check-a-model.html"])
+for (const rung of ["guide/check-model.mjs", "guide/audit-model.mjs", "guide/model-yaml.js", "guide/11-check-a-model.html"])
   held(existsSync(root + rung) && detailed.includes(rung.replace("guide/", "")),
-    `the ladder's ${rung} is published here and named in the document`);
+    `the ladder's ${rung} is published here and named in llmdetailed.txt`);
 
-/* The viewers. Section 10 sends a reader to /viewers/ at Phase 3 and names
- * three of its tabs; the page can move and a tab can be renamed, and a model
- * following a stale instruction sends its user to a 404 in the middle of a
- * walkthrough. The upstream repository holds the document to the same claims
- * where it is authored; this holds the copy to what *this host* serves. */
-// The apex, for the same reason as above: a `www.` URL here would send a reader
-// mid-walkthrough to a certificate error rather than to the viewers.
-held(/https:\/\/www\.appwithai\.org\/viewers\//.test(detailed),
-  "section 10 names the model viewers by their published URL");
-for (const file of ["viewers/index.html", "viewers/eml-model.js", "viewers/model-viewer.js", "viewers/viewers.css"])
-  held(existsSync(root + file), `${file} is published here — section 10 sends readers to it`);
-
+/* The viewers. The interactive protocol sends a reader to /viewers/ and names
+   three of its tabs; a model following a stale instruction sends its user to a
+   404 in the middle of a walkthrough. */
+held(/https:\/\/www\.appwithai\.org\/viewers\//.test(detailed), "llmdetailed.txt names the model viewers by their published URL");
+for (const file of ["viewers/index.html", "viewers/appwithai-model.js", "viewers/model-viewer.js", "viewers/viewers.css"])
+  held(existsSync(root + file), `${file} is published here — the interactive protocol sends readers to it`);
 const viewerPage = readFileSync(root + "viewers/index.html", "utf8");
 const viewerTabs = [...viewerPage.matchAll(/data-tab="[^"]+">([^<]+)</g)].map((m) => m[1].trim());
 for (const named of ["Workflows", "Business rules", "Access"])
-  held(viewerTabs.includes(named) && detailedProse.includes(`**${named}**`),
-    `the "${named}" tab section 10 names exists on the viewer page`);
-
-/* Watching a file is Chromium-only. Recommending it without saying so is how a
- * reader on Firefox concludes the page is broken. */
-held(/File System Access API/.test(detailedProse) && /Watch a file/.test(detailedProse),
-  "section 10 says which browsers can watch a file");
+  held(viewerTabs.includes(named) && detailedProse.includes(`**${named}**`), `the "${named}" tab llmdetailed.txt names exists on the viewer page`);
+held(/File System Access API/.test(detailedProse) && /Watch a file/.test(detailedProse), "llmdetailed.txt says which browsers can watch a file");
 held(readFileSync(root + "viewers/model-viewer.js", "utf8").includes("showOpenFilePicker"),
   "the viewers really gate watching on the File System Access API");
 
-// Cross-references inside the file must resolve, or the ladder sends a reader nowhere.
-const headings = new Set([...detailed.matchAll(/^#{2,4} (\d+(?:\.\d+)*)[. ]/gm)].map((m) => m[1]));
-const referenced = [...new Set([...detailed.matchAll(/§(\d+\.\d+)/g)].map((m) => m[1]))];
-const dangling = referenced.filter((ref) => !headings.has(ref));
-held(dangling.length === 0,
-  `every §N.N cross-reference in llmdetailed.txt resolves to a heading${dangling.length ? " (dangling: " + dangling.join(", ") + ")" : ""}`);
-
-/* Three observed failures were one URL failing, generalised into "no validation
- * is possible" — in one case the blocked URL was llmdetailed.txt itself. */
-held(/needs no specification document at all/i.test(detailedProse),
-  "section 10.6 separates fetching the spec from running the checker");
-held(/Perform the validation; do not offer it/i.test(detailedProse),
-  "section 10.6 requires the run rather than offering it");
-
-/* Directive status: a document that calls a compiled directive inert tells a
- * model its help text does nothing. %%entity help: becomes sys_table.description
- * and the whole of the generated manual's prose, and §11 rule 2 called it
- * "validated but not compiled" while the same file's own table said compiled.
- * The authority (language/appwithai-language.json) lives upstream, so what is
- * held here is each document against its own status table. */
-for (const [file, body] of [["llmdetailed.txt", detailed], ["llms-full.txt", spec.join("\n")], ...Object.entries(enhancements)]) {
-  const compiled = [...body.matchAll(/^\| `%%(\w+)` \|[^\n]*\bcompiled\b[^\n]*$/gm)].map((m) => m[1]);
-  held(compiled.length >= 8, `${file}: its directive table marks the compiled directives (${compiled.length})`);
-  const flat = body.replace(/\s+/g, " ");
-  for (const directive of compiled) {
-    held(
-      !new RegExp(`%%${directive}\`?,? (and )?[^.]{0,60}are validated but not compiled`).test(flat),
-      `${file}: prose does not call the compiled %%${directive} "validated but not compiled"`
-    );
-  }
+/* Cross-references must resolve, or a ladder sends the reader nowhere. */
+const danglingIn = (body) => {
+  const heads = new Set([...body.matchAll(/^#{2,4} (\d+(?:\.\d+)*)[. ]/gm)].map((m) => m[1]));
+  /* `§10.1.6` is item 6 of the list in §10.1: it resolves when its section does. */
+  return [...new Set([...body.matchAll(/§(\d+\.\d+(?:\.\d+)?)/g)].map((m) => m[1]))]
+    .filter((r) => !heads.has(r) && !heads.has(r.split(".").slice(0, 2).join(".")));
+};
+for (const [file, body] of [["llms-full.txt", specText], ["llmdetailed.txt", detailed]]) {
+  const dangling = danglingIn(body);
+  held(dangling.length === 0, `every §N.N cross-reference in ${file} resolves to a heading${dangling.length ? " (dangling: " + dangling.join(", ") + ")" : ""}`);
 }
+held(/needs no specification document at all/i.test(detailedProse), "llmdetailed.txt separates fetching the spec from running the validator");
+held(/Perform the validation; do not offer it/i.test(detailedProse), "llmdetailed.txt requires the run rather than offering it");
+held(/every step that touches the `\.eml\.yaml`/i.test(detailedProse), "llmdetailed.txt binds the fixer-then-validator loop to every step");
 
-// The per-step rule, which is the other half of what §10 now promises.
-held(/every step that touches the `\.mmd`/i.test(detailedProse),
-  "section 10 binds the fixer-then-checker loop to every step, not only to phase 6");
-
-
-/* ------------------------------- 7. the enhancement editions ---------------
+/* ------------------------------- 6. the enhancement editions ---------------
  *
  * `llmtextenhancement.txt` and `llmdetailedenhancement.txt` take an existing
- * `.mmd` and change it, where their base documents write one from a brief.
- * They are *derived* from those bases — the whole language reference is copied,
- * only the protocol section differs — so the first thing held here is that the
- * derivation is current. The rest holds the four claims that make an
- * enhancement protocol different from an authoring one, each of which was a
- * real failure before it was a rule: starting without the user's file,
- * rebuilding the model from memory, answering with a patch, and handing back a
- * model that checks clean and is quietly smaller than the one that came in.
+ * `.eml.yaml` and change it, where their base documents write one from a
+ * brief. They are derived from those bases — the language reference is copied,
+ * only the protocol section differs — so the first thing held is that the
+ * derivation is current. The rest holds the claims that make an enhancement
+ * protocol different from an authoring one, each a real failure before it was a
+ * rule: starting without the user's file, rebuilding the model from memory,
+ * answering with a patch, and handing back a model that validates clean and is
+ * quietly smaller than the one that came in.
  */
-
 let enhancementFail = 0;
-const enh = (cond, label) => {
-  if (cond) console.log(`ok   ${label}`);
-  else { enhancementFail++; console.log(`FAIL ${label}`); }
-};
+const enh = (cond, label) => { if (cond) console.log(`ok   ${label}`); else { enhancementFail++; console.log(`FAIL ${label}`); } };
 
-/* The derivation itself. A base edited without rebuilding its enhancement
- * edition is the only way these four documents can disagree about the
- * language, and it is exactly the failure the deriver exists to prevent. */
 const built = spawnSync(process.execPath, [root + "scripts/build-llmtext-enhancement.mjs", "--check"], { encoding: "utf8" });
-enh(built.status === 0,
-  `both enhancement editions are current against their bases${built.status === 0 ? "" : "\n" + built.stdout}`);
-
-/* The language half is the base's, byte for byte. Asserted directly as well as
- * through the deriver, because this is the property that matters and it should
- * fail by name rather than as "the build is stale". */
+enh(built.status === 0, `both enhancement editions are current against their bases${built.status === 0 ? "" : "\n" + built.stdout}`);
 const tailFrom = (body, heading) => body.slice(body.search(heading));
-enh(tailFrom(enhancements["llmtextenhancement.txt"], /^## 2\. /m) === tailFrom(spec.join("\n"), /^## 2\. /m),
+enh(tailFrom(enhancements["llmtextenhancement.txt"], /^## 2\. /m) === tailFrom(specText, /^## 2\. /m),
   "llmtextenhancement.txt carries llms-full.txt's language reference unchanged");
 enh(tailFrom(enhancements["llmdetailedenhancement.txt"], /^## 11\. /m) === tailFrom(detailed, /^## 11\. /m),
   "llmdetailedenhancement.txt carries llmdetailed.txt's closing section unchanged");
 
 for (const [name, body] of Object.entries(enhancements)) {
-  const prose = body.replace(/\s+/g, " ");
-
-  /* A code invented for a table reads exactly like a real one to a model. */
-  const cited = [...new Set(body.match(/EML\d{3}/g) ?? [])].sort();
-  const missing = cited.filter((code) => !checkerSource.includes(code));
-  enh(cited.length >= 20 && missing.length === 0,
-    `${name}: every diagnostic it cites exists in the checker (${cited.length} codes${missing.length ? ", missing: " + missing.join(", ") : ""})`);
-
-  /* Cross-references must resolve, or a ladder sends the reader nowhere. */
-  const heads = new Set([...body.matchAll(/^#{2,4} (\d+(?:\.\d+)*)[. ]/gm)].map((m) => m[1]));
-  const dangling = [...new Set([...body.matchAll(/§(\d+\.\d+)/g)].map((m) => m[1]))].filter((r) => !heads.has(r));
-  enh(dangling.length === 0,
-    `${name}: every §N.N cross-reference resolves${dangling.length ? " (dangling: " + dangling.join(", ") + ")" : ""}`);
-
-  /* 1 — it has an input, and it asks for it. A protocol that does not say this
-   * gets a model invented from the conversation, which is the authoring
-   * protocol run under the wrong name. */
-  enh(/load (?:their|your) `?\.mmd`?|Send me the `\.mmd`/i.test(prose),
-    `${name}: asks the user to load their .mmd before anything else`);
-  enh(/Never reconstruct the model/i.test(prose),
-    `${name}: forbids reconstructing the model from memory or the conversation`);
-
-  /* 2 — the deliverable is the whole file. The observed failure is a reply of
-   * "add these lines", which makes the user perform the merge. */
-  enh(/Not a patch\. Not a diff\.|Not a diff, not a patch/i.test(prose),
-    `${name}: says the deliverable is the whole model, not a patch or a diff`);
-  enh(/\.mmd/.test(body) && /one file/i.test(prose),
-    `${name}: still delivers exactly one .mmd`);
-
-  /* 3 — baseline before editing, so a diagnostic can be attributed. */
-  enh(/baseline/i.test(prose) && /inventor/i.test(prose),
-    `${name}: baselines and inventories the model before it is edited`);
-
-  /* 4 — the regression comparison. This is the half no tool performs, and the
-   * reason both documents exist rather than a sentence in the base ones. */
-  enh(/%%report/.test(body) && /(nothing was lost|nothing lost|regression)/i.test(prose),
+  const prose = flat(body);
+  const codes = citedIn(body);
+  const missing = codes.filter((code) => !emits(code));
+  enh(codes.length >= 20 && missing.length === 0,
+    `${name}: every diagnostic it cites exists in the validator (${codes.length} codes${missing.length ? ", missing: " + missing.join(", ") : ""})`);
+  const dangling = danglingIn(body);
+  enh(dangling.length === 0, `${name}: every §N.N cross-reference resolves${dangling.length ? " (dangling: " + dangling.join(", ") + ")" : ""}`);
+  enh(/(load|send me) (their|your|the) `?\.eml\.yaml`?/i.test(prose), `${name}: asks the user for their .eml.yaml before anything else`);
+  enh(/Never reconstruct/i.test(prose), `${name}: forbids reconstructing the model from memory or the conversation`);
+  enh(/Not a patch|not a diff/i.test(prose), `${name}: says the deliverable is the whole model, not a patch or a diff`);
+  enh(/one file/i.test(prose) && /\.eml\.yaml/.test(body), `${name}: still delivers exactly one .eml.yaml`);
+  enh(/baseline/i.test(prose) && /inventor/i.test(prose), `${name}: baselines and inventories the model before it is edited`);
+  enh(/`reports`/.test(body) && /(nothing was lost|nothing lost|regression|quietly smaller)/i.test(prose),
     `${name}: compares the result against the baseline to prove nothing was lost`);
-  enh(/help text/i.test(prose) && /%%rbac/.test(body),
-    `${name}: names help text and %%rbac among what an enhancement silently drops`);
-
-  /* The four protocols have to be findable from any one of them, or a reader
-   * lands on the enhancement form for a model that does not exist yet. */
+  enh(/help text/i.test(prose) && /`rbac`/.test(body), `${name}: names help text and rbac among what an enhancement silently drops`);
   for (const sibling of ["llms-full.txt", "llmdetailed.txt", "llmtextenhancement.txt", "llmdetailedenhancement.txt"])
-    if (sibling !== name)
-      enh(body.includes(sibling), `${name}: names its companion ${sibling}`);
+    if (sibling !== name) enh(body.includes(sibling), `${name}: names its companion ${sibling}`);
 }
 
-/* The interactive edition is held to every tooling claim llmdetailed.txt is
- * held to above — it carries the same §10.6, spliced by the deriver, so these
- * pass for free and fail loudly if that splice is ever replaced by prose. */
 const interactive = enhancements["llmdetailedenhancement.txt"];
-const interactiveProse = interactive.replace(/\s+/g, " ");
-enh(/curl -sO https:\/\/www\.appwithai\.org\/guide\/check-model\.mjs/.test(interactive),
-  "llmdetailedenhancement.txt carries the one-line way to run the checker");
-for (const flagName of ["--write", "--base"])
-  enh(interactive.includes(flagName) && runnerSource.includes(flagName),
-    `llmdetailedenhancement.txt's \`${flagName}\` is a flag check-model.mjs actually has`);
-enh(/exit 0[\s\S]{0,120}exit 1[\s\S]{0,120}exit 2/.test(interactive),
-  "llmdetailedenhancement.txt documents all three of the runner's exit codes");
-enh(AUTO_FIXABLE.every((code) => new RegExp(`\\| \`${code}\` \\|`).test(interactive)),
-  `llmdetailedenhancement.txt tabulates every auto-fixable code (${AUTO_FIXABLE.join(", ")})`);
-enh(/https:\/\/www\.appwithai\.org\/viewers\//.test(interactive),
-  "llmdetailedenhancement.txt names the model viewers by their published URL");
-for (const named of ["Workflows", "Business rules", "Access"])
-  enh(viewerTabs.includes(named) && interactiveProse.includes(`**${named}**`),
-    `llmdetailedenhancement.txt: the "${named}" tab it names exists on the viewer page`);
-enh(/File System Access API/.test(interactiveProse) && /Watch a file/.test(interactiveProse),
-  "llmdetailedenhancement.txt says which browsers can watch a file");
-enh(/every step that touches the `\.mmd`/i.test(interactiveProse),
-  "llmdetailedenhancement.txt binds the fixer-then-checker loop to every step");
-enh(/Perform the validation; do not offer it/i.test(interactiveProse),
-  "llmdetailedenhancement.txt requires the run rather than offering it");
-
-/* The gates are the substance of the interactive form. A phase list with no
- * gate in it is the batch protocol wearing the other file's name. */
+const interactiveProse = flat(interactive);
+enh(/curl -sO https:\/\/www\.appwithai\.org\/guide\/check-model\.mjs/.test(interactive), "llmdetailedenhancement.txt carries the one-line way to run the validator");
+enh(/exit 0[\s\S]{0,120}exit 1[\s\S]{0,120}exit 2/.test(interactive), "llmdetailedenhancement.txt documents all three of the runner's exit codes");
+enh(AUTO_FIXABLE.every((code) => interactive.includes(`\`${code}\``)), "llmdetailedenhancement.txt names every auto-fixable code");
+enh(/https:\/\/www\.appwithai\.org\/viewers\//.test(interactive), "llmdetailedenhancement.txt names the model viewers by their published URL");
+enh(/Perform the validation; do not offer it/i.test(interactiveProse), "llmdetailedenhancement.txt requires the run rather than offering it");
 for (const gate of ["Gate A", "Gate B", "Gate C", "Gate D", "Gate E"])
   enh(interactive.includes(gate), `llmdetailedenhancement.txt keeps ${gate}`);
-enh(/00-original\.mmd/.test(interactive),
-  "llmdetailedenhancement.txt keeps the original untouched as the thing to compare against");
+enh(/00-original\.eml\.yaml/.test(interactive), "llmdetailedenhancement.txt keeps the original untouched as the thing to compare against");
 
 console.log(`\n${enhancementFail === 0 ? "enhancement editions hold." : enhancementFail + " enhancement claim(s) contradicted."}`);
 
-
-/* ---------------------------------------------------------------------------
- * The published host, and why the guard that used to sit here is gone.
- *
- * It forbade `www.appwithai.org` anywhere in the tree. GitHub Pages issues a
- * certificate for the domain configured in repository settings, and `www` was
- * a DNS record onto the apex rather than a delegation to the Pages host — so
- * it resolved, reached the edge, and was refused with
- * ERR_CERT_COMMON_NAME_INVALID. A model told to curl such a URL reported the
- * checker as unavailable and its validation state as "not determinable".
- *
- * `www` is now a CNAME onto `businessappwithai.github.io`, Pages has issued a
- * certificate for it, and it serves directly — verified in a browser. The
- * guard named that exact condition for its own deletion ("if `www.` is ever
- * given a certificate of its own, delete this guard deliberately"), so it is
- * deleted rather than widened, and `www` is the canonical published form.
- *
- * What replaces it is section 8 below, which is the check that still has
- * something to catch: the canonical form in every document, and the three
- * spellings that fail — a bare host, a Markdown link around one, and a host
- * without a scheme.
- * ------------------------------------------------------------------------- */
-let hostFail = 0;
-
-
-/* ------------------------------- 8. the published host, written in full ----
+/* ------------------------------- 7. the published host, written in full ----
  *
  * A model following these documents reported a failed validator fetch as
- * `[appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
- * is a bare host. That is what the documents taught it: they named the host
- * without a scheme in prose, and half their URLs used a label with no certificate.
- * Both are fixed,
- * and this is what stops either coming back.
- *
- * Every mention of the host must be `https://www.appwithai.org`. The three
- * passages that deliberately show another form are teaching material — the rule
- * itself, and the two sentences contrasting the apex with `www` — so they are
- * removed before the scan rather than special-cased inside it.
+ * `[appwithai.org](https://www.appwithai.org)` — a Markdown link whose text is
+ * a bare host. Every mention of the host must be `https://www.appwithai.org`.
+ * The passages that deliberately show another form are teaching material — the
+ * rule itself and the sentences contrasting the apex with `www` — so they are
+ * removed before the scan rather than special-cased inside it, and then held to
+ * still being there.
  */
+let hostFail = 0;
+const host = (cond, label) => { if (cond) console.log(`ok   ${label}`); else { hostFail++; console.log(`FAIL ${label}`); } };
 
-const host = (cond, label) => {
-  if (cond) console.log(`ok   ${label}`);
-  else { hostFail++; console.log(`FAIL ${label}`); }
-};
-
-/* The counter-examples, verbatim. Each one exists to show a reader what NOT to
-   write, so each must survive canonicalisation — and be excluded from it. */
 const TEACHING = [
-  "`appwithai.org/guide/checker.js` is a string a",
-  "`[appwithai.org](https://www.appwithai.org)` reads to a person as a working",
-  "`[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working",
-  "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the same files and",
-  "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the",
-  "  is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`",
-  "  `https://appwithai.org` serves the same files, but the `www.` form is the canonical one.",
-  '*"Validator retrieval failed for appwithai.org"* says neither',
-  "is the canonical host and the apex `https://appwithai.org` serves the same",
-  "the canonical form and the one to write; the apex `https://appwithai.org`",
-];
-
-/* Both spellings of the Markdown-link counter-example are the same lesson: a
-   link whose *text* is a bare host, which is what anything parsing this file
-   resolves. `llms-full.txt` is authored here and writes the apex; the vendored
-   `llmdetailed.txt` writes `www.`, because that is the form the failure that
-   prompted the rule actually came back as. Pinning one spelling made
-   re-vendoring the other document fail a check about a rule it obeys. */
-const MARKDOWN_COUNTER_EXAMPLES = [
+  "is a string a",
   "[appwithai.org](https://www.appwithai.org)",
   "[www.appwithai.org](https://www.appwithai.org)",
+  "**The apex is not the canonical form.**",
+  "`https://appwithai.org` serves the same files",
+  '*"Validator retrieval failed for appwithai.org"*',
+  "the apex `https://appwithai.org`",
+  "The apex `https://appwithai.org`",
+  "`https://appwithai.org` serves the same files, but the",
 ];
+const MARKDOWN_COUNTER_EXAMPLES = ["[appwithai.org](https://www.appwithai.org)", "[www.appwithai.org](https://www.appwithai.org)"];
 
-for (const [name, body] of [
-  ["llms-full.txt", spec.join("\n")],
-  ["llmdetailed.txt", detailed],
-  ...Object.entries(enhancements),
-]) {
-  const teachable = body.split("\n").filter((line) => !TEACHING.some((t) => line.includes(t)));
-  const stray = teachable
-    .map((line, index) => ({ line, index }))
-    .filter(({ line }) => /appwithai\.org/.test(line.replace(/https:\/\/www\.appwithai\.org/g, "")));
-
+for (const [name, body] of [["llms-full.txt", specText], ["llmdetailed.txt", detailed], ...Object.entries(enhancements)]) {
+  const lines = body.split("\n");
+  const stray = lines
+    .filter((line) => !TEACHING.some((teaching) => line.includes(teaching)))
+    .filter((line) => /appwithai\.org/.test(line.replace(/https:\/\/www\.appwithai\.org/g, "")));
   host(stray.length === 0,
-    `${name}: every mention of the host is https://www.appwithai.org${
-      stray.length ? ` (${stray.length} stray, first: "${stray[0].line.trim().slice(0, 72)}")` : ""
-    }`);
-
-  /* The rule has to actually be in the document, or the scan above is passing
-     over a file that never tells the reader which form to write. */
-  host(body.includes("Write the URL in full, every time"),
-    `${name}: carries the rule that the URL is written in full`);
-  host(/Report the URL you actually requested/.test(body.replace(/\s+/g, " ")),
-    `${name}: tells the reader to report the URL actually requested`);
-
-  /* And the counter-examples have to survive, or the rule teaches nothing. */
-  host(MARKDOWN_COUNTER_EXAMPLES.some((e) => body.includes(e)),
-    `${name}: keeps the Markdown-link counter-example the rule is about`);
-
-  /* Naming the exact error is only half of it: the reader also has to be able
-   * to tell which *kind* of failure it was. A shell reporting `curl: (6)` has
-   * no resolver, so every host fails identically and the result says nothing
-   * about this one — but the observed behaviour was to report it as the site
-   * being unavailable. The table names the four codes that never reached the
-   * site and the one that did, so a model can classify its own failure instead
-   * of generalising from it. */
+    `${name}: every mention of the host is https://www.appwithai.org${stray.length ? ` (${stray.length} stray, first: "${stray[0].trim().slice(0, 72)}")` : ""}`);
+  host(body.includes("Write the URL in full, every time"), `${name}: carries the rule that the URL is written in full`);
+  host(/Report the URL you actually requested/.test(flat(body)), `${name}: tells the reader to report the URL actually requested`);
+  host(MARKDOWN_COUNTER_EXAMPLES.some((e) => body.includes(e)), `${name}: keeps the Markdown-link counter-example the rule is about`);
   for (const code of ["curl: (6)", "curl: (7)", "curl: (56)"])
-    host(body.includes(code),
-      `${name}: names \`${code}\` among the failures that never reached the site`);
-  host(/never reached the site, so none of them is evidence it is down/.test(body.replace(/\s+/g, " ")),
-    `${name}: says those failures are not evidence the site is down`);
-
-  /* The page-only rung. A fetch layer that reads text/html and refuses
-   * application/javascript reports the module as inaccessible while the same
-   * host serves it pages — so the modules are published inside pages, and every
-   * edition has to name that directory or the rung is unreachable. */
-  host(body.includes("https://www.appwithai.org/guide/source/"),
-    `${name}: names the page-carried copies, for a fetcher that refuses JavaScript`);
+    host(body.includes(code), `${name}: names \`${code}\` among the failures that never reached the site`);
+  host(/never reached the site, so none of them is evidence it is down/.test(flat(body)), `${name}: says those failures are not evidence the site is down`);
+  host(body.includes("https://www.appwithai.org/guide/source/"), `${name}: names the page-carried copies, for a fetcher that refuses JavaScript`);
+  host(!/checker\.js|fixer\.js/.test(body), `${name}: names the published validator, not the modules it replaced`);
 }
 
-/* The source pages the ladder now names have to be published here, one per
- * file, or four documents send a reader to a 404. Their contents are held by
- * scripts/check-validator-source-pages.mjs, which decodes them. */
-for (const name of ["index.html", "checker.js.html", "fixer.js.html", "check-model.mjs.html", "audit-model.mjs.html"])
-  host(existsSync(root + "guide/source/" + name),
-    `guide/source/${name} is published here — the ladder names that directory`);
+for (const name of ["index.html", "model-yaml.js.html", "check-model.mjs.html", "audit-model.mjs.html"])
+  host(existsSync(root + "guide/source/" + name), `guide/source/${name} is published here — the ladder names that directory`);
 
-/* The pages are held to the same form: a prompt is a URL a reader pastes. */
 for (const page of ["index.html", "try-it-yourself.html"]) {
   const markup = readFileSync(root + page, "utf8");
   const bare = [...markup.matchAll(/[^/w.]((?:www\.)?appwithai\.org)/g)].map((m) => m[1]);
-  host(bare.length === 0,
-    `${page}: names the host only as https://www.appwithai.org${bare.length ? ` (${bare.length} bare)` : ""}`);
+  host(bare.length === 0, `${page}: names the host only as https://www.appwithai.org${bare.length ? ` (${bare.length} bare)` : ""}`);
 }
 
 console.log(`\n${hostFail === 0 ? "the published host is written in full everywhere." : hostFail + " host spelling(s) wrong."}`);
-
 
 process.exit(exampleFailures + fail + runnerFail + detailedFail + enhancementFail + hostFail === 0 ? 0 : 1);

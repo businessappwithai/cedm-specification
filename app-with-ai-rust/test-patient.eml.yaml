@@ -1,0 +1,17 @@
+eml: "1.0"
+entities:
+  - name: Patient
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: date_of_birth
+        type: date

@@ -3,7 +3,7 @@
  *
  * Three kinds of assertion here, and the second is the one worth having:
  *
- *   - **Shape**: an entity earns a register, an `%%enum` a breakdown, a state
+ *   - **Shape**: an entity earns a register, an enum a breakdown, a state
  *     machine a lifecycle, a `oneToMany` a children-per-parent.
  *   - **Agreement with the application.** The pack names tables the generated
  *     application actually creates, and scopes each reporting role to exactly
@@ -18,58 +18,70 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { tableNameFor } from "../../naming/tables";
-import { parseModel } from "../../pipeline/parse-model";
 import { deriveAccess } from "../../rbac/roles";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { APP_PASSWORD, buildReportingPack } from "../pack";
 
-const MODEL = `%%meta name: Field Service
-%%meta kind: erd
-%%meta version: 1.0.0
-%%enum TicketStatus: new, assigned, resolved
-%%enum SiteTier: gold, silver
-erDiagram
-    Site {
-        string id PK
-        string name UK
-        string tier
-        integer bays
-    }
-    KYCRecord {
-        string id PK
-        string reference UK
-        string site_id FK
-    }
-    Ticket {
-        string id PK
-        string title
-        string status
-        decimal cost
-        string site_id FK
-    }
-    Site ||--o{ Ticket : raises
-    Site ||--o{ KYCRecord : holds
-%%entity Site help: A place engineers are sent to.
-%%entity Ticket help: One job at a site, from reported to resolved.
-%%entity KYCRecord help: The compliance record a site has to hold.
-%%field Site.tier enum: SiteTier
-%%field Ticket.status enum: TicketStatus
-%%report open-by-site title: Open tickets by site entity: Ticket chart: bar x: site y: open sql: SELECT s.name AS site, COUNT(*) AS open FROM bus_ticket t JOIN bus_site s ON s.id = t.site_id WHERE t.status <> 'resolved' GROUP BY 1
-%%rbac role:dispatcher on Ticket.read
-%%rbac role:dispatcher on Site.read
-%%rbac role:auditor on KYCRecord.read
-stateDiagram-v2
-    %%workflow TicketLifecycle entity: Ticket kind: state
-    [*] --> new
-    new --> assigned
-    assigned --> resolved
-    resolved --> [*]
+const MODEL = `eml: "1.0"
+name: Field Service
+version: 1.0.0
+enums:
+  - name: TicketStatus
+    values: [new, assigned, resolved]
+  - name: SiteTier
+    values: [gold, silver]
+entities:
+  - name: Site
+    help: A place engineers are sent to.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string, unique: true }
+      - { name: tier, type: string, enum: SiteTier }
+      - { name: bays, type: integer }
+  - name: KYCRecord
+    help: The compliance record a site has to hold.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: reference, type: string, unique: true }
+      - { name: site_id, type: string, fk: true }
+  - name: Ticket
+    help: One job at a site, from reported to resolved.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: title, type: string }
+      - { name: status, type: string, enum: TicketStatus }
+      - { name: cost, type: decimal }
+      - { name: site_id, type: string, fk: true }
+relationships:
+  - { from: Site, fromCardinality: exactly-one, to: Ticket, toCardinality: zero-or-more, label: raises }
+  - { from: Site, fromCardinality: exactly-one, to: KYCRecord, toCardinality: zero-or-more, label: holds }
+rbac:
+  - { entity: Ticket, action: read, roles: [dispatcher] }
+  - { entity: Site, action: read, roles: [dispatcher] }
+  - { entity: KYCRecord, action: read, roles: [auditor] }
+reports:
+  - name: open-by-site
+    title: Open tickets by site
+    entity: Ticket
+    chart: bar
+    x: site
+    y: open
+    sql: SELECT s.name AS site, COUNT(*) AS open FROM bus_ticket t JOIN bus_site s ON s.id = t.site_id WHERE t.status <> 'resolved' GROUP BY 1
+stateMachines:
+  - name: TicketLifecycle
+    entity: Ticket
+    states: [new, assigned, resolved]
+    initial: new
+    final: [resolved]
+    transitions:
+      - { from: new, to: assigned }
+      - { from: assigned, to: resolved }
 `;
 
-const parse = () =>
-  parseModel(MODEL, { projectName: "field-service", outputDir: "/tmp/unused" } as never);
+const parse = () => compileYaml(MODEL);
 
 const build = async () =>
   buildReportingPack(await parse(), {
@@ -84,10 +96,10 @@ describe("buildReportingPack", () => {
 
     expect(keys).toContain("site__register");
     expect(keys).toContain("ticket__register");
-    // `%%enum`-bound columns earn a breakdown; unbound ones do not.
+    // Enum-bound columns earn a breakdown; unbound ones do not.
     expect(keys).toContain("ticket__by_status");
     expect(keys).toContain("site__by_tier");
-    // A `kind: state` workflow earns a lifecycle over the declared states.
+    // A state machine earns a lifecycle over the declared states.
     expect(keys).toContain("ticket__lifecycle");
     // `oneToMany` earns children per parent, named for both ends.
     expect(keys).toContain("ticket__per_site");
@@ -98,7 +110,7 @@ describe("buildReportingPack", () => {
     expect(pack.reports[0]?.name).toBe("Open tickets by site");
   });
 
-  it("puts every declared state in the lifecycle, in the diagram's order", async () => {
+  it("puts every declared state in the lifecycle, in the model's order", async () => {
     const pack = await build();
     const query = pack.queries.find((q) => q.key === "ticket__lifecycle");
     expect(query).toBeDefined();
@@ -199,10 +211,7 @@ describe("buildReportingPack", () => {
     // The platform upserts by name, so two items sharing a name are one row
     // written twice — and which query survives depends on insertion order.
     const clashing = MODEL.replace("title: Open tickets by site", "title: Tickets per site");
-    const model = await parseModel(clashing, {
-      projectName: "field-service",
-      outputDir: "/tmp/unused",
-    } as never);
+    const model = compileYaml(clashing);
     // The authored one wins and the derived duplicate is dropped rather than
     // throwing — the throw is reserved for a collision nothing can resolve.
     const pack = buildReportingPack(model, {

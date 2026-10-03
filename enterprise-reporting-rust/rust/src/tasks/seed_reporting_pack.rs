@@ -17,7 +17,7 @@
 //!   2. that database's schema, introspected and cached by the same
 //!      `introspect_and_cache` the NL-query pipeline reads
 //!   3. every saved query, report, chart, dashboard and widget in the pack,
-//!      and one reporting role per `%%rbac` role, scoped to the tables it may
+//!      and one reporting role per role the model's `rbac` declares, scoped to the tables it may
 //!      read
 //!
 //! Idempotent by name, like the script: it runs on every `docker compose up`.
@@ -974,7 +974,7 @@ mod tests {
     #[test]
     fn a_pack_without_access_parses() {
         let pack: ReportingPack = serde_json::from_value(json!({
-            "application": { "name": "crm", "description": "", "model": "crm.eml.mmd", "databaseName": "crm" },
+            "application": { "name": "crm", "description": "", "model": "crm.eml.yaml", "databaseName": "crm" },
             "dataSource": { "name": "crm (application database)", "description": "", "clientType": "pg" },
             "queries": [], "reports": [], "charts": [], "dashboards": []
         }))

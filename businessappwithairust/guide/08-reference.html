@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Every EML directive, type, modifier, cardinality, hook and step type on one page, plus the commands and the checker codes worth knowing.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM">
   <title>08 · Reference — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -84,7 +84,7 @@
           <div class="guide-sidebar-foot">
             Every screenshot on these pages comes from the CRM built in this guide, running locally.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -96,30 +96,30 @@
 <span class="eyebrow">Chapter 08</span>
 <h1>Reference</h1>
 <p class="lede">
-  Everything the language offers, on one page. The authority is
-  <code>language/appwithai-language.json</code> — when this page and that file disagree, the file wins.
+  Everything the language offers, on one page. Two files are the authority:
+  <code>language/yaml/eml.schema.json</code> says which keys a model may carry, and
+  <code>language/appwithai-language.json</code> says what the values in them mean — when this page and
+  either file disagree, the file wins.
 </p>
 
-<h2>Directives</h2>
+<h2>The document</h2>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Directive</th><th>Form</th><th>Purpose</th></tr></thead>
+  <thead><tr><th>Key</th><th>Each entry carries</th><th>Purpose</th></tr></thead>
   <tbody>
-    <tr><td><code>%%meta</code></td><td><code>%%meta &lt;key&gt;: &lt;value&gt;</code></td><td>Section metadata: <code>name</code>, <code>kind</code>, <code>version</code>, <code>entity</code>, <code>stack</code>.</td></tr>
-    <tr><td><code>%%enum</code></td><td><code>%%enum Name: a, b, c</code></td><td>A closed vocabulary, reusable by fields and states.</td></tr>
-    <tr><td><code>%%field</code></td><td><code>%%field E.col enum: Name</code></td><td>Field metadata: <code>enum</code>, <code>ui</code>, <code>default</code>, <code>min</code>, <code>max</code>, <code>help</code>, <code>format</code>.</td></tr>
-    <tr><td><code>%%entity</code></td><td><code>%%entity E audited: true</code></td><td>Entity metadata: <code>prefix</code>, <code>audited</code>, <code>softDelete</code>, <code>label</code>, <code>icon</code>.</td></tr>
-    <tr><td><code>%%index</code></td><td><code>%%index E(a, b) [unique]</code></td><td>An index over one or more columns.</td></tr>
-    <tr><td><code>%%category</code></td><td><code>%%category name: X; icon: Y; entities: A, B</code></td><td>Dashboard grouping. <code>;</code>-separated keys; only <code>name</code> required.</td></tr>
-    <tr><td><code>%%rule</code></td><td><code>%%rule name on E event: &lt;hook&gt; priority: &lt;n&gt;</code></td><td>Binds a decision flowchart to an entity and lifecycle event.</td></tr>
-    <tr><td><code>%%action</code></td><td><code>%%action name &lt;type&gt; when: &lt;expr&gt; …</code></td><td>A side effect a rule emits. See below.</td></tr>
-    <tr><td><code>%%workflow</code></td><td><code>%%workflow Name entity: E kind: &lt;hook|state|saga&gt;</code></td><td>Names and classifies a workflow section.</td></tr>
-    <tr><td><code>%%hook</code></td><td><code>%%hook &lt;type&gt; &lt;handler&gt; on E[field: c]</code></td><td>Binds a handler to a lifecycle event.</td></tr>
-    <tr><td><code>%%step</code></td><td><code>%%step &lt;node&gt; &lt;StepType&gt; &lt;k&gt;: &lt;v&gt; …</code></td><td>Binds a saga flowchart node to an executable step.</td></tr>
-    <tr><td><code>%%rbac</code></td><td><code>%%rbac role:a|b on E.op</code></td><td>Restricts an operation or transition to roles.</td></tr>
-    <tr><td><code>%%trigger</code></td><td><code>%%trigger cron:0 7 * * * -&gt; handler on E</code></td><td>An event source: <code>cron:</code>, <code>webhook:</code>, <code>message:</code>.</td></tr>
-    <tr><td><code>%%guard</code></td><td><code>%%guard field &lt;op&gt; &lt;json&gt;</code></td><td>An automation condition (the builder's dialect).</td></tr>
-    <tr><td><code>%%loop</code></td><td><code>%%loop L1 while: f &lt;op&gt; v max: n</code></td><td>Repeat-while inside an automation. <code>max:</code> is required.</td></tr>
+    <tr><td><code>eml</code>, <code>name</code>, <code>version</code>, <code>description</code></td><td>—</td><td>The language version (<code>"1.0"</code>, required) and the application's name, version and description.</td></tr>
+    <tr><td><code>enums</code></td><td><code>name</code>, <code>values</code></td><td>A closed vocabulary, reusable by attributes and states.</td></tr>
+    <tr><td><code>categories</code></td><td><code>name</code>; <code>description</code>, <code>icon</code>, <code>color</code>, <code>seq</code>, <code>default</code>, <code>entities</code></td><td>Dashboard grouping. Only <code>name</code> is required.</td></tr>
+    <tr><td><code>entities</code></td><td><code>name</code>, <code>attributes</code>; <code>help</code>, <code>icon</code>, <code>parent</code>, <code>label</code>, <code>prefix</code>, <code>audited</code>, <code>softDelete</code>, <code>indexes</code></td><td>The tables. Required, and the only required list.</td></tr>
+    <tr><td><code>relationships</code></td><td><code>from</code>, <code>fromCardinality</code>, <code>to</code>, <code>toCardinality</code>; <code>label</code></td><td>How entities relate, and which side carries the foreign key.</td></tr>
+    <tr><td><code>rules</code></td><td><code>name</code>, <code>entity</code>, <code>event</code>, <code>nodes</code>, <code>edges</code>; <code>priority</code>, <code>actions</code>, <code>decisionTable</code></td><td>A decision bound to an entity and a lifecycle event.</td></tr>
+    <tr><td><code>stateMachines</code></td><td><code>name</code>, <code>entity</code>, <code>states</code>, <code>transitions</code>; <code>initial</code>, <code>final</code></td><td>A lifecycle: the legal moves of a status column.</td></tr>
+    <tr><td><code>sagas</code></td><td><code>name</code>, <code>entity</code>, <code>steps</code>; <code>trigger</code>, <code>operation</code></td><td>A multi-step process across entities.</td></tr>
+    <tr><td><code>hooks</code></td><td><code>entity</code>, <code>event</code>, <code>handler</code>; <code>fields</code></td><td>Binds a handler to a lifecycle event.</td></tr>
+    <tr><td><code>hookFlows</code></td><td><code>name</code>, <code>entity</code>, <code>nodes</code>, <code>edges</code></td><td>The hooks of one entity drawn as a process, for the reader and the viewer.</td></tr>
+    <tr><td><code>rbac</code></td><td><code>entity</code>, <code>action</code>, <code>roles</code></td><td>Restricts an operation (<code>create</code>, <code>read</code>, <code>update</code>, <code>delete</code>) or a transition's trigger to roles.</td></tr>
+    <tr><td><code>triggers</code></td><td><code>entity</code>, <code>source</code>, <code>handler</code></td><td>An event source: <code>cron:</code>, <code>webhook:</code>, <code>message:</code>.</td></tr>
+    <tr><td><code>reports</code></td><td><code>name</code>, <code>sql</code>; <code>title</code>, <code>entity</code>, <code>chart</code>, <code>x</code>, <code>y</code>, <code>help</code></td><td>A question the application's users ask, as the single read-only query that answers it.</td></tr>
   </tbody>
 </table>
 </div>
@@ -140,34 +140,39 @@
   </tbody>
 </table>
 </div>
-<p>Length is written on the type: <code>string(120) display_name</code>.</p>
+<p>Length is written on the type: <code>{ name: display_name, type: string(120) }</code>.</p>
 
-<h2>Modifiers</h2>
+<h2>Attribute keys</h2>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Modifier</th><th>Effect</th></tr></thead>
+  <thead><tr><th>Key</th><th>Effect</th></tr></thead>
   <tbody>
-    <tr><td><code>PK</code></td><td>Primary key; unique; auto-added as <code>string id PK</code> if absent.</td></tr>
-    <tr><td><code>FK</code></td><td>Foreign key; the target is derived from the column name.</td></tr>
-    <tr><td><code>UK</code> / <code>UNIQUE</code></td><td>Unique index.</td></tr>
-    <tr><td><code>OPTIONAL</code> / <code>NULL</code></td><td>Nullable. Everything is required by default.</td></tr>
+    <tr><td><code>pk: true</code></td><td>Primary key; unique; a string <code>id</code> key is added if absent.</td></tr>
+    <tr><td><code>fk: true</code></td><td>Foreign key; the target is derived from the column name.</td></tr>
+    <tr><td><code>unique: true</code></td><td>Unique index.</td></tr>
+    <tr><td><code>optional: true</code></td><td>Nullable. Everything is required by default.</td></tr>
+    <tr><td><code>enum</code></td><td>Binds the column to an enum: a dropdown of its values.</td></tr>
+    <tr><td><code>help</code></td><td>The column's help text in the application and its manual.</td></tr>
+    <tr><td><code>ui</code>, <code>default</code>, <code>min</code>, <code>max</code>, <code>format</code>, <code>comment</code></td><td>Field presentation, defaults, bounds and notes.</td></tr>
   </tbody>
 </table>
 </div>
 
 <h2>Cardinalities</h2>
+<p>Each end is one of <code>exactly-one</code>, <code>zero-or-one</code>, <code>zero-or-more</code>,
+<code>one-or-more</code>. Eight pairs are relationships:</p>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Operator</th><th>Kind</th><th>Example</th></tr></thead>
+  <thead><tr><th><code>fromCardinality</code> → <code>toCardinality</code></th><th>Kind</th><th>Example</th></tr></thead>
   <tbody>
-    <tr><td><code>||--||</code></td><td>one to one</td><td><code>User ||--|| Profile : has</code></td></tr>
-    <tr><td><code>||--o{</code></td><td>one to many</td><td><code>Account ||--o{ Contact : employs</code></td></tr>
-    <tr><td><code>||--|{</code></td><td>one to many (at least one)</td><td><code>Order ||--|{ OrderItem : contains</code></td></tr>
-    <tr><td><code>}o--||</code></td><td>many to one</td><td><code>Deal }o--|| Stage : in_stage</code></td></tr>
-    <tr><td><code>}|--||</code></td><td>many to one (at least one)</td><td><code>OrderItem }|--|| Order : belongs_to</code></td></tr>
-    <tr><td><code>}o--o{</code></td><td>many to many</td><td><code>Student }o--o{ Course : enrolls</code></td></tr>
-    <tr><td><code>}|--|{</code></td><td>many to many (at least one)</td><td><code>Author }|--|{ Book : writes</code></td></tr>
-    <tr><td><code>|o--o|</code></td><td>zero or one, both sides</td><td><code>Employee |o--o| Desk : assigned</code></td></tr>
+    <tr><td><code>exactly-one</code> → <code>exactly-one</code></td><td>one to one</td><td>User has Profile</td></tr>
+    <tr><td><code>exactly-one</code> → <code>zero-or-more</code></td><td>one to many</td><td>Account employs Contact</td></tr>
+    <tr><td><code>exactly-one</code> → <code>one-or-more</code></td><td>one to many (at least one)</td><td>Order contains OrderItem</td></tr>
+    <tr><td><code>zero-or-more</code> → <code>exactly-one</code></td><td>many to one</td><td>Deal in_stage Stage</td></tr>
+    <tr><td><code>one-or-more</code> → <code>exactly-one</code></td><td>many to one (at least one)</td><td>OrderItem belongs_to Order</td></tr>
+    <tr><td><code>zero-or-more</code> → <code>zero-or-more</code></td><td>many to many</td><td>Student enrolls Course</td></tr>
+    <tr><td><code>one-or-more</code> → <code>one-or-more</code></td><td>many to many (at least one)</td><td>Author writes Book</td></tr>
+    <tr><td><code>zero-or-one</code> → <code>zero-or-one</code></td><td>zero or one, both sides</td><td>Employee assigned Desk</td></tr>
   </tbody>
 </table>
 </div>
@@ -227,9 +232,10 @@
 <div class="note warn">
   <div class="note-title">Two syntax rules that bite</div>
   <p>
-    <code>fields</code> and <code>decisionTable</code> carry JSON and must be the <strong>last</strong> key
-    on the line. A value with a <code>//</code> in it — a URL — must have no space after its
-    <code>key:</code>, because properties split at whitespace before the next <code>key:</code>.
+    <code>fields</code> and <code>decisionTable</code> carry JSON inside a YAML string: wrap the whole
+    value in single quotes so JSON's double quotes survive. And quote any scalar holding
+    <code>: </code>, a leading <code>*</code> or a <code>#</code> — a cron source, a colour, a label like
+    <code>"Start: Lead Captured"</code> — or YAML reads it as something else.
   </p>
 </div>
 
@@ -239,9 +245,9 @@
   <thead><tr><th>Code</th><th>Means</th><th>Do</th></tr></thead>
   <tbody>
     <tr><td>EML114</td><td>FK column does not end in <code>_id</code></td><td>Rename it, or accept a plain string with no lookup</td></tr>
-    <tr><td>EML117</td><td>Entity has no primary key</td><td>Add <code>string id PK</code> (auto-fixable)</td></tr>
+    <tr><td>EML117</td><td>Entity has no primary key</td><td>Add <code>{ name: id, type: string, pk: true }</code> (auto-fixable)</td></tr>
     <tr><td>EML262</td><td>A step is missing a required property</td><td>Check the table above</td></tr>
-    <tr><td>EML264</td><td>A step reads a variable nothing published</td><td>Publish it with <code>as:</code> / <code>target:</code>, or it is a column of the triggering row</td></tr>
+    <tr><td>EML264</td><td>A step reads a variable nothing published</td><td>Publish it with <code>as</code> / <code>target</code>, or it is a column of the triggering row</td></tr>
     <tr><td>EML265</td><td>Cross-entity write with no row targeting</td><td>Add <code>targetSource</code> or <code>targetField</code></td></tr>
     <tr><td>EML272</td><td>A decision row leaves an output unset</td><td>Give every row every column — the engine discards incomplete rows silently</td></tr>
     <tr><td>EML284</td><td>An action names a workflow that does not exist</td><td>Fix the name, or declare the workflow</td></tr>
@@ -258,12 +264,13 @@
 <table>
   <thead><tr><th>Command</th><th>Does</th></tr></thead>
   <tbody>
-    <tr><td><code>bun language/checker.ts &lt;file&gt;</code></td><td>Check a model. <code>--strict</code> fails on warnings, <code>--json</code> for CI.</td></tr>
+    <tr><td><code>bun language/cli/eml.ts validate -i &lt;file&gt;</code></td><td>Check a model: YAML, schema, then the language. <code>--json</code> for CI.</td></tr>
     <tr><td><code>bun language/cli/eml.ts info -i &lt;file&gt;</code></td><td>Summarise a model: entity, rule, workflow, hook and index counts.</td></tr>
-    <tr><td><code>bun packages/generator/src/cli/generate.ts generate …</code></td><td>Generate an application.</td></tr>
-    <tr><td><code>bun run db:setup</code></td><td>In a generated app: migrate, then seed.</td></tr>
-    <tr><td><code>bun run dev</code></td><td>In a generated app: API and web together.</td></tr>
-    <tr><td><code>bun run test:e2e:fast</code></td><td>The generated end-to-end suite, minus the volume tests.</td></tr>
+    <tr><td><code>bun run generate:tanstack -- -i &lt;file&gt; -o &lt;dir&gt; -n &lt;name&gt;</code></td><td>Generate an application.</td></tr>
+    <tr><td><code>cargo loco db migrate &amp;&amp; cargo loco db seed</code></td><td>In a generated app's <code>backend/</code>: migrate, then seed.</td></tr>
+    <tr><td><code>cargo loco start --server-and-worker</code></td><td>In a generated app's <code>backend/</code>: the API on :3000.</td></tr>
+    <tr><td><code>LOCO_ENV=test cargo test --test app</code></td><td>The generated backend's request suites.</td></tr>
+    <tr><td><code>bun run test:e2e:fast</code></td><td>The generated bun end-to-end suite, minus the volume tests.</td></tr>
   </tbody>
 </table>
 </div>
@@ -273,11 +280,11 @@
 <table>
   <thead><tr><th>Path</th><th>What</th></tr></thead>
   <tbody>
-    <tr><td><code>language/appwithai-language.json</code></td><td>The canonical language definition — the authority for everything on this page</td></tr>
-    <tr><td><code>language/spec/</code></td><td>The prose spec: ERD, rules, workflows, types, directives</td></tr>
-    <tr><td><code>language/examples/crm.eml.mmd</code></td><td>The model this guide builds</td></tr>
-    <tr><td><code>language/checker.ts</code></td><td>The checker</td></tr>
-    <tr><td><code>packages/generator/src/parsers/mermaid.parser.ts</code></td><td>The ERD parser</td></tr>
+    <tr><td><code>language/yaml/eml.schema.json</code></td><td>The schema every model is validated with — the keys on this page</td></tr>
+    <tr><td><code>language/appwithai-language.json</code></td><td>The language definition — types, cardinalities, events, step contracts</td></tr>
+    <tr><td><code>language/yaml/README.md</code></td><td>The YAML model language, in prose</td></tr>
+    <tr><td><code>language/yaml/examples/crm.eml.yaml</code></td><td>The model this guide builds</td></tr>
+    <tr><td><code>packages/generator/src/model-yaml/</code></td><td>The reader: YAML → schema → the compiled model</td></tr>
     <tr><td><code>packages/generator/templates/</code></td><td>Every template the generated app is made of</td></tr>
     <tr><td><code>generated-projects/crm/</code></td><td>The application, as generated</td></tr>
   </tbody>
@@ -300,7 +307,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -336,7 +343,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser &rarr;</a></p>
       </div>
     </div>

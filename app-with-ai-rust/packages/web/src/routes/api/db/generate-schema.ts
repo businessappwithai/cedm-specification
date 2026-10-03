@@ -1,13 +1,32 @@
 /**
- * Create tables in a target database from the project's ERD.
+ * Create tables in a target database from the project's saved model.
  *
  * Guarded by `requireProjectAccess` with `read_write`: it executes DDL against
  * the database a project points at, which is the most consequential thing this
  * app does to something outside itself. It used to take only the encrypted
  * connection string with no authentication at all.
+ *
+ * The model is read from what the project saved, not from the request, and
+ * compiled by the generator, so every table, column, type and primary key here
+ * is the one the generated application would use.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import type { EntityAttribute } from "@appwithai/core/types";
+
+/** The column type a canonical model type is stored as. */
+const SQL_TYPE: Record<EntityAttribute["type"], string> = {
+  string: "TEXT",
+  text: "TEXT",
+  integer: "BIGINT",
+  decimal: "NUMERIC",
+  boolean: "BOOLEAN",
+  date: "DATE",
+  datetime: "TIMESTAMPTZ",
+  json: "JSONB",
+};
+
+const quote = (identifier: string) => `"${identifier.replace(/"/g, '""')}"`;
 
 export const Route = createFileRoute("/api/db/generate-schema")({
   server: {
@@ -16,10 +35,9 @@ export const Route = createFileRoute("/api/db/generate-schema")({
     try {
       const body = (await request.json()) as {
         projectId?: string;
-        mermaidCode: string;
         targetDbConnection: string;
       };
-      const { projectId, mermaidCode, targetDbConnection } = body;
+      const { projectId, targetDbConnection } = body;
 
       if (!projectId) {
         return new Response(JSON.stringify({ error: "projectId is required" }), {
@@ -32,12 +50,6 @@ export const Route = createFileRoute("/api/db/generate-schema")({
       const access = await requireProjectAccess(request, projectId, "read_write");
       if (access.response) return access.response;
 
-      if (!mermaidCode?.trim()) {
-        return new Response(JSON.stringify({ error: "mermaidCode is required" }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
       if (!targetDbConnection) {
         return new Response(JSON.stringify({ error: "targetDbConnection is required" }), {
           status: 400,
@@ -45,16 +57,24 @@ export const Route = createFileRoute("/api/db/generate-schema")({
         });
       }
 
-      // Parse ERD
-      const { MermaidParser } = await import("@appwithai/generator");
-      const parser = new MermaidParser();
-      const schema = parser.parse(mermaidCode);
-
-      if (!schema.entities || schema.entities.length === 0) {
+      const { projectDb } = await import("@appwithai/core/services");
+      const project = await projectDb.findById(projectId);
+      const modelText: string = project?.modelYaml ?? "";
+      const { ModelYamlError, parseModelYaml } = await import("@appwithai/generator/model-yaml");
+      let schema: ReturnType<typeof parseModelYaml>["model"];
+      try {
+        schema = parseModelYaml(modelText, { source: "model/model.eml.yaml" }).model;
+      } catch (error) {
+        if (error instanceof ModelYamlError)
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 422,
+            headers: { "Content-Type": "application/json" },
+          });
+        throw error;
+      }
+      if (schema.entities.length === 0) {
         return new Response(
-          JSON.stringify({
-            error: "No entities found in ERD. Check your Mermaid syntax.",
-          }),
+          JSON.stringify({ error: "The saved model declares no entities." }),
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -80,38 +100,19 @@ export const Route = createFileRoute("/api/db/generate-schema")({
       const tablesCreated: string[] = [];
 
       for (const entity of schema.entities) {
-        const tableName = entity.name
-          .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-          .toLowerCase();
-
         const columns = entity.attributes.map((attr) => {
-          const colName = attr.name;
-          let colType = "TEXT";
-          const rawType = (attr.type || "string").toLowerCase();
-          if (rawType === "int" || rawType === "integer") colType = "INTEGER";
-          else if (rawType === "bigint") colType = "BIGINT";
-          else if (rawType === "float" || rawType === "double") colType = "DOUBLE PRECISION";
-          else if (rawType === "decimal") colType = "NUMERIC(10,2)";
-          else if (rawType === "boolean" || rawType === "bool") colType = "BOOLEAN";
-          else if (rawType === "text") colType = "TEXT";
-          else if (rawType === "date") colType = "DATE";
-          else if (rawType === "datetime" || rawType === "timestamp") colType = "TIMESTAMPTZ";
-          else if (rawType === "json") colType = "JSONB";
-
-          const pk = attr.unique && attr.name === "id" ? " PRIMARY KEY" : "";
-          const serial = attr.unique && colName === "id" ? "SERIAL" : colType;
-          const notNull =
-            attr.required && !(attr.unique && attr.name === "id") ? " NOT NULL" : "";
-          return `  "${colName}" ${pk ? serial : colType}${pk}${notNull}`;
+          const primary = attr.name === entity.primaryKey;
+          return (
+            `  ${quote(attr.name)} ${SQL_TYPE[attr.type]}` +
+            (primary ? " PRIMARY KEY" : "") +
+            (attr.required && !primary ? " NOT NULL" : "") +
+            (attr.unique && !primary ? " UNIQUE" : "")
+          );
         });
-
-        if (!entity.attributes.some((a) => a.unique && a.name === "id")) {
-          columns.unshift('  "id" SERIAL PRIMARY KEY');
-        }
-
-        const ddl = `CREATE TABLE IF NOT EXISTS "${tableName}" (\n${columns.join(",\n")}\n);`;
-        ddlStatements.push(ddl);
-        tablesCreated.push(tableName);
+        ddlStatements.push(
+          `CREATE TABLE IF NOT EXISTS ${quote(entity.tableName)} (\n${columns.join(",\n")}\n);`
+        );
+        tablesCreated.push(entity.tableName);
       }
 
       try {

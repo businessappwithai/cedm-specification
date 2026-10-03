@@ -27,10 +27,9 @@ export interface Project {
   port: number;
   databaseUrl?: string;
 
-  // ERD Design (Step 2)
-  erdCode?: string;
+  // Design (Step 2): the model's YAML, as last saved
+  modelYaml?: string;
   gitCommit?: string | null;
-  erdValidationErrors?: ValidationError[];
 
   // Generation (Step 3)
   generatedPath?: string;
@@ -61,7 +60,8 @@ export interface WorkflowDefinition {
   id: string;
   name: string;
   serviceName: string;
-  mermaidCode: string;
+  /** An automation's `automation: "1.0"` YAML document; null for a service's hook row. */
+  definition: string | null;
   description?: string;
 }
 
@@ -111,11 +111,11 @@ export const STEP_ROUTES: Record<ProjectStep, string> = {
 };
 
 
-export interface MermaidFile {
+/** A model kept in a project's library (`GET /api/model-library`). */
+export interface LibraryModel {
   filename: string;
-  type: "erd" | "rules";
   projectId: string;
-  projectName: string;
+  canonical: boolean;
   content: string;
   createdAt: string;
   downloadUrl: string;

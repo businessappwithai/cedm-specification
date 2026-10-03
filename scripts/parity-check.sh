@@ -30,6 +30,26 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# The CEDM specification — the domain library and the domain applications — is
+# found the way the generators find it: CEDM_SPEC_ROOT, else the nearest
+# directory upward holding specification/manifest.yaml and domain/. This
+# repository's copy inside cedm-specification finds the enclosing repository.
+spec_root() {
+  if [ -n "${CEDM_SPEC_ROOT:-}" ] && [ -f "$CEDM_SPEC_ROOT/specification/manifest.yaml" ]; then
+    echo "$CEDM_SPEC_ROOT"; return
+  fi
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/specification/manifest.yaml" ] && [ -d "$dir/domain" ]; then echo "$dir"; return; fi
+    dir="$(dirname "$dir")"
+  done
+}
+SPEC_ROOT="$(spec_root)"
+if [ -z "$SPEC_ROOT" ]; then
+  echo "!! no CEDM specification found (set CEDM_SPEC_ROOT)" >&2
+  exit 1
+fi
+
 # The corpus. Grow this — and grow the models themselves — whenever a construct
 # or a template branch lands that no existing model reaches.
 PARITY_MODELS=(
@@ -45,7 +65,7 @@ PARITY_MODELS=(
   "examples/drug-discovery.cedm.yaml"
   "language/cedm/examples/crm.cedm.yaml"
   # A domain application: enumeration tables, imports of the common module.
-  "applications/sales.cedm.yaml"
+  "$SPEC_ROOT/applications/sales.cedm.yaml"
 )
 
 # CEDM models whose lowering is compared across TypeScript, Rust and
@@ -53,7 +73,7 @@ PARITY_MODELS=(
 # CEDM is compared too; these add what generation parity would not reach.
 CEDM_LOWERING_MODELS=(
   "examples/drug-discovery.cedm.yaml"
-  "applications/common.cedm.yaml"
+  "$SPEC_ROOT/applications/common.cedm.yaml"
   language/cedm/examples/*.cedm.yaml
 )
 

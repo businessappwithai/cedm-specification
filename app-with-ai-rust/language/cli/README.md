@@ -1,11 +1,17 @@
 # EML CLI (`eml`)
 
-A robust, zero-runtime-dependency TypeScript CLI that reads the
-[APPWITHAI Modeling Language](../README.md) definition, parses an `.mmd` EML
-model (ERD + business rules + workflows), validates it **with self-correction**,
-and **generates a complete, runnable application** from it.
+A TypeScript CLI that reads a model — a YAML document, `*.eml.yaml`, written in
+the [APPWITHAI Modeling Language](../README.md) — validates it **with
+self-correction**, and **generates a complete, runnable application** from it.
 
-Runs under **Bun** (source) or Node (bundled). No project install required.
+A model is read by the language's own reader
+(`packages/generator/src/model-yaml`) and validated with the same three layers
+as `appwithai validate` — YAML syntax, the JSON Schema, the full language
+checker — so every finding is reported at the YAML line and column it concerns,
+and the CLI never disagrees with the generator about whether a model is valid.
+
+Runs under **Bun**. Reading a model needs the repository's dependencies
+(`bun install` at the root).
 
 ```bash
 bun language/cli/eml.ts --help
@@ -15,155 +21,111 @@ bun language/cli/eml.ts --help
 
 | Command | Purpose |
 |---------|---------|
-| `generate` | Parse → validate (self-correct) → generate an app (+Docker, +GitHub) |
-| `validate` | Parse and validate a model; report diagnostics; exit 1 on errors |
-| `info` | Print a summary of the parsed model |
+| `generate` | Validate (self-correct) → generate an app (+Docker, +GitHub) |
+| `validate` | Validate a model; report every finding; exit 1 on errors |
+| `info` | Print a summary of the model |
 | `help` | Show usage |
 
 ## Options
 
 ```
--i, --input <file>        Input .mmd EML file (or first positional arg)
+-i, --input <file>        Model (.eml.yaml); or first positional arg
 -o, --output <dir>        Output directory for the generated app
 -n, --name <name>         Application name (default: derived from the model)
-    --stack <stack>       node-rest (default) | tanstack-nestjs
+    --stack <stack>       node-rest (default) | tanstack-astryx-loco
+    --skip-cli-scaffold   tanstack-astryx-loco: skip `loco new` (offline; templates only)
     --docker              Also emit Dockerfile + docker-compose.yml (node-rest)
     --github <owner/repo> Publish the generated app to a GitHub repository
     --github-token <tok>  GitHub token (else GITHUB_TOKEN / GH_TOKEN)
-    --private | --public  Visibility of the created GitHub repo (default private)
-    --no-autofix          Disable validation self-correction
+    --private | --public  Visibility of a repository --github creates (default private)
+    --no-autofix          Do not correct mechanically fixable findings first
     --force               Overwrite a non-empty output directory
-    --json                Machine-readable output (validate/info)
--h, --help                Show help
--v, --version             Show version
+    --json                Machine-readable output (validate / info)
 ```
 
 ## Examples
 
 ```bash
-# Validate (with self-correction preview)
-bun language/cli/eml.ts validate -i language/examples/helpdesk.eml.mmd
+bun language/cli/eml.ts validate -i language/yaml/examples/helpdesk.eml.yaml
+bun language/cli/eml.ts info -i language/yaml/examples/helpdesk.eml.yaml
+bun language/cli/eml.ts generate -i language/yaml/examples/helpdesk.eml.yaml -o ./out --docker
+cd out && bun run start   # → http://localhost:3000
 
-# Summarize the model
-bun language/cli/eml.ts info -i language/examples/helpdesk.eml.mmd
-
-# Generate a runnable app + Docker files
-bun language/cli/eml.ts generate -i language/examples/helpdesk.eml.mmd -o ./out --docker
-
-# Generate and publish to GitHub (needs GITHUB_TOKEN)
-bun language/cli/eml.ts generate -i model.mmd -o ./out --github me/my-app --public
-
-# Run the generated app (zero dependencies)
-cd out && npm start   # → http://localhost:3000
+# The generator's own stack: a Rust (Loco.rs) backend and a TanStack Start + Astryx frontend
+bun language/cli/eml.ts generate -i examples/drug-discovery.eml.yaml -o ./dd \
+  --stack tanstack-astryx-loco
 ```
 
 ## Stacks
 
-### `node-rest` (default)
-
-A complete, **dependency-free** Node app (`node:http` + a JSON-file datastore) —
-generated entirely by this CLI and runnable with no install.
-
-### `tanstack-nestjs`
-
-Reuses the **shipped** generator (`packages/generator`) — its
-`GeneratorOrchestrator` and the `tanstack-start-nestjs` Handlebars templates —
-to produce a full **TanStack Start frontend + NestJS backend** project
-(`backend/` + `frontend/`). The EML model is mapped to the core
-`Entity[]`/`Relationship[]` the orchestrator consumes, and generation runs in
-template-only mode (no network scaffolding). Requires the workspace deps
-installed and `@appwithai/core` built once:
-
-```bash
-bun install
-bun run --filter @appwithai/core build
-bun language/cli/eml.ts generate -i model.mmd -o ./out --stack tanstack-nestjs
-```
-
-## Docker + CI/CD (`--docker`)
-
-For the `node-rest` stack, `--docker` emits a `Dockerfile`, `.dockerignore`,
-`docker-compose.yml`, **and** a GitHub Actions workflow at
-`.github/workflows/app-ci.yml`. That workflow has everything needed to run the
-generated app via **Docker + docker compose**: it builds the image
-(`docker compose build`), runs it (`docker compose up -d`), health-checks
-`/health`, smoke-tests `/api/_meta`, and — on push — builds and pushes the image
-to GHCR. Because it lives inside the generated app, it travels with the code
-when the app is published to a repository (`--github`).
-
-## Generate from an online model in CI
-
-The repo ships a driver workflow, `.github/workflows/eml-generate-and-publish.yml`
-(`workflow_dispatch`), that points the CLI at an **online `.mmd` URL**, generates
-the app (with Docker + the `app-ci.yml` workflow), and publishes it to a target
-GitHub repository — reusing the CLI's `--github` publisher. Inputs: `mmd_url`,
-`target_repo`, `app_name`, `stack`, `visibility`. It needs an `EML_PUBLISH_TOKEN`
-secret (a PAT with `repo` + `workflow` scopes; the `workflow` scope is required to
-push `app-ci.yml` into the target repo).
-
-## Business rules → GoRules JDM
-
-For **either** stack, each EML business rule is converted to a **GoRules JDM**
-decision document via the shipped converter
-(`packages/web/src/lib/jdm-converter.ts`) and written to `<out>/rules/`
-(`<rule>.jdm.json` + `index.json`). Node shapes map to JDM roles
-(stadium→input/output, diamond→switch, circle→function, rect→expression).
-
-## The node-rest output
-
-A complete, dependency-free Node app (`node:http` + a JSON-file datastore):
+**`node-rest`** — a dependency-free REST application on Bun (`node:http` + a
+JSON-file datastore), for trying a model in seconds:
 
 ```
 out/
   src/
     server.js      HTTP server + routing (REST CRUD per entity)
     services.js    per-entity lifecycle: validation → rules → hooks → workflow
-    rules.js       business-rule engine (evaluates the decision flows)
+    rules.js       business-rule engine (walks each rule's decision graph)
     workflows.js   state machines (enforces legal status transitions → 409)
     hooks.js       lifecycle hook handlers (generated stubs to implement)
     validate.js    request validation (required fields, enums, coercion)
     db.js          JSON-file datastore
-    model.js       the parsed EML model (source of truth)
+    model.js       the model (generated)
     openapi.js     OpenAPI 3 document builder
-  eml.model.json   parsed-model snapshot
+  rules/           one GoRules JDM document per rule, plus index.json
+  eml.model.json   model snapshot
   package.json  README.md  .gitignore
-  Dockerfile  docker-compose.yml  .dockerignore   (with --docker)
+  Dockerfile  docker-compose.yml  .dockerignore  .github/workflows/app-ci.yml   (with --docker)
 ```
 
-The generated app wires each section of the EML model:
+**`tanstack-astryx-loco`** — the application `appwithai generate` produces, by
+the same pipeline (`generateApplication`): the Loco.rs backend with its seeds and
+request suites, the TanStack Start + Astryx frontend, the bun test suites, and
+`model/model.eml.yaml` exactly as written. `loco new` scaffolds the backend
+first; `--skip-cli-scaffold` skips it for an offline build.
 
-- **ERD** → entities, REST endpoints, persistence, validation, OpenAPI.
-- **Business rules** → evaluated in the create/update lifecycle; the decision
-  trace is returned under `_rules` on the response.
-- **Workflows** → state transitions enforced on update (illegal → HTTP 409);
-  `%%hook` handlers invoked around CRUD as stubs to implement.
+## Business rules → GoRules JDM
+
+For `node-rest`, each rule's decision graph is converted to a GoRules JDM
+document by the generator's own converter
+(`packages/generator/src/rules/jdm-converter.ts`) and written to
+`<out>/rules/`. Node types map to JDM nodes: `start` → inputNode, `end` →
+outputNode, `decision` → switchNode, `expression` → expressionNode, `function` →
+functionNode. The Loco stack seeds its rules into `sys_rule_definitions`
+instead.
+
+## Generate from an online model in CI
+
+The repo ships a driver workflow, `.github/workflows/eml-generate-and-publish.yml`
+(`workflow_dispatch`), that points the CLI at an **online model URL**
+(`*.eml.yaml`), generates the app (with Docker and the `app-ci.yml` workflow),
+and publishes it to a target GitHub repository with the CLI's `--github`
+publisher. Inputs: `model_url`, `target_repo`, `app_name`, `stack`,
+`visibility`. It needs an `EML_PUBLISH_TOKEN` secret (a token with `repo` and
+`workflow` scopes; `workflow` is required to push `app-ci.yml` into the target
+repository).
 
 ## How the pieces fit
 
 ```
-.mmd EML ──parser.ts──▶ EmlModel ──validator.ts──▶ (self-corrected) ──generate/*──▶ app
-                 ▲
-     language/appwithai-language.json  (types, cardinalities, hook types, …)
+model.eml.yaml ──readModelYaml──▶ ModelDocument ──toEmlModel──▶ EmlModel ──generate/*──▶ app
+                  (YAML · schema · checker)                        │
+                                                                   └──▶ generateApplication (tanstack-astryx-loco)
 ```
+
+`src/document.ts` is the only reader. `src/model.ts` is what the node-rest
+generators and runtime consume.
 
 ## Validation & self-correction
 
-`validate` and `generate` share the same validator. With self-correction on
-(default), fixable problems are repaired in place and reported as `fix`
-diagnostics; without it (`--no-autofix`) they are reported as errors/warnings.
-
-| Code | Problem | Auto-fix |
-|------|---------|----------|
-| `EML001` | No document name | derive a name |
-| `EML101` | Duplicate entity | merge attributes |
-| `EML102` | Duplicate attribute | drop the duplicate |
-| `EML103` | Entity has no primary key | add `string id PK` |
-| `EML120` | Relationship endpoint not an entity | synthesize a minimal entity |
-| `EML130` | Field references unknown enum | warn (treated as free string) |
-| `EML202` | Unknown hook type | error (not auto-fixable) |
-| `EML210` | Hook bound to unknown entity | synthesize a minimal entity |
-| `EML300` | Rule missing input/output node | warn |
-| `EML400` | State workflow has no transitions | warn |
+`validate` reports the model as written. `generate` first applies the
+mechanically fixable corrections — in memory; the file is never rewritten —
+and reports each one, then refuses a model that still has an error. The
+correctable codes are the fixer's `AUTO_FIXABLE_CODES`
+(`packages/generator/src/model-yaml/fixer.ts`), listed with what each does in
+`diagnostics.autoFixable` in `../appwithai-language.json`. `--no-autofix`
+generates only from a model that is valid as written.
 
 ## Development
 

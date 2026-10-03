@@ -498,7 +498,7 @@ pub async fn history(
 ///
 /// `seed_rules` installs what is missing and leaves an administrator's edits
 /// alone, which is what makes `cargo loco db seed` safe to re-run. That leaves
-/// a gap: a model whose flowchart *changed* has no way to reach a database that
+/// a gap: a model whose rule *changed* has no way to reach a database that
 /// already holds the old version, short of dropping it.
 ///
 /// This is that way. It applies the same `seed/rules.sql` inside a transaction

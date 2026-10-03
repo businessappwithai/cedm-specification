@@ -32,8 +32,8 @@ afterEach(async () => {
 describe("isolated local repositories", () => {
   it("commits only explicitly managed files and skips unchanged snapshots", async () => {
     await fs.writeFile(path.join(dir, ".env"), "SECRET=keep-private");
-    const files = { "model/test.mmd": encode("erDiagram\n") };
-    await publishFiles(dir, { "model/test.mmd": null }, files);
+    const files = { "model/model.eml.yaml": encode('eml: "1.0"\nentities: []\n') };
+    await publishFiles(dir, { "model/model.eml.yaml": null }, files);
     const commit = await commitFiles(dir, files, null, "draft", "User");
     expect(await head(dir)).toBe(commit);
     expect(await treeFiles(dir, commit)).toEqual(files);
@@ -50,7 +50,7 @@ describe("isolated local repositories", () => {
     await fs.symlink(root, path.join(root, "alias"));
     await expect(projectDirectory("alias", root)).rejects.toThrow("symlink");
     await fs.symlink(root, path.join(dir, "model"));
-    await expect(readFile(dir, "model/a.mmd")).rejects.toThrow("Symlink");
+    await expect(readFile(dir, "model/a.eml.yaml")).rejects.toThrow("Symlink");
   });
   it("excludes secrets, runtime state and path injection", () => {
     for (const name of [
@@ -65,6 +65,8 @@ describe("isolated local repositories", () => {
       "src/a\t.ts",
       ".git/config",
       "backend/target/debug/app",
+      // The model is YAML; a Mermaid file is not part of a project any more.
+      "model/model.eml.mmd",
     ])
       expect(allowedFile(name), name).toBe(false);
     for (const name of [
@@ -74,7 +76,9 @@ describe("isolated local repositories", () => {
       "backend/Cargo.toml",
       "backend/Cargo.lock",
       "frontend/src/routes/$id.tsx",
-      "model/model.eml.mmd",
+      "model/model.eml.yaml",
+      "model/automations/0123456789abcdef01234567.yaml",
+      ".appwithai/model.ai.yaml",
       "Dockerfile",
       "package.json",
     ])

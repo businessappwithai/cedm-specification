@@ -1,5 +1,5 @@
 // Workflow state machines.
-// Builds a transition table per entity from the EML state workflows, and
+// Builds a transition table per entity from the model's state machines, and
 // enforces legal status transitions on update.
 
 import { MODEL } from "./model.js";
@@ -12,17 +12,11 @@ function buildStateMachines() {
   for (const wf of MODEL.workflows ?? []) {
     if (wf.kind !== "state" || !wf.entity) continue;
     const transitions = {};
-    let initial = null;
     for (const t of wf.transitions ?? []) {
-      if (t.from === "[*]") {
-        initial = t.to;
-        continue;
-      }
-      if (t.to === "[*]") continue;
       (transitions[t.from] ??= {})[t.event || `${t.from}_to_${t.to}`] = t.to;
     }
     machines[wf.entity] = {
-      initial: initial ?? wf.states?.[0] ?? null,
+      initial: wf.initial ?? wf.states?.[0] ?? null,
       states: wf.states ?? [],
       statusField: "status",
       transitions,

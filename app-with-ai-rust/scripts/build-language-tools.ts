@@ -1,28 +1,21 @@
 #!/usr/bin/env bun
 /**
- * Bundle the EML checker and fixer as two standalone files for the web.
+ * Bundle the model language as one standalone file for the web.
  *
- * `html/checker.js` and `html/fixer.js` are what an author — or a model writing
- * a model — validates a `.eml.mmd` against without a checkout, a Bun install or
- * a terminal. They sit at the site root rather than under `assets/` because
- * their URL is the interface: `website/llmtext/llms-full.txt` tells a language model to
- * run its output past `/checker.js`, and a path that reads like an
- * implementation detail invites being moved.
+ * `html/model-yaml.js` is what an author — or a model writing a model —
+ * validates and repairs a `*.eml.yaml` with, without a checkout, a Bun install
+ * or a terminal. It sits at the site root because its URL is the interface:
+ * `website/llmtext/llms-full.txt` tells a language model to run its output past
+ * `/model-yaml.js`, and a path that reads like an implementation detail invites
+ * being moved.
  *
- * Two files, not one, because they are two tools and a caller usually wants
- * only the first. The checker duplicated inside `fixer.js` is the price of
- * `fixer.js` being able to re-check what it repaired without a second fetch,
- * which is the loop that makes the repair trustworthy.
- *
- * Nothing here re-implements a rule. Both entry points inject the inlined
- * language definition and re-export the pure functions from
- * `language/checker.ts` and `language/fixer.ts` — the same engines the CLIs
- * run. A document that passes in a browser passes in the terminal, because it
- * is the same code; a second weaker checker written for the web is how a
- * document comes to pass in one place and fail in the other.
+ * Nothing here re-implements a rule. The entry point injects the inlined
+ * language definition and re-exports the reader, checker and fixer the CLIs run.
+ * A document that passes in a browser passes in the terminal, because it is the
+ * same code.
  *
  *   bun run build:language-tools
- *   bun run build:language-tools --check    # fail if the checked-in copies are stale
+ *   bun run build:language-tools --check    # fail if the checked-in copy is stale
  */
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -37,35 +30,25 @@ process.chdir(ROOT);
 
 const TOOLS = [
   {
-    entry: "language/browser/checker.entry.ts",
-    target: "html/checker.js",
-    global: "EMLChecker",
-    what: "the EML checker",
+    entry: "language/browser/model-yaml.entry.ts",
+    target: "html/model-yaml.js",
+    global: "EMLYaml",
+    what: "the model language",
     blurb:
-      "// Every diagnostic `bun language/checker.ts` prints, as a function:\n" +
-      "//   import { check, formatReport } from './checker.js';\n" +
-      "//   const report = check(source);   // { ok, counts, issues, languageVersion }\n",
-  },
-  {
-    entry: "language/browser/fixer.entry.ts",
-    target: "html/fixer.js",
-    global: "EMLFixer",
-    what: "the EML fixer",
-    blurb:
-      "// The repairs `bun language/fixer.ts` applies, plus the check-fix-recheck\n" +
-      "// loop that makes them trustworthy:\n" +
-      "//   import { checkAndFix } from './fixer.js';\n" +
-      "//   const { source, ok, remaining } = checkAndFix(model);\n",
+      "// Validate and repair models (*.eml.yaml):\n" +
+      "//   import { validate, fix } from './model-yaml.js';\n" +
+      "//   const { ok, diagnostics } = validate(yamlText);   // located at YAML lines\n" +
+      "//   const { text, applied } = fix(yamlText);           // comments kept\n",
   },
 ] as const;
 
 /**
  * Stubs for the Node builtins the CLI halves still name.
  *
- * `checker.ts` and `fixer.ts` read files and write `.error` reports when they
- * are commands; `language/index.ts` resolves the definition off disk. The entry
- * points inject the definition and call only the pure functions, so none of
- * these ever run — but the imports must still resolve for the bundle to build.
+ * `language/index.ts` and the generator's language maps resolve the definition
+ * off disk. The entry point injects the definition and calls only the pure
+ * functions, so none of these ever run — but the imports must still resolve for
+ * the bundle to build.
  *
  * They fail rather than pretend: a read reports a missing file, which is the
  * branch the loader already handles, and a write throws, because a page quietly
@@ -96,8 +79,9 @@ const nodeStubs: Record<string, string> = {
 const stubPlugin: import("bun").BunPlugin = {
   name: "node-builtin-stubs",
   setup(build) {
-    build.onResolve({ filter: /^node:(fs|path|url)$/ }, (args) => ({
-      path: args.path,
+    // Both spellings: `node:fs` and `fs` resolve to the same stub.
+    build.onResolve({ filter: /^(?:node:)?(fs|path|url)$/ }, (args) => ({
+      path: args.path.startsWith("node:") ? args.path : `node:${args.path}`,
       namespace: "node-stub",
     }));
     build.onLoad({ filter: /.*/, namespace: "node-stub" }, (args) => ({

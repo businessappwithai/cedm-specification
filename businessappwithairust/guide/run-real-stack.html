@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Compile a Mermaid model into the full NestJS and TanStack Start application and run it inside this browser tab — the four hundred files the command-line generator writes, installed and started by a WebContainer.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM, WebAssembly, PGlite, browser demo">
+  <meta name="description" content="Run the real generated application — the Loco.rs (Rust) backend and the TanStack Start + Astryx front end that chapter 09's download and the appwithai CLI write from a YAML model — with Docker, or with cargo and bun.">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM, WebAssembly, PGlite, browser demo">
   <title>10 · Run the real stack — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -13,7 +13,6 @@
   <link rel="stylesheet" href="../assets/css/guide-demo.css">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/dark-theme.css">
-  <script src="../assets/js/coi.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
@@ -84,10 +83,10 @@
             <li><a href="11-check-a-model.html"><span class="guide-num">11</span> Check a model</a></li>
           </ul>
           <div class="guide-sidebar-foot">
-            This chapter assembles the full NestJS and TanStack Start application in your
-            browser and runs it in a WebContainer — real Node, real <code>npm install</code>.
+            This chapter runs the generated application itself: a Loco.rs backend crate and a
+            TanStack Start + Astryx front end, on your machine.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -100,155 +99,97 @@
 <h1>Run the real stack</h1>
 <p class="lede">
   <a href="run-in-browser.html">Chapter 09</a> compiles a model into a runtime that needs no install and
-  no build step — which is what makes it start in ten seconds, and also what makes its interface a port
-  of the real one rather than the real one. This chapter makes the other trade. It assembles the
-  <b>actual</b> generated application, four hundred files of NestJS and TanStack Start, and hands them
-  to a WebContainer: real Node.js compiled to WebAssembly, a real <code>npm install</code>, the real
-  Vite build.
+  no build step — which is what makes it start in seconds, and also what makes its interface a port of
+  the real one rather than the real one. This chapter runs the <b>actual</b> generated application: a
+  Loco.rs (Rust) backend crate, a TanStack Start front end built on the Astryx design system, and the two
+  test suites that come with them.
 </p>
 
 <p>
-  Everything before the install is the same code the command line runs. <code>generateApplication</code>
-  and the WebAssembly overlay are imported unmodified; what changes is the filesystem beneath them,
-  which is a <code>Map</code> in this tab instead of a disk. That is the whole trick, and it is why what
-  boots below is the application <code>appwithai generate</code> would have written rather than
-  something assembled to look like it.
+  There is one generator, and both ways of getting the source run it. The download in chapter 09 is
+  <code>generateApplication</code> — the function the <code>appwithai</code> command line calls —
+  running in your tab over an in-memory filesystem; CI generates every published model both ways and
+  requires the two to write the same files, byte for byte, executables included. The only thing the
+  command line adds is <code>cargo fmt</code> over the backend, when cargo is installed.
 </p>
 
-<p class="note warn">
-  <b>This chapter needs the network, and a browser that allows cross-origin isolation.</b> A
-  WebContainer downloads its Node.js runtime from StackBlitz and then installs some two thousand
-  packages from npm, so the first run is minutes rather than seconds and none of it works offline.
-  Chapter 09 has neither requirement — if you want to see an application running quickly, start there.
+<p class="note">
+  <b>This one runs on your machine, not in the tab.</b> The backend is a Rust crate, and building it
+  needs cargo — which no browser sandbox provides. Expect the first build to take a few minutes while
+  the dependency tree compiles; later builds are incremental.
 </p>
 
-<div class="environment" id="environment" hidden></div>
+<h2 id="source">1 · Get the source</h2>
+<p>
+  Either of these produces the same project, named after what you call it:
+</p>
+<ul>
+  <li>
+    <b>From this site.</b> Open <a href="run-in-browser.html">chapter 09</a>, choose or upload a model,
+    and press <b>Download the deployable app (.zip)</b>. Nothing is sent anywhere: the project is written
+    in your tab.
+  </li>
+  <li>
+    <b>From the command line</b>, in a checkout of <code>app-with-ai-rust</code>:
+    <pre><code>bun run generate:tanstack -- -i guide/models/crm.eml.yaml -o crm -n crm</code></pre>
+  </li>
+</ul>
+<p>
+  Either way you get <code>backend/</code> (the crate), <code>frontend/</code> (the bun workspace),
+  <code>tests/</code> (the end-to-end suites), <code>model/model.eml.yaml</code> (the model it came
+  from), a <code>docker-compose.yml</code> and a <code>README.md</code>.
+</p>
 
-<section class="build" id="build" hidden aria-live="polite">
-  <div class="build__head">
-    <span class="build__label" id="build-label">Ready</span>
-    <span class="build__pct" id="build-pct">0%</span>
-  </div>
-  <div class="build__track" role="progressbar" id="build-bar"
-       aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="build-label">
-    <div class="build__fill" id="build-fill"></div>
-  </div>
-  <ol class="build__phases" id="build-phases"></ol>
-  <div class="build__detail" id="build-detail"></div>
-</section>
+<h2 id="docker">2 · Run it with Docker</h2>
+<p>
+  The compose file runs PostgreSQL, the backend and the front end. It refuses to start without three
+  secrets rather than inventing them, and the backend image's entrypoint is the crate's own command
+  line — so the same image migrates and seeds the database before the first start:
+</p>
+<pre><code>cd crm
+export DB_PASSWORD=change-me ADMIN_PASSWORD=change-me JWT_SECRET=$(openssl rand -hex 32)
+docker compose build
+docker compose run --rm backend db migrate    # the schema
+docker compose run --rm backend db seed       # the dictionary, workflows, access rules, accounts
+docker compose up</code></pre>
+<p>
+  The API answers on <code>http://localhost:3000</code> — it describes itself at
+  <code>/openapi.json</code>, with browsable references at <code>/redoc</code> and
+  <code>/scalar</code> — and the application is on <code>http://localhost:3001</code>. Sign in as
+  <code>admin@admin.com</code> with the <code>ADMIN_PASSWORD</code> you chose, or as one of the accounts
+  the seed creates for every role the model's <code>rbac</code> declares.
+</p>
 
-<div class="flow">
+<h2 id="local">3 · Or run it with cargo and bun</h2>
+<p>
+  You need a Rust toolchain with cargo, Bun 1.1 or later, and PostgreSQL 14 or later. The database is
+  named after the crate, with <code>_development</code> on the end:
+</p>
+<pre><code>createdb crm_development
+cd crm
+bun install                      # the front end's dependencies
+cp backend/.env.example backend/.env
+bun run db:migrate               # cargo loco db migrate
+bun run db:seed                  # the dictionary, workflows, access rules, accounts
+bun run dev                      # the API on :3000 and the front end on :3001</code></pre>
+<p>
+  <code>cargo loco</code> is not something to install: the backend ships a
+  <code>.cargo/config.toml</code> aliasing it to the crate's own command-line binary, which provides
+  <code>start</code>, <code>db migrate</code>, <code>db seed</code>, <code>task</code> and the rest.
+</p>
 
-  <section class="flow-step" id="step-model" data-state="active">
-    <header class="flow-step__head">
-      <span class="flow-step__num">1</span>
-      <div>
-        <h2 class="flow-step__title">Choose a model</h2>
-        <p class="flow-step__hint">The same models chapter 09 offers, checked the same way.</p>
-      </div>
-    </header>
-    <div class="flow-step__body">
-      <div class="choices">
-        <button type="button" class="choice" id="choice-crm" aria-pressed="true">
-          <span class="choice__name">Use the CRM example</span>
-          <span class="choice__desc">Seventeen entities, eight rules, ten processes, thirty-two access restrictions.</span>
-          <span class="choice__meta">language/examples/crm.eml.mmd</span>
-        </button>
-        <button type="button" class="choice" id="choice-drug" aria-pressed="false">
-          <span class="choice__name">Use the drug-discovery example</span>
-          <span class="choice__desc">A regulated-lab model — compounds, experiments, deviations, CAPAs.</span>
-          <span class="choice__meta">examples/drug-discovery.eml.mmd</span>
-        </button>
-        <button type="button" class="choice" id="choice-hospital" aria-pressed="false">
-          <span class="choice__name">Use the hospital example</span>
-          <span class="choice__desc">Thirty entities — admissions, wards and beds, orders and results, billing, stock. Ten state machines, ten sagas and twenty-seven lifecycle hooks.</span>
-          <span class="choice__meta">examples/hospital-management-system.mmd</span>
-        </button>
-        <button type="button" class="choice" id="choice-dance" aria-pressed="false">
-          <span class="choice__name">Use the dance-studio example</span>
-          <span class="choice__desc">Nine entities — classes, sessions, bookings, a waitlist and class packs. Two state machines, a saga, and the fastest of the six to assemble.</span>
-          <span class="choice__meta">examples/dance-studio.eml.mmd</span>
-        </button>
-        <button type="button" class="choice" id="choice-investment" aria-pressed="false">
-          <span class="choice__name">Use the wealth-management example</span>
-          <span class="choice__desc">Ninety-one entities — households and advisors, compliance, planning, portfolios, orders, recommendations and commissions. Eleven state machines and three sagas; the largest, and the slowest to assemble.</span>
-          <span class="choice__meta">examples/investment-planning-wealth-management-system.eml.mmd</span>
-        </button>
-        <button type="button" class="choice" id="choice-education" aria-pressed="false">
-          <span class="choice__name">Use the education example</span>
-          <span class="choice__desc">Nineteen entities &mdash; admissions, the roll, sections and sessions, attendance, assessment, fees and discipline. Eleven state machines, five sagas and eight roles.</span>
-          <span class="choice__meta">examples/education-management-system.eml.mmd</span>
-        </button>
-        <!-- The upload choice *is* the file picker: a label wrapping the input,
-             so one click both selects this option and opens the dialog. It used
-             to be a button beside a separate dropzone box further down the page,
-             which meant the control a reader arriving with their own model came
-             here to use was a second thing to find. -->
-        <label class="choice choice--upload" id="choice-upload" role="button" aria-pressed="false">
-          <input type="file" id="file" accept=".mmd,.md,.txt,text/plain">
-          <span class="choice__name">Upload your own</span>
-          <span class="choice__desc">Any EML or Mermaid ER document. Read in this tab, uploaded nowhere.</span>
-          <span class="dropzone" id="dropzone">
-            <b>Choose a file</b>
-            <span class="dropzone__sub">or drop one here</span>
-            <span class="dropzone__hint">.mmd &middot; .eml.mmd &middot; .md</span>
-          </span>
-        </label>
-      </div>
+<h2 id="prove">4 · Prove it</h2>
+<p>
+  The application carries two independent suites over the same HTTP surface, both generated from the
+  model, so both grow when the model does:
+</p>
+<pre><code>createdb crm_test
+cd crm/backend
+LOCO_ENV=test cargo test --test app           # the request suites — the primary gate
+cargo clippy --all-targets -- -D warnings     # expected clean
 
-      <div class="model-summary" id="model-summary" hidden></div>
-      <div class="diagnostics" id="diagnostics" hidden></div>
-    </div>
-  </section>
-
-  <section class="flow-step" id="step-generate" data-state="idle">
-    <header class="flow-step__head">
-      <span class="flow-step__num">2</span>
-      <div>
-        <h2 class="flow-step__title">Assemble the application</h2>
-        <p class="flow-step__hint">The real pipeline, over a filesystem that is a <code>Map</code>.</p>
-      </div>
-    </header>
-    <div class="flow-step__body">
-      <div class="options">
-        <div class="opt">
-          <label for="app-name">Application name</label>
-          <input id="app-name" type="text" value="Acme CRM" autocomplete="off">
-        </div>
-      </div>
-      <div class="actions">
-        <button type="button" class="btn btn--primary" id="generate">Assemble</button>
-      </div>
-      <div class="result" id="result"></div>
-    </div>
-  </section>
-
-  <section class="flow-step" id="step-run" data-state="idle">
-    <header class="flow-step__head">
-      <span class="flow-step__num">3</span>
-      <div>
-        <h2 class="flow-step__title">Install and run it</h2>
-        <p class="flow-step__hint">A WebContainer boots Node, installs, migrates and starts the backend.</p>
-      </div>
-    </header>
-    <div class="flow-step__body">
-      <div class="actions">
-        <button type="button" class="btn btn--go" id="run">Boot the WebContainer</button>
-      </div>
-      <div class="credentials" id="credentials" hidden></div>
-      <div class="log" id="log" hidden></div>
-
-      <div class="stage" id="stage">
-        <div class="stage__bar">
-          <span class="stage__dot"></span>
-          <span class="stage__url" id="stage-url"></span>
-        </div>
-        <iframe id="frame" title="The generated application" src="about:blank"></iframe>
-      </div>
-    </div>
-  </section>
-
-</div>
+cd ../tests
+bun run test                                  # the bun:test suites; starts the backend itself</code></pre>
 
 <h2 id="how">How this differs from chapter 09</h2>
 <p>
@@ -259,7 +200,7 @@
   <div class="compare__col">
     <h3>Chapter 09 — the browser runtime</h3>
     <ul>
-      <li>Starts in about ten seconds</li>
+      <li>Starts in seconds</li>
       <li>No install, no build, and nothing fetched from another host</li>
       <li>PostgreSQL in the tab, application server on a worker</li>
       <li>Its interface is a <b>port</b> of the generated one</li>
@@ -269,48 +210,14 @@
   <div class="compare__col">
     <h3>This chapter — the real stack</h3>
     <ul>
-      <li>Minutes, most of it <code>npm install</code></li>
-      <li>Needs the network and cross-origin isolation</li>
-      <li>Real Node, real NestJS, real Vite build</li>
+      <li>Minutes for the first build, most of it compiling Rust</li>
+      <li>Runs on your machine: cargo, bun and PostgreSQL, or Docker</li>
+      <li>The real Loco.rs API, enforcing access, workflows and rules</li>
       <li>The <b>actual</b> generated React front end</li>
-      <li>Four hundred files you can read and change</li>
+      <li>Five hundred files you can read, change and deploy</li>
     </ul>
   </div>
 </div>
-
-<h2 id="isolation">How a static site gets cross-origin isolation</h2>
-<p>
-  A WebContainer needs <code>SharedArrayBuffer</code>, and a browser only offers that to a document that
-  is cross-origin isolated — <code>Cross-Origin-Opener-Policy: same-origin</code> and
-  <code>Cross-Origin-Embedder-Policy: require-corp</code>, both set on the document's own response. This
-  site is served by GitHub Pages, which sends static files and lets nobody add a header, so on paper
-  this chapter could not exist here.
-</p>
-<p>
-  A Service Worker settles it. <code>guide/coi-sw.js</code> sits between this page and the network; the
-  page registers it on first load and reloads once, and the second time the document arrives it is the
-  worker that answers and the worker that adds the two headers. It rewrites this one document and
-  nothing else — chapter 09 and the rest of the site stay un-isolated, because isolation is a
-  constraint rather than an upgrade and a page that does not need it only loses by having it.
-</p>
-
-<h2 id="limits">What this does and does not prove</h2>
-<p>
-  The assembly half is exercised on every commit: CI assembles the stack in a browser bundle and
-  compares it, file by file, against what the command-line generator writes to disk. The one difference
-  used to be the nine typefaces, which are binary and cannot travel in the JSON the templates arrive as;
-  they are now shipped beside the templates and put back into the file tree before it is mounted, so
-  what boots is the whole application rather than the whole application in a fallback font.
-</p>
-<p>
-  The boot half depends on infrastructure this site does not own. A WebContainer fetches its Node.js
-  runtime from StackBlitz's hosts and its packages from npm, and neither is reachable from the
-  environment this chapter was built in — so the install-and-start path has been written against the
-  API's documented contract and verified up to the point where it leaves the browser. If it fails for
-  you, the message under the button is the real one from the API rather than a guess, and everything
-  before it — the model, the check, the four hundred files — has already happened in your tab and can be
-  downloaded from <a href="run-in-browser.html">chapter 09</a>.
-</p>
 
 <nav class="pager">
   <a href="run-in-browser.html"><span class="dir">Previous</span><div class="ttl">← 09 · Run it in your browser</div></a>
@@ -328,7 +235,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -364,7 +271,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser &rarr;</a></p>
       </div>
     </div>
@@ -373,6 +280,5 @@
   <script src="../assets/js/analytics.js"></script>
   <script src="../assets/js/main.js"></script>
   <script src="../assets/js/guide.js"></script>
-  <script type="module" src="../assets/js/run-real-stack.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 /**
- * Derive a reporting pack from an EML model.
+ * Derive a reporting pack from a model (`*.eml.yaml`).
  *
- *   bun build/reporting-pack.ts -i <model.eml.mmd> -o <pack.json> --database <db>
+ *   bun build/reporting-pack.ts -i <model.eml.yaml> -o <pack.json> --database <db>
  *
  * The reporting platform stores reports, charts and dashboards as definitions
  * over saved SQL queries, and holds roles deciding which of a data source's
@@ -10,47 +10,37 @@
  * generated application arrives with a reporting layer built for *its* entities
  * rather than an empty workspace and a SQL editor.
  *
- * ## This file no longer derives anything
+ * ## This file derives nothing
  *
- * It used to, in about eight hundred lines. The derivation now lives in
- * `app-with-ai-rust`'s generator — `packages/generator/src/reporting/pack.ts`,
- * carried there from `app-with-ai-tanstack` unchanged apart from where it takes
- * table names from (the Loco `m0002_bus_tables` migration's own derivation) —
- * and this is a CLI over it.
+ * The derivation is the generator's — `buildReportingPack` in
+ * `packages/generator/src/reporting/pack.ts` at the root of this repository,
+ * whose table names come from the same rule the Loco `m0002_bus_tables`
+ * migration renders — and this is a CLI over it. The generated application's
+ * browser build and the deployable project both ship the same pack; one
+ * derivation is what keeps the products agreeing about what reports a model has.
  *
- * That is a move rather than a rewrite, and the reason is that the pack
- * acquired two more readers. The generated application's own browser build
- * serves the same reports behind its own sign-in, and the full-stack project it
- * writes ships the pack in a `reporting/` directory for the platform its
- * compose file starts. Three derivations would be three answers to "what
- * reports does this model have", and the first time any of them changed the
- * products would disagree about a model in front of a reader.
- *
- * Reaching across the repository boundary is what this repository already does
- * for `compileRbac`, `deriveAccess` and `compileWorkflows` — for the same
- * reason and through the same checkout. The direction of the dependency is the
- * point: the generator writes the applications, so the generator owns what a
- * model means.
- *
- * What stayed here is what belongs to *this* repository: the CLI, the
- * diagnostics gate, and `docker compose`'s idea of where a pack goes.
+ * The model is read by the language's one reader (`parseModelYaml`: YAML
+ * syntax, the JSON Schema, the full checker) and compiled by its one compiler.
+ * A model with errors is refused with each finding at its YAML line.
  *
  * Every derived query is still traceable to something the model declares — an
- * entity earns a register, an `%%enum` a breakdown, `created_at` a volume line,
- * a `kind: state` workflow a lifecycle, numeric columns a measures report, a
- * `oneToMany` children-per-parent, and a `%%report` the question its author
- * wrote. See the module named above; `scripts/check-reporting-pack.ts` is what
- * runs the result against a real PostgreSQL.
+ * entity earns a register, an enum-bound column a breakdown, `created_at` a
+ * volume line, a state machine a lifecycle, numeric columns a measures report,
+ * a one-to-many relationship children-per-parent, and a `reports` entry the
+ * question its author wrote. `scripts/check-reporting-pack.ts` is what runs
+ * the result against a real PostgreSQL.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { parseModel } from "../../app-with-ai-rust/packages/generator/src/pipeline/parse-model.ts";
+import {
+  ModelYamlError,
+  parseModelYaml,
+} from "../../../app-with-ai-rust/packages/generator/src/model-yaml/index.ts";
 import {
   buildReportingPack,
   type ReportingPack,
-} from "../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
-import { parseEml } from "../language/cli/src/parser.ts";
+} from "../../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
 
 export type {
   AccessRoleSpec,
@@ -61,19 +51,19 @@ export type {
   ReportingPack,
   ReportSpec,
   SavedQuerySpec,
-} from "../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
+} from "../../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
 
 /**
  * Build a pack for one model.
  *
- * @param source       the model document
+ * @param source       the model document (YAML text)
  * @param modelPath    where it came from, recorded in the pack
  * @param databaseName the database its queries will run against
  * @param projectName  the name the application was generated under —
- *   `appwithai generate -n`, and **not** `%%meta name:`. `start.sh` passes the
- *   model file's basename, so `crm.eml.mmd` generates an application whose
- *   seeded accounts are `sales.manager@crm.example.com`; deriving them from
- *   `%%meta name:` instead produced `sales.manager@enterprise-crm.example.com`,
+ *   `generate -n`, and **not** the model's `name`. `start.sh` passes the model
+ *   file's basename, so `crm.eml.yaml` generates an application whose seeded
+ *   accounts are `sales.manager@crm.example.com`; deriving them from the
+ *   model's `name` instead produced `sales.manager@enterprise-crm.example.com`,
  *   addresses belonging to no account anywhere and printed on the front door as
  *   the way in. Defaults to the basename so a caller that omits it agrees with
  *   `start.sh` anyway.
@@ -84,34 +74,28 @@ export function buildPack(
   databaseName: string,
   projectName?: string
 ): ReportingPack {
-  /*
-   * The diagnostics gate stays on this repository's own parser.
-   *
-   * It is the checker this repository ships and the one `check:models` runs, so
-   * a model that fails here is a model this repository already calls broken.
-   * The generator's parser is then used for the derivation itself — it is the
-   * reading the generated application is built from, and the pack has to match
-   * that rather than a second opinion about the same document.
-   */
-  const reviewed = parseEml(source);
-  const errors = reviewed.diagnostics.filter((d) => d.severity === "error");
-  if (errors.length > 0) {
-    throw new Error(
-      `Model has ${errors.length} error(s); run the checker first:\n` +
-        errors.map((d) => `  ${d.code} ${d.message}`).join("\n")
-    );
+  let read: ReturnType<typeof parseModelYaml>;
+  try {
+    read = parseModelYaml(source, { source: path.basename(modelPath), warn: () => {} });
+  } catch (error) {
+    if (error instanceof ModelYamlError) {
+      throw new Error(
+        `Model has errors; run \`eml validate\` for the full report:\n${error.message}`
+      );
+    }
+    throw error;
   }
-  if (reviewed.entities.length === 0) throw new Error("Model declares no entities.");
+  const { model, document } = read;
+  if (model.entities.length === 0) throw new Error("Model declares no entities.");
 
-  const basename = path.basename(modelPath).replace(/\.eml\.mmd$|\.mmd$/, "");
-  const model = parseModel(source);
+  const basename = path.basename(modelPath).replace(/\.eml\.yaml$|\.ya?ml$/, "");
 
   return buildReportingPack(model, {
     projectName: projectName ?? basename,
-    // What the reports are *called* after, which `%%meta name:` is for. The
-    // accounts above stay on the generate-time name; only the titles move.
-    applicationName: reviewed.meta.name ?? basename,
-    projectDescription: reviewed.meta.description,
+    // What the reports are *called* after, which the model's `name` is for.
+    // The accounts above stay on the generate-time name; only the titles move.
+    applicationName: document.name ?? basename,
+    projectDescription: document.description,
     databaseName,
     modelFileName: path.basename(modelPath),
     // Recorded here and nowhere else. The generator omits it so that its own
@@ -134,7 +118,7 @@ function main(): number {
 
   if (!input) {
     console.error(
-      "usage: reporting-pack.ts -i <model.eml.mmd> [-o pack.json] [--database name] [--app-name name]"
+      "usage: reporting-pack.ts -i <model.eml.yaml> [-o pack.json] [--database name] [--app-name name]"
     );
     return 2;
   }

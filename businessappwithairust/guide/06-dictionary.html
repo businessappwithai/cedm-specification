@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Windows, tabs and fields; the rule editor, the workflow editor, roles, the audit log and per-screen help.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM">
   <title>06 · Application Dictionary — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -84,7 +84,7 @@
           <div class="guide-sidebar-foot">
             Every screenshot on these pages comes from the CRM built in this guide, running locally.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -106,7 +106,7 @@
 <table>
   <thead><tr><th>Layer</th><th>Holds</th><th>Comes from</th></tr></thead>
   <tbody>
-    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>erDiagram</code></td></tr>
+    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>entities</code></td></tr>
     <tr><td><strong>Window, Tab and Field</strong></td><td>How each entity is presented: one window per entity, a tab per record view, a field per displayed column, with order and grouping.</td><td>Derived from the columns</td></tr>
     <tr><td><strong>Role</strong></td><td>Which windows a role may reach, and whether it is read-only.</td><td>Seeded, then yours</td></tr>
   </tbody>
@@ -211,8 +211,8 @@
 
 <figure>
   <figcaption>
-    <b>The steps.</b> Each is typed — Create Record, Update Record — and titled with the label from the
-    flowchart node it was bound to, which is why writing readable node labels pays off later.
+    <b>The steps.</b> Each is typed — Create Record, Update Record — and titled with the label of the
+    saga step it was compiled from, which is why writing readable node labels pays off later.
   </figcaption>
   <img src="img/31-crm-workflow-editor-steps.png" alt="The step list of the LeadConversion workflow: create record, create record, create record, update record, update record.">
 </figure>
@@ -301,7 +301,7 @@
   <div class="note-title">The one trap</div>
   <p>
     Editing a model-owned rule or workflow in the app works, and the next generation overwrites it. If a
-    change matters, it belongs in the <code>.mmd</code>. The app is where you tune; the model is where you
+    change matters, it belongs in the model, <code>.eml.yaml</code>. The app is where you tune; the model is where you
     decide.
   </p>
 </div>
@@ -322,7 +322,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -358,7 +358,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser &rarr;</a></p>
       </div>
     </div>

@@ -1,0 +1,104 @@
+eml: "1.0"
+entities:
+  # Simple Blog Domain Model
+
+  # A minimal example for testing the generator
+
+  # Use: appwithai generate -i examples/simple.erd.eml.yaml -o ./generated -n blog-app
+  - name: User
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: email
+        type: string
+        unique: true
+      - name: name
+        type: string
+      - name: role
+        type: string
+      - name: is_active
+        type: boolean
+  - name: Post
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: author_id
+        type: string
+        fk: true
+      - name: title
+        type: string
+      - name: slug
+        type: string
+        unique: true
+      - name: content
+        type: text
+      - name: status
+        type: string
+      - name: published_at
+        type: datetime
+        optional: true
+  - name: Comment
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: post_id
+        type: string
+        fk: true
+      - name: author_id
+        type: string
+        fk: true
+      - name: content
+        type: text
+      - name: is_approved
+        type: boolean
+  - name: Tag
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        unique: true
+      - name: slug
+        type: string
+        unique: true
+  - name: PostTag
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: post_id
+        type: string
+        fk: true
+      - name: tag_id
+        type: string
+        fk: true
+relationships:
+  - from: User
+    fromCardinality: exactly-one
+    to: Post
+    toCardinality: zero-or-more
+    label: writes
+  - from: User
+    fromCardinality: exactly-one
+    to: Comment
+    toCardinality: zero-or-more
+    label: writes
+  - from: Post
+    fromCardinality: exactly-one
+    to: Comment
+    toCardinality: zero-or-more
+    label: has
+  - from: Post
+    fromCardinality: exactly-one
+    to: PostTag
+    toCardinality: zero-or-more
+    label: tagged_with
+  - from: Tag
+    fromCardinality: exactly-one
+    to: PostTag
+    toCardinality: zero-or-more
+    label: applied_to

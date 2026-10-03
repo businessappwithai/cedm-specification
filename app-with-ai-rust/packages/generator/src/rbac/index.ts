@@ -1,17 +1,16 @@
 /**
- * `%%rbac` directives → per-operation access rules.
+ * A model's `rbac` rules → per-operation and per-transition access rules.
  *
- * The directive was reserved for a long time: documented, renderer-safe, and
- * read by nobody, so a model could declare `%%rbac role:admin on Order.delete`
- * and every signed-in user could still delete orders. This module is what makes
- * it mean something.
+ * Access rules were once reserved in the language and read by nobody, so a model
+ * could say that only `admin` deletes an Order and every signed-in user could
+ * still delete orders. This module is what makes them mean something.
  *
  * ## It restricts; it does not grant
  *
- * An `(entity, operation)` pair carrying no `%%rbac` directive is unrestricted —
- * anyone the session guard admits may perform it. One or more directives turn
- * that pair into a closed list: the caller must hold at least one of the named
- * roles, or a master role.
+ * An `(entity, operation)` pair no rule names is unrestricted — anyone the
+ * session guard admits may perform it. One or more rules turn that pair into a
+ * closed list: the caller must hold at least one of the named roles, or a
+ * master role.
  *
  * The alternative reading — every operation denied until granted — is the
  * stricter default and the wrong one here. It would silently lock every user
@@ -25,13 +24,15 @@
  * whose rows feed `sys_refresh_dictionary_scope()`, which recomputes
  * `allowed_roles` on every dictionary table: a table with no `sys_access` rows
  * is visible to all roles, and the first row added narrows it to that role
- * alone. Seeding one from `%%rbac role:admin on Order.delete` would therefore
+ * alone. Seeding one from a rule restricting Order `delete` to `admin` would therefore
  * hide the Order window from everybody except admin — a restriction on deleting
  * silently becoming a restriction on looking. The two concerns need two tables,
  * so operation rules live in `sys_operation_access`.
  */
 
-/** The CRUD operations an `%%rbac` directive may restrict. */
+import type { RbacDeclaration } from "../model/records";
+
+/** The CRUD operations an access rule may restrict. */
 export const RBAC_OPERATIONS = ["create", "read", "update", "delete"] as const;
 
 export type RbacOperation = (typeof RBAC_OPERATIONS)[number];
@@ -40,7 +41,7 @@ export type RbacOperation = (typeof RBAC_OPERATIONS)[number];
  * Aliases accepted for an operation, so a model may say what it means.
  *
  * `*` and `all` expand to every operation — a whole entity behind one role is
- * the common case and writing four directives for it is noise.
+ * the common case and writing four rules for it is noise.
  */
 const OPERATION_ALIASES: Record<string, RbacOperation | "*"> = {
   "*": "*",
@@ -61,9 +62,6 @@ const OPERATION_ALIASES: Record<string, RbacOperation | "*"> = {
   remove: "delete",
   destroy: "delete",
 };
-
-/** `%%rbac <roleExpr> on <Entity>.<op>` */
-const DIRECTIVE = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/;
 
 /** One state change a transition rule covers: `from` → `to` on the status column. */
 export interface RbacTransitionEdge {
@@ -100,7 +98,7 @@ export interface CompiledRbacRule {
   roles: string[];
 }
 
-/** Everything `%%rbac` compiles to. */
+/** Everything a model's access rules compile to. */
 export interface CompiledRbac {
   /** CRUD restrictions, seeded into `sys_operation_access`. */
   operations: CompiledRbacRule[];
@@ -108,31 +106,10 @@ export interface CompiledRbac {
   transitions: CompiledRbacTransition[];
 }
 
-/** The shape `compileWorkflows` produces, repeated structurally to avoid the import cycle. */
+/** The shape `compileStateMachineDeclarations` produces, repeated structurally to avoid the import cycle. */
 export interface RbacStateMachine {
   entity: string;
   transitions: Array<{ from: string; to: string; trigger?: string }>;
-}
-
-/**
- * Read the role names out of a role expression.
- *
- * `role:admin`, `role:sales|manager` and `role:sales|role:manager` are all
- * accepted — the second is what the spec's example writes and the third is what
- * someone repeating the prefix naturally produces. A bare `admin` is taken as a
- * role name too, because rejecting it would fail a directive whose meaning is
- * unambiguous.
- */
-export function parseRoleExpression(expression: string): string[] {
-  const roles: string[] = [];
-  for (const part of expression.split("|")) {
-    const name = part
-      .trim()
-      .replace(/^role:/i, "")
-      .trim();
-    if (name) roles.push(name);
-  }
-  return roles;
 }
 
 /** `Order` → `bus_order`. Mirrors the ERD parser's table naming. */
@@ -146,19 +123,17 @@ function busTableName(entity: string): string {
 }
 
 /**
- * Compile every `%%rbac` directive in a document.
+ * Compile access rules into operation and transition rules.
  *
- * Directives naming the same target are merged rather than overriding one
- * another: two lines each naming a role mean either role may perform it, which
- * is the reading that matches `|` inside a single directive.
+ * Rules naming the same target are merged rather than overriding one another:
+ * two rules each naming a role mean either role may perform it.
  *
- * An operation name that is not CRUD is looked up among `stateMachines` as a
- * transition event on that entity. One that matches neither is skipped with a
- * warning naming both possibilities, because at that point the model has said
- * something the generator genuinely cannot act on.
+ * An action that is not a CRUD operation is looked up among `stateMachines` as
+ * a transition trigger on that entity. One that is neither is skipped with a
+ * warning naming both possibilities.
  */
-export function compileRbac(
-  source: string,
+export function compileRbacDeclarations(
+  declarations: RbacDeclaration[],
   knownEntities: string[] = [],
   stateMachines: RbacStateMachine[] = [],
   onWarn: (message: string) => void = () => {}
@@ -184,7 +159,7 @@ export function compileRbac(
       for (const edge of machine.transitions) {
         if (!edge.trigger) continue;
         // Events are written as they read in a diagram (`close won`,
-        // `counter-signed`); a directive spells the same thing in one token.
+        // `counter-signed`); a rule spells the same thing in one token.
         const normalized = edge.trigger
           .trim()
           .toLowerCase()
@@ -195,28 +170,19 @@ export function compileRbac(
     return found;
   };
 
-  for (const rawLine of (source ?? "").split("\n")) {
-    const line = rawLine.trim();
-    if (!line.startsWith("%%rbac")) continue;
-
-    const match = line.match(DIRECTIVE);
-    if (!match) {
-      onWarn(`Skipping malformed %%rbac directive: ${line}`);
-      continue;
-    }
-
-    const [, roleExpr, entity, rawTarget] = match as unknown as [string, string, string, string];
+  for (const declaration of declarations) {
+    const { entity, target: rawTarget } = declaration;
 
     if (known.size && !known.has(entity)) {
-      onWarn(`%%rbac targets unknown entity "${entity}" — skipped.`);
+      onWarn(`access rule on unknown entity "${entity}" — skipped.`);
       continue;
     }
 
-    const roles = parseRoleExpression(roleExpr);
+    const roles = declaration.roles.filter(Boolean);
     if (roles.length === 0) {
-      // A directive with no role names would compile to a rule nobody can
+      // A rule with no role names would compile to a restriction nobody can
       // satisfy, locking the target for everyone including its author.
-      onWarn(`%%rbac on ${entity}.${rawTarget} names no role — skipped.`);
+      onWarn(`access rule on ${entity}.${rawTarget} names no role — skipped.`);
       continue;
     }
 
@@ -238,7 +204,7 @@ export function compileRbac(
     const edges = edgesFor(entity, rawTarget);
     if (edges.length === 0) {
       onWarn(
-        `%%rbac on ${entity}.${rawTarget} names neither a CRUD operation ` +
+        `access rule on ${entity}.${rawTarget} names neither a CRUD operation ` +
           `(${RBAC_OPERATIONS.join(", ")}, *) nor a transition in ${entity}'s state machine — skipped.`
       );
       continue;

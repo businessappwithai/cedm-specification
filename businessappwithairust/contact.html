@@ -207,7 +207,7 @@
           <p><strong>Configuration and Rules</strong></p>
           <ul style="list-style: none; padding: 0; text-align: left; margin-top: var(--spacing-md);">
             <li style="padding: var(--spacing-xs) 0;">• Configure field layouts and display logic</li>
-            <li style="padding: var(--spacing-xs) 0;">• Define business rules via visual flowcharts</li>
+            <li style="padding: var(--spacing-xs) 0;">• Define business rules as decision graphs</li>
             <li style="padding: var(--spacing-xs) 0;">• Set up approval routing and escalation</li>
             <li style="padding: var(--spacing-xs) 0;">• Configure user roles and permissions</li>
             <li style="padding: var(--spacing-xs) 0;">• User acceptance testing</li>
@@ -255,19 +255,19 @@
         </div>
         <div class="card mb-3">
           <h3 style="margin-bottom: var(--spacing-sm);">Which AI providers are supported?</h3>
-          <p class="text-muted">AppWithAI supports Anthropic Claude (primary), OpenAI-compatible endpoints, and any local model available via Ollama. You bring your own API key. Organizations with data sovereignty requirements can run entirely on local LLMs.</p>
+          <p class="text-muted">AppWithAI talks to any OpenAI-compatible model endpoint — a hosted provider, or a local server such as Ollama or llama.cpp. You bring your own endpoint and key. Organizations with data sovereignty requirements can run entirely on local LLMs.</p>
         </div>
         <div class="card mb-3">
           <h3 style="margin-bottom: var(--spacing-sm);">Can generated applications integrate with existing systems?</h3>
-          <p class="text-muted">Yes. Generated applications expose standard RESTful JSON APIs for all entities, enabling integration with any modern enterprise system. The generated NestJS backend can be extended to support additional integration patterns.</p>
+          <p class="text-muted">Yes. Generated applications expose standard RESTful JSON APIs for all entities, enabling integration with any modern enterprise system. The generated Loco.rs backend describes itself as an OpenAPI document at <code>/openapi.json</code>, and can be extended to support additional integration patterns.</p>
         </div>
         <div class="card mb-3">
           <h3 style="margin-bottom: var(--spacing-sm);">What security features are included?</h3>
-          <p class="text-muted">Sign-in is Better Auth — email and password with server-side sessions. On top of that, generated applications carry role-based access control, field-level security, row-level security and a complete audit trail, all derived from your model and enforced in the API. No compliance certification is claimed: a security assessment is still <a href="todo.html">outstanding before 1.0.0</a>.</p>
+          <p class="text-muted">Sign-in is email and password on the generated Loco.rs backend, with argon2 password hashes and signed JWT sessions. On top of that, generated applications carry role-based access control on tables, operations and status transitions, and a hash-chained audit trail, all derived from your model and enforced in the API. No compliance certification is claimed: a security assessment is still <a href="todo.html">outstanding before 1.0.0</a>.</p>
         </div>
         <div class="card">
           <h3 style="margin-bottom: var(--spacing-sm);">What does the generated application technology stack look like?</h3>
-          <p class="text-muted">Generated applications use TanStack Start (React 19+ with SSR) for the frontend, NestJS 10+ with Fastify for the backend API, Kysely for type-safe database access, and PostgreSQL for data persistence — with Playwright end-to-end tests and Docker configuration included.</p>
+          <p class="text-muted">Generated applications use TanStack Start (React 19) with the Astryx design system for the frontend, a Loco.rs (Rust) crate on Axum and SeaORM for the backend API, and PostgreSQL for data persistence — with cargo and bun test suites and Docker configuration included.</p>
         </div>
       </div>
     </div>
@@ -289,7 +289,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -325,7 +325,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

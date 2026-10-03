@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type FieldMetadata, useEntityMetadata } from "@/hooks/use-entities";
+import { type FieldMetadata, refreshDropdowns, useEntityMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
@@ -32,6 +32,7 @@ import {
   type ParentContext,
 } from "./ad-window-configs";
 import { DocStatusBadge } from "./doc-status-badge";
+import { WorkflowStateBar } from "./workflow-state-bar";
 import { useBusTableName, WindowHelpDialog } from "./window-help-dialog";
 import { useReportDesign } from "./use-report-designs";
 import { ReportPrintModal } from "@/components/reports/report-print-modal";
@@ -659,19 +660,28 @@ export function ADDetailShell({
   const totalCount = listData?.meta?.total ?? 0;
   const totalPages = listData?.meta?.totalPages ?? 1;
 
-  // Locate current record in the page; if missing, request adjacent page
-  // Use String comparison to handle numeric IDs (e.g. sys_reference_id) vs URL string params
-  useEffect(() => {
-    if (!records.length) return;
-    const idx = records.findIndex((r) => String(r[level.idField]) === String(recordId));
-    if (idx !== -1) {
-      setCurrentIndex(idx);
-      setFormData(records[idx]);
-      setHasChanges(false);
-    }
-  }, [records, recordId, level.idField]);
+  // The record the URL names, fetched by id. The sibling page above exists for
+  // prev/next and holds 100 rows; reading the record out of it meant any record
+  // past the first page — a new one, in a table of any size — rendered "Record
+  // not found" while the API served it.
+  const {
+    data: fetchedRecord,
+    isLoading: isRecordLoading,
+    refetch: refetchRecord,
+  } = useQuery({
+    queryKey: ["ad-detail-record", level.endpoint, recordId],
+    queryFn: () => apiClient.get<AnyRecord>(`${level.endpoint}/${recordId}`),
+  });
 
-  const currentRecord = records.find((r) => String(r[level.idField]) === String(recordId)) ?? null;
+  // Where the record sits among the loaded siblings, or -1 when it is not on
+  // this page. String comparison handles numeric ids (e.g. sys_reference_id)
+  // against the URL's string param.
+  const siblingIndex = records.findIndex((r) => String(r[level.idField]) === String(recordId));
+  useEffect(() => {
+    if (siblingIndex !== -1) setCurrentIndex(siblingIndex);
+  }, [siblingIndex]);
+
+  const currentRecord = fetchedRecord ?? null;
   const globalIndex = (page - 1) * 100 + currentIndex;
   const canGoPrev = globalIndex > 0;
   const canGoNext = globalIndex < totalCount - 1;
@@ -693,6 +703,7 @@ export function ADDetailShell({
       if (initialMode === "view") setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
       refetch();
+      refetchRecord();
     },
     onError: (err: any) => {
       const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
@@ -774,7 +785,11 @@ export function ADDetailShell({
             setHasChanges(false);
           }
         }}
-        onRefresh={() => refetch()}
+        onRefresh={() => {
+          // The record, and every dropdown on the form read again from the API.
+          refetch();
+          refreshDropdowns(queryClient);
+        }}
         onEdit={() => setIsEditing(true)}
         onCancelEdit={() => {
           setIsEditing(false);
@@ -851,6 +866,23 @@ export function ADDetailShell({
                 />
               )}
             </HStack>
+            {busTableName && currentRecord && (
+              <div className="mt-2">
+                <WorkflowStateBar
+                  tableName={busTableName}
+                  endpoint={level.endpoint}
+                  recordId={recordId}
+                  record={currentRecord}
+                  onMoved={() => {
+                    queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
+                    refetchRecord();
+                  }}
+                />
+              </div>
+            )}
+            {/* A position is only shown when it is known: a record opened by
+                URL from outside the loaded page has none on this page. */}
+            {siblingIndex !== -1 && (
             <div className="mt-1.5">
               <ADRecordNav
                 currentIndex={currentIndex}
@@ -865,6 +897,7 @@ export function ADDetailShell({
                 onLast={goLast}
               />
             </div>
+            )}
           </Box>
           {/* Right: Summary Panel */}
           {summaryFields.length > 0 && currentRecord && (
@@ -875,7 +908,7 @@ export function ADDetailShell({
 
       {/* Content */}
       <Box grow scrollable>
-        {isLoading ? (
+        {isLoading || isRecordLoading ? (
           <div className="p-6 space-y-4">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="space-y-2">

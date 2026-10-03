@@ -82,8 +82,9 @@ export const config = {
 
   /**
    * How many times to wait out a 429 before giving up. The backend throttles to
-   * THROTTLE_LIMIT requests per window (1000/60s in development), which bulk
-   * seeding legitimately exceeds.
+   * RATE_LIMIT_MAX_PER_MINUTE requests a minute per caller (300 in development),
+   * which bulk seeding exceeds; the harness starts it with the limiter off, so
+   * this only matters against a backend someone else started.
    */
   throttleRetries: int("E2E_THROTTLE_RETRIES", 12),
 

@@ -20,10 +20,9 @@ import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import {
   type Automation,
   emptyAutomation,
-  parseAutomation,
-  serializeAutomation,
   validateAutomation,
 } from "@/lib/automation/model";
+import { automationFromYaml, automationToYaml } from "@/lib/automation/yaml";
 import { requestContext } from "@/lib/request-context";
 import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
@@ -50,8 +49,38 @@ interface StoredAutomation {
   id: string;
   name: string;
   serviceName: string;
-  mermaid: string;
+  /** The automation's YAML document; null for a row saved without one. */
+  definition: string | null;
   updatedAt?: string;
+}
+
+/**
+ * The automations a page of rows holds, and the rows that could not be read.
+ * An unreadable row is reported by name rather than opened empty: saving an
+ * empty automation over it would overwrite what it was meant to hold.
+ */
+function readRows(rows: StoredAutomation[]): {
+  parsed: { stored: string; automation: Automation }[];
+  unreadable: string[];
+} {
+  const parsed: { stored: string; automation: Automation }[] = [];
+  const unreadable: string[] = [];
+  for (const row of rows) {
+    try {
+      if (!row.definition) throw new Error("it has no document");
+      parsed.push({
+        stored: row.id,
+        automation: {
+          ...automationFromYaml(row.definition),
+          name: row.name,
+          updatedAt: row.updatedAt,
+        },
+      });
+    } catch (error) {
+      unreadable.push(`${row.name}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return { parsed, unreadable };
 }
 
 /** A rule as the endpoint returns it, in either casing. */
@@ -88,6 +117,7 @@ function AutomationsPage() {
   const [autoTotal, setAutoTotal] = useState(0);
   const [tableTotal, setTableTotal] = useState(0);
   const [loadingMore, setLoadingMore] = useState<"automations" | "tables" | null>(null);
+  const [unreadable, setUnreadable] = useState<string[]>([]);
 
   /* ---------------------------------------------------------------- load */
 
@@ -121,15 +151,7 @@ function AutomationsPage() {
 
         if (cancelled) return;
 
-        const parsed =
-          autoData?.automations.map((row) => ({
-            stored: row.id,
-            automation: {
-              ...parseAutomation(row.mermaid, row.serviceName || "Record"),
-              name: row.name,
-              updatedAt: row.updatedAt,
-            },
-          })) ?? [];
+        const { parsed, unreadable: unread } = readRows(autoData?.automations ?? []);
 
         const entityList = autoData?.entities ?? [];
 
@@ -155,6 +177,7 @@ function AutomationsPage() {
               )
             );
             setAutomations(parsed.map((p) => p.automation));
+            setUnreadable(unread);
             setStoredIds(Object.fromEntries(parsed.map((p) => [p.automation.id, p.stored])));
             const first = parsed[0];
             if (first) setView({ kind: "automation", id: first.automation.id });
@@ -205,14 +228,8 @@ function AutomationsPage() {
       );
       if (res.ok) {
         const data = (await res.json()) as { automations: StoredAutomation[]; total?: number };
-        const parsed = data.automations.map((row) => ({
-          stored: row.id,
-          automation: {
-            ...parseAutomation(row.mermaid, row.serviceName || "Record"),
-            name: row.name,
-            updatedAt: row.updatedAt,
-          },
-        }));
+        const { parsed, unreadable: unread } = readRows(data.automations);
+        setUnreadable((list) => [...list, ...unread]);
         setAutomations((list) => [...list, ...parsed.map((p) => p.automation)]);
         setStoredIds((m) => ({
           ...m,
@@ -318,7 +335,7 @@ function AutomationsPage() {
         body: JSON.stringify({
           name: fresh.name,
           entity: fresh.trigger.entity,
-          mermaid: serializeAutomation(fresh),
+          definition: automationToYaml(fresh),
         }),
       });
       if (res.ok) {
@@ -342,7 +359,7 @@ function AutomationsPage() {
         body: JSON.stringify({
           name: automation.name,
           entity: automation.trigger.entity,
-          mermaid: serializeAutomation(automation),
+          definition: automationToYaml(automation),
           status: "live",
         }),
       });
@@ -397,6 +414,14 @@ function AutomationsPage() {
           ? Help
         </button>
       </header>
+
+      {unreadable.length > 0 ? (
+        <div role="alert" className="border-b border-destructive/30 bg-destructive/5 px-5 py-2 text-xs text-destructive">
+          {unreadable.length === 1 ? "One automation" : `${unreadable.length} automations`} could
+          not be read and {unreadable.length === 1 ? "is" : "are"} not shown:{" "}
+          {unreadable.join("; ")}
+        </div>
+      ) : null}
 
       <div className="flex min-h-0 flex-1">
         <nav

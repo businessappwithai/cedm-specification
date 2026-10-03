@@ -30,6 +30,10 @@ import { BaseGenerator } from "../base.generator";
  * Resolve template directory path, handling both dev and bundled environments
  */
 function resolveTemplateDir(subpath: string): string {
+  // TEMPLATE_DIR names the templates root outright. The browser build sets it
+  // to its in-memory volume, where no working directory leads anywhere.
+  const configured = process.env.TEMPLATE_DIR;
+  if (configured) return path.join(configured, subpath);
   const cwd = process.cwd();
   const possiblePaths = [
     // Dev mode: running from project root
@@ -684,6 +688,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/doc-status-badge.tsx",
       },
       {
+        src: "src/components/admin/workflow-state-bar.tsx",
+        dest: "src/components/admin/workflow-state-bar.tsx",
+      },
+      {
         src: "src/components/admin/use-report-designs.ts",
         dest: "src/components/admin/use-report-designs.ts",
       },
@@ -694,6 +702,24 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/reports/report-print-modal.tsx",
         dest: "src/components/reports/report-print-modal.tsx",
+      },
+      // The model's reports: `sys_report`, served by `/api/reports`, which no
+      // screen called — every declared report was reachable only as JSON.
+      {
+        src: "src/components/reports/report-chart.tsx",
+        dest: "src/components/reports/report-chart.tsx",
+      },
+      {
+        src: "src/hooks/use-reports.ts",
+        dest: "src/hooks/use-reports.ts",
+      },
+      {
+        src: "src/routes/reports.index.tsx",
+        dest: "src/routes/reports.index.tsx",
+      },
+      {
+        src: "src/routes/reports.$name.tsx",
+        dest: "src/routes/reports.$name.tsx",
       },
       {
         src: "src/lib/workflow/step-types.ts",
@@ -710,6 +736,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/lib/automation/rule-content.ts",
         dest: "src/lib/automation/rule-content.ts",
+      },
+      {
+        src: "src/lib/automation/yaml.ts",
+        dest: "src/lib/automation/yaml.ts",
       },
       {
         src: "src/components/automation/AutomationBuilder.tsx",
@@ -1102,6 +1132,14 @@ PORT=3001
         context
       );
       await fs.writeFile(path.join(outputDir, "test/components.test.tsx"), componentsTestContent);
+
+      // Automations are stored as YAML; the round trip is what keeps a saved
+      // automation opening as the one that was saved.
+      const automationYamlTest = await this.renderTemplate(
+        "test/automation-yaml.test.ts.hbs",
+        context
+      );
+      await fs.writeFile(path.join(outputDir, "test/automation-yaml.test.ts"), automationYamlTest);
 
       // Vitest config
       const vitestContent = await this.renderTemplate("vitest.config.ts.hbs", context);
