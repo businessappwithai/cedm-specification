@@ -2,27 +2,143 @@ entity:
   name: SparePart
   namespace: cedm.domain
   kind: maintenance_material_master
-  description: A governed maintenance material designation identifying a Product that is eligible to be planned, reserved, issued, consumed, returned, or replaced as part of asset and equipment maintenance.
+  description: A product held as a maintenance spare — with its criticality, the stock level to keep, reorder point, lead time and interchangeable alternatives — and the equipment it fits.
   ui:
-    icon: database
+    icon: wrench
+    recordLabel: [partNumber]
   identity: {key: sparePartId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: sparePartId, type: uuid, required: true, immutable: true, help: {summary: Stable spare-part identity., businessMeaning: Identifies one governed maintenance-material designation., usage: "Maintenance planning, inventory, procurement and costing.", relationshipContext: References canonical Product rather than duplicating product master data., requiredMeaning: Required.}}
-  - {name: criticality, type: enum, required: true, values: [LOW, MEDIUM, HIGH, CRITICAL], help: {summary: Maintenance availability criticality., businessMeaning: Indicates operational consequence of part unavailability., usage: "Stocking, replenishment and maintenance planning.", relationshipContext: Does not replace product or asset criticality., valueSemantics: {LOW: Limited operational consequence., MEDIUM: Material but manageable consequence., HIGH: Significant availability consequence., CRITICAL: Severe operational/safety/service consequence requiring strict control.}, requiredMeaning: Required.}}
+  - name: criticality
+    type: enum
+    required: true
+    values: [LOW, MEDIUM, HIGH, CRITICAL]
+    help:
+      summary: How serious it would be to be out of stock of this part.
+      businessMeaning: Indicates operational consequence of part unavailability.
+      usage: Decides the stocking policy; critical spares are kept even when rarely used.
+      relationshipContext: Read with the criticality of the equipment it fits.
+      valueSemantics:
+        LOW: A stock-out causes little harm; the part can be ordered when needed.
+        MEDIUM: A stock-out delays repairs on important equipment.
+        HIGH: A stock-out stops production equipment for the lead time.
+        CRITICAL: A stock-out stops a line or creates a safety risk; always kept.
+  - name: partNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 60
+    help:
+      summary: The part number used by maintenance, often the manufacturer's.
+      usage: Used to identify and order the part.
+      relationshipContext: Unique.
+  - name: minimumStock
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: The least quantity that should always be on hand.
+      usage: Set by maintenance from criticality and usage.
+      relationshipContext: In the product's stock unit.
+  - name: reorderPoint
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: The stock level at which a replenishment order is raised.
+      usage: Stores raise an order when stock falls to it.
+      relationshipContext: Not lower than the minimum stock.
+  - name: reorderQuantity
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: How many to order each time.
+      usage: Used when raising the replenishment order.
+      relationshipContext: Positive.
+  - name: leadTimeDays
+    type: integer
+    required: false
+    help:
+      summary: How many days it takes to obtain the part.
+      usage: Used to set the reorder point.
+      relationshipContext: From the supplier's quote.
+  - name: interchangeableWith
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Other part numbers that can be used instead.
+      usage: Read by stores when this part is out of stock.
+      relationshipContext: Free text listing part numbers.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, OBSOLETE]
+    help:
+      summary: Whether the part is still stocked.
+      usage: Moved on by maintenance.
+      relationshipContext: Obsolete parts are run down and not reordered.
+      valueSemantics:
+        ACTIVE: Stocked and reordered.
+        OBSOLETE: No longer reordered.
   relationships:
-  - {name: product, target: Product, cardinality: "1", ownership: reference, help: {summary: Canonical Product used as spare part., businessMeaning: "Supplies item identity, UOM and inventory semantics.", usage: "Procurement, stock and maintenance issue.", cardinalityMeaning: Exactly one Product., workflowRole: SparePart is a role/designation and must not duplicate Product.}}
-  - {name: equipment, target: Equipment, cardinality: 0..*, ownership: reference, help: {summary: Equipment for which this part is approved or applicable., businessMeaning: Captures maintenance applicability., usage: Planning and work-order material selection., cardinalityMeaning: Zero or many Equipment records., workflowRole: Applicability guides planning but actual consumption requires inventory evidence.}, inverseCardinality: 0..*}
-  - {name: maintenanceWorkOrders, target: MaintenanceWorkOrder, cardinality: "0..*", ownership: reference, help: {summary: Maintenance work using or planning this part., businessMeaning: Connects material demand to maintenance execution., usage: "Reservation, issue, return and costing.", cardinalityMeaning: Zero or many work orders., workflowRole: Physical consumption must reconcile through InventoryMovement.}, inverseCardinality: 0..*}
+  - name: product
+    target: Product
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The product that is the spare part.
+      businessMeaning: "Supplies item identity, UOM and inventory semantics."
+      workflowRole: SparePart is a role/designation and must not duplicate Product.
+      usage: Linked when the spare is created.
+      cardinalityMeaning: Every spare part is exactly one product.
+      context: Stock, cost and suppliers come from the product.
+  - name: equipment
+    target: Equipment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The equipment the part fits.
+      businessMeaning: Captures maintenance applicability.
+      workflowRole: Applicability guides planning but actual consumption requires inventory evidence.
+      usage: Listed so that technicians find the right spare for a machine.
+      cardinalityMeaning: A part may fit many pieces of equipment and a piece of equipment takes many parts.
+      context: A many-to-many relation; it holds no key on either side.
+    inverseCardinality: 0..*
+  - name: maintenanceWorkOrders
+    target: MaintenanceWorkOrder
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: Work orders that use or plan to use the part.
+      businessMeaning: Connects material demand to maintenance execution.
+      workflowRole: Physical consumption must reconcile through InventoryMovement.
+      usage: Listed to see where the part is consumed.
+      cardinalityMeaning: A part is used on many work orders and a work order uses many parts.
+      context: Actual consumption is recorded as inventory issues.
+    inverseCardinality: 0..*
   invariants:
-  - {id: SPARE-PART-001, rule: SparePart must reference exactly one canonical Product and must not duplicate product identity or inventory balance.}
-  - {id: SPARE-PART-002, rule: Planned or actual maintenance consumption must not directly alter stock; stock effects require governed InventoryMovement.}
+  - {id: SPARE-PART-001, rule: The reorder point is not below the minimum stock., violatedWhen: reorder_point != null and minimum_stock != null and reorder_point < minimum_stock, message: The reorder point is lower than the minimum stock.}
+  - {id: SPARE-PART-EXE-001, rule: "Reorder Quantity cannot be negative.", violatedWhen: "reorder_quantity != null and reorder_quantity < 0", message: "Reorder Quantity cannot be negative."}
+  lifecycle:
+    title: Spare Part Lifecycle
+    attribute: status
+    states: [ACTIVE, OBSOLETE]
+    initial: ACTIVE
+    terminal: [OBSOLETE]
+    transitions:
+    - {from: ACTIVE, to: OBSOLETE, action: make_obsolete}
   help:
-    summary: Maintenance-specific role for an inventory Product used to repair or service assets and equipment.
-    purpose: Connect maintenance planning and execution to canonical product and inventory semantics without creating a second material master.
-    businessMeaning: A SparePart states that a Product is approved or expected for maintenance use.
-    whenUsed: Used for preventive/corrective maintenance planning, work-order materials, critical-spares stocking, procurement and maintenance costing.
-    howItRelates: Product provides material identity; Equipment provides applicability; MaintenanceWorkOrder provides demand/execution; InventoryMovement provides physical stock truth.
-    lifecycleUsage: Approved for maintenance use, maintained for applicability and criticality, then retired without rewriting historical work orders.
-    commonProcesses: Maintenance planning, spare-parts management, reservation, issue, return, replenishment and reliability analysis.
-    commonExamples: Bearings, filters, seals, replacement motors and repair kits.
+    summary: A part kept in stock to repair equipment, and how much of it to keep.
+    businessMeaning: A missing spare can stop a plant for days, while too many spares tie up cash. Each spare part records how critical it is, how long it takes to obtain, how many to keep and when to reorder, so maintenance stores can protect critical equipment at the least cost.
+    usage: Maintenance engineers designate products as spares and set their stocking policy; stores reorder when stock falls below the reorder point; work orders reserve and issue spares.
+    relationshipContext: A spare part is a Product held for maintenance. It fits Equipment and is used on MaintenanceWorkOrders; both are many-to-many. Its stock is held in inventory.
+    lifecycle: A spare is active while it is stocked; obsolete when the equipment it fits is retired or a replacement part takes over.
+    workflowContext: Spare-part planning, stores replenishment, work-order material reservation and issue, obsolescence management.
+    example: 'Spare SP-0412: bearing SKF 6312-2RS for pumps P-101 and P-102, criticality high, keep minimum 2, reorder point 2, reorder quantity 4, lead time 21 days.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SPARE-PART}

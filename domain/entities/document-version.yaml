@@ -2,24 +2,132 @@ entity:
   name: DocumentVersion
   namespace: cedm.domain
   kind: document_version
-  description: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
+  description: One version of a document's content — draft, review copy or released edition — with its version number, file, checksum, author and status, kept unchanged once released so that what was approved or signed can always be shown.
   ui:
-    icon: file-text
+    icon: files
+    recordLabel: [versionLabel]
   identity: {key: documentVersionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentVersion., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: versionLabel
+    type: string
+    required: true
+    maxLength: 20
+    help:
+      summary: The version number shown to readers, such as 2.1 or 3.0.
+      usage: Assigned when the version is checked in; minor numbers for drafts, major ones for releases.
+      relationshipContext: Unique within the document.
+  - name: versionSequence
+    type: integer
+    required: true
+    help:
+      summary: The order of the version within its document — 1, 2, 3…
+      usage: Assigned automatically on check-in; versions are listed in this order.
+      relationshipContext: Unique within the document.
+  - name: fileName
+    type: string
+    required: false
+    maxLength: 255
+    help:
+      summary: The name of the file holding the version.
+      usage: Used when the version is downloaded.
+      relationshipContext: Several versions may share a file name.
+  - name: storageLocation
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Where the file is stored.
+      usage: Set by the system on check-in.
+      relationshipContext: Users never type it.
+  - name: checksum
+    type: string
+    required: false
+    maxLength: 128
+    help:
+      summary: The fingerprint (SHA-256) of the file.
+      usage: Recorded on check-in; signatures name the version by it.
+      relationshipContext: Two versions with the same checksum have identical content.
+  - name: changeSummary
+    type: text
+    required: false
+    help:
+      summary: What changed from the previous version.
+      usage: Written by the author on check-in; read by reviewers.
+      relationshipContext: Required for a released version.
+  - name: releasedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the version was released.
+      usage: Recorded on approval.
+      relationshipContext: Present once released.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, IN_REVIEW, RELEASED, SUPERSEDED, WITHDRAWN]
+    help:
+      summary: Where the version stands.
+      usage: Moved on by review and release.
+      relationshipContext: Only one version of a document is released at a time.
+      valueSemantics:
+        DRAFT: Being written.
+        IN_REVIEW: Sent for approval.
+        RELEASED: Approved and current.
+        SUPERSEDED: Replaced by a later released version.
+        WITHDRAWN: Abandoned before release.
   relationships:
-  - {name: document, target: Document, cardinality: '1', ownership: reference, help: {summary: Parent Document., businessMeaning: Supplies logical document identity., usage: Versioning and retrieval., cardinalityMeaning: Exactly one Document., workflowRole: Version content is immutable after finalization.}}
+  - name: document
+    target: Document
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The document the version belongs to.
+      businessMeaning: Supplies logical document identity.
+      workflowRole: Version content is immutable after finalization.
+      usage: Set on check-in.
+      cardinalityMeaning: Every version belongs to exactly one document.
+      context: The document lists its versions in sequence.
+  - name: author
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who wrote the version.
+      usage: Recorded on check-in.
+      cardinalityMeaning: One per version.
+      context: Should not approve their own version.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who approved the release.
+      usage: Recorded on approval.
+      cardinalityMeaning: One per version.
+      context: Must have authority for the document's class.
   invariants:
-  - {id: DOCUMENT-VERSION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: DOCUMENT-VERSION-001, rule: A released version is never edited; a change is a new version.}
+  - {id: DOCUMENT-VERSION-002, rule: A released version records when it was released., violatedWhen: status == "RELEASED" and released_at == null, message: Record when the version was released.}
+  lifecycle:
+    title: Document Version Lifecycle
+    attribute: status
+    states: [DRAFT, IN_REVIEW, RELEASED, SUPERSEDED, WITHDRAWN]
+    initial: DRAFT
+    terminal: [SUPERSEDED, WITHDRAWN]
+    transitions:
+    - {from: DRAFT, to: IN_REVIEW, action: submit}
+    - {from: IN_REVIEW, to: DRAFT, action: return}
+    - {from: IN_REVIEW, to: RELEASED, action: release}
+    - {from: RELEASED, to: SUPERSEDED, action: supersede}
+    - {from: DRAFT, to: WITHDRAWN, action: withdraw}
   help:
-    summary: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
-    purpose: Provide durable, implementation-neutral governance semantics for DocumentVersion.
-    businessMeaning: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: One saved edition of a document, kept exactly as it was.
+    businessMeaning: Documents change, but what was approved, signed or sent must stay as it was. Each version is a frozen copy with its own number, file fingerprint and author, so the business can show which text applied at any moment, compare versions, and release a new one without losing the old.
+    usage: Authors check in new versions while drafting; reviewers approve one, which becomes the released version; earlier released versions are superseded but kept. Signatures and approvals refer to a specific version.
+    relationshipContext: A version belongs to one Document; the document's current version is its latest released one. Signatures are made on a version, identified by its checksum.
+    lifecycle: Draft while being written, in review when sent for approval, released when approved, and superseded when a later version is released. A version abandoned during drafting is withdrawn.
+    workflowContext: Document authoring and review, controlled-document release (procedures, specifications), contract drafting and signature.
+    example: Version 3.0 of 'Procedure QP-07 Goods receipt inspection', file qp07-v3.pdf, SHA-256 4f1c…, authored by the quality engineer, approved by the quality manager, released 2 May 2024, superseding version 2.1.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-VERSION}

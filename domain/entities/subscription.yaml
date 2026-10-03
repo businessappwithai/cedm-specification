@@ -2,58 +2,173 @@ entity:
   name: Subscription
   namespace: cedm.domain
   kind: subscription_contract
-  description: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
+  description: A customer's subscription to a plan — how many units, the current term, renewal setting, start, trial and cancellation dates — which recurring billing charges period by period.
   ui:
-    icon: repeat
+    icon: calendar-check
+    recordLabel: [subscriptionNumber]
   identity: {key: subscriptionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: subscriptionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Subscription., businessMeaning: Identifies one governed Subscription record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Subscription., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: TRIAL
+    values: [TRIAL, ACTIVE, SUSPENDED, CANCELLED, EXPIRED]
+    help:
+      summary: Whether the subscription is being billed.
+      usage: Moved on by sign-up, billing and the customer's actions.
+      relationshipContext: Only active subscriptions are charged.
+      valueSemantics:
+        TRIAL: In a free trial.
+        ACTIVE: In force and billed.
+        SUSPENDED: Paused, usually for non-payment; service is restricted.
+        CANCELLED: Ended by the customer or the company.
+        EXPIRED: Reached the end of its term without renewal.
+  - name: subscriptionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the subscription.
+      usage: Assigned at sign-up; shown on invoices and in the customer portal.
+      relationshipContext: Unique.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 18
+    scale: 4
+    default: 1
+    help:
+      summary: How many units — users, seats, devices — are subscribed.
+      usage: Multiplies the plan's per-unit fee.
+      relationshipContext: Changes take effect from the next period unless prorated.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: The day the subscription began.
+      usage: Recorded at sign-up.
+      relationshipContext: Not later than the end date.
+  - name: trialEndDate
+    type: date
+    required: false
+    help:
+      summary: The last day of the free trial.
+      usage: The first charge falls after it.
+      relationshipContext: Empty when there was no trial.
+  - name: currentTermStart
+    type: date
+    required: false
+    help:
+      summary: The first day of the current term.
+      usage: Moved on at each renewal.
+      relationshipContext: Not later than the current term end.
+  - name: currentTermEnd
+    type: date
+    required: false
+    help:
+      summary: The last day of the current term.
+      usage: Renewal is decided before it.
+      relationshipContext: Empty for subscriptions without terms.
+  - name: autoRenew
+    type: boolean
+    required: true
+    default: true
+    help:
+      summary: Whether the subscription renews automatically at term end.
+      usage: Set by the customer or by contract.
+      relationshipContext: When off, the subscription expires at term end unless renewed.
+  - name: cancelledDate
+    type: date
+    required: false
+    help:
+      summary: The day the customer cancelled.
+      usage: Recorded on cancellation; service may continue to term end.
+      relationshipContext: Present only on cancelled subscriptions.
+  - name: cancellationReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the customer cancelled.
+      usage: Recorded on cancellation; churn analysis groups by it.
+      relationshipContext: Present only on cancelled subscriptions.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer who holds the subscription.
+      businessMeaning: Supplies commercial party context.
+      workflowRole: Financial settlement remains separate.
+      usage: Chosen at sign-up.
+      cardinalityMeaning: Every subscription belongs to one customer.
+      context: Billed to this customer.
+  - name: plan
+    target: SubscriptionPlan
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The plan subscribed to.
+      usage: Chosen at sign-up; changed on upgrade or downgrade.
+      cardinalityMeaning: One plan at a time.
+      context: Its prices and entitlements apply.
+  - name: billingCycle
+    target: BillingCycle
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cycle the subscription is billed on.
+      usage: Copied from the plan at sign-up.
+      cardinalityMeaning: One per subscription.
+      context: Decides the billing dates.
   invariants:
-  - {id: SUBSCRIPTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: SUBSCRIPTION-001, rule: The current term does not end before it starts., violatedWhen: current_term_end != null and current_term_start != null and current_term_end < current_term_start, message: The current term ends before it starts.}
+  - {id: SUBSCRIPTION-002, rule: A cancelled subscription records when and why., violatedWhen: status == "CANCELLED" and (cancelled_date == null or cancellation_reason == null), message: Give the cancellation date and reason.}
+  - {id: SUBSCRIPTION-003, rule: The quantity is positive., violatedWhen: quantity != null and quantity <= 0, message: The quantity must be greater than zero.}
+  - {id: SUBSCRIPTION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: SUBSCRIPTION-EXE-002, rule: "A subscription that is cancelled states cancellation reason.", violatedWhen: "status == \"CANCELLED\" and cancellation_reason == null", message: "Give the cancellation reason before the subscription is cancelled."}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when a subscription is ended"
+    description: "When a subscription is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUBSCRIPTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on subscription {{subscription_number}}"
+          description: "Subscription {{subscription_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   lifecycle:
     title: Subscription Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [TRIAL, ACTIVE, SUSPENDED, CANCELLED, EXPIRED]
+    initial: TRIAL
+    terminal: [CANCELLED, EXPIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a subscription is ended"
-      description: "When a subscription is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUBSCRIPTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on subscription {{id}}"
-              description: "Subscription {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: TRIAL, to: ACTIVE, action: activate}
+    - {from: TRIAL, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: SUSPENDED, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: EXPIRED, action: expire}
   help:
-    summary: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
-    purpose: Provide canonical enterprise semantics for Subscription while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A customer's ongoing purchase of a plan, billed every period until it ends.
+    businessMeaning: Subscriptions turn a sale into recurring revenue. Each one says which plan the customer has, for how many users or units, in which term, whether it renews and when it started or will end, so billing charges it correctly, customer success can manage renewals and churn, and finance can report recurring revenue.
+    usage: Created when a customer signs up; activated after any trial; changed when the customer upgrades, downgrades or changes quantity; renewed or cancelled at term end. Billing runs charge every active subscription each period.
+    relationshipContext: A subscription is held by a Customer on a SubscriptionPlan and billed on a BillingCycle. Charges, UsageRecords, Credits and Renewals refer to it.
+    lifecycle: In trial, then active, possibly suspended (for non-payment, for example), and finally cancelled or expired. Changes of plan or quantity happen while active.
+    workflowContext: Sign-up, recurring billing, usage rating, plan changes, renewals and churn, dunning.
+    example: "Subscription SUB-4471: Contoso Ltd on 'Pro, annual', 12 users, term 1 April 2024 – 31 March 2025, auto-renew on, started 1 April 2023 after a 14-day trial."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUBSCRIPTION}

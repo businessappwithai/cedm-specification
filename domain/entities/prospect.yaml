@@ -2,24 +2,152 @@ entity:
   name: Prospect
   namespace: cedm.domain
   kind: crm_party_state
-  description: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
+  description: An organization or person identified as a possible customer — from a list, an event or research — before anyone has qualified their interest as a lead.
   ui:
-    icon: database
+    icon: target
+    recordLabel: [code, name]
   identity: {key: prospectId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Prospect., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the prospect.
+      businessMeaning: Human or integration-friendly reference where applicable.
+      optionalMeaning: Optional when another transaction reference supplies business identity.
+      usage: Assigned when it is added.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The name of the prospective customer.
+      usage: Shown in prospect lists.
+      relationshipContext: The party record holds the legal name and addresses.
+  - name: industry
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The industry the prospect is in.
+      usage: Used to target campaigns and assign sales territories.
+      relationshipContext: From the agreed industry classification.
+  - name: employeeCount
+    type: integer
+    required: false
+    help:
+      summary: Roughly how many people the prospect employs.
+      usage: A measure of size used in the fit score.
+      relationshipContext: An estimate from public sources.
+  - name: annualRevenue
+    type: Money
+    required: false
+    help:
+      summary: The prospect's approximate annual revenue.
+      usage: A measure of size used in the fit score.
+      relationshipContext: An estimate from public sources.
+  - name: source
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: Where the prospect came from, such as a purchased list or a trade fair.
+      usage: Lets marketing judge which sources produce customers.
+      relationshipContext: Recorded when added.
+  - name: fitScore
+    type: integer
+    required: false
+    help:
+      summary: How well the prospect matches the ideal customer profile, from 0 to 100.
+      usage: Sales works the highest-scoring prospects first.
+      relationshipContext: Between 0 and 100.
+  - name: disqualificationReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the prospect was dropped.
+      usage: Recorded when disqualifying.
+      relationshipContext: Present only on disqualified prospects.
+  - name: status
+    type: enum
+    required: true
+    default: NEW
+    values: [NEW, ENGAGED, CONVERTED, DISQUALIFIED]
+    help:
+      summary: Where the prospect stands.
+      usage: Moved on by sales or marketing.
+      relationshipContext: Converted prospects continue as leads.
+      valueSemantics:
+        NEW: Identified, not yet contacted.
+        ENGAGED: Contact or marketing has started.
+        CONVERTED: Showed interest and became a lead.
+        DISQUALIFIED: Not a fit, or not interested.
   relationships:
-  - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., cardinalityMeaning: Exactly one Party., workflowRole: Qualification may create Lead without duplicating Party.}}
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The party record of the prospect.
+      businessMeaning: Supplies canonical person/organization identity.
+      workflowRole: Qualification may create Lead without duplicating Party.
+      usage: Created or linked when the prospect is added.
+      cardinalityMeaning: Every prospect is exactly one party.
+      context: The same party becomes the customer if it buys.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The salesperson responsible for the prospect.
+      usage: Assigned by territory or by hand.
+      cardinalityMeaning: One per prospect.
+      context: Receives the lead when the prospect converts.
+  - name: campaign
+    target: Campaign
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The campaign currently targeting the prospect.
+      usage: Set when the prospect is included in a campaign.
+      cardinalityMeaning: At most one at a time.
+      context: The resulting lead keeps the campaign for attribution.
+  - name: lead
+    target: Lead
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The lead the prospect became.
+      usage: Set on conversion.
+      cardinalityMeaning: At most one.
+      context: Present once converted.
   invariants:
-  - {id: PROSPECT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: PROSPECT-001, rule: The fit score is between 0 and 100., violatedWhen: fit_score != null and (fit_score < 0 or fit_score > 100), message: The fit score must be between 0 and 100.}
+  - {id: PROSPECT-002, rule: A disqualified prospect records why., violatedWhen: status == "DISQUALIFIED" and disqualification_reason == null, message: Give the reason for disqualifying the prospect.}
+  - {id: PROSPECT-EXE-001, rule: "Employee Count cannot be negative.", violatedWhen: "employee_count != null and employee_count < 0", message: "Employee Count cannot be negative."}
+  lifecycle:
+    title: Prospect Lifecycle
+    attribute: status
+    states: [NEW, ENGAGED, CONVERTED, DISQUALIFIED]
+    initial: NEW
+    terminal: [CONVERTED, DISQUALIFIED]
+    transitions:
+    - {from: NEW, to: ENGAGED, action: engage}
+    - {from: ENGAGED, to: CONVERTED, action: convert}
+    - {from: NEW, to: CONVERTED, action: convert}
+    - {from: NEW, to: DISQUALIFIED, action: disqualify}
+    - {from: ENGAGED, to: DISQUALIFIED, action: disqualify}
   help:
-    summary: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
-    purpose: Provide canonical implementation-neutral semantics for Prospect across enterprise applications.
-    businessMeaning: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: Someone who might become a customer, before any contact shows real interest.
+    businessMeaning: Sales and marketing start from lists of organizations that fit the ideal customer profile. Keeping them as prospects — with their industry, size, fit and source — lets marketing target them and sales decide whom to approach, without cluttering the lead pipeline with names nobody has spoken to.
+    usage: Imported from lists or added by sales research; scored for fit; engaged through campaigns; converted into a lead when someone shows interest, or disqualified.
+    relationshipContext: A prospect is a Party (usually an organization) that may be targeted by a Campaign. Converting it creates a Lead, which may later become a Customer.
+    lifecycle: New when identified, engaged once contact starts, converted when it becomes a lead, or disqualified when it does not fit.
+    workflowContext: Target-account selection, outbound prospecting, campaign targeting, lead creation.
+    example: 'Prospect P-24-0381: Northwind Distribution GmbH, wholesale, 250 employees, Germany; source — trade fair list LogiMAT 2024; fit score 78; engaged by email campaign CMP-2024-Q2-DE.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROSPECT}

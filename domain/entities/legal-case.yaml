@@ -2,24 +2,172 @@ entity:
   name: LegalCase
   namespace: cedm.domain
   kind: legal_case_management
-  description: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
+  description: A case before a court, tribunal, arbitrator or authority — with its case number, forum, the parties' roles, the stage reached, key dates and the judgment — handled within a legal matter.
   ui:
-    icon: briefcase
+    icon: gavel
+    recordLabel: [caseNumber, title]
   identity: {key: legalCaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalCase., businessMeaning: Identifies one governed LegalCase record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+  - name: caseNumber
+    type: string
+    required: true
+    maxLength: 60
+    help:
+      summary: The court's or tribunal's reference for the case.
+      usage: Quoted on every filing and letter to the court.
+      relationshipContext: Unique within its forum.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The name of the case, such as "ACME France v. Northwind Labs".
+      usage: Shown in case lists.
+      relationshipContext: Identifies the case for people.
+  - name: forumType
+    type: enum
+    required: true
+    default: COURT
+    values: [COURT, TRIBUNAL, ARBITRATION, REGULATORY_AUTHORITY]
+    help:
+      summary: What kind of body hears the case.
+      usage: Decides the procedure and deadlines.
+      relationshipContext: Read with the forum.
+      valueSemantics:
+        COURT: A state court.
+        TRIBUNAL: A specialised tribunal, such as an employment tribunal.
+        ARBITRATION: An arbitral tribunal.
+        REGULATORY_AUTHORITY: A regulator deciding on a matter.
+  - name: ourRole
+    type: enum
+    required: true
+    default: CLAIMANT
+    values: [CLAIMANT, DEFENDANT, THIRD_PARTY, INTERVENER]
+    help:
+      summary: Which side the business is on.
+      usage: Recorded when the case is opened.
+      relationshipContext: Decides whether an adverse outcome is a payment or a lost recovery.
+      valueSemantics:
+        CLAIMANT: We started the proceedings.
+        DEFENDANT: Proceedings were brought against us.
+        THIRD_PARTY: We are joined as a third party.
+        INTERVENER: We intervene in someone else's case.
+  - name: stage
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The procedural stage reached, such as "Pleadings", "Expert phase" or "Awaiting judgment".
+      usage: Updated as the case moves on.
+      relationshipContext: Free wording; procedures differ by forum.
+  - name: filedDate
+    type: date
+    required: false
+    help:
+      summary: The day the proceedings were filed.
+      usage: Recorded when the case starts.
+      relationshipContext: Not later than the judgment date.
+  - name: nextHearingDate
+    type: date
+    required: false
+    help:
+      summary: The date of the next hearing.
+      usage: Updated after each hearing; feeds the hearing calendar.
+      relationshipContext: Empty when none is scheduled.
+  - name: judgmentDate
+    type: date
+    required: false
+    help:
+      summary: The day judgment was given or the settlement signed.
+      usage: Recorded with the outcome.
+      relationshipContext: Present once decided or settled.
+  - name: amountClaimed
+    type: Money
+    required: false
+    help:
+      summary: The amount claimed in the proceedings.
+      usage: From the claim; used for exposure reporting.
+      relationshipContext: In the matter's currency.
+  - name: outcome
+    type: text
+    required: false
+    help:
+      summary: How the case ended.
+      usage: Written with the judgment or settlement.
+      relationshipContext: Required to close.
+  - name: status
+    type: enum
+    required: true
+    default: FILED
+    values: [FILED, PENDING, DECIDED, SETTLED, APPEALED, CLOSED, WITHDRAWN]
+    help:
+      summary: Where the case stands.
+      usage: Moved on by the responsible lawyer.
+      relationshipContext: Decided and settled cases have an outcome.
+      valueSemantics:
+        FILED: Started; first steps under way.
+        PENDING: Pleadings and hearings in progress.
+        DECIDED: Judgment given.
+        SETTLED: Ended by settlement.
+        APPEALED: Judgment appealed to a higher court; the appeal is recorded as its own case.
+        CLOSED: Finished — the judgment became final or the appeal was decided.
+        WITHDRAWN: Withdrawn or dismissed without judgment on the merits.
   relationships:
-  - {name: legalMatter, target: LegalMatter, cardinality: "1", ownership: reference, help: {summary: Parent legal matter., businessMeaning: Groups case within broader legal work., usage: Legal case management., cardinalityMeaning: Exactly one LegalMatter., workflowRole: "Case outcomes propagate as evidence, not history rewrite."}}
+  - name: legalMatter
+    target: LegalMatter
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The legal matter the case belongs to.
+      businessMeaning: Groups case within broader legal work.
+      workflowRole: "Case outcomes propagate as evidence, not history rewrite."
+      usage: Chosen when opening the case.
+      cardinalityMeaning: Every case belongs to exactly one matter.
+      context: Costs and counsel are managed on the matter.
+  - name: forum
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The court, tribunal or authority hearing the case.
+      usage: Chosen when opening it.
+      cardinalityMeaning: One per case.
+      context: Its rules set the deadlines.
+  - name: counterparty
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The other side.
+      usage: Chosen when opening it.
+      cardinalityMeaning: The main opponent; others are listed in the title.
+      context: Usually the matter's counterparty.
   invariants:
-  - {id: LEGAL-CASE-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: LEGAL-CASE-001, rule: A decided or settled case records its outcome and date., violatedWhen: (status == "DECIDED" or status == "SETTLED") and (outcome == null or judgment_date == null), message: Record the outcome and the date of judgment or settlement.}
+  lifecycle:
+    title: Legal Case Lifecycle
+    attribute: status
+    states: [FILED, PENDING, DECIDED, SETTLED, APPEALED, CLOSED, WITHDRAWN]
+    initial: FILED
+    terminal: [CLOSED, SETTLED, WITHDRAWN]
+    transitions:
+    - {from: FILED, to: PENDING, action: proceed}
+    - {from: PENDING, to: DECIDED, action: decide}
+    - {from: PENDING, to: SETTLED, action: settle}
+    - {from: FILED, to: SETTLED, action: settle}
+    - {from: DECIDED, to: CLOSED, action: close}
+    - {from: DECIDED, to: APPEALED, action: appeal}
+    - {from: APPEALED, to: CLOSED, action: close}
+    - {from: APPEALED, to: SETTLED, action: settle}
+    - {from: FILED, to: WITHDRAWN, action: withdraw}
+    - {from: PENDING, to: WITHDRAWN, action: withdraw}
   help:
-    summary: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
-    purpose: Provide canonical governance semantics for LegalCase.
-    businessMeaning: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: One proceeding before a court or tribunal, and how it ended.
+    businessMeaning: Litigation runs on deadlines set by courts and on documents filed in a fixed forum. A case record holds the forum, the court's reference, our role, the stage reached, the next hearing and the outcome, so that no deadline is missed and the legal team and management know where each dispute stands.
+    usage: Opened when proceedings are started or served; updated at each hearing and filing; closed with the judgment or settlement. Hearing calendars and litigation reports are drawn from cases.
+    relationshipContext: A case belongs to a LegalMatter, which holds the wider work, budget and counsel. Filings are made in the case. The counterparty is a Party; the forum is an Organization.
+    lifecycle: Filed, then pending through pleadings and hearings, then decided by judgment or settled. A decided case is closed once the judgment is final, or marked appealed while a higher court hears it (the appeal is its own case) and closed when that is over. A case may be withdrawn or dismissed.
+    workflowContext: Litigation management, hearing preparation, filing deadlines, provisions and disclosures.
+    example: Case RG 24/01234, Tribunal de commerce de Lyon, ACME France v. Northwind Labs, we are claimant; filed 2 April 2024; next hearing 18 November; matter LM-2024-044.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-CASE}

@@ -2,24 +2,202 @@ entity:
   name: RiskAssessment
   namespace: cedm.domain
   kind: risk_assessment
-  description: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
+  description: A dated assessment of one risk — its likelihood and impact before and after controls, the resulting ratings, the controls relied on, and whether the residual risk is within appetite.
   ui:
-    icon: alert-triangle
+    icon: gauge
+    recordLabel: [assessmentNumber]
   identity: {key: riskAssessmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: riskAssessmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of RiskAssessment., businessMeaning: Identifies one governed RiskAssessment record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+  - name: assessmentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the assessment.
+      usage: Assigned when it is started.
+      relationshipContext: Unique.
+  - name: assessmentDate
+    type: date
+    required: true
+    help:
+      summary: The date the assessment applies to.
+      usage: Trend charts plot assessments by it.
+      relationshipContext: Usually the end of the review period.
+  - name: inherentLikelihood
+    type: enum
+    required: true
+    values: [RARE, UNLIKELY, POSSIBLE, LIKELY, ALMOST_CERTAIN]
+    help:
+      summary: How likely the risk is without any controls.
+      usage: Judged by the risk owner.
+      relationshipContext: Read with the inherent impact.
+      valueSemantics:
+        RARE: May occur only in exceptional circumstances.
+        UNLIKELY: Could occur but is not expected.
+        POSSIBLE: Might occur at some time.
+        LIKELY: Will probably occur.
+        ALMOST_CERTAIN: Expected to occur.
+  - name: inherentImpact
+    type: enum
+    required: true
+    values: [INSIGNIFICANT, MINOR, MODERATE, MAJOR, SEVERE]
+    help:
+      summary: How bad the consequences would be without any controls.
+      usage: Judged by the risk owner against the impact scale.
+      relationshipContext: Read with the inherent likelihood.
+      valueSemantics:
+        INSIGNIFICANT: Negligible effect.
+        MINOR: Small, easily absorbed effect.
+        MODERATE: Noticeable effect needing management attention.
+        MAJOR: Serious effect on objectives.
+        SEVERE: Threatens the business.
+  - name: residualLikelihood
+    type: enum
+    required: true
+    values: [RARE, UNLIKELY, POSSIBLE, LIKELY, ALMOST_CERTAIN]
+    help:
+      summary: How likely the risk is with the current controls working.
+      usage: Judged after considering the controls.
+      relationshipContext: Not higher than the inherent likelihood.
+      valueSemantics:
+        RARE: May occur only in exceptional circumstances.
+        UNLIKELY: Could occur but is not expected.
+        POSSIBLE: Might occur at some time.
+        LIKELY: Will probably occur.
+        ALMOST_CERTAIN: Expected to occur.
+  - name: residualImpact
+    type: enum
+    required: true
+    values: [INSIGNIFICANT, MINOR, MODERATE, MAJOR, SEVERE]
+    help:
+      summary: How bad the consequences would be with the current controls.
+      usage: Judged after considering the controls.
+      relationshipContext: Not higher than the inherent impact.
+      valueSemantics:
+        INSIGNIFICANT: Negligible effect.
+        MINOR: Small, easily absorbed effect.
+        MODERATE: Noticeable effect needing management attention.
+        MAJOR: Serious effect on objectives.
+        SEVERE: Threatens the business.
+  - name: residualRating
+    type: enum
+    required: true
+    values: [LOW, MEDIUM, HIGH, VERY_HIGH]
+    help:
+      summary: The overall rating after controls, from the likelihood-impact matrix.
+      usage: Reported to management; decides whether treatment is needed.
+      relationshipContext: Compared with the risk appetite.
+      valueSemantics:
+        LOW: Accepted; monitored routinely.
+        MEDIUM: Accepted with monitoring by the owner.
+        HIGH: Needs treatment and management attention.
+        VERY_HIGH: Needs immediate treatment and board attention.
+  - name: controlsConsidered
+    type: text
+    required: false
+    help:
+      summary: The controls relied on to reduce the risk.
+      usage: Listed by the owner; their effectiveness affects the residual rating.
+      relationshipContext: Control testing should support them.
+  - name: withinAppetite
+    type: boolean
+    required: true
+    default: true
+    help:
+      summary: Whether the residual risk is within the appetite set for it.
+      usage: Concluded by the risk owner and confirmed by risk management.
+      relationshipContext: A risk outside appetite needs a treatment plan.
+  - name: conclusion
+    type: text
+    required: false
+    help:
+      summary: The assessor's conclusion and any recommended action.
+      usage: Read by management and in the next review.
+      relationshipContext: Free text.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, SUBMITTED, APPROVED, SUPERSEDED]
+    help:
+      summary: Where the assessment stands.
+      usage: Moved on by review and approval.
+      relationshipContext: Only approved assessments appear in reports.
+      valueSemantics:
+        DRAFT: Being completed by the owner.
+        SUBMITTED: Waiting for review by risk management.
+        APPROVED: Accepted as the current view of the risk.
+        SUPERSEDED: Replaced by a newer approved assessment.
   relationships:
-  - {name: risk, target: Risk, cardinality: '1', ownership: reference, help: {summary: Risk being assessed., businessMeaning: Supplies risk identity and context., usage: Risk governance and treatment., cardinalityMeaning: Exactly one Risk., workflowRole: Assessment may drive controls/treatment without rewriting prior assessments.}}
+  - name: risk
+    target: Risk
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The risk assessed.
+      businessMeaning: Supplies risk identity and context.
+      workflowRole: Assessment may drive controls/treatment without rewriting prior assessments.
+      usage: Chosen when starting the assessment.
+      cardinalityMeaning: Every assessment is of exactly one risk.
+      context: The risk's current rating is its latest approved assessment.
+  - name: assessor
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who carried out the assessment.
+      usage: Recorded when starting it.
+      cardinalityMeaning: One per assessment.
+      context: Usually the risk owner.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who approved the assessment.
+      usage: Recorded on approval.
+      cardinalityMeaning: One per assessment.
+      context: Risk management, independent of the owner.
   invariants:
-  - {id: RISK-ASSESSMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: RISK-ASSESSMENT-001, rule: An approved assessment is not changed; a new view is a new assessment.}
+  workflows:
+  - name: ApprovalRequested
+    title: "Ask for a decision when a risk assessment is put forward"
+    description: "When a risk assessment is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "RISK-ASSESSMENT-APPROVAL-{{id}}"
+          name: "Decide on risk assessment {{assessment_number}}"
+          description: "Risk assessment {{assessment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Risk Assessment Lifecycle
+    attribute: status
+    states: [DRAFT, SUBMITTED, APPROVED, SUPERSEDED]
+    initial: DRAFT
+    terminal: [SUPERSEDED]
+    transitions:
+    - {from: DRAFT, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: DRAFT, action: return}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: SUPERSEDED, action: supersede}
   help:
-    summary: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
-    purpose: Provide canonical governance semantics for RiskAssessment.
-    businessMeaning: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: How serious a risk was judged to be on a given date, before and after its controls.
+    businessMeaning: A risk register is only as good as its assessments. Each assessment records the inherent likelihood and impact, the controls taken into account, the residual rating and the assessor's conclusion, dated, so management can see how a risk is moving and whether it is within the appetite the board has set.
+    usage: Risk owners reassess their risks periodically and after significant changes; risk management reviews the assessments and approves them; reports show residual ratings and trends.
+    relationshipContext: An assessment is of one Risk. The previous assessment of the same risk is the baseline for trends. Residual ratings above appetite lead to RiskTreatments.
+    lifecycle: Draft while the owner fills it in, submitted for review, approved by risk management, and superseded when a newer assessment of the same risk is approved.
+    workflowContext: Periodic risk reviews, risk reporting to management and the board, decisions on risk treatment.
+    example: "Assessment RA-2024-Q2-017 of risk R-031 'Single-source supplier for motors': inherent likely × major = high; with dual-qualification and safety stock, residual possible × moderate = medium; within appetite; approved 28 June."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RISK-ASSESSMENT}

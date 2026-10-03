@@ -2,58 +2,163 @@ entity:
   name: UsageRecord
   namespace: cedm.domain
   kind: subscription_usage
-  description: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
+  description: A measured quantity of service a customer used — API calls, gigabytes, minutes, transactions — for a period, from a metering source, which billing rates against the subscription's plan.
   ui:
-    icon: table
+    icon: activity
+    recordLabel: [usageNumber]
   identity: {key: usageRecordId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of UsageRecord., businessMeaning: Identifies one governed UsageRecord record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of UsageRecord., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: RECEIVED
+    values: [RECEIVED, RATED, REJECTED, VOIDED]
+    help:
+      summary: Whether the usage has been billed.
+      usage: Moved on by rating.
+      relationshipContext: Only received records are picked up by rating.
+      valueSemantics:
+        RECEIVED: Recorded and waiting to be rated.
+        RATED: Turned into a charge.
+        REJECTED: Could not be rated; needs correction.
+        VOIDED: A duplicate or an error; never billed.
+  - name: usageNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 60
+    help:
+      summary: The reference of the usage record.
+      usage: Assigned when it is received.
+      relationshipContext: Unique.
+  - name: sourceReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The metering system's own identifier for the measurement.
+      usage: Used to refuse duplicates when a feed is resent.
+      relationshipContext: Unique per source.
+  - name: source
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The system the measurement came from.
+      usage: Recorded on receipt.
+      relationshipContext: Such as "api-gateway-eu".
+  - name: metric
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: What was measured, such as "API calls" or "Storage GB".
+      usage: Must match a usage unit of the subscription's plan.
+      relationshipContext: Unmatched metrics are rejected.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 18
+    scale: 4
+    help:
+      summary: How much was used.
+      usage: Rated against the plan.
+      relationshipContext: In the metric's unit.
+  - name: periodStart
+    type: datetime
+    required: true
+    help:
+      summary: The start of the period measured.
+      usage: Usage is billed in the billing period it falls in.
+      relationshipContext: Not later than the period end.
+  - name: periodEnd
+    type: datetime
+    required: true
+    help:
+      summary: The end of the period measured.
+      usage: Usage is billed in the billing period it falls in.
+      relationshipContext: Not earlier than the period start.
+  - name: rejectionReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the record could not be rated.
+      usage: Read by billing operations to correct it.
+      relationshipContext: Present only on rejected records.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer who used the service.
+      businessMeaning: Supplies commercial party context.
+      workflowRole: Financial settlement remains separate.
+      usage: Matched from the subscription.
+      cardinalityMeaning: One per record.
+      context: Billed to this customer.
+  - name: subscription
+    target: Subscription
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The subscription the usage belongs to.
+      usage: Matched from the metering identifier.
+      cardinalityMeaning: One per record.
+      context: Its plan decides the price.
+  - name: charge
+    target: Charge
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The charge the usage was rated into.
+      usage: Set by rating.
+      cardinalityMeaning: At most one.
+      context: Present once rated.
   invariants:
-  - {id: USAGE-RECORD-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: USAGE-RECORD-001, rule: Usage records are not edited; a correction is an adjustment record.}
+  - {id: USAGE-RECORD-002, rule: The period does not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
+  - {id: USAGE-RECORD-003, rule: A rejected record says why., violatedWhen: status == "REJECTED" and rejection_reason == null, message: Give the reason the usage was rejected.}
+  - {id: USAGE-RECORD-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when an usage record is ended"
+    description: "When an usage record is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "USAGE-RECORD-FOLLOW-UP-{{id}}"
+          name: "Follow up on usage record {{usage_number}}"
+          description: "Usage record {{usage_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   lifecycle:
     title: Usage Record Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [RECEIVED, RATED, REJECTED, VOIDED]
+    initial: RECEIVED
+    terminal: [RATED, VOIDED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a usage record is ended"
-      description: "When a usage record is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "USAGE-RECORD-FOLLOW-UP-{{id}}"
-              name: "Follow up on usage record {{id}}"
-              description: "Usage record {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: RECEIVED, to: RATED, action: rate}
+    - {from: RECEIVED, to: REJECTED, action: reject}
+    - {from: REJECTED, to: RECEIVED, action: correct}
+    - {from: RECEIVED, to: VOIDED, action: void}
+    - {from: REJECTED, to: VOIDED, action: void}
   help:
-    summary: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
-    purpose: Provide canonical enterprise semantics for UsageRecord while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: How much of a metered service a customer used in a period.
+    businessMeaning: Usage-based billing charges for what customers consume. Each usage record states the quantity, unit and period, where the measurement came from and whether it has been rated, so that usage is billed exactly once, disputes can be answered with the source data, and included allowances are applied correctly.
+    usage: Received from metering systems, usually per day or per hour; billing rates unrated records at period end against the plan's included usage and overage price; disputed records are corrected by adjustment records.
+    relationshipContext: A usage record belongs to a Customer's Subscription. Rating turns records into Charges.
+    lifecycle: Received, then rated into a charge; a record that cannot be rated (unknown subscription, bad unit) is rejected for correction; a duplicate is voided.
+    workflowContext: Metering, usage rating, invoicing, usage analytics, billing disputes.
+    example: "Usage U-24-03-118220: subscription SUB-4471, 18,412 API calls on 14 March 2024, source 'api-gateway-eu', rated into charge CH-24-03-118822."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-USAGE-RECORD}
