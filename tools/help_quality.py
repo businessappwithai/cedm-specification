@@ -5,13 +5,21 @@ placeholders, the same sentence describes several different entities:
 "Captures the business meaning of <field> for the <entity>." says nothing about
 any of them. Writing that is specific to a record never collides that way.
 
-`stamped(entities)` returns the paths of every such text; `tools/validate.py`
-refuses them (HELP-001) and `tools/help_skeleton.py --todo` lists them.
+`stamped(entities)` returns the paths of every such text in a library. The
+library was rewritten by hand; what its old generators produced is recorded in
+`tools/legacy-help-shapes.txt`, and `legacy(entities)` returns the help texts
+that still have one of those shapes — which `tools/validate.py` refuses
+(HELP-001). Shapes are compared, not strings, so a template cannot come back
+with only the entity's name changed. Short writing that merely recurs ("At
+most one.") is not a template and is not refused.
 """
 from __future__ import annotations
 
+import pathlib
 import re
 from collections import defaultdict
+
+LEGACY_FILE = pathlib.Path(__file__).resolve().parent / "legacy-help-shapes.txt"
 
 # Help of a system column means the same thing on every record that has one.
 SHARED_ATTRIBUTES = {"createdAt", "updatedAt", "createdBy", "updatedBy", "version", "rowVersion", "tenantId"}
@@ -84,3 +92,19 @@ def stamped(entities: dict[str, dict]) -> dict[str, str]:
             owners[key].add(name)
             seen.append((path, text, key))
     return {path: text for path, text, key in seen if len(owners[key]) >= THRESHOLD}
+
+
+def legacy_shapes() -> set[str]:
+    lines = LEGACY_FILE.read_text().splitlines() if LEGACY_FILE.exists() else []
+    return {line for line in lines if line and not line.startswith("#")}
+
+
+def legacy(entities: dict[str, dict]) -> dict[str, str]:
+    """Every help text with the shape of one the retired generators wrote, keyed by path."""
+    shapes = legacy_shapes()
+    found: dict[str, str] = {}
+    for name, entity in entities.items():
+        for path, text, names in texts(name, entity):
+            if shape(text, *names) in shapes:
+                found[path] = text
+    return found

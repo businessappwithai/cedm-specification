@@ -71,7 +71,7 @@ def show(name: str, path: pathlib.Path) -> None:
 
 def load_stamped(index: dict[str, pathlib.Path]) -> None:
     entities = {n: (yaml.safe_load(p.read_text()) or {})["entity"] for n, p in index.items()}
-    for where in help_quality.stamped(entities):
+    for where in help_quality.legacy(entities):
         owner, key = where.rsplit(".", 1)
         if ".valueSemantics" in owner:
             owner, key = owner.split(".valueSemantics")[0], "values"

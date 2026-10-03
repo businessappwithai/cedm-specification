@@ -27,7 +27,7 @@ A new attribute's `t` is `<type> [req] [unique] [<maxLength>] [<precision>,<scal
 
 Merging keeps what an author already wrote: a help key is replaced when the
 authored entry names it, removed when it was stamped from a template
-(`help_quality.stamped`) and the entry does not name it, and otherwise kept.
+(`help_quality.legacy`) and the entry does not name it, and otherwise kept.
 Files are rewritten with ruamel's round trip, so ordering, flow style and every
 key this tool does not touch stay as they were.
 """
@@ -132,7 +132,7 @@ def stamped_by_path() -> dict[str, set[str]]:
         if entity.get("name"):
             entities[entity["name"]] = entity
     by_owner: dict[str, set[str]] = {}
-    for path in help_quality.stamped(entities):
+    for path in help_quality.legacy(entities):
         owner, key = path.rsplit(".", 1)
         if ".valueSemantics" in owner:
             owner, key = owner.split(".valueSemantics")[0], "valueSemantics"
