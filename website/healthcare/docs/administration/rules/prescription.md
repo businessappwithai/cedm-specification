@@ -13,6 +13,7 @@ Runs after a prescription is changed; order 100. In **Business Rules** it is lis
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “prescriptionWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Prescription follow up required”).
 - **When** “Status” == "COMPLETED" and “Status” != previous “Status”: **Starts a process** — “prescriptionWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Prescription completion confirmed”).
 
+![The Prescription workflows after update rule in the editor](/img/rules/prescription-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

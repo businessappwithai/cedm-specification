@@ -8,6 +8,7 @@ description: "Every state a record can be in and every move between states."
 
 A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **18** lifecycles.
 
+![The workflow monitor](/img/admin/workflows.jpg)
 
 ## Party: Party lifecycle
 
@@ -27,6 +28,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Party lifecycle bar](/img/entities/party-record.jpg)
 
 See [Party](/entities/foundation/party/) for the record itself.
 
@@ -47,6 +49,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Organization lifecycle bar](/img/entities/organization-record.jpg)
 
 See [Organization](/entities/foundation/organization/) for the record itself.
 
@@ -65,6 +68,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Party Role lifecycle bar](/img/entities/party-role-record.jpg)
 
 See [Party Role](/entities/foundation/party-role/) for the record itself.
 
@@ -83,6 +87,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Address lifecycle bar](/img/entities/address-record.jpg)
 
 See [Address](/entities/foundation/address/) for the record itself.
 
@@ -104,6 +109,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Location lifecycle bar](/img/entities/location-record.jpg)
 
 See [Location](/entities/foundation/location/) for the record itself.
 
@@ -122,6 +128,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Currency lifecycle bar](/img/entities/currency-record.jpg)
 
 See [Currency](/entities/foundation/currency/) for the record itself.
 
@@ -140,6 +147,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Exchange Rate lifecycle bar](/img/entities/exchange-rate-record.jpg)
 
 See [Exchange Rate](/entities/foundation/exchange-rate/) for the record itself.
 
@@ -158,6 +166,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Unit Of Measure lifecycle bar](/img/entities/unit-of-measure-record.jpg)
 
 See [Unit Of Measure](/entities/foundation/unit-of-measure/) for the record itself.
 
@@ -191,6 +200,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Task lifecycle bar](/img/entities/task-record.jpg)
 
 See [Task](/entities/foundation/task/) for the record itself.
 
@@ -211,6 +221,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Healthcare Patient lifecycle bar](/img/entities/healthcare-patient-record.jpg)
 
 See [Healthcare Patient](/entities/healthcare/healthcare-patient/) for the record itself.
 
@@ -232,6 +243,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Healthcare Provider lifecycle bar](/img/entities/healthcare-provider-record.jpg)
 
 See [Healthcare Provider](/entities/healthcare/healthcare-provider/) for the record itself.
 
@@ -250,6 +262,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Healthcare Encounter lifecycle bar](/img/entities/healthcare-encounter-record.jpg)
 
 See [Healthcare Encounter](/entities/healthcare/healthcare-encounter/) for the record itself.
 
@@ -304,6 +317,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Medication lifecycle bar](/img/entities/medication-record.jpg)
 
 See [Medication](/entities/healthcare/medication/) for the record itself.
 
@@ -324,6 +338,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Prescription lifecycle bar](/img/entities/prescription-record.jpg)
 
 See [Prescription](/entities/healthcare/prescription/) for the record itself.
 
@@ -360,6 +375,7 @@ stateDiagram-v2
 
 Any role that may change the record may make any move the diagram draws.
 
+![Care Plan lifecycle bar](/img/entities/care-plan-record.jpg)
 
 See [Care Plan](/entities/healthcare/care-plan/) for the record itself.
 

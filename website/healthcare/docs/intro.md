@@ -10,6 +10,7 @@ description: "Healthcare, built on the CEDM common foundation."
 
 Healthcare, built on the CEDM common foundation.
 
+![The Healthcare dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
