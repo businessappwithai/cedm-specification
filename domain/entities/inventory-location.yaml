@@ -21,9 +21,9 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: 'The code of the inventory location: a value the business records on it.'
-      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful on its own.
+      summary: The label of the location, as printed on the bin or rack.
+      usage: Scanned at put-away, picking and counting.
+      relationshipContext: Unique within its warehouse.
   - name: locationType
     type: enum
     required: true
@@ -39,20 +39,20 @@ entity:
     - YARD_SLOT
     - OTHER
     help:
-      summary: 'The location type of the inventory location: a value the business records on it.'
-      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful on its own.
+      summary: What the location is used for.
+      usage: Decides which movements may use it and whether its stock counts as available.
+      relationshipContext: Quarantine stock is never available for orders.
       valueSemantics:
-        RECEIVING: The location type of the inventory location is receiving; set it when that is what the business means for this record.
-        BIN: The location type of the inventory location is bin; set it when that is what the business means for this record.
-        SHELF: The location type of the inventory location is shelf; set it when that is what the business means for this record.
-        RACK: The location type of the inventory location is rack; set it when that is what the business means for this record.
-        FLOOR: The location type of the inventory location is floor; set it when that is what the business means for this record.
-        PICK: The location type of the inventory location is pick; set it when that is what the business means for this record.
-        STAGING: The location type of the inventory location is staging; set it when that is what the business means for this record.
-        QUARANTINE: The location type of the inventory location is quarantine; set it when that is what the business means for this record.
-        YARD_SLOT: The location type of the inventory location is yard slot; set it when that is what the business means for this record.
-        OTHER: The location type of the inventory location is other; set it when that is what the business means for this record.
+        RECEIVING: Where goods are unloaded and checked in.
+        BIN: A small storage position.
+        SHELF: A shelf position.
+        RACK: A pallet rack position.
+        FLOOR: A block-stacking area on the floor.
+        PICK: A forward position orders are picked from.
+        STAGING: Where picked goods wait for loading.
+        QUARANTINE: Where goods are held pending a quality decision.
+        YARD_SLOT: A trailer or container slot in the yard.
+        OTHER: Any other kind of location.
   - name: status
     type: enum
     required: true
@@ -64,28 +64,28 @@ entity:
       relationshipContext: Status constrains future operations; it never deletes current balances or historical movements.
       workflowRole: Status changes trigger dependent-workflow validation before operational eligibility changes become effective.
       valueSemantics:
-        ACTIVE: The status of the inventory location is active; set it when that is what the business means for this record.
-        BLOCKED: The status of the inventory location is blocked; set it when that is what the business means for this record.
-        INACTIVE: The status of the inventory location is inactive; set it when that is what the business means for this record.
+        ACTIVE: In use.
+        BLOCKED: Temporarily closed to movements, for example for a count or damage.
+        INACTIVE: No longer used.
   - name: capacity
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: 'The capacity of the inventory location: a number the business records on it.'
-      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful on its own.
+      summary: How much the location can hold, in the warehouse's capacity unit.
+      usage: Checked when suggesting put-away locations.
+      relationshipContext: Not negative; empty means unlimited.
   relationships:
   - name: warehouse
     target: Warehouse
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links an inventory location to warehouse, the warehouse it relates to.
-      usage: Chosen from the existing warehouse records when the inventory location is created or edited.
+      summary: The warehouse the location is in.
       cardinalityMeaning: An inventory location has exactly one warehouse in this role.
-      context: Lets the inventory location be found from, and reported with, its warehouse.
+      usage: Set when the location is created.
+      context: Location codes are unique within it.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
@@ -109,7 +109,12 @@ entity:
     target: HandlingUnit
     cardinality: 0..*
     ownership: reference
-    help: {summary: Physical logistics units currently associated with this location., businessMeaning: Supports pallet/carton/tote execution without replacing stock balances., usage: "Scanning, putaway, picking and count.", cardinalityMeaning: Zero or many handling units., workflowRole: Handling-unit moves must reconcile with underlying inventory execution.}
+    help:
+      summary: Physical logistics units currently associated with this location.
+      businessMeaning: Supports pallet/carton/tote execution without replacing stock balances.
+      usage: "Scanning, putaway, picking and count."
+      workflowRole: Handling-unit moves must reconcile with underlying inventory execution.
+      cardinalityMeaning: Any number of handling units may sit at the location.
   invariants:
   - {id: INVENTORY-LOCATION-001, rule: code must be unique within its Warehouse.}
   - {id: INVENTORY-LOCATION-002, rule: capacity must be non-negative when supplied.}

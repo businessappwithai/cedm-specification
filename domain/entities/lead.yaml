@@ -5,6 +5,7 @@ entity:
   description: A prospective customer or business opportunity before qualification.
   ui:
     icon: target
+    recordLabel: [leadNumber]
   identity:
     key: leadId
     type: uuid
@@ -25,9 +26,9 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of lead number for the Lead. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lead records, where applicable.
-      relationshipContext: Its meaning is specific to Lead; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The number of the lead.
+      usage: Used to refer to the lead in sales meetings.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
@@ -40,33 +41,33 @@ entity:
     - CONVERTED
     - LOST
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lead records, where applicable.
-      relationshipContext: Its meaning is specific to Lead; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the lead stands in qualification.
+      usage: Moved on by the lead owner.
+      relationshipContext: Only qualified leads are converted.
       valueSemantics:
-        NEW: Represents the new state or classification in the context of Lead.
-        QUALIFYING: Represents the qualifying state or classification in the context of Lead.
-        QUALIFIED: Represents the qualified state or classification in the context of Lead.
-        DISQUALIFIED: Represents the disqualified state or classification in the context of Lead.
-        CONVERTED: Represents the converted state or classification in the context of Lead.
-        LOST: Represents the lost state or classification in the context of Lead.
+        NEW: Captured; not yet worked.
+        QUALIFYING: Being contacted and assessed.
+        QUALIFIED: Has a real need, budget and timing.
+        DISQUALIFIED: Not a fit.
+        CONVERTED: Turned into an opportunity.
+        LOST: Went elsewhere or stopped responding.
   - name: source
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Captures the business meaning of source for the Lead. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lead records, where applicable.
-      relationshipContext: Its meaning is specific to Lead; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the lead came from, such as a campaign, event or website form.
+      usage: Used to measure which channels bring business.
+      relationshipContext: Recorded when the lead is captured.
   - name: estimatedValue
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of estimated value for the Lead. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Lead records, where applicable.
-      relationshipContext: Its meaning is specific to Lead; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The business the lead may bring, as first estimated.
+      usage: Helps prioritise leads.
+      relationshipContext: Not negative.
   - name: createdAt
     type: datetime
     required: true
@@ -82,59 +83,60 @@ entity:
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Lead to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Lead.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The person or organisation the lead is about.
+      usage: Set when the lead is captured, if known.
+      cardinalityMeaning: At most one party.
+      context: Contact details come from it.
   - name: customer
     target: Customer
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Lead to Customer so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Customer records associated with a Lead.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The existing customer the lead belongs to, if any.
+      usage: Set when the lead comes from a customer.
+      cardinalityMeaning: At most one customer.
+      context: Account managers are informed.
   - name: owner
     target: Party
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Lead to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Lead.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The salesperson working the lead.
+      usage: Assigned when the lead is distributed.
+      cardinalityMeaning: At most one owner.
+      context: Follow-up tasks go to them.
   - name: opportunity
     target: Opportunity
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Lead to Opportunity so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Opportunity records associated with a Lead.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The opportunity the lead was converted into.
+      usage: Set on conversion.
+      cardinalityMeaning: At most one opportunity.
+      context: Win rates are measured from leads to won opportunities.
   lifecycle:
     title: Lead Lifecycle
     attribute: status
     states: [NEW, QUALIFYING, QUALIFIED, DISQUALIFIED, CONVERTED, LOST]
     initial: NEW
-    terminal: [LOST]
+    terminal: [DISQUALIFIED, CONVERTED, LOST]
     transitions:
-    - {from: NEW, to: QUALIFYING, action: mark_qualifying}
-    - {from: QUALIFYING, to: QUALIFIED, action: mark_qualified}
-    - {from: QUALIFIED, to: DISQUALIFIED, action: mark_disqualified}
-    - {from: DISQUALIFIED, to: CONVERTED, action: mark_converted}
+    - {from: NEW, to: QUALIFYING, action: start_qualifying}
+    - {from: QUALIFYING, to: QUALIFIED, action: qualify}
+    - {from: QUALIFYING, to: DISQUALIFIED, action: disqualify}
+    - {from: NEW, to: DISQUALIFIED, action: disqualify}
+    - {from: QUALIFIED, to: CONVERTED, action: convert}
     - {from: QUALIFYING, to: LOST, action: mark_lost}
     - {from: QUALIFIED, to: LOST, action: mark_lost}
-    - {from: DISQUALIFIED, to: LOST, action: mark_lost}
-    - {from: CONVERTED, to: LOST, action: mark_lost}
   help:
     summary: Represents a crm entity called Lead within the CEDM business model.
     businessMeaning: Lead is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Lead records.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Customer, Party, Opportunity. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Lead record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Marketing and sales staff capture leads from campaigns, events and enquiries, qualify them, and convert qualified leads into opportunities or drop them.
+    lifecycle: A lead is new until someone works on it, qualifying while contact is made, then qualified or disqualified; a qualified lead is converted into an opportunity or lost.
+    example: Lead LD-2024-1188 from the Hannover trade fair, Bauer GmbH, estimated value 45,000 EUR, owner Lisa Weber, qualified and converted to opportunity OP-3301.
+  invariants:
+  - {id: LEAD-001, rule: A converted lead names its opportunity., violatedWhen: status == "CONVERTED" and opportunity_id == null, message: Link the opportunity before marking the lead converted.}
 specification:
   version: 0.1.0
   status: draft
