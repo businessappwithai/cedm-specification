@@ -10,6 +10,7 @@ description: "Banking and Financial Services, built on the CEDM common foundatio
 
 Banking and Financial Services, built on the CEDM common foundation.
 
+![The Banking and Financial Services dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

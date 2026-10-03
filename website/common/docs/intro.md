@@ -19,6 +19,10 @@ The parties, organisations, places, units and reference data every domain applic
 
 ## The main records
 
+### Shared foundation records
+
+Every CEDM application starts from the same foundation of parties, places, currencies and units, so these records mean the same here as in any other application.
+
 | Record | What it is |
 | --- | --- |
 | [Organization](/entities/foundation/organization/) | Organization is the organizational specialization of Party, not an independent party identity or business role. |
@@ -29,10 +33,6 @@ The parties, organisations, places, units and reference data every domain applic
 | [Location](/entities/foundation/location/) | Core location master with hierarchical, geographic, organizational, and lifecycle context. |
 | [Country](/entities/foundation/country/) | A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. |
 | [Exchange Rate](/entities/foundation/exchange-rate/) | Represents an auditable conversion rate between two currencies for a defined time and business purpose. |
-| [Unit Of Measure](/entities/foundation/unit-of-measure/) | Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. |
-| [Party Role](/entities/foundation/party-role/) | The bridge between stable Party identity and contextual business participation. |
-| [State Province](/entities/foundation/state-province/) | A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. |
-| [City](/entities/foundation/city/) | A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. |
 
 
 ## What happens automatically

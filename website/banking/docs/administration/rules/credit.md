@@ -13,6 +13,7 @@ Runs after a credit is changed; order 100. In **Business Rules** it is listed as
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “creditWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Credit follow up required”).
 - **When** “Status” == "COMPLETED" and “Status” != previous “Status”: **Starts a process** — “creditWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Credit completion confirmed”).
 
+![The Credit workflows after update rule in the editor](/img/rules/credit-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
