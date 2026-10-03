@@ -10,6 +10,7 @@ description: "Construction and Engineering, built on the CEDM common foundation.
 
 Construction and Engineering, built on the CEDM common foundation.
 
+![The Construction and Engineering dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

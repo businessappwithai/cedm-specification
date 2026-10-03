@@ -8,6 +8,7 @@ description: "Every state a record can be in and every move between states."
 
 A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **11** lifecycles.
 
+![The workflow monitor](/img/admin/workflows.jpg)
 
 ## Party: Party lifecycle
 

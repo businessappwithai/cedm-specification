@@ -12,6 +12,7 @@ Runs after a construction project is changed; order 100. In **Business Rules** i
 
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “constructionProjectWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Construction project follow up required”).
 
+![The Construction project workflows after update rule in the editor](/img/rules/construction-project-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

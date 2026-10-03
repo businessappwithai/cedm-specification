@@ -8,6 +8,7 @@ description: "The automated multi-step processes this application runs."
 
 A process is a sequence of steps the application runs for you: create a task, update a record, call a service. A business rule usually starts it; you can also run one by hand from the Workflow Designer. Every run is logged step by step in the Workflow Monitor. This application has **5** processes.
 
+![The Workflow Designer](/img/admin/workflow-definitions.jpg)
 
 ## Party exception raised {#party-exception-raised}
 
@@ -23,6 +24,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Party exception raised process in the Workflow Designer](/img/processes/party-exception-raised.jpg)
 
 ## Exchange rate follow up required {#exchange-rate-follow-up-required}
 
@@ -38,6 +40,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Exchange rate follow up required process in the Workflow Designer](/img/processes/exchange-rate-follow-up-required.jpg)
 
 ## Construction project follow up required {#construction-project-follow-up-required}
 
@@ -53,6 +56,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Construction project follow up required process in the Workflow Designer](/img/processes/construction-project-follow-up-required.jpg)
 
 ## Project exception raised {#project-exception-raised}
 
@@ -68,6 +72,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Project exception raised process in the Workflow Designer](/img/processes/project-exception-raised.jpg)
 
 ## Project follow up required {#project-follow-up-required}
 
@@ -83,4 +88,5 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Project follow up required process in the Workflow Designer](/img/processes/project-follow-up-required.jpg)
 

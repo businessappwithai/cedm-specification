@@ -12,6 +12,7 @@ Runs before a project is created; order 100. In **Business Rules** it is listed 
 
 - **When** “Budget Amount” is filled in and “Budget Amount” < 0: **Refuses the save** — “Budget Amount cannot be negative.”.
 
+![The Project invariants before create rule in the editor](/img/rules/project-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a project is changed; order 100. In **Business Rules** it is listed 
 
 - **When** “Budget Amount” is filled in and “Budget Amount” < 0: **Refuses the save** — “Budget Amount cannot be negative.”.
 
+![The Project invariants before update rule in the editor](/img/rules/project-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -31,6 +33,7 @@ Runs after a project is changed; order 100. In **Business Rules** it is listed a
 - **When** “Status” == "ON_HOLD" and “Status” != previous “Status”: **Starts a process** — “projectWorkflowsAfterUpdate: ExceptionRaised” (starts the process “Project exception raised”).
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “projectWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Project follow up required”).
 
+![The Project workflows after update rule in the editor](/img/rules/project-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
