@@ -10,6 +10,7 @@ description: "Legal and Contract Management, built on the CEDM common foundation
 
 Legal and Contract Management, built on the CEDM common foundation.
 
+![The Legal and Contract Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

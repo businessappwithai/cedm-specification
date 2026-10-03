@@ -1,0 +1,336 @@
+---
+title: "Record lifecycles"
+sidebar_position: 2
+description: "Every state a record can be in and every move between states."
+---
+
+# Record lifecycles
+
+A lifecycle is the set of states a record can be in and the moves between them. The application enforces it on every write, through the screen and through the API: a move the diagram does not draw is refused for everyone, administrators included. Role restrictions narrow who may make a particular move. This application has **14** lifecycles.
+
+![The workflow monitor](/img/admin/workflows.jpg)
+
+## Party: Party lifecycle
+
+States: **Active**, **Inactive**, **Blocked**, **Retired**. A new record starts as **Active**; **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> ACTIVE
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  ACTIVE --> BLOCKED: block
+  BLOCKED --> ACTIVE: unblock
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+  BLOCKED --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Party lifecycle bar](/img/entities/party-record.jpg)
+
+See [Party](/entities/foundation/party/) for the record itself.
+
+## Organization: Organization lifecycle
+
+States: **Draft**, **Active**, **Inactive**, **Retired**. A new record starts as **Draft**; **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> DRAFT
+  DRAFT --> ACTIVE: activate
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  DRAFT --> RETIRED: retire
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Organization lifecycle bar](/img/entities/organization-record.jpg)
+
+See [Organization](/entities/foundation/organization/) for the record itself.
+
+## Party Role: Party role lifecycle
+
+States: **Active**, **Inactive**, **Expired**. A new record starts as **Active**; **Expired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> ACTIVE
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  ACTIVE --> EXPIRED: expire
+  INACTIVE --> EXPIRED: expire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Party Role lifecycle bar](/img/entities/party-role-record.jpg)
+
+See [Party Role](/entities/foundation/party-role/) for the record itself.
+
+## Address: Address lifecycle
+
+States: **Active**, **Inactive**, **Retired**. A new record starts as **Active**; **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> ACTIVE
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Address lifecycle bar](/img/entities/address-record.jpg)
+
+See [Address](/entities/foundation/address/) for the record itself.
+
+## Location: Location lifecycle
+
+States: **Planned**, **Active**, **Inactive**, **Closed**, **Retired**. A new record starts as **Planned**; **Closed**, **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> PLANNED
+  PLANNED --> ACTIVE: activate
+  ACTIVE --> CLOSED: close
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  PLANNED --> RETIRED: retire
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Location lifecycle bar](/img/entities/location-record.jpg)
+
+See [Location](/entities/foundation/location/) for the record itself.
+
+## Currency: Currency lifecycle
+
+States: **Active**, **Inactive**, **Retired**. A new record starts as **Active**; **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> ACTIVE
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Currency lifecycle bar](/img/entities/currency-record.jpg)
+
+See [Currency](/entities/foundation/currency/) for the record itself.
+
+## Exchange Rate: Exchange rate lifecycle
+
+States: **Draft**, **Active**, **Expired**, **Cancelled**. A new record starts as **Draft**; **Expired**, **Cancelled** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> DRAFT
+  DRAFT --> ACTIVE: activate
+  ACTIVE --> EXPIRED: expire
+  DRAFT --> CANCELLED: cancel
+  ACTIVE --> CANCELLED: cancel
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Exchange Rate lifecycle bar](/img/entities/exchange-rate-record.jpg)
+
+See [Exchange Rate](/entities/foundation/exchange-rate/) for the record itself.
+
+## Unit Of Measure: Unit of measure lifecycle
+
+States: **Active**, **Inactive**, **Retired**. A new record starts as **Active**; **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> ACTIVE
+  ACTIVE --> INACTIVE: deactivate
+  INACTIVE --> ACTIVE: reactivate
+  ACTIVE --> RETIRED: retire
+  INACTIVE --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Unit Of Measure lifecycle bar](/img/entities/unit-of-measure-record.jpg)
+
+See [Unit Of Measure](/entities/foundation/unit-of-measure/) for the record itself.
+
+## Task: Task lifecycle
+
+States: **Created**, **Ready**, **Assigned**, **In progress**, **Blocked**, **Completed**, **Cancelled**, **Failed**. A new record starts as **Created**; **Completed**, **Cancelled**, **Failed** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> CREATED
+  CREATED --> READY: mark_ready
+  READY --> ASSIGNED: assign
+  ASSIGNED --> IN_PROGRESS: start
+  IN_PROGRESS --> COMPLETED: complete
+  READY --> BLOCKED: block
+  BLOCKED --> READY: unblock
+  ASSIGNED --> BLOCKED: block
+  BLOCKED --> ASSIGNED: unblock
+  IN_PROGRESS --> BLOCKED: block
+  BLOCKED --> IN_PROGRESS: unblock
+  CREATED --> CANCELLED: cancel
+  READY --> CANCELLED: cancel
+  ASSIGNED --> CANCELLED: cancel
+  IN_PROGRESS --> CANCELLED: cancel
+  BLOCKED --> CANCELLED: cancel
+  READY --> FAILED: fail
+  ASSIGNED --> FAILED: fail
+  IN_PROGRESS --> FAILED: fail
+  BLOCKED --> FAILED: fail
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Task lifecycle bar](/img/entities/task-record.jpg)
+
+See [Task](/entities/foundation/task/) for the record itself.
+
+## Compound: Compound lifecycle
+
+States: **Research**, **Development**, **Candidate**, **Approved**, **Discontinued**. A new record starts as **Candidate**; **Discontinued** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> CANDIDATE
+  CANDIDATE --> DEVELOPMENT: mark_development
+  DEVELOPMENT --> RESEARCH: mark_research
+  RESEARCH --> APPROVED: approve
+  CANDIDATE --> DISCONTINUED: discontinue
+  DEVELOPMENT --> DISCONTINUED: discontinue
+  RESEARCH --> DISCONTINUED: discontinue
+  APPROVED --> DISCONTINUED: discontinue
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Compound lifecycle bar](/img/entities/compound-record.jpg)
+
+See [Compound](/entities/life-sciences-and-drug-discovery/compound/) for the record itself.
+
+## Experiment: Experiment lifecycle
+
+States: **Planned**, **Running**, **Completed**, **Failed**, **Cancelled**, **Archived**. A new record starts as **Planned**; **Archived**, **Failed**, **Cancelled** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> PLANNED
+  PLANNED --> RUNNING: mark_running
+  RUNNING --> COMPLETED: complete
+  COMPLETED --> ARCHIVED: archive
+  RUNNING --> FAILED: fail
+  PLANNED --> CANCELLED: cancel
+  RUNNING --> CANCELLED: cancel
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Experiment lifecycle bar](/img/entities/experiment-record.jpg)
+
+See [Experiment](/entities/life-sciences-and-drug-discovery/experiment/) for the record itself.
+
+## Sample: Sample lifecycle
+
+States: **Planned**, **Collected**, **Received**, **Available**, **In use**, **Consumed**, **Disposed**, **Lost**, **Quarantined**, **Archived**. A new record starts as **Planned**; **Consumed**, **Disposed**, **Lost** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> PLANNED
+  PLANNED --> COLLECTED: mark_collected
+  COLLECTED --> RECEIVED: receive
+  RECEIVED --> AVAILABLE: mark_available
+  AVAILABLE --> IN_USE: mark_in_use
+  IN_USE --> ARCHIVED: archive
+  ARCHIVED --> CONSUMED: consume
+  COLLECTED --> QUARANTINED: quarantine
+  QUARANTINED --> COLLECTED: release
+  RECEIVED --> QUARANTINED: quarantine
+  QUARANTINED --> RECEIVED: release
+  AVAILABLE --> QUARANTINED: quarantine
+  QUARANTINED --> AVAILABLE: release
+  IN_USE --> QUARANTINED: quarantine
+  QUARANTINED --> IN_USE: release
+  COLLECTED --> DISPOSED: mark_disposed
+  RECEIVED --> DISPOSED: mark_disposed
+  AVAILABLE --> DISPOSED: mark_disposed
+  IN_USE --> DISPOSED: mark_disposed
+  QUARANTINED --> DISPOSED: mark_disposed
+  COLLECTED --> LOST: mark_lost
+  RECEIVED --> LOST: mark_lost
+  AVAILABLE --> LOST: mark_lost
+  IN_USE --> LOST: mark_lost
+  QUARANTINED --> LOST: mark_lost
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Sample lifecycle bar](/img/entities/sample-record.jpg)
+
+See [Sample](/entities/life-sciences-and-drug-discovery/sample/) for the record itself.
+
+## Chemical Batch: Chemical batch lifecycle
+
+States: **Planned**, **Quarantined**, **Released**, **Rejected**, **Expired**, **Consumed**. A new record starts as **Planned**; **Consumed**, **Rejected**, **Expired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> PLANNED
+  PLANNED --> RELEASED: release
+  RELEASED --> CONSUMED: consume
+  RELEASED --> QUARANTINED: quarantine
+  QUARANTINED --> RELEASED: release
+  PLANNED --> REJECTED: reject
+  RELEASED --> REJECTED: reject
+  QUARANTINED --> REJECTED: reject
+  RELEASED --> EXPIRED: expire
+  QUARANTINED --> EXPIRED: expire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Chemical Batch lifecycle bar](/img/entities/chemical-batch-record.jpg)
+
+See [Chemical Batch](/entities/life-sciences-and-drug-discovery/chemical-batch/) for the record itself.
+
+## Product: Product lifecycle
+
+States: **Draft**, **Active**, **Discontinued**, **Blocked**, **Retired**. A new record starts as **Draft**; **Discontinued**, **Retired** ends the lifecycle.
+
+```mermaid
+stateDiagram-v2
+  [*] --> DRAFT
+  DRAFT --> ACTIVE: activate
+  ACTIVE --> BLOCKED: block
+  BLOCKED --> ACTIVE: unblock
+  DRAFT --> DISCONTINUED: discontinue
+  ACTIVE --> DISCONTINUED: discontinue
+  BLOCKED --> DISCONTINUED: discontinue
+  DRAFT --> RETIRED: retire
+  ACTIVE --> RETIRED: retire
+  BLOCKED --> RETIRED: retire
+```
+
+Any role that may change the record may make any move the diagram draws.
+
+![Product lifecycle bar](/img/entities/product-record.jpg)
+
+See [Product](/entities/foundation/product/) for the record itself.
+
