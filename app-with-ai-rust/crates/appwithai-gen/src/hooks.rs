@@ -1,4 +1,4 @@
-//! `%%hook` directives → Rust lifecycle handlers in the generated Loco backend.
+//! The model's `hooks` → Rust lifecycle handlers in the generated Loco backend.
 //!
 //! The Rust mirror of `packages/generator/src/hooks/index.ts` (the compiler)
 //! and `packages/generator/src/generators/tanstack-astryx-loco/hook-handlers.ts`
@@ -6,7 +6,7 @@
 //! useless without the directives, and this generator had neither.
 //!
 //! **The two implementations must agree byte for byte.** `bun run parity` is the
-//! gate, and all three corpus models declare `%%hook` — drug-discovery 13, crm
+//! gate, and all three corpus models declare hooks — drug-discovery 13, crm
 //! 38, dance-studio 3 — so the gate genuinely exercises this rather than
 //! comparing two empty outputs. Change one side and change the other in the
 //! same commit.
@@ -14,9 +14,8 @@
 //! See the TypeScript module's header for why handler modules are written once
 //! and the registry is rewritten every run.
 
+use crate::records::HookDeclaration;
 use std::collections::{BTreeMap, BTreeSet};
-
-use regex::Regex;
 
 use crate::naming::snake_case;
 
@@ -219,75 +218,21 @@ pub struct CompiledHook {
     pub order: usize,
 }
 
-/// `%%hook <type> <handler> on <Entity>[field: a, field: b]`
-///
-/// The leading `%%` may be repeated (`%%%%hook`), which older generated
-/// flowcharts emitted, so the anchor allows a run of them — but it is still an
-/// anchor. Matching `%%hook` anywhere in the line meant a plain `%%` comment
-/// that merely *mentioned* a hook compiled into a real one: prose is the one
-/// thing the language promises is inert, and every other directive parser
-/// anchors at the start of the line for exactly this reason.
-///
-/// Built per call rather than held in a `static`: this crate carries no
-/// lazy-initialisation dependency, and `compile_hooks` runs once per
-/// generation, so the compile is not worth one.
-const DIRECTIVE: &str = r"^%%+hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?";
-
-/// Cheap pre-filter, held to the same anchor as `DIRECTIVE`.
-const DIRECTIVE_LINE: &str = r"^%%+hook\b";
-
-fn parse_fields(bracket: Option<&str>) -> Option<String> {
-    let bracket = bracket?;
-    let inner = bracket
-        .strip_prefix('[')
-        .and_then(|s| s.strip_suffix(']'))
-        .unwrap_or(bracket)
-        .trim();
-    if inner.is_empty() {
-        return None;
-    }
-    for part in inner.split(',') {
-        let part = part.trim();
-        let name = part.strip_prefix("field:").unwrap_or(part).trim();
-        if !name.is_empty() && name.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            return Some(name.to_string());
-        }
-    }
-    None
-}
-
-/// Read every `%%hook` directive in the document.
-///
-/// `known_entities` is what the ERD declares. A hook naming something else
-/// would generate a call into a module for an entity that does not exist, so it
-/// is reported and dropped rather than allowed to break the build.
-pub fn compile_hooks(
-    source: &str,
+/// Compile hook declarations read from either syntax.
+pub fn compile_hook_declarations(
+    declarations: &[HookDeclaration],
     known_entities: &[String],
     mut on_warn: impl FnMut(String),
 ) -> Vec<CompiledHook> {
-    let directive = Regex::new(DIRECTIVE).expect("hook directive regex");
-    let directive_line = Regex::new(DIRECTIVE_LINE).expect("hook directive line regex");
     let known: BTreeSet<&str> = known_entities.iter().map(String::as_str).collect();
     let mut hooks: Vec<CompiledHook> = Vec::new();
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut per_entity: BTreeMap<String, usize> = BTreeMap::new();
 
-    for raw_line in source.lines() {
-        let line = raw_line.trim();
-        if !directive_line.is_match(line) {
-            continue;
-        }
-
-        let Some(caps) = directive.captures(line) else {
-            on_warn(format!("Skipping malformed hook directive: {line}"));
-            continue;
-        };
-
-        let type_name = caps.get(1).map_or("", |m| m.as_str());
-        let handler = caps.get(2).map_or("", |m| m.as_str());
-        let entity = caps.get(3).map_or("", |m| m.as_str());
-        let bracket = caps.get(4).map(|m| m.as_str());
+    for declaration in declarations {
+        let type_name = declaration.event.as_str();
+        let handler = declaration.handler.as_str();
+        let entity = declaration.entity.as_str();
 
         let Some(hook_type) = HookType::parse(type_name) else {
             on_warn(format!(
@@ -322,7 +267,7 @@ pub fn compile_hooks(
             entity: entity.to_string(),
             hook_type,
             handler: handler.to_string(),
-            field: parse_fields(bracket),
+            field: declaration.field.clone(),
             order: this_order,
         });
     }
@@ -409,7 +354,7 @@ pub fn build_hook_handler_module(entity: &str, hooks: &[CompiledHook]) -> String
     let header = format!(
         "//! Lifecycle handlers for {entity}.\n\
          //!\n\
-         //! Declared by the model's `%%hook` directives and wired up in\n\
+         //! Declared by the model's `hooks` and wired up in\n\
          //! `crate::hooks`. **The bodies are yours.** This file is written\n\
          //! once and then left alone, so regenerating the project will not overwrite\n\
          //! what you put here; a hook added to the model later arrives as a new stub\n\
@@ -488,7 +433,7 @@ pub fn build_hook_handlers_mod(entities: &[String]) -> String {
                   //! Generated wiring — rewritten on every run. The modules it names are not.\n\n";
 
     if entities.is_empty() {
-        return format!("{header}// No `%%hook` directive in this model.\n");
+        return format!("{header}// No hooks are declared in this model.\n");
     }
 
     let mut sorted = entities.to_vec();
@@ -510,7 +455,7 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
     let mut out = String::from(
         "//! The hook registry: which handler runs on which entity, for each event.\n\
          //!\n\
-         //! Generated wiring — rewritten on every run, so a `%%hook` added to the\n\
+         //! Generated wiring — rewritten on every run, so a hook added to the\n\
          //! model is always picked up. The handler bodies in `handlers/` are not\n\
          //! rewritten; see that module's header.\n\
          //!\n\
@@ -530,6 +475,7 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
          /// `bus_compound`, `compound`, `Compound` and `chemical-inventory` all have\n\
          /// to reach the same handlers, or a hook would fire from one route and not\n\
          /// another.\n\
+         #[allow(dead_code)]\n\
          fn key(entity: &str) -> String {\n\
          \x20   let trimmed = entity.strip_prefix(\"bus_\").unwrap_or(entity);\n\
          \x20   trimmed\n\
@@ -635,6 +581,15 @@ pub fn build_hook_registry(hooks: &[CompiledHook]) -> String {
 mod tests {
     use super::*;
 
+    fn declared(event: &str, handler: &str, entity: &str, field: Option<&str>) -> HookDeclaration {
+        HookDeclaration {
+            event: event.to_string(),
+            handler: handler.to_string(),
+            entity: entity.to_string(),
+            field: field.map(str::to_string),
+        }
+    }
+
     fn hook(entity: &str, hook_type: HookType, handler: &str, order: usize) -> CompiledHook {
         CompiledHook {
             entity: entity.to_string(),
@@ -645,55 +600,15 @@ mod tests {
         }
     }
 
-    /// Regression: the scan matched `%%hook` anywhere in a line, so a plain
-    /// `%%` comment that merely mentioned a hook compiled into a real one — a
-    /// handler module and a registered lifecycle binding nobody declared, with
-    /// no warning. The shipped example models all carry prose headers like
-    /// this.
     #[test]
-    fn does_not_read_a_directive_out_of_the_middle_of_a_prose_comment() {
-        let source = "\
-%% Passwords are hashed on the way in. See %%hook beforeCreate hashPassword on Compound
-%% for how that is wired; the registry never stores a plaintext one.
-%% Every %%hook lifecycle event is exercised somewhere in this model.
-";
-        let mut warnings: Vec<String> = Vec::new();
-        let hooks = compile_hooks(source, &["Compound".to_string()], &mut |message| {
-            warnings.push(message)
-        });
-        assert!(hooks.is_empty(), "prose is inert: {hooks:?}");
-        assert!(warnings.is_empty(), "and says nothing: {warnings:?}");
-    }
-
-    /// The doubled `%%` older generated flowcharts emitted is still an anchor.
-    #[test]
-    fn still_reads_a_doubled_or_indented_directive() {
-        let mut ignore = |_: String| {};
-        let known = ["Compound".to_string()];
-        assert_eq!(
-            compile_hooks(
-                "%%%%hook afterCreate index on Compound",
-                &known,
-                &mut ignore
-            )
-            .len(),
-            1
-        );
-        assert_eq!(
-            compile_hooks(
-                "      %%hook afterCreate index on Compound",
-                &known,
-                &mut ignore
-            )
-            .len(),
-            1
-        );
-    }
-
-    #[test]
-    fn reads_a_directive_with_a_scoped_field() {
-        let hooks = compile_hooks(
-            "    %%hook beforeCreate generateInchiKey on Compound[field: inchi_key]",
+    fn compiles_a_declaration_with_a_scoped_field() {
+        let hooks = compile_hook_declarations(
+            &[declared(
+                "beforeCreate",
+                "generateInchiKey",
+                "Compound",
+                Some("inchi_key"),
+            )],
             &["Compound".to_string()],
             |_| {},
         );
@@ -706,8 +621,8 @@ mod tests {
     #[test]
     fn drops_a_hook_naming_an_entity_the_model_does_not_declare() {
         let mut warnings = Vec::new();
-        let hooks = compile_hooks(
-            "%%hook afterCreate notify on Ghost",
+        let hooks = compile_hook_declarations(
+            &[declared("afterCreate", "notify", "Ghost", None)],
             &["Compound".to_string()],
             |m| warnings.push(m),
         );
@@ -718,8 +633,12 @@ mod tests {
     #[test]
     fn keeps_the_first_of_two_identical_declarations() {
         let mut warnings = Vec::new();
-        let source = "%%hook afterCreate notify on Compound\n%%hook afterCreate notify on Compound";
-        let hooks = compile_hooks(source, &["Compound".to_string()], |m| warnings.push(m));
+        let source = [
+            declared("afterCreate", "notify", "Compound", None),
+            declared("afterCreate", "notify", "Compound", None),
+        ];
+        let hooks =
+            compile_hook_declarations(&source, &["Compound".to_string()], |m| warnings.push(m));
         assert_eq!(hooks.len(), 1);
         assert!(warnings[0].contains("declared twice"));
     }
@@ -727,8 +646,12 @@ mod tests {
     #[test]
     fn refuses_one_handler_name_bound_to_two_events() {
         let mut warnings = Vec::new();
-        let source = "%%hook beforeCreate touch on Compound\n%%hook afterCreate touch on Compound";
-        let hooks = compile_hooks(source, &["Compound".to_string()], |m| warnings.push(m));
+        let source = [
+            declared("beforeCreate", "touch", "Compound", None),
+            declared("afterCreate", "touch", "Compound", None),
+        ];
+        let hooks =
+            compile_hook_declarations(&source, &["Compound".to_string()], |m| warnings.push(m));
         assert_eq!(hooks.len(), 1);
         assert_eq!(hooks[0].hook_type, HookType::BeforeCreate);
         assert!(warnings[0].contains("bound to both"));
@@ -761,7 +684,7 @@ mod tests {
     #[test]
     fn every_hook_type_gets_a_dispatch_function_even_with_no_hooks() {
         // The bus controller calls all of them unconditionally, so a model with
-        // no `%%hook` still has to produce a crate that compiles.
+        // no hooks still has to produce a crate that compiles.
         let registry = build_hook_registry(&[]);
         for hook_type in HOOK_TYPES {
             assert!(

@@ -56,7 +56,7 @@ interface HelpColumn {
   /** The entity's own <name>_id column carried over from the ERD. */
   isBusinessKey?: boolean;
   /**
-   * `%%field <Entity>.<column> help:` — what the author said this column is for.
+   * The column's `help` — what the author said this column is for.
    *
    * The only sentence in a generated application that carries *domain*
    * knowledge rather than schema. Everything else this module composes is
@@ -256,7 +256,7 @@ function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
   const parts: string[] = [];
 
   // The author's words come first, and the derived sentence is dropped rather
-  // than appended after them: a `%%field ... help:` that says what a column is
+  // than appended after them: a column `help` that says what a column is
   // for should not be followed by this module restating the column's shape.
   // The *facts* below — required, unique, length — still follow, because the
   // author's sentence does not carry them.

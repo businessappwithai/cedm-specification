@@ -20,11 +20,11 @@
 
 import { createHash } from "node:crypto";
 
-import type { BusEntity, EntityEnum } from "@appwithai/core/types";
+import { type BusEntity, type EntityEnum, foreignKeyTargetTable } from "@appwithai/core/types";
 
 import { buildDictionaryHelp } from "../dictionary-help";
 
-/** Category declared by a `%%category` directive in the model. */
+/** Category declared in the model's `categories`. */
 export interface EntityCategorySeed {
   name: string;
   code: string;
@@ -42,7 +42,7 @@ export interface DictionarySeedOptions {
   entities: BusEntity[];
   categories?: EntityCategorySeed[];
   /**
-   * `%%enum` declarations a `%%field` binds a column to, with the reference id
+   * Enums a column's `enum` key binds it to, with the reference id
    * each was allocated.
    *
    * Without these the seed still stamps `sys_column.sys_reference_id` with the
@@ -136,6 +136,72 @@ export function raw(sql: string): RawSql {
  * `sys_role.name`, …), which is exactly the "insert unless this row is already
  * there in some form" semantics a re-runnable seed wants.
  */
+/**
+ * The rules one narrowed lookup runs: for each controlling column, the target
+ * table's own foreign key to the table the controlling column points at.
+ * Mirrored by `narrowing_rules` in `crates/appwithai-gen/src/dictionary.rs`.
+ */
+export function narrowingRules(
+  entity: BusEntity,
+  attribute: BusEntity["attributes"][number],
+  entities: BusEntity[]
+): Array<{ by: string; on: string }> {
+  const tables = new Set(entities.map((candidate) => candidate.tableName));
+  const byTable = new Map(entities.map((candidate) => [candidate.tableName, candidate]));
+  const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
+  const targetEntity = target ? byTable.get(target) : undefined;
+  if (!targetEntity) return [];
+  const rules: Array<{ by: string; on: string }> = [];
+  for (const by of attribute.narrowedBy ?? []) {
+    const controlling = entity.attributes.find((candidate) => candidate.columnName === by);
+    if (!controlling) continue;
+    const controlled = foreignKeyTargetTable(by, tables, controlling.referencesTable);
+    if (!controlled || controlled === targetEntity.tableName) continue;
+    const on = targetEntity.attributes.find(
+      (candidate) =>
+        candidate.isForeignKey &&
+        foreignKeyTargetTable(candidate.columnName, tables, candidate.referencesTable) === controlled
+    );
+    if (on) rules.push({ by, on: on.columnName });
+  }
+  return rules;
+}
+
+/**
+ * Entities that ship rows, in an order a foreign key can be satisfied: an entity
+ * after every other one of them its rows point at. A cycle (which no reference
+ * list should have) keeps its declared order.
+ */
+export function dataEntitiesInOrder(
+  withData: BusEntity[],
+  tables: ReadonlySet<string>
+): BusEntity[] {
+  const byTable = new Map(withData.map((entity) => [entity.tableName, entity]));
+  const dependsOn = (entity: BusEntity): string[] =>
+    entity.attributes.flatMap((attribute) => {
+      const target = foreignKeyTargetTable(attribute.columnName, tables, attribute.referencesTable);
+      return target && target !== entity.tableName && byTable.has(target) ? [target] : [];
+    });
+  const ordered: BusEntity[] = [];
+  const done = new Set<string>();
+  const visit = (entity: BusEntity, stack: string[]) => {
+    if (done.has(entity.tableName) || stack.includes(entity.tableName)) return;
+    for (const target of dependsOn(entity)) visit(byTable.get(target) as BusEntity, [...stack, entity.tableName]);
+    done.add(entity.tableName);
+    ordered.push(entity);
+  };
+  for (const entity of withData) visit(entity, []);
+  return ordered;
+}
+
+/** `pending_review` / `PARTIALLY_FILLED` → `Pending Review` / `Partially Filled`. */
+export function enumValueLabel(value: string): string {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export function insert(table: string, values: Record<string, SqlValue>): string {
   const columns = Object.keys(values);
   const rendered = columns.map((column) => {
@@ -208,7 +274,7 @@ const REF_LISTS: Array<{ referenceId: number; value: string; name: string }> = [
 /**
  * The dictionary's own screens, and what each one looks like.
  *
- * The icon is a lucide **id** — the same spelling `%%entity … icon:` writes and
+ * The icon is a lucide **id** — the same spelling an entity's `icon` holds and
  * the same one `sys_table.icon` holds. The dashboard used to carry a map from
  * window name to an icon and a route in the frontend instead, which meant a
  * window this list added and that map did not know about was dropped from the
@@ -288,7 +354,7 @@ export interface ScreenLayout {
 /**
  * The window, tab and fields the seed writes for each entity, keyed by table.
  *
- * A line item (`%%entity <E> parent: <P>`) sits on its parent's window, exactly
+ * A line item (an entity with `parent: <P>`) sits on its parent's window, exactly
  * as the seed attaches its `sys_tab` there.
  */
 export function screenLayout(entities: BusEntity[]): Map<string, ScreenLayout> {
@@ -356,7 +422,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
       })
     );
   }
-  // One list reference per `%%enum` the model binds to a column. Ids run from
+  // One list reference per enum the model binds to a column. Ids run from
   // 1000 up, allocated by the parser, so they are stable for a given set of
   // enum names and the seed stays idempotent across regenerations.
   for (const modelEnum of options.modelEnums ?? []) {
@@ -365,7 +431,9 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         sys_reference_id: modelEnum.referenceId,
         name: modelEnum.name,
         description: `Values allowed for ${modelEnum.name}`,
-        validation_type: "L",
+        // An enumeration with a business table is a Table reference: the
+        // dropdown is that table's rows, so there is no second copy to drift.
+        validation_type: modelEnum.table ? "T" : "L",
         entity_type: "U",
         is_active: true,
         created_by: createdBy,
@@ -374,6 +442,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         updated_at: NOW,
       })
     );
+    if (modelEnum.table) continue;
     for (const value of modelEnum.values) {
       out.push(
         insert("sys_ref_list", {
@@ -484,11 +553,28 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
    * about which is which. A stable partition keeps the order identical for a
    * model that declares no parents, which is every model that worked before.
    */
-  const tableNameByEntity = new Map(entities.map((entity) => [entity.name, entity.tableName]));
-  const ordered = [
-    ...entities.filter((entity) => !entity.parentEntity),
-    ...entities.filter((entity) => entity.parentEntity),
-  ];
+  const entityByName = new Map(entities.map((entity) => [entity.name, entity]));
+  /**
+   * The chain of declared parents above an entity, nearest first. A line item
+   * can itself have line items (a yard has blocks, a block bays, a bay tiers),
+   * and all of them live in the window of the one at the top: only that one has
+   * a window to hang a tab on. Cycle-safe — a model that names itself its own
+   * ancestor stops at the first repeat.
+   */
+  const ancestorsOf = (entity: BusEntity): BusEntity[] => {
+    const chain: BusEntity[] = [];
+    let current = entity;
+    while (current.parentEntity) {
+      const parent = entityByName.get(current.parentEntity);
+      if (!parent || parent === entity || chain.includes(parent)) break;
+      chain.push(parent);
+      current = parent;
+    }
+    return chain;
+  };
+  // Shallowest first, stably, so a model with no nesting deeper than one level
+  // is ordered exactly as the two-way partition ordered it.
+  const ordered = [...entities].sort((a, b) => ancestorsOf(a).length - ancestorsOf(b).length);
   /** Child tabs are numbered after the parent's own tab, which is 10. */
   const childSeqByWindow = new Map<string, number>();
   const nextChildSeq = (window: string) => {
@@ -506,7 +592,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
     /*
      * A line item gets no window of its own.
      *
-     * `%%entity InvoiceLine parent: Invoice` says the child has no life away
+     * `InvoiceLine` declared with `parent: Invoice` says the child has no life away
      * from its parent, and the dictionary is where that stops being a comment
      * and starts being the application: no window means no card on the
      * dashboard and nothing to navigate to, and the tab below is attached to
@@ -517,8 +603,9 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
      * own. An orphaned entity you can still open is fixable; one that has
      * quietly vanished from the application is not.
      */
-    const parentTable = entity.parentEntity
-      ? tableNameByEntity.get(entity.parentEntity)
+    const ancestors = ancestorsOf(entity);
+    const parentTable = ancestors.length
+      ? (ancestors[ancestors.length - 1] as BusEntity).tableName
       : undefined;
     const isChild = !!parentTable;
     const windowId = id("window", parentTable ?? entity.tableName);
@@ -533,6 +620,10 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
           name: entity.displayName,
           description: `Maintain ${entity.displayName} records`,
           help: entityHelp?.window ?? null,
+          // The icon the dashboard card and the menu draw, from the window like
+          // every other label on them. Written only when the model declares one,
+          // so a model without icons seeds exactly what it always did.
+          ...(entity.icon ? { icon: entity.icon } : {}),
           window_type: "M",
           is_sales_transaction: false,
           is_default: true,
@@ -556,7 +647,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         // model that declares no description leaves the field blank in the UI.
         description: entity.description || `Manage ${entity.displayName} records`,
         // Written only when the model declares one. `sys_table.icon` defaults
-        // to 'Table' in m0001, so an entity with no `%%entity … icon:` emits
+        // to 'Table' in m0001, so an entity with no `icon` emits
         // exactly the row it did before this key was read — and the name-pattern
         // guess in `getEntityIcon` stays out of the seed deliberately, because a
         // derivation here would be a second one for the Rust side to mirror.
@@ -585,7 +676,7 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         help: entityHelp?.tab ?? null,
         // A child's tab sits inside the parent's window at level 1, numbered
         // after the parent's own tab (10) and after any sibling already placed.
-        tab_level: isChild ? 1 : 0,
+        tab_level: ancestors.length,
         seq_no: isChild ? nextChildSeq(windowId) : 10,
         is_single_row: true,
         has_tree: false,
@@ -612,9 +703,9 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
           sys_table_id: tableId,
           column_name: attr.columnName,
           name: attr.displayName,
-          // `%%field <Entity>.<column> help:`, as the author wrote it.
+          // The column's `help`, as the author wrote it.
           //
-          // The parser has hung this on the attribute since `%%field help:`
+          // The parser has hung this on the attribute since the column's `help`
           // was read, and the seed dropped it: the column existed in the DDL
           // and was never written, so the Application Dictionary's own column
           // screen showed nothing for every column of every entity, in a model
@@ -645,6 +736,44 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         })
       );
     });
+
+    /*
+     * Store the target of each lookup whose name does not say it.
+     *
+     * A CEDM reference names its target outright — `deliveryLocation →
+     * Location`, held in `delivery_location_id` — and the name alone would
+     * resolve to a `bus_delivery_location` nothing declares. The column exists
+     * from m0018; a separate statement rather than a value in the INSERT
+     * keeps every seed of a model without such a column byte-for-byte what it
+     * was.
+     */
+    for (const attr of entity.attributes) {
+      if (!attr.referencesTable) continue;
+      out.push(
+        `UPDATE sys_column SET ref_table_name = ${lit(attr.referencesTable)} ` +
+          `WHERE sys_column_id = ${lit(id("column", entity.tableName, attr.columnName))};`
+      );
+    }
+
+    /*
+     * Store which columns of the record narrow each lookup's choices (m0019).
+     *
+     * A column states `narrowedBy: [country_id]`; the dictionary needs the rule
+     * the lookup runs: the target rows whose `on` column equals the record's
+     * `by` column. `on` is the target's own foreign key to the same table the
+     * controlling column points at — a state's `country_id` for an address's
+     * `country_id`. A controlling column the target has no such key for narrows
+     * nothing and is left out.
+     */
+    for (const attr of entity.attributes) {
+      if (!attr.narrowedBy?.length) continue;
+      const rules = narrowingRules(entity, attr, entities);
+      if (!rules.length) continue;
+      out.push(
+        `UPDATE sys_column SET narrowed_by = ${lit(JSON.stringify(rules))} ` +
+          `WHERE sys_column_id = ${lit(id("column", entity.tableName, attr.columnName))};`
+      );
+    }
 
     /*
      * Point the child's tab at the column that links it to its parent.
@@ -720,6 +849,76 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         access_type_table: "R",
         is_read_only: true,
         is_exclude: false,
+        entity_type: "U",
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: NOW,
+        updated_at: NOW,
+      })
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Reference data: the rows of the common specification's shared lists
+  // (countries, states, cities, currencies, languages). Written as application
+  // data into each application's own tables, parents before children.
+  const dataTables = new Set(entities.map((entity) => entity.tableName));
+  const withData = entities.filter((entity) => entity.data);
+  if (withData.length) section("Reference data (shared by every application of the common specification)");
+  for (const entity of dataEntitiesInOrder(withData, dataTables)) {
+    const data = entity.data as NonNullable<BusEntity["data"]>;
+    const keyOf = (table: string, value: string | number | boolean) =>
+      uuidv5(`${projectName}:data:${table}:${value}`);
+    const foreignKeys = new Map<string, string>();
+    for (const attribute of entity.attributes) {
+      const target = foreignKeyTargetTable(attribute.columnName, dataTables, attribute.referencesTable);
+      if (target) foreignKeys.set(attribute.columnName, target);
+    }
+    for (const row of data.rows) {
+      const own = row[data.key];
+      if (own === undefined || own === null) continue;
+      const values: Record<string, SqlValue> = { [entity.primaryKey ?? "id"]: keyOf(entity.tableName, own) };
+      for (const [column, value] of Object.entries(row)) {
+        const target = foreignKeys.get(column);
+        values[column] = target && value !== null ? keyOf(target, value) : value;
+      }
+      out.push(insert(entity.tableName, values));
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Enumerations with a business table: the rows (application data, not sample
+  // data) and the Table reference that makes the table the dropdown's source.
+  // After the entity sections, because `sys_ref_table` names `sys_column` rows.
+  const tableEnums = (options.modelEnums ?? []).filter((declared) => declared.table);
+  if (tableEnums.length) section("Enumeration tables (the values of every enumeration)");
+  for (const modelEnum of tableEnums) {
+    const entity = entities.find((candidate) => candidate.name === modelEnum.name);
+    if (!entity) continue;
+    const columnId = (name: string) => id("column", entity.tableName, name);
+    modelEnum.values.forEach((value, position) => {
+      out.push(
+        insert(entity.tableName, {
+          id: id("enum_value", modelEnum.name, value),
+          code: value,
+          name: modelEnum.labels?.[value] ?? enumValueLabel(value),
+          description: modelEnum.descriptions?.[value] ?? null,
+          sequence: (position + 1) * 10,
+          is_active: true,
+        })
+      );
+    });
+    out.push(
+      insert("sys_ref_table", {
+        sys_ref_table_id: id("ref_table", String(modelEnum.referenceId)),
+        sys_reference_id: modelEnum.referenceId,
+        sys_table_id: id("table", entity.tableName),
+        key_column_id: columnId("code"),
+        display_column_id: columnId("name"),
+        is_value_displayed: false,
+        order_by_clause: "sequence",
+        where_clause: "is_active = true",
         entity_type: "U",
         is_active: true,
         created_by: createdBy,

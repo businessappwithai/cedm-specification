@@ -12,7 +12,7 @@
     "appwithai-convert": "./dist/cli/convert.js"
   },
   "scripts": {
-    "build": "bun build src/index.ts src/config.ts src/cli/convert.ts src/mastra.ts --outdir dist --target node --format esm --external @appwithai/core --external @mastra/core --external @anthropic-ai/sdk --external @ag-ui/mastra --external @mastra/loggers --external @mastra/libsql --external @mastra/memory --external @mastra/fastembed --external @e2b/code-interpreter --external @ai-sdk/openai --external openai --external zod --external commander",
+    "build": "bun build src/index.ts src/config.ts src/cli/convert.ts src/mastra.ts --outdir dist --target node --format esm --external @appwithai/core --external @appwithai/generator --external @mastra/core --external @anthropic-ai/sdk --external @ag-ui/mastra --external @mastra/loggers --external @mastra/libsql --external @mastra/memory --external @mastra/fastembed --external @e2b/code-interpreter --external @ai-sdk/openai --external openai --external zod --external commander",
     "dev": "bun run src/mastra.ts",
     "start": "node dist/mastra.js",
     "start:mastra": "node dist/mastra.js"
@@ -28,6 +28,7 @@
     "@mastra/memory": "^1.24.0",
     "commander": "^15.0.0",
     "openai": "^7.1.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@appwithai/generator": "workspace:*"
   }
 }

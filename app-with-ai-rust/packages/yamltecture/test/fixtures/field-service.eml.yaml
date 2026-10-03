@@ -1,0 +1,63 @@
+eml: "1.0"
+name: Field Service
+enums:
+  - name: JobStatus
+    values: [scheduled, dispatched, on_site, complete, cancelled]
+entities:
+  - name: Customer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: email
+        unique: true
+      - name: phone
+        type: phone
+        optional: true
+  - name: Engineer
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+  - name: Job
+    help: A visit an engineer makes to a customer site.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: customer_id
+        type: string
+        fk: true
+      - name: engineer_id
+        type: string
+        fk: true
+      - name: status
+        type: string
+        enum: JobStatus
+      - name: scheduled_for
+        type: datetime
+      - name: quoted_total
+        type: money
+        help: What the customer was quoted, before parts used on site.
+relationships:
+  - from: Customer
+    fromCardinality: exactly-one
+    to: Job
+    toCardinality: zero-or-more
+    label: raises
+  - from: Engineer
+    fromCardinality: exactly-one
+    to: Job
+    toCardinality: zero-or-more
+    label: works
+rbac:
+  - entity: Job
+    action: update
+    roles: [dispatcher]

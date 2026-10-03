@@ -24,7 +24,7 @@
 > thing every later comparison is run against. None supersedes the others.
 >
 > **You have an input, and the work does not start without it.** Phase 1 is not
-> research: it is reading the bytes the user hands you. Ask for the `.mmd` in
+> research: it is reading the bytes the user hands you. Ask for the `.eml.yaml` in
 > your first message, and never reconstruct one from a summary, from the
 > conversation or from an earlier draft.
 
@@ -51,18 +51,77 @@
   between them they are why this edition exists.
 ---
 
+## The model is YAML — read this before anything else
+
+**A model is written in YAML — `<business-name>.eml.yaml` — and that YAML is the
+source of truth.** Every generator reads it: the `appwithai` CLI, the Rust
+generator and its WebAssembly build, the modelling tool's `/api/generate`, and
+the `eml` CLI. Mermaid (EML) is how a model is *drawn*: its view is rendered
+from the YAML and never read back for generation. The modelling tool saves a
+drawing edited in Mermaid by converting it to YAML.
+
+This governs every instruction in this document, in every section:
+
+- **Where this document says to write, edit, seed, enhance, validate or deliver
+  "the `.eml.yaml`", "the EML document" or "the Mermaid", do it to the YAML model.**
+  The construct is the same; §3.0 gives each EML form's YAML key, and the rest
+  of §3 describes what each construct means. EML text in the examples is the
+  view of a model, shown so its meaning can be read; it is not what you hand
+  over.
+- **The deliverable is one file, `<business-name>.eml.yaml`**: lower-case,
+  hyphenated, no spaces. It starts with `eml: "1.0"`, and it is accepted by the
+  YAML reader with zero errors.
+- **A model you are given as `.mmd` is converted first**, with
+  `appwithai convert <file>.mmd` (or `convert()` in `html/model-yaml.js`), and
+  the YAML is what you work on. `convert` writes the YAML only when it compiles
+  to exactly what the EML compiles to, and lists every line it does not carry —
+  `%%` comments, which become `#` comments, and the superseded
+  `%%guard role:…` form, which becomes `rbac`. Report that list to the user;
+  nothing on it may disappear silently.
+- **Validation reads the YAML.** It checks four layers — YAML syntax, the JSON
+  Schema, the language checker (the same `EML0xx`–`EML5xx` codes, run over the
+  model's view), and view fidelity — and reports every finding at the YAML line
+  and column that caused it. The codes keep their names, so every rule this
+  document states about a code still holds; only the location changes.
+
+### Validating a YAML model — the ladder
+
+Stop at the first rung that runs. One failed attempt is a finding about that
+attempt, not about the environment.
+
+| # | Rung | What it is |
+|---|---|---|
+| 1 | `appwithai validate <file>.eml.yaml` (`--strict` fails on warnings too) | the generator's own reader; in a checkout, `bun packages/generator/dist/cli/generate.js validate <file>` |
+| 2 | `bun run eml validate -i <file>.eml.yaml` | the `eml` CLI; the same four layers, reported at YAML lines |
+| 3 | `html/model-yaml.js` — `validate(text)` | the same reader bundled as one ES module, for any JavaScript runtime or a browser tab; `view(text)` and `convert(emlText)` are beside it |
+| 4 | the view through the published checker: render it (`appwithai view <file> -o -`, or `view()`), then `check(view)` from `https://www.appwithai.org/guide/checker.js` | runs every `EML` rule over the model; it does not run the schema, so a rung-4 result is reported as a check *of the view* |
+| 5 | the by-hand checklist in §10, applied to the YAML keys in §3.0 | only once 1–4 have been tried |
+
+**Repairs.** The published fixer repairs EML text. To use it on a YAML model,
+render the view, run `checkAndFix(view)`, convert the repaired view back with
+`convert()`, and validate the YAML again — the same check, fix, re-check loop
+this document requires, closed over the YAML. A repair the fixer cannot make
+is made in the YAML, at the line the diagnostic names.
+
+**Delivered means validated.** The file you hand over is the exact
+`<business-name>.eml.yaml` that came out of the last clean validation run, with
+the counts from that run. Its Mermaid view may be offered beside it for anyone
+who wants to see the diagram; it is never a substitute for the YAML.
+
+---
+
 ## 0. The one idea
 
 Most generators stop at the schema: you describe tables, you get CRUD screens,
 and every rule the business actually runs on is left to hand-write.
 
-APPWITHAI takes **one Mermaid document** that describes three things — the data,
+APPWITHAI takes **one model** — written in YAML, drawn as Mermaid — that describes three things — the data,
 the decisions, and the processes — and compiles all three. The rules and
 workflows drawn in the document are running in the generated application, not
 scaffolded as TODOs.
 
 ```
-one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack Start UI
+one .eml.yaml model →  generate  →  Postgres schema + NestJS API + TanStack Start UI
                                    + Application Dictionary + audit trail
                                    + rules engine + workflow engine, all wired
 ```
@@ -70,7 +129,8 @@ one .eml.mmd file  →  generate  →  Postgres schema + NestJS API + TanStack S
 Two properties follow, and most confusion about this system comes from missing
 one of them:
 
-1. **Every EML document is valid, renderable Mermaid.** Generator semantics ride
+1. **A model is YAML, and its view is valid, renderable Mermaid.** The YAML is
+   what every generator reads; the view is rendered from it. Generator semantics ride
    on `%%` comment directives, which renderers ignore. A stakeholder opening the
    file in any Mermaid viewer sees the diagram; nothing is hidden in a sidecar.
 2. **The screens are derived from database rows, not from generated page code.**
@@ -192,11 +252,151 @@ the model. §9.7 walks a concrete instance of this chain.
 
 ---
 
-## 3. EML — the input language
+## 3. The model language — YAML, drawn as EML
 
 Full reference: `language/spec/` (6 documents), grammar in
 `language/grammar/appwithai.ebnf`, canonical definition in
 `language/appwithai-language.json`.
+
+### 3.0 The YAML model language — what you write
+
+A model is one YAML document, `*.eml.yaml`. Its keys are defined by
+`language/yaml/eml.schema.json`; the reference is `language/yaml/README.md`.
+Both syntaxes are read into the same model records and compiled by one
+compiler, and the repository's tests hold every model to compiling identically
+from each — so every construct in the rest of §3 means exactly the same thing
+under its YAML key. Keys below are in canonical order; required ones are bold.
+
+**Document**
+
+| Key | Meaning | EML form |
+|---|---|---|
+| **`eml`** | Language version, `"1.0"` | — |
+| `name`, `version` | The model's name and version | `%%meta name:` / `version:` |
+| `description` | What the application does, in several sentences — opens the manual and the dashboard | `%%meta description:` |
+| `enums` | `{ name, values: [...] }` | `%%enum Name: a, b` |
+| `categories` | `{ name, code?, description?, icon?, color?, seq?, default?, entities: [...] }` | `%%category` |
+| **`entities`** | see below | the `erDiagram` blocks and `%%entity`/`%%field`/`%%index` |
+| `relationships` | `{ from, fromCardinality, to, toCardinality, label? }` | `A ||--o{ B : label` |
+| `hooks` | `{ entity, event, handler, fields? }` | `%%hook <event> <handler> on <E>[field: a, field: b]` |
+| `rbac` | `{ entity, action, roles: [...] }` | `%%rbac role:a\|role:b on E.action` |
+| `triggers` | `{ entity, source, handler }` — `source` is `cron:…`, `webhook:…` or `message:…` | `%%trigger <source> -> <handler> on <E>` |
+| `reports` | `{ name, title?, entity?, chart?, x?, y?, help?, sql }` | `%%report` |
+| `rules` | `{ name, title?, entity, event, priority?, direction?, nodes, edges, actions?, decisionTable? }` | a `%%rule` flowchart section, `%%action` |
+| `stateMachines` | `{ name, title?, entity, states, initial?, final?, transitions: [{ from, to, trigger? }] }` | a `%%workflow … kind: state` section |
+| `sagas` | `{ name, title?, entity, operation?, trigger?, description?, steps: [{ id, type, label?, properties? }] }` | a `%%workflow … kind: saga` section, `%%step` |
+| `hookDiagrams` | `{ name, title?, entity, diagram }` — a drawing, not compiled | a `%%workflow … kind: hook` section |
+
+**Entity** — **`name`**, `help`, `icon`, `parent`, `label`, `prefix` (`bus`\|`sys`),
+`softDelete`, `audited`, **`attributes`**, `indexes` (`{ columns: [...], unique? }`).
+
+**Attribute** — **`name`**, **`type`** (an EML type or alias, with an optional
+length: `string(120)`), `pk`, `fk`, `unique`, `optional`, `enum` (binds a
+declared enum), `help`, `ui`, `default`, `min`, `max`, `format`, `comment`.
+
+**Relationship cardinality** is one of `exactly-one`, `zero-or-one`,
+`zero-or-more`, `one-or-more`, in the eight pairs Mermaid has an operator for
+(§3.3 lists the operators).
+
+A complete model — valid, zero errors and zero warnings:
+
+```yaml
+eml: "1.0"
+name: Orders
+description: Taking customer orders, pricing them, and following each one from submission to shipment or cancellation, with the warehouse and managers acting on it.
+
+enums:
+  - name: OrderStatus
+    values: [draft, submitted, shipped, cancelled]
+
+categories:
+  - name: Sales
+    icon: ShoppingCart
+    entities: [Customer, Order]
+
+entities:
+  - name: Customer
+    help: A person or company that buys from us. One record per buyer, created at their first order and kept for every order after, so their history stays in one place.
+    icon: user
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: name
+        type: string(120)
+        help: The name printed on invoices and delivery notes, exactly as the customer wants to be addressed.
+      - name: email
+        type: email
+        unique: true
+        help: Where order confirmations and shipping notices go. Unique, because it is how a returning customer is recognised.
+  - name: Order
+    help: One purchase by one customer, from the draft they build to the shipment that closes it. Its status is the order's place in that journey, and only the moves the lifecycle draws are allowed.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: customer_id
+        type: uuid
+        fk: true
+        help: The customer who placed the order and receives its invoice.
+      - name: status
+        type: string
+        enum: OrderStatus
+        help: Where the order is — draft while being built, submitted once the customer commits, then shipped or cancelled.
+      - name: total
+        type: decimal
+        optional: true
+        help: The sum of the order's lines at their agreed prices. Empty until the first line is added.
+    indexes:
+      - columns: [customer_id, status]
+  - name: OrderLine
+    parent: Order
+    help: One product at one quantity on one order. It has no life apart from its order, so it is edited inside the order rather than on a screen of its own.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - name: order_id
+        type: uuid
+        fk: true
+        help: The order this line belongs to.
+      - name: quantity
+        type: integer
+        help: How many units are ordered. Must be at least one; a line for none is deleted instead.
+
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
+  - { from: Order, fromCardinality: exactly-one, to: OrderLine, toCardinality: one-or-more }
+
+hooks:
+  - { entity: Order, event: beforeCreate, handler: stampOrderNumber }
+
+rbac:
+  - { entity: Order, action: delete, roles: [manager] }
+  - { entity: Order, action: ship, roles: [warehouse, manager] }
+
+stateMachines:
+  - name: OrderLifecycle
+    entity: Order
+    states: [draft, submitted, shipped, cancelled]
+    initial: draft
+    final: [shipped, cancelled]
+    transitions:
+      - { from: draft, to: submitted, trigger: submit }
+      - { from: submitted, to: shipped, trigger: ship }
+      - { from: submitted, to: cancelled, trigger: cancel }
+```
+
+**How it is read.** A duplicate key is an error, not "last wins". The schema
+refuses an unknown key, so a misspelt `help` is reported rather than ignored.
+A report's `sql`, a rule's text and any value may span lines (`|` block
+scalars); the view flattens them, and the fourth validation layer warns where
+the drawing would show a value differently from the YAML.
+
+**Canonical form.** `appwithai convert` and the modelling tool write one
+canonical text: keys in the order above, lists of plain values on one line,
+defaults omitted. Saving a model twice gives the same bytes, so a diff between
+two saves is exactly the change.
+
+**Reading the rest of §3.** §3.1–§3.6 describe each construct in its EML form,
+because that is the form the view draws and the form the checker's messages
+name (`%%entity B parent:` is `parent:` on entity `B`). Everything they say
+about meaning, status, compilation and validation applies to the YAML key
+unchanged.
 
 ### 3.1 Document structure
 
@@ -1521,6 +1721,11 @@ All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
 
 ## 9. Worked example — building a CRM
 
+> **The same model, as YAML**, is `language/yaml/examples/crm.eml.yaml` — the
+> file this walkthrough\'s model is written as, and the one to deliver. The EML
+> below is its view, shown so each construct can be read in the form §3.1–§3.6
+> describe; §3.0 gives the YAML key for each.
+
 Mirrors the human guide at https://www.appwithai.org/guide/index.html. Model:
 `language/examples/crm.eml.mmd`.
 
@@ -1644,21 +1849,27 @@ select * from sys_workflow_runs order by created_at desc limit 1;
 
 ## 10. Interactive enhancement protocol — how to answer "change my existing model"
 
+> **The artifact is YAML.** Everything below is carried out on the model as
+> `<business-name>.eml.yaml`, validated by the YAML ladder at the top of this
+> document; where a step names the published `checker.js`/`fixer.js` or
+> `check-model.mjs`, run it on the model\'s rendered view as that ladder
+> describes and apply what it finds to the YAML.
+
 Everything above describes the system. This section is the **procedure**, and it
-governs. When someone hands you an existing `.mmd` and asks for it to be
+governs. When someone hands you an existing model — a `.eml.yaml`, or an `.mmd` to convert first — and asks for it to be
 extended, corrected, grown or reworked — however informally they put it — carry
 out their instruction *within these guidelines* rather than in place of them.
 Their words set the change; this file sets the form of the answer.
 
 Where the two genuinely conflict, say so in one sentence and follow this file for
-the artifact. An enhanced `.mmd` that says what the user asked for but that
+the artifact. An enhanced `.eml.yaml` that says what the user asked for but that
 `checker.js` refuses is not a deliverable, and neither is a clean document that
 quietly lost half of what they already had.
 
 **This is the interactive enhancement edition of the protocol.** There are now
 four, and they divide on two axes — what you start from, and how you get there:
 
-| | Start from a brief | Start from an existing `.mmd` |
+| | Start from a brief | Start from an existing model — a `.eml.yaml`, or an `.mmd` to convert first — |
 |---|---|---|
 | **One pass** | `llms-full.txt`'s authoring protocol | `llmtextenhancement.txt`'s enhancement protocol |
 | **Phased, with gates** | `llmdetailed.txt`'s interactive authoring protocol | **this file, §10** |
@@ -1700,7 +1911,7 @@ Phase 7  Deliver
 ```
 
 Do not skip a phase, do not cross a gate the user has not approved, and do not
-open a step while the last one left the `.mmd` dirty or the inventory short.
+open a step while the last one left the `.eml.yaml` dirty or the inventory short.
 
 A gate waits on the *user*, and on nothing else. In particular it never waits on
 a network call: if the published checker cannot be reached, §10.6 says what to
@@ -1714,7 +1925,7 @@ is not research and it is not a conversation about the business — it is readin
 the bytes the user is going to hand you. Ask for them in your first message and
 do not begin without them:
 
-> Send me the `.mmd` you want enhanced — attach the file, or paste its contents
+> Send me the `.eml.yaml` you want enhanced — attach the file, or paste its contents
 > in a single fenced block — and tell me what you want changed. I will read it
 > first and show you what is in it today, before I change anything.
 
@@ -1790,7 +2001,7 @@ up as a picture rather than as a number. Tell the user about it **once, at
 Phase 1**, when the model they already own is the thing on screen.
 
 Three ways in, and the first is the one to recommend: **Watch a file** re-reads
-the `.mmd` from disk as it changes, so the picture keeps up with the walkthrough
+the `.eml.yaml` from disk as it changes, so the picture keeps up with the walkthrough
 without the user doing anything (Chromium-family browsers only — it needs the
 File System Access API). **Open a file** and **paste** work everywhere.
 
@@ -1802,7 +2013,7 @@ diagnostic. It is a picture of the model, never an approval of it: the gates are
 still yours to ask for.
 
 **Hand over the file at every gate, do not merely mention the page.** A reader on
-a chat surface has no access to the `.mmd` on your disk. Attach the current
+a chat surface has no access to the `.eml.yaml` on your disk. Attach the current
 working copy to the message that opens the gate; they load it with **Open a
 file** and look at the version being approved rather than the version two changes
 ago. Ask once, at Gate B, how often they want it — every gate, phase boundaries
@@ -1826,10 +2037,10 @@ will end up choosing between them without knowing what is in either.
 **The checker and the fixer run at every step, not at the end.** Phase 6 is where
 validation *finishes*, not where it starts. From the moment the working copy
 exists (§10.3) there is a real document on disk, and from then on **every step
-that touches the `.mmd` closes the same way**:
+that touches the `.eml.yaml` closes the same way**:
 
 ```
-   edit the .mmd  →  fixer  →  checker  →  clean?  ──yes──→  inventory compare
+   edit the .eml.yaml  →  fixer  →  checker  →  clean?  ──yes──→  inventory compare
                        ↑                     │                      │
                        └────── no ───────────┘              nothing lost?  ──→  gate
 ```
@@ -1849,7 +2060,7 @@ it.
 Four rules hold that loop honest:
 
 - **No gate closes over a document with errors.** Not Gate C, not Gate D. A step
-  that ends with an unchecked or dirty `.mmd` has not ended — it has been
+  that ends with an unchecked or dirty `.eml.yaml` has not ended — it has been
   abandoned in the middle, and the next step will build on it.
 - **No gate closes over a document that lost something.** Put back what fell
   before you present the gate, or name the loss and ask for it, if the user's own
@@ -1879,16 +2090,18 @@ once when you create it.
 ```
 <project root>/docs/eml-sessions/<business-slug>-enhancement-<yyyy-mm-dd>/
 ├── progress.md            # phase, gate status, per-change state — the resume file
-├── 00-original.mmd        # ⭐ the model exactly as received. Never edited
+├── 00-original.eml.yaml        # ⭐ the model exactly as received. Never edited
+├── 00-original.mmd        # the model as received, when it came as EML — converted once, above
 ├── 00-inventory.md        # Phase 1 — what the model contains today, and its baseline report
 ├── 01-changes.md          # Phase 2 — the change roster
 ├── changes/<NN>-<slug>.md # one dossier per change, Phase 4
 ├── 02-cross-cutting.md    # Phase 5
-├── <business-slug>.mmd    # ⭐ the working copy, enhanced one change at a time
+├── <business-slug>.eml.yaml    # ⭐ the working copy, enhanced one change at a time
+├── <business-slug>.mmd    # its view, rendered by `appwithai view` before an EML-tool check; never edited
 └── 03-validation.md       # Phase 6 checker log, and the regression table
 ```
 
-`00-original.mmd` is the point of the directory. It is written once, in Phase 1,
+`00-original.eml.yaml` is the point of the directory. It is written once, in Phase 1,
 and nothing in this protocol ever writes to it again — it is what Phase 6's
 regression comparison is run against, and what answers "did I break that or did I
 find it broken?" every time the question comes up.
@@ -1904,7 +2117,7 @@ Rewrite it at every gate. It is the only thing a resumed session can trust:
 # acme-dance-studio — enhancement progress
 Phase: 4 (change walkthrough)  ·  Updated: 2026-03-11
 
-Original: 00-original.mmd  ·  9 entities · 41 rbac · 12 reports · 0e 0w on arrival
+Original: 00-original.eml.yaml  ·  9 entities · 41 rbac · 12 reports · 0e 0w on arrival
 Working:  acme-dance-studio.mmd  ·  11 entities · 47 rbac · 12 reports · 0e 0w
 
 | Gate | State |
@@ -1940,7 +2153,7 @@ If the user describes a model instead of sending one, stop and say so: that is
 the authoring protocol's job, and `llmdetailed.txt`'s interactive authoring protocol builds a model from a
 description. This protocol has nothing to enhance until a file exists.
 
-Write it to `00-original.mmd` the moment you have it, before you read it
+Write it to `00-original.eml.yaml` the moment you have it, before you read it
 closely. Then do two things to it.
 
 **Check it, as received.** Run the fixer and the checker over the original bytes
@@ -2023,7 +2236,7 @@ file handed over.
 
 ### 10.3 Phase 3 — Baseline the working copy *(the parallel build starts here)*
 
-Copy `00-original.mmd` to `<business-slug>.mmd`. That copy is the working file,
+Copy `00-original.eml.yaml` to `<business-slug>.eml.yaml`. That copy is the working file,
 and from this point on every step edits it, checks it and compares it.
 
 Make no change to it in this phase. The point of Phase 3 is to establish that the
@@ -2351,7 +2564,7 @@ So when validation cannot be run, do all three of these and keep going:
 
 1. **Say it once, plainly** — which host, which failure, what you tried. One
    sentence in the chat and one line in `03-validation.md`.
-2. **Carry on to the next phase.** The `.mmd` is still built, still shown at
+2. **Carry on to the next phase.** The `.eml.yaml` is still built, still shown at
    each gate, and still delivered. An unvalidated model delivered with its
    status stated is useful; a walkthrough parked at a gate is not.
 3. **Mark the delivery.** `03-validation.md` records *not validated*, the reason,
@@ -2419,14 +2632,15 @@ it hard to catch.
 With a checkout, use the CLI — it is the same engine the generator runs:
 
 ```bash
-bun language/checker.ts docs/eml-sessions/<slug>/<slug>.mmd --json
-#   exit 0  no errors (warnings allowed unless --strict)
-#   exit 1  one or more errors
-#   exit 2  bad invocation / file not found
+appwithai validate docs/eml-sessions/<slug>/<slug>.eml.yaml
+#   YAML, schema, the checker over the view, view fidelity — every finding at
+#   its YAML line. exit 0 no errors (warnings allowed unless --strict) · exit 1 errors
 
+appwithai view docs/eml-sessions/<slug>/<slug>.eml.yaml -o docs/eml-sessions/<slug>/<slug>.mmd
 bun language/fixer.ts docs/eml-sessions/<slug>/<slug>.mmd
-#   derives the .error file name, applies the auto-fixes, re-checks
-#   --dry-run shows what it would change without writing
+appwithai convert docs/eml-sessions/<slug>/<slug>.mmd -o docs/eml-sessions/<slug>/<slug>.eml.yaml --force
+#   the repair loop for YAML: render the view, apply the auto-fixes to it, and
+#   convert the repaired view back — then validate the YAML again
 ```
 
 Without a checkout, the same two engines are published as ES modules, and a
@@ -2654,7 +2868,7 @@ their own browser in a few seconds at
 `https://www.appwithai.org/guide/11-check-a-model.html`, which runs these same two
 modules with nothing to install.
 
-An unvalidated `.mmd` handed over with that sentence is still the deliverable.
+An unvalidated `.eml.yaml` handed over with that sentence is still the deliverable.
 A hedge in place of one never is.
 
 > **Gate E — validation.** If errors survive three genuine correction attempts,
@@ -2670,7 +2884,7 @@ A hedge in place of one never is.
 
 A clean checker run says the enhanced model is valid. It does not say the
 enhancement was safe, and the difference is the whole reason this protocol wrote
-`00-original.mmd` down in Phase 1.
+`00-original.eml.yaml` down in Phase 1.
 
 Take the inventory of the delivered file and put it beside the Phase 1 inventory
 of the original, line for line, in `03-validation.md`:
@@ -2731,9 +2945,9 @@ hand into a document they did not write, which is where losses come from.
 - If you can write to a filesystem, the working copy is already the artifact.
   Attach it.
 - If your surface has a file, download or artifact mechanism, use it, with the
-  `.mmd` extension intact.
+  `.eml.yaml` extension intact.
 - **Only if the surface truly cannot carry a file**: print the complete document
-  inside a single triple-backtick `mermaid` fence, the file name on the line
+  inside a single triple-backtick `yaml` fence, the file name on the line
   above it, and nothing else between the fences.
 - **Do not offer the by-products.** The original, the dossiers, the validation
   log: they stay in the session directory, where the user can read them if they
@@ -2746,7 +2960,7 @@ directory is on disk. Then tell them what to do next: upload the file at
 `https://www.appwithai.org/guide/run-in-browser.html#upload`, where it becomes a
 running application in the browser tab.
 
-Say plainly that the original is still at `00-original.mmd`. A user who can see
+Say plainly that the original is still at `00-original.eml.yaml`. A user who can see
 where their untouched model is will try the new one; a user who cannot will
 wonder whether they still have it.
 
@@ -2830,10 +3044,10 @@ document: if its help text is sentences, write sentences.
 14. **The session directory is the state, not the conversation.** Write each
     phase's output to disk before starting the next one, and on resume read
     `progress.md` before asking the user anything.
-15. **The `.mmd` is built as the walkthrough runs**, from Gate B onward (§10.3),
+15. **The `.eml.yaml` is built as the walkthrough runs**, from Gate B onward (§10.3),
     and never reconstructed at the end from what is still in context — that is
     the failure mode the parallel build removes.
-16. **Every step that touches the `.mmd` ends with the fixer and then the
+16. **Every step that touches the `.eml.yaml` ends with the fixer and then the
     checker** (§10.0), from the seed onward, and no gate closes over a document
     with errors. Validation is a per-step precondition, not a phase at the end;
     Phase 6 only confirms what every earlier step already held.

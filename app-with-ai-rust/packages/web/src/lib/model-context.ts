@@ -22,20 +22,36 @@ export interface ReindexResult {
 
 export async function reindexProjectModel(
   projectId: string,
-  eml: string
+  model: string
 ): Promise<ReindexResult> {
-  if (!eml.trim()) return { indexed: false, error: "The model is empty" };
+  if (!model.trim()) return { indexed: false, error: "The model is empty" };
 
   try {
-    const { parseModel } = await import("@appwithai/generator/pipeline");
+    const { compileModelDocument, readModelYaml } = await import(
+      "@appwithai/generator/model-yaml"
+    );
     const { buildModelGraph, ingestGraph } = await import("@appwithai/generator/graph");
     const { getPool } = await import("@appwithai/core/config");
+
+    // A draft may still carry the checker's findings; what the graph needs is
+    // a document, which the schema is what guarantees.
+    const read = readModelYaml(model, { check: false });
+    if (!read.document) {
+      const first = read.diagnostics[0];
+      return {
+        indexed: false,
+        error: first
+          ? `The model is not a valid model document (line ${first.line}: ${first.message})`
+          : "The model is not a valid model document",
+      };
+    }
+    const parsed = compileModelDocument(read.document);
 
     // A dedicated connection: `LOAD 'age'` and the `ag_catalog` search path are
     // per-connection state, and a pooled client handed back may not carry them.
     const client = await getPool().connect();
     try {
-      const counts = await ingestGraph(client, projectId, buildModelGraph(parseModel(eml)));
+      const counts = await ingestGraph(client, projectId, buildModelGraph(parsed));
       return { indexed: true, ...counts };
     } finally {
       client.release();

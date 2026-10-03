@@ -16,8 +16,12 @@ export type Files = Record<string, string | null>; // base64 bytes; null deletes
 export const encode = (text: string) => Buffer.from(text).toString("base64");
 export const decode = (text: string) => Buffer.from(text, "base64").toString("utf8");
 export const digest = (value: string) => createHash("sha256").update(value).digest("hex");
-export const MODEL = "model/model.eml.mmd";
-export const EDITOR = "model/editor.eml.mmd";
+/**
+ * The model: the author's YAML text, exactly as written — comments, order and
+ * all. It is the source of truth; what generation reads is this document plus
+ * the declarations the project's automations add (see `lib/model/compose.ts`).
+ */
+export const MODEL_YAML = "model/model.eml.yaml";
 export const GENERATION = ".appwithai/generation.json";
 export const MANIFEST = ".appwithai/generated-files.json";
 const OMIT = new Set([
@@ -37,7 +41,7 @@ const OMIT = new Set([
   "target",
 ]);
 const SOURCE =
-  /\.(?:[cm]?[jt]sx?|rs|json|jsonc|ya?ml|toml|md|mmd|txt|sql|css|scss|html|sh|prisma|graphql|gql|svg|hbs|lock)$/i;
+  /\.(?:[cm]?[jt]sx?|rs|json|jsonc|ya?ml|toml|md|txt|sql|css|scss|html|sh|prisma|graphql|gql|svg|hbs|lock)$/i;
 export function allowedFile(name: string): boolean {
   if ([...name].some((char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) return false;
   const parts = name.split("/");

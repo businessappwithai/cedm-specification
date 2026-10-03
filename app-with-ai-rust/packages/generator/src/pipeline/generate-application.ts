@@ -7,8 +7,8 @@
  *
  * They used to assemble the generator's options separately, and the copies
  * drifted badly: the web path passed six fields and nothing else, so an
- * application generated through the UI lost every `%%category` the model
- * declared, every `%%enum` dropdown, and every saga — silently, with a success
+ * application generated through the UI lost every category the model
+ * declared, every enum dropdown, and every saga — silently, with a success
  * message at the end.
  *
  * Adding a generator input means adding it to `GenerationSettings` once. A
@@ -25,43 +25,29 @@ import {
 } from "../generators/full-stack.generator";
 import type { AstryxTheme, DatabaseTarget } from "../generators/tanstack-astryx-loco";
 import { renderManual } from "../manual";
+import type { ParsedModel } from "../model/compile";
+import type { CedmSource } from "../model-cedm/library";
+import { compileModelDocument, type ModelDocument, serializeModelDocument } from "../model-yaml";
+import { writeCedmBundle } from "./cedm-bundle";
 import type { PipelineLogger } from "./logger-port";
-import {
-  GENERATION_DEFAULTS,
-  type GenerationSettings,
-  type ParsedModel,
-  parseModel,
-} from "./parse-model";
+import { GENERATION_DEFAULTS, type GenerationSettings } from "./settings";
+
+const warnOnConsole = (message: string) => console.warn(`  \u26a0\ufe0f  ${message}`);
 
 /** Re-exported so an importer needs only this module. */
-export { GENERATION_DEFAULTS, type GenerationSettings, type ParsedModel, parseModel };
-
-/** Read model sources from disk, skipping any that are absent. */
-export async function readModelSources(filePaths: Array<string | undefined>): Promise<string[]> {
-  const sources: string[] = [];
-  for (const filePath of filePaths) {
-    if (!filePath) continue;
-    try {
-      sources.push(await fs.readFile(path.resolve(filePath), "utf-8"));
-    } catch {
-      // A missing optional input is not an error here — callers validate the
-      // files they require before getting this far.
-    }
-  }
-  return sources;
-}
+export { GENERATION_DEFAULTS, type GenerationSettings, type ParsedModel };
 
 /**
  * Assemble the generator's options from a parsed model plus settings.
  *
  * This is the function that has to stay single. Every field below was once
- * spelled out at each call site, and the site that forgot `categories` and
- * `modelSource` shipped applications missing features the model had asked for.
+ * spelled out at each call site, and the site that forgot `categories` and the
+ * model's sagas shipped applications missing features the model had asked for.
+ * Everything comes from the compiled model.
  */
 export function buildGeneratorOptions(
   model: ParsedModel,
-  settings: GenerationSettings,
-  modelSource: string
+  settings: GenerationSettings
 ): FullStackGeneratorOptions {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
 
@@ -93,7 +79,7 @@ export function buildGeneratorOptions(
     compiledReports: model.reports,
     compiledWorkflows: model.workflows,
     compiledHooks: model.hooks,
-    modelSource,
+    sagas: model.sagas,
   };
 }
 
@@ -147,18 +133,6 @@ export async function writeManifest(
 }
 
 /**
- * Ship the model into the application it generated.
- *
- * The generated code is the model compiled: reading it back tells you what the
- * application does but not what it was asked to do, and nothing in it records
- * that a decision table had three rows for a reason. An administrator extending
- * the application needs the source, and the only other copy lives in the
- * generator's database.
- *
- * It also makes the generated app self-describing: regenerating it needs only
- * the directory it produced.
- */
-/**
  * Write the manual into the front end's static directory.
  *
  * `frontend/public/` is what TanStack Start serves at the site root, so the
@@ -195,25 +169,61 @@ async function writeManual(
   }
 }
 
-export async function writeModelSource(
+/**
+ * Ship the model into the application it generated, as
+ * `model/model.eml.yaml` — the author's text, byte for byte.
+ *
+ * The generated code is the model compiled: reading it back tells you what the
+ * application does but not what it was asked to do, and nothing in it records
+ * that a decision table had three rows for a reason. An administrator extending
+ * the application needs the source, and regenerating it then needs only the
+ * directory it produced.
+ */
+export async function writeModelFile(
   outputDir: string,
-  sources: string | string[]
+  modelText: string,
+  cedm?: { text: string; document: ModelDocument }
 ): Promise<void> {
-  const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join("\n\n");
-  if (!document.trim()) return;
-
   try {
     await fs.mkdir(path.join(outputDir, "model"), { recursive: true });
-    await fs.writeFile(path.join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
+    if (cedm) {
+      // Written in CEDM: the CEDM text is the source, and the model document
+      // it lowers to ships beside it as what the generators compiled.
+      await fs.writeFile(path.join(outputDir, "model", "model.cedm.yaml"), cedm.text, "utf-8");
+      await fs.writeFile(
+        path.join(outputDir, "model", "model.eml.yaml"),
+        "# Compiled from model.cedm.yaml, which is the source of this application.\n" +
+          "# Regenerate rather than edit: a change here is lost on the next run.\n" +
+          serializeModelDocument(cedm.document),
+        "utf-8"
+      );
+      return;
+    }
+    await fs.writeFile(path.join(outputDir, "model", "model.eml.yaml"), modelText, "utf-8");
   } catch {
     // Non-fatal, exactly like the manifest: the application runs without it.
   }
 }
 
 export interface GenerateApplicationOptions extends GenerationSettings {
-  /** Model source text. Several are concatenated (CLI multi-file mode). */
-  sources: string | string[];
-  /** Pre-parsed model, when the caller has already parsed and logged it. */
+  /** The model: a document `readModelYaml` has validated. */
+  document: ModelDocument;
+  /**
+   * The text `document` was read from, shipped as `model/model.eml.yaml`.
+   *
+   * The text rather than a serialisation of the document, because the
+   * document has no comments: the reasons an author wrote beside a rule or an
+   * access list are part of the model, and a re-serialised copy drops every
+   * one of them.
+   */
+  modelText: string;
+  /**
+   * Present when the model was written in CEDM: the CEDM text (shipped as
+   * `model/model.cedm.yaml`, with the document it lowered to beside it) and
+   * the library entities and modules it used (bundled under `cedm/`).
+   */
+  cedm?: CedmSource;
+  /** The document already compiled, when the caller has compiled and logged it. */
   model?: ParsedModel;
   manifest?: ManifestExtras;
   /** Set false to skip `.appwithai.json` (dry runs). */
@@ -235,9 +245,7 @@ export interface GenerateApplicationOptions extends GenerationSettings {
 export async function generateApplication(
   options: GenerateApplicationOptions
 ): Promise<ParsedModel> {
-  const sources = Array.isArray(options.sources) ? options.sources : [options.sources];
-  const modelSource = sources.filter(Boolean).join("\n");
-  const model = options.model ?? parseModel(sources);
+  const model = options.model ?? compileModelDocument(options.document, { warn: warnOnConsole });
 
   // The CLI's own progress lines are the report to whoever is watching the
   // terminal; these are the record for whatever is watching the process. A CLI
@@ -256,10 +264,15 @@ export async function generateApplication(
   try {
     await fs.mkdir(options.outputDir, { recursive: true });
 
-    const generator = new FullStackGenerator(buildGeneratorOptions(model, options, modelSource));
+    const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
     await generator.generate(model.entities, model.relationships);
 
-    await writeModelSource(options.outputDir, sources);
+    await writeModelFile(
+      options.outputDir,
+      options.modelText,
+      options.cedm ? { text: options.cedm.text, document: options.document } : undefined
+    );
+    await writeCedmBundle(options.outputDir, options.cedm);
     await writeManual(options.outputDir, model, options);
 
     if (options.writeManifestFile !== false) {

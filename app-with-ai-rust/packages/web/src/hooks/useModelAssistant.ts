@@ -241,7 +241,7 @@ export function useModelAssistant({ projectId, surface }: UseModelAssistantOptio
 
   /*
    * The saved model as YAML — `.appwithai/model.ai.yaml`, the projection every
-   * save commits beside the `.mmd` — cut down to the entities the question
+   * save commits beside the model — cut down to the entities the question
    * names, with the diff that produced it. It is what to reach for when the
    * question is about the model as a whole or about what just changed; the
    * typed actions above stay better for one exact traversal.

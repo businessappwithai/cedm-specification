@@ -10,12 +10,12 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { buildModelGraph, summariseModel } from "../model-graph";
-import { parseModel } from "../../pipeline/parse-model";
 import { rbacRoleNames } from "../../rbac";
 
-const MODEL = path.join(import.meta.dirname, "../../../../../examples/drug-discovery.eml.mmd");
-const model = parseModel(readFileSync(MODEL, "utf-8"));
+const MODEL = path.join(import.meta.dirname, "../../../../../examples/drug-discovery.eml.yaml");
+const model = compileYaml(readFileSync(MODEL, "utf-8"));
 const graph = buildModelGraph(model);
 
 const nodesOf = (label: string) => graph.nodes.filter((node) => node.label === label);
@@ -136,7 +136,7 @@ describe("summariseModel", () => {
   });
 
   it("names roles a model declares only through transitions", () => {
-    // Every `%%rbac` in drug-discovery is a transition rule, so a summary that
+    // Every access rule in drug-discovery is on a transition, so a summary that
     // reads `rbac.operations` alone reports no roles at all for a model with
     // four of them. `rbacRoleNames` is the one derivation and this pins the
     // summary to it.

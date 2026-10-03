@@ -21,7 +21,7 @@ import { Route as ApiDeployRouteImport } from './routes/api/deploy'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as AdminMermaidIndexRouteImport } from './routes/admin/mermaid/index'
+import { Route as AdminModelLibraryIndexRouteImport } from './routes/admin/model-library/index'
 import { Route as AdminRulesIndexRouteImport } from './routes/admin/rules/index'
 import { Route as AdminRulesNewRouteImport } from './routes/admin/rules/new'
 import { Route as AdminWorkflowsIndexRouteImport } from './routes/admin/workflows/index'
@@ -30,7 +30,6 @@ import { Route as ApiAiCodeAgentRouteImport } from './routes/api/ai/code-agent'
 import { Route as ApiAiCodeAgentStreamRouteImport } from './routes/api/ai/code-agent-stream'
 import { Route as ApiAiConvertRouteImport } from './routes/api/ai/convert'
 import { Route as ApiAiConvertStreamRouteImport } from './routes/api/ai/convert-stream'
-import { Route as ApiAiRulesStreamRouteImport } from './routes/api/ai/rules-stream'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
@@ -38,10 +37,9 @@ import { Route as ApiAuthRegisterRouteImport } from './routes/api/auth/register'
 import { Route as ApiCopilotkitSplatRouteImport } from './routes/api/copilotkit/$'
 import { Route as ApiDbGenerateSchemaRouteImport } from './routes/api/db/generate-schema'
 import { Route as ApiDbReverseEngineerRouteImport } from './routes/api/db/reverse-engineer'
-import { Route as ApiEmlValidateRouteImport } from './routes/api/eml/validate'
-import { Route as ApiMermaidIndexRouteImport } from './routes/api/mermaid/index'
-import { Route as ApiMermaidFilenameRouteImport } from './routes/api/mermaid/$filename'
-import { Route as ApiMermaidParseRouteImport } from './routes/api/mermaid/parse'
+import { Route as ApiModelLibraryIndexRouteImport } from './routes/api/model-library/index'
+import { Route as ApiModelLibraryFilenameRouteImport } from './routes/api/model-library/$filename'
+import { Route as ApiModelValidateRouteImport } from './routes/api/model/validate'
 import { Route as ApiModelsExamplesRouteImport } from './routes/api/models/examples'
 import { Route as ApiProjectsIndexRouteImport } from './routes/api/projects/index'
 import { Route as ApiRulesIndexRouteImport } from './routes/api/rules/index'
@@ -57,8 +55,8 @@ import { Route as ProjectsIdRulesDesignRouteImport } from './routes/projects/$id
 import { Route as AdminRulesEntityRuleIdRouteImport } from './routes/admin/rules/$entity/$ruleId'
 import { Route as ApiAdminUsersIndexRouteImport } from './routes/api/admin/users/index'
 import { Route as ApiProjectsIdIndexRouteImport } from './routes/api/projects/$id/index'
-import { Route as ApiProjectsIdEmlRouteImport } from './routes/api/projects/$id/eml'
 import { Route as ApiProjectsIdGitRouteImport } from './routes/api/projects/$id/git'
+import { Route as ApiProjectsIdModelRouteImport } from './routes/api/projects/$id/model'
 import { Route as ApiProjectsIdModelContextRouteImport } from './routes/api/projects/$id/model-context'
 import { Route as ApiRulesRuleIdIndexRouteImport } from './routes/api/rules/$ruleId/index'
 import { Route as ApiWorkflowsWorkflowIdIndexRouteImport } from './routes/api/workflows/$workflowId/index'
@@ -71,9 +69,9 @@ import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/us
 import { Route as ApiProjectsIdAutomationsIndexRouteImport } from './routes/api/projects/$id/automations/index'
 import { Route as ApiProjectsIdAutomationsAutomationIdRouteImport } from './routes/api/projects/$id/automations/$automationId'
 import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/projects/$id/deployment/index'
-import { Route as ApiProjectsIdEmlDownloadRouteImport } from './routes/api/projects/$id/eml.download'
 import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
 import { Route as ApiProjectsIdMembersIndexRouteImport } from './routes/api/projects/$id/members/index'
+import { Route as ApiProjectsIdModelDownloadRouteImport } from './routes/api/projects/$id/model.download'
 import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/projects/$id/workflows/index'
 import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from './routes/api/projects/$id/erd-versions/$versionId/restore'
 import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
@@ -146,9 +144,9 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
-  id: '/admin/mermaid/',
-  path: '/admin/mermaid/',
+const AdminModelLibraryIndexRoute = AdminModelLibraryIndexRouteImport.update({
+  id: '/admin/model-library/',
+  path: '/admin/model-library/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
@@ -192,11 +190,6 @@ const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
   path: '/api/ai/convert-stream',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
-  id: '/api/ai/rules-stream',
-  path: '/api/ai/rules-stream',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
   id: '/api/auth/login',
   path: '/api/auth/login',
@@ -232,24 +225,19 @@ const ApiDbReverseEngineerRoute = ApiDbReverseEngineerRouteImport.update({
   path: '/api/db/reverse-engineer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEmlValidateRoute = ApiEmlValidateRouteImport.update({
-  id: '/api/eml/validate',
-  path: '/api/eml/validate',
+const ApiModelLibraryIndexRoute = ApiModelLibraryIndexRouteImport.update({
+  id: '/api/model-library/',
+  path: '/api/model-library/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
-  id: '/api/mermaid/',
-  path: '/api/mermaid/',
+const ApiModelLibraryFilenameRoute = ApiModelLibraryFilenameRouteImport.update({
+  id: '/api/model-library/$filename',
+  path: '/api/model-library/$filename',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
-  id: '/api/mermaid/$filename',
-  path: '/api/mermaid/$filename',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
-  id: '/api/mermaid/parse',
-  path: '/api/mermaid/parse',
+const ApiModelValidateRoute = ApiModelValidateRouteImport.update({
+  id: '/api/model/validate',
+  path: '/api/model/validate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiModelsExamplesRoute = ApiModelsExamplesRouteImport.update({
@@ -327,14 +315,14 @@ const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
   path: '/api/projects/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiProjectsIdEmlRoute = ApiProjectsIdEmlRouteImport.update({
-  id: '/api/projects/$id/eml',
-  path: '/api/projects/$id/eml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiProjectsIdGitRoute = ApiProjectsIdGitRouteImport.update({
   id: '/api/projects/$id/git',
   path: '/api/projects/$id/git',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProjectsIdModelRoute = ApiProjectsIdModelRouteImport.update({
+  id: '/api/projects/$id/model',
+  path: '/api/projects/$id/model',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiProjectsIdModelContextRoute =
@@ -405,12 +393,6 @@ const ApiProjectsIdDeploymentIndexRoute =
     path: '/api/projects/$id/deployment/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdEmlDownloadRoute =
-  ApiProjectsIdEmlDownloadRouteImport.update({
-    id: '/download',
-    path: '/download',
-    getParentRoute: () => ApiProjectsIdEmlRoute,
-  } as any)
 const ApiProjectsIdErdVersionsIndexRoute =
   ApiProjectsIdErdVersionsIndexRouteImport.update({
     id: '/api/projects/$id/erd-versions/',
@@ -422,6 +404,12 @@ const ApiProjectsIdMembersIndexRoute =
     id: '/api/projects/$id/members/',
     path: '/api/projects/$id/members/',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProjectsIdModelDownloadRoute =
+  ApiProjectsIdModelDownloadRouteImport.update({
+    id: '/download',
+    path: '/download',
+    getParentRoute: () => ApiProjectsIdModelRoute,
   } as any)
 const ApiProjectsIdWorkflowsIndexRoute =
   ApiProjectsIdWorkflowsIndexRouteImport.update({
@@ -509,7 +497,6 @@ export interface FileRoutesByFullPath {
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -517,9 +504,8 @@ export interface FileRoutesByFullPath {
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
   '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
   '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
-  '/api/eml/validate': typeof ApiEmlValidateRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/model-library/$filename': typeof ApiModelLibraryFilenameRoute
+  '/api/model/validate': typeof ApiModelValidateRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
@@ -529,16 +515,16 @@ export interface FileRoutesByFullPath {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/logic': typeof ProjectsIdLogicRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
+  '/admin/model-library/': typeof AdminModelLibraryIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
+  '/api/model-library/': typeof ApiModelLibraryIndexRoute
   '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRouteWithChildren
   '/api/projects/$id/git': typeof ApiProjectsIdGitRoute
+  '/api/projects/$id/model': typeof ApiProjectsIdModelRouteWithChildren
   '/api/projects/$id/model-context': typeof ApiProjectsIdModelContextRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
@@ -551,7 +537,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
-  '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/model/download': typeof ApiProjectsIdModelDownloadRoute
   '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -587,7 +573,6 @@ export interface FileRoutesByTo {
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -595,9 +580,8 @@ export interface FileRoutesByTo {
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
   '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
   '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
-  '/api/eml/validate': typeof ApiEmlValidateRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/model-library/$filename': typeof ApiModelLibraryFilenameRoute
+  '/api/model/validate': typeof ApiModelValidateRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
@@ -607,16 +591,16 @@ export interface FileRoutesByTo {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/logic': typeof ProjectsIdLogicRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid': typeof AdminMermaidIndexRoute
+  '/admin/model-library': typeof AdminModelLibraryIndexRoute
   '/admin/rules': typeof AdminRulesIndexRoute
   '/admin/workflows': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid': typeof ApiMermaidIndexRoute
+  '/api/model-library': typeof ApiModelLibraryIndexRoute
   '/api/projects': typeof ApiProjectsIndexRoute
   '/api/rules': typeof ApiRulesIndexRoute
   '/api/workflows': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRouteWithChildren
   '/api/projects/$id/git': typeof ApiProjectsIdGitRoute
+  '/api/projects/$id/model': typeof ApiProjectsIdModelRouteWithChildren
   '/api/projects/$id/model-context': typeof ApiProjectsIdModelContextRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
@@ -629,7 +613,7 @@ export interface FileRoutesByTo {
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
-  '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/model/download': typeof ApiProjectsIdModelDownloadRoute
   '/api/projects/$id/automations': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -666,7 +650,6 @@ export interface FileRoutesById {
   '/api/ai/code-agent-stream': typeof ApiAiCodeAgentStreamRoute
   '/api/ai/convert': typeof ApiAiConvertRoute
   '/api/ai/convert-stream': typeof ApiAiConvertStreamRoute
-  '/api/ai/rules-stream': typeof ApiAiRulesStreamRoute
   '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
@@ -674,9 +657,8 @@ export interface FileRoutesById {
   '/api/copilotkit/$': typeof ApiCopilotkitSplatRoute
   '/api/db/generate-schema': typeof ApiDbGenerateSchemaRoute
   '/api/db/reverse-engineer': typeof ApiDbReverseEngineerRoute
-  '/api/eml/validate': typeof ApiEmlValidateRoute
-  '/api/mermaid/$filename': typeof ApiMermaidFilenameRoute
-  '/api/mermaid/parse': typeof ApiMermaidParseRoute
+  '/api/model-library/$filename': typeof ApiModelLibraryFilenameRoute
+  '/api/model/validate': typeof ApiModelValidateRoute
   '/api/models/examples': typeof ApiModelsExamplesRoute
   '/api/rules/validate': typeof ApiRulesValidateRoute
   '/projects/$id/automations': typeof ProjectsIdAutomationsRoute
@@ -686,16 +668,16 @@ export interface FileRoutesById {
   '/projects/$id/init': typeof ProjectsIdInitRoute
   '/projects/$id/logic': typeof ProjectsIdLogicRoute
   '/projects/$id/rules-design': typeof ProjectsIdRulesDesignRoute
-  '/admin/mermaid/': typeof AdminMermaidIndexRoute
+  '/admin/model-library/': typeof AdminModelLibraryIndexRoute
   '/admin/rules/': typeof AdminRulesIndexRoute
   '/admin/workflows/': typeof AdminWorkflowsIndexRoute
-  '/api/mermaid/': typeof ApiMermaidIndexRoute
+  '/api/model-library/': typeof ApiModelLibraryIndexRoute
   '/api/projects/': typeof ApiProjectsIndexRoute
   '/api/rules/': typeof ApiRulesIndexRoute
   '/api/workflows/': typeof ApiWorkflowsIndexRoute
   '/admin/rules/$entity/$ruleId': typeof AdminRulesEntityRuleIdRoute
-  '/api/projects/$id/eml': typeof ApiProjectsIdEmlRouteWithChildren
   '/api/projects/$id/git': typeof ApiProjectsIdGitRoute
+  '/api/projects/$id/model': typeof ApiProjectsIdModelRouteWithChildren
   '/api/projects/$id/model-context': typeof ApiProjectsIdModelContextRoute
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
@@ -708,7 +690,7 @@ export interface FileRoutesById {
   '/api/admin/users/$id/approve': typeof ApiAdminUsersIdApproveRoute
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
-  '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/model/download': typeof ApiProjectsIdModelDownloadRoute
   '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -746,7 +728,6 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -754,9 +735,8 @@ export interface FileRouteTypes {
     | '/api/copilotkit/$'
     | '/api/db/generate-schema'
     | '/api/db/reverse-engineer'
-    | '/api/eml/validate'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
+    | '/api/model-library/$filename'
+    | '/api/model/validate'
     | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/automations'
@@ -766,16 +746,16 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/projects/$id/logic'
     | '/projects/$id/rules-design'
-    | '/admin/mermaid/'
+    | '/admin/model-library/'
     | '/admin/rules/'
     | '/admin/workflows/'
-    | '/api/mermaid/'
+    | '/api/model-library/'
     | '/api/projects/'
     | '/api/rules/'
     | '/api/workflows/'
     | '/admin/rules/$entity/$ruleId'
-    | '/api/projects/$id/eml'
     | '/api/projects/$id/git'
+    | '/api/projects/$id/model'
     | '/api/projects/$id/model-context'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
@@ -788,7 +768,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
-    | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/model/download'
     | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
@@ -824,7 +804,6 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -832,9 +811,8 @@ export interface FileRouteTypes {
     | '/api/copilotkit/$'
     | '/api/db/generate-schema'
     | '/api/db/reverse-engineer'
-    | '/api/eml/validate'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
+    | '/api/model-library/$filename'
+    | '/api/model/validate'
     | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/automations'
@@ -844,16 +822,16 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/projects/$id/logic'
     | '/projects/$id/rules-design'
-    | '/admin/mermaid'
+    | '/admin/model-library'
     | '/admin/rules'
     | '/admin/workflows'
-    | '/api/mermaid'
+    | '/api/model-library'
     | '/api/projects'
     | '/api/rules'
     | '/api/workflows'
     | '/admin/rules/$entity/$ruleId'
-    | '/api/projects/$id/eml'
     | '/api/projects/$id/git'
+    | '/api/projects/$id/model'
     | '/api/projects/$id/model-context'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
@@ -866,7 +844,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
-    | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/model/download'
     | '/api/projects/$id/automations'
     | '/api/projects/$id/deployment'
     | '/api/projects/$id/erd-versions'
@@ -902,7 +880,6 @@ export interface FileRouteTypes {
     | '/api/ai/code-agent-stream'
     | '/api/ai/convert'
     | '/api/ai/convert-stream'
-    | '/api/ai/rules-stream'
     | '/api/auth/login'
     | '/api/auth/logout'
     | '/api/auth/me'
@@ -910,9 +887,8 @@ export interface FileRouteTypes {
     | '/api/copilotkit/$'
     | '/api/db/generate-schema'
     | '/api/db/reverse-engineer'
-    | '/api/eml/validate'
-    | '/api/mermaid/$filename'
-    | '/api/mermaid/parse'
+    | '/api/model-library/$filename'
+    | '/api/model/validate'
     | '/api/models/examples'
     | '/api/rules/validate'
     | '/projects/$id/automations'
@@ -922,16 +898,16 @@ export interface FileRouteTypes {
     | '/projects/$id/init'
     | '/projects/$id/logic'
     | '/projects/$id/rules-design'
-    | '/admin/mermaid/'
+    | '/admin/model-library/'
     | '/admin/rules/'
     | '/admin/workflows/'
-    | '/api/mermaid/'
+    | '/api/model-library/'
     | '/api/projects/'
     | '/api/rules/'
     | '/api/workflows/'
     | '/admin/rules/$entity/$ruleId'
-    | '/api/projects/$id/eml'
     | '/api/projects/$id/git'
+    | '/api/projects/$id/model'
     | '/api/projects/$id/model-context'
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
@@ -944,7 +920,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/approve'
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
-    | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/model/download'
     | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
@@ -981,16 +957,14 @@ export interface RootRouteChildren {
   ApiAiCodeAgentStreamRoute: typeof ApiAiCodeAgentStreamRoute
   ApiAiConvertRoute: typeof ApiAiConvertRoute
   ApiAiConvertStreamRoute: typeof ApiAiConvertStreamRoute
-  ApiAiRulesStreamRoute: typeof ApiAiRulesStreamRoute
   ApiAuthLoginRoute: typeof ApiAuthLoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthMeRoute: typeof ApiAuthMeRoute
   ApiAuthRegisterRoute: typeof ApiAuthRegisterRoute
   ApiDbGenerateSchemaRoute: typeof ApiDbGenerateSchemaRoute
   ApiDbReverseEngineerRoute: typeof ApiDbReverseEngineerRoute
-  ApiEmlValidateRoute: typeof ApiEmlValidateRoute
-  ApiMermaidFilenameRoute: typeof ApiMermaidFilenameRoute
-  ApiMermaidParseRoute: typeof ApiMermaidParseRoute
+  ApiModelLibraryFilenameRoute: typeof ApiModelLibraryFilenameRoute
+  ApiModelValidateRoute: typeof ApiModelValidateRoute
   ApiModelsExamplesRoute: typeof ApiModelsExamplesRoute
   ApiRulesValidateRoute: typeof ApiRulesValidateRoute
   ProjectsIdAutomationsRoute: typeof ProjectsIdAutomationsRoute
@@ -1000,16 +974,16 @@ export interface RootRouteChildren {
   ProjectsIdInitRoute: typeof ProjectsIdInitRoute
   ProjectsIdLogicRoute: typeof ProjectsIdLogicRoute
   ProjectsIdRulesDesignRoute: typeof ProjectsIdRulesDesignRoute
-  AdminMermaidIndexRoute: typeof AdminMermaidIndexRoute
+  AdminModelLibraryIndexRoute: typeof AdminModelLibraryIndexRoute
   AdminRulesIndexRoute: typeof AdminRulesIndexRoute
   AdminWorkflowsIndexRoute: typeof AdminWorkflowsIndexRoute
-  ApiMermaidIndexRoute: typeof ApiMermaidIndexRoute
+  ApiModelLibraryIndexRoute: typeof ApiModelLibraryIndexRoute
   ApiProjectsIndexRoute: typeof ApiProjectsIndexRoute
   ApiRulesIndexRoute: typeof ApiRulesIndexRoute
   ApiWorkflowsIndexRoute: typeof ApiWorkflowsIndexRoute
   AdminRulesEntityRuleIdRoute: typeof AdminRulesEntityRuleIdRoute
-  ApiProjectsIdEmlRoute: typeof ApiProjectsIdEmlRouteWithChildren
   ApiProjectsIdGitRoute: typeof ApiProjectsIdGitRoute
+  ApiProjectsIdModelRoute: typeof ApiProjectsIdModelRouteWithChildren
   ApiProjectsIdModelContextRoute: typeof ApiProjectsIdModelContextRoute
   ApiWorkflowsWorkflowIdRetryRoute: typeof ApiWorkflowsWorkflowIdRetryRoute
   ApiWorkflowsWorkflowIdStatusRoute: typeof ApiWorkflowsWorkflowIdStatusRoute
@@ -1125,11 +1099,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/mermaid/': {
-      id: '/admin/mermaid/'
-      path: '/admin/mermaid'
-      fullPath: '/admin/mermaid/'
-      preLoaderRoute: typeof AdminMermaidIndexRouteImport
+    '/admin/model-library/': {
+      id: '/admin/model-library/'
+      path: '/admin/model-library'
+      fullPath: '/admin/model-library/'
+      preLoaderRoute: typeof AdminModelLibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/rules/': {
@@ -1188,13 +1162,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiConvertStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ai/rules-stream': {
-      id: '/api/ai/rules-stream'
-      path: '/api/ai/rules-stream'
-      fullPath: '/api/ai/rules-stream'
-      preLoaderRoute: typeof ApiAiRulesStreamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/auth/login': {
       id: '/api/auth/login'
       path: '/api/auth/login'
@@ -1244,32 +1211,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDbReverseEngineerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/eml/validate': {
-      id: '/api/eml/validate'
-      path: '/api/eml/validate'
-      fullPath: '/api/eml/validate'
-      preLoaderRoute: typeof ApiEmlValidateRouteImport
+    '/api/model-library/': {
+      id: '/api/model-library/'
+      path: '/api/model-library'
+      fullPath: '/api/model-library/'
+      preLoaderRoute: typeof ApiModelLibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mermaid/': {
-      id: '/api/mermaid/'
-      path: '/api/mermaid'
-      fullPath: '/api/mermaid/'
-      preLoaderRoute: typeof ApiMermaidIndexRouteImport
+    '/api/model-library/$filename': {
+      id: '/api/model-library/$filename'
+      path: '/api/model-library/$filename'
+      fullPath: '/api/model-library/$filename'
+      preLoaderRoute: typeof ApiModelLibraryFilenameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/mermaid/$filename': {
-      id: '/api/mermaid/$filename'
-      path: '/api/mermaid/$filename'
-      fullPath: '/api/mermaid/$filename'
-      preLoaderRoute: typeof ApiMermaidFilenameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mermaid/parse': {
-      id: '/api/mermaid/parse'
-      path: '/api/mermaid/parse'
-      fullPath: '/api/mermaid/parse'
-      preLoaderRoute: typeof ApiMermaidParseRouteImport
+    '/api/model/validate': {
+      id: '/api/model/validate'
+      path: '/api/model/validate'
+      fullPath: '/api/model/validate'
+      preLoaderRoute: typeof ApiModelValidateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/models/examples': {
@@ -1377,18 +1337,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/eml': {
-      id: '/api/projects/$id/eml'
-      path: '/api/projects/$id/eml'
-      fullPath: '/api/projects/$id/eml'
-      preLoaderRoute: typeof ApiProjectsIdEmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/projects/$id/git': {
       id: '/api/projects/$id/git'
       path: '/api/projects/$id/git'
       fullPath: '/api/projects/$id/git'
       preLoaderRoute: typeof ApiProjectsIdGitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/model': {
+      id: '/api/projects/$id/model'
+      path: '/api/projects/$id/model'
+      fullPath: '/api/projects/$id/model'
+      preLoaderRoute: typeof ApiProjectsIdModelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/model-context': {
@@ -1475,13 +1435,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdDeploymentIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/eml/download': {
-      id: '/api/projects/$id/eml/download'
-      path: '/download'
-      fullPath: '/api/projects/$id/eml/download'
-      preLoaderRoute: typeof ApiProjectsIdEmlDownloadRouteImport
-      parentRoute: typeof ApiProjectsIdEmlRoute
-    }
     '/api/projects/$id/erd-versions/': {
       id: '/api/projects/$id/erd-versions/'
       path: '/api/projects/$id/erd-versions'
@@ -1495,6 +1448,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/projects/$id/members/'
       preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/projects/$id/model/download': {
+      id: '/api/projects/$id/model/download'
+      path: '/download'
+      fullPath: '/api/projects/$id/model/download'
+      preLoaderRoute: typeof ApiProjectsIdModelDownloadRouteImport
+      parentRoute: typeof ApiProjectsIdModelRoute
     }
     '/api/projects/$id/workflows/': {
       id: '/api/projects/$id/workflows/'
@@ -1588,16 +1548,16 @@ const ApiCopilotkitRouteWithChildren = ApiCopilotkitRoute._addFileChildren(
   ApiCopilotkitRouteChildren,
 )
 
-interface ApiProjectsIdEmlRouteChildren {
-  ApiProjectsIdEmlDownloadRoute: typeof ApiProjectsIdEmlDownloadRoute
+interface ApiProjectsIdModelRouteChildren {
+  ApiProjectsIdModelDownloadRoute: typeof ApiProjectsIdModelDownloadRoute
 }
 
-const ApiProjectsIdEmlRouteChildren: ApiProjectsIdEmlRouteChildren = {
-  ApiProjectsIdEmlDownloadRoute: ApiProjectsIdEmlDownloadRoute,
+const ApiProjectsIdModelRouteChildren: ApiProjectsIdModelRouteChildren = {
+  ApiProjectsIdModelDownloadRoute: ApiProjectsIdModelDownloadRoute,
 }
 
-const ApiProjectsIdEmlRouteWithChildren =
-  ApiProjectsIdEmlRoute._addFileChildren(ApiProjectsIdEmlRouteChildren)
+const ApiProjectsIdModelRouteWithChildren =
+  ApiProjectsIdModelRoute._addFileChildren(ApiProjectsIdModelRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1618,16 +1578,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiCodeAgentStreamRoute: ApiAiCodeAgentStreamRoute,
   ApiAiConvertRoute: ApiAiConvertRoute,
   ApiAiConvertStreamRoute: ApiAiConvertStreamRoute,
-  ApiAiRulesStreamRoute: ApiAiRulesStreamRoute,
   ApiAuthLoginRoute: ApiAuthLoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiAuthRegisterRoute: ApiAuthRegisterRoute,
   ApiDbGenerateSchemaRoute: ApiDbGenerateSchemaRoute,
   ApiDbReverseEngineerRoute: ApiDbReverseEngineerRoute,
-  ApiEmlValidateRoute: ApiEmlValidateRoute,
-  ApiMermaidFilenameRoute: ApiMermaidFilenameRoute,
-  ApiMermaidParseRoute: ApiMermaidParseRoute,
+  ApiModelLibraryFilenameRoute: ApiModelLibraryFilenameRoute,
+  ApiModelValidateRoute: ApiModelValidateRoute,
   ApiModelsExamplesRoute: ApiModelsExamplesRoute,
   ApiRulesValidateRoute: ApiRulesValidateRoute,
   ProjectsIdAutomationsRoute: ProjectsIdAutomationsRoute,
@@ -1637,16 +1595,16 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsIdInitRoute: ProjectsIdInitRoute,
   ProjectsIdLogicRoute: ProjectsIdLogicRoute,
   ProjectsIdRulesDesignRoute: ProjectsIdRulesDesignRoute,
-  AdminMermaidIndexRoute: AdminMermaidIndexRoute,
+  AdminModelLibraryIndexRoute: AdminModelLibraryIndexRoute,
   AdminRulesIndexRoute: AdminRulesIndexRoute,
   AdminWorkflowsIndexRoute: AdminWorkflowsIndexRoute,
-  ApiMermaidIndexRoute: ApiMermaidIndexRoute,
+  ApiModelLibraryIndexRoute: ApiModelLibraryIndexRoute,
   ApiProjectsIndexRoute: ApiProjectsIndexRoute,
   ApiRulesIndexRoute: ApiRulesIndexRoute,
   ApiWorkflowsIndexRoute: ApiWorkflowsIndexRoute,
   AdminRulesEntityRuleIdRoute: AdminRulesEntityRuleIdRoute,
-  ApiProjectsIdEmlRoute: ApiProjectsIdEmlRouteWithChildren,
   ApiProjectsIdGitRoute: ApiProjectsIdGitRoute,
+  ApiProjectsIdModelRoute: ApiProjectsIdModelRouteWithChildren,
   ApiProjectsIdModelContextRoute: ApiProjectsIdModelContextRoute,
   ApiWorkflowsWorkflowIdRetryRoute: ApiWorkflowsWorkflowIdRetryRoute,
   ApiWorkflowsWorkflowIdStatusRoute: ApiWorkflowsWorkflowIdStatusRoute,
@@ -1688,12 +1646,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

@@ -5,11 +5,13 @@ import {
   newCondition,
   newHook,
   newStep,
-  parseAutomation,
-  serializeAutomation,
   validateAutomation,
   valuesAvailableAt,
 } from "../model";
+import { AutomationDocumentError, automationFromYaml, automationToYaml } from "../yaml";
+
+/** Write an automation as its document and read it back. */
+const reopen = (automation: Automation) => automationFromYaml(automationToYaml(automation));
 
 /**
  * A realistic automation: the one the builder was designed around.
@@ -40,10 +42,9 @@ function sampleAutomation(): Automation {
   return a;
 }
 
-describe("serializeAutomation / parseAutomation", () => {
+describe("automationToYaml / automationFromYaml", () => {
   it("round-trips the trigger, checks and steps", () => {
-    const original = sampleAutomation();
-    const reopened = parseAutomation(serializeAutomation(original), "Order");
+    const reopened = reopen(sampleAutomation());
 
     expect(reopened.name).toBe("Order fulfilment");
     expect(reopened.trigger).toEqual({ entity: "Order", event: "created" });
@@ -66,8 +67,7 @@ describe("serializeAutomation / parseAutomation", () => {
   });
 
   it("keeps step order, because order is the whole semantics", () => {
-    const original = sampleAutomation();
-    const reopened = parseAutomation(serializeAutomation(original), "Order");
+    const reopened = reopen(sampleAutomation());
     expect(reopened.steps.map((s) => s.props.entity ?? s.props.ruleTable)).toEqual([
       "Discount tier",
       "Order",
@@ -75,17 +75,17 @@ describe("serializeAutomation / parseAutomation", () => {
     ]);
   });
 
-  it("survives a second round-trip unchanged", () => {
-    const once = serializeAutomation(sampleAutomation());
-    const twice = serializeAutomation(parseAutomation(once, "Order"));
-    expect(twice).toBe(once);
+  it("writes the same bytes for the same automation, so a save diffs only what changed", () => {
+    const once = automationToYaml(sampleAutomation());
+    expect(automationToYaml(automationFromYaml(once))).toBe(once);
   });
 
-  it("emits valid mermaid — a flowchart header and a connected chain", () => {
-    const source = serializeAutomation(sampleAutomation());
-    expect(source.split("\n")[0]).toBe("flowchart TD");
-    expect(source).toContain("start([Order is created])");
-    expect(source).toContain("--> done");
+  it("is a versioned document naming the automation, not the screen's state", () => {
+    const text = automationToYaml(sampleAutomation());
+    expect(text.split("\n")[0]).toBe('automation: "1.0"');
+    // The in-memory id and when it was last touched belong to the screen.
+    expect(text).not.toMatch(/^id:/m);
+    expect(text).not.toMatch(/updatedAt/);
   });
 
   it("maps every trigger event back to the event it came from", () => {
@@ -99,35 +99,25 @@ describe("serializeAutomation / parseAutomation", () => {
     ] as const) {
       const a = emptyAutomation("Order");
       a.trigger = { entity: "Order", event };
-      expect(parseAutomation(serializeAutomation(a), "Order").trigger.event).toBe(event);
+      expect(reopen(a).trigger.event).toBe(event);
     }
   });
 
-  it("drops a step it cannot read rather than inventing one", () => {
-    const reopened = parseAutomation(
-      ["flowchart TD", "%%hook afterCreate on Order", "  s1[Mystery]", "  start --> s1"].join("\n"),
-      "Order"
-    );
-    expect(reopened.steps).toHaveLength(0);
-    expect(reopened.trigger.entity).toBe("Order");
+  it("refuses a step type it does not know, naming the step", () => {
+    const text = automationToYaml(sampleAutomation()).replace("type: Decision", "type: Mystery");
+    expect(() => automationFromYaml(text)).toThrow(AutomationDocumentError);
+    expect(() => automationFromYaml(text)).toThrow(/steps\[0\]\.type: Mystery/);
   });
 
-  it("keeps a check whose value is not quoted JSON", () => {
-    const reopened = parseAutomation(
-      ["flowchart TD", "%%hook afterCreate on Order", "%%guard order.status eq confirmed"].join(
-        "\n"
-      ),
-      "Order"
-    );
-    expect(reopened.conditions[0]).toMatchObject({
-      field: "order.status",
-      operator: "eq",
-      value: "confirmed",
-    });
+  it("keeps a check's value as the text it was, whatever it looks like", () => {
+    const a = sampleAutomation();
+    a.conditions = [{ ...newCondition(), field: "order.status", operator: "eq", value: "1e3" }];
+    expect(reopen(a).conditions[0]).toMatchObject({ value: "1e3" });
   });
 
-  it("falls back to the given entity when the source names none", () => {
-    expect(parseAutomation("flowchart TD", "Patient").trigger.entity).toBe("Patient");
+  it("refuses a document that names no entity rather than guessing one", () => {
+    const text = automationToYaml(sampleAutomation()).replace("entity: Order\n", "entity: \"\"\n");
+    expect(() => automationFromYaml(text)).toThrow(/needs `trigger\.entity`/);
   });
 });
 
@@ -254,7 +244,7 @@ describe("validateAutomation", () => {
 
 /**
  * A hook is its own workflow: one handler, and the steps that follow it. The
- * builder used to stop at the rungs and the serializer dropped steps, so an
+ * builder once stopped at the rungs and the stored form dropped steps, so an
  * author could add them and watch them vanish on save.
  */
 describe("a hook workflow carries its own steps", () => {
@@ -274,7 +264,7 @@ describe("a hook workflow carries its own steps", () => {
   }
 
   it("keeps the handler and the steps through a round trip", () => {
-    const reopened = parseAutomation(serializeAutomation(hookWorkflow()), "Course");
+    const reopened = reopen(hookWorkflow());
     expect(reopened.kind).toBe("hook");
     expect(reopened.hooks.map((h) => `${h.event}:${h.handler}`)).toEqual([
       "beforeUpdate:beforeUpdateCourse",

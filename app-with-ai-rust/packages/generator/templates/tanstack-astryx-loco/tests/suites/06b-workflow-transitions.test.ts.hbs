@@ -1,7 +1,7 @@
 /**
  * State machines — the edges the model drew, and only those.
  *
- * `%%workflow … kind: state` declares a lifecycle: which state a record starts
+ * A state machine declares a lifecycle: which state a record starts
  * in, which moves are legal from there, and which states it can end in. The
  * backend stores those edges in `sys_workflow_transitions` and the
  * entity-access guard refuses any status write with no matching edge.

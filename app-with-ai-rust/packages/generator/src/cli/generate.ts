@@ -3,7 +3,7 @@
 /**
  * AppWithAI Code Generator CLI
  *
- * Generates full-stack applications from Mermaid ERD / EML diagrams.
+ * Generates full-stack applications from a model: a YAML document, `*.eml.yaml`.
  * One stack is supported: tanstack-astryx-loco (TanStack Start + Astryx on a
  * Loco.rs backend).
  */
@@ -15,6 +15,7 @@ import { Command } from "commander";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as readline from "readline";
+import { isDeepStrictEqual } from "util";
 import type { StackOption } from "../generators/full-stack.generator";
 import {
   ASTRYX_THEMES,
@@ -23,10 +24,16 @@ import {
   LocoBackendGenerator,
 } from "../generators/tanstack-astryx-loco";
 import { TanStackStartFrontendGenerator } from "../generators/tanstack-astryx-loco/tanstack-start-frontend.generator";
-import { resolveCategories } from "../parsers/category.parser";
-import { MermaidParser } from "../parsers/mermaid.parser";
-import { generateApplication, parseModel } from "../pipeline";
+import {
+  cedmOrder,
+  raiseModelDocument,
+  readCedmModel,
+  serializeCedmDocument,
+} from "../model-cedm";
+import { serializeModelDocument } from "../model-yaml";
+import { generateApplication } from "../pipeline";
 import { cliLogger } from "../pipeline/logger-port";
+import { loadModelFile, validateModelYamlFile } from "./model-input";
 import { CliExecutor } from "../utils/cli-executor";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -47,37 +54,15 @@ function getStackDescription(stack: StackOption): string {
     : "tanstack-astryx-loco - Rust Web (TanStack Start + Astryx | Loco.rs)";
 }
 
-/** Parse an ERD / EML / Mermaid file and return entities + relationships. */
+/**
+ * Read a model file and return its entities, relationships and enums. The model
+ * is validated first, and one with errors is refused.
+ */
 async function parseFile(
   filePath: string
 ): Promise<{ entities: Entity[]; relationships: Relationship[]; enums: EntityEnum[] }> {
-  const absPath = resolvePath(filePath);
-  await fs.access(absPath);
-  const content = await fs.readFile(absPath, "utf-8");
-  const parser = new MermaidParser();
-  return parser.parse(content);
-}
-
-/**
- * The raw text of every model file, concatenated.
- *
- * Directives (`%%category`, `%%workflow`, `%%step`) are Mermaid comments, so
- * the parsed ERD cannot carry them and anything reading them needs the source.
- */
-async function readSources(filePaths: Array<string | undefined>): Promise<string> {
-  const sources: string[] = [];
-
-  for (const filePath of filePaths) {
-    if (!filePath) continue;
-    try {
-      sources.push(await fs.readFile(resolvePath(filePath), "utf-8"));
-    } catch {
-      // A missing optional input is not an error here — the caller already
-      // validated the files it requires.
-    }
-  }
-
-  return sources.join("\n");
+  const { model } = await loadModelFile(resolvePath(filePath), { verbose: false });
+  return { entities: model.entities, relationships: model.relationships, enums: model.enums };
 }
 
 /** Check whether the output directory already contains files. */
@@ -366,83 +351,28 @@ async function runE2ETests(opts: {
 }
 
 // ---------------------------------------------------------------------------
-// EML checker + fixer pre-flight
+// Model pre-flight
 // ---------------------------------------------------------------------------
 
 /**
- * Run the language/checker.ts on a .mmd file, then auto-fix with fixer.ts,
- * then re-check. Throws if errors remain after fixing.
+ * Validate the model before anything is generated from it, printing every
+ * finding at its line and column. A model with an error is refused, and the
+ * refusal is named as an event as well as thrown: in CI the terminal output is
+ * gone once the scrollback is, and the event is what records which model was
+ * refused.
  */
-async function runCheckerFixer(mmdPath: string, quiet: boolean): Promise<void> {
-  // Workspace root is 4 levels above packages/generator/src/cli/
-  const workspaceRoot = path.resolve(__dirname, "../../../../");
-  const checkerScript = path.join(workspaceRoot, "language", "checker.ts");
-  const fixerScript = path.join(workspaceRoot, "language", "fixer.ts");
-
-  // If language tooling isn't present in this installation, skip silently
+async function preflight(modelPath: string, quiet: boolean): Promise<void> {
+  log(`\n🔍 Validating ${path.basename(modelPath)}…`, quiet);
   try {
-    await fs.access(checkerScript);
-  } catch {
-    return;
-  }
-
-  const runBun = (script: string, args: string[]) =>
-    spawnSync("bun", [script, ...args], {
-      stdio: "pipe",
-      cwd: workspaceRoot,
+    await validateModelYamlFile(modelPath, { verbose: !quiet });
+  } catch (error) {
+    getLogger("pipeline").event("pipeline.model.rejected", {
+      project: path.basename(modelPath),
+      reason: error instanceof Error ? error.message : String(error),
     });
-
-  // Step 1: Run checker
-  log(`\n🔍 Checking ${path.basename(mmdPath)} for EML errors…`, quiet);
-  const check1 = runBun(checkerScript, [mmdPath, "--no-color"]);
-
-  if (check1.status === 0) {
-    log("   ✓ No EML errors found.", quiet);
-    return;
+    throw error;
   }
-
-  // Print checker output so the developer sees what's wrong
-  if (check1.stdout) process.stdout.write(check1.stdout.toString());
-
-  // Step 2: Auto-fix (if fixer exists)
-  let fixerExists = false;
-  try {
-    await fs.access(fixerScript);
-    fixerExists = true;
-  } catch {
-    /* not installed */
-  }
-
-  if (fixerExists) {
-    log(`\n🔧 Auto-fixing EML issues in ${path.basename(mmdPath)}…`, quiet);
-    const fix = runBun(fixerScript, [mmdPath, "--no-recheck"]);
-    if (fix.stdout) process.stdout.write(fix.stdout.toString());
-  }
-
-  // Step 3: Re-check after fixes
-  log(`\n🔍 Re-checking ${path.basename(mmdPath)} after fixes…`, quiet);
-  const check2 = runBun(checkerScript, [mmdPath, "--no-color"]);
-  if (check2.stdout) process.stdout.write(check2.stdout.toString());
-
-  if (check2.status === 0) {
-    log("   ✓ All EML errors resolved.", quiet);
-    return;
-  }
-
-  // Still errors — block generation.
-  //
-  // Named as an event as well as thrown: the checker's own output went to this
-  // terminal and nowhere else, so a generation refused in CI left no record of
-  // *which* model was refused once the scrollback was gone.
-  getLogger("pipeline").event("pipeline.model.rejected", {
-    project: path.basename(mmdPath),
-    errors: check2.status ?? 1,
-  });
-
-  throw new Error(
-    `EML validation failed for "${path.basename(mmdPath)}".\n` +
-      `  Fix the errors shown above and re-run generation.`
-  );
+  log("   ✓ No model errors found.", quiet);
 }
 
 // ---------------------------------------------------------------------------
@@ -453,7 +383,7 @@ const program = new Command();
 
 program
   .name("appwithai")
-  .description("Generate full-stack applications from EML / Mermaid ERD diagrams")
+  .description("Generate full-stack applications from models (.eml.yaml)")
   .version("5.2.0");
 
 // ---------------------------------------------------------------------------
@@ -462,12 +392,8 @@ program
 
 program
   .command("generate")
-  .description("Generate a full-stack application from a Mermaid ERD or EML file")
-  // Input sources
-  .option("-i, --input <file>", "Input Mermaid ERD / EML file (single-file mode)")
-  .option("--sys-file <file>", "System entities file (sys_ tables, multi-file mode)")
-  .option("--bus-file <file>", "Business entities file (bus_ tables, multi-file mode)")
-  .option("--ref-file <file>", "Reference entities file (REF_ tables, multi-file mode)")
+  .description("Generate a full-stack application from a model (.eml.yaml)")
+  .requiredOption("-i, --input <file>", "The model: a YAML document (.eml.yaml)")
   // Output
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("--force", "Overwrite existing output directory without prompting")
@@ -538,81 +464,22 @@ program
     }
 
     try {
-      // ── Input validation ────────────────────────────────────────────────
-      const isMultiFileMode = options.sysFile || options.busFile || options.refFile;
-
-      if (isMultiFileMode && options.input) {
-        throw new Error(
-          "Cannot combine --input with --sys-file / --bus-file / --ref-file. Use one or the other."
-        );
-      }
-      if (!isMultiFileMode && !options.input) {
-        throw new Error(
-          "Specify --input <file> or at least one of --sys-file / --bus-file / --ref-file."
-        );
-      }
-
-      // ── EML check + auto-fix (pre-flight) ──────────────────────────────
-      if (isMultiFileMode) {
-        for (const flag of [options.sysFile, options.busFile, options.refFile]) {
-          if (flag) await runCheckerFixer(resolvePath(flag), quiet);
-        }
-      } else {
-        await runCheckerFixer(resolvePath(options.input), quiet);
-      }
-
-      // ── Parse ERD ───────────────────────────────────────────────────────
-      let allEntities: Entity[] = [];
-      let allRelationships: Relationship[] = [];
-      let allEnums: EntityEnum[] = [];
-
-      if (isMultiFileMode) {
-        for (const [flag, label] of [
-          [options.sysFile, "sys_"],
-          [options.busFile, "bus_"],
-          [options.refFile, "REF_"],
-        ] as [string | undefined, string][]) {
-          if (!flag) continue;
-          log(`📄 Reading ${label} entities from: ${resolvePath(flag)}`, quiet);
-          const { entities, relationships, enums } = await parseFile(flag);
-          allEntities.push(...entities);
-          allRelationships.push(...relationships);
-          allEnums.push(...enums);
-          log(`   ✓ Parsed ${entities.length} ${label} entities`, quiet);
-        }
-        log(
-          `   ✓ Total: ${allEntities.length} entities, ${allRelationships.length} relationships`,
-          quiet
-        );
-      } else {
-        const inputPath = resolvePath(options.input);
-        log(`📄 Reading ERD from: ${inputPath}`, quiet);
-        const { entities, relationships, enums } = await parseFile(options.input);
-        allEntities = entities;
-        allRelationships = relationships;
-        allEnums = enums;
-        log(
-          `   ✓ Parsed ${entities.length} entities, ${relationships.length} relationships`,
-          quiet
-        );
-      }
-
-      // ── The model, read once ────────────────────────────────────────────
-      //
-      // The per-file parse above exists for its logging: multi-file mode reports
-      // how many entities each of `--sys-file`, `--bus-file` and `--ref-file`
-      // contributed. Everything the generator actually consumes comes from
-      // `parseModel` over the joined source, so the CLI reads a model the same
-      // way the web app does — including the directives that ride on `%%` lines
-      // and never reach the ERD parser at all.
-      const modelSource = await readSources([
-        options.input,
-        options.sysFile,
-        options.busFile,
-        options.refFile,
-      ]);
-      const model = parseModel(modelSource);
+      // ── The model, validated and compiled once ──────────────────────────
+      const inputPath = resolvePath(options.input);
+      await preflight(inputPath, quiet);
+      log(`📄 Reading the model from: ${inputPath}`, quiet);
+      const {
+        document,
+        model,
+        text: modelText,
+        cedm,
+      } = await loadModelFile(inputPath, { verbose: false });
+      const allEntities = model.entities;
       const categories = model.categories;
+      log(
+        `   ✓ ${model.entities.length} entities, ${model.relationships.length} relationships`,
+        quiet
+      );
 
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
@@ -709,16 +576,17 @@ program
 
       /*
        * Through the pipeline, so the CLI and the web app build the generator's
-       * options from one function. It also writes `model/model.eml.mmd` and the
-       * manifest, which the CLI used to do for itself and the web route not at
-       * all.
+       * options from one function. It also writes `model/model.eml.yaml` and the
+       * manifest.
        */
       await generateApplication({
         // Silent unless the operator set LOG_LEVEL: this command is writing a
         // progress display to a terminal, and JSON through the middle of it
         // helps nobody. See `pipeline/logger-port.ts`.
         logger: cliLogger(getLogger("pipeline")),
-        sources: modelSource,
+        document,
+        modelText,
+        ...(cedm ? { cedm } : {}),
         model,
         stackOption,
         astryxTheme: options.theme,
@@ -737,13 +605,7 @@ program
         skipTests: options.tests === false,
         recordsPerEntity: Number(options.recordsPerEntity) || 1000,
         manifest: {
-          input:
-            options.input ||
-            ({
-              sysFile: options.sysFile,
-              busFile: options.busFile,
-              refFile: options.refFile,
-            } as unknown),
+          input: options.input,
           packageManager: options.packageManager,
         },
       });
@@ -832,13 +694,13 @@ program
   });
 
 // ---------------------------------------------------------------------------
-// inspect — parse and display ERD without generating
+// inspect — display a model's entities and relationships without generating
 // ---------------------------------------------------------------------------
 
 program
   .command("inspect")
-  .description("Parse an ERD / EML file and display entities, relationships and statistics")
-  .argument("<file>", "Mermaid ERD or EML file to inspect")
+  .description("Display a model's entities, relationships and statistics")
+  .argument("<file>", "The model to inspect (.eml.yaml)")
   .option("-f, --format <format>", "Output format: table | json | tree", "table")
   .action(async (file, options) => {
     try {
@@ -849,7 +711,7 @@ program
         return;
       }
 
-      console.log("\n🔍 ERD Inspection Report");
+      console.log("\n🔍 Model Inspection Report");
       console.log("═══════════════════════════════════════════\n");
 
       // Entities table
@@ -936,9 +798,9 @@ program
 program
   .command("generate:entity")
   .description(
-    "Add or regenerate a single entity from an .mmd / .eml file into an existing generated project"
+    "Add or regenerate a single entity from a model into an existing generated project"
   )
-  .requiredOption("-i, --input <file>", "Input .mmd / .eml file containing the entity")
+  .requiredOption("-i, --input <file>", "The model containing the entity (.eml.yaml)")
   .requiredOption("-e, --entity <name>", "Entity name to generate (PascalCase, e.g. 'Compound')")
   .requiredOption(
     "-o, --output <dir>",
@@ -966,10 +828,8 @@ program
         console.log("═══════════════════════════════════════════\n");
       }
 
-      // ── EML pre-flight check + auto-fix ──────────────────────────────────
-      await runCheckerFixer(resolvePath(options.input), quiet);
-
-      // ── Parse the input file ─────────────────────────────────────────────
+      // ── Validate and read the model ──────────────────────────────────────
+      await preflight(resolvePath(options.input), quiet);
       const { entities, relationships } = await parseFile(options.input);
 
       // ── Find the entity ──────────────────────────────────────────────────
@@ -1059,7 +919,7 @@ program
                 "so they are rewritten as a whole)"
             );
           }
-          const modelSource = await fs.readFile(resolvePath(options.input), "utf-8");
+          const { model } = await loadModelFile(resolvePath(options.input), { verbose: false });
           const backendGen = new LocoBackendGenerator({
             projectName: String(manifest.name ?? "my-app"),
             projectVersion: String(manifest.version ?? "1.0.0"),
@@ -1068,11 +928,8 @@ program
             frontendPort: Number(manifest.frontendPort ?? 3001),
             database: (manifest.database ?? "postgres") as DatabaseTarget,
             skipCliScaffold: true,
-            modelSource,
-            categories: resolveCategories(
-              modelSource,
-              entities.map((e) => e.name)
-            ),
+            sagas: model.sagas,
+            categories: model.categories,
           });
           await backendGen.generate(entities, relationships, backendDir);
         } else {
@@ -1124,109 +981,22 @@ program
   });
 
 // ---------------------------------------------------------------------------
-// validate — check ERD for common problems
+// validate — check a model against the language
 // ---------------------------------------------------------------------------
 
 program
   .command("validate")
-  .description("Validate an ERD / EML file for structural correctness")
-  .argument("<file>", "Mermaid ERD or EML file to validate")
+  .description(
+    "Validate a model (.cedm.yaml or .eml.yaml): YAML, the schema, CEDM imports and lowering, and the language checker"
+  )
+  .argument("<file>", "The model to validate")
   .option("--strict", "Fail on warnings in addition to errors")
   .action(async (file, options) => {
     try {
-      const { entities, relationships } = await parseFile(file);
-
-      const errors: string[] = [];
-      const warnings: string[] = [];
-
-      const entityNames = new Set(entities.map((e) => e.name));
-
-      // Duplicate entity names
-      const seen = new Set<string>();
-      for (const e of entities) {
-        if (seen.has(e.name)) errors.push(`Duplicate entity name: "${e.name}"`);
-        else seen.add(e.name);
-      }
-
-      // Each entity must have at least one attribute
-      for (const e of entities) {
-        if (e.attributes.length === 0) {
-          errors.push(`Entity "${e.name}" has no attributes`);
-        }
-      }
-
-      // Every FK field should reference a real entity
-      for (const e of entities) {
-        for (const a of e.attributes) {
-          if (a.name.endsWith("_id") && a.name !== "id") {
-            const referencedEntity = a.name.replace(/_id$/, "");
-            const exists = [...entityNames].some(
-              (n) => n.toLowerCase() === referencedEntity.toLowerCase()
-            );
-            if (!exists) {
-              warnings.push(
-                `Entity "${e.name}": FK column "${a.name}" — no entity named "${referencedEntity}" found`
-              );
-            }
-          }
-        }
-      }
-
-      // Relationship source/target must exist
-      for (const r of relationships) {
-        if (!entityNames.has(r.sourceEntity)) {
-          errors.push(`Relationship source "${r.sourceEntity}" is not a known entity`);
-        }
-        if (!entityNames.has(r.targetEntity)) {
-          errors.push(`Relationship target "${r.targetEntity}" is not a known entity`);
-        }
-      }
-
-      // Self-referencing relationships
-      for (const r of relationships) {
-        if (r.sourceEntity === r.targetEntity) {
-          warnings.push(`Self-referencing relationship on entity "${r.sourceEntity}"`);
-        }
-      }
-
-      // Entities with no relationships
-      const entitiesInRelationships = new Set([
-        ...relationships.map((r) => r.sourceEntity),
-        ...relationships.map((r) => r.targetEntity),
-      ]);
-      for (const e of entities) {
-        if (!entitiesInRelationships.has(e.name)) {
-          warnings.push(`Entity "${e.name}" has no relationships (isolated entity)`);
-        }
-      }
-
-      // Report
-      console.log("\n✅ ERD Validation Report");
-      console.log("═══════════════════════════════════════════\n");
-      console.log(`   File:     ${resolvePath(file)}`);
-      console.log(`   Entities: ${entities.length}`);
-      console.log(`   Rels:     ${relationships.length}\n`);
-
-      if (errors.length === 0 && warnings.length === 0) {
-        console.log("✅ No issues found — ERD is valid.\n");
-        return;
-      }
-
-      if (errors.length > 0) {
-        console.log(`❌ Errors (${errors.length}):`);
-        for (const e of errors) console.log(`   • ${e}`);
-        console.log();
-      }
-
-      if (warnings.length > 0) {
-        console.log(`⚠️  Warnings (${warnings.length}):`);
-        for (const w of warnings) console.log(`   • ${w}`);
-        console.log();
-      }
-
-      if (errors.length > 0 || (options.strict && warnings.length > 0)) {
-        process.exit(1);
-      }
+      const { diagnostics } = await validateModelYamlFile(resolvePath(file));
+      const warnings = diagnostics.filter((d) => d.severity === "warning").length;
+      console.log(`\n✅ ${path.basename(file)} is a valid model (${warnings} warning(s)).`);
+      if (options.strict && warnings > 0) process.exit(1);
     } catch (error: unknown) {
       console.error("❌ Error:", error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -1234,14 +1004,66 @@ program
   });
 
 // ---------------------------------------------------------------------------
-// diff — compare two ERD / EML files
+// convert — between a CEDM application model and a model document
+// ---------------------------------------------------------------------------
+
+program
+  .command("convert")
+  .description(
+    "Convert a model between the two languages: a model document (.eml.yaml) to a CEDM application model (.cedm.yaml), or a CEDM model to the model document it compiles to"
+  )
+  .argument("<file>", "The model to convert")
+  .option("-o, --output <file>", "Where to write it (default: beside the input; `-` for stdout)")
+  .option("--force", "Overwrite an existing file")
+  .action(async (file, options) => {
+    try {
+      const inputPath = resolvePath(file);
+      const { document, cedm } = await validateModelYamlFile(inputPath, { verbose: false });
+      const base = inputPath.replace(/\.(cedm|eml)\.ya?ml$/i, "").replace(/\.ya?ml$/i, "");
+      let text: string;
+      let output: string;
+      if (cedm) {
+        text = serializeModelDocument(document);
+        output = options.output ?? `${base}.eml.yaml`;
+      } else {
+        const raised = raiseModelDocument(document);
+        const lowered = readCedmModel(serializeCedmDocument(raised), { check: false });
+        if (!isDeepStrictEqual(lowered.document, cedmOrder(document))) {
+          throw new Error(
+            "The CEDM form would not read back as the same model; nothing was written."
+          );
+        }
+        text = serializeCedmDocument(
+          raised,
+          ` Converted from ${path.basename(inputPath)}.`
+        );
+        output = options.output ?? `${base}.cedm.yaml`;
+      }
+      if (output === "-") {
+        process.stdout.write(text);
+        return;
+      }
+      const target = resolvePath(output);
+      if (!options.force && (await fs.stat(target).catch(() => undefined))) {
+        throw new Error(`${output} exists; pass --force to overwrite it.`);
+      }
+      await fs.writeFile(target, text, "utf-8");
+      console.log(`✅ Wrote ${path.relative(process.cwd(), target)}`);
+    } catch (error: unknown) {
+      console.error("❌ Error:", error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+// ---------------------------------------------------------------------------
+// diff — compare two models
 // ---------------------------------------------------------------------------
 
 program
   .command("diff")
-  .description("Compare two ERD / EML files and report what changed")
-  .argument("<from>", "Original ERD file")
-  .argument("<to>", "Updated ERD file")
+  .description("Compare two models and report what changed")
+  .argument("<from>", "The original model (.eml.yaml)")
+  .argument("<to>", "The updated model (.eml.yaml)")
   .option("--no-attributes", "Show only entity-level diffs (skip attribute details)")
   .action(async (fromFile, toFile, options) => {
     try {
@@ -1254,7 +1076,7 @@ program
       const removed = [...fromMap.keys()].filter((n) => !toMap.has(n));
       const common = [...fromMap.keys()].filter((n) => toMap.has(n));
 
-      console.log("\n🔀 ERD Diff");
+      console.log("\n🔀 Model Diff");
       console.log("═══════════════════════════════════════════\n");
       console.log(`   From: ${resolvePath(fromFile)}`);
       console.log(`   To:   ${resolvePath(toFile)}\n`);
@@ -1373,7 +1195,7 @@ program
 program
   .command("generate:backend")
   .description("Generate backend only")
-  .requiredOption("-i, --input <file>", "Input Mermaid ERD file")
+  .requiredOption("-i, --input <file>", "The model (.eml.yaml)")
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("-n, --name <name>", "Project name", "my-backend")
   .option("-s, --stack <stack>", "Backend stack: loco (the only stack)", "loco")
@@ -1387,7 +1209,7 @@ program
     console.log("\n🚀 Generating Backend...\n");
 
     try {
-      await runCheckerFixer(resolvePath(options.input), false);
+      await preflight(resolvePath(options.input), false);
       const { entities, relationships } = await parseFile(options.input);
       const outputDir = resolvePath(options.output);
 
@@ -1425,7 +1247,7 @@ program
 program
   .command("generate:frontend")
   .description("Generate frontend only")
-  .requiredOption("-i, --input <file>", "Input Mermaid ERD file")
+  .requiredOption("-i, --input <file>", "The model (.eml.yaml)")
   .requiredOption("-o, --output <dir>", "Output directory")
   .option("-n, --name <name>", "Project name", "my-frontend")
   .option("-s, --stack <stack>", "Frontend stack: tanstack | astryx", "tanstack")
@@ -1441,7 +1263,7 @@ program
     console.log("\n🚀 Generating Frontend...\n");
 
     try {
-      await runCheckerFixer(resolvePath(options.input), false);
+      await preflight(resolvePath(options.input), false);
       const { entities, relationships } = await parseFile(options.input);
       const outputDir = resolvePath(options.output);
 
@@ -1505,8 +1327,8 @@ program
       const name = (await ask("Project name [my-app]: ")) || "my-app";
       const description =
         (await ask("Description [Generated application]: ")) || "Generated application";
-      const inputFile = await ask("ERD / EML file path: ");
-      if (!inputFile) throw new Error("ERD file path is required.");
+      const inputFile = await ask("Model file path (.eml.yaml): ");
+      if (!inputFile) throw new Error("A model file path is required.");
       const outputDir = (await ask("Output directory [./generated]: ")) || "./generated";
 
       console.log("\nSelect database:");
@@ -1613,9 +1435,9 @@ program
     console.log("  generate          Full-stack generation");
     console.log("  generate:backend  Backend only");
     console.log("  generate:frontend Frontend only");
-    console.log("  inspect <file>    Parse & display ERD");
-    console.log("  validate <file>   Validate ERD for errors");
-    console.log("  diff <a> <b>      Compare two ERD files");
+    console.log("  inspect <file>    Display a model's entities and relationships");
+    console.log("  validate <file>   Validate a model against the language");
+    console.log("  diff <a> <b>      Compare two models");
     console.log("  info <dir>        Show generated project metadata");
     console.log("  wizard            Interactive guided wizard");
     console.log("  deploy <dir>      Deploy project to Hostinger/VPS via SSH\n");
@@ -1632,10 +1454,10 @@ function padRow(cols: string[]): string {
 
 function cardinalityLabel(c: string): string {
   const map: Record<string, string> = {
-    oneToOne: "||--||",
-    oneToMany: "||--o{",
-    manyToOne: "}o--||",
-    manyToMany: "}o--o{",
+    oneToOne: "one-to-one",
+    oneToMany: "one-to-many",
+    manyToOne: "many-to-one",
+    manyToMany: "many-to-many",
   };
   return map[c] ?? c;
 }

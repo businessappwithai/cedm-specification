@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use serde::Serialize;
 
 use crate::model::{Attribute, Entity, EntityIndex};
-use crate::naming::BUS_TABLE_PREFIX;
+use crate::naming::{snake_case, BUS_TABLE_PREFIX};
 
 /// `sys_reference_id` values. Mirrors `ReferenceType` in
 /// `packages/core/src/types/sys-dictionary.types.ts`; the numbers are stored in
@@ -75,7 +75,17 @@ pub struct BusAttribute {
     /// `entity_to_bus_entity` and carried here for every template that needs it.
     #[serde(rename = "isIdentifier")]
     pub is_identifier: bool,
-    /// `%%field <Entity>.<column> help:`, as the author wrote it.
+    /// The entity a foreign key names outright (a CEDM reference), and the
+    /// table that is — what `sys_column.ref_table_name` stores and every lookup
+    /// resolver prefers. Absent for every column whose name says it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<String>,
+    #[serde(rename = "referencesTable", skip_serializing_if = "Option::is_none")]
+    pub references_table: Option<String>,
+    /// Foreign-key columns of the entity that narrow this lookup's choices.
+    #[serde(rename = "narrowedBy", skip_serializing_if = "Option::is_none")]
+    pub narrowed_by: Option<Vec<String>>,
+    /// The column's `help`, as the author wrote it.
     ///
     /// The only text in a generated application that carries *domain*
     /// knowledge rather than schema, and the reason `sys_column.description`
@@ -99,22 +109,25 @@ pub struct BusEntity {
     #[serde(rename = "primaryKey")]
     pub primary_key: String,
     pub timestamps: bool,
-    /// Declared `%%index` entries merged with the conventional single-column
+    /// The entity's declared `indexes` merged with the conventional single-column
     /// ones, so the DDL emits each index once.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indexes: Option<Vec<EntityIndex>>,
     /// The entity whose window holds this one's tab — itself, or its `parent:`.
     #[serde(rename = "windowOwner")]
     pub window_owner: String,
-    /// The entity this one is a line item of, from `%%entity <E> parent: <P>`.
+    /// The entity this one is a line item of, from its `parent`.
     #[serde(rename = "parentEntity", skip_serializing_if = "Option::is_none")]
     pub parent_entity: Option<String>,
     /// The child's foreign key back to `parentEntity`.
     #[serde(rename = "parentLinkColumn", skip_serializing_if = "Option::is_none")]
     pub parent_link_column: Option<String>,
-    /// The model's `%%entity … icon:`, carried through to `sys_table.icon`.
+    /// The entity's `icon`, carried through to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// Rows the entity ships with (reference data).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<crate::records::EntityData>,
 }
 
 impl BusEntity {
@@ -188,9 +201,10 @@ pub fn entity_to_bus_entity(entity: &Entity, declared: &HashMap<String, String>)
         timestamps: entity.timestamps,
         indexes: Some(merge_indexes(entity)),
         // Whose window this entity's records are reached through: itself, unless
-        // `%%entity <E> parent: <P>` made it a line item, in which case the
+        // its `parent` made it a line item, in which case the
         // parent's — a child has no window of its own.
         icon: entity.icon.clone(),
+        data: entity.data.clone(),
         window_owner: entity
             .parent_entity
             .clone()
@@ -226,6 +240,14 @@ fn with_identifiers(mut attributes: Vec<BusAttribute>, primary_key: &str) -> Vec
 fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Vec<String> {
     let has = |name: &str| attributes.iter().any(|a| a.name == name);
 
+    // A unique `code` beside a `name`: the pair people quote ("USD · US Dollar").
+    // The code alone is a key and the name alone is not unique, so a lookup that
+    // offered either would be ambiguous or unreadable. A `code` that is not unique
+    // is a technical value, not a key, and does not qualify.
+    if has("name") && attributes.iter().any(|a| a.name == "code" && a.unique) {
+        return vec!["code".to_string(), "name".to_string()];
+    }
+
     // One column that names the record outright.
     for candidate in [
         "name",
@@ -253,6 +275,19 @@ fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Ve
         }
     }
 
+    // The same, with the thing it numbers in front: `order_number`,
+    // `invoice_number`, `po_reference`. The first such column in declaration
+    // order wins; a foreign key or the key itself never qualifies.
+    if let Some(quoted) = attributes.iter().find(|a| {
+        a.name != primary_key
+            && !a.is_foreign_key
+            && ["_number", "_code", "_reference"]
+                .iter()
+                .any(|suffix| a.name.ends_with(suffix))
+    }) {
+        return vec![quoted.name.clone()];
+    }
+
     // Prose the author wrote about this record. A `text` column is a
     // description — the sentence someone typed to say what happened — and that
     // is what the record is called. It is checked before the join-entity rule
@@ -274,7 +309,9 @@ fn identifier_column_names(attributes: &[BusAttribute], primary_key: &str) -> Ve
     let references: Vec<&BusAttribute> = attributes
         .iter()
         .filter(|a| {
-            a.name != primary_key && a.is_foreign_key && is_foreign_key_column_name(&a.name)
+            a.name != primary_key
+                && a.is_foreign_key
+                && (a.references.is_some() || is_foreign_key_column_name(&a.name))
         })
         .collect();
     if references.len() >= 2 {
@@ -311,7 +348,7 @@ fn merge_indexes(entity: &Entity) -> Vec<EntityIndex> {
         // already writes `UNIQUE` on the column and `PRIMARY KEY` on the key,
         // and Postgres backs each with an index of its own — so adding one more
         // meant two unique indexes on every unique column and a spare on every
-        // primary key. An explicit `%%index ... unique` still emits: it is in
+        // primary key. An explicit unique index still emits: it is in
         // `merged` before this loop.
         if attribute.name != "name" {
             continue;
@@ -400,6 +437,13 @@ pub fn attribute_to_bus_attribute(
         // Set across the whole list by `with_identifiers`; one attribute on its
         // own cannot tell whether it identifies the record.
         is_identifier: false,
+        references: attr.references.clone().filter(|_| attr.is_foreign_key),
+        references_table: attr
+            .references
+            .as_deref()
+            .filter(|_| attr.is_foreign_key)
+            .map(|entity| format!("{BUS_TABLE_PREFIX}{}", snake_case(entity))),
+        narrowed_by: attr.narrowed_by.clone().filter(|_| attr.is_foreign_key),
     }
 }
 
@@ -412,10 +456,13 @@ pub fn attribute_reference_id(attr: &Attribute, entity_primary_key: &str) -> u16
     if attr.name == "id" || attr.name == entity_primary_key {
         return reference_type::ID;
     }
-    if attr.is_foreign_key && is_foreign_key_column_name(&attr.name) {
+    // An explicit target makes a lookup whatever the column is called; without
+    // one, the name has to be one a resolver can read.
+    if attr.is_foreign_key && (attr.references.is_some() || is_foreign_key_column_name(&attr.name))
+    {
         return reference_type::TABLE_DIRECT;
     }
-    // A column bound to a `%%enum` points at that enum's own list reference. The
+    // A column bound to an enum points at that enum's own list reference. The
     // generated forms render any reference at or above 1000 as a dropdown fed by
     // /sys/ref-list, so this is what stops a modelled status being a text box
     // the user can type anything into — including values the state machine
@@ -446,7 +493,7 @@ pub fn attribute_reference_id(attr: &Attribute, entity_primary_key: &str) -> u16
 /// Failing an alias, the column's name — for the model that wrote
 /// `string email` rather than `email email`.
 ///
-/// `%%field` aliases are the deliberate way to say a column holds an address,
+/// Semantic type aliases are the deliberate way to say a column holds an address,
 /// and most models do not use them: `string email`, `string contact_phone` and
 /// `string website` are what an author actually writes, and each rendered as a
 /// plain text box with no keyboard hint and no validation.
@@ -508,7 +555,12 @@ const PERSON_TABLES: &[&str] = &["bus_user", "bus_staff", "bus_employee"];
 pub fn foreign_key_target_table(
     column_name: &str,
     tables: &std::collections::HashSet<String>,
+    explicit_table: Option<&str>,
 ) -> Option<String> {
+    // A stated target wins over anything the name would say.
+    if let Some(table) = explicit_table {
+        return tables.contains(table).then(|| table.to_string());
+    }
     let person = || {
         PERSON_TABLES
             .iter()
@@ -545,7 +597,7 @@ pub fn foreign_key_target_table(
 /// `<entity>_id` is the convention. A bare `_by` column is accepted too: it names
 /// a person by the role they played (`reported_by`, `approved_by`) and resolves
 /// to the user entity. Without this it falls through to the declared scalar type
-/// and renders as the raw UUID with no lookup — what the EML checker reports as
+/// and renders as the raw UUID with no lookup — what the checker reports as
 /// EML114.
 ///
 /// A person-role *name* is accepted for the same reason, and it is not
@@ -643,27 +695,39 @@ fn title_word(word: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::language::Language;
-    use crate::model::parse_erd;
+    use crate::yaml_model::test_model;
 
     fn model() -> crate::model::Model {
-        parse_erd(
-            r#"
-erDiagram
-    Compound {
-        string id PK
-        string smiles UK
-        decimal molecular_weight OPTIONAL
-        string registered_by_id FK
-        text notes
-        boolean is_active
-        datetime registered_at
-        json metadata
-        integer batch_count
-        date expires_on
-    }
+        test_model(
+            r#"eml: "1.0"
+entities:
+  - name: Compound
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: smiles
+        type: string
+        unique: true
+      - name: molecular_weight
+        type: decimal
+        optional: true
+      - name: registered_by_id
+        type: string
+        fk: true
+      - name: notes
+        type: text
+      - name: is_active
+        type: boolean
+      - name: registered_at
+        type: datetime
+      - name: metadata
+        type: json
+      - name: batch_count
+        type: integer
+      - name: expires_on
+        type: date
 "#,
-            &Language::load(),
         )
     }
 
@@ -728,6 +792,8 @@ erDiagram
             max_length: None,
             is_foreign_key: true,
             is_primary_key: false,
+            references: None,
+            narrowed_by: None,
             enum_ref: None,
             enum_values: None,
             enum_reference_id: None,

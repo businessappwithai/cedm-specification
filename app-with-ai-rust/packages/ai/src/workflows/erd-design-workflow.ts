@@ -2,7 +2,8 @@ import type { StepParams } from "@mastra/core/workflows";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 import { analyzeDomain } from "../agents/domain-agent";
-import { generateMermaidProgrammatic } from "../agents/mermaid-agent";
+import { domainToModelDocument } from "../model/from-domain";
+import { serializeModelDocument } from "@appwithai/generator/model-yaml";
 import type {
   DomainAnalysis,
   EntityCandidate,
@@ -27,10 +28,13 @@ const entitiesInputSchema = z.object({
   approvedRelationships: z.array(z.unknown()),
 });
 
-const mermaidOutputSchema = z.object({
-  mermaidSyntax: z.string(),
+const modelOutputSchema = z.object({
+  /** The approved entities and relationships, as a model document's YAML. */
+  modelYaml: z.string(),
   entityCount: z.number(),
   relationshipCount: z.number(),
+  /** Relationships naming an entity that was not approved. */
+  dropped: z.array(z.string()),
 });
 
 // Type definitions for step input data
@@ -61,24 +65,30 @@ export const analyzeDomainStep = createStep({
   z.ZodAny
 >);
 
-// Step 2: Generate Mermaid - exported for use in pipelines
-export const generateMermaidStep = createStep({
-  id: "generate-mermaid",
+// Step 2: Write the approved entities and relationships as the model document
+export const generateModelStep = createStep({
+  id: "generate-model",
   inputSchema: entitiesInputSchema,
-  outputSchema: mermaidOutputSchema,
+  outputSchema: modelOutputSchema,
   execute: async ({ inputData }: { inputData: EntitiesInput }) => {
-    const result = generateMermaidProgrammatic(
-      inputData.approvedEntities as EntityCandidate[],
-      inputData.approvedRelationships as RelationshipCandidate[]
-    );
-    return result;
+    const { document, dropped } = domainToModelDocument({
+      entities: inputData.approvedEntities as EntityCandidate[],
+      relationships: inputData.approvedRelationships as RelationshipCandidate[],
+      summary: "",
+    });
+    return {
+      modelYaml: serializeModelDocument(document),
+      entityCount: document.entities.length,
+      relationshipCount: document.relationships?.length ?? 0,
+      dropped,
+    };
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as unknown as StepParams<
-  "generate-mermaid",
+  "generate-model",
   z.ZodObject<any>,
   typeof entitiesInputSchema,
-  typeof mermaidOutputSchema,
+  typeof modelOutputSchema,
   z.ZodAny,
   z.ZodAny
 >);

@@ -1,136 +1,170 @@
-# EML — Business Rules (Decision Flows)
+# EML — Business Rules
 
-A **business rule** in EML is a directed **decision flow**: a `flowchart` whose
-**node shapes** encode decision roles and whose **edge labels** carry branch
-conditions. The generator compiles it to a **GoRules JDM** decision graph via
-`packages/web/src/lib/mermaid-flowchart-parser.ts` →
-`packages/web/src/lib/jdm-converter.ts`.
+A business rule is declarative logic bound to one entity and one lifecycle event:
+pricing, discounts, eligibility, validation, approval routing, scoring. Each
+entry of `rules` compiles to a GoRules JDM decision, seeded into
+`sys_rule_definitions` and evaluated by the generated application's rules engine
+on every matching write (`packages/generator/src/rules/`, and its Rust mirror
+`crates/appwithai-gen/src/rules.rs`).
 
-Use business rules for declarative logic: pricing, discounts, eligibility,
-validation, approval routing, scoring.
-
-## Marking a flow as rules
-
-Precede the flowchart with:
-
-```
-%%meta kind: rules
-```
-
-Absent the marker, a flow with only decision/expression/function/io shapes and
-no `%%hook` directives is still treated as rules; otherwise it is a workflow.
-
-## Node shapes → JDM roles
-
-| Mermaid shape | Syntax | JDM role | Meaning |
-|---------------|--------|----------|---------|
-| Stadium | `A([label])` | `inputNode` / `outputNode` | Start / input context, or End / output. **Output** when it has only incoming edges; otherwise **input**. |
-| Diamond | `B{label}` | `switchNode` | Decision / branch. Outgoing edge labels are the branch conditions. |
-| Circle | `C((label))` | `functionNode` | Custom function / computation (JS expression or reusable function). |
-| Rounded | `D(label)` | `functionNode` | Computation step (e.g. "Calculate Final Price"). |
-| Rectangle | `E[label]` | `expressionNode` | Expression / assignment / action (set outputs, apply a value). |
-
-The single stadium shape marks **both** Start and End: a terminal node with only
-incoming edges is the decision output, so `A([Start ...])` and `H([End ...])`
-resolve to input and output respectively.
-
-## Edges and conditions
-
-```
-<SourceId> -->|<label>| <TargetId>
+```yaml
+rules:
+  - name: quoteDiscountPolicy
+    title: Quote discount policy
+    entity: Quote
+    event: beforeUpdate
+    priority: 10
+    nodes: [...]
+    edges: [...]
+    actions: [...]
 ```
 
-- On edges leaving a **decision** (diamond), the label is the **branch
-  condition** (`Yes`, `No`, `amount > 1000`, `tier == "gold"`).
-- On other edges the label is an optional transition name.
-- An unlabeled edge (`C --> G`) is a plain transition.
+| Key | Meaning |
+|---|---|
+| **`name`** | An identifier, unique among the rules. |
+| `title` | What the screens call it. |
+| **`entity`** | The entity it is bound to (`EML307` when undeclared). |
+| **`event`** | The lifecycle event it runs on — `beforeCreate`, `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, `customValidate`, … |
+| `priority` | Lower runs first; default 100. |
+| `direction` | How the graph is laid out when drawn: `down` (default), `up`, `right`, `left`. Layout only. |
+| **`nodes`**, **`edges`** | The decision graph. |
+| `actions` | Side effects the rule emits. |
+| `decisionTable` | A decision table authored in the rules editor. |
 
-## Complete rule example — order pricing
+## What a rule compiles from
 
-```mermaid
-%%meta name: Order Pricing
-%%meta kind: rules
-%%rule pricing on Order event: beforeCreate priority: 10
-flowchart TD
-    A([Start: Order Received]) --> B{Order Amount > 1000?}
-    B -->|Yes| C[Apply Premium Discount 15%]
-    B -->|No| D{Customer is VIP?}
-    D -->|Yes| E[Apply VIP Discount 10%]
-    D -->|No| F[Apply Standard Pricing]
-    C --> G(Calculate Final Price)
-    E --> G
-    F --> G
-    G --> H([End: Price Calculated])
+A rule decides in one of three ways, and the compiler takes the first it finds:
+
+1. its **`decisionTable`**, authored in the rules editor;
+2. its **`actions`**, compiled to a decision table whose rows carry them —
+   the only JDM shape the rules engine reads actions out of;
+3. its **decision graph**, `nodes` and `edges`, compiled node by node.
+
+Every rule declares a graph, whichever of the three it compiles from: it is
+what the model viewer draws and what a reader follows. A rule that acts through
+`actions` still draws the decision it makes.
+
+## The decision graph
+
+```yaml
+nodes:
+  - { id: A, label: "Start: Submit requested", type: start }
+  - { id: B, label: Status == draft?, type: decision }
+  - { id: X1, label: "Reject: not in draft", type: expression }
+  - { id: C, label: "Set status: submitted", type: expression }
+  - { id: Z, label: End, type: end }
+edges:
+  - { from: A, to: B }
+  - { from: B, to: X1, label: No }
+  - { from: B, to: C, label: Yes }
+  - { from: X1, to: Z }
+  - { from: C, to: Z }
 ```
 
-Compiles to a JDM graph:
+A node's `type` is the JDM node it compiles to:
 
-- `A` → `inputNode` (Start)
-- `B`, `D` → `switchNode` (decisions)
-- `C`, `E`, `F` → `expressionNode` (apply discount / pricing)
-- `G` → `functionNode` (calculate)
-- `H` → `outputNode` (End)
+| `type` | JDM node | Role |
+|---|---|---|
+| `start` | `inputNode` | Where the rule receives the record being written. Exactly one. |
+| `end` | `outputNode` | The rule's outcome. At least one. |
+| `decision` | `switchNode` | A branch. The label is the condition; each outgoing edge's label is the branch it takes (`Yes`, `No`, a value). |
+| `expression` | `expressionNode` | Set or compute an output value. |
+| `function` | `functionNode` | A reusable computation step. |
 
-Each edge becomes a JDM edge; labeled decision edges (`Yes`/`No`) become the
-branch conditions of their switch node.
+An edge is `{ from, to, label? }`. A label is required on every edge leaving a
+decision and optional elsewhere.
 
-## Another example — shipping eligibility
+| Code | Fires when |
+|---|---|
+| `EML300` / `EML301` | no `start` node, or more than one |
+| `EML302` | no `end` node |
+| `EML303` | a decision with fewer than two ways out |
+| `EML304` | an edge out of a decision has no label |
+| `EML305` | a node cannot be reached from the start |
+| `EML306` | the rule has no graph at all |
+| `EML308` | a node id declared twice |
+| `EML309` | an edge names a node the rule does not declare |
 
-```mermaid
-%%meta name: Free Shipping Eligibility
-%%meta kind: rules
-%%rule freeShipping on Order event: beforeUpdate priority: 20
-flowchart TD
-    S([Start]) --> Q1{Subtotal >= 50?}
-    Q1 -->|No| P1[Charge Standard Shipping]
-    Q1 -->|Yes| Q2{Member Tier == gold?}
-    Q2 -->|Yes| P2[Free Express Shipping]
-    Q2 -->|No| P3[Free Standard Shipping]
-    P1 --> R((Compute Shipping Cost))
-    P2 --> R
-    P3 --> R
-    R --> E([End])
+## Actions — what a rule does
+
+A graph can only decide. To let a rule **act** — refuse a write, stamp a field,
+start a saga — declare `actions`:
+
+```yaml
+actions:
+  - name: escalateDiscount
+    type: trigger-workflow
+    when: discount_percent > 15
+    props:
+      workflow: QuoteApprovalEscalation
+      message: Discount above rep authority — holding the quote for approval
+  - name: refuseDiscount
+    type: validation-error
+    when: discount_percent > 40
+    props:
+      message: Discounts above 40 percent cannot be approved by anyone — reprice the quote
 ```
 
-## Action directives — rule side-effects
+Each action becomes one row of a decision table with hit policy `collect`, so
+more than one can fire on a single write. `when` becomes the row's condition and
+`props` its outputs.
 
-A plain decision flow (as above) compiles to a node-graph JDM that can only
-**decide** — it carries no outputs, so the rules engine finds nothing to act
-on. To let a rule **act** (reject a write, stamp a field, or trigger a
-`kind: saga` workflow), declare one or more `%%action` directives in the same
-section instead of drawing the decision as nodes:
+| Key | Meaning |
+|---|---|
+| **`name`** | An identifier, unique within the rule. |
+| **`type`** | One of the action types below (`EML281` otherwise). |
+| `when` | A zen expression over the record being written. Absent, the action fires on every write — which `EML282` points out, because it is rarely meant. Quote it in YAML when it contains `:` or starts with a quote. |
+| `props` | The action's properties (`EML283` when a required one is missing, `EML285` for one the type does not have). |
 
+| Type | Does | Requires | Optional |
+|---|---|---|---|
+| `validation-error` | Refuses the write; the message is returned to the caller. | `message` | — |
+| `transform` | Overwrites a field on the record being written. | `field`, `value` | `message` |
+| `trigger-workflow` | Runs a saga by name. | `workflow` | `message` |
+
+`when` names columns as the table does, in `snake_case`. A condition over a
+camelCase identifier (`discountPercent`) tests something no column is called and
+never fires: `EML287`, auto-fixable — the fixer rewrites it as the column.
+
+`trigger-workflow` is how a rule reaches a saga declared with `trigger: rule`:
+the rule's `when` decides, and the action names the saga. The saga must be
+declared in the model (`EML284`), and a rule-triggered saga no action names can
+never run (`EML286`). See [03](03-workflows.md#sagas).
+
+## Decision tables
+
+```yaml
+decisionTable:
+  hitPolicy: first
+  inputs:
+    - { id: i1, name: Score, field: score }
+  outputs:
+    - { id: o1, name: Tier, field: account_tier }
+  rules:
+    - { _id: strategic, i1: ">= 85", o1: "'strategic'" }
+    - { _id: enterprise, i1: ">= 70", o1: "'enterprise'" }
+    - { _id: rest, i1: "", o1: "'smb'" }
 ```
-%%action <name> <actionType> when: <expr> <key>: <value> ...
-```
 
-A section carrying `%%action` directives compiles to a GoRules **decision
-table** — one row per directive, `hitPolicy: collect` so more than one can
-match a single write — rather than the node-graph shape a plain flow produces.
-`when` is a zen expression over the record being written (`true` fires on
-every write).
+A table the rules editor wrote: `inputs` and `outputs` are columns
+(`{ id, name?, field? }`), each row maps column ids to cells — zen expressions
+for inputs, zen literals for outputs — and `hitPolicy` is `first` (the first
+matching row wins, top to bottom) or `collect` (every matching row). An empty
+input cell matches anything, so a last row of empty inputs is the "otherwise".
 
-```mermaid
-%%meta name: Deviation Escalation
-%%meta kind: rules
-%%rule deviationEscalation on DeviationReport event: beforeUpdate priority: 10
-flowchart TD
-    %%action escalate trigger-workflow when: severity == "critical" workflow: CriticalDeviationEscalation
-    %%action requireCause validation-error when: status == "closed" and root_cause == null message: A closed deviation needs a root cause
-```
-
-The three action types — `trigger-workflow`, `validation-error`, `transform` —
-and their keys are in
-[`05-directives.md`](05-directives.md#action--rule-side-effect-shipped).
-`trigger-workflow` is how a rule reaches a `kind: saga` workflow declared with
-`trigger: rule`: the rule's `when` decides, and the action names the workflow.
+A table takes precedence over the rule's actions and graph. The editor opens a
+rule declared with `actions` as the table they compile to and writes it back as
+actions, so an unedited rule round-trips unchanged; a rule declared as a graph
+only is edited in the YAML, and drawn by the model viewer.
 
 ## Authoring guidance
 
-- Give every flow exactly one Start stadium and at least one End stadium.
-- Keep decision labels short and machine-parseable (`Yes`/`No`, or a comparison).
-- Prefer expression nodes for "set/apply" actions and function nodes for
-  "compute" steps — the distinction maps to JDM `expressionNode` vs
-  `functionNode`.
-- Bind the rule to an entity + lifecycle event with `%%rule` so the generator
-  knows when to evaluate it.
+- Bind each rule to the event where it can still act: validation belongs on a
+  `before*` event, where refusing the write means the record never changes.
+- Keep decision labels short and testable (`Yes`/`No`, or a comparison), and
+  label every edge out of a decision.
+- Prefer `expression` nodes for "set/apply" and `function` nodes for "compute" —
+  the distinction is the JDM node each becomes.
+- Give every action a `when`. An action that fires on every write is almost
+  always a condition someone forgot to write.
+- Use `priority` when two rules on one event depend on each other's outcome.

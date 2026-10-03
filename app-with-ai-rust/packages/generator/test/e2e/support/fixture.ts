@@ -1,7 +1,7 @@
 /**
  * One generated application, shared by every file in this suite.
  *
- * Generating `examples/drug-discovery.eml.mmd` takes tens of seconds, so it
+ * Generating `examples/drug-discovery.eml.yaml` takes tens of seconds, so it
  * happens once per run and every spec reads the same tree. The output lands
  * outside the repository: a generated project inside it would be picked up by
  * the repo's own linters and type-checker, and `--force` would then be
@@ -17,12 +17,30 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import type { ParsedModel } from "../../../src/pipeline/parse-model";
+import type { ParsedModel } from "../../../src/model/compile";
+import type { ModelDocument } from "../../../src/model-yaml";
 
 const exec = promisify(execFile);
 
 export const REPO_ROOT = path.resolve(import.meta.dirname, "../../../../..");
-export const MODEL_PATH = path.join(REPO_ROOT, "examples/drug-discovery.eml.mmd");
+export const MODEL_PATH = path.join(REPO_ROOT, "examples/drug-discovery.eml.yaml");
+
+/** The model's text and the document it validates to — refused, loudly, if it has errors. */
+async function readModel(): Promise<{ modelText: string; document: ModelDocument }> {
+  const { readModelYaml } = await import("../../../src/model-yaml");
+  const modelText = await fs.readFile(MODEL_PATH, "utf-8");
+  const result = readModelYaml(modelText);
+  if (!result.ok || !result.document) {
+    const errors = result.diagnostics
+      .filter((diagnostic) => diagnostic.severity === "error")
+      .map(
+        (diagnostic) =>
+          `${diagnostic.line}:${diagnostic.column} ${diagnostic.code} ${diagnostic.message}`
+      );
+    throw new Error(`${MODEL_PATH} is not a valid model:\n${errors.join("\n")}`);
+  }
+  return { modelText, document: result.document };
+}
 
 /** Where the generated app lands. Overridable so CI can put it on a fast disk. */
 export const OUTPUT_DIR =
@@ -76,18 +94,19 @@ export function generateOnce(): Promise<Fixture> {
     // the application up on it. A worker that regenerated would be deleting the
     // crate the running server was compiled from, so it re-reads instead.
     if (process.env.E2E_REUSE_OUTPUT === "1") {
-      const { parseModel } = await import("../../../src/pipeline/parse-model");
-      const model = parseModel(await fs.readFile(MODEL_PATH, "utf-8"));
+      const { compileModelDocument } = await import("../../../src/model-yaml");
+      const model = compileModelDocument((await readModel()).document);
       return { dir: OUTPUT_DIR, model, generationMs: 0, files: await listFiles(OUTPUT_DIR) };
     }
 
     await fs.rm(OUTPUT_DIR, { recursive: true, force: true });
     await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
-    const sources = await fs.readFile(MODEL_PATH, "utf-8");
+    const { modelText, document } = await readModel();
     const started = performance.now();
     const model = await generateApplication({
-      sources,
+      document,
+      modelText,
       outputDir: OUTPUT_DIR,
       projectName: PROJECT_NAME,
       // The scaffold shells out to `loco new`, which needs the network and the
@@ -150,7 +169,7 @@ export function generateDuplicate(): Promise<string> {
     await fs.rm(dir, { recursive: true, force: true });
     await fs.mkdir(dir, { recursive: true });
     await generateApplication({
-      sources: await fs.readFile(MODEL_PATH, "utf-8"),
+      ...(await readModel()),
       outputDir: dir,
       projectName: PROJECT_NAME,
       skipCliScaffold: true,

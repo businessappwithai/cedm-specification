@@ -14,9 +14,9 @@
  * that builds cleanly and fails at run time, which is the failure the
  * reporting-pack check exists to catch.
  *
- * `MermaidParser.toSnakeCase` was a second implementation of this function and
- * is now a call to it; a parser that decides identifiers its own way is a
- * parser that can be wrong on its own.
+ * The model compiler once had a second implementation of this function; it is
+ * a call to it now, because a compiler that decides identifiers its own way is
+ * one that can be wrong on its own.
  *
  * Found by /qa on 2026-09-10 against `investment-planning-wealth-management-system`.
  */

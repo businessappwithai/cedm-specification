@@ -1,0 +1,91 @@
+eml: "1.0"
+entities:
+  - name: ACCOUNT
+    attributes:
+      - name: id
+        type: int
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: created_at
+        type: datetime
+  - name: CONTACT
+    attributes:
+      - name: id
+        type: int
+        pk: true
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: account_id
+        type: int
+        fk: true
+      - name: created_at
+        type: datetime
+  - name: OPPORTUNITY
+    attributes:
+      - name: id
+        type: int
+        pk: true
+      - name: name
+        type: string
+      - name: amount
+        type: decimal
+      - name: stage
+        type: string
+      - name: account_id
+        type: int
+        fk: true
+      - name: close_date
+        type: datetime
+      - name: created_at
+        type: datetime
+  - name: ACTIVITY
+    attributes:
+      - name: id
+        type: int
+        pk: true
+      - name: type
+        type: string
+      - name: description
+        type: string
+      - name: contact_id
+        type: int
+        fk: true
+      - name: opportunity_id
+        type: int
+        fk: true
+      - name: activity_date
+        type: datetime
+      - name: created_at
+        type: datetime
+relationships:
+  - from: ACCOUNT
+    fromCardinality: exactly-one
+    to: CONTACT
+    toCardinality: zero-or-more
+    label: has
+  - from: ACCOUNT
+    fromCardinality: exactly-one
+    to: OPPORTUNITY
+    toCardinality: zero-or-more
+    label: has
+  - from: CONTACT
+    fromCardinality: exactly-one
+    to: ACTIVITY
+    toCardinality: zero-or-more
+    label: has
+  - from: OPPORTUNITY
+    fromCardinality: exactly-one
+    to: ACTIVITY
+    toCardinality: zero-or-more
+    label: related_to

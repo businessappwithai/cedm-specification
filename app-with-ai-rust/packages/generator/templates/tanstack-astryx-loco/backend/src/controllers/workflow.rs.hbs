@@ -31,7 +31,10 @@ use crate::services::workflow::{parse_tasks, WorkflowContext, WorkflowExecutor};
 #[utoipa::path(
     get, path = "/api/workflow", tag = "workflow",
     security(("bearer" = [])),
-    params(("entityName" = Option<String>, Query, description = "Filter to one entity")),
+    params(
+        ("entityName" = Option<String>, Query, description = "Filter to one entity"),
+        ("kind" = Option<String>, Query, description = "`bpmn` for diagrams, `automation` for automations built in the app"),
+    ),
     responses((status = 200, description = "Definitions. `isModelManaged` marks one declared in the model — read-only here, because regenerating would overwrite an edit made through this API.")),
 )]
 pub async fn list(
@@ -41,13 +44,17 @@ pub async fn list(
 ) -> AppResult<Response> {
     let pool = ctx.db.get_postgres_connection_pool();
     let entity = params.get("entityName").map(String::as_str);
+    // `bpmn` for diagrams, `automation` for what the automations screen builds.
+    let kind = params.get("kind").map(String::as_str);
 
     let rows = sqlx::query(
         r"SELECT * FROM sys_workflow_definitions
            WHERE ($1::text IS NULL OR entity_name = $1)
+             AND ($2::text IS NULL OR kind = $2)
            ORDER BY name",
     )
     .bind(entity)
+    .bind(kind)
     .fetch_all(pool)
     .await?;
 
@@ -83,10 +90,10 @@ pub async fn get_one(
 #[utoipa::path(
     post, path = "/api/workflow", tag = "workflow",
     security(("bearer" = [])),
-    request_body(content = serde_json::Value, description = "`{ name, entityName, bpmnXml }` — the BPMN is parsed at write time, so an unrunnable definition is refused here rather than at the business write that would have triggered it"),
+    request_body(content = serde_json::Value, description = "`{ name, entityName, bpmnXml }` for a BPMN diagram, or `{ kind: \"automation\", name, entityName, definition }` for an automation, whose `definition` is the automation's YAML document. Either is checked at write time, so an unusable definition is refused here rather than at the business write that would have triggered it"),
     responses(
         (status = 201, description = "The stored definition"),
-        (status = 400, description = "Missing field, or BPMN that does not parse"),
+        (status = 400, description = "Missing field, an unknown kind, BPMN that does not parse, or an automation definition that is not an automation YAML document"),
     ),
 )]
 pub async fn create(
@@ -96,6 +103,16 @@ pub async fn create(
 ) -> AppResult<Response> {
     let name = required_str(&payload, "name")?;
     let entity_name = required_str(&payload, "entityName")?;
+
+    match payload.get("kind").and_then(Value::as_str).unwrap_or("bpmn") {
+        "bpmn" => {}
+        "automation" => return create_automation(&ctx, &payload, &name, &entity_name).await,
+        other => {
+            return Err(AppError::BadRequest(format!(
+                "Unknown workflow kind \"{other}\": expected \"bpmn\" or \"automation\""
+            )))
+        }
+    }
     let bpmn_xml = required_str(&payload, "bpmnXml")?;
 
     // Reject a definition that cannot be parsed at write time rather than
@@ -130,6 +147,91 @@ pub async fn create(
         .into_response())
 }
 
+/// The version of the automation document this application reads.
+const AUTOMATION_DOCUMENT_VERSION: &str = "1.0";
+
+/// Hold an automation's YAML document to its shape before it is stored.
+///
+/// The automations screen writes the document; this is the last place a
+/// malformed one can be refused before a later read of it fails in the UI. It
+/// checks what every reader relies on — the version, a known kind, the entity
+/// the trigger watches, and that the lists are lists — not every field of every
+/// step, which the builder validates as the author edits.
+fn validate_automation_definition(definition: &str) -> AppResult<()> {
+    let document: serde_yaml::Value = serde_yaml::from_str(definition)
+        .map_err(|error| AppError::BadRequest(format!("The automation is not YAML: {error}")))?;
+    let invalid = |reason: &str| AppError::BadRequest(format!("The automation {reason}"));
+
+    let map = document
+        .as_mapping()
+        .ok_or_else(|| invalid("must be a YAML mapping"))?;
+    let field = |key: &str| map.get(serde_yaml::Value::from(key));
+
+    match field("automation").and_then(serde_yaml::Value::as_str) {
+        Some(AUTOMATION_DOCUMENT_VERSION) => {}
+        Some(other) => {
+            return Err(invalid(&format!(
+                "is version {other}; this application reads version {AUTOMATION_DOCUMENT_VERSION}"
+            )))
+        }
+        None => return Err(invalid("has no `automation:` version key")),
+    }
+    match field("kind").and_then(serde_yaml::Value::as_str) {
+        Some("automation" | "hook" | "saga") => {}
+        _ => return Err(invalid("needs `kind:` automation, hook or saga")),
+    }
+    let entity = field("trigger")
+        .and_then(serde_yaml::Value::as_mapping)
+        .and_then(|trigger| trigger.get(serde_yaml::Value::from("entity")))
+        .and_then(serde_yaml::Value::as_str);
+    if entity.is_none_or(str::is_empty) {
+        return Err(invalid("needs `trigger.entity`"));
+    }
+    for list in ["conditions", "loops", "steps", "hooks"] {
+        if field(list).is_some_and(|value| !value.is_sequence()) {
+            return Err(invalid(&format!("has a `{list}:` that is not a list")));
+        }
+    }
+    Ok(())
+}
+
+/// Store an automation the automations screen built, as its YAML document.
+async fn create_automation(
+    ctx: &AppContext,
+    payload: &Value,
+    name: &str,
+    entity_name: &str,
+) -> AppResult<Response> {
+    let definition = required_str(payload, "definition")?;
+    validate_automation_definition(&definition)?;
+
+    let operation = payload
+        .get("operation")
+        .and_then(Value::as_str)
+        .unwrap_or("ALL");
+    let description = payload.get("description").and_then(Value::as_str);
+
+    let row = sqlx::query(
+        r"INSERT INTO sys_workflow_definitions
+            (name, entity_name, operation, kind, definition_yaml, description)
+          VALUES ($1, $2, $3, 'automation', $4, $5)
+          RETURNING *",
+    )
+    .bind(name)
+    .bind(entity_name)
+    .bind(operation)
+    .bind(&definition)
+    .bind(description)
+    .fetch_one(ctx.db.get_postgres_connection_pool())
+    .await?;
+
+    Ok((
+        StatusCode::CREATED,
+        Json(crate::services::row_json::row_to_json(&row)),
+    )
+        .into_response())
+}
+
 /// `PUT|PATCH /api/workflow/{id}` — save an edited definition.
 ///
 /// The Workflow Designer's edit screen has always called this. Without it the
@@ -145,7 +247,7 @@ pub async fn create(
     put, path = "/api/workflow/{id}", tag = "workflow",
     security(("bearer" = [])),
     params(("id" = String, Path, description = "Workflow definition id")),
-    request_body(content = serde_json::Value, description = "The fields to change"),
+    request_body(content = serde_json::Value, description = "The fields to change. An automation's `definition` (its YAML document) and a diagram's `bpmnXml` are checked before they are stored"),
     responses(
         (status = 200, description = "The updated definition"),
         (status = 400, description = "BPMN that does not parse, or a model-managed definition — those are edited in the model and regenerated, because the next generation would overwrite an edit made here"),
@@ -182,6 +284,10 @@ pub async fn update(
     if let Some(xml) = bpmn_xml {
         parse_tasks(xml)?;
     }
+    let definition = payload.get("definition").and_then(Value::as_str);
+    if let Some(yaml) = definition {
+        validate_automation_definition(yaml)?;
+    }
 
     let row = sqlx::query(
         r"UPDATE sys_workflow_definitions
@@ -191,6 +297,7 @@ pub async fn update(
                  bpmn_xml    = COALESCE($5, bpmn_xml),
                  description = COALESCE($6, description),
                  is_active   = COALESCE($7, is_active),
+                 definition_yaml = COALESCE($8, definition_yaml),
                  updated_at  = NOW()
            WHERE id = $1
        RETURNING *",
@@ -202,6 +309,7 @@ pub async fn update(
     .bind(bpmn_xml)
     .bind(payload.get("description").and_then(Value::as_str))
     .bind(payload.get("isActive").and_then(Value::as_bool))
+    .bind(definition)
     .fetch_one(pool)
     .await?;
 
@@ -271,13 +379,20 @@ pub async fn execute(
     Json(payload): Json<Value>,
 ) -> AppResult<Response> {
     let pool = ctx.db.get_postgres_connection_pool();
-    let definition: Option<(String, String)> =
+    let definition: Option<(String, Option<String>)> =
         sqlx::query_as("SELECT entity_name, bpmn_xml FROM sys_workflow_definitions WHERE id = $1")
             .bind(id)
             .fetch_optional(pool)
             .await?;
     let (entity_name, bpmn_xml) =
         definition.ok_or_else(|| AppError::NotFound(format!("Workflow {id} not found")))?;
+    // An automation is stored as its YAML document and has no diagram; this
+    // endpoint runs BPMN, so say so rather than failing to decode a NULL.
+    let bpmn_xml = bpmn_xml.ok_or_else(|| {
+        AppError::BadRequest(format!(
+            "Workflow {id} is an automation, not a BPMN diagram, and cannot be executed here"
+        ))
+    })?;
 
     let executor = ctx
         .shared_store

@@ -1,6 +1,5 @@
 export * from "./auth";
 export * from "./config";
-export * from "./generators";
 export * from "./hooks";
 export * from "./rules";
 export * from "./services";

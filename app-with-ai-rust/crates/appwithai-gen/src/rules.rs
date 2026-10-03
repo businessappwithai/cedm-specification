@@ -1,13 +1,12 @@
-//! `%%rule` sections — the Rust half of the rules compiler.
+//! The model's `rules` — the Rust half of the rules compiler.
 //!
-//! A port of `language/composer.ts` (the extraction half),
-//! `packages/generator/src/rules/{flowchart-parser,jdm-converter,index}.ts` and
+//! A port of `packages/generator/src/rules/{jdm-converter,index}.ts` and
 //! `generators/tanstack-astryx-loco/rules-seed.ts`.
 //!
-//! A `%%rule` section is a decision flowchart. It compiles to a GoRules JDM
-//! document — the same representation the generated application's rules engine
-//! evaluates and its admin editor edits — so a rule drawn in the design phase
-//! is the rule that runs.
+//! A rule is a decision graph, a list of actions, or a decision table authored
+//! in the rule editor. It compiles to a GoRules JDM document — the same
+//! representation the generated application's rules engine evaluates and its
+//! admin editor edits — so a rule written in the model is the rule that runs.
 //!
 //! **The JSON has to match `JSON.stringify` byte for byte**, because the two
 //! generators' `seed/rules.sql` files are diffed against each other. That
@@ -16,515 +15,13 @@
 //! rather than writing null), and `serde_json::to_string` is the only
 //! serialiser used — `to_string_pretty` would add whitespace JS never emits.
 
+use crate::records::{RuleAction, RuleDeclaration, RuleEdge, RuleNode};
 use std::collections::BTreeMap;
 
 use serde::Serialize;
 use uuid::Uuid;
 
 use crate::dictionary::{insert, now, text, Sql, NAMESPACE};
-
-/* -------------------------------------------------------------------------- */
-/*  Section extraction — the composer's half                                   */
-/* -------------------------------------------------------------------------- */
-
-const RULE_LEAD: &str = "%%rule ";
-const WORKFLOW_LEAD: &str = "%%workflow ";
-
-/// One `%%rule` section: the directive's fields plus the flowchart body.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EmlRuleSection {
-    pub name: String,
-    pub entity: String,
-    pub event: String,
-    pub priority: Option<i64>,
-    pub title: Option<String>,
-    pub flowchart: String,
-}
-
-/// Trim trailing whitespace per line and collapse leading/trailing blank lines.
-fn tidy(block: &str) -> String {
-    let lines: Vec<&str> = block.lines().map(str::trim_end).collect();
-    let start = lines.iter().position(|line| !line.is_empty());
-    let end = lines.iter().rposition(|line| !line.is_empty());
-    match (start, end) {
-        (Some(start), Some(end)) => lines[start..=end].join("\n"),
-        _ => String::new(),
-    }
-}
-
-struct RawSection {
-    directive: String,
-    title: Option<String>,
-    body: String,
-}
-
-/// Read the sections a document declares, for one directive lead.
-///
-/// A banner rule separates sections and is decoration, never part of a body —
-/// letting one through made extraction non-idempotent, because the banner ended
-/// up inside the preceding flowchart and was re-emitted alongside a fresh one,
-/// so every save grew the document.
-fn extract_sections(source: &str, lead: &str) -> Vec<RawSection> {
-    let mut found: Vec<RawSection> = Vec::new();
-    let mut current: Option<(String, Option<String>, Vec<String>)> = None;
-    let mut pending_title: Option<String> = None;
-
-    fn close(
-        current: &mut Option<(String, Option<String>, Vec<String>)>,
-        found: &mut Vec<RawSection>,
-    ) {
-        if let Some((directive, title, body)) = current.take() {
-            let body = tidy(&body.join("\n"));
-            if !body.is_empty() {
-                found.push(RawSection {
-                    directive,
-                    title,
-                    body,
-                });
-            }
-        }
-    }
-
-    for line in source.lines() {
-        let trimmed = line.trim();
-
-        // `%% ====` — a banner rule.
-        if is_banner_rule(trimmed) {
-            close(&mut current, &mut found);
-            continue;
-        }
-
-        // `%%meta name:` opens the *next* section's header, so it closes this one.
-        if let Some(rest) = trimmed.strip_prefix("%%meta") {
-            let rest = rest.trim_start();
-            if let Some(name) = rest.strip_prefix("name:") {
-                close(&mut current, &mut found);
-                let name = name.trim();
-                pending_title = if name.is_empty() {
-                    None
-                } else {
-                    Some(name.to_string())
-                };
-            }
-            // Other `%%meta` keys belong to a header, not to a body.
-            continue;
-        }
-
-        if let Some(rest) = trimmed.strip_prefix(lead) {
-            close(&mut current, &mut found);
-            current = Some((rest.trim().to_string(), pending_title.take(), Vec::new()));
-            continue;
-        }
-
-        // Another section's directive ends this one.
-        if trimmed.starts_with(RULE_LEAD) || trimmed.starts_with(WORKFLOW_LEAD) {
-            close(&mut current, &mut found);
-            continue;
-        }
-
-        if let Some((_, _, body)) = current.as_mut() {
-            body.push(line.to_string());
-        }
-    }
-
-    close(&mut current, &mut found);
-    found
-}
-
-/// `%% ===============` on a line of its own.
-fn is_banner_rule(trimmed: &str) -> bool {
-    let Some(rest) = trimmed.strip_prefix("%%") else {
-        return false;
-    };
-    let rest = rest.trim();
-    !rest.is_empty() && rest.chars().all(|c| c == '=')
-}
-
-/// Read the rule sections a document declares.
-pub fn extract_rule_sections(source: &str) -> Vec<EmlRuleSection> {
-    extract_sections(source, RULE_LEAD)
-        .into_iter()
-        .map(|section| {
-            let parsed = parse_rule_directive(&section.directive);
-            EmlRuleSection {
-                name: parsed.0,
-                entity: parsed.1,
-                event: parsed.2,
-                priority: parsed.3,
-                title: section.title,
-                flowchart: section.body,
-            }
-        })
-        .collect()
-}
-
-/// One `%%workflow` section: the directive's fields plus the diagram body.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EmlWorkflowSection {
-    pub name: String,
-    pub entity: String,
-    /// `hook`, `state` or `saga`. Anything unrecognised reads as `hook`,
-    /// matching the TypeScript.
-    pub kind: String,
-    pub title: Option<String>,
-    pub diagram: String,
-}
-
-/// Read the workflow sections a document declares.
-///
-/// Shares `extract_sections` with the rules, because the two directives divide
-/// the same document and a section boundary one of them recognised and the
-/// other did not would give the two readers different bodies.
-pub fn extract_workflow_sections(source: &str) -> Vec<EmlWorkflowSection> {
-    extract_sections(source, WORKFLOW_LEAD)
-        .into_iter()
-        .map(|section| {
-            let (name, entity, kind) = parse_workflow_directive(&section.directive);
-            EmlWorkflowSection {
-                name,
-                entity,
-                kind,
-                title: section.title,
-                diagram: section.body,
-            }
-        })
-        .collect()
-}
-
-/// `<name> entity: <Entity> kind: <kind> [...]`
-fn parse_workflow_directive(directive: &str) -> (String, String, String) {
-    let fallback = ("workflow".to_string(), String::new(), "hook".to_string());
-    let tokens: Vec<&str> = directive.split_whitespace().collect();
-    let Some(name) = tokens.first() else {
-        return fallback;
-    };
-
-    let value_after = |key: &str| -> Option<String> {
-        let mut index = 1;
-        while index < tokens.len() {
-            if let Some(value) = tokens[index].strip_prefix(key) {
-                if value.is_empty() {
-                    return tokens.get(index + 1).map(|value| (*value).to_string());
-                }
-                return Some(value.to_string());
-            }
-            index += 1;
-        }
-        None
-    };
-
-    let (Some(entity), Some(kind)) = (value_after("entity:"), value_after("kind:")) else {
-        return fallback;
-    };
-    let kind = if kind == "state" || kind == "saga" {
-        kind
-    } else {
-        "hook".to_string()
-    };
-    ((*name).to_string(), entity, kind)
-}
-
-/// `<name> on <Entity> event: <event> [priority: <n>]`
-///
-/// The TypeScript regex is
-/// `^(\S+)\s+on\s+(\S+)\s+event:\s*(\S+)(?:\s+priority:\s*(-?\d+))?` and falls
-/// back to `"rule"` / `""` / `"beforeCreate"` when it does not match, so a
-/// malformed directive still produces a section the checker can report on
-/// rather than one that vanishes.
-fn parse_rule_directive(directive: &str) -> (String, String, String, Option<i64>) {
-    let fallback = (
-        "rule".to_string(),
-        String::new(),
-        "beforeCreate".to_string(),
-        None,
-    );
-
-    let tokens: Vec<&str> = directive.split_whitespace().collect();
-    let (Some(name), Some(on)) = (tokens.first(), tokens.get(1)) else {
-        return fallback;
-    };
-    if *on != "on" {
-        return fallback;
-    }
-    let Some(entity) = tokens.get(2) else {
-        return fallback;
-    };
-
-    // `event:` may be its own token or glued to its value (`event:beforeCreate`
-    // does not match the TypeScript regex, which requires `event:` followed by
-    // optional whitespace then a non-space run — so `event:beforeCreate` DOES
-    // match it, with the value in the same token).
-    let mut event: Option<String> = None;
-    let mut priority: Option<i64> = None;
-    let mut index = 3;
-    while index < tokens.len() {
-        let token = tokens[index];
-        if let Some(value) = token.strip_prefix("event:") {
-            if value.is_empty() {
-                event = tokens.get(index + 1).map(|value| (*value).to_string());
-                index += 2;
-            } else {
-                event = Some(value.to_string());
-                index += 1;
-            }
-            continue;
-        }
-        if let Some(value) = token.strip_prefix("priority:") {
-            let raw = if value.is_empty() {
-                let next = tokens.get(index + 1).copied().unwrap_or_default();
-                index += 2;
-                next
-            } else {
-                index += 1;
-                value
-            };
-            priority = raw.parse::<i64>().ok();
-            continue;
-        }
-        index += 1;
-    }
-
-    let Some(event) = event else {
-        return fallback;
-    };
-    ((*name).to_string(), (*entity).to_string(), event, priority)
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Flowchart parser                                                           */
-/* -------------------------------------------------------------------------- */
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum NodeShape {
-    Stadium,
-    Diamond,
-    Rect,
-    Circle,
-    Round,
-}
-
-#[derive(Debug, Clone)]
-pub struct FlowNode {
-    pub id: String,
-    pub label: String,
-    pub shape: NodeShape,
-}
-
-#[derive(Debug, Clone)]
-pub struct FlowEdge {
-    pub source: String,
-    pub target: String,
-    pub label: Option<String>,
-}
-
-/// Insertion-ordered, because `convert_to_jdm` iterates the node map and the
-/// JSON it produces is diffed against the JavaScript `Map`'s own order.
-#[derive(Debug, Default)]
-pub struct FlowAst {
-    pub node_order: Vec<String>,
-    pub nodes: BTreeMap<String, FlowNode>,
-    pub edges: Vec<FlowEdge>,
-}
-
-impl FlowAst {
-    fn insert_node(&mut self, node: FlowNode) {
-        if !self.nodes.contains_key(&node.id) {
-            self.node_order.push(node.id.clone());
-        }
-        self.nodes.insert(node.id.clone(), node);
-    }
-
-    fn iter(&self) -> impl Iterator<Item = &FlowNode> {
-        self.node_order
-            .iter()
-            .filter_map(move |id| self.nodes.get(id))
-    }
-}
-
-/// The shape suffix after a node id, and the label inside it.
-///
-/// Longest forms first: `((circle))` and `([stadium])` both start with `(`, so
-/// a bare `(...)` tried earlier would claim only their opening half and
-/// mis-shape the node.
-fn parse_node_def(id: &str, rest: &str) -> Option<FlowNode> {
-    const FORMS: [(&str, &str, NodeShape); 5] = [
-        ("([", "])", NodeShape::Stadium),
-        ("((", "))", NodeShape::Circle),
-        ("{", "}", NodeShape::Diamond),
-        ("[", "]", NodeShape::Rect),
-        ("(", ")", NodeShape::Round),
-    ];
-
-    for (open, close, shape) in FORMS {
-        let Some(after) = rest.strip_prefix(open) else {
-            continue;
-        };
-        // The TypeScript regexes are non-greedy: the label runs to the *first*
-        // closing delimiter.
-        let Some(end) = after.find(close) else {
-            continue;
-        };
-        let label = after[..end].trim();
-        if label.is_empty() {
-            continue;
-        }
-        return Some(FlowNode {
-            id: id.to_string(),
-            label: label.to_string(),
-            shape,
-        });
-    }
-    None
-}
-
-fn is_ident_start(c: char) -> bool {
-    c.is_ascii_alphabetic() || c == '_'
-}
-
-fn is_ident_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '_'
-}
-
-/// Take an identifier from the front of `text`, returning it and the rest.
-fn take_ident(value: &str) -> Option<(&str, &str)> {
-    let mut chars = value.char_indices();
-    let (_, first) = chars.next()?;
-    if !is_ident_start(first) {
-        return None;
-    }
-    let end = value
-        .char_indices()
-        .find(|(_, c)| !is_ident_char(*c))
-        .map_or(value.len(), |(index, _)| index);
-    Some((&value[..end], &value[end..]))
-}
-
-/// Take a node's shape suffix from the front, returning it and the rest.
-fn take_suffix(value: &str) -> (Option<&str>, &str) {
-    const FORMS: [(&str, &str); 5] = [
-        ("((", "))"),
-        ("([", "])"),
-        ("{", "}"),
-        ("[", "]"),
-        ("(", ")"),
-    ];
-    for (open, close) in FORMS {
-        if !value.starts_with(open) {
-            continue;
-        }
-        // `[^)]*` and friends: the suffix runs to the first closing delimiter.
-        let after = &value[open.len()..];
-        if let Some(end) = after.find(close) {
-            let total = open.len() + end + close.len();
-            return (Some(&value[..total]), &value[total..]);
-        }
-    }
-    (None, value)
-}
-
-fn ensure_node(ast: &mut FlowAst, id: &str, suffix: Option<&str>) {
-    if ast.nodes.contains_key(id) {
-        return;
-    }
-    if let Some(suffix) = suffix {
-        if let Some(node) = parse_node_def(id, suffix) {
-            ast.insert_node(node);
-            return;
-        }
-    }
-    ast.insert_node(FlowNode {
-        id: id.to_string(),
-        label: id.to_string(),
-        shape: NodeShape::Rect,
-    });
-}
-
-/// One parsed edge line: the two node ids, their shape suffixes, and the label.
-struct ParsedEdge {
-    source: String,
-    source_suffix: Option<String>,
-    label: Option<String>,
-    target: String,
-    target_suffix: Option<String>,
-}
-
-/// `Src[suffix] --> |label| Tgt[suffix]`
-///
-/// The edge label is recognised only when it is actually delimited by pipes.
-/// Written as an optional unanchored group the TypeScript version matched the
-/// empty-pipe case by greedily consuming the target node and backtracking, so
-/// `A --> B{Status == draft?}` produced a node id of `t` — the tail of `draft`.
-fn parse_edge(line: &str) -> Option<ParsedEdge> {
-    let (source, rest) = take_ident(line)?;
-    let (source_suffix, rest) = take_suffix(rest);
-    let rest = rest.trim_start();
-
-    let rest = rest
-        .strip_prefix("-->")
-        .or_else(|| rest.strip_prefix("---"))?;
-    let rest = rest.trim_start();
-
-    let (label, rest) = match rest.strip_prefix('|') {
-        Some(after) => match after.find('|') {
-            Some(end) => (Some(after[..end].to_string()), &after[end + 1..]),
-            None => (None, rest),
-        },
-        None => (None, rest),
-    };
-    let rest = rest.trim_start();
-
-    let (target, rest) = take_ident(rest)?;
-    let (target_suffix, _) = take_suffix(rest);
-
-    Some(ParsedEdge {
-        source: source.to_string(),
-        source_suffix: source_suffix.map(str::to_string),
-        label,
-        target: target.to_string(),
-        target_suffix: target_suffix.map(str::to_string),
-    })
-}
-
-pub fn parse_mermaid_flowchart(code: &str) -> FlowAst {
-    let mut ast = FlowAst::default();
-
-    for raw_line in code.lines() {
-        let line = raw_line.trim();
-        if line.is_empty()
-            || line.starts_with("flowchart")
-            || line.starts_with("graph")
-            || line.starts_with("%%")
-        {
-            continue;
-        }
-
-        if let Some(edge) = parse_edge(line) {
-            ensure_node(&mut ast, &edge.source, edge.source_suffix.as_deref());
-            ensure_node(&mut ast, &edge.target, edge.target_suffix.as_deref());
-            ast.edges.push(FlowEdge {
-                source: edge.source,
-                target: edge.target,
-                label: edge
-                    .label
-                    .map(|label| label.trim().to_string())
-                    .filter(|label| !label.is_empty()),
-            });
-            continue;
-        }
-
-        // A standalone node definition.
-        if let Some((id, rest)) = take_ident(line) {
-            let rest = rest.trim();
-            if !rest.is_empty() && !ast.nodes.contains_key(id) {
-                if let Some(node) = parse_node_def(id, rest) {
-                    ast.insert_node(node);
-                }
-            }
-        }
-    }
-
-    ast
-}
 
 /* -------------------------------------------------------------------------- */
 /*  JDM                                                                        */
@@ -581,7 +78,7 @@ pub struct JdmNode {
 #[derive(Debug, Clone, Serialize)]
 pub struct JdmEdge {
     pub id: String,
-    /// Omitted rather than null when the flowchart edge carried no label —
+    /// Omitted rather than null when the rule's edge carried no label —
     /// `JSON.stringify` drops an `undefined` property.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -597,42 +94,37 @@ pub struct JdmGraph {
     pub edges: Vec<JdmEdge>,
 }
 
-fn shape_to_type(shape: NodeShape, is_target: bool, is_source: bool) -> &'static str {
-    match shape {
-        NodeShape::Stadium => {
-            if is_target && !is_source {
-                "outputNode"
-            } else {
-                "inputNode"
-            }
-        }
-        NodeShape::Diamond => "switchNode",
-        NodeShape::Circle => "functionNode",
-        _ => "expressionNode",
-    }
+/// The JDM node a rule node type compiles to.
+pub fn jdm_node_type(node_type: &str) -> Option<&'static str> {
+    Some(match node_type {
+        "start" => "inputNode",
+        "end" => "outputNode",
+        "decision" => "switchNode",
+        "expression" => "expressionNode",
+        "function" => "functionNode",
+        _ => return None,
+    })
 }
 
-pub fn convert_to_jdm(ast: &FlowAst) -> JdmGraph {
-    let sources: Vec<&str> = ast.edges.iter().map(|edge| edge.source.as_str()).collect();
-    let targets: Vec<&str> = ast.edges.iter().map(|edge| edge.target.as_str()).collect();
-
-    let nodes = ast
+/// A rule's decision graph as a JDM graph: one JDM node per rule node, in the
+/// order declared, and one edge per edge, numbered from 1 — the TypeScript
+/// generator's `ruleGraphToJdm`, byte for byte.
+pub fn rule_graph_to_jdm(nodes: &[RuleNode], edges: &[RuleEdge]) -> Result<JdmGraph, String> {
+    let nodes = nodes
         .iter()
-        .map(|node| JdmNode {
-            id: format!("node-{}", node.id),
-            name: node.label.clone(),
-            node_type: shape_to_type(
-                node.shape,
-                targets.contains(&node.id.as_str()),
-                sources.contains(&node.id.as_str()),
-            )
-            .to_string(),
-            content: None,
+        .map(|node| {
+            let node_type = jdm_node_type(&node.node_type).ok_or_else(|| {
+                format!("node {} has unknown type \"{}\"", node.id, node.node_type)
+            })?;
+            Ok(JdmNode {
+                id: format!("node-{}", node.id),
+                name: node.label.clone(),
+                node_type: node_type.to_string(),
+                content: None,
+            })
         })
-        .collect();
-
-    let edges = ast
-        .edges
+        .collect::<Result<Vec<_>, String>>()?;
+    let edges = edges
         .iter()
         .enumerate()
         .map(|(index, edge)| JdmEdge {
@@ -642,15 +134,14 @@ pub fn convert_to_jdm(ast: &FlowAst) -> JdmGraph {
             target_id: format!("node-{}", edge.target),
         })
         .collect();
-
-    JdmGraph { nodes, edges }
+    Ok(JdmGraph { nodes, edges })
 }
 
 /* -------------------------------------------------------------------------- */
-/*  `%%action` directives                                                      */
+/*  Actions                                                                    */
 /* -------------------------------------------------------------------------- */
 
-/// A side-effecting action a rule emits, declared by a `%%action` directive.
+/// A side-effecting action a rule emits, from the rule's `actions`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompiledRuleAction {
     pub name: String,
@@ -660,105 +151,14 @@ pub struct CompiledRuleAction {
     pub props: BTreeMap<String, String>,
 }
 
-/// `key:` starts a new property; the value runs to the next one.
-fn parse_action_props(rest: &str) -> BTreeMap<String, String> {
-    let mut props = BTreeMap::new();
-    let trimmed = rest.trim();
-    if trimmed.is_empty() {
-        return props;
+/// An action as the rules engine runs it: no condition means always.
+fn with_default_condition(action: &RuleAction) -> CompiledRuleAction {
+    CompiledRuleAction {
+        name: action.name.clone(),
+        action_type: action.action_type.clone(),
+        when: action.when.clone().unwrap_or_else(|| "true".to_string()),
+        props: action.props.clone(),
     }
-
-    // The TypeScript splits on whitespace followed by `key:`. Walk the string
-    // and cut at each such boundary rather than pulling in a regex crate.
-    let bytes: Vec<char> = trimmed.chars().collect();
-    let mut starts: Vec<usize> = vec![0];
-    for index in 1..bytes.len() {
-        if !bytes[index - 1].is_whitespace() {
-            continue;
-        }
-        if !is_ident_start(bytes[index]) {
-            continue;
-        }
-        let mut cursor = index;
-        while cursor < bytes.len() && is_ident_char(bytes[cursor]) {
-            cursor += 1;
-        }
-        if cursor < bytes.len() && bytes[cursor] == ':' {
-            starts.push(index);
-        }
-    }
-    starts.push(bytes.len());
-
-    for window in starts.windows(2) {
-        let chunk: String = bytes[window[0]..window[1]].iter().collect();
-        let chunk = chunk.trim();
-        let Some(at) = chunk.find(':') else { continue };
-        if at == 0 {
-            continue;
-        }
-        let key = chunk[..at].trim();
-        if !key.is_empty() {
-            props.insert(key.to_string(), chunk[at + 1..].trim().to_string());
-        }
-    }
-    props
-}
-
-/// `%%action <name> <type> when: <expr> <key>: <value> ...`
-pub fn parse_rule_actions(flowchart: &str) -> Vec<CompiledRuleAction> {
-    let mut actions = Vec::new();
-    for raw_line in flowchart.lines() {
-        let line = raw_line.trim();
-        let Some(rest) = line.strip_prefix("%%action") else {
-            continue;
-        };
-        if !rest.starts_with(char::is_whitespace) {
-            continue;
-        }
-        let rest = rest.trim_start();
-
-        let Some((name, rest)) = take_ident_with_dashes(rest) else {
-            continue;
-        };
-        let rest = rest.trim_start();
-        let Some((action_type, rest)) = take_ident_with_dashes(rest) else {
-            continue;
-        };
-        // The TypeScript type pattern is `[A-Za-z][\w-]*`, so a leading
-        // underscore is a name but not a type.
-        if !action_type.starts_with(|c: char| c.is_ascii_alphabetic()) {
-            continue;
-        }
-
-        let mut props = parse_action_props(rest);
-        let when = props
-            .remove("when")
-            .map(|value| value.trim().to_string())
-            .filter(|value| !value.is_empty())
-            .unwrap_or_else(|| "true".to_string());
-
-        actions.push(CompiledRuleAction {
-            name: name.to_string(),
-            action_type: action_type.to_string(),
-            when,
-            props,
-        });
-    }
-    actions
-}
-
-/// `[A-Za-z_][\w-]*` — an identifier that may carry hyphens after the first
-/// character, which is what both directive patterns accept.
-fn take_ident_with_dashes(value: &str) -> Option<(&str, &str)> {
-    let first = value.chars().next()?;
-    if !is_ident_start(first) {
-        return None;
-    }
-    let end = value
-        .char_indices()
-        .find(|(index, c)| *index > 0 && !is_ident_char(*c) && *c != '-')
-        .map_or(value.len(), |(index, _)| index);
-    Some((&value[..end], &value[end..]))
 }
 
 /// Quote a value for a zen decision-table output cell.
@@ -766,9 +166,9 @@ fn zen_literal(value: &str) -> String {
     format!("'{}'", value.replace('\'', "\\'"))
 }
 
-/// A GoRules decision table, one row per `%%action`.
+/// A GoRules decision table, one row per action.
 ///
-/// The node-graph form a rules flowchart compiles to carries no outputs, so the
+/// The node-graph form a rule's decision graph compiles to carries no outputs, so the
 /// rules engine finds no actions in it and a model-declared rule can decide but
 /// never act. A decision table is the shape the engine reads `action`,
 /// `message`, `ruleId` and `workflowName` from.
@@ -779,14 +179,14 @@ fn zen_literal(value: &str) -> String {
 /// and would arrive empty.
 ///
 /// The `action` cell is written in the *runtime's* vocabulary rather than
-/// EML's; see `runtime_action`.
+/// the model's; see `runtime_action`.
 ///
 /// Every declared output column appears in every row, blank when the action
 /// does not use it: zen-engine yields *no result at all* for a row with a
 /// missing cell, so an omitted column silently disables the whole rule.
-/// EML's action names, in the vocabulary the generated runtime reads.
+/// The model's action names, in the vocabulary the generated runtime reads.
 ///
-/// The two are not the same list and never were. EML spells a refusal
+/// The two are not the same list and never were. The model spells a refusal
 /// `validation-error`; the Loco backend's `promotion.rs` looks for `prevent`,
 /// and everything else — `trigger-workflow`, `cascade-update`, `create-record`
 /// — it already spells the runtime's way. So a compiled `validation-error` row
@@ -802,7 +202,7 @@ fn runtime_action(eml_type: &str) -> &str {
 
 /// A transform's target, as the runtime wants it.
 ///
-/// EML writes `field:` and `value:` as two separate properties; the runtime
+/// The model writes `field` and `value` as two separate properties; the runtime
 /// reads one `transformData` object of column → value, which is the shape
 /// `JdmViolation` already deserialises and `to_action_config` already forwards.
 fn transform_data_cell(action: &CompiledRuleAction) -> String {
@@ -915,7 +315,7 @@ pub fn build_action_decision_table(rule_name: &str, actions: &[CompiledRuleActio
 /*  Compilation                                                                */
 /* -------------------------------------------------------------------------- */
 
-/// A rule compiled from EML, ready to seed into `sys_rule_definitions`.
+/// A rule compiled from the model, ready to seed into `sys_rule_definitions`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompiledRule {
     pub name: String,
@@ -968,53 +368,314 @@ fn to_table_name(entity: &str) -> String {
     }
 }
 
-/// Compile the `%%rule` sections of a model into seedable JDM.
+/// Compile rule declarations read from either syntax.
 ///
-/// A section whose flowchart cannot be parsed is skipped with a warning rather
-/// than failing the build: one malformed rule should not stop an application
-/// from being generated, and the checker already reports the syntax problem.
-pub fn compile_rules(
-    sections: &[EmlRuleSection],
+/// What a rule compiles *from* follows one precedence: an editor-authored
+/// decision table, then its actions, then its decision graph. A rule with no
+/// table and no nodes compiles to nothing and is skipped.
+pub fn compile_rule_declarations(
+    declarations: &[RuleDeclaration],
     mut on_warn: impl FnMut(String),
 ) -> Vec<CompiledRule> {
     let mut compiled = Vec::new();
 
-    for section in sections {
-        if section.entity.is_empty() {
+    for declaration in declarations {
+        if declaration.entity.is_empty() {
             on_warn(format!(
                 "Rule \"{}\" declares no entity; skipping.",
-                section.name
+                declaration.name
             ));
             continue;
         }
 
-        let ast = parse_mermaid_flowchart(&section.flowchart);
-        if ast.nodes.is_empty() {
-            on_warn(format!("Rule \"{}\" has no nodes; skipping.", section.name));
+        // A table authored in the editor carries its own directive and only a
+        // placeholder graph, so it has to be read before the graph —
+        // compiling the placeholder yields a rule that decides nothing.
+        if declaration.decision_table.is_none() && declaration.nodes.is_empty() {
+            on_warn(format!(
+                "Rule \"{}\" has no nodes; skipping.",
+                declaration.name
+            ));
             continue;
         }
 
-        // A section that declares actions compiles to a decision table: that is
+        // A rule that declares actions compiles to a decision table: that is
         // the only JDM shape the rules engine reads actions out of.
-        let actions = parse_rule_actions(&section.flowchart);
-        let jdm = if actions.is_empty() {
-            convert_to_jdm(&ast)
+        let jdm = if let Some(table) = &declaration.decision_table {
+            match build_editor_decision_table(&declaration.name, table) {
+                Ok(jdm) => jdm,
+                Err(message) => {
+                    on_warn(format!(
+                        "Rule \"{}\" could not be compiled: {message}",
+                        declaration.name
+                    ));
+                    continue;
+                }
+            }
+        } else if !declaration.actions.is_empty() {
+            let actions: Vec<CompiledRuleAction> = declaration
+                .actions
+                .iter()
+                .map(with_default_condition)
+                .collect();
+            build_action_decision_table(&declaration.name, &actions)
         } else {
-            build_action_decision_table(&section.name, &actions)
+            match rule_graph_to_jdm(&declaration.nodes, &declaration.edges) {
+                Ok(jdm) => jdm,
+                Err(message) => {
+                    on_warn(format!(
+                        "Rule \"{}\" could not be compiled: {message}",
+                        declaration.name
+                    ));
+                    continue;
+                }
+            }
         };
 
         compiled.push(CompiledRule {
-            name: section.name.clone(),
-            entity: section.entity.clone(),
-            table_name: to_table_name(&section.entity),
-            event: section.event.clone(),
-            operation: event_to_operation(&section.event).to_string(),
-            priority: section.priority.unwrap_or(100),
+            name: declaration.name.clone(),
+            entity: declaration.entity.clone(),
+            table_name: to_table_name(&declaration.entity),
+            event: declaration.event.clone(),
+            operation: event_to_operation(&declaration.event).to_string(),
+            priority: declaration.priority.unwrap_or(100),
             jdm_content: serialize_jdm(&jdm),
         });
     }
 
     compiled
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Decision tables authored in the editor                                     */
+/* -------------------------------------------------------------------------- */
+
+/// Whether JavaScript's `Number(value)` reads `value` as a number. `value` is
+/// already trimmed and non-empty.
+fn is_js_numeric(value: &str) -> bool {
+    let unsigned = value.strip_prefix(['+', '-']).unwrap_or(value);
+    if unsigned == "Infinity" {
+        return true;
+    }
+    if value.len() == unsigned.len() {
+        let radix = |prefix: &[&str], digits: fn(char) -> bool| {
+            prefix
+                .iter()
+                .find_map(|p| value.strip_prefix(p))
+                .is_some_and(|rest| !rest.is_empty() && rest.chars().all(digits))
+        };
+        if radix(&["0x", "0X"], |c| c.is_ascii_hexdigit())
+            || radix(&["0o", "0O"], |c| ('0'..='7').contains(&c))
+            || radix(&["0b", "0B"], |c| c == '0' || c == '1')
+        {
+            return true;
+        }
+    }
+    let (mantissa, exponent) = match unsigned.find(['e', 'E']) {
+        Some(at) => (&unsigned[..at], Some(&unsigned[at + 1..])),
+        None => (unsigned, None),
+    };
+    let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
+    let digits = |part: &str| part.chars().all(|c| c.is_ascii_digit());
+    let mantissa_ok =
+        digits(whole) && digits(fraction) && !(whole.is_empty() && fraction.is_empty());
+    let exponent_ok = exponent.is_none_or(|exp| {
+        let exp = exp.strip_prefix(['+', '-']).unwrap_or(exp);
+        !exp.is_empty() && digits(exp)
+    });
+    mantissa_ok && exponent_ok
+}
+
+fn is_bare_literal(value: &str) -> bool {
+    matches!(value, "true" | "false" | "null") || (!value.is_empty() && is_js_numeric(value))
+}
+
+fn is_quoted(value: &str) -> bool {
+    let mut chars = value.chars();
+    let first = chars.next();
+    value.chars().count() >= 2
+        && matches!(first, Some('\'') | Some('"'))
+        && value.ends_with(first.unwrap_or(' '))
+}
+
+/// The editor stores what the user typed; zen evaluates expressions, so a bare
+/// word becomes a string literal and a literal stays one.
+fn zen_cell(raw: &str) -> String {
+    let value = raw.trim();
+    if value.is_empty() {
+        return String::new();
+    }
+    if is_quoted(value) || is_bare_literal(value) {
+        return value.to_string();
+    }
+    zen_literal(value)
+}
+
+/// Input cells may carry a leading comparison: `>= 70` stays a unary
+/// comparison, `= hot` drops the operator (zen reads a bare value as equality).
+fn zen_input_cell(raw: &str) -> String {
+    let value = raw.trim();
+    if value.is_empty() {
+        return String::new();
+    }
+    let operator = [">=", "<=", "!=", "=", ">", "<"]
+        .into_iter()
+        .find(|operator| value.starts_with(operator));
+    let Some(operator) = operator else {
+        return zen_cell(value);
+    };
+    let cell = zen_cell(value[operator.len()..].trim_start());
+    if cell.is_empty() {
+        return String::new();
+    }
+    if operator == "=" {
+        cell
+    } else {
+        format!("{operator} {cell}")
+    }
+}
+
+/// A string field of an editor object: absent or null is `None`; anything but
+/// a string is an error, as it is where the TypeScript compiler calls `.trim()`.
+fn string_field(value: &serde_json::Value, key: &str) -> Result<Option<String>, String> {
+    match value.get(key) {
+        None | Some(serde_json::Value::Null) => Ok(None),
+        Some(serde_json::Value::String(text)) => Ok(Some(text.clone())),
+        Some(other) => Err(format!("{key} is {other}, not text")),
+    }
+}
+
+/// JavaScript object key order: canonical array indexes first, ascending, then
+/// every other key in insertion order; assigning an existing key keeps its
+/// place. `JSON.stringify` writes a row's cells in this order.
+fn js_object_insert(row: &mut Vec<(String, String)>, key: String, value: String) {
+    if let Some(slot) = row.iter_mut().find(|(existing, _)| *existing == key) {
+        slot.1 = value;
+        return;
+    }
+    row.push((key, value));
+}
+
+fn js_object_order(row: Vec<(String, String)>) -> Vec<(String, String)> {
+    let index = |key: &str| -> Option<u32> {
+        let canonical =
+            key == "0" || (!key.starts_with('0') && key.chars().all(|c| c.is_ascii_digit()));
+        if !canonical {
+            return None;
+        }
+        key.parse::<u32>().ok().filter(|n| *n < u32::MAX)
+    };
+    let (mut indexed, named): (Vec<_>, Vec<_>) =
+        row.into_iter().partition(|(key, _)| index(key).is_some());
+    indexed.sort_by_key(|(key, _)| index(key));
+    indexed.extend(named);
+    indexed
+}
+
+/// Compile the editor's table into the one JDM shape the rules engine reads:
+/// input → decision table → output. Mirrors `buildEditorDecisionTable`.
+fn build_editor_decision_table(
+    rule_name: &str,
+    table: &serde_json::Value,
+) -> Result<JdmGraph, String> {
+    let columns = |key: &str| -> Result<Vec<JdmColumn>, String> {
+        let mut kept = Vec::new();
+        let Some(list) = table.get(key).and_then(serde_json::Value::as_array) else {
+            return Ok(kept);
+        };
+        for column in list {
+            let field = string_field(column, "field")?.unwrap_or_default();
+            if field.trim().is_empty() {
+                continue;
+            }
+            let id = string_field(column, "id")?
+                .ok_or_else(|| format!("a decision-table column in {key} has no id"))?;
+            kept.push(JdmColumn {
+                name: string_field(column, "name")?.unwrap_or_else(|| id.clone()),
+                id,
+                field,
+            });
+        }
+        Ok(kept)
+    };
+    let inputs = columns("inputs")?;
+    let outputs = columns("outputs")?;
+
+    let mut rows = Vec::new();
+    if let Some(list) = table.get("rules").and_then(serde_json::Value::as_array) {
+        for (index, row) in list.iter().enumerate() {
+            let id = match row.get("_id") {
+                Some(serde_json::Value::String(text)) if !text.is_empty() => text.clone(),
+                None
+                | Some(serde_json::Value::Null)
+                | Some(serde_json::Value::Bool(false))
+                | Some(serde_json::Value::String(_)) => format!("{rule_name}-{}", index + 1),
+                Some(serde_json::Value::Number(number)) if number.as_f64() == Some(0.0) => {
+                    format!("{rule_name}-{}", index + 1)
+                }
+                Some(other) => return Err(format!("a decision-table row _id is {other}")),
+            };
+            let mut compiled: Vec<(String, String)> = Vec::new();
+            js_object_insert(&mut compiled, "_id".to_string(), id);
+            for column in &inputs {
+                let raw = string_field(row, &column.id)?.unwrap_or_default();
+                js_object_insert(&mut compiled, column.id.clone(), zen_input_cell(&raw));
+            }
+            for column in &outputs {
+                let raw = string_field(row, &column.id)?.unwrap_or_default();
+                js_object_insert(&mut compiled, column.id.clone(), zen_cell(&raw));
+            }
+            rows.push(JdmRow(js_object_order(compiled)));
+        }
+    }
+
+    let hit_policy = match table.get("hitPolicy").and_then(serde_json::Value::as_str) {
+        Some("collect") => "collect",
+        _ => "first",
+    };
+    let table_id = format!("{rule_name}-table");
+
+    Ok(JdmGraph {
+        nodes: vec![
+            JdmNode {
+                id: "input".to_string(),
+                name: "Input".to_string(),
+                node_type: "inputNode".to_string(),
+                content: None,
+            },
+            JdmNode {
+                id: table_id.clone(),
+                name: rule_name.to_string(),
+                node_type: "decisionTableNode".to_string(),
+                content: Some(JdmDecisionTable {
+                    hit_policy: hit_policy.to_string(),
+                    inputs,
+                    outputs,
+                    rules: rows,
+                }),
+            },
+            JdmNode {
+                id: "output".to_string(),
+                name: "Output".to_string(),
+                node_type: "outputNode".to_string(),
+                content: None,
+            },
+        ],
+        edges: vec![
+            JdmEdge {
+                id: "edge-1".to_string(),
+                name: None,
+                source_id: "input".to_string(),
+                target_id: table_id.clone(),
+            },
+            JdmEdge {
+                id: "edge-2".to_string(),
+                name: None,
+                source_id: table_id,
+                target_id: "output".to_string(),
+            },
+        ],
+    })
 }
 
 /// `JSON.stringify(jdm)` — compact, insertion-ordered, no trailing newline.
@@ -1051,7 +712,7 @@ pub fn build_rules_seed_sql(options: &RulesSeedOptions<'_>) -> String {
 
     let mut out: Vec<String> = Vec::new();
     out.push(format!(
-        "-- Business rules for {project_name}, compiled from %%rule sections."
+        "-- Business rules for {project_name}, compiled from the model's rules."
     ));
     out.push("--".to_string());
     out.push(
@@ -1076,9 +737,7 @@ pub fn build_rules_seed_sql(options: &RulesSeedOptions<'_>) -> String {
 
     if rules.is_empty() {
         out.push("--".to_string());
-        out.push(
-            "-- This model declares no %%rule sections. The file is still emitted:".to_string(),
-        );
+        out.push("-- This model declares no rules. The file is still emitted:".to_string());
         out.push(
             "-- `seed_rules.rs` embeds it with include_str!, which is resolved at".to_string(),
         );
@@ -1137,28 +796,104 @@ pub fn build_rules_seed_sql(options: &RulesSeedOptions<'_>) -> String {
 mod tests {
     use super::*;
 
+    fn action(
+        name: &str,
+        action_type: &str,
+        when: Option<&str>,
+        props: &[(&str, &str)],
+    ) -> RuleAction {
+        RuleAction {
+            name: name.to_string(),
+            action_type: action_type.to_string(),
+            when: when.map(str::to_string),
+            props: props
+                .iter()
+                .map(|(key, value)| (key.to_string(), value.to_string()))
+                .collect(),
+        }
+    }
+
+    fn compiled_actions(actions: &[RuleAction]) -> Vec<CompiledRuleAction> {
+        actions.iter().map(with_default_condition).collect()
+    }
+
+    fn node(id: &str, label: &str, node_type: &str) -> RuleNode {
+        RuleNode {
+            id: id.to_string(),
+            label: label.to_string(),
+            node_type: node_type.to_string(),
+        }
+    }
+
+    fn edge(source: &str, target: &str, label: Option<&str>) -> RuleEdge {
+        RuleEdge {
+            source: source.to_string(),
+            target: target.to_string(),
+            label: label.map(str::to_string),
+        }
+    }
+
+    fn rule(
+        name: &str,
+        event: &str,
+        nodes: Vec<RuleNode>,
+        edges: Vec<RuleEdge>,
+        actions: Vec<RuleAction>,
+    ) -> RuleDeclaration {
+        RuleDeclaration {
+            name: name.to_string(),
+            entity: "Deal".to_string(),
+            event: event.to_string(),
+            priority: None,
+            nodes,
+            edges,
+            actions,
+            decision_table: None,
+        }
+    }
+
+    /// One cell of a compiled row, by column id.
+    fn cell(row: &JdmRow, id: &str) -> String {
+        row.0
+            .iter()
+            .find(|(key, _)| key == id)
+            .map(|(_, value)| value.clone())
+            .unwrap_or_default()
+    }
+
     /// The compiled row is asserted against the *runtime's* action union,
     /// never against this compiler's own output.
     ///
-    /// EML and the generated Loco backend do not share an action vocabulary,
-    /// and two of the three types EML ships were inert because of it.
-    /// `validation-error` is EML's word for a refusal; `promotion.rs` looks for
-    /// `prevent`, so a compiled `validation-error` row matched, fell through
-    /// `run_action`'s `other` arm and was logged as unknown — a rule written to
-    /// refuse a write let every write through. And `transform` had no payload
-    /// column, so `JdmViolation.transform_data` arrived empty.
-    ///
-    /// A test reading back what this function produced cannot see either
-    /// failure: the compiler was perfectly self-consistent.
+    /// The model language and the generated Loco backend do not share an
+    /// action vocabulary, and two of the three types the language ships were
+    /// inert because of it. `validation-error` is the model's word for a
+    /// refusal; `promotion.rs` looks for `prevent`, so a compiled
+    /// `validation-error` row matched, fell through `run_action`'s `other` arm
+    /// and was logged as unknown — a rule written to refuse a write let every
+    /// write through. And `transform` had no payload column, so
+    /// `JdmViolation.transform_data` arrived empty.
     #[test]
     fn an_action_row_is_written_in_the_runtimes_vocabulary() {
-        let actions = parse_rule_actions(
-            "\
-    %%action refuseDiscount validation-error when: discount_percent > 40 message: Reprice it
-    %%action stampTier transform when: amount > 50000 field: tier value: strategic
-    %%action escalate trigger-workflow when: amount > 1000 workflow: Approval
-",
-        );
+        let actions = compiled_actions(&[
+            action(
+                "refuseDiscount",
+                "validation-error",
+                Some("discount_percent > 40"),
+                &[("message", "Reprice it")],
+            ),
+            action(
+                "stampTier",
+                "transform",
+                Some("amount > 50000"),
+                &[("field", "tier"), ("value", "strategic")],
+            ),
+            action(
+                "escalate",
+                "trigger-workflow",
+                Some("amount > 1000"),
+                &[("workflow", "Approval")],
+            ),
+        ]);
         let table = build_action_decision_table("quoteDiscountApproval", &actions);
         let content = table.nodes[1].content.as_ref().expect("decision table");
 
@@ -1177,21 +912,28 @@ mod tests {
                 "{emitted} is not a runtime action"
             );
         }
-
         assert_eq!(cell(&content.rules[0], "o1"), "'prevent'");
         assert_eq!(cell(&content.rules[2], "o1"), "'trigger-workflow'");
     }
 
-    /// A transform's `field:` and `value:` fold into the one object the runtime
+    /// A transform's `field` and `value` fold into the one object the runtime
     /// reads, and nothing else carries one.
     #[test]
     fn a_transform_carries_its_payload_and_nothing_else_does() {
-        let actions = parse_rule_actions(
-            "\
-    %%action stampTier transform when: amount > 50000 field: tier value: strategic
-    %%action escalate trigger-workflow when: amount > 1000 workflow: Approval
-",
-        );
+        let actions = compiled_actions(&[
+            action(
+                "stampTier",
+                "transform",
+                Some("amount > 50000"),
+                &[("field", "tier"), ("value", "strategic")],
+            ),
+            action(
+                "escalate",
+                "trigger-workflow",
+                Some("amount > 1000"),
+                &[("workflow", "Approval")],
+            ),
+        ]);
         let table = build_action_decision_table("r", &actions);
         let content = table.nodes[1].content.as_ref().expect("decision table");
 
@@ -1211,52 +953,16 @@ mod tests {
         }
     }
 
-    /// One cell of a compiled row, by column id.
-    fn cell(row: &JdmRow, id: &str) -> String {
-        row.0
-            .iter()
-            .find(|(key, _)| key == id)
-            .map(|(_, value)| value.clone())
-            .unwrap_or_default()
-    }
-
     #[test]
-    fn a_rule_section_is_read_back_out_of_a_document() {
-        let source = "\
-erDiagram
-    Deal { string id PK }
-
-%%rule dealApproval on Deal event: beforeUpdate priority: 50
-flowchart TD
-    A([Deal]) --> B{amount > 10000?}
-    B --> |yes| C([Needs approval])
-";
-        let sections = extract_rule_sections(source);
-        assert_eq!(sections.len(), 1);
-        assert_eq!(sections[0].name, "dealApproval");
-        assert_eq!(sections[0].entity, "Deal");
-        assert_eq!(sections[0].event, "beforeUpdate");
-        assert_eq!(sections[0].priority, Some(50));
-        assert!(sections[0].flowchart.starts_with("flowchart TD"));
-    }
-
-    #[test]
-    fn a_diamond_node_after_an_edge_keeps_its_id() {
-        // The regression the TypeScript comment records: greedy backtracking
-        // over an absent edge label produced a node id of `t`, the tail of
-        // `draft`, instead of `B`.
-        let ast = parse_mermaid_flowchart("flowchart TD\n    A --> B{Status == draft?}\n");
-        assert!(ast.nodes.contains_key("B"), "got {:?}", ast.node_order);
-        assert_eq!(ast.nodes["B"].label, "Status == draft?");
-        assert_eq!(ast.nodes["B"].shape, NodeShape::Diamond);
-    }
-
-    #[test]
-    fn every_node_shape_maps_to_its_jdm_type() {
-        let ast = parse_mermaid_flowchart(
-            "flowchart TD\n    A([In]) --> B{Check}\n    B --> C((Fn))\n    C --> D[Expr]\n    D --> E([Out])\n",
-        );
-        let jdm = convert_to_jdm(&ast);
+    fn every_node_type_maps_to_its_jdm_type() {
+        let nodes = vec![
+            node("A", "In", "start"),
+            node("B", "Check", "decision"),
+            node("C", "Fn", "function"),
+            node("D", "Expr", "expression"),
+            node("E", "Out", "end"),
+        ];
+        let jdm = rule_graph_to_jdm(&nodes, &[]).expect("known types");
         let types: Vec<&str> = jdm.nodes.iter().map(|n| n.node_type.as_str()).collect();
         assert_eq!(
             types,
@@ -1268,38 +974,64 @@ flowchart TD
                 "outputNode"
             ]
         );
+        assert_eq!(jdm.nodes[1].id, "node-B");
+    }
+
+    #[test]
+    fn an_unknown_node_type_is_refused_rather_than_guessed() {
+        assert!(rule_graph_to_jdm(&[node("A", "In", "stadium")], &[]).is_err());
     }
 
     #[test]
     fn an_edge_label_becomes_the_jdm_edge_name_and_absence_omits_it() {
-        let ast = parse_mermaid_flowchart("flowchart TD\n    A --> |yes| B\n    B --> C\n");
-        let json = serialize_jdm(&convert_to_jdm(&ast));
+        let nodes = vec![
+            node("A", "a", "start"),
+            node("B", "b", "decision"),
+            node("C", "c", "end"),
+        ];
+        let edges = vec![edge("A", "B", None), edge("B", "C", Some("yes"))];
+        let json = serialize_jdm(&rule_graph_to_jdm(&nodes, &edges).unwrap());
         assert!(json.contains(r#""name":"yes""#), "{json}");
+        assert!(json.contains(r#""id":"edge-2""#), "{json}");
         // `JSON.stringify` drops an undefined property rather than writing null.
         assert!(!json.contains("null"), "{json}");
     }
 
     #[test]
-    fn an_action_directive_compiles_to_a_decision_table() {
-        let sections = extract_rule_sections(
-            "%%rule escalate on Deal event: afterUpdate\nflowchart TD\n    A([Deal]) --> B([Done])\n    %%action notify trigger-workflow when: amount > 10000 workflow: BigDeal message: Big deal\n",
+    fn a_rule_with_actions_compiles_to_a_decision_table() {
+        let compiled = compile_rule_declarations(
+            &[rule(
+                "escalate",
+                "afterUpdate",
+                vec![node("A", "Deal", "start"), node("B", "Done", "end")],
+                vec![edge("A", "B", None)],
+                vec![action(
+                    "notify",
+                    "trigger-workflow",
+                    Some("amount > 10000"),
+                    &[("workflow", "BigDeal"), ("message", "Big deal")],
+                )],
+            )],
+            |_| {},
         );
-        let compiled = compile_rules(&sections, |_| {});
         assert_eq!(compiled.len(), 1);
         assert_eq!(compiled[0].table_name, "bus_deal");
         assert_eq!(compiled[0].operation, "UPDATE");
         let json = &compiled[0].jdm_content;
         assert!(json.contains("decisionTableNode"), "{json}");
         assert!(json.contains(r#""i1":"amount > 10000""#), "{json}");
-        assert!(json.contains(r#"'trigger-workflow'"#), "{json}");
-        assert!(json.contains(r#"'Big deal'"#), "{json}");
+        assert!(json.contains("'trigger-workflow'"), "{json}");
+        assert!(json.contains("'Big deal'"), "{json}");
     }
 
     #[test]
     fn an_action_with_no_when_fires_on_every_write() {
-        let actions =
-            parse_rule_actions("    %%action block prevent message: A closed deal cannot change");
-        assert_eq!(actions.len(), 1);
+        let actions = compiled_actions(&[action(
+            "block",
+            "prevent",
+            None,
+            &[("message", "A closed deal cannot change")],
+        )]);
         assert_eq!(actions[0].when, "true");
         assert_eq!(actions[0].action_type, "prevent");
         assert_eq!(actions[0].props["message"], "A closed deal cannot change");
@@ -1321,17 +1053,24 @@ flowchart TD
             created_by: "system",
         });
         assert!(!sql.contains("INSERT INTO"));
-        assert!(sql.contains("declares no %%rule"));
+        assert!(sql.contains("declares no rules"));
     }
 
     #[test]
     fn the_seed_upserts_only_when_the_setting_is_on() {
-        let sections = extract_rule_sections(
-            "%%rule r on Deal event: beforeCreate\nflowchart TD\n    A([In]) --> B([Out])\n",
+        let compiled = compile_rule_declarations(
+            &[rule(
+                "r",
+                "beforeCreate",
+                vec![node("A", "In", "start"), node("B", "Out", "end")],
+                vec![edge("A", "B", None)],
+                vec![],
+            )],
+            |_| {},
         );
         let sql = build_rules_seed_sql(&RulesSeedOptions {
             project_name: "crm",
-            rules: &compile_rules(&sections, |_| {}),
+            rules: &compiled,
             created_by: "system",
         });
         assert!(sql.contains("ON CONFLICT (entity_name, operation, rule_name) DO UPDATE"));

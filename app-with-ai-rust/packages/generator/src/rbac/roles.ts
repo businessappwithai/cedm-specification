@@ -1,7 +1,7 @@
 /**
  * Functional roles, the users who hold them, and what each one can see.
  *
- * `%%rbac` compiles to per-operation rules, which is enough to *refuse* a
+ * A model's access rules compile to per-operation rules, which is enough to *refuse* a
  * request and not enough to build an application around. Three things were
  * still missing, and all three have to be answered the same way in both stacks
  * or the demonstration contradicts itself:
@@ -21,7 +21,7 @@
  * ## Only `read` narrows visibility
  *
  * This is the constraint the whole file turns on, and it is deliberate.
- * `packages/generator/src/rbac/index.ts` explains why `%%rbac` must not write
+ * `packages/generator/src/rbac/index.ts` explains why access rules must not write
  * the dictionary's grant table wholesale: a model restricting *deletion* of
  * `Order` to admins would otherwise hide the Order window from everybody,
  * turning a restriction on deleting into a restriction on looking.
@@ -142,7 +142,7 @@ export interface DeriveAccessOptions {
 }
 
 /**
- * Turn compiled `%%rbac` into the roles, users and visibility both stacks seed.
+ * Turn compiled access rules into the roles, users and visibility both stacks seed.
  *
  * Pure, and deliberately so: the NestJS build renders it into a Handlebars seed
  * and the browser build writes it into `model.json`, and neither may reach a
@@ -171,7 +171,7 @@ export function deriveAccess(compiled: CompiledRbac, options: DeriveAccessOption
     roles.push({
       name,
       declaredAs: spelling,
-      description: `Declared by %%rbac as ${spelling}`,
+      description: `Declared by the model's access rules as ${spelling}`,
       isAdmin: false,
       userLevel: "U",
     });

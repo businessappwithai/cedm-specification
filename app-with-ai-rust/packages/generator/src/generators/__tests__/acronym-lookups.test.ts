@@ -6,7 +6,7 @@
  * copies of "snake-case an entity name" had to agree for that to be noticed.
  * They did not. Core's guarded only the all-caps case, so `KYCRecord` became
  * `k_y_c_record` and the generated migration created `bus_k_y_c_record`; the
- * Mermaid parser and the dictionary-help composer each carried a third and a
+ * model parser and the dictionary-help composer each carried a third and a
  * fourth copy, both of which produced `kycrecord`.
  *
  * Nothing failed. The application simply had a table under a name no other
@@ -21,26 +21,40 @@
 import { declaredEntityNames, type Entity, entityToBusEntity } from "@appwithai/core/types";
 import { snakeCase } from "@appwithai/core/utils";
 import { describe, expect, it } from "vitest";
-import { MermaidParser } from "../../parsers/mermaid.parser";
+import { compileYaml } from "../../model/__tests__/compile-yaml";
 import { buildDictionaryHelp } from "../dictionary-help";
 
-const MODEL = `
-erDiagram
-    KYCRecord {
-        string id PK
-        string reference
-        string contact_email
-    }
-    KYCVerification {
-        string id PK
-        string kyc_record_id FK
-        string outcome
-    }
-    KYCRecord ||--o{ KYCVerification : "verified by"
+const MODEL = `eml: "1.0"
+entities:
+  - name: KYCRecord
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: reference
+        type: string
+      - name: contact_email
+        type: string
+  - name: KYCVerification
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: kyc_record_id
+        type: string
+        fk: true
+      - name: outcome
+        type: string
+relationships:
+  - from: KYCRecord
+    fromCardinality: exactly-one
+    to: KYCVerification
+    toCardinality: zero-or-more
+    label: verified by
 `;
 
 function parsed(): Entity[] {
-  return new MermaidParser().parse(MODEL).entities;
+  return compileYaml(MODEL).entities;
 }
 
 describe("an entity whose name begins with an acronym", () => {
@@ -75,7 +89,7 @@ describe("an entity whose name begins with an acronym", () => {
 
 describe("a foreign key names the entity it points at", () => {
   it("takes the column from the one side of a oneToMany, not the many", () => {
-    const relationship = new MermaidParser().parse(MODEL).relationships[0];
+    const relationship = compileYaml(MODEL).relationships[0];
     expect(relationship?.cardinality).toBe("oneToMany");
     expect(relationship?.foreignKey).toBe("kyc_record_id");
   });

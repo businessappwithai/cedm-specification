@@ -31,6 +31,8 @@ vi.mock("@/lib/api/projects", () => ({
 }));
 
 import { erdVersionsApi, projectsApi, workflowsApi } from "@/lib/api/projects";
+import { emptyAutomation } from "@/lib/automation/model";
+import { automationToYaml } from "@/lib/automation/yaml";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -313,41 +315,53 @@ describe("projectStore", () => {
     });
   });
 
-  // ── updateErdCode ───────────────────────────────────────────────────────
-  describe("updateErdCode", () => {
+  // ── saveModelDraft / saveModelVersion ───────────────────────────────
+  describe("saveModelDraft", () => {
+    const MODEL = 'eml: "1.0"\nname: Clinic\nentities:\n  - name: Patient\n    attributes:\n      - { name: id, type: uuid, pk: true }\n';
+
     it("saves a draft without creating a named version", async () => {
       vi.mocked(erdVersionsApi.saveDraft).mockResolvedValue(undefined);
-      vi.mocked(projectsApi.getById).mockResolvedValue(
-        makeProject({ erdCode: "erDiagram\n  User {}" })
-      );
+      vi.mocked(projectsApi.getById).mockResolvedValue(makeProject({ modelYaml: MODEL }));
       await act(async () => {
-        await useProjectStore.getState().updateErdCode("proj-1", "erDiagram\n  Updated {}");
+        await useProjectStore.getState().saveModelDraft("proj-1", MODEL);
       });
       expect(erdVersionsApi.saveDraft).toHaveBeenCalledWith(
         "proj-1",
-        expect.objectContaining({
-          mermaidCode: "erDiagram\n  Updated {}",
-          requestId: expect.any(String),
-        })
+        expect.objectContaining({ model: MODEL, requestId: expect.any(String) })
       );
       expect(erdVersionsApi.create).not.toHaveBeenCalled();
       expect(projectsApi.getById).toHaveBeenCalledWith("proj-1");
     });
+
     it("reuses the request ID after an uncertain save", async () => {
       vi.mocked(erdVersionsApi.saveDraft)
         .mockRejectedValueOnce(new Error("Connection interrupted"))
         .mockResolvedValueOnce(undefined);
       vi.mocked(projectsApi.getById).mockResolvedValue(makeProject());
       await expect(
-        useProjectStore.getState().updateErdCode("retry-project", "model")
+        useProjectStore.getState().saveModelDraft("retry-project", MODEL)
       ).rejects.toThrow("Connection interrupted");
-      await useProjectStore.getState().updateErdCode("retry-project", "model");
+      await useProjectStore.getState().saveModelDraft("retry-project", MODEL);
       const calls = vi.mocked(erdVersionsApi.saveDraft).mock.calls;
       expect(calls[0]?.[1].requestId).toBe(calls[1]?.[1].requestId);
+    });
+
+    it("saves a named version with its description", async () => {
+      vi.mocked(erdVersionsApi.create).mockResolvedValue(undefined as never);
+      vi.mocked(projectsApi.getById).mockResolvedValue(makeProject({ modelYaml: MODEL }));
+      await act(async () => {
+        await useProjectStore.getState().saveModelVersion("proj-1", MODEL, "First release");
+      });
+      expect(erdVersionsApi.create).toHaveBeenCalledWith(
+        "proj-1",
+        expect.objectContaining({ model: MODEL, description: "First release" })
+      );
+      expect(erdVersionsApi.saveDraft).not.toHaveBeenCalled();
     });
   });
 
   // ── addWorkflow ─────────────────────────────────────────────────────────
+  const AUTOMATION = automationToYaml(emptyAutomation("User"));
   describe("addWorkflow", () => {
     it("creates a workflow and reloads the project", async () => {
       const project = makeProject();
@@ -355,7 +369,7 @@ describe("projectStore", () => {
         id: "wf-1",
         name: "Approve",
         serviceName: "UserService",
-        mermaidCode: "graph TD\n  A-->B",
+        definition: AUTOMATION,
       });
       vi.mocked(projectsApi.getById).mockResolvedValue(project);
 
@@ -363,7 +377,7 @@ describe("projectStore", () => {
         await useProjectStore.getState().addWorkflow("proj-1", {
           name: "Approve",
           serviceName: "UserService",
-          mermaidCode: "graph TD\n  A-->B",
+          definition: AUTOMATION,
         });
       });
 
@@ -380,7 +394,7 @@ describe("projectStore", () => {
         id: "wf-1",
         name: "Approve Updated",
         serviceName: "UserService",
-        mermaidCode: "graph TD\n  A-->B-->C",
+        definition: AUTOMATION,
       });
       vi.mocked(projectsApi.getById).mockResolvedValue(project);
 

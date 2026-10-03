@@ -1,20 +1,15 @@
 /**
- * `%%hook` directives → generated lifecycle handlers.
+ * A model's `hooks` → generated lifecycle handlers.
  *
- * A workflow's diagram is how a reader sees the lifecycle; its `%%hook`
- * directives are what the generated application runs. The directives were being
- * stored faithfully in the model and then dropped on the floor at generation
- * time — `getHooks()` in the generated backend always returned `{}`, so a model
- * could declare `beforeCreate hashPassword on User` and the generated app would
- * silently do nothing.
+ * A hook flow is how a reader sees the lifecycle; the model's `hooks` are what
+ * the generated application runs. Hooks were once stored faithfully in the
+ * model and dropped at generation time — `getHooks()` in the generated backend
+ * always returned `{}`, so a model could declare `beforeCreate hashPassword` on
+ * User and the generated app would silently do nothing.
  *
- * This module reads the directives, validates them against the entities the
- * model actually declares, and hands the generator a list it can turn into
- * handler modules and a registry.
- *
- * The directive is self-describing (`... on <Entity>`), so hooks are collected
- * from the whole document rather than per workflow section. A hook declared
- * outside a `%%workflow` block is still a hook.
+ * This module validates the declared hooks against the entities the model
+ * declares and hands the generator a list it can turn into handler modules and
+ * a registry.
  */
 
 /** The lifecycle events a hook may bind to. Mirrors `language/appwithai-language.json`. */
@@ -33,6 +28,8 @@ export const HOOK_TYPES = [
   "afterList",
   "customValidate",
 ] as const;
+
+import type { HookDeclaration } from "../model/records";
 
 export type HookType = (typeof HOOK_TYPES)[number];
 
@@ -128,47 +125,15 @@ export interface CompiledHook {
   type: HookType;
   /** The generated function's name. */
   handler: string;
-  /** Field the hook is scoped to, when the directive names one. */
+  /** Field the hook is scoped to, when the hook names one. */
   field?: string;
   /** Order of declaration within the entity — hooks run in the order written. */
   order: number;
 }
 
-/**
- * `%%hook <type> <handler> on <Entity>[field: a, field: b]`
- *
- * The leading `%%` may be repeated (`%%%%hook`), which older generated
- * flowcharts emitted, so the anchor allows a run of them — but it is still an
- * anchor. Matching `%%hook` anywhere in the line meant a plain `%%` comment
- * that merely *mentioned* a hook compiled into a real one: prose is the one
- * thing the language promises is inert, and every other directive parser in the
- * generator anchors at `^%%` for exactly this reason.
- */
-const DIRECTIVE = /^%%+hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?/;
-
-/** Cheap pre-filter, held to the same anchor as DIRECTIVE. */
-const DIRECTIVE_LINE = /^%%+hook\b/;
-
-function parseFields(bracket: string | undefined): string | undefined {
-  if (!bracket) return undefined;
-  const inner = bracket.slice(1, -1).trim();
-  if (!inner) return undefined;
-  for (const part of inner.split(",")) {
-    const match = part.trim().match(/^(?:field:\s*)?(\w+)$/);
-    if (match?.[1]) return match[1];
-  }
-  return undefined;
-}
-
-/**
- * Read every `%%hook` directive in the document.
- *
- * `knownEntities` is what the ERD declares. A hook naming something else would
- * generate an import of a module for an entity that does not exist, so it is
- * reported and dropped rather than allowed to break the build.
- */
-export function compileHooks(
-  source: string,
+/** Compile hook declarations into the handlers the generated backend dispatches to. */
+export function compileHookDeclarations(
+  declarations: HookDeclaration[],
   knownEntities: string[] = [],
   onWarn: (message: string) => void = () => {}
 ): CompiledHook[] {
@@ -177,23 +142,8 @@ export function compileHooks(
   const seen = new Set<string>();
   const perEntity = new Map<string, number>();
 
-  for (const rawLine of (source ?? "").split("\n")) {
-    const line = rawLine.trim();
-    if (!DIRECTIVE_LINE.test(line)) continue;
-
-    const match = line.match(DIRECTIVE);
-    if (!match) {
-      onWarn(`Skipping malformed hook directive: ${line}`);
-      continue;
-    }
-
-    const [, type, handler, entity, bracket] = match as unknown as [
-      string,
-      string,
-      string,
-      string,
-      string | undefined,
-    ];
+  for (const declaration of declarations) {
+    const { event: type, handler, entity } = declaration;
 
     if (!HOOK_TYPE_SET.has(type)) {
       onWarn(`Hook "${handler}" on ${entity} uses unknown event "${type}" — skipped.`);
@@ -204,7 +154,7 @@ export function compileHooks(
       continue;
     }
 
-    // Two directives naming the same function on the same event would generate
+    // Two hooks naming the same function on the same event would generate
     // a duplicate export; the second is redundant either way.
     const key = `${entity}:${type}:${handler}`;
     if (seen.has(key)) {
@@ -220,7 +170,7 @@ export function compileHooks(
       entity,
       type: type as HookType,
       handler,
-      field: parseFields(bracket),
+      field: declaration.fields?.[0],
       order,
     });
   }

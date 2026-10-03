@@ -16,10 +16,11 @@
 import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import * as fs from "fs/promises";
 import * as path from "path";
-import type { EntityCategory } from "../parsers/category.parser";
+import type { EntityCategory } from "../model/categories";
 import type { CompiledRbac } from "../rbac";
 import type { CompiledReport } from "../reports";
 import type { CompiledRule } from "../rules";
+import type { SagaWorkflow } from "../workflows/saga";
 import type { CompiledWorkflow } from "../workflows/state-machine";
 import type { CompiledHook } from "../hooks";
 import {
@@ -85,26 +86,22 @@ export interface FullStackGeneratorOptions {
   skipTests?: boolean;
   /**
    * Application Dictionary entity categories parsed from the model's
-   * `%%category` directives. Falls back to a single "General" default.
+   * The model's `categories`. Falls back to a single "General" default.
    */
   categories?: EntityCategory[];
 
   /**
-   * `%%enum` declarations bound to a column by `%%field`, with their ids.
+   * Enums bound to a column by its `enum` key, with their ids.
    *
    * Reaches the dictionary seed, which defines the list references that
    * `sys_column.sys_reference_id` already points at.
    */
   modelEnums?: EntityEnum[];
 
+  /** The model's sagas, compiled — the source of `seed/workflows.sql`. */
+  sagas?: SagaWorkflow[];
   /**
-   * Raw EML source, so the backend generator can compile `kind: saga` sections.
-   * The parsed ERD cannot carry them: the Mermaid parser drops `%%` lines, the
-   * same reason `%%category` is read from source.
-   */
-  modelSource?: string;
-  /**
-   * `%%rbac` restrictions, compiled: which roles may perform which operation,
+   * The model's access rules (`rbac`), compiled: which roles may perform which operation,
    * and which may cross which state-machine edge.
    *
    * Reaches `seed/access.sql` and the role accounts the backend seeds, so an
@@ -112,24 +109,24 @@ export interface FullStackGeneratorOptions {
    */
   compiledRbac?: CompiledRbac;
   /**
-   * Decision graphs compiled from the model's `%%rule` sections.
+   * Decision graphs compiled from the model's `rules`.
    *
    * Reaches `seed/rules.sql`, which is what puts a row in
    * `sys_rule_definitions` — the table the generated app reads on every
    * business write, and which nothing used to populate.
    */
   compiledRules?: CompiledRule[];
-  /** Questions from `%%report`, for `seed/reports.sql` and `/api/reports`. */
+  /** Questions from the model's `reports`, for `seed/reports.sql` and `/api/reports`. */
   compiledReports?: CompiledReport[];
   /**
-   * Status machines from `%%workflow ... kind: state`.
+   * Status machines from the model's `stateMachines`.
    *
    * Reaches `seed/transitions.sql`, which is what the update guard refuses a
    * status write against and what the transitions endpoint offers a form.
    */
   compiledWorkflows?: CompiledWorkflow[];
   /**
-   * Lifecycle handlers from `%%hook`.
+   * Lifecycle handlers from the model's `hooks`.
    *
    * Reaches `backend/src/hooks/`, which the bus controller calls around every
    * CRUD operation — the step that turns a declared hook into one that runs.
@@ -208,7 +205,7 @@ export class FullStackGenerator {
         skipCliScaffold: this.options.skipCliScaffold,
         categories: this.options.categories,
         modelEnums: this.options.modelEnums,
-        modelSource: this.options.modelSource,
+        sagas: this.options.sagas,
         compiledRbac: this.options.compiledRbac,
         compiledRules: this.options.compiledRules,
         compiledReports: this.options.compiledReports,

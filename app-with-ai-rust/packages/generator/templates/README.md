@@ -1,112 +1,45 @@
-# Code Generation Templates
+# Generation templates
 
-This directory contains templates and configurations for generating different application stacks.
+The Handlebars templates the generators render into a generated application.
+There is one stack, `tanstack-astryx-loco`: a Loco.rs (Rust) backend and a
+TanStack Start + Astryx frontend, with bun end-to-end suites beside them.
 
-## Available Stacks
+```
+tanstack-astryx-loco/
+├── backend/             Loco.rs crate: Cargo workspace, migration/ crate,
+│                        config/*.yaml, controllers, services, tasks, request suites
+├── frontend/            TanStack Start routes and components, the Astryx overlay
+├── tests/               the generated bun:test harness and suites
+└── docker-compose.yml.hbs
+common/                  templates from the retired NestJS stack; no generator reads them
+```
 
-### 1. Next.js (nextjs/)
-
-- **Framework**: Next.js 14+ with React 18+
-- **Styling**: TailwindCSS + Shadcn UI
-- **Linting**: ESLint with React and Next.js plugins
-- **Type checking**: TypeScript strict mode
-- **Build command**: `bun run build` (includes lint check)
-- **Lint command**: `bun run lint`
-
-### 2. NestJS (nestjs/)
-
-- **Framework**: NestJS 10+ with Express
-- **ORM**: Knex.js with PostgreSQL
-- **Linting**: ESLint with TypeScript strict rules
-- **Testing**: Jest with type-checked tests
-- **Build command**: `bun run build` (includes lint check)
-- **Lint command**: `bun run lint`
-
-### 3. OData V4 (odata/)
-
-- **Framework**: @odata/server with Express
-- **ORM**: Knex.js with PostgreSQL
-- **Linting**: ESLint with TypeScript
-- **Type checking**: TypeScript strict mode
-- **Build command**: `bun run build` (includes lint check)
-- **Lint command**: `bun run lint`
-
-### 4. OpenUI5 (ui5/)
-
-- **Framework**: OpenUI5 with Flexible Column Layout
-- **Linting**: UI5 Linter
-- **Build tool**: UI5 Tooling
-- **Build command**: `bun run build` (includes UI5 lint check)
-- **Lint command**: `bun run lint` (uses ui5lint)
-
-## Template Structure
-
-Each stack has a `config/` directory containing:
-
-- `.eslintrc.cjs` - ESLint configuration (Next.js, NestJS, OData)
-- `.ui5lintrc.json` - UI5 Linter configuration (OpenUI5 only)
-- `package.json.hbs` - Handlebars template for package.json with lint scripts
-
-## Lint Integration
-
-All generated applications include:
-
-1. **Pre-build lint check**: The `build` script automatically runs `lint` before building
-2. **Lint fix**: Run `bun run lint:fix` to auto-fix issues
-3. **Type checking**: Run `bun run type-check` for TypeScript validation
-4. **Formatting**: Prettier configuration for code formatting
+Both generators render these files. `packages/generator` (TypeScript) emits the
+whole application; `crates/appwithai-gen` (Rust) emits `backend/`, and
+`bun run parity` holds the two backends byte-identical.
 
 ## Usage
 
-When generating a new application:
-
 ```bash
-# Generate Next.js application
-bun run generate:nextjs -- -i schema.mermaid -o ./generated/my-app
-
-# The generated app will have:
-cd generated/my-app
-bun install
-bun run lint        # Check for linting issues
-bun run lint:fix    # Auto-fix linting issues
-bun run build       # Lint + Build (will fail if lint fails)
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
+  -o generated-projects/drug-discovery -n drug-discovery
 ```
 
-## Customization
+The model is a YAML document (`*.eml.yaml`); see `language/yaml/README.md`.
+The generated project carries it, as written, in `model/model.eml.yaml`.
 
-To customize lint rules for generated applications:
+## Adding or changing a template
 
-1. Edit the appropriate `.eslintrc.cjs` or `.ui5lintrc.json` in the `config/` directory
-2. Modify the `package.json.hbs` template to add/remove scripts
-3. Regenerate applications to apply changes
-
-## Lint Rules
-
-### Common Rules (All Stacks)
-
-- No unused variables (errors)
-- Explicit `any` types discouraged (warnings)
-- No unused imports
-
-### Next.js Specific
-
-- React hooks rules enforced
-- Next.js core web vitals
-- No React import needed in JSX
-
-### NestJS Specific
-
-- Async/await safety (no floating promises)
-- Dependency injection patterns
-- Controller/Service patterns
-
-### OData Specific
-
-- Bun.js runtime best practices
-- Express middleware patterns
-
-### OpenUI5 Specific
-
-- No deprecated API usage
-- Proper component flags
-- Module pattern compliance
+1. A template is rendered only if its generator names it: `RENDERED_FILES` in
+   `src/generators/tanstack-astryx-loco/loco-backend.generator.ts` and
+   `crates/appwithai-gen/src/backend.rs` for the backend, the copy lists in the
+   frontend generator for verbatim files. One template per output file.
+2. Handlebars strict mode is off in both engines, so a helper one registry lacks
+   renders as an empty string rather than failing. Exercise a new helper in a
+   corpus model and run `bun run parity`.
+3. Never write `{{` in a template's output text — an inline `style={ {…} }`, a
+   `${VAR:-{{x}}}` shell default — use the `shellDefault` / `shellRequired`
+   helpers or hoist the value. `src/templates/__tests__/template-syntax.test.ts`
+   precompiles every template and rejects the inline shapes.
+4. Regenerate and confirm the change landed in the output: a template the
+   generator does not read changes nothing while looking like a finished fix.

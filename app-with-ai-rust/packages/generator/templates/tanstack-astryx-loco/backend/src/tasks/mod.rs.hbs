@@ -6,11 +6,11 @@
 //! * `seed_dictionary` — the `sys_*` Application Dictionary rows.
 //! * `ensure_admin` — the administrator, from `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 //! * `seed_workflows` — the model's `kind: saga` workflow definitions.
-//! * `seed_rules` — the decision graphs the model's `%%rule` sections compile to.
-//! * `seed_access` — the roles and restrictions the model's `%%rbac` declared.
+//! * `seed_rules` — the decision graphs the model's `rules` compile to.
+//! * `seed_access` — the roles and restrictions the model's access rules declared.
 //! * `seed_system` — the configuration keys an operator may change at run time.
 //! * `seed_business` — demonstration records for the model's own entities.
-//! * `seed_reports` — the questions the model's `%%report` directives asked.
+//! * `seed_reports` — the questions the model's `reports` asked.
 //!
 //! All eight are also run, in this order, by `cargo loco db seed`.
 

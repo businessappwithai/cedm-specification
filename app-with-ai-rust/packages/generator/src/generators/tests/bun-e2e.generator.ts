@@ -52,9 +52,9 @@ export interface BunE2ETestGeneratorOptions {
   frontendPort: number;
   /** Records the bulk-seed suite creates per entity. */
   recordsPerEntity?: number;
-  /** `%%enum` declarations, carried into `harness/model.ts`. */
+  /** Enum declarations, carried into `harness/model.ts`. */
   modelEnums?: EntityEnum[];
-  /** `%%workflow … kind: state` machines, carried into `harness/model.ts`. */
+  /** The model's `stateMachines`, carried into `harness/model.ts`. */
   compiledWorkflows?: CompiledWorkflow[];
 }
 

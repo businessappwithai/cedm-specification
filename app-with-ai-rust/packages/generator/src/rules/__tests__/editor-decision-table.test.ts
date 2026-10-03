@@ -3,10 +3,10 @@
  * Found by /qa on 2026-08-28.
  * Report: .gstack/qa-reports/qa-report-localhost-2026-08-28.md
  *
- * The editor writes a placeholder `Start --> End` flowchart and hangs the real
- * table off a `%%decision-table` directive. The compiler read only the
- * placeholder, so every rule built in the UI reached the generated app as an
- * input wired straight to an output — it ran, and decided nothing.
+ * The editor stores the table on the rule as `decisionTable`, beside a graph
+ * that is at most a placeholder. The compiler once read only the graph, so
+ * every rule built in the UI reached the generated app as an input wired
+ * straight to an output — it ran, and decided nothing.
  *
  * The property worth holding is the one a user can check by using the editor:
  * what the editor's own preview says a row decides is what the compiled graph
@@ -14,7 +14,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { compileRules } from "../index";
+import type { RuleDeclaration } from "../../model/records";
+import { compileRuleDeclarations } from "../index";
 import type { JdmGraph } from "../jdm-converter";
 
 interface EditorTable {
@@ -24,25 +25,23 @@ interface EditorTable {
   rules: Array<Record<string, string>>;
 }
 
-/** Exactly what `tableToEmlFlowchart()` in the web app emits. */
-const asEditorFlowchart = (table: EditorTable) =>
-  [
-    "flowchart TD",
-    "    Start([Rule table]) --> End([Result])",
-    `    %%decision-table ${JSON.stringify(table)}`,
-  ].join("\n");
+/** A rule as the editor saves it: the table, and the placeholder graph beside it. */
+const asEditorRule = (table: EditorTable, name: string): RuleDeclaration => ({
+  name,
+  entity: "Quote",
+  event: "beforeUpdate",
+  priority: 100,
+  nodes: [
+    { id: "Start", label: "Rule table", type: "start" },
+    { id: "End", label: "Result", type: "end" },
+  ],
+  edges: [{ from: "Start", to: "End" }],
+  actions: [],
+  decisionTable: table,
+});
 
 const compileOne = (table: EditorTable, name = "enterpriseDiscountCap") => {
-  const [rule] = compileRules([
-    {
-      name,
-      entity: "Quote",
-      event: "beforeUpdate",
-      priority: 100,
-      flowchart: asEditorFlowchart(table),
-      // biome-ignore lint/suspicious/noExplicitAny: EmlRuleSection carries extra fields the compiler ignores.
-    } as any,
-  ]);
+  const [rule] = compileRuleDeclarations([asEditorRule(table, name)]);
   if (!rule) throw new Error("rule did not compile");
   return JSON.parse(rule.jdmContent) as JdmGraph;
 };
@@ -142,22 +141,27 @@ describe("rules authored in the decision-table editor", () => {
     expect(node?.content?.rules[0]).not.toHaveProperty("o2");
   });
 
-  it("still compiles a hand-authored flowchart through the AST path", () => {
-    // The example models author rules as real flowcharts; that path must stay.
-    const [rule] = compileRules([
+  it("still compiles a hand-authored decision graph", () => {
+    // The example models author rules as decision graphs; that path must stay.
+    const [rule] = compileRuleDeclarations([
       {
         name: "leadScoring",
         entity: "Lead",
         event: "beforeCreate",
         priority: 10,
-        flowchart: [
-          "flowchart TD",
-          "    A([Start]) --> B{score >= 70?}",
-          "    B -->|Yes| C[Set rating hot]",
-          "    B -->|No| D[Set rating cold]",
-        ].join("\n"),
-        // biome-ignore lint/suspicious/noExplicitAny: as above.
-      } as any,
+        nodes: [
+          { id: "A", label: "Start", type: "start" },
+          { id: "B", label: "score >= 70?", type: "decision" },
+          { id: "C", label: "Set rating hot", type: "expression" },
+          { id: "D", label: "Set rating cold", type: "expression" },
+        ],
+        edges: [
+          { from: "A", to: "B" },
+          { from: "B", to: "C", label: "Yes" },
+          { from: "B", to: "D", label: "No" },
+        ],
+        actions: [],
+      },
     ]);
     const graph = JSON.parse(rule!.jdmContent) as JdmGraph;
     expect(graph.nodes.length).toBeGreaterThan(2);

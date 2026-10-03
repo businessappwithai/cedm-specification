@@ -601,7 +601,7 @@ async fn a_cascade_carries_a_value_from_the_triggering_record() {
 ///
 /// The promotion pipeline has two ways to be told "do not accept this record",
 /// and they come from different authoring routes: `prevent` is what the rules
-/// editor emits, `validation-error` is what a model's `%%action` compiles to.
+/// editor emits, `validation-error` is what a model's rule action compiles to.
 /// The pipeline recognised only the first, so a modelled validation was seeded,
 /// matched on the write, fell past the blocking pass into the action dispatch,
 /// and was logged as an unknown action while the record was written and

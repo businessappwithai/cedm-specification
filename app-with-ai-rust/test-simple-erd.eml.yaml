@@ -1,0 +1,78 @@
+eml: "1.0"
+entities:
+  - name: CUSTOMER
+    attributes:
+      - name: id
+        type: number
+        pk: true
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: address
+        type: string
+  - name: ORDER
+    attributes:
+      - name: id
+        type: number
+        pk: true
+      - name: customer_id
+        type: number
+        fk: true
+      - name: order_date
+        type: date
+      - name: status
+        type: string
+      - name: total_amount
+        type: number
+  - name: ORDER_LINE
+    attributes:
+      - name: id
+        type: number
+        pk: true
+      - name: order_id
+        type: number
+        fk: true
+      - name: product_id
+        type: number
+        fk: true
+      - name: quantity
+        type: number
+      - name: unit_price
+        type: number
+  - name: PRODUCT
+    attributes:
+      - name: id
+        type: number
+        pk: true
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: price
+        type: number
+      - name: stock_quantity
+        type: number
+relationships:
+  - from: CUSTOMER
+    fromCardinality: exactly-one
+    to: ORDER
+    toCardinality: zero-or-more
+    label: places
+  - from: ORDER
+    fromCardinality: exactly-one
+    to: ORDER_LINE
+    toCardinality: one-or-more
+    label: contains
+  - from: ORDER
+    fromCardinality: exactly-one
+    to: PRODUCT
+    toCardinality: one-or-more
+    label: references
+  - from: PRODUCT
+    fromCardinality: exactly-one
+    to: ORDER_LINE
+    toCardinality: zero-or-more
+    label: is ordered in

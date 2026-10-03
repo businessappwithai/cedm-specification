@@ -140,17 +140,14 @@ export const Route = createFileRoute("/api/projects/$id/")({
             });
           }
 
-          // The model, from `erd_versions` where `is_current`.
+          // The model: the saved YAML from the local Git state, or the current
+          // `erd_versions` row for a project saved before that existed.
           //
-          // `Project.erdCode` is declared on the type, computed by
-          // `projectDb.findById`, and read by the logic, enhance and design
-          // steps — but this route, the one the frontend actually calls, built
-          // its own projection from the `projects` row and dropped it. There is
-          // no ERD column on `projects`, so the field was never anything but
-          // `undefined` and every page reading it silently took its empty
-          // branch: Step 3 showed a placeholder flowchart instead of the
-          // model's rules, and `enhance/index` had already worked around it
-          // locally with a comment naming the cause.
+          // `Project.modelYaml` is computed by `projectDb.findById` and read by
+          // the design, logic and enhance steps, and this route — the one the
+          // frontend actually calls — builds its own projection from the
+          // `projects` row, which has no model column. Leaving it out here once
+          // left every page reading it on its empty branch.
           const { erdVersionDb } = await import("@appwithai/core/services");
           const currentErdVersion = await erdVersionDb.getCurrentErdVersion(id);
 
@@ -161,9 +158,9 @@ export const Route = createFileRoute("/api/projects/$id/")({
             .executeTakeFirst();
           const project = {
             gitCommit: gitState?.model_commit ?? null,
-            erdCode:
+            modelYaml:
               gitState?.model_code ??
-              (currentErdVersion as { mermaid_code?: string } | null)?.mermaid_code,
+              (currentErdVersion as { model_yaml?: string } | null)?.model_yaml,
             id: (dbProject as any).id,
             name: (dbProject as any).name,
             description: (dbProject as any).description,

@@ -21,7 +21,7 @@
  */
 
 import type { Entity, EntityAttribute } from "@appwithai/core/types";
-import type { ParsedModel } from "../pipeline/parse-model";
+import type { ParsedModel } from "../model/compile";
 import { rbacRoleNames } from "../rbac";
 
 /** Node labels. Kept small: a label per *kind of thing an author names*. */
@@ -126,7 +126,7 @@ export function buildModelGraph(model: ParsedModel): ModelGraph {
     }
   }
 
-  // A child declared by `%%entity <E> parent: <P>`. Directed parent → child,
+  // A child declared by an entity's `parent: <P>`. Directed parent → child,
   // because that is the direction the question is asked in: "what hangs off an
   // Invoice?" is far more common than the reverse.
   for (const entity of model.entities) {
@@ -367,7 +367,7 @@ export function buildModelGraph(model: ParsedModel): ModelGraph {
     }
   }
 
-  // ── Roles, from %%rbac ───────────────────────────────────────────────────
+  // ── Roles, from rbac ──────────────────────────────────────────────────────
   for (const rule of model.rbac.operations) {
     for (const role of rule.roles) {
       const roleKey = key("Role", role);
@@ -448,7 +448,7 @@ export function summariseModel(model: ParsedModel, projectName: string): string 
   if (model.workflows.length > 0) {
     parts.push(`${model.workflows.length} state machine(s) on ${model.workflows.map((w) => w.entity).join(", ")}.`);
   }
-  // Both kinds of `%%rbac` name roles, and a model may declare only the
+  // Both kinds of access rule name roles, and a model may declare only the
   // transition kind — drug-discovery does. `rbacRoleNames` is the one
   // derivation of the set; reading `operations` alone reported no roles at all
   // for a model with four.

@@ -71,14 +71,14 @@ CREATE TABLE IF NOT EXISTS {{tableName}} (
 
 -- Indexes.
 --
--- `entity.indexes` is the merge of what the model declared with `%%index` and
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
 -- the conventional single-column ones (a column called `name`, and anything
 -- unique). It is merged rather than emitted from both sources because both name
 -- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
 -- the same name meant the second — the one carrying UNIQUE — was the no-op.
 --
 -- Composite declarations are the ones that were silently lost before the parser
--- read `%%index` at all: no convention can produce them.
+-- read the model's indexes at all: no convention can produce them.
 {{#each indexes}}
 CREATE{{#if unique}} UNIQUE{{/if}} INDEX IF NOT EXISTS idx_{{../tableName}}_{{join columns "_"}} ON {{../tableName}} ({{join columns ", "}});
 {{/each}}

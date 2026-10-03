@@ -15,7 +15,11 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM"],
-    "types": ["node", "bun"]
+    "types": ["node", "bun"],
+    "paths": {
+      "@appwithai/core": ["./packages/core/src"],
+      "@appwithai/core/*": ["./packages/core/src/*"]
+    }
   },
   "include": ["language/**/*.ts"],
   "exclude": ["language/cli/runtime"]

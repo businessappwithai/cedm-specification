@@ -16,8 +16,8 @@ describe("snakeCase", () => {
   });
 
   it("agrees with the table name derived for the same entity", () => {
-    // packages/generator/src/parsers/mermaid.parser.ts#toSnakeCase produces
-    // "capa" for this entity; the FK template must target the same table.
+    // The model compiler derives "capa" for this entity (it calls this very
+    // function); the FK template must target the same table.
     expect(`bus_${snakeCase("CAPA")}`).toBe("bus_capa");
   });
 

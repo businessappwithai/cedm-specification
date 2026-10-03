@@ -4,16 +4,26 @@
  * Recovery replays the same bytes and operation ID, never creates a second version.
  */
 import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 import { getDatabase, sql } from "@appwithai/core/services";
-import { generateFlowchart, projectSource, selectModelContext } from "@appwithai/yamltecture";
+import {
+  type ModelDiagnostic,
+  readModelYaml,
+  serializeModelDocument,
+} from "@appwithai/generator/model-yaml";
+import {
+  type ModelContext,
+  projectSource,
+  readModelDocument,
+  selectModelContext,
+} from "@appwithai/yamltecture";
+import { automationFromYaml } from "../automation/yaml";
+import { type CompositionIssue, composeModel, type ServiceHookDefinition } from "../model/compose";
 import {
   assertCommit,
   commitFiles,
   decode,
   digest,
-  EDITOR,
   encode,
   ensureRepository,
   type Files,
@@ -22,9 +32,8 @@ import {
   head,
   inventory,
   MANIFEST,
-  MODEL,
+  MODEL_YAML,
   mergeGenerated,
-  outputRoot,
   projectDirectory,
   publishFiles,
   RepositoryError,
@@ -74,7 +83,7 @@ const workflowFields = [
   "name",
   "service_name",
   "workflow_type",
-  "mermaid_code",
+  "definition_yaml",
   "description",
   "extension_points",
   "config",
@@ -85,7 +94,6 @@ const workflowFields = [
   "status",
   "is_enabled",
   "hook_definitions",
-  "flowchart_code",
   "generated_hook_code",
   "is_draft",
 ];
@@ -244,7 +252,7 @@ async function finish(db: Db, dir: string, operation: Operation): Promise<Result
             id: `erd_${id}`,
             project_id: projectId,
             version_number: (last?.version_number ?? 0) + 1,
-            mermaid_code: p.model,
+            model_yaml: p.model,
             description: p.description || "Saved version",
             is_current: true,
             created_by: p.actor,
@@ -379,24 +387,61 @@ async function apply(
   return finish(db, dir, operation);
 }
 
-async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> {
-  // A saved automation remains in its original Mermaid representation as well as the composed input.
-  const diagrams = workflows
-    .map((w) => String(w.flowchart_code || w.mermaid_code || ""))
-    .filter(Boolean);
-  const additions = diagrams.filter((code) => !model.includes(code));
-  const composed = additions.length ? `${model.trimEnd()}\n\n${additions.join("\n\n")}\n` : model;
+/** A model that is not one, reported at the lines at fault. */
+function modelRefusal(diagnostics: ModelDiagnostic[], what: string): RepositoryError {
+  const lines = diagnostics
+    .filter((d) => d.severity === "error")
+    .slice(0, 8)
+    .map((d) => `  line ${d.line}:${d.column} ${d.code} ${d.message}`);
+  return new RepositoryError(`${what}:\n${lines.join("\n")}`, 422);
+}
+
+/**
+ * Check model text before it is saved.
+ *
+ * A draft must be a model document — YAML the schema accepts — because every
+ * reader downstream (the viewer, the assistant's projection, the graph) needs
+ * the document; it may still carry the checker's findings, since a draft is
+ * allowed to be unfinished. A named version is a claim that the model is
+ * ready, so it must pass the checker as well.
+ */
+function assertSavable(model: string, named: boolean): void {
+  const read = readModelYaml(model, { check: named });
+  if (!read.document) throw modelRefusal(read.diagnostics, "The model is not a valid model document");
+  if (named && !read.ok) throw modelRefusal(read.diagnostics, "A version must pass the model checker");
+}
+
+/**
+ * The model's files: the author's text, verbatim, and its canonical
+ * projection. The projection is what tells a change to the model from a change
+ * to how it is written, and what the assistant reads.
+ */
+function modelSourceFiles(model: string): Files {
+  if (!model.trim()) return {};
+  return {
+    [MODEL_YAML]: encode(model),
+    [AI_PROJECTION]: encode(projectSource(model)),
+  };
+}
+
+/** Where a saved automation's own document lives in the history. */
+const automationPath = (id: string) => `model/automations/${digest(String(id)).slice(0, 24)}.yaml`;
+
+/**
+ * Every file the model and its workflows are kept as. Exported for the one-time
+ * stored-model conversion, which writes the same layout rather than a second
+ * statement of it.
+ */
+export async function modelFiles(model: string, workflows: Workflow[]): Promise<Files> {
   const files: Files = {
-    [AI_PROJECTION]: encode(projectSource(composed)),
-    [EDITOR]: encode(model),
-    [MODEL]: encode(composed),
+    ...modelSourceFiles(model),
     "model/workflows.json": jsonFile(workflows.map(cleanWorkflow)),
   };
   for (const w of workflows) {
     const id = digest(String(w.id)).slice(0, 24);
     files[`model/workflows/${id}.json`] = jsonFile(cleanWorkflow(w));
-    const source = String(w.flowchart_code || w.mermaid_code || "");
-    if (source) files[`model/diagrams/${id}.mmd`] = encode(source);
+    if (typeof w.definition_yaml === "string" && w.definition_yaml)
+      files[automationPath(String(w.id))] = encode(w.definition_yaml);
   }
   return files;
 }
@@ -410,12 +455,12 @@ async function currentModel(db: Db, projectId: string): Promise<string> {
   if (state) return state.model_code;
   const version = await db
     .selectFrom("erd_versions")
-    .select("mermaid_code")
+    .select("model_yaml")
     .where("project_id", "=", projectId)
     .orderBy("is_current", "desc")
     .orderBy("version_number", "desc")
     .executeTakeFirst();
-  return version?.mermaid_code ?? "";
+  return version?.model_yaml ?? "";
 }
 
 async function initialize(db: Db, dir: string, projectId: string, actor: string): Promise<void> {
@@ -434,35 +479,16 @@ async function initialize(db: Db, dir: string, projectId: string, actor: string)
     .execute();
   const files = await inventory(dir);
   const originalPaths = Object.keys(files);
-  const originalModel = files[MODEL];
+  // A generated project already carries the model it was generated from. If
+  // the tool's saved model differs, both are kept: the saved one as the model,
+  // the generated one beside it for whoever reconciles them.
+  const originalModel = files[MODEL_YAML];
   Object.assign(files, await modelFiles(model, workflows));
-  if (originalModel && originalModel !== files[MODEL])
-    files["model/imported-generated.eml.mmd"] = originalModel;
-  const legacyDir = path.join(outputRoot(), ".mermaid-library");
-  const imported: string[] = [];
-  for (const filename of await fs.readdir(legacyDir).catch(() => [] as string[])) {
-    if (!filename.endsWith(".meta.json")) continue;
-    const meta = JSON.parse(await fs.readFile(path.join(legacyDir, filename), "utf8"));
-    if (meta.projectId !== projectId) continue;
-    const source = await fs.readFile(
-      path.join(legacyDir, path.basename(String(meta.filename))),
-      "utf8"
-    );
-    if (typeof meta.content === "string" && meta.content !== source)
-      throw new RepositoryError(`Ambiguous Mermaid library entry: ${meta.filename}`);
-    files[`model/library/${digest(String(meta.filename)).slice(0, 24)}.mmd`] = encode(source);
-    files[`model/library/${digest(String(meta.filename)).slice(0, 24)}.json`] = jsonFile({
-      filename: meta.filename,
-      type: meta.type,
-      canonical: meta.canonical,
-      createdAt: meta.createdAt,
-    });
-    imported.push(meta.filename);
-  }
+  if (originalModel && originalModel !== files[MODEL_YAML])
+    files["model/imported-generated.eml.yaml"] = originalModel;
   files[".appwithai/project.json"] = jsonFile({ projectId, formatVersion: 1 });
   files[".appwithai/import.json"] = jsonFile({
     sourcePaths: originalPaths.sort(),
-    libraryFiles: imported.sort(),
     note: "Existing code baseline; historical generated code is not inferred.",
   });
   files[".gitignore"] = encode(
@@ -502,12 +528,15 @@ async function archiveVersions(
             () => ""
           )
         ).trim() || null;
+      // Archived as it was saved. A version that no longer reads as a model
+      // document is refused by name, not archived as something else.
+      const read = readModelYaml(v.model_yaml, { check: false });
+      if (!read.document)
+        throw modelRefusal(read.diagnostics, `Version ${v.version_number} is not a valid model document`);
       commit = await commitFiles(
         dir,
         {
-          [EDITOR]: encode(v.mermaid_code),
-          [MODEL]: encode(v.mermaid_code),
-          [AI_PROJECTION]: encode(projectSource(v.mermaid_code)),
+          ...modelSourceFiles(v.model_yaml),
           "model/historical-version.json": jsonFile({
             id: v.id,
             version: v.version_number,
@@ -570,10 +599,14 @@ export async function saveProject(
     const model = input.model ?? (await currentModel(db, projectId));
     if (typeof model !== "string" || model.length > 5_000_000)
       throw new RepositoryError("Model must be text under 5 MB", 400);
+    if (!model.trim()) throw new RepositoryError("The model is empty; there is nothing to save.", 400);
+    assertSavable(model, input.mode === "version");
     if (previous) {
-      const baseline = await treeFiles(dir, previous.model_commit, "model");
-      const workingEditor = await readFile(dir, EDITOR);
-      if (workingEditor !== baseline[EDITOR] && workingEditor !== encode(model))
+      // A missing file reads as null from disk and as absent from the tree; a
+      // project with no model yet has neither, which is not an edit.
+      const baseline = (await treeFiles(dir, previous.model_commit, "model"))[MODEL_YAML] ?? null;
+      const working = await readFile(dir, MODEL_YAML);
+      if (working !== baseline && working !== encode(model))
         throw new RepositoryError(
           "The model file was edited outside the application. Preserve or import that edit before saving."
         );
@@ -633,7 +666,7 @@ export async function changeWorkflow(
           name: "Workflow",
           service_name: "",
           workflow_type: "automation",
-          mermaid_code: "",
+          definition_yaml: null,
           status: "draft",
           is_enabled: true,
           ...found,
@@ -646,7 +679,7 @@ export async function changeWorkflow(
     const files = await modelFiles(model, workflows);
     for (const name of Object.keys(await inventory(dir)))
       if (
-        (name.startsWith("model/workflows/") || name.startsWith("model/diagrams/")) &&
+        (name.startsWith("model/workflows/") || name.startsWith("model/automations/")) &&
         !(name in files)
       )
         files[name] = null;
@@ -716,8 +749,14 @@ export async function restoreProject(
         if (name.startsWith("model/")) delete snapshot[name];
       Object.assign(snapshot, input);
     }
-    if (!snapshot[EDITOR] && !snapshot[MODEL])
-      throw new RepositoryError("Snapshot has no model", 400);
+    // Every snapshot the tool restores holds its model as YAML: saves write it,
+    // and the one-time conversion archived every version that predates it. A
+    // commit that has none is from before that and is not a model to restore.
+    if (!snapshot[MODEL_YAML])
+      throw new RepositoryError(
+        `Snapshot ${commit.slice(0, 8)} has no ${MODEL_YAML}. Restore one of the project's versions instead.`,
+        400
+      );
     if (target.scope === "model" && !snapshot["model/workflows.json"]) {
       const workflows = await db
         .selectFrom("workflows")
@@ -726,17 +765,17 @@ export async function restoreProject(
         .orderBy("id")
         .execute();
       const original = await treeFiles(dir, (await head(dir))!, "model");
-      const historicalModel = decode(snapshot[EDITOR] || snapshot[MODEL]!);
-      Object.assign(snapshot, original, await modelFiles(historicalModel, workflows));
+      Object.assign(snapshot, original, await modelFiles(decode(snapshot[MODEL_YAML]!), workflows));
     }
     // Checkpoint every allowlisted local source before replacing anything.
     await apply(db, dir, projectId, "checkpoint", await inventory(dir), {
       actor,
       description: "Preserve local work before restore",
     });
+    const model = decode(snapshot[MODEL_YAML]!);
     const files: Files = {
       ...snapshot,
-      [AI_PROJECTION]: encode(projectSource(decode(snapshot[MODEL]!))),
+      [AI_PROJECTION]: encode(projectSource(model)),
     };
     for (const name of Object.keys(await treeFiles(dir, (await head(dir))!))) {
       if (
@@ -747,7 +786,6 @@ export async function restoreProject(
       )
         files[name] = null;
     }
-    const model = decode(snapshot[EDITOR] || snapshot[MODEL]!);
     const workflows = snapshot["model/workflows.json"]
       ? JSON.parse(decode(snapshot["model/workflows.json"]!))
       : undefined;
@@ -771,14 +809,86 @@ export async function restoreProject(
   });
 }
 
+/**
+ * What generation reads for a saved model commit: the model with the sagas and
+ * hooks its automations and services add, as they were saved in that commit.
+ *
+ * When nothing is added the author's text is what generates, comments and all,
+ * so the generated project carries the model exactly as it was written. When
+ * something is, the composed document is written canonically under a header
+ * naming where each addition came from. Either way it is checked as a model
+ * before anything is generated from it.
+ */
+export function generationInput(
+  model: string,
+  workflows: Workflow[]
+): { modelYaml: string; warnings: CompositionIssue[] } {
+  const automations = [];
+  const serviceHooks: Array<{ service: string; hooks: ServiceHookDefinition[] }> = [];
+  for (const row of workflows) {
+    if (row.workflow_type === "automation" && typeof row.definition_yaml === "string") {
+      try {
+        automations.push({ ...automationFromYaml(row.definition_yaml), name: String(row.name) });
+      } catch (error) {
+        throw new RepositoryError(
+          `Automation "${String(row.name)}" cannot be read: ${error instanceof Error ? error.message : String(error)}`,
+          422
+        );
+      }
+    } else if (row.workflow_type === "hooks" && row.hook_definitions) {
+      const hooks =
+        typeof row.hook_definitions === "string"
+          ? (JSON.parse(row.hook_definitions) as ServiceHookDefinition[])
+          : (row.hook_definitions as ServiceHookDefinition[]);
+      serviceHooks.push({ service: String(row.service_name), hooks });
+    }
+  }
+
+  const composition = composeModel(readModelDocument(model), { automations, serviceHooks });
+  const errors = composition.issues.filter((issue) => issue.severity === "error");
+  if (errors.length)
+    throw new RepositoryError(
+      `The project's automations cannot be added to the model:\n${errors
+        .map((issue) => `  ${issue.source}: ${issue.message}`)
+        .join("\n")}`,
+      422
+    );
+
+  const { sagas, hooks } = composition.added;
+  const modelYaml =
+    sagas || hooks
+      ? `# The model in model/model.eml.yaml, with ${sagas} saga(s) and ${hooks} hook(s)\n` +
+        "# added from the project's automations and services when it was generated.\n" +
+        serializeModelDocument(composition.document)
+      : model;
+  const read = readModelYaml(modelYaml);
+  if (!read.ok) throw modelRefusal(read.diagnostics, "The model cannot be generated from");
+  return {
+    modelYaml,
+    warnings: composition.issues.filter((issue) => issue.severity === "warning"),
+  };
+}
+
 export async function prepareGeneration(projectId: string, actor: string, input: SaveInput) {
   const saved = await saveProject(projectId, actor, input);
   return locked(projectId, async (_db, dir) => {
     const modelCommit = saved.modelCommit ?? saved.commit;
     const snapshot = await treeFiles(dir, modelCommit, "model");
+    if (!snapshot[MODEL_YAML])
+      throw new RepositoryError(
+        `The saved model ${modelCommit.slice(0, 8)} has no ${MODEL_YAML}; save the model again.`,
+        500
+      );
+    const workflows: Workflow[] = snapshot["model/workflows.json"]
+      ? JSON.parse(decode(snapshot["model/workflows.json"]))
+      : [];
+    const { modelYaml, warnings } = generationInput(decode(snapshot[MODEL_YAML]), workflows);
     return {
       modelCommit,
-      model: decode(snapshot[MODEL]!),
+      /** What generation reads: the saved model, with what its automations add. */
+      modelYaml,
+      /** What composition had to say that does not stop generation. */
+      warnings,
       directory: dir,
       expectedHead: await head(dir),
       sourceHashes: Object.fromEntries(
@@ -809,7 +919,7 @@ export async function publishGeneration(
           stale: (await repositoryHistory(projectId)).state?.model_commit !== prepared.modelCommit,
         };
     }
-    if (incoming[MODEL] && decode(incoming[MODEL]!) !== prepared.model)
+    if (incoming[MODEL_YAML] && decode(incoming[MODEL_YAML]) !== prepared.modelYaml)
       throw new RepositoryError(
         "The generator changed the input model during validation. Save the corrected model before publishing.",
         422
@@ -862,8 +972,8 @@ export async function publishGeneration(
     );
     changes[MANIFEST] = jsonFile(nextManifest);
     // Preserve the exact generator input, even if the editor has advanced meanwhile.
-    changes[".appwithai/generated-model.eml.mmd"] = encode(prepared.model);
-    changes[".appwithai/generated-model.ai.yaml"] = encode(projectSource(prepared.model));
+    changes[".appwithai/generated-model.eml.yaml"] = encode(prepared.modelYaml);
+    changes[".appwithai/generated-model.ai.yaml"] = encode(projectSource(prepared.modelYaml));
     changes[GENERATION] = jsonFile({
       inputCommit: prepared.modelCommit,
       baselineCommit,
@@ -961,77 +1071,75 @@ export function repositoryFailure(error: unknown): Response {
   );
 }
 
-export interface DiagramEntry {
+/** One model in a project's library: an exported snapshot someone can load again. */
+export interface LibraryEntry {
   filename: string;
   projectId: string;
-  type: string;
+  /** Whether this entry is the project's current model. */
   canonical: boolean;
   content: string;
   createdAt: string;
   downloadUrl: string;
 }
-export async function projectDiagrams(projectId: string): Promise<DiagramEntry[]> {
+
+/** A library entry is a model file: a plain name ending in `.eml.yaml`. */
+const LIBRARY_FILENAME = /^[a-zA-Z0-9._-]+\.eml\.yaml$/;
+const libraryPrefix = (filename: string) => `model/library/${digest(filename).slice(0, 24)}`;
+
+export async function projectLibrary(projectId: string): Promise<LibraryEntry[]> {
   const state = await getDatabase()
     .selectFrom("project_git_state")
     .select("project_id")
     .where("project_id", "=", projectId)
     .executeTakeFirst();
-  const entries: DiagramEntry[] = [];
-  const dir = state
-    ? await projectDirectory(projectId)
-    : path.join(outputRoot(), ".mermaid-library");
-  const files = state
-    ? Object.keys(await inventory(dir)).filter(
-        (n) => n.startsWith("model/library/") && n.endsWith(".json")
-      )
-    : (await fs.readdir(dir).catch(() => [] as string[])).filter((n) => n.endsWith(".meta.json"));
-  for (const name of files) {
-    const raw = state
-      ? await readFile(dir, name)
-      : encode(await fs.readFile(path.join(dir, name), "utf8"));
-    if (!raw) continue;
-    const meta = JSON.parse(decode(raw));
-    if (!state && meta.projectId !== projectId) continue;
-    const bytes = state
-      ? await readFile(dir, name.replace(/\.json$/, ".mmd"))
-      : encode(await fs.readFile(path.join(dir, path.basename(String(meta.filename))), "utf8"));
+  if (!state) return [];
+  const dir = await projectDirectory(projectId);
+  const entries: LibraryEntry[] = [];
+  const files = await inventory(dir);
+  for (const name of Object.keys(files).sort()) {
+    if (!name.startsWith("model/library/") || !name.endsWith(".json")) continue;
+    const meta = JSON.parse(decode(files[name]!));
+    const bytes = files[name.replace(/\.json$/, ".eml.yaml")];
     if (!bytes) continue;
     entries.push({
       filename: meta.filename,
       projectId,
-      type: meta.type ?? "erd",
       canonical: !!meta.canonical,
       content: decode(bytes),
       createdAt: meta.createdAt,
-      downloadUrl: `/api/mermaid/${encodeURIComponent(meta.filename)}?projectId=${encodeURIComponent(projectId)}`,
+      downloadUrl: `/api/model-library/${encodeURIComponent(meta.filename)}?projectId=${encodeURIComponent(projectId)}`,
     });
   }
   return entries;
 }
 
-export async function saveDiagram(
+/**
+ * Keep a model in the project's library. A canonical entry also becomes the
+ * project's model, through the same checks a save makes.
+ */
+export async function saveLibraryModel(
   projectId: string,
   actor: string,
-  diagram: { filename: string; type?: string; content: string; canonical?: boolean },
+  entry: { filename: string; content: string; canonical?: boolean },
   requestId?: string
 ) {
-  if (!/^[a-zA-Z0-9._-]+\.mmd$/.test(diagram.filename) || diagram.filename.includes(".."))
-    throw new RepositoryError("A diagram must have a plain .mmd filename", 400);
-  if (typeof diagram.content !== "string" || diagram.content.length > 5_000_000)
-    throw new RepositoryError("Invalid diagram content", 400);
+  if (!LIBRARY_FILENAME.test(entry.filename) || entry.filename.includes(".."))
+    throw new RepositoryError("A library model must have a plain name ending in .eml.yaml", 400);
+  if (typeof entry.content !== "string" || entry.content.length > 5_000_000)
+    throw new RepositoryError("A library model must be text under 5 MB", 400);
+  assertSavable(entry.content, false);
   return locked(projectId, async (db, dir) => {
     await initialize(db, dir, projectId, actor);
-    const prefix = `model/library/${digest(diagram.filename).slice(0, 24)}`;
+    const prefix = libraryPrefix(entry.filename);
     const files: Files = {
-      [`${prefix}.mmd`]: encode(diagram.content),
+      [`${prefix}.eml.yaml`]: encode(entry.content),
       [`${prefix}.json`]: jsonFile({
-        filename: diagram.filename,
-        type: diagram.type ?? "erd",
-        canonical: !!diagram.canonical,
+        filename: entry.filename,
+        canonical: !!entry.canonical,
         createdAt: new Date().toISOString(),
       }),
     };
-    if (diagram.canonical) {
+    if (entry.canonical) {
       for (const [name, bytes] of Object.entries(await inventory(dir)))
         if (
           name.startsWith("model/library/") &&
@@ -1043,7 +1151,7 @@ export async function saveDiagram(
           if (meta.canonical) files[name] = jsonFile({ ...meta, canonical: false });
         }
     }
-    const model = diagram.canonical ? diagram.content : await currentModel(db, projectId);
+    const model = entry.canonical ? entry.content : await currentModel(db, projectId);
     const workflows = await db
       .selectFrom("workflows")
       .selectAll()
@@ -1057,25 +1165,27 @@ export async function saveDiagram(
       projectId,
       "draft",
       files,
-      { model, workflows, actor, description: `Save diagram ${diagram.filename}` },
+      { model, workflows, actor, description: `Save library model ${entry.filename}` },
       requestId,
-      digest(JSON.stringify(diagram))
+      digest(JSON.stringify(entry))
     );
   });
 }
 
-export async function deleteDiagram(projectId: string, actor: string, filename: string) {
+export async function deleteLibraryModel(projectId: string, actor: string, filename: string) {
+  if (!LIBRARY_FILENAME.test(filename) || filename.includes(".."))
+    throw new RepositoryError("A library model must have a plain name ending in .eml.yaml", 400);
   return locked(projectId, async (db, dir) => {
     await initialize(db, dir, projectId, actor);
-    const prefix = `model/library/${digest(filename).slice(0, 24)}`;
+    const prefix = libraryPrefix(filename);
     const model = await currentModel(db, projectId);
     return apply(
       db,
       dir,
       projectId,
       "draft",
-      { [`${prefix}.mmd`]: null, [`${prefix}.json`]: null },
-      { model, actor, description: `Remove diagram ${filename}` }
+      { [`${prefix}.eml.yaml`]: null, [`${prefix}.json`]: null },
+      { model, actor, description: `Remove library model ${filename}` }
     );
   });
 }
@@ -1104,51 +1214,65 @@ export async function saveProjectFiles(
   });
 }
 
-/** Read-only semantic context, selected from a saved Git snapshot. */
-export async function projectModelContext(projectId: string, question = "", commit?: string) {
+/** Read-only model context for the assistant, selected from a saved Git snapshot. */
+export async function projectModelContext(
+  projectId: string,
+  question = "",
+  commit?: string
+): Promise<ModelContext & { commit: string | null; projection: string; recentDiff: string }> {
   const state = await getDatabase()
     .selectFrom("project_git_state")
     .selectAll()
     .where("project_id", "=", projectId)
     .executeTakeFirst();
   const selectedCommit = commit ?? state?.model_commit;
+
+  let source: string;
+  let recentDiff = "";
   if (!selectedCommit) {
-    const model = await currentModel(getDatabase(), projectId);
-    const context = selectModelContext(model, question);
+    source = await currentModel(getDatabase(), projectId);
+  } else {
+    const dir = await projectDirectory(projectId);
+    await ensureRepository(dir, projectId, true, true);
+    const snapshot = await treeFiles(dir, selectedCommit, "model");
+    source = snapshot[MODEL_YAML] ? decode(snapshot[MODEL_YAML]) : "";
+    const parent = (await git(dir, ["rev-list", "--parents", "-n", "1", selectedCommit]))
+      .trim()
+      .split(" ")[1];
+    recentDiff = parent
+      ? (
+          await git(dir, [
+            "diff",
+            "--no-ext-diff",
+            "--no-textconv",
+            "--unified=2",
+            parent,
+            selectedCommit,
+            "--",
+            AI_PROJECTION,
+          ])
+        ).slice(0, 8000)
+      : "";
+  }
+
+  // A project with no model yet has nothing to select from, which is an answer
+  // — an empty context — not a failure.
+  if (!source.trim()) {
     return {
-      ...context,
-      diagram: generateFlowchart(context.graph),
-      commit: null,
-      projection: projectSource(model),
-      recentDiff: "",
+      yaml: "",
+      graph: { nodes: [], links: [] },
+      entityNames: [],
+      truncated: false,
+      fingerprint: "",
+      commit: selectedCommit ?? null,
+      projection: "",
+      recentDiff,
     };
   }
-  const dir = await projectDirectory(projectId);
-  await ensureRepository(dir, projectId, true, true);
-  const snapshot = await treeFiles(dir, selectedCommit, "model");
-  const source = decode(snapshot[MODEL] || encode(""));
-  const parent = (await git(dir, ["rev-list", "--parents", "-n", "1", selectedCommit]))
-    .trim()
-    .split(" ")[1];
-  const recentDiff = parent
-    ? (
-        await git(dir, [
-          "diff",
-          "--no-ext-diff",
-          "--no-textconv",
-          "--unified=2",
-          parent,
-          selectedCommit,
-          "--",
-          AI_PROJECTION,
-        ])
-      ).slice(0, 8000)
-    : "";
-  const context = selectModelContext(source, question);
+  const document = readModelDocument(source);
   return {
-    ...context,
-    diagram: generateFlowchart(context.graph),
-    commit: selectedCommit,
+    ...selectModelContext(document, question),
+    commit: selectedCommit ?? null,
     projection: projectSource(source),
     recentDiff,
   };

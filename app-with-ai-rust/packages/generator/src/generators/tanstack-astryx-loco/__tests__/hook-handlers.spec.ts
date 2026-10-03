@@ -1,5 +1,5 @@
 /**
- * The `%%hook` emission layer.
+ * The emission layer for the model's `hooks`.
  *
  * Two properties matter here and neither is visible to the parity gate, which
  * only proves the two generators agree with *each other*:
@@ -116,7 +116,7 @@ describe("buildHookRegistry", () => {
 
   it("declares a dispatch function for every hook type, even with no hooks at all", () => {
     // The bus controller calls all of them unconditionally, so a model with no
-    // `%%hook` still has to produce a crate that compiles.
+    // `hooks` still has to produce a crate that compiles.
     const registry = buildHookRegistry([]);
     for (const type of HOOK_TYPES) {
       const fn = type.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
@@ -201,6 +201,6 @@ describe("buildHookHandlersMod", () => {
   it("is still valid Rust for a model with no hooks", () => {
     const mod = buildHookHandlersMod([]);
     expect(mod).not.toContain("pub mod ;");
-    expect(mod).toContain("No `%%hook` directive in this model.");
+    expect(mod).toContain("No hooks are declared in this model.");
   });
 });

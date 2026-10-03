@@ -27,7 +27,7 @@ import { insert, raw, uuidv5 } from "./dictionary-seed";
 
 export interface SystemSeedOptions {
   projectName: string;
-  /** `%%meta description:`, or the CLI's description when the model has none. */
+  /** The model's `description`, or the CLI's description when the model has none. */
   projectDescription: string;
   /** Value written to every `created_by` / `updated_by`. */
   createdBy?: string;
@@ -69,7 +69,7 @@ const SETTINGS: SettingRow[] = [
     dataType: "text",
     category: "identity",
     description:
-      "What this application is for. Taken from the model's %%meta description: and returned " +
+      "What this application is for. Taken from the model's description and returned " +
       "by GET /api/me/health.",
   },
   {

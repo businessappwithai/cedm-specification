@@ -36,6 +36,14 @@ const PRUNE: &[&str] = &[
 ];
 
 pub fn is_available(command: &str) -> bool {
+    // A WASI guest cannot start a process at all, so nothing on the host PATH
+    // is available to it — and `which` would not say so: it splits `PATH` with
+    // `env::split_paths`, which panics on WASI rather than returning an error.
+    // The CLI-WASM host (`scripts/appwithai-wasm.mjs`) runs `cargo fmt` itself.
+    if cfg!(target_os = "wasi") {
+        let _ = command;
+        return false;
+    }
     which::which(command).is_ok()
 }
 

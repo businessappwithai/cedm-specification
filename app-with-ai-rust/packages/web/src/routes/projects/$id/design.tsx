@@ -1,62 +1,54 @@
+/**
+ * Step 2 — the model.
+ *
+ * The model is a YAML document, and this page edits it: the YAML on one side,
+ * diagrams drawn from it on the other (`ModelViewer`), every finding of the
+ * generator's own reader at its line. The assistant writes a new model from a
+ * description or revises this one; what it returns is checked before it is
+ * shown, and nothing is saved until the author saves it.
+ *
+ * Every save is a commit in the project's local Git history. A draft may be
+ * unfinished; a named version must pass the model checker.
+ */
+
+import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  CircleX,
-  Clock,
   Database,
   Download,
-  FileCode2,
-  FileText,
-  FolderOpen,
-  GitCommit,
-  HelpCircle,
   History,
-  Library,
-  List,
   Loader2,
   Maximize2,
   Minimize2,
-  RefreshCw,
   RotateCcw,
   Save,
-  Search,
   Send,
   Sparkles,
   Upload,
   X,
   Zap,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
-import mermaid from "mermaid";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
-import { useModelAssistant } from "@/hooks/useModelAssistant";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { DbOperationsModal } from "@/components/DbOperationsModal";
-import { ErdFlowViewer } from "@/components/ErdFlowViewer";
 import { JourneyArc } from "@/components/JourneyArc";
+import { ModelViewer, type ModelReadState, type ModelViewerHandle } from "@/components/model/ModelViewer";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { ProjectGitHistory } from "@/components/project/ProjectGitHistory";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
-import type { ERDVersion } from "@/lib/api/projects";
-import { erdVersionsApi } from "@/lib/api/projects";
-import { toRenderableMermaid } from "@/lib/mermaid-render";
+import { useModelAssistant } from "@/hooks/useModelAssistant";
+import { type ERDVersion, erdVersionsApi } from "@/lib/api/projects";
 import { useProjectStore } from "@/store/projectStore";
+import type { LibraryModel } from "@/types/project";
 
 export const Route = createFileRoute("/projects/$id/design")({
   component: DesignRoute,
 });
 
-// CopilotProvider must sit ABOVE the component that calls useCopilotReadable /
-// useCopilotAction. Rendering it inside DesignPage's own JSX puts the context
-// below the hooks that read it, which throws
-// "useCopilotKit must be used within CopilotKitProvider".
+// CopilotProvider must sit above the component that calls the Copilot hooks.
 function DesignRoute() {
   return (
     <CopilotProvider>
@@ -65,16 +57,47 @@ function DesignRoute() {
   );
 }
 
+interface AssistantResult {
+  model: string;
+  ok: boolean;
+  attempts: number;
+  dropped: string[];
+  diagnostics: Array<{ severity: string; line: number; column: number; code: string; message: string }>;
+}
+
+/** Read a server-sent event stream, calling `onEvent` for each `data:` line. */
+async function readEvents(response: Response, onEvent: (data: Record<string, unknown>) => void) {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("The response has no body");
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)));
+    }
+  }
+}
+
+/** A file name someone can find again, from the project's own name. */
+function fileNameFor(name: string, version: number): string {
+  const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "model";
+  return `${slug}-v${version}.eml.yaml`;
+}
+
 function DesignPage() {
   const navigate = useNavigate();
   const { id: projectId } = Route.useParams();
-
   const {
     getProject,
     loadProject,
-    updateErdCode,
-    saveErdVersion,
-    restoreErdVersion,
+    saveModelDraft,
+    saveModelVersion,
+    restoreModelVersion,
     setCurrentStep,
     goToNextStep,
     currentProject,
@@ -83,2185 +106,462 @@ function DesignPage() {
   const project = getProject(projectId) || currentProject;
 
   useEffect(() => {
-    if (!getProject(projectId) && !currentProject) {
-      loadProject(projectId);
-    }
+    if (!getProject(projectId) && !currentProject) void loadProject(projectId);
   }, [projectId, getProject, currentProject, loadProject]);
 
-  const [erdCode, setErdCode] = useState("");
-  /**
-   * What the Validate button last found, or null if it has not been pressed.
-   *
-   * It used to write into state nothing rendered — the variable was
-   * `_validationErrors`, underscore and all — so the button was inert on both
-   * paths: a valid model showed nothing, and a diagram Mermaid could not parse
-   * also showed nothing. A button whose success and failure look identical is
-   * one you stop pressing.
-   */
-  const [validationResult, setValidationResult] = useState<{
-    ok: boolean;
-    messages: string[];
-  } | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
+  const saved = project?.modelYaml ?? "";
+  const [model, setModel] = useState("");
+  const [read, setRead] = useState<ModelReadState>({ diagnostics: [], ok: false });
+  const [notice, setNotice] = useState<{ tone: "info" | "error"; text: string } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveNotice, setSaveNotice] = useState("");
-  const [gitRefresh, setGitRefresh] = useState(0);
-  const [aiInput, setAiInput] = useState("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiStatus, setAiStatus] = useState<{
-    step: string;
-    message: string;
-    progress: number;
-    details?: string;
-  } | null>(null);
-
-  const [aiStepsLog, setAiStepsLog] = useState<
-    Array<{
-      id: string;
-      step: string;
-      message: string;
-      details?: string;
-      timestamp: number;
-      status: "pending" | "in-progress" | "completed" | "error";
-      sessionId: string;
-    }>
-  >([]);
-
-  const [showAiDetails, setShowAiDetails] = useState(false);
-  const [showPreviousSteps, setShowPreviousSteps] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string>("");
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [mermaidRenderError, setMermaidRenderError] = useState<string | null>(null);
-
-  const [previousSteps, setPreviousSteps] = useState<
-    Array<{
-      id: string;
-      step: string;
-      message: string;
-      details?: string;
-      timestamp: number;
-      status: "pending" | "in-progress" | "completed" | "error";
-      sessionId: string;
-    }>
-  >([]);
-
-  const [_showMermaidError, setShowMermaidError] = useState(false);
-  const [_mermaidErrorDetails, setMermaidErrorDetails] = useState<{
-    message: string;
-    fullError: string;
-    timestamp: number;
-  } | null>(null);
-  const [errorLine, setErrorLine] = useState<number | null>(null);
-  const [conversationHistory, setConversationHistory] = useState<
-    Array<{
-      role: "user" | "assistant";
-      content: string;
-      timestamp: number;
-    }>
-  >([]);
-  const conversationHistoryRef = useRef(conversationHistory);
-  const [zoom, setZoom] = useState(100);
+  const [commitMessage, setCommitMessage] = useState("");
   const [showVersions, setShowVersions] = useState(false);
   const [versions, setVersions] = useState<ERDVersion[]>([]);
   const [isLoadingVersions, setIsLoadingVersions] = useState(false);
-  const [commitMessage, setCommitMessage] = useState("");
-  const [entitySearch, setEntitySearch] = useState("");
-  const [showEntityList, setShowEntityList] = useState(false);
-  const [autoRetryCount, setAutoRetryCount] = useState(0);
-  const [isAutoRetrying, setIsAutoRetrying] = useState(false);
-  const [showFlowView, setShowFlowView] = useState(false);
+  const [gitRefresh, setGitRefresh] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importTab, setImportTab] = useState<"local" | "library">("local");
-  const [libraryFiles, setLibraryFiles] = useState<Array<{ filename: string; projectName: string; content: string; downloadUrl: string; createdAt: string }>>([]);
-  const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const erdCodeRef = useRef(erdCode);
+  const [showImport, setShowImport] = useState(false);
+  const [library, setLibrary] = useState<LibraryModel[]>([]);
+  const [prompt, setPrompt] = useState("");
+  const [assistant, setAssistant] = useState<{
+    running: boolean;
+    step?: string;
+    message?: string;
+    result?: AssistantResult;
+  }>({ running: false });
+  const viewer = useRef<ModelViewerHandle>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const modelRef = useRef(model);
+  modelRef.current = model;
 
-  const examples = [
-    {
-      name: "Blog",
-      content: `erDiagram
-    USER {
-        int id PK
-        string name
-        string email
-        string passwordHash
-        datetime createdAt
-    }
-    POST {
-        int id PK
-        string title
-        text content
-        datetime publishedAt
-        int authorId FK
-    }
-    COMMENT {
-        int id PK
-        text content
-        datetime createdAt
-        int postId FK
-        int authorId FK
-    }
-    TAG {
-        int id PK
-        string name
-        string slug
-    }
-    POST_TAG {
-        int postId FK
-        int tagId FK
-    }
-    USER ||--o{ POST : "writes"
-    USER ||--o{ COMMENT : "writes"
-    POST ||--o{ COMMENT : "has"
-    POST }o--o{ TAG : "tagged"
-`,
-    },
-    {
-      name: "E-commerce",
-      content: `erDiagram
-    CUSTOMER {
-        int id PK
-        string name
-        string email
-        string phone
-        datetime createdAt
-    }
-    PRODUCT {
-        int id PK
-        string name
-        string description
-        decimal price
-        int stock
-        int categoryId FK
-    }
-    CATEGORY {
-        int id PK
-        string name
-    }
-    ORDER {
-        int id PK
-        datetime orderedAt
-        string status
-        decimal total
-        int customerId FK
-    }
-    ORDER_ITEM {
-        int id PK
-        int orderId FK
-        int productId FK
-        int quantity
-        decimal unitPrice
-    }
-    CUSTOMER ||--o{ ORDER : "places"
-    ORDER ||--|{ ORDER_ITEM : "contains"
-    PRODUCT ||--o{ ORDER_ITEM : "included in"
-    CATEGORY ||--o{ PRODUCT : "groups"
-`,
-    },
-    {
-      name: "Project Mgmt",
-      content: `erDiagram
-    USER {
-        int id PK
-        string name
-        string email
-        string role
-    }
-    PROJECT {
-        int id PK
-        string name
-        string description
-        date startDate
-        date endDate
-        int ownerId FK
-    }
-    TASK {
-        int id PK
-        string title
-        string status
-        date dueDate
-        int projectId FK
-        int assigneeId FK
-    }
-    MILESTONE {
-        int id PK
-        string name
-        date targetDate
-        int projectId FK
-    }
-    USER ||--o{ PROJECT : "owns"
-    PROJECT ||--o{ TASK : "has"
-    PROJECT ||--o{ MILESTONE : "tracks"
-    USER ||--o{ TASK : "assigned to"
-`,
-    },
-    {
-      name: "Hospital",
-      content: `erDiagram
-    PATIENT {
-        int id PK
-        string name
-        date dateOfBirth
-        string bloodType
-        string phone
-    }
-    DOCTOR {
-        int id PK
-        string name
-        string specialty
-        string licenseNumber
-    }
-    APPOINTMENT {
-        int id PK
-        datetime scheduledAt
-        string status
-        string notes
-        int patientId FK
-        int doctorId FK
-    }
-    MEDICAL_RECORD {
-        int id PK
-        string diagnosis
-        string treatment
-        datetime recordedAt
-        int patientId FK
-        int doctorId FK
-    }
-    PATIENT ||--o{ APPOINTMENT : "books"
-    DOCTOR ||--o{ APPOINTMENT : "conducts"
-    PATIENT ||--o{ MEDICAL_RECORD : "has"
-    DOCTOR ||--o{ MEDICAL_RECORD : "creates"
-`,
-    },
-  ];
-
+  // Load the saved model once the project is here; afterwards the editor owns it.
+  const loadedFor = useRef<string | null>(null);
   useEffect(() => {
-    conversationHistoryRef.current = conversationHistory;
-  }, [conversationHistory]);
+    if (!project || loadedFor.current === project.id) return;
+    loadedFor.current = project.id;
+    setCurrentStep("design");
+    setModel(project.modelYaml ?? "");
+  }, [project, setCurrentStep]);
 
-  useEffect(() => {
-    erdCodeRef.current = erdCode;
-  }, [erdCode]);
-
-  useEffect(() => {
-    if (!showImportModal && !showDbModal) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (showImportModal) setShowImportModal(false);
-        if (showDbModal) setShowDbModal(false);
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [showImportModal, showDbModal]);
-
-  const previewRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const lineNumbersRef = useRef<HTMLDivElement>(null);
-  const renderTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const [expandedVersions, setExpandedVersions] = useState<Set<string>>(new Set());
+  const dirty = model !== saved;
 
   useCopilotReadable({
     description:
-      "Current ERD diagram in Mermaid erDiagram syntax. This is the source of truth for the entity-relationship diagram being designed.",
-    value: erdCodeRef.current,
+      "The application's model: a YAML document in the AppWithAI model language (entities, relationships, rules, state machines, sagas). It is the source of truth.",
+    value: modelRef.current,
   });
-
-  // The graph-backed retrieval: a summary in every message, plus the actions
-  // that answer a structural question exactly. `surface: "entities"` steers it
-  // towards not duplicating what the model already declares.
   useModelAssistant({ projectId, surface: "entities" });
-
   useCopilotAction({
-    name: "updateERD",
+    name: "updateModel",
     description:
-      "Update the ERD diagram by replacing it with new Mermaid erDiagram code. Use this to add entities, modify attributes, or change relationships based on the user's request.",
+      "Replace the model with a revised YAML document. Send the complete document; it is checked and shown to the author, who decides whether to save it.",
     parameters: [
-      {
-        name: "mermaidCode",
-        type: "string",
-        description:
-          "The complete new Mermaid erDiagram code to replace the current ERD with.",
-        required: true,
-      },
+      { name: "model", type: "string", description: "The complete revised YAML document", required: true },
     ],
-    handler: ({ mermaidCode }: { mermaidCode: string }) => {
-      setErdCode(mermaidCode);
+    handler: ({ model: next }: { model: string }) => {
+      setModel(next);
+      setNotice({ tone: "info", text: "The assistant revised the model. Review it, then save." });
     },
   });
 
-  const entities = useMemo(() => {
-    if (!erdCode) return [];
-    const lines = erdCode.split("\n");
-    const entityList: Array<{
-      name: string;
-      startLine: number;
-      endLine: number;
-      attributes: string[];
-    }> = [];
-    let currentEntity: { name: string; startLine: number; attributes: string[] } | null = null;
-
-    lines.forEach((line, index) => {
-      const trimmed = line.trim();
-      const entityMatch = trimmed.match(/^(\w+)\s*\{/);
-      if (entityMatch?.[1] && !trimmed.startsWith("erDiagram")) {
-        currentEntity = {
-          name: entityMatch[1],
-          startLine: index,
-          attributes: [],
-        };
-      } else if (trimmed === "}" && currentEntity) {
-        entityList.push({ ...currentEntity, endLine: index });
-        currentEntity = null;
-      } else if (currentEntity && trimmed && !trimmed.match(/^{/)) {
-        currentEntity.attributes.push(trimmed);
-      }
-    });
-
-    return entityList;
-  }, [erdCode]);
-
-  const filteredEntities = useMemo(() => {
-    if (!entitySearch) return entities;
-    const searchLower = entitySearch.toLowerCase();
-    return entities.filter(
-      (e) =>
-        e.name.toLowerCase().includes(searchLower) ||
-        e.attributes.some((a) => a.toLowerCase().includes(searchLower))
-    );
-  }, [entities, entitySearch]);
-
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: "default",
-      securityLevel: "loose",
-      maxTextSize: 50000,
-      maxEdges: 500,
-      suppressErrorRendering: true,
-    });
-  }, []);
-
-  useEffect(() => {
-    if (project) {
-      setCurrentStep("design");
-      // The saved model — the project's local Git state, falling back to the
-      // current `erd_versions` row for a project saved before that existed.
-      // Every save goes through one endpoint now, so there is no separate
-      // canonical `.mmd` file to prefer over it.
-      setErdCode(project.erdCode || "erDiagram\n");
-    }
-  }, [project, setCurrentStep]);
-
-  const renderDiagram = useCallback(
-    async (code: string) => {
-      if (!previewRef.current) return;
-
-      if (!code.trim() || code.trim() === "erDiagram") {
-        if (previewRef.current) {
-          previewRef.current.innerHTML =
-            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; text-align: center; font-size: 14px;"><div><p style="margin: 0 0 8px 0; font-weight: 500;">No entities defined yet</p><p style="margin: 0; font-size: 12px; color: #999; max-width: 300px;">Describe your data model using the AI assistant below, or manually edit the Mermaid code on the left</p></div></div>';
-        }
-        setMermaidRenderError(null);
-        return;
-      }
-
-      document.querySelectorAll('div[id^="dmermaid-"]').forEach((el) => {
-        const svg = el.querySelector('svg[aria-roledescription="error"]');
-        if (svg) {
-          el.remove();
-        }
-      });
-
-      try {
-        if (renderTimeoutRef.current) {
-          clearTimeout(renderTimeoutRef.current);
-        }
-
-        const id = `mermaid-${Date.now()}`;
-        const { svg } = await mermaid.render(id, toRenderableMermaid(code));
-
-        const mermaidDiv = document.getElementById(`d${id}`);
-        console.log("Mermaid render output:", { svg, mermaidDiv });
-        mermaidDiv?.remove();
-        if (mermaidDiv) {
-          const hasError =
-            mermaidDiv.querySelector('svg[aria-roledescription="error"]') ||
-            svg.includes("Syntax error in text") ||
-            svg.includes("error-icon") ||
-            svg.includes("error-text");
-          if (hasError) {
-            mermaidDiv.remove();
-            if (previewRef.current) {
-              previewRef.current.innerHTML = "";
-            }
-            setValidationResult(null);
-            setShowMermaidError(false);
-            setMermaidErrorDetails(null);
-            setErrorLine(null);
-            return;
-          }
-        }
-
-        if (previewRef.current) {
-          const hasErrorText =
-            svg.includes("Syntax error in text") ||
-            svg.includes('class="error-icon"') ||
-            svg.includes('class="error-text"');
-
-          if (hasErrorText) {
-            previewRef.current.innerHTML =
-              '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; text-align: center; font-size: 14px;"><div><p style="margin: 0 0 8px 0; font-weight: 500;">No entities defined yet</p><p style="margin: 0; font-size: 12px; color: #999; max-width: 300px;">Describe your data model using the AI assistant below, or manually edit the Mermaid code on the left</p></div></div>';
-          } else if (svg.includes('<g class="nodes"></g>')) {
-            previewRef.current.innerHTML =
-              '<div style="display: flex; align-items: center; justify-content: center; min-height: 400px; color: #666; text-align: center; font-size: 14px; width: 100%;"><div><p style="margin: 0 0 8px 0; font-weight: 500;">No entities defined yet</p><p style="margin: 0; font-size: 12px; color: #999; max-width: 300px;">Describe your data model using the AI assistant below, or manually edit the Mermaid code on the left</p></div></div>';
-          } else {
-            previewRef.current.innerHTML = svg;
-          }
-
-          setValidationResult(null);
-          setShowMermaidError(false);
-          setMermaidErrorDetails(null);
-          setErrorLine(null);
-          setMermaidRenderError(null);
-        }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        console.error("Mermaid render error:", errorMsg);
-
-        if (previewRef.current) {
-          previewRef.current.innerHTML =
-            '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; text-align: center; font-size: 14px;"><div><p style="margin: 0 0 8px 0; font-weight: 500;">No entities defined yet</p><p style="margin: 0; font-size: 12px; color: #999; max-width: 300px;">Describe your data model using the AI assistant below, or manually edit the Mermaid code on the left</p></div></div>';
-        }
-
-        setMermaidRenderError(errorMsg);
-        setValidationResult(null);
-        setShowMermaidError(false);
-        setMermaidErrorDetails(null);
-      }
-    },
-    [erdCode]
-  );
-
-  const extractReadableError = useCallback(
-    (errorMsg: string): string => {
-      const lineMatch = errorMsg.match(/line (\d+):/);
-      const expectMatch = errorMsg.match(/Expecting '([^']+)', got '([^']+)'/);
-      const parseErrorMatch = errorMsg.match(/Parse error on line (\d+):/);
-
-      if (parseErrorMatch) {
-        const lineNumber = parseInt(parseErrorMatch[1] ?? "0", 10);
-        setErrorLine(lineNumber);
-        const lines = erdCode.split("\n");
-        const errorLineText = lines[lineNumber - 1] || "";
-
-        let readable = `Syntax error on line ${lineNumber}`;
-        if (errorLineText.trim()) {
-          readable += `:\n"${errorLineText.trim()}"`;
-        }
-        if (expectMatch) {
-          readable += `\n\nExpected: ${expectMatch[1]}\nGot: ${expectMatch[2]}`;
-        }
-        return readable;
-      }
-
-      if (lineMatch) {
-        const lineNumber = parseInt(lineMatch[1] ?? "0", 10);
-        setErrorLine(lineNumber);
-        const lines = erdCode.split("\n");
-        const errorLineText = lines[lineNumber - 1] || "";
-        return `Error on line ${lineNumber}: ${errorLineText.trim() || "Empty or invalid syntax"}`;
-      }
-
-      setErrorLine(null);
-      return errorMsg;
-    },
-    [erdCode]
-  );
-
-  const addAiStep = useCallback(
-    (
-      step: string,
-      message: string,
-      details?: string,
-      status: "pending" | "in-progress" | "completed" | "error" = "in-progress"
-    ) => {
-      const id = `${step}-${Date.now()}`;
-      const sessionId = currentSessionId || `session-${Date.now()}`;
-      setAiStepsLog((prev) => {
-        const existingIndex = prev.findIndex((s) => s.step === step && s.sessionId === sessionId);
-        if (existingIndex >= 0) {
-          const updated = [...prev];
-          const existing = updated[existingIndex];
-          updated[existingIndex] = {
-            id: existing?.id ?? `${step}-${Date.now()}`,
-            step: existing?.step ?? step,
-            message,
-            details,
-            status,
-            timestamp: Date.now(),
-            sessionId,
-          };
-          return updated;
-        }
-        return [...prev, { id, step, message, details, timestamp: Date.now(), status, sessionId }];
-      });
-      setAiStatus({ step, message, progress: getProgressFromStep(step), details });
-    },
-    [currentSessionId]
-  );
-
-  const getProgressFromStep = useCallback((step: string): number => {
-    const progressMap: Record<string, number> = {
-      starting: 5,
-      analyzing: 20,
-      generating: 50,
-      validating: 80,
-      complete: 100,
-      error: 0,
-    };
-    return progressMap[step] || 50;
-  }, []);
-
-  // The preview SVG is injected imperatively into previewRef, so any React
-  // reconciliation of that subtree throws it away. Re-render whenever a side
-  // panel or view toggle reflows the preview, not just when the code changes,
-  // otherwise opening Version History leaves the preview permanently blank.
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      renderDiagram(erdCode);
-    }, 800);
-
-    return () => clearTimeout(debounceTimer);
-  }, [erdCode, renderDiagram, showVersions, showEntityList, showFlowView, isFullscreen]);
-
-  const loadVersions = async () => {
+  const loadVersions = useCallback(async () => {
     setIsLoadingVersions(true);
     try {
-      const versionList = await erdVersionsApi.getAll(projectId);
-      setVersions(versionList);
+      setVersions(await erdVersionsApi.getAll(projectId));
     } catch (error) {
-      console.error("Failed to load versions:", error);
+      setNotice({ tone: "error", text: error instanceof Error ? error.message : "Could not load versions" });
     } finally {
       setIsLoadingVersions(false);
     }
-  };
+  }, [projectId]);
 
   useEffect(() => {
-    if (showVersions) {
-      loadVersions();
-    }
-  }, [showVersions, projectId]);
+    if (showVersions) void loadVersions();
+  }, [showVersions, loadVersions]);
 
-  const handleValidate = async () => {
-    setIsValidating(true);
-    try {
-      const id = `validate-${Date.now()}`;
-      await mermaid.render(id, toRenderableMermaid(erdCode));
-      setValidationResult({
-        ok: true,
-        // Says what was checked, not just that something passed. This button
-        // renders the diagram; the full EML checker runs at generate time and
-        // can still refuse a model that draws perfectly well, so promising
-        // "valid" outright would be a promise this cannot keep.
-        messages: [`The diagram parses and renders. ${entities.length} entities.`],
-      });
-    } catch (error) {
-      setValidationResult({
-        ok: false,
-        messages: [error instanceof Error ? error.message : String(error)],
-      });
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const handleSave = async (saveAsVersion = false) => {
+  const save = async (asVersion: boolean) => {
     setIsSaving(true);
-    setSaveNotice("Saving to local Git…");
+    setNotice({ tone: "info", text: "Saving to the project's local Git history…" });
     try {
-      if (saveAsVersion) {
-        await saveErdVersion(projectId, erdCode, commitMessage || "Manual save");
+      if (asVersion) {
+        await saveModelVersion(projectId, model, commitMessage || "Saved version");
         setCommitMessage("");
         await loadVersions();
       } else {
-        await updateErdCode(projectId, erdCode);
+        await saveModelDraft(projectId, model);
       }
-      setSaveNotice(saveAsVersion ? "Version saved to local Git" : "Draft saved to local Git");
+      setNotice({ tone: "info", text: asVersion ? "Version saved." : "Draft saved." });
       setGitRefresh((value) => value + 1);
+      return true;
     } catch (error) {
-      setSaveNotice(
-        error instanceof Error
-          ? error.message
-          : "Save failed. Your edits are still here. Retry to recover."
-      );
+      setNotice({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Save failed. Your edits are still here.",
+      });
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleRestoreVersion = async (versionId: string) => {
-    if (erdCode !== (project?.erdCode || "erDiagram\n")) {
-      setSaveNotice("Save your draft before restoring a version.");
+  const restore = async (version: ERDVersion) => {
+    if (dirty) {
+      setNotice({ tone: "error", text: "Save or discard your edits before restoring a version." });
       return;
     }
     try {
-      await restoreErdVersion(projectId, versionId);
+      await restoreModelVersion(projectId, version.id);
+      setModel(version.model_yaml);
       setGitRefresh((value) => value + 1);
-      setSaveNotice("Model restored in a new Git commit. Regenerate the application to match.");
       await loadVersions();
-
-      const version = versions.find((v) => v.id === versionId);
-      if (version) {
-        setErdCode(version.mermaid_code);
-      }
+      setNotice({
+        tone: "info",
+        text: `Version ${version.version_number} restored in a new commit. Regenerate the application to match.`,
+      });
     } catch (error) {
-      setSaveNotice(error instanceof Error ? error.message : "Restore failed");
+      setNotice({ tone: "error", text: error instanceof Error ? error.message : "Restore failed" });
     }
   };
 
-  const toggleVersionExpanded = (versionId: string) => {
-    setExpandedVersions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(versionId)) {
-        newSet.delete(versionId);
-      } else {
-        newSet.add(versionId);
-      }
-      return newSet;
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (seconds < 60) return "just now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-  };
-
-  const handleGenerate = async () => {
-    await handleSave();
-    goToNextStep();
-    navigate({ to: "/projects/$id/rules-design", params: { id: projectId } });
-  };
-
-  const handleAiSubmit = async () => {
-    if (!aiInput.trim()) return;
-
-    setIsAiLoading(true);
-    setMermaidRenderError(null);
-
-    if (aiStepsLog.length > 0) {
-      setPreviousSteps((prev) => [...prev, ...aiStepsLog]);
-      setShowPreviousSteps(false);
-    }
-
-    const newSessionId = `session-${Date.now()}`;
-    setCurrentSessionId(newSessionId);
-
-    setAiStepsLog([]);
-    addAiStep(
-      "starting",
-      "Initializing AI assistant...",
-      "Connecting to the AI service to process your request"
-    );
-
-    const newUserMessage = {
-      role: "user" as const,
-      content: aiInput,
-      timestamp: Date.now(),
-    };
-
+  const runAssistant = async () => {
+    if (!prompt.trim() || assistant.running) return;
+    setAssistant({ running: true, step: "starting", message: "Sending the request…" });
     try {
-      addAiStep(
-        "analyzing",
-        "Analyzing your requirements...",
-        `Understanding your request: "${aiInput.slice(0, 50)}${aiInput.length > 50 ? "..." : ""}"`
-      );
-
       const response = await fetch("/api/ai/convert-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: aiInput,
-          currentErdCode: erdCode,
-          conversationHistory: [...conversationHistoryRef.current, newUserMessage],
+          description: prompt,
+          currentModel: model.trim() ? model : undefined,
+          name: project?.name,
         }),
       });
-
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? `The assistant could not be reached (${response.status})`);
       }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) {
-        throw new Error("No response body");
-      }
-
-      let buffer = "";
-      let finalMermaidSyntax = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = JSON.parse(line.slice(6));
-
-            if (data.step === "analyzing") {
-              addAiStep(
-                "analyzing",
-                data.message,
-                "Extracting entities and relationships from your description",
-                "in-progress"
-              );
-            } else if (data.step === "generating") {
-              addAiStep(
-                "generating",
-                data.message,
-                "Creating Mermaid ERD syntax from the analyzed domain",
-                "in-progress"
-              );
-            } else if (data.step === "validating") {
-              addAiStep(
-                "validating",
-                data.message,
-                "Verifying the generated Mermaid syntax is valid",
-                "in-progress"
-              );
-            } else if (data.mermaidSyntax) {
-              finalMermaidSyntax = data.mermaidSyntax;
-              setErdCode(data.mermaidSyntax);
-            } else if (data.message && data.step === "error") {
-              addAiStep("error", "Generation failed", data.message, "error");
-              throw new Error(data.message);
-            }
-          }
-        }
-      }
-
-      if (finalMermaidSyntax) {
-        const entityCount = finalMermaidSyntax
-          .split("\n")
-          .filter((l) => l.trim() && !l.startsWith("erDiagram")).length;
-        addAiStep(
-          "complete",
-          "ERD generated successfully!",
-          `Created ${entityCount} lines of Mermaid ERD code with entities and relationships`,
-          "completed"
-        );
-
-        setConversationHistory((prev) => [
-          ...prev,
-          newUserMessage,
-          {
-            role: "assistant",
-            content: `Generated/updated ERD with ${entityCount} entities/relationships`,
-            timestamp: Date.now(),
-          },
-        ]);
-        setAiInput("");
-
-        setAutoRetryCount(0);
-        setIsAutoRetrying(true);
-
-        try {
-          const isValid = await validateAndAutoRetry(finalMermaidSyntax, aiInput);
-          if (!isValid) {
-            addAiStep(
-              "warning",
-              "ERD has validation errors",
-              "Please review the errors and fix them manually or ask AI to fix specific issues",
-              "error"
-            );
-          }
-        } catch (validationError) {
-          console.error("Validation error during auto-retry:", validationError);
-        } finally {
-          setIsAutoRetrying(false);
-        }
-      }
-    } catch (error) {
-      console.error("AI conversion error:", error);
-      const errorMsg = error instanceof Error ? error.message : "Unknown error";
-      addAiStep("error", "Generation failed", errorMsg, "error");
-      setTimeout(() => setAiStatus(null), 3000);
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const validateAndAutoRetry = async (
-    generatedCode: string,
-    originalPrompt: string
-  ): Promise<boolean> => {
-    const maxRetries = parseInt(import.meta.env.VITE_ERD_DESIGN_AUTO_RETRY_COUNT || "3", 10);
-    const retryDelay = parseInt(import.meta.env.VITE_ERD_DESIGN_RETRY_DELAY_MS || "2000", 10);
-
-    setMermaidRenderError(null);
-    addAiStep(
-      "validating",
-      "Validating generated ERD...",
-      "Checking for Mermaid syntax errors",
-      "in-progress"
-    );
-
-    try {
-      const id = `validate-${Date.now()}`;
-      await mermaid.render(id, toRenderableMermaid(generatedCode));
-
-      addAiStep("complete", "Validation successful!", "ERD is syntactically correct", "completed");
-      return true;
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Unknown validation error";
-      console.error("ERD Validation failed:", errorMsg);
-
-      if (autoRetryCount < maxRetries) {
-        const newRetryCount = autoRetryCount + 1;
-        setAutoRetryCount(newRetryCount);
-
-        addAiStep(
-          "retrying",
-          `Validation failed. Auto-retrying (${newRetryCount}/${maxRetries})...`,
-          `Attempting to fix errors automatically. ${errorMsg}`,
-          "in-progress"
-        );
-
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
-
-        const retryPrompt = `The generated ERD has validation errors. Please fix them following Mermaid ERD syntax rules:\n\nError: ${errorMsg}\n\nMermaid ERD Syntax Rules:\n- Format: ENTITY { type fieldName constraints }\n- Valid constraints: PK (Primary Key), FK (Foreign Key), UK (Unique Key)\n- Do NOT use: AUTO_INCREMENT, NOT_NULL, UNIQUE (use UK instead)\n- Separate multiple constraints with space, not commas\n- Example: int id PK (not: int id PK, AUTO_INCREMENT)\n\nHere is the ERD code that needs to be fixed:\n\`\`\`mermaid\n${generatedCode}\n\`\`\`\n\nPlease provide ONLY the corrected Mermaid ERD code, starting with \`erDiagram\`.`;
-
-        try {
-          const response = await fetch("/api/ai/convert-stream", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              description: retryPrompt,
-              currentErdCode: generatedCode,
-              conversationHistory: [
-                ...conversationHistoryRef.current,
-                {
-                  role: "user",
-                  content: originalPrompt,
-                  timestamp: Date.now(),
-                },
-                {
-                  role: "assistant",
-                  content: `Generated ERD (attempt ${autoRetryCount})`,
-                  timestamp: Date.now(),
-                },
-                {
-                  role: "user",
-                  content: retryPrompt,
-                  timestamp: Date.now(),
-                },
-              ],
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-          }
-
-          const reader = response.body?.getReader();
-          const decoder = new TextDecoder();
-
-          if (!reader) {
-            throw new Error("No response body");
-          }
-
-          let buffer = "";
-          let correctedMermaidSyntax = "";
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = JSON.parse(line.slice(6));
-
-                if (data.step === "generating") {
-                  addAiStep(
-                    "retrying-fix",
-                    "Applying AI corrections...",
-                    "Fixing validation errors in the ERD",
-                    "in-progress"
-                  );
-                } else if (data.mermaidSyntax) {
-                  correctedMermaidSyntax = data.mermaidSyntax;
-                  setErdCode(data.mermaidSyntax);
-                } else if (data.message && data.step === "error") {
-                  throw new Error(data.message);
-                }
-              }
-            }
-          }
-
-          if (correctedMermaidSyntax) {
-            return await validateAndAutoRetry(correctedMermaidSyntax, originalPrompt);
-          }
-        } catch (retryError) {
-          console.error("Auto-retry failed:", retryError);
-          addAiStep(
-            "retry-error",
-            "Auto-retry failed",
-            `Could not fix errors automatically: ${retryError instanceof Error ? retryError.message : "Unknown error"}`,
-            "error"
-          );
-          return false;
-        }
-      } else {
-        addAiStep(
-          "retry-exhausted",
-          "Auto-retries exhausted",
-          `Maximum retry attempts (${maxRetries}) reached. Please review and fix errors manually.`,
-          "error"
-        );
-
-        setMermaidErrorDetails({
-          message: extractReadableError(errorMsg),
-          fullError: errorMsg,
-          timestamp: Date.now(),
-        });
-        setShowMermaidError(true);
-        return false;
-      }
-
-      return false;
-    }
-  };
-
-  const handleZoomIn = () => setZoom((z) => Math.min(z + 10, 200));
-  const handleZoomOut = () => setZoom((z) => Math.max(z - 10, 50));
-  const handleZoomReset = () => setZoom(100);
-
-  const handleExportMrd = async () => {
-    if (!erdCode.trim()) {
-      alert("No ERD code to export");
-      return;
-    }
-
-    const version = versions.length > 0 ? `v${versions.length}` : "v1";
-    const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const filename = `${sanitizedName}-erd-${version}.mmd`;
-
-    // Save to server mermaid library
-    try {
-      await fetch("/api/mermaid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId,
-          projectName: project?.name ?? "export",
-          filename,
-          type: "erd",
-          content: erdCode,
-        }),
+      let result: AssistantResult | undefined;
+      await readEvents(response, (data) => {
+        if (data.step === "error") throw new Error(String(data.message));
+        if (data.step === "complete") result = data as unknown as AssistantResult;
+        else setAssistant((current) => ({ ...current, step: String(data.step), message: String(data.message) }));
       });
-    } catch (_e) {
-      // Non-blocking - still download locally
+      if (!result) throw new Error("The assistant finished without a model");
+      setModel(result.model);
+      setPrompt("");
+      setAssistant({ running: false, result });
+    } catch (error) {
+      setAssistant({ running: false, step: "error", message: error instanceof Error ? error.message : String(error) });
     }
+  };
 
-    const blob = new Blob([erdCode], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
+  const exportModel = async () => {
+    if (!model.trim()) return;
+    const filename = fileNameFor(project?.name ?? "model", versions.length + 1);
+    const response = await fetch("/api/model-library", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, filename, content: model }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      setNotice({ tone: "error", text: body.error ?? "The model could not be kept in the library" });
+    }
+    const url = URL.createObjectURL(new Blob([model], { type: "application/yaml" }));
     const link = document.createElement("a");
     link.href = url;
     link.download = filename;
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  const handleImportFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.name.endsWith(".mmd") && !file.name.endsWith(".md")) {
-      setImportError("Only .mmd files are supported");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      if (!text.trim().startsWith("erDiagram") && !text.trim().startsWith("flowchart") && !text.trim().startsWith("graph")) {
-        setImportError("File does not appear to be a valid Mermaid ERD. Must start with 'erDiagram'.");
-        return;
-      }
-      setErdCode(text);
-      setShowImportModal(false);
-      setImportError(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    };
-    reader.readAsText(file);
+  const openImport = async () => {
+    setShowImport(true);
+    const response = await fetch(`/api/model-library?projectId=${encodeURIComponent(projectId)}`);
+    const body = await response.json().catch(() => ({}));
+    setLibrary(response.ok ? (body.files ?? []) : []);
   };
 
-  const handleLoadLibraryFiles = async () => {
-    setIsLoadingLibrary(true);
-    setImportError(null);
-    try {
-      const res = await fetch("/api/mermaid?type=erd");
-      if (!res.ok) throw new Error("Failed to load library");
-      const data = await res.json();
-      setLibraryFiles(data.files ?? []);
-    } catch (err) {
-      setImportError(err instanceof Error ? err.message : "Failed to load library");
-    } finally {
-      setIsLoadingLibrary(false);
-    }
+  const importText = (text: string, from: string) => {
+    setModel(text);
+    setShowImport(false);
+    setNotice({ tone: "info", text: `Loaded ${from}. It is not saved until you save it.` });
   };
 
-  const handleLoadFromLibrary = (content: string) => {
-    setErdCode(content);
-    setShowImportModal(false);
-    setImportError(null);
+  const continueToLogic = async () => {
+    if (dirty && !(await save(false))) return;
+    goToNextStep();
+    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
   };
 
-  const handleOpenImportModal = () => {
-    setImportError(null);
-    setImportTab("local");
-    setShowImportModal(true);
-    handleLoadLibraryFiles();
-  };
-
-  const jumpToEntity = (lineNumber: number) => {
-    if (editorRef.current) {
-      const lines = erdCode.split("\n");
-      const position = lines.slice(0, lineNumber).join("\n").length;
-      editorRef.current.focus();
-      editorRef.current.setSelectionRange(position, position);
-      editorRef.current.scrollTop = lineNumber * 20;
-    }
-  };
-
-  const shouldLoad = !getProject(projectId) && !currentProject;
-
-  if (isLoading || shouldLoad) {
+  if (isLoading || (!project && !getProject(projectId))) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Zap className="w-6 h-6 text-blue-600 animate-pulse" />
-          <p className="text-slate-600 dark:text-slate-400">Loading project...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center gap-3 text-muted-foreground">
+        <Zap className="h-6 w-6 animate-pulse text-primary" />
+        Loading project…
       </div>
     );
   }
-
   if (!project) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-slate-500">Project not found</p>
-      </div>
-    );
+    return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Project not found</div>;
   }
+
+  const errors = read.diagnostics.filter((d) => d.severity === "error").length;
 
   return (
     <CopilotSidebar
-        instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
-        defaultOpen={false}
-      >
-        <div className="min-h-screen bg-background flex flex-col">
-          {saveNotice && (
-            <p role="status" className="px-6 py-2 text-sm border-b">
-              {saveNotice}
-            </p>
-          )}
-          {!isFullscreen && (
-            <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
-              <div className="max-w-[1800px] mx-auto px-6 py-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setShowEntityList(!showEntityList)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showEntityList
-                            ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        title="Browse entities"
-                      >
-                        <List className="w-4 h-4" />
-                        Entities
-                        {entities.length > 0 && (
-                          <span className="px-1.5 py-0.5 text-xs bg-purple-500 text-white rounded-full">
-                            {entities.length}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setShowVersions(!showVersions)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showVersions
-                            ? "bg-primary/20 text-primary-foreground border border-primary/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        style={
-                          showVersions
-                            ? { color: "#FF8400", borderColor: "rgba(255, 132, 0, 0.3)" }
-                            : {}
-                        }
-                      >
-                        <History className="w-4 h-4" />
-                        Versions
-                        {versions.length > 0 && (
-                          <span
-                            className="px-1.5 py-0.5 text-xs text-white rounded-full"
-                            style={{ backgroundColor: "#FF8400" }}
-                          >
-                            {versions.length}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setShowFlowView(!showFlowView)}
-                        className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
-                          showFlowView
-                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                            : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        }`}
-                        title="Toggle React Flow view"
-                      >
-                        <Zap className="w-4 h-4" />
-                        {showFlowView ? "Mermaid View" : "Flow View"}
-                      </button>
-                      <button
-                        onClick={() => setShowDbModal(true)}
-                        className="flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
-                        title="Database operations"
-                      >
-                        <Database className="w-4 h-4" />
-                        DB Ops
-                      </button>
-                      <button
-                        onClick={handleValidate}
-                        disabled={isValidating}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        {isValidating ? "Validating..." : "Validate"}
-                      </button>
-                      <button
-                        onClick={() => handleSave(false)}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        <Save className="w-4 h-4" />
-                        {isSaving ? "Saving..." : "Save Draft"}
-                      </button>
-                      <button
-                        onClick={handleOpenImportModal}
-                        title="Import .mmd file or load from library"
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Import
-                      </button>
-                      <button
-                        onClick={handleExportMrd}
-                        title="Download as .mmd file"
-                        className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
-                      >
-                        <Download className="w-4 h-4" />
-                        Export
-                      </button>
-                      <button
-                        onClick={handleGenerate}
-                        className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
-                        style={{ backgroundColor: "#FF8400" }}
-                      >
-                        <Zap className="w-4 h-4" />
-                        Continue to Step 3
-                      </button>
-                    </div>
-                  </div>
-                </div>
+      instructions="You help design an application's model, a YAML document in the AppWithAI model language. Read the current model from context. To change it, call updateModel with the complete revised document; the author reviews and saves it."
+      defaultOpen={false}
+    >
+      <div className="flex min-h-screen flex-col bg-background">
+        {!isFullscreen && (
+          <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+            <div className="mx-auto flex max-w-[1800px] flex-wrap items-center gap-2 px-6 py-3">
+              <button type="button" onClick={() => setShowVersions((v) => !v)} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+                <History className="h-4 w-4" /> Versions{versions.length ? ` (${versions.length})` : ""}
+              </button>
+              <button type="button" onClick={() => setShowDbModal(true)} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+                <Database className="h-4 w-4" /> Database
+              </button>
+              <button type="button" onClick={() => void openImport()} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+                <Upload className="h-4 w-4" /> Import
+              </button>
+              <button type="button" onClick={() => void exportModel()} disabled={!model.trim()} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50">
+                <Download className="h-4 w-4" /> Export
+              </button>
+              <button type="button" onClick={() => void save(false)} disabled={isSaving || !dirty || !model.trim()} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50">
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {dirty ? "Save draft" : "Saved"}
+              </button>
+              <button type="button" onClick={() => setIsFullscreen(true)} className="rounded-lg border border-border p-2" aria-label="Full screen">
+                <Maximize2 className="h-4 w-4" />
+              </button>
+              <button type="button" onClick={() => void continueToLogic()} disabled={isSaving || !model.trim()} className="ml-auto flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                <Zap className="h-4 w-4" /> Continue to Logic
+              </button>
+            </div>
+            <div className="mx-auto max-w-[1800px] px-6 pb-3">
+              <ProgressStepper currentStep="design" projectId={projectId} completedSteps={["init", "design"]} />
+            </div>
+          </header>
+        )}
 
-                <ProgressStepper
-                  currentStep="design"
-                  projectId={projectId}
-                  completedSteps={["init", "design"]}
-                />
-              </div>
-            </header>
+        {!isFullscreen && (
+          <div className="mx-auto w-full max-w-[1800px] px-6 pt-4">
+            <WizardStepHeader
+              stepNumber={2}
+              title="Design the model"
+              description="The model is a YAML document: entities and relationships, and the rules and workflows that act on them. Edit the YAML, or describe what you need below; the diagrams are drawn from the document as it stands."
+              estimatedTime="3-5 min"
+            />
+            <JourneyArc currentStep="design" />
+          </div>
+        )}
+
+        {notice && (
+          <div
+            role="status"
+            className={`mx-auto mt-3 flex w-full max-w-[1800px] items-start gap-2 px-6 text-sm ${notice.tone === "error" ? "text-destructive" : "text-muted-foreground"}`}
+          >
+            {notice.tone === "error" ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+            <p className="whitespace-pre-wrap">{notice.text}</p>
+            <button type="button" className="ml-auto" onClick={() => setNotice(null)} aria-label="Dismiss">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        <main className={isFullscreen ? "fixed inset-0 z-50 flex flex-col bg-background p-3" : "mx-auto flex w-full max-w-[1800px] flex-1 gap-3 px-6 py-4"}>
+          {isFullscreen && (
+            <button type="button" onClick={() => setIsFullscreen(false)} className="mb-2 flex items-center gap-2 self-end rounded-lg border border-border px-3 py-1.5 text-sm">
+              <Minimize2 className="h-4 w-4" /> Exit full screen
+            </button>
           )}
 
-          {!isFullscreen && (
-            <div className="max-w-[1800px] mx-auto px-6 pt-4">
-              <WizardStepHeader
-                stepNumber={2}
-                title="Discover Your Data Model"
-                description="Review the Entity-Relationship Diagram that our AI extracted from your business description. Each entity represents a key concept in your domain. Edit relationships as needed before generating code."
-                estimatedTime="3-5 min"
-              />
-              <JourneyArc currentStep="design" />
-
-              {validationResult && (
-                <div
-                  className={`mt-3 p-3 rounded-lg border flex items-start gap-2 ${
-                    validationResult.ok
-                      ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
-                      : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
-                  }`}
-                >
-                  {validationResult.ok ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                  )}
-                  <div
-                    className={`flex-1 text-sm ${
-                      validationResult.ok
-                        ? "text-green-700 dark:text-green-300"
-                        : "text-red-700 dark:text-red-300"
-                    }`}
-                  >
-                    {validationResult.messages.map((message) => (
-                      <p key={message} className="whitespace-pre-wrap break-words">
-                        {message}
-                      </p>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setValidationResult(null)}
-                    className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10"
-                    aria-label="Dismiss validation result"
-                  >
-                    <X className="w-4 h-4 opacity-60" />
+          {showVersions && !isFullscreen && (
+            <aside className="flex w-80 shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card">
+              <div className="border-b border-border p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Save a version</p>
+                <div className="flex gap-2">
+                  <input
+                    value={commitMessage}
+                    onChange={(event) => setCommitMessage(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" && commitMessage.trim()) void save(true);
+                    }}
+                    placeholder="What changed"
+                    className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                  />
+                  <button type="button" onClick={() => void save(true)} disabled={!commitMessage.trim() || isSaving || errors > 0} title={errors ? "A version must pass the model checker" : "Save version"} className="rounded-md bg-primary px-2.5 text-primary-foreground disabled:opacity-50">
+                    <Save className="h-4 w-4" />
                   </button>
+                </div>
+                {errors > 0 && <p className="mt-1.5 text-xs text-destructive">Fix the {errors} error(s) first: a version must pass the model checker.</p>}
+              </div>
+              <ProjectGitHistory
+                projectId={projectId}
+                refresh={gitRefresh}
+                dirty={dirty}
+                onRestored={() => {
+                  loadedFor.current = null;
+                  void loadProject(projectId);
+                  void loadVersions();
+                }}
+              />
+              <div className="flex-1 overflow-y-auto">
+                {isLoadingVersions ? (
+                  <p className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Loading versions…
+                  </p>
+                ) : versions.length === 0 ? (
+                  <p className="p-4 text-sm text-muted-foreground">No versions yet.</p>
+                ) : (
+                  <ul className="divide-y divide-border">
+                    {versions.map((version) => (
+                      <li key={version.id} className="flex items-start gap-2 p-3 text-sm">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium">
+                            v{version.version_number}
+                            {version.is_current && <span className="ml-2 rounded bg-primary/10 px-1.5 text-xs text-primary">current</span>}
+                          </p>
+                          <p className="truncate text-muted-foreground">{version.description || "No description"}</p>
+                          <button type="button" onClick={() => setModel(version.model_yaml)} className="mt-1 text-xs text-primary hover:underline">
+                            Open in the editor
+                          </button>
+                        </div>
+                        {!version.is_current && (
+                          <button type="button" onClick={() => void restore(version)} title="Restore this version" className="rounded p-1 hover:bg-muted">
+                            <RotateCcw className="h-4 w-4" />
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </aside>
+          )}
+
+          <ModelViewer
+            ref={viewer}
+            value={model}
+            onChange={setModel}
+            onRead={setRead}
+            className="min-h-[calc(100vh-360px)] flex-1"
+          />
+        </main>
+
+        {!isFullscreen && (
+          <footer className="border-t border-border bg-background">
+            <div className="mx-auto max-w-[1800px] px-6 py-4">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+                <input
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) void runAssistant();
+                  }}
+                  disabled={assistant.running}
+                  placeholder={model.trim() ? "Describe a change to the model… (Ctrl+Enter)" : "Describe the business — what it keeps records of and how they relate… (Ctrl+Enter)"}
+                  className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm"
+                />
+                <button type="button" onClick={() => void runAssistant()} disabled={assistant.running || !prompt.trim()} className="flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                  {assistant.running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {assistant.running ? "Working…" : model.trim() ? "Revise" : "Create"}
+                </button>
+              </div>
+              {(assistant.running || assistant.step === "error") && (
+                <p className={`mt-2 text-sm ${assistant.step === "error" ? "text-destructive" : "text-muted-foreground"}`}>{assistant.message}</p>
+              )}
+              {assistant.result && !assistant.running && (
+                <div className="mt-2 text-sm">
+                  {assistant.result.ok ? (
+                    <p className="text-emerald-600 dark:text-emerald-400">
+                      The model {model === saved ? "is unchanged" : "was updated"} and passes the checker
+                      {assistant.result.attempts > 1 ? ` (after ${assistant.result.attempts} attempts)` : ""}. Review it, then save.
+                    </p>
+                  ) : (
+                    <p className="text-destructive">
+                      The assistant's model still has errors after {assistant.result.attempts} attempt(s); they are listed under the YAML. Fix them there or describe the fix.
+                    </p>
+                  )}
+                  {assistant.result.dropped.length > 0 && (
+                    <p className="text-amber-700 dark:text-amber-300">
+                      Left out, because they name entities the analysis did not declare: {assistant.result.dropped.join("; ")}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
-          )}
-
-          <div
-            className={`${isFullscreen ? "fixed inset-0" : "flex-1"} flex overflow-hidden ${isFullscreen ? "z-50" : ""}`}
-          >
-            {showEntityList && !isFullscreen && (
-              <div className="w-96 border-r border-border bg-card flex flex-col">
-                <div className="p-4 border-b border-border">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-purple-400" />
-                      <h3 className="font-semibold text-foreground">Entity Browser</h3>
-                    </div>
-                    <button
-                      onClick={() => setShowEntityList(false)}
-                      className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
-                    >
-                      <X className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <input
-                      type="text"
-                      value={entitySearch}
-                      onChange={(e) => setEntitySearch(e.target.value)}
-                      placeholder="Search entities..."
-                      className="w-full pl-9 pr-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto">
-                  {entities.length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground text-sm">
-                      <Database className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p>No entities found</p>
-                      <p className="text-xs mt-1">Add entities to see them here</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {filteredEntities.map((entity, _idx) => (
-                        <div
-                          key={entity.name}
-                          className="p-3 hover:bg-muted transition-colors cursor-pointer"
-                          onClick={() => jumpToEntity(entity.startLine)}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-foreground">{entity.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {entity.attributes.length} attrs
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            Line {entity.startLine + 1}
-                          </div>
-                        </div>
-                      ))}
-                      {filteredEntities.length === 0 && entitySearch && (
-                        <div className="p-4 text-center text-muted-foreground text-sm">
-                          No entities match "{entitySearch}"
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {showVersions && !isFullscreen && (
-              <div className="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col">
-                <div className="p-4 border-b border-border flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <History className="w-5 h-5" style={{ color: "#FF8400" }} />
-                    <h3 className="font-semibold text-foreground">Version History</h3>
-                  </div>
-                  <button
-                    onClick={() => setShowVersions(false)}
-                    className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </div>
-
-                <div className="p-4 border-b border-border bg-muted/30">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Iterative Workflow
-                  </p>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p>1. Design ERD → Save version</p>
-                    <p>2. Generate code</p>
-                    <p>3. Add enhancements</p>
-                    <p className="text-primary" style={{ color: "#FF8400" }}>
-                      4. Loop back to step 1
-                    </p>
-                    <p className="mt-2 text-amber-500 text-xs">
-                      💡 Each version can be regenerated independently
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 border-b border-border">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                    Save New Version
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={commitMessage}
-                      onChange={(e) => setCommitMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && commitMessage.trim()) {
-                          handleSave(true);
-                        }
-                      }}
-                      placeholder="Describe changes..."
-                      className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      onClick={() => handleSave(true)}
-                      disabled={!commitMessage.trim() || isSaving}
-                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Save className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <ProjectGitHistory
-                  projectId={projectId}
-                  refresh={gitRefresh}
-                  dirty={erdCode !== (project?.erdCode || "erDiagram\n")}
-                  onRestored={() => {
-                    void loadProject(projectId);
-                    void loadVersions();
-                  }}
-                />
-                <div className="flex-1 overflow-y-auto">
-                  {isLoadingVersions ? (
-                    <div className="p-4 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading versions...
-                    </div>
-                  ) : versions.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500 text-sm">
-                      <GitCommit className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                      <p>No versions yet</p>
-                      <p className="text-xs mt-1">Save your first version to see it here</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
-                      {versions.map((version) => (
-                        <div key={version.id} className="version-item">
-                          <button
-                            onClick={() => toggleVersionExpanded(version.id)}
-                            className={`w-full p-4 flex items-start gap-3 text-left transition-colors ${
-                              version.is_current
-                                ? "bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50"
-                                : "hover:bg-slate-50 dark:hover:bg-slate-900"
-                            }`}
-                          >
-                            <div className="flex-shrink-0 mt-0.5">
-                              {expandedVersions.has(version.id) ? (
-                                <ChevronDown className="w-4 h-4 text-slate-400" />
-                              ) : (
-                                <ChevronRight className="w-4 h-4 text-slate-400" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold text-slate-500">
-                                  v{version.version_number}
-                                </span>
-                                {version.is_current && (
-                                  <span className="px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full">
-                                    Current
-                                  </span>
-                                )}
-                                <span className="flex items-center gap-1 text-xs text-slate-400">
-                                  <Clock className="w-3 h-3" />
-                                  {formatTimeAgo(version.created_at)}
-                                </span>
-                              </div>
-                              <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                                {version.description || "No description"}
-                              </p>
-                            </div>
-                            {!version.is_current && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRestoreVersion(version.id);
-                                }}
-                                className="flex-shrink-0 p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                                title="Restore this version"
-                              >
-                                <RotateCcw className="w-4 h-4 text-slate-400 hover:text-blue-600" />
-                              </button>
-                            )}
-                          </button>
-
-                          {expandedVersions.has(version.id) && (
-                            <div className="px-4 pb-4 pl-11 bg-slate-50 dark:bg-slate-900">
-                              <div className="text-xs text-slate-500 space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span>Created:</span>
-                                  <span>{formatDate(version.created_at)}</span>
-                                </div>
-                                {version.git_commit && (
-                                  <div>
-                                    Git: <code>{version.git_commit.slice(0, 8)}</code>
-                                  </div>
-                                )}
-                                {version.created_by && (
-                                  <div className="flex items-center justify-between">
-                                    <span>By:</span>
-                                    <span className="capitalize">{version.created_by}</span>
-                                  </div>
-                                )}
-                                {version.validation_errors &&
-                                  version.validation_errors.length > 0 && (
-                                    <div className="mt-2">
-                                      <span className="font-medium">Validation:</span>
-                                      <span className="ml-1 text-red-600">
-                                        {version.validation_errors.length} error(s)
-                                      </span>
-                                    </div>
-                                  )}
-                                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
-                                  <button
-                                    onClick={() => setErdCode(version.mermaid_code)}
-                                    className="text-blue-600 hover:text-blue-700 font-medium"
-                                  >
-                                    Preview this version
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {!isFullscreen && (
-              <div
-                className={`${
-                  showVersions || showEntityList ? "w-1/2" : "w-1/2"
-                } border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-950`}
-              >
-                <div className="flex-1 p-6 overflow-auto">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-foreground">Mermaid ERD Code</h2>
-                      {versions.length > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                          <span className="font-mono" style={{ color: "#FF8400" }}>
-                            v{versions.length}
-                          </span>
-                          <span>•</span>
-                          <span>{versions[0]?.description || "Initial version"}</span>
-                          {project.generatedPath && (
-                            <>
-                              <span>•</span>
-                              <span className="text-amber-500">
-                                Update design & regenerate to apply changes
-                              </span>
-                            </>
-                          )}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{erdCode.split("\n").length} lines</span>
-                      <span>•</span>
-                      <span>{entities.length} entities</span>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <div className="flex h-[calc(100vh-320px)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-                      <div
-                        ref={lineNumbersRef}
-                        className="flex-shrink-0 w-12 bg-slate-100 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-400 dark:text-slate-600 text-right pr-3 pt-4 overflow-hidden select-none"
-                        style={{ lineHeight: "20px" }}
-                      >
-                        {Array.from({ length: Math.max(erdCode.split("\n").length, 1) }, (_, i) => (
-                          <div
-                            key={i + 1}
-                            className={`pr-2 ${i + 1 === errorLine ? "bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-400 font-bold" : ""}`}
-                          >
-                            {i + 1}
-                          </div>
-                        ))}
-                      </div>
-                      <textarea
-                        ref={editorRef}
-                        value={erdCode}
-                        onChange={(e) => setErdCode(e.target.value)}
-                        onScroll={(e) => {
-                          if (lineNumbersRef.current) {
-                            lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-                          }
-                        }}
-                        className="flex-1 p-4 bg-slate-50 dark:bg-slate-900 text-sm font-mono text-slate-900 dark:text-slate-100 focus:outline-none resize-none"
-                        style={{ lineHeight: "20px" }}
-                        spellCheck={false}
-                        placeholder="Enter Mermaid ERD syntax here..."
-                      />
-                    </div>
-                    <div className="absolute bottom-4 right-4 flex items-center gap-3 text-xs text-slate-500">
-                      <span>{erdCode.split("\n").length} lines</span>
-                      <span>•</span>
-                      <span>{entities.length} entities</span>
-                      {errorLine && (
-                        <>
-                          <span>•</span>
-                          <span className="text-red-600">Error on line {errorLine}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div
-              className={`${
-                isFullscreen
-                  ? "w-full h-screen"
-                  : showVersions || showEntityList
-                    ? "w-1/2"
-                    : "w-1/2"
-              } flex flex-col bg-slate-50 dark:bg-slate-900 ${!isFullscreen ? "min-h-[calc(100vh-400px)]" : ""}`}
-            >
-              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Live Preview
-                </h2>
-                <div className="flex items-center gap-2">
-                  {!isFullscreen && (
-                    <>
-                      <button
-                        onClick={handleZoomOut}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Zoom Out"
-                      >
-                        <ZoomOut className="w-4 h-4" />
-                      </button>
-                      <span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[50px] text-center">
-                        {zoom}%
-                      </span>
-                      <button
-                        onClick={handleZoomIn}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Zoom In"
-                      >
-                        <ZoomIn className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={handleZoomReset}
-                        className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Fit to Screen"
-                      >
-                        <Maximize2 className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => setIsFullscreen(!isFullscreen)}
-                    className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                  >
-                    {isFullscreen ? (
-                      <Minimize2 className="w-4 h-4" />
-                    ) : (
-                      <Maximize2 className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div
-                className={`flex-1 overflow-auto ${isFullscreen ? "p-4" : "p-6"} bg-white dark:bg-slate-900`}
-                style={{ position: "relative" }}
-              >
-                {showFlowView ? (
-                  <div style={{ width: "100%", minHeight: "400px", height: "100%" }}>
-                    <ErdFlowViewer erdCode={erdCode} />
-                  </div>
-                ) : (
-                  <div
-                    ref={previewRef}
-                    style={{
-                      transform: `scale(${zoom / 100})`,
-                      transformOrigin: "top left",
-                      minHeight: "400px",
-                    }}
-                    className="mermaid-preview w-full"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {!isFullscreen && (
-            <div className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
-              <div className="max-w-[1800px] mx-auto px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <Sparkles className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium">AI Assistant</span>
-                  </div>
-                  <div className="flex-1 relative">
-                    <input
-                      type="text"
-                      value={aiInput}
-                      onChange={(e) => setAiInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                          handleAiSubmit();
-                        }
-                      }}
-                      placeholder="Describe your entities in natural language... (Cmd+Enter to submit)"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={isAiLoading}
-                    />
-                  </div>
-                  <button
-                    onClick={handleAiSubmit}
-                    disabled={isAiLoading || isAutoRetrying || !aiInput.trim()}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isAiLoading || isAutoRetrying ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {isAutoRetrying ? "Auto-retrying..." : aiStatus?.message || "Generating..."}
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Generate
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {aiStatus && (
-                  <div className="mt-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-blue-600 h-full transition-all duration-300 ease-out"
-                          style={{ width: `${aiStatus.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 min-w-[60px] text-right">
-                        {aiStatus.progress}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                      {aiStatus.step === "analyzing" && (
-                        <>
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "generating" && (
-                        <>
-                          <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "validating" && (
-                        <>
-                          <div className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse" />
-                          <span>{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retrying" && (
-                        <>
-                          <RefreshCw className="w-4 h-4 text-orange-600 animate-spin" />
-                          <span className="text-orange-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retrying-fix" && (
-                        <>
-                          <RefreshCw className="w-4 h-4 text-amber-600 animate-spin" />
-                          <span className="text-amber-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retry-error" && (
-                        <>
-                          <CircleX className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "retry-exhausted" && (
-                        <>
-                          <CircleX className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "complete" && (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <span className="text-emerald-600 font-medium">{aiStatus.message}</span>
-                        </>
-                      )}
-                      {aiStatus.step === "error" && (
-                        <>
-                          <AlertCircle className="w-4 h-4 text-red-600" />
-                          <span className="text-red-600">{aiStatus.message}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {mermaidRenderError && (
-                      <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1 text-xs text-red-700 dark:text-red-300">
-                            <p className="font-semibold mb-1">Mermaid Render Error:</p>
-                            <p className="font-mono whitespace-pre-wrap break-words">
-                              {mermaidRenderError}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {aiStepsLog.length > 0 && (
-                      <button
-                        onClick={() => setShowAiDetails(!showAiDetails)}
-                        className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        {showAiDetails ? (
-                          <>
-                            <ChevronUp className="w-3 h-3" />
-                            Hide detailed steps
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="w-3 h-3" />
-                            Show detailed steps ({aiStepsLog.length})
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {previousSteps.length > 0 && (
-                  <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setShowPreviousSteps(!showPreviousSteps)}
-                      className="w-full flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <History className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                        <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                          Previous Steps ({previousSteps.length})
-                        </span>
-                      </div>
-                      {showPreviousSteps ? (
-                        <ChevronUp className="w-4 h-4 text-slate-500" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-500" />
-                      )}
-                    </button>
-                    {showPreviousSteps && (
-                      <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-                        {previousSteps.map((step) => (
-                          <div
-                            key={step.id}
-                            className={`flex items-start gap-2 p-2 rounded-lg text-xs opacity-75 ${
-                              step.status === "completed"
-                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
-                                : step.status === "error"
-                                  ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                  : step.status === "in-progress"
-                                    ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
-                                    : step.step === "retrying" || step.step === "retrying-fix"
-                                      ? "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300"
-                                      : step.step === "retry-error" ||
-                                          step.step === "retry-exhausted"
-                                        ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                            }`}
-                          >
-                            <div className="flex-shrink-0 mt-0.5">
-                              {step.status === "completed" && <CheckCircle2 className="w-3 h-3" />}
-                              {step.status === "error" && <AlertCircle className="w-3 h-3" />}
-                              {step.status === "in-progress" && (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              )}
-                              {(step.step === "retrying" || step.step === "retrying-fix") && (
-                                <RefreshCw className="w-3 h-3 animate-spin" />
-                              )}
-                              {step.status === "pending" && (
-                                <div className="w-3 h-3 rounded-full border-2 border-current" />
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium truncate">{step.message}</div>
-                              {step.details && (
-                                <div className="text-[10px] opacity-75 mt-0.5 truncate">
-                                  {step.details}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {(showAiDetails || aiStepsLog.length > 0) && aiStepsLog.length > 0 && (
-                  <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                          Current Progress
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-500">
-                          {aiStepsLog.filter((s) => s.status === "completed").length}/
-                          {aiStepsLog.length} completed
-                        </span>
-                        {showAiDetails && (
-                          <button
-                            onClick={() => setShowAiDetails(false)}
-                            className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-                          >
-                            <X className="w-3 h-3 text-slate-500" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-                      {aiStepsLog.map((step) => (
-                        <div
-                          key={step.id}
-                          className={`flex items-start gap-2 p-2 rounded-lg text-xs ${
-                            step.status === "completed"
-                              ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300"
-                              : step.status === "error"
-                                ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                : step.status === "in-progress"
-                                  ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300"
-                                  : step.step === "retrying" || step.step === "retrying-fix"
-                                    ? "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300"
-                                    : step.step === "retry-error" || step.step === "retry-exhausted"
-                                      ? "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                          }`}
-                        >
-                          <div className="flex-shrink-0 mt-0.5">
-                            {step.status === "completed" && <CheckCircle2 className="w-3 h-3" />}
-                            {step.status === "error" && <AlertCircle className="w-3 h-3" />}
-                            {step.status === "in-progress" && (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            )}
-                            {(step.step === "retrying" || step.step === "retrying-fix") && (
-                              <RefreshCw className="w-3 h-3 animate-spin" />
-                            )}
-                            {step.status === "pending" && (
-                              <div className="w-3 h-3 rounded-full border-2 border-current" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate">{step.message}</div>
-                            {step.details && (
-                              <div className="text-[10px] opacity-75 mt-0.5 truncate">
-                                {step.details}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="w-full flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-500/20 rounded-lg text-xs text-blue-700 dark:text-blue-300 mb-3">
-                  <RefreshCw className="w-4 h-4" />
-                  <span className="font-medium">
-                    Auto-retry enabled: When validation fails, AI will automatically fix errors up
-                    to {import.meta.env.VITE_ERD_DESIGN_AUTO_RETRY_COUNT || 3} times
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3 flex-wrap">
-                  <button
-                    onClick={() =>
-                      setAiInput("Create a blog with users, posts, comments, and tags")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Blog Example
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput("E-commerce system with products, orders, and customers")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    E-commerce Example
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput("Project management with tasks, teams, and milestones")
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Project Management
-                  </button>
-                  <button
-                    onClick={() =>
-                      setAiInput(
-                        "Hospital management with patients, doctors, appointments, and medical records"
-                      )
-                    }
-                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
-                  >
-                    Hospital Management
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
-            style={{ backgroundColor: "#FF8400" }}
-          >
-            <HelpCircle className="w-6 h-6" />
-          </button>
-        </div>
-        <DbOperationsModal
-          isOpen={showDbModal}
-          onClose={() => setShowDbModal(false)}
-          erdCode={erdCode}
-          projectId={projectId}
-          onReverseEngineered={(code) => {
-            setErdCode(code);
-            setShowDbModal(false);
-          }}
-        />
-
-        {/* Hidden file input for .mmd import */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".mmd,.md"
-          className="hidden"
-          onChange={handleImportFileSelect}
-        />
-
-        {/* Import Modal */}
-        {showImportModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={(e) => { if (e.target === e.currentTarget) setShowImportModal(false); }}
-            onKeyDown={(e) => { if (e.key === "Escape") setShowImportModal(false); }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Import ERD"
-          >
-            <div className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Upload className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold">Import ERD</h2>
-                </div>
-                <button
-                  onClick={() => setShowImportModal(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Tabs */}
-              <div className="flex border-b border-border">
-                <button
-                  onClick={() => setImportTab("local")}
-                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
-                    importTab === "local"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <FolderOpen className="w-4 h-4" />
-                  Upload File
-                </button>
-                <button
-                  onClick={() => { setImportTab("library"); handleLoadLibraryFiles(); }}
-                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
-                    importTab === "library"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Library className="w-4 h-4" />
-                  Mermaid Library
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                {importError && (
-                  <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    {importError}
-                  </div>
-                )}
-
-                {importTab === "local" && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Upload a <code className="px-1 py-0.5 bg-secondary rounded text-xs">.mmd</code> file containing an <code className="px-1 py-0.5 bg-secondary rounded text-xs">erDiagram</code> definition.
-                    </p>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full flex flex-col items-center gap-3 px-6 py-10 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-xl transition-colors cursor-pointer"
-                    >
-                      <FileCode2 className="w-10 h-10 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="font-medium">Click to browse files</p>
-                        <p className="text-sm text-muted-foreground mt-1">Supports .mmd files</p>
-                      </div>
-                    </button>
-                    {examples.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">Or start from an example</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {examples.map((ex) => (
-                            <button
-                              key={ex.name}
-                              onClick={() => { setErdCode(ex.content); setShowImportModal(false); }}
-                              className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-left"
-                            >
-                              <FileText className="w-4 h-4 text-primary flex-shrink-0" />
-                              {ex.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {importTab === "library" && (
-                  <div>
-                    {isLoadingLibrary ? (
-                      <div className="flex items-center justify-center py-10 gap-2 text-muted-foreground">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span className="text-sm">Loading library...</span>
-                      </div>
-                    ) : libraryFiles.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-10 gap-3 text-muted-foreground">
-                        <Library className="w-10 h-10 opacity-40" />
-                        <div className="text-center">
-                          <p className="font-medium">No ERD files in library</p>
-                          <p className="text-sm mt-1">Export your ERD using the Export button to save it here</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {libraryFiles.map((file) => (
-                          <button
-                            key={file.filename}
-                            onClick={() => handleLoadFromLibrary(file.content)}
-                            className="w-full flex items-center gap-3 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors text-left"
-                          >
-                            <FileCode2 className="w-5 h-5 text-primary flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">{file.projectName}</p>
-                              <p className="text-xs text-muted-foreground truncate">{file.filename}</p>
-                            </div>
-                            <span className="text-xs text-muted-foreground flex-shrink-0">
-                              {new Date(file.createdAt).toLocaleDateString()}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          </footer>
         )}
+      </div>
+
+      <DbOperationsModal
+        isOpen={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        projectId={projectId}
+        onReverseEngineered={(next, skipped) => {
+          setModel(next);
+          setShowDbModal(false);
+          setNotice({
+            tone: skipped.length ? "error" : "info",
+            text: skipped.length
+              ? `Read from the database; not saved yet. Left out:\n${skipped.map((s) => `  ${s.table}${s.column ? `.${s.column}` : ""}: ${s.reason}`).join("\n")}`
+              : "Read from the database; not saved yet.",
+          });
+        }}
+      />
+
+      <input
+        ref={fileInput}
+        type="file"
+        accept=".yaml,.yml,application/yaml,text/yaml"
+        className="hidden"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) importText(await file.text(), file.name);
+        }}
+      />
+
+      {showImport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-label="Import a model">
+          <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border bg-card shadow-xl">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <h2 className="font-semibold">Import a model</h2>
+              <button type="button" onClick={() => setShowImport(false)} aria-label="Close">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 p-5">
+              <button type="button" onClick={() => fileInput.current?.click()} className="flex w-full flex-col items-center gap-2 rounded-lg border border-dashed border-border px-4 py-6 text-sm hover:bg-muted/40">
+                <Upload className="h-5 w-5 text-muted-foreground" />
+                Choose a .eml.yaml file
+              </button>
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">This project's library</p>
+                {library.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nothing yet — Export keeps a copy here.</p>
+                ) : (
+                  <ul className="max-h-64 space-y-1 overflow-y-auto">
+                    {library.map((file) => (
+                      <li key={file.filename}>
+                        <button type="button" onClick={() => importText(file.content, file.filename)} className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-muted">
+                          <span className="truncate font-mono">{file.filename}</span>
+                          <span className="text-xs text-muted-foreground">{new Date(file.createdAt).toLocaleDateString()}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </CopilotSidebar>
   );
 }

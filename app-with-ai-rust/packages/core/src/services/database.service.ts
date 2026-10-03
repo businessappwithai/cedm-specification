@@ -10,6 +10,7 @@ import { type Kysely, sql } from "kysely";
 import { type Database, destroyDb, getDb } from "../config/db.config.js";
 import { getLogger } from "../logging";
 import { migrateProjectGit } from "./git-migration";
+import { assertModelFormat, createStoredModelConversions } from "./model-format";
 
 // Re-export types consumed by other packages
 export type { Database };
@@ -124,7 +125,7 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("id", "varchar(128)", (col) => col.primaryKey())
       .addColumn("project_id", "varchar(128)", (col) => col.notNull())
       .addColumn("version_number", "integer", (col) => col.notNull())
-      .addColumn("mermaid_code", "text", (col) => col.notNull())
+      .addColumn("model_yaml", "text", (col) => col.notNull())
       .addColumn("description", "text")
       .addColumn("is_current", "boolean", (col) => col.defaultTo(false))
       .addColumn("validation_errors", "text")
@@ -153,7 +154,7 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("name", "varchar(255)", (col) => col.notNull())
       .addColumn("service_name", "varchar(128)", (col) => col.notNull())
       .addColumn("workflow_type", "varchar(64)", (col) => col.defaultTo("crud"))
-      .addColumn("mermaid_code", "text")
+      .addColumn("definition_yaml", "text")
       .addColumn("description", "text")
       .addColumn("extension_points", "text")
       .addColumn("config", "text")
@@ -167,7 +168,6 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("last_executed_at", "varchar(64)")
       .addColumn("hook_definitions", "text")
-      .addColumn("flowchart_code", "text")
       .addColumn("generated_hook_code", "text")
       .addColumn("is_draft", "boolean", (col) => col.defaultTo(false))
       .execute();
@@ -411,6 +411,9 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   }
 
   await migrateProjectGit(db);
+  await createStoredModelConversions(db);
+  // Last: every table above exists, so the check reads a complete schema.
+  await assertModelFormat(db);
 }
 
 // ─── Transform helpers ─────────────────────────────────────────────────────────
@@ -501,7 +504,9 @@ export const projectDb = {
     return {
       ...project,
       gitCommit: gitState?.model_commit ?? null,
-      erdCode: gitState?.model_code ?? (currentErdVersion as any)?.mermaid_code,
+      // The model as last saved — the author's YAML — or, for a project saved
+      // before the local Git history existed, its current version's.
+      modelYaml: gitState?.model_code ?? (currentErdVersion as any)?.model_yaml,
       erdVersions,
       parsedSchema: (currentErdVersion as any)?.parsed_schema
         ? JSON.parse((currentErdVersion as any).parsed_schema)
@@ -666,7 +671,7 @@ export const erdVersionDb = {
 
   async createVersion(data: {
     project_id: string;
-    mermaid_code: string;
+    model_yaml: string;
     description?: string;
     is_current?: boolean;
     created_by?: string;
@@ -703,7 +708,7 @@ export const erdVersionDb = {
       id,
       project_id: data.project_id,
       version_number: versionNumber,
-      mermaid_code: data.mermaid_code,
+      model_yaml: data.model_yaml,
       description: data.description || null,
       is_current: data.is_current ?? true,
       created_by: data.created_by || null,
@@ -768,7 +773,7 @@ export const workflowDb = {
     name: string;
     service_name: string;
     workflow_type?: string;
-    mermaid_code: string;
+    definition_yaml: string;
     description?: string;
     extension_points?: any;
     config?: any;
@@ -784,7 +789,7 @@ export const workflowDb = {
       name: data.name,
       service_name: data.service_name,
       workflow_type: data.workflow_type || "crud",
-      mermaid_code: data.mermaid_code,
+      definition_yaml: data.definition_yaml,
       description: data.description || null,
       extension_points: JSON.stringify(data.extension_points || {}),
       config: JSON.stringify(data.config || {}),
@@ -804,7 +809,7 @@ export const workflowDb = {
     data: {
       name?: string;
       service_name?: string;
-      mermaid_code?: string;
+      definition_yaml?: string;
       description?: string;
       status?: string;
       extension_points?: any;
@@ -817,7 +822,7 @@ export const workflowDb = {
     const u: any = { updated_at: new Date().toISOString() };
     if (data.name !== undefined) u.name = data.name;
     if (data.service_name !== undefined) u.service_name = data.service_name;
-    if (data.mermaid_code !== undefined) u.mermaid_code = data.mermaid_code;
+    if (data.definition_yaml !== undefined) u.definition_yaml = data.definition_yaml;
     if (data.description !== undefined) u.description = data.description;
     if (data.status !== undefined) u.status = data.status;
     if (data.extension_points !== undefined)
@@ -870,11 +875,18 @@ export const hookWorkflowDb = {
     }));
   },
 
+  /**
+   * A service's hooks, as the enhance screen edits them.
+   *
+   * A row holds only `hook_definitions`: which hooks the service declares, in
+   * order, with each one's handler code and workflow. What the application is
+   * generated from is the model, and the model's `hooks` are composed from
+   * these rows when the project is generated.
+   */
   async upsert(data: {
     projectId: string;
     serviceName: string;
     hooks: any[];
-    flowchartCode: string;
     generatedHookCode?: string;
     isDraft: boolean;
     description?: string;
@@ -887,7 +899,6 @@ export const hookWorkflowDb = {
       service_name: data.serviceName,
       workflow_type: "hooks",
       hook_definitions: JSON.stringify(data.hooks),
-      flowchart_code: data.flowchartCode,
       generated_hook_code: data.generatedHookCode || null,
       is_draft: data.isDraft,
       description: data.description || null,
@@ -905,18 +916,13 @@ export const hookWorkflowDb = {
         status: data.isDraft ? "draft" : "active",
         is_enabled: true,
         created_at: new Date().toISOString(),
-        mermaid_code: data.flowchartCode || "",
+        definition_yaml: null,
       });
       return { ...row, hook_definitions: data.hooks, is_draft: data.isDraft };
     }
   },
 
-  async saveDraft(data: {
-    projectId: string;
-    serviceName: string;
-    hooks: any[];
-    flowchartCode: string;
-  }) {
+  async saveDraft(data: { projectId: string; serviceName: string; hooks: any[] }) {
     return this.upsert({ ...data, isDraft: true });
   },
 
@@ -924,7 +930,6 @@ export const hookWorkflowDb = {
     projectId: string;
     serviceName: string;
     hooks: any[];
-    flowchartCode: string;
     generatedHookCode?: string;
     description?: string;
   }) {

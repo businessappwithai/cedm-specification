@@ -40,6 +40,7 @@ export interface WorkflowState {
   domainAnalysis?: DomainAnalysis;
   approvedEntities: EntityCandidate[];
   approvedRelationships: RelationshipCandidate[];
-  mermaidSyntax?: string;
+  /** The model document's YAML, once the approved analysis is written out. */
+  modelYaml?: string;
   currentStep: string;
 }

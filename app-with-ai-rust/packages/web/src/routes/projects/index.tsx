@@ -161,10 +161,10 @@ function ProjectsPage() {
   };
 
   /** A model imported from a file or the bundled set becomes a project's ERD. */
-  const handleImportModel = async (input: { name: string; eml: string }) => {
+  const handleImportModel = async (input: { name: string; model: string }) => {
     const imported = await addProject({
       name: input.name,
-      description: "Imported from an EML model",
+      description: "Imported from a model document",
       icon: "\u{1F4C4}",
       iconColor: "#3b82f6",
       stackType: "tanstack-astryx-loco",
@@ -177,7 +177,7 @@ function ProjectsPage() {
     const saved = await fetch(`/api/projects/${imported.id}/erd-versions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mermaidCode: input.eml, description: "Imported model" }),
+      body: JSON.stringify({ model: input.model, description: "Imported model" }),
     });
     if (!saved.ok) {
       // The project exists but has no model, which is a worse place to land
@@ -246,11 +246,11 @@ function ProjectsPage() {
               {/* Desktop nav links — hidden on mobile */}
               <div className="hidden sm:flex items-center gap-3">
                 <Link
-                  to="/admin/mermaid"
+                  to="/admin/model-library"
                   className="flex items-center gap-2 px-4 py-2.5 bg-secondary hover:bg-secondary/80 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl text-sm font-medium transition-colors"
                 >
                   <FileCode2 className="w-4 h-4" />
-                  Mermaid Library
+                  Model Library
                 </Link>
                 <Link
                   to="/admin/rules"
@@ -359,12 +359,12 @@ function ProjectsPage() {
           {showMobileNav && (
             <div className="sm:hidden flex flex-col gap-2 pb-3">
               <Link
-                to="/admin/mermaid"
+                to="/admin/model-library"
                 onClick={() => setShowMobileNav(false)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-xl text-sm font-medium transition-colors"
               >
                 <FileCode2 className="w-4 h-4" />
-                Mermaid Library
+                Model Library
               </Link>
               <Link
                 to="/admin/rules"

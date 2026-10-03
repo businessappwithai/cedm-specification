@@ -96,6 +96,7 @@ Two families of route, and they behave differently:
         crate::controllers::me::dashboard,
         crate::controllers::ai::query,
         crate::controllers::bus::list,
+        crate::controllers::bus::lookup,
         crate::controllers::bus::get_one,
         crate::controllers::bus::create,
         crate::controllers::bus::update,
@@ -158,7 +159,7 @@ Two families of route, and they behave differently:
         (name = "audit", description = "The audit trail and its hash chain"),
         (name = "rules", description = "Business rules (GoRules JDM decision graphs)"),
         (name = "workflow", description = "Workflow definitions and their run log"),
-        (name = "reports", description = "The questions the model declared with %%report"),
+        (name = "reports", description = "The questions the model declared in its reports"),
     )
 )]
 pub struct ApiDoc;

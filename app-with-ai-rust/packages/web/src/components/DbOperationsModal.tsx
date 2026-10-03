@@ -4,15 +4,17 @@ import { Database, Loader2, X, AlertCircle, CheckCircle2 } from "lucide-react";
 interface DbOperationsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  erdCode: string;
   projectId: string;
-  onReverseEngineered: (mermaidCode: string) => void;
+  /** The model the database describes, as YAML text, and what could not be read from it. */
+  onReverseEngineered: (
+    model: string,
+    skipped: Array<{ table: string; column?: string; reason: string }>
+  ) => void;
 }
 
 export function DbOperationsModal({
   isOpen,
   onClose,
-  erdCode,
   projectId,
   onReverseEngineered,
 }: DbOperationsModalProps) {
@@ -38,7 +40,9 @@ export function DbOperationsModal({
       const res = await fetch("/api/db/generate-schema", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, mermaidCode: erdCode, targetDbConnection: connectionString }),
+        // The tables are the saved model's, compiled as the generator compiles
+        // them: save the model first for an edit to reach the database.
+        body: JSON.stringify({ projectId, targetDbConnection: connectionString }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -70,8 +74,13 @@ export function DbOperationsModal({
       if (!res.ok) {
         setResult({ error: data.error || "Failed to reverse-engineer" });
       } else {
-        onReverseEngineered(data.mermaidCode);
-        setResult({ success: true, message: "ERD updated from database schema" });
+        onReverseEngineered(data.model, data.skipped ?? []);
+        setResult({
+          success: true,
+          message:
+            `Model read from ${data.tableCount} tables and ${data.relationshipCount} foreign keys` +
+            (data.skipped?.length ? `; ${data.skipped.length} left out (see the model's notes)` : ""),
+        });
       }
     } catch (err) {
       setResult({ error: err instanceof Error ? err.message : "Network error" });

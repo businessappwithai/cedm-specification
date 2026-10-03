@@ -13,7 +13,7 @@
 -- What a role may do to a table.
 --
 -- A (table_name, operation) pair with no row here is UNRESTRICTED. Rows close a
--- pair to the roles they name. That is what makes `%%rbac` additive: a model
+-- pair to the roles they name. That is what makes the access rules additive: a model
 -- declaring none behaves exactly as it did before this table existed. Denying
 -- by default would lock every user out of every existing model on the next
 -- regeneration.
@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_sys_operation_access_lookup
 
 -- Which moves exist.
 --
--- One row per edge a `%%workflow ... kind: state` diagram draws. The guard
+-- One row per edge a state machine declares. The guard
 -- refuses a status write with no matching edge — for every caller, the master
 -- role included: an edge the diagram never drew is a move that does not exist,
 -- not a permission an administrator lacks.

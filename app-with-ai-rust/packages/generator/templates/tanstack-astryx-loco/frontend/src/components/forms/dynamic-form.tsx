@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
+import { type FieldMetadata, useEntity, useFormFields, useRefList } from "@/hooks/use-entities";
 import { apiClient } from "@/lib/api-client";
 import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/field-schema";
 import { getFieldLabel } from "@/lib/i18n-fields";
@@ -50,6 +50,12 @@ interface DynamicFormProps {
   readOnlyFields?: string[];
   /** Data from the immediate parent record — used to filter lookup dropdowns (e.g. filter columns by parent tab's sys_table_id) */
   parentContext?: Record<string, unknown>;
+  /**
+   * `id` of the rendered `<form>`, so a control outside it — a toolbar Save —
+   * can submit it with `requestSubmit()` and go through the same validation and
+   * normalisation as the form's own button.
+   */
+  formId?: string;
 }
 
 const REFERENCE_TYPE = {
@@ -153,13 +159,14 @@ function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: stri
     enabled: !!customEndpoint && !!id,
   });
 
-  const { data: tableData } = useEntities<any>(referencedTableName || "", undefined, {
+  // The one record, by id. This used to read the first page of the referenced
+  // table (25 rows) and look for the record in it, so a city past the first
+  // page showed as a raw id.
+  const { data: one } = useEntity<any>(referencedTableName || "", id, {
     enabled: !!referencedTableName && !customEndpoint && !!id,
   });
 
-  const records: any[] = customEndpoint
-    ? ((data as any)?.data ?? [])
-    : (tableData?.data ?? []);
+  const records: any[] = customEndpoint ? ((data as any)?.data ?? []) : one ? [one] : [];
   const record = records.find((r: any) => String(r[idField]) === String(id));
 
   // Same precedence as the grid: the dictionary's list first, then the single
@@ -184,6 +191,9 @@ interface TableReferenceFieldProps {
   isDisabled: boolean;
   error: string | undefined;
   parentContext?: Record<string, unknown>;
+  /** The entity the form edits, which the lookup endpoint is addressed by. */
+  entityName: string;
+  form: any;
 }
 
 function TableReferenceField({
@@ -192,10 +202,23 @@ function TableReferenceField({
   isDisabled,
   error,
   parentContext,
+  entityName,
+  form,
 }: TableReferenceFieldProps) {
   const referencedTableName = field.ref_table_name || null;
   const idField = field.ref_id_field || "id";
-  const labelField = field.ref_label_field || "name";
+
+  // The columns of this record that narrow the choices: a state is offered only
+  // from the country already chosen, a city from its state. Their current values
+  // go to the lookup endpoint, which does the narrowing — the list that comes
+  // back is already the right one.
+  const narrowedBy: string[] = (field as any).narrowed_by ?? [];
+  const formValues = form.useStore((state: any) => state.values) as Record<string, unknown>;
+  const controlValues: Record<string, string> = {};
+  for (const control of narrowedBy) {
+    const value = formValues?.[control];
+    if (value !== undefined && value !== null && value !== "") controlValues[control] = String(value);
+  }
 
   // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
   const filterValue =
@@ -216,19 +239,49 @@ function TableReferenceField({
     enabled: !!customEndpoint,
   });
 
-  // Standard business table endpoint
-  const { data: records, isLoading: isLoadingRecords } = useEntities<any>(
-    referencedTableName || "",
-    undefined,
-    {
-      enabled: !!referencedTableName && !customEndpoint,
-    }
-  );
+  // A business table: the lookup endpoint returns every choice (a dropdown is
+  // not paged, and a list page of 25 offered a fraction of them), narrowed by
+  // the dictionary's rule for this column.
+  const { data: records, isLoading: isLoadingRecords } = useQuery({
+    queryKey: ["lookup", entityName, field.column_name, controlValues],
+    queryFn: () =>
+      apiClient.get<{ data: any[] }>(
+        `/bus/${entityName}/lookup/${field.column_name}`,
+        controlValues
+      ),
+    enabled: !!referencedTableName && !customEndpoint,
+  });
 
   const isLoading = isLoadingCustom || isLoadingRecords;
   const tableRecords: any[] = customEndpoint
     ? ((customData as any)?.data ?? [])
-    : (records?.data ?? []);
+    : ((records as any)?.data ?? []);
+
+  // What a choice is called: the dictionary's identifier columns, joined — the
+  // code and the name where an entity has both ("US · United States").
+  const labelFields: string[] = (field as any).ref_label_fields?.length
+    ? (field as any).ref_label_fields
+    : field.ref_label_field
+      ? [field.ref_label_field]
+      : ["name"];
+
+  // When a control changes, a choice that no longer belongs to it is cleared
+  // rather than left selected: change the country and the state chosen for the
+  // old one would otherwise stay on the record, and the server would refuse it.
+  const currentChoice = fieldApi.state.value;
+  const stillOffered = tableRecords.some((record) => String(record[idField]) === String(currentChoice));
+  useEffect(() => {
+    if (
+      narrowedBy.length > 0 &&
+      !isLoading &&
+      currentChoice !== undefined &&
+      currentChoice !== null &&
+      currentChoice !== "" &&
+      !stillOffered
+    ) {
+      fieldApi.handleChange("");
+    }
+  }, [narrowedBy.length, isLoading, currentChoice, stillOffered, fieldApi]);
 
   if (!referencedTableName && !customEndpoint) {
     return (
@@ -269,10 +322,7 @@ function TableReferenceField({
       <option value="">Select {field.name}...</option>
       {tableRecords.map((record: any) => {
         const optValue = record[idField];
-        const optLabel =
-          record[labelField] ||
-          `${record.first_name || ""} ${record.last_name || ""}`.trim() ||
-          String(optValue);
+        const optLabel = referenceLabel(record, labelFields, String(optValue));
         return (
           <option key={String(optValue)} value={String(optValue)}>
             {optLabel}
@@ -584,6 +634,8 @@ function FieldRenderer({
                 isDisabled={isReadOnly}
                 error={error}
                 parentContext={parentContext}
+                entityName={tableName}
+                form={form}
               />
               {errorBlock}
             </div>
@@ -843,6 +895,7 @@ export function DynamicForm({
   parentField,
   readOnlyFields = [],
   parentContext,
+  formId,
 }: DynamicFormProps) {
   const { t } = useTranslations();
   const {
@@ -1066,7 +1119,7 @@ export function DynamicForm({
   return (
     <form.Provider>
       {onChange && <FormChangeNotifier form={form} onChange={onChange} />}
-      <form onSubmit={handleFormSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleFormSubmit} className="space-y-6">
         {/* Form summary bar */}
         <HStack align="center" justify="between">
           <HStack align="center" gap={3}>
