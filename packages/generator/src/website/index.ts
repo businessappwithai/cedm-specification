@@ -54,6 +54,8 @@ export interface SiteContext {
   domainName?: string;
   domainCapabilities?: string[];
   capabilities?: SiteCapability[];
+  /** The entities the shared foundation supplies; everything else is this domain's own. */
+  commonEntities?: ReadonlySet<string>;
   /** Paths under `static/` that exist, e.g. `img/entities/customer-list.jpg`. */
   shots: ReadonlySet<string>;
   /** Rule names that exist in the running application, by display name. */
@@ -565,7 +567,7 @@ ${site.capabilities
         site.domainCapabilities?.length
           ? ` covers ${site.domainCapabilities.map(humanize).join(", ")}.`
           : "."
-      } ${site.description}\n`
+      }${/built on the CEDM common foundation/.test(site.description) ? "" : ` ${site.description}`} It is built on the CEDM common foundation, so the parties, places, currencies and units it works with mean the same here as in every other CEDM application.\n`
     : `## The domain it serves\n\n${site.description}\n`;
 
   return `${frontMatter({
@@ -585,7 +587,7 @@ ${capabilityBlock}
 
 ${keyRecords(ctx)}
 
-${processBlock(ctx)}## What is inside
+${journeys(ctx)}${processBlock(ctx)}## What is inside
 
 ${site.title} holds **${business.length} business entities**${reference ? ` and **${reference} lists of values**` : ""}, organised into ${categories.length} categories:
 
@@ -608,7 +610,24 @@ It carries ${model.workflows.length} record lifecycles, ${model.rules.length} bu
 `;
 }
 
-/** The records most connected to the rest, with one sentence each. */
+/** A table of records with one sentence each. */
+function recordTable(ctx: Ctx, entities: Entity[]): string {
+  if (entities.length === 0) return "";
+  return `| Record | What it is |\n| --- | --- |\n${entities
+    .map(
+      (entity) =>
+        `| [${ctx.windowOf(entity.name)}](${entityPath(ctx, entity.name)}) | ${cell(firstSentence(entity.description))} |`
+    )
+    .join("\n")}\n`;
+}
+
+/**
+ * The records the application is about, domain-specific ones first.
+ *
+ * Every application imports the same foundation (parties, places, currencies,
+ * units); what makes this one *this* application is what it adds. Ranking by
+ * connections alone put the foundation first in every home page.
+ */
 function keyRecords(ctx: Ctx): string {
   const degree = new Map<string, number>();
   for (const relationship of ctx.model.relationships) {
@@ -616,17 +635,49 @@ function keyRecords(ctx: Ctx): string {
       degree.set(name, (degree.get(name) ?? 0) + 1);
     }
   }
-  const candidates = ctx.model.entities
+  const common = ctx.site.commonEntities ?? new Set<string>();
+  const business = ctx.model.entities
     .filter((entity) => categoryOf(ctx.model, entity.name) !== REFERENCE_DATA && !entity.parentEntity)
-    .sort((a, b) => (degree.get(b.name) ?? 0) - (degree.get(a.name) ?? 0))
-    .slice(0, 12);
-  if (candidates.length === 0) return "";
-  return `| Record | What it is |\n| --- | --- |\n${candidates
-    .map(
-      (entity) =>
-        `| [${ctx.windowOf(entity.name)}](${entityPath(ctx, entity.name)}) | ${cell(firstSentence(entity.description))} |`
-    )
-    .join("\n")}\n`;
+    .sort((a, b) => (degree.get(b.name) ?? 0) - (degree.get(a.name) ?? 0));
+  const own = business.filter((entity) => !common.has(entity.name));
+  const shared = business.filter((entity) => common.has(entity.name)).slice(0, 8);
+
+  const parts: string[] = [];
+  if (own.length > 0) {
+    parts.push(`### Records specific to this application\n\n${recordTable(ctx, own.slice(0, 30))}`);
+    if (own.length > 30) parts.push(`…and ${own.length - 30} more, listed in the menu under Entities.\n`);
+  }
+  if (shared.length > 0) {
+    parts.push(
+      `### Shared foundation records\n\nEvery CEDM application starts from the same foundation of parties, places, currencies and units, so these records mean the same here as in any other application.\n\n${recordTable(ctx, shared)}`
+    );
+  }
+  return parts.join("\n");
+}
+
+/** How the main records move, in a sentence each. */
+function journeys(ctx: Ctx): string {
+  const common = ctx.site.commonEntities ?? new Set<string>();
+  const machines = ctx.model.workflows
+    .filter((machine) => !common.has(machine.entity))
+    .slice(0, 8);
+  if (machines.length === 0) return "";
+  return `## How the main records move
+
+${machines
+  .map((machine) => {
+    const window = ctx.windowOf(machine.entity);
+    const path = [machine.initial, ...machine.states.map((state) => state.name).filter((name) => name !== machine.initial)]
+      .filter(Boolean)
+      .map((state) => stateLabel(state as string))
+      .join(" → ");
+    return `- A **${window}** goes ${path}.`;
+  })
+  .join("\n")}
+
+Each is enforced by the application on every change; see [Record lifecycles](/administration/lifecycles/).
+
+`;
 }
 
 /** The automated processes, as the business would describe them. */

@@ -110,6 +110,9 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run generate:tanstack` | Same, with `--stack tanstack-astryx-loco` pinned (`--db postgres` \| `neon`) |
 | `bun run eml` | The `eml` language CLI (`validate`, `info`, `sagas`, `generate`) |
 | `appwithai convert <model.mmd>` | Convert an EML model to the YAML model language (see "The YAML model language") |
+| `bash scripts/website/build-all.sh [domain…]` | Build the documentation website of each application: start it, capture its screens, write `website/<domain>/`, stop it (see the website note under CEDM) |
+| `bun scripts/build-website.ts <domain>\|--all` | Rewrite `website/<domain>/docs/` from the model, keeping `static/` |
+| `python3 scripts/restore-generation-noise.py` | After regenerating, restore the generated files whose only change is a timestamp |
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@appwithai/web`) |
 | `bun run test:generator` | Generator unit tests (Vitest, via `@appwithai/generator`) |
@@ -1277,6 +1280,35 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   extend. `$entity` serves those entities. `removeStaleEntityRoutes` deletes a
   marked (`// Generated thin wrapper`) file for an entity the model no longer has;
   `--force` overwrote but never deleted. Gate: `reserved-route-slugs.test.ts`.
+- **Every application has a documentation website: `website/<domain>/`.** A
+  Docusaurus 3 project written from the compiled model by
+  `packages/generator/src/website/` (`renderSite`) and
+  `scripts/build-website.ts`: a home page that explains the application and its
+  domain, one page per business entity (screens, steps, every field by its
+  label, relationships, lifecycle, rules, access), one per list of values, and an
+  Administration section (record lifecycles, business rules per entity,
+  processes, roles and access, reports, the dictionary). `website/application-dictionary/`
+  is the common manual — written by hand, with screens taken from the `common`
+  application — and every application site links to it with `pathname:///`
+  links, so its page slugs (`/rules`, `/tables`, …) are a contract with
+  `ADMIN_PAGES`. Never edit a `website/<domain>/docs/` page: change the
+  generator and rebuild. A page links a screenshot only if the file exists
+  (Docusaurus fails the build on a missing image); the names are in `SHOT`.
+  Screenshots come from `scripts/website/capture.ts` through gstack's `$B` browser
+  (`bash scripts/website/build-all.sh <domain>` runs one application end to end and
+  leaves `static/.captured`; `capture-dictionary.ts` takes the shared manual's).
+  **Each site pins `webpack` to 5.99.9** (`overrides`/`resolutions`): Docusaurus 3.9
+  validates ProgressPlugin options against the schema it shipped with and a newer
+  webpack stops the build before it compiles. Docs say what the screens do *today*:
+  `application-dictionary/docs/what-is-applied.md` lists which dictionary settings
+  change a screen and which are only recorded — update it when one starts to apply.
+- **Writing the manual found three defects in generated screens, which is the
+  point of documenting from a running application.** The Table/Window/Tab child
+  lists passed `tableId`/`windowId`/`tabId`, which `/api/sys` ignores (it accepts
+  `table_id`, `window_id`, `tab_id` and `filter.<column>`), so a table's Columns tab
+  listed every column in the dictionary; the Audit Log named entities by table;
+  and a banner mentioned a CRM app. An unknown `/api/sys` query key is skipped on
+  purpose (callers append cache-busters), so a misspelt filter fails *open*.
 - **Corpus walkers skip `generated-applications/`** (as they skip
   `generated-projects/`): each holds a `model/model.eml.yaml`.
 - **The library had defects the schema found.** 721 invariants and help entries
@@ -2100,6 +2132,7 @@ to see the result.
 | **The language definition** (`appwithai-language.json`) | `language/grammar/appwithai.ebnf`, `language/spec/*.md`, both checkers (`language/checker.ts`, `language/cli/src/validator.ts`), `bun run build:language-tools` + `bun run check:language-bundle`, `bun run wasm` parity, an example model |
 | **The CLI** (`packages/generator/src/cli/generate.ts`, `crates/appwithai-gen/src/cli.rs`) | both CLIs' flags and help text, `language/cli`, `docs/DEVELOPMENT.md`, the Quick Reference table here; rebuild (`bun --filter @appwithai/core build && bun --filter @appwithai/generator build`) before trusting the output |
 | **The CEDM library** (`domain/entities/*.yaml`) | `domain/entities/index.yaml`, `domains/application-catalog.yaml` and `bun scripts/build-domain-applications.ts` (`--check`), regenerate the affected `generated-applications/<domain>/`, `tools/validate.py` (edit by text insertion — a YAML round trip rewraps the file) |
+| **A generated screen's behaviour, labels or a dictionary window** | the manual that describes it: `packages/generator/src/website/index.ts` for the per-application pages, `website/application-dictionary/docs/` for the shared one (and `what-is-applied.md`), then re-capture (`bash scripts/website/build-all.sh <domain>`). A screenshot in the manual is the check that the screen says what the text says |
 | **Anything a generated app does at run time** | `docs/qa/` entry with evidence, and `bash scripts/qa/qa-loop.sh <domain>` for at least one domain with a different shape from `sales` |
 
 Then, always: `bun run type-check`, `bun run type-check:language`,

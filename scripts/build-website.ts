@@ -107,6 +107,7 @@ function build(domain: string): { pages: number } {
     description: model.description ?? document.description ?? `${document.name} application`,
     domainName: entry?.name,
     domainCapabilities: entry?.capabilities,
+    commonEntities: new Set<string>(applicationCatalog?.catalog?.common?.entities ?? []),
     capabilities,
     shots: listShots(path.join(siteDir, "static")),
     version: document.version,
