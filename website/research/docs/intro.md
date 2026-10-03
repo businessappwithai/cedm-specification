@@ -10,6 +10,7 @@ description: "Research and Scientific Operations, built on the CEDM common found
 
 Research and Scientific Operations, built on the CEDM common foundation.
 
+![The Research and Scientific Operations dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
