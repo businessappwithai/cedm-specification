@@ -10,6 +10,7 @@ description: "Real Estate and Property Management, built on the CEDM common foun
 
 Real Estate and Property Management, built on the CEDM common foundation.
 
+![The Real Estate and Property Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
