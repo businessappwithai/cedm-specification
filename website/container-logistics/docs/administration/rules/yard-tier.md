@@ -12,6 +12,7 @@ Runs after a yard bay is changed; order 100. In **Business Rules** it is listed 
 
 - **When** “Status” == "BLOCKED" and “Status” != previous “Status”: **Starts a process** — “yardTierWorkflowsAfterUpdate: ExceptionRaised” (starts the process “Yard tier exception raised”).
 
+![The Yard tier workflows after update rule in the editor](/img/rules/yard-tier-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

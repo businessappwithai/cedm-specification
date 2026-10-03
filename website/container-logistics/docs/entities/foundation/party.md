@@ -90,6 +90,8 @@ stateDiagram-v2
 | Inactive | Retired | Retire |
 | Blocked | Retired | Retire |
 
+![A Party record with its lifecycle bar](/img/entities/party-record.jpg)
+
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).
 

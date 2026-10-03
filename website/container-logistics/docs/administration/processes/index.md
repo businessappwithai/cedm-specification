@@ -8,6 +8,7 @@ description: "The automated multi-step processes this application runs."
 
 A process is a sequence of steps the application runs for you: create a task, update a record, call a service. A business rule usually starts it; you can also run one by hand from the Workflow Designer. Every run is logged step by step in the Workflow Monitor. This application has **9** processes.
 
+![The Workflow Designer](/img/admin/workflow-definitions.jpg)
 
 ## Party exception raised {#party-exception-raised}
 
@@ -23,6 +24,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Party exception raised process in the Workflow Designer](/img/processes/party-exception-raised.jpg)
 
 ## Exchange rate follow up required {#exchange-rate-follow-up-required}
 
@@ -38,6 +40,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Exchange rate follow up required process in the Workflow Designer](/img/processes/exchange-rate-follow-up-required.jpg)
 
 ## Container movement exception raised {#container-movement-exception-raised}
 
@@ -53,6 +56,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Container movement exception raised process in the Workflow Designer](/img/processes/container-movement-exception-raised.jpg)
 
 ## Container movement follow up required {#container-movement-follow-up-required}
 
@@ -68,6 +72,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Container movement follow up required process in the Workflow Designer](/img/processes/container-movement-follow-up-required.jpg)
 
 ## Container movement completion confirmed {#container-movement-completion-confirmed}
 
@@ -83,6 +88,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Container movement completion confirmed process in the Workflow Designer](/img/processes/container-movement-completion-confirmed.jpg)
 
 ## Yard block exception raised {#yard-block-exception-raised}
 
@@ -98,6 +104,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Yard block exception raised process in the Workflow Designer](/img/processes/yard-block-exception-raised.jpg)
 
 ## Yard bay exception raised {#yard-bay-exception-raised}
 
@@ -113,6 +120,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Yard bay exception raised process in the Workflow Designer](/img/processes/yard-bay-exception-raised.jpg)
 
 ## Yard tier exception raised {#yard-tier-exception-raised}
 
@@ -128,6 +136,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Yard tier exception raised process in the Workflow Designer](/img/processes/yard-tier-exception-raised.jpg)
 
 ## Yard slot exception raised {#yard-slot-exception-raised}
 
@@ -143,4 +152,5 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Yard slot exception raised process in the Workflow Designer](/img/processes/yard-slot-exception-raised.jpg)
 

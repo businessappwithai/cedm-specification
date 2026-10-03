@@ -12,6 +12,7 @@ Runs before a container movement is created; order 100. In **Business Rules** it
 
 - **When** “Status” == "COMPLETED" and “Completed At” is empty: **Refuses the save** — “Record completed at when the container movement is completed.”.
 
+![The Container movement invariants before create rule in the editor](/img/rules/container-movement-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a container movement is changed; order 100. In **Business Rules** it
 
 - **When** “Status” == "COMPLETED" and “Completed At” is empty: **Refuses the save** — “Record completed at when the container movement is completed.”.
 
+![The Container movement invariants before update rule in the editor](/img/rules/container-movement-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -32,6 +34,7 @@ Runs after a container movement is changed; order 100. In **Business Rules** it 
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “containerMovementWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Container movement follow up required”).
 - **When** “Status” == "COMPLETED" and “Status” != previous “Status”: **Starts a process** — “containerMovementWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Container movement completion confirmed”).
 
+![The Container movement workflows after update rule in the editor](/img/rules/container-movement-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

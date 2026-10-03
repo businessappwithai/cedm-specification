@@ -13,6 +13,8 @@ Represents the facility-level operational boundary for container storage and han
 
 Open **Yard** from the menu or from its card on the dashboard.
 
+![The Yard list](/img/entities/yard-list.jpg)
+
 The list shows Code, Name, Status, Location, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Code, Name, Status, Location, with the most recently changed reco
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Yard form](/img/entities/yard-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Code**, **Name**, **Status**, **Location**.
@@ -73,6 +77,8 @@ stateDiagram-v2
 | Active | Closed | Close |
 | Active | Suspended | Suspend |
 | Suspended | Active | Resume |
+
+![A Yard record with its lifecycle bar](/img/entities/yard-record.jpg)
 
 ## Who may use it
 
